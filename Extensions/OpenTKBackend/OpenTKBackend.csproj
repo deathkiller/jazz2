@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2CC35924-68BF-4099-A809-AD2C3B219FF6}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OpenTKBackend</RootNamespace>
+    <AssemblyName>OpenTKBackend</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="OpenTK, Version=1.1.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\AdamsLair.OpenTK.1.1.8\lib\net20\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CorePlugin.cs" />
+    <Compile Include="Drawing\ExtMethodsColorDataElementType.cs" />
+    <Compile Include="Drawing\ExtMethodsColorDataLayout.cs" />
+    <Compile Include="Drawing\GraphicsBackend.cs" />
+    <Compile Include="Drawing\GraphicsModeComparer.cs" />
+    <Compile Include="Drawing\NativeRenderTarget.cs" />
+    <Compile Include="Drawing\NativeShaderPart.cs" />
+    <Compile Include="Drawing\NativeShaderProgram.cs" />
+    <Compile Include="Drawing\NativeTexture.cs" />
+    <Compile Include="Drawing\NativeWindow.cs" />
+    <Compile Include="Input\GameWindowKeyboardInputSource.cs" />
+    <Compile Include="Input\GameWindowMouseInputSource.cs" />
+    <Compile Include="Input\GlobalGamepadInputSource.cs" />
+    <Compile Include="Input\GlobalJoystickInputSource.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sound\AudioBackend.cs" />
+    <Compile Include="Sound\AudioLibraryLoader.cs" />
+    <Compile Include="Sound\NativeAudioBuffer.cs" />
+    <Compile Include="Sound\NativeAudioSource.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Jazz2\Jazz2.csproj">
+      <Project>{7cc64746-8ba3-49ed-affc-ae4308ac1fa4}</Project>
+      <Name>Jazz2</Name>
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy /Y "$(TargetPath)" "$(SolutionDir)Jazz2\Bin\$(ConfigurationName)\Extensions\$(TargetName).core$(TargetExt)"</PostBuildEvent>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{74E972A2-711F-4A9F-8D0B-AAEF2F02DD48}</ProjectGuid>
+    <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Jazz2.Android</RootNamespace>
+    <AssemblyName>Jazz2.Android</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <AndroidApplication>True</AndroidApplication>
+    <AndroidResgenFile>Resources\Resource.Designer.cs</AndroidResgenFile>
+    <AndroidUseLatestPlatformSdk>False</AndroidUseLatestPlatformSdk>
+    <TargetFrameworkVersion>v7.1</TargetFrameworkVersion>
+    <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET45</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AndroidUseSharedRuntime>True</AndroidUseSharedRuntime>
+    <AndroidLinkMode>None</AndroidLinkMode>
+    <EmbedAssembliesIntoApk>False</EmbedAssembliesIntoApk>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
+    <AndroidSupportedAbis />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>PdbOnly</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>True</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;NET45</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AndroidUseSharedRuntime>False</AndroidUseSharedRuntime>
+    <AndroidLinkMode>Full</AndroidLinkMode>
+    <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AotAssemblies>false</AotAssemblies>
+    <EnableLLVM>false</EnableLLVM>
+    <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
+    <EnableProguard>true</EnableProguard>
+    <AndroidSupportedAbis />
+    <BundleAssemblies>false</BundleAssemblies>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Mono.Android" />
+    <Reference Include="OpenTK-1.0" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App.cs" />
+    <Compile Include="Backend\Drawing\BitmapImageCodec.cs" />
+    <Compile Include="Backend\Sound\AudioBackend.cs" />
+    <Compile Include="Backend\Sound\NativeAudioBuffer.cs" />
+    <Compile Include="Backend\Sound\NativeAudioSource.cs" />
+    <Compile Include="GLView.Touch.cs">
+      <SubType>Code</SubType>
+      <DependentUpon>GLView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TouchExtensions\Hud.Touch.cs" />
+    <Compile Include="TouchExtensions\InGameMenu.Touch.cs" />
+    <Compile Include="MainActivity.cs" />
+    <Compile Include="GLView.cs" />
+    <Compile Include="Backend\Drawing\OpenTK\ExtMethodsColorDataElementType.cs" />
+    <Compile Include="Backend\Drawing\OpenTK\ExtMethodsColorDataLayout.cs" />
+    <Compile Include="Backend\Drawing\OpenTK\GraphicsBackend.cs" />
+    <Compile Include="Backend\Drawing\OpenTK\GraphicsModeComparer.cs" />
+    <Compile Include="Backend\Drawing\OpenTK\NativeRenderTarget.cs" />
+    <Compile Include="Backend\Drawing\OpenTK\NativeShaderPart.cs" />
+    <Compile Include="Backend\Drawing\OpenTK\NativeShaderProgram.cs" />
+    <Compile Include="Backend\Drawing\OpenTK\NativeTexture.cs" />
+    <Compile Include="Backend\Drawing\OpenTK\NativeWindow.cs" />
+    <Compile Include="TouchExtensions\MainMenu.Touch.cs" />
+    <Compile Include="Resources\Resource.Designer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Backend\System\NativeFileSystem.cs" />
+    <Compile Include="Backend\System\SystemBackend.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidNativeLibrary Include="Libs\armeabi-v7a\libopenmpt.so" />
+    <AndroidNativeLibrary Include="Libs\armeabi-v7a\libunmo3.so" />
+    <AndroidNativeLibrary Include="Libs\x86\libopenmpt.so" />
+    <AndroidNativeLibrary Include="Libs\x86\libunmo3.so" />
+    <None Include="Resources\AboutResources.txt" />
+    <None Include="Assets\AboutAssets.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\values\Strings.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\AndroidManifest.xml">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\values\Styles.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\drawable\" />
+    <Folder Include="Resources\layout\" />
+    <Folder Include="Shaders\" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\mipmap-hdpi\ic_launcher.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\mipmap-mdpi\ic_launcher.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\mipmap-xhdpi\ic_launcher.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\mipmap-xxhdpi\ic_launcher.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher.png" />
+  </ItemGroup>
+  <Import Project="..\Jazz2.Core\Jazz2.Core.projitems" Label="Shared" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+     Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
