@@ -18,7 +18,7 @@
 
     "Sounds": {
         "Fire": {
-            "Paths": [ "weapon/bullet_pepper.wav" ]
+            "Paths": [ "Weapon/bullet_pepper.wav" ]
         }
     }
 }

@@ -5,7 +5,7 @@
 
     "Animations": {
         "Idle": {
-            "Path": "pickup/airboard.png",
+            "Path": "Pickup/airboard.png",
             "FrameRate": 6,
             "States": [ 0 ]
         }

@@ -5,7 +5,7 @@
 
     "Animations": {
         "MenuCarrot": {
-            "Path": "pickup/carrot_invincibility.png",
+            "Path": "Pickup/carrot_invincibility.png",
             "FrameRate": 7
         },
         "MenuLineTop": {

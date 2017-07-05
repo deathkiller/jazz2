@@ -5,7 +5,7 @@
 
     "Animations": {
         "ENEMY_TWEEDLE_IDLE": {
-            "Path": "tweedle/idle.png",
+            "Path": "Tweedle/idle.png",
             "States": [ 0 ]
         }
     }

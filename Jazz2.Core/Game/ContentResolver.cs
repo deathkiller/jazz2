@@ -310,8 +310,7 @@ namespace Jazz2.Game
 
                 string filenameNormal = pathAbsolute.Replace(".png", ".n.png");
                 if (FileOp.Exists(filenameNormal)) {
-                    pixelData = imageCodec.Read(
-                        DualityApp.SystemBackend.FileSystem.OpenFile(filenameNormal, FileAccessMode.Read));
+                    pixelData = imageCodec.Read(FileOp.Open(filenameNormal, FileAccessMode.Read));
                     resource.TextureNormal = new Texture(new Pixmap(pixelData), TextureSizeMode.NonPowerOfTwo);
                 } else {
                     resource.TextureNormal = defaultNormal;

@@ -5,7 +5,7 @@
 
     "Animations": {
         "ENEMY_SPARKS_IDLE": {
-            "Path": "sparks/idle.png",
+            "Path": "Sparks/idle.png",
             "States": [ 0 ]
         }
     }

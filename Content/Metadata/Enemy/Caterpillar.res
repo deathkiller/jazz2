@@ -5,7 +5,7 @@
 
     "Animations": {
         "ENEMY_CATERPILLAR_IDLE": {
-            "Path": "caterpillar/idle.png",
+            "Path": "Caterpillar/idle.png",
             "States": [ 0 ]
         }
     }

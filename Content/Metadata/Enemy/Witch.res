@@ -5,17 +5,17 @@
 
     "Animations": {
         "IDLE": {
-            "Path": "witch/idle.png",
+            "Path": "Witch/idle.png",
             "FrameRate": 8,
             "States": [ 0 ]
         },
         "ATTACK": {
-            "Path": "witch/attack.png",
+            "Path": "Witch/attack.png",
             "FrameRate": 8,
             "States": [ 1325400065 ]
         },
         "DIE": {
-            "Path": "witch/die.png",
+            "Path": "Witch/die.png",
             "FrameRate": 8,
             "States": [ 1073741839 ]
         }

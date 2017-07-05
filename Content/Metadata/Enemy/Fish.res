@@ -5,7 +5,7 @@
 
     "Animations": {
         "ENEMY_FISH_IDLE": {
-            "Path": "fish/idle.png",
+            "Path": "Fish/idle.png",
             "FrameRate": 8,
             "States": [ 0 ]
         }

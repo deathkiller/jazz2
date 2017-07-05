@@ -522,9 +522,11 @@ namespace Jazz2.Actors
                 wasFirePressed = false;
                 // ToDo: Handle crouch, vine
                 // ToDo: (... & 0x7) is only quickfix
-                if (!inWater && !isAirboard && !isLifting) {
+                if (!inWater && !isAirboard && !isLifting && (currentAnimationState & AnimState.Run) == 0) {
                     SetTransition((currentAnimationState & (AnimState)0x00000007) | AnimState.TransitionShootToIdle, true);
                 }
+
+                //weaponCooldown = 0f;
             }
 
             // ToDo: Debug keys only
@@ -833,7 +835,7 @@ namespace Jazz2.Actors
             // Buttstomp
             if (currentSpecialMove == SpecialMoveType.Buttstomp && (canJump || suspendType != SuspendType.None)) {
                 EndDamagingMove();
-                if (suspendType == SuspendType.None) {
+                if (suspendType == SuspendType.None && !isSpring) {
                     SetTransition(AnimState.TransitionButtstompEnd, false, delegate {
                         controllable = true;
                     });
@@ -1291,7 +1293,12 @@ namespace Jazz2.Actors
                                 removeSpecialMove = true;
                                 speedY *= -0.6f;
                                 canJump = true;
+                            } else if (currentSpecialMove != SpecialMoveType.None && collider.Health >= 0) {
+                                removeSpecialMove = true;
+                                externalForceX = 0f;
+                                externalForceY = 0f;
                             }
+                            
                         } else {
                             if (collider.CanHurtPlayer) {
                                 TakeDamage(4 * (Transform.Pos.X > collider.Transform.Pos.X ? 1 : -1));
@@ -1564,6 +1571,9 @@ namespace Jazz2.Actors
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
             controllable = false;
             isAttachedToPole = true;
+
+            //EndDamagingMove();
+            SetAnimation(currentAnimationState & ~(AnimState.Uppercut /*| AnimState.Sidekick*/ | AnimState.Buttstomp));
 
             AnimState poleAnim = (horizontal ? AnimState.TransitionPoleHSlow : AnimState.TransitionPoleVSlow);
             SetPlayerTransition(poleAnim, false, true, SpecialMoveType.None, delegate {

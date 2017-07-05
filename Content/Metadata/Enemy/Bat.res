@@ -5,29 +5,29 @@
 
     "Animations": {
         "ENEMY_BAT_IDLE": {
-            "Path": "bat/resting.png",
+            "Path": "Bat/resting.png",
             "States": [ 0 ]
         },
         "ENEMY_BAT_WALK": {
-            "Path": "bat/idle.png",
+            "Path": "Bat/idle.png",
             "States": [ 1 ]
         },
         "ENEMY_BAT_DEATH": {
-            "Path": "bat/roost.png",
+            "Path": "Bat/roost.png",
             "States": [ 1073741839 ]
         },
         "ENEMY_BAT_TAKEOFF": {
-            "Path": "bat/takeoff_1.png",
+            "Path": "Bat/takeoff_1.png",
             "FrameRate": 10,
             "States": [ 1073741824 ]
         },
         "ENEMY_BAT_TAKEOFF_END": {
-            "Path": "bat/takeoff_2.png",
+            "Path": "Bat/takeoff_2.png",
             "FrameRate": 20,
             "States": [ 1073741825 ]
         },
         "ENEMY_BAT_ROOST": {
-            "Path": "bat/roost.png",
+            "Path": "Bat/roost.png",
             "FrameRate": 22,
             "States": [ 1073741826 ]
         }
@@ -35,7 +35,7 @@
 
     "Sounds": {
         "ENEMY_BAT_NOISE": {
-            "Paths": [ "bat/noise.wav" ]
+            "Paths": [ "Bat/noise.wav" ]
         }
     }
 }

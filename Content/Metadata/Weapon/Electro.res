@@ -5,7 +5,7 @@
 
     "Animations": {
         "Bullet": {
-            "Path": "weapon/bullet_maybe_electro.png",
+            "Path": "Weapon/bullet_maybe_electro.png",
             "States": [ 0 ],
             "ShaderColor": [ 255, 255, 255, 230 ],
             "__Shader": "Colorize",
@@ -15,7 +15,7 @@
 
     "Sounds": {
         "Fire": {
-            "Paths": [ "weapon/bullet_electro_2.wav", "weapon/bullet_electro_3.wav" ]
+            "Paths": [ "Weapon/bullet_electro_2.wav", "Weapon/bullet_electro_3.wav" ]
         }
     }
 }

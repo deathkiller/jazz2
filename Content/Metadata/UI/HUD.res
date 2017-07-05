@@ -5,38 +5,38 @@
 
     "Animations": {
         "WeaponBlasterJazz": {
-            "Path": "pickup/fast_fire_jazz.png"
+            "Path": "Pickup/fast_fire_jazz.png"
         },
         "WeaponBlasterSpaz": {
-            "Path": "pickup/fast_fire_spaz.png"
+            "Path": "Pickup/fast_fire_spaz.png"
         },
         "WeaponBlasterLori": {
-            "Path": "pickup/fast_fire_lori.png"
+            "Path": "Pickup/fast_fire_lori.png"
         },
         "WeaponBouncer": {
-            "Path": "pickup/ammo_bouncer.png"
+            "Path": "Pickup/ammo_bouncer.png"
         },
         "WeaponFreezer": {
-            "Path": "pickup/ammo_freezer.png",
+            "Path": "Pickup/ammo_freezer.png",
             "FrameRate": 8
         },
         "WeaponSeeker": {
-            "Path": "pickup/ammo_seeker.png"
+            "Path": "Pickup/ammo_seeker.png"
         },
         "WeaponRF": {
-            "Path": "pickup/ammo_rf.png"
+            "Path": "Pickup/ammo_rf.png"
         },
         "WeaponToaster": {
-            "Path": "pickup/ammo_toaster.png"
+            "Path": "Pickup/ammo_toaster.png"
         },
         "WeaponTNT": {
-            "Path": "object/tnt.png"
+            "Path": "Object/tnt.png"
         },
         "WeaponPepper": {
-            "Path": "pickup/ammo_pepper.png"
+            "Path": "Pickup/ammo_pepper.png"
         },
         "WeaponElectro": {
-            "Path": "pickup/ammo_electro.png"
+            "Path": "Pickup/ammo_electro.png"
         },
         "WeaponPowerupBlasterJazz": {
             "Path": "UI/blaster_upgraded_jazz.png"
@@ -48,28 +48,28 @@
             "Path": "UI/blaster_upgraded_lori.png"
         },
         "WeaponPowerupBouncer": {
-            "Path": "pickup/ammo_bouncer_upgraded.png"
+            "Path": "Pickup/ammo_bouncer_upgraded.png"
         },
         "WeaponPowerupFreezer": {
-            "Path": "pickup/ammo_freezer_upgraded.png"
+            "Path": "Pickup/ammo_freezer_upgraded.png"
         },
         "WeaponPowerupSeeker": {
-            "Path": "pickup/ammo_seeker_upgraded.png"
+            "Path": "Pickup/ammo_seeker_upgraded.png"
         },
         "WeaponPowerupRF": {
-            "Path": "pickup/ammo_rf_upgraded.png"
+            "Path": "Pickup/ammo_rf_upgraded.png"
         },
         "WeaponPowerupToaster": {
-            "Path": "pickup/ammo_toaster_upgraded.png"
+            "Path": "Pickup/ammo_toaster_upgraded.png"
         },
         "WeaponPowerupTNT": {
-            "Path": "object/tnt.png"
+            "Path": "Object/tnt.png"
         },
         "WeaponPowerupPepper": {
-            "Path": "pickup/ammo_pepper_upgraded.png"
+            "Path": "Pickup/ammo_pepper_upgraded.png"
         },
         "WeaponPowerupElectro": {
-            "Path": "pickup/ammo_electro_upgraded.png"
+            "Path": "Pickup/ammo_electro_upgraded.png"
         },
 
         "CharacterJazz": {
@@ -86,11 +86,11 @@
         },
 
         "PickupGem": {
-            "Path": "pickup/gem.png",
+            "Path": "Pickup/gem.png",
             "Shader": "Colorize"
         },
         "PickupCoin": {
-            "Path": "pickup/coin_silver.png"
+            "Path": "Pickup/coin_silver.png"
         }
     }
 }

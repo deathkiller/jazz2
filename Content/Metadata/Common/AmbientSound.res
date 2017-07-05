@@ -5,13 +5,13 @@
 
     "Sounds": {
         "AmbientWind": {
-            "Paths": [ "common/wind.wav" ]
+            "Paths": [ "Common/wind.wav" ]
         },
         "AmbientFire": {
-            "Paths": [ "common/ambient_fire.wav" ]
+            "Paths": [ "Common/ambient_fire.wav" ]
         },
         "AmbientScienceNoise": {
-            "Paths": [ "common/science_noise.wav" ]
+            "Paths": [ "Common/science_noise.wav" ]
         }
     }
 }

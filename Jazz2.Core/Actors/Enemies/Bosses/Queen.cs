@@ -32,6 +32,7 @@ namespace Jazz2.Actors.Bosses
 
             endText = details.Params[1];
 
+            canHurtPlayer = false;
             isInvulnerable = true;
             canBeFrozen = false;
             maxHealth = health = int.MaxValue;
@@ -219,7 +220,7 @@ namespace Jazz2.Actors.Bosses
 
                 case StateScreaming: {
                     foreach (Player player in api.Players) {
-                        player.AddExternalForce(-1.53f, 0f);
+                        player.AddExternalForce(-1.51f, 0f);
                     }
                     break;
                 }
