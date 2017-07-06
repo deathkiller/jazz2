@@ -227,6 +227,12 @@
             "Path": "Lori/lift_jump_light.png",
             "States": [ 1073741860 ]
         },
+        "PLAYER_LORI_LEDGE": {
+            "Path": "Lori/ledge.png",
+            "FrameRate": 5,
+            "FrameOffset": 1,
+            "States": [ 1073741861 ]
+        },
         "PLAYER_LORI_AIRBOARD": {
             "Path": "Lori/airboard.png",
             "FrameRate": 6,

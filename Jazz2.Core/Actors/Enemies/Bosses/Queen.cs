@@ -95,7 +95,7 @@ namespace Jazz2.Actors.Bosses
                     // Waiting for player to enter the arena
                     Vector3 pos = Transform.Pos;
                     Hitbox hitbox = new Hitbox(pos.X - 300, pos.Y - 120, pos.X + 60, pos.Y + 120);
-                    List<ActorBase> colliders = api.FindCollisionActorsFast(ref hitbox, this);
+                    List<ActorBase> colliders = api.FindCollisionActorsFast(this, ref hitbox);
                     for (int i = 0; i < colliders.Count; i++) {
                         if (colliders[i] is Player) {
                             state = StateIdleToScream;
@@ -164,7 +164,7 @@ namespace Jazz2.Actors.Bosses
                                 Vector3 pos = Transform.Pos;
                                 Hitbox hitbox1 = new Hitbox(pos.X - 10, pos.Y + 24, pos.X - 6, pos.Y + 28);
                                 Hitbox hitbox2 = new Hitbox(pos.X + 6, pos.Y + 24, pos.X + 10, pos.Y + 28);
-                                if (!api.IsPositionEmpty(ref hitbox1, true, this) && api.IsPositionEmpty(ref hitbox2, true, this)) {
+                                if (!api.IsPositionEmpty(this, ref hitbox1, true) && api.IsPositionEmpty(this, ref hitbox2, true)) {
                                     lastHealth = health;
                                     isInvulnerable = false;
 
@@ -243,7 +243,7 @@ namespace Jazz2.Actors.Bosses
             }
 
             Hitbox tileCollisionHitbox = currentHitbox.Extend(4f).Extend(-speedX, -speedY, speedX, speedY);
-            int destroyedCount = tiles.CheckWeaponDestructible(ref tileCollisionHitbox, WeaponType.Blaster);
+            int destroyedCount = tiles.CheckWeaponDestructible(ref tileCollisionHitbox, WeaponType.Blaster, 1);
         }
 
         private class Brick : EnemyBase

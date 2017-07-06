@@ -2,7 +2,6 @@
 using System.Runtime.CompilerServices;
 using Duality;
 using Jazz2.Actors;
-using Jazz2.Actors.Solid;
 using Jazz2.Game.Events;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
@@ -98,17 +97,17 @@ namespace Jazz2.Game
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public List<ActorBase> FindCollisionActors(ActorBase me)
+        public List<ActorBase> FindCollisionActors(ActorBase self)
         {
-            return levelHandler.FindCollisionActors(me);
+            return levelHandler.FindCollisionActors(self);
         }
 
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public List<ActorBase> FindCollisionActorsFast(ref Hitbox hitbox, ActorBase me)
+        public List<ActorBase> FindCollisionActorsFast(ActorBase self, ref Hitbox hitbox)
         {
-            return levelHandler.FindCollisionActorsFast(ref hitbox, me);
+            return levelHandler.FindCollisionActorsFast(self, ref hitbox);
         }
 
 #if NET45
@@ -122,16 +121,16 @@ namespace Jazz2.Game
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public bool IsPositionEmpty(ref Hitbox hitbox, bool downwards, ActorBase me, out ActorBase collider) {
-            return levelHandler.IsPositionEmpty(ref hitbox, downwards, me, out collider);
+        public bool IsPositionEmpty(ActorBase self, ref Hitbox hitbox, bool downwards, out ActorBase collider) {
+            return levelHandler.IsPositionEmpty(self, ref hitbox, downwards, out collider);
         }
 
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public bool IsPositionEmpty(ref Hitbox hitbox, bool downwards, ActorBase me)
+        public bool IsPositionEmpty(ActorBase self, ref Hitbox hitbox, bool downwards)
         {
-            return levelHandler.IsPositionEmpty(ref hitbox, downwards, me);
+            return levelHandler.IsPositionEmpty(self, ref hitbox, downwards);
         }
 
 #if NET45
@@ -161,14 +160,6 @@ namespace Jazz2.Game
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public string GetLevelText(int textID)
-        {
-            return levelHandler.GetLevelText(textID);
-        }
-
-#if NET45
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public void WarpCameraToTarget(ActorBase target)
         {
             levelHandler.WarpCameraToTarget(target);
@@ -185,9 +176,9 @@ namespace Jazz2.Game
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public void PlayCommonSound(ActorBase target, string name, float volume = 1f)
+        public void PlayCommonSound(ActorBase target, string name, float gain = 1f)
         {
-            levelHandler.PlayCommonSound(name, target, volume);
+            levelHandler.PlayCommonSound(name, target, gain);
         }
 
 #if NET45
@@ -196,6 +187,14 @@ namespace Jazz2.Game
         public bool ActivateBoss(ushort musicFile)
         {
             return levelHandler.ActivateBoss(musicFile);
+        }
+
+#if NET45
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public string GetLevelText(int textID)
+        {
+            return levelHandler.GetLevelText(textID);
         }
 
 #if NET45

@@ -127,7 +127,7 @@ namespace Jazz2.Game.Tiles
             for (int fx = 0; fx < resource.FrameDimensions.X; fx += debrisSize + 1) {
                 for (int fy = 0; fy < resource.FrameDimensions.Y; fy += debrisSize + 1) {
                     float currentSize = debrisSize * MathF.Rnd.NextFloat(0.2f, 1.1f);
-;                    debrisList.Add(new DestructibleDebris {
+                    debrisList.Add(new DestructibleDebris {
                         Pos = new Vector3(x + (isFacingLeft ? resource.FrameDimensions.X - fx : fx), y + fy, pos.Z),
                         Size = new Vector2(currentSize /** (isFacingLeft ? -1f : 1f)*/, currentSize),
                         Speed = new Vector2(((fx - resource.FrameDimensions.X / 2) + MathF.Rnd.NextFloat(-2f, 2f)) * (isFacingLeft ? -1f : 1f) * MathF.Rnd.NextFloat(2f, 8f) / resource.FrameDimensions.X,

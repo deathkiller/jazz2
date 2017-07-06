@@ -371,17 +371,12 @@ namespace Jazz2.Game
             }
         }
 
-        public void ClearActors()
-        {
-            actors.Clear();
-            players.Clear();
-        }
-
         public void AddActor(ActorBase actor)
         {
             actors.Add(actor);
 
-            actor.Parent = rootObject;
+            //actor.Parent = rootObject;
+            AddObject(actor);
         }
 
         public void RemoveActor(ActorBase actor)
@@ -396,14 +391,15 @@ namespace Jazz2.Game
             players.Add(actor);
             actors.Add(actor);
 
-            actor.Parent = rootObject;
+            //actor.Parent = rootObject;
+            AddObject(actor);
         }
 
-        public List<ActorBase> FindCollisionActorsFast(ref Hitbox hitbox, ActorBase me)
+        public List<ActorBase> FindCollisionActorsFast(ActorBase self, ref Hitbox hitbox)
         {
             List<ActorBase> res = new List<ActorBase>();
             for (int i = 0; i < actors.Count; ++i) {
-                if (me == actors[i] || (actors[i].CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0) {
+                if (self == actors[i] || (actors[i].CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0) {
                     continue;
                 }
                 if (actors[i].Hitbox.Overlaps(ref hitbox)) {
@@ -413,14 +409,14 @@ namespace Jazz2.Game
             return res;
         }
 
-        public List<ActorBase> FindCollisionActors(ActorBase me)
+        public List<ActorBase> FindCollisionActors(ActorBase self)
         {
             List<ActorBase> res = new List<ActorBase>();
             for (int i = 0; i < actors.Count; ++i) {
-                if (me == actors[i] || (actors[i].CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0) {
+                if (self == actors[i] || (actors[i].CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0) {
                     continue;
                 }
-                if (actors[i].IsCollidingWith(me)) {
+                if (actors[i].IsCollidingWith(self)) {
                     res.Add(actors[i]);
                 }
             }
@@ -454,19 +450,19 @@ namespace Jazz2.Game
             return res;
         }
 
-        public bool IsPositionEmpty(ref Hitbox hitbox, bool downwards, ActorBase me, out ActorBase collider)
+        public bool IsPositionEmpty(ActorBase self, ref Hitbox hitbox, bool downwards, out ActorBase collider)
         {
             collider = null;
 
-            if ((me.CollisionFlags & CollisionFlags.CollideWithTileset) != 0) {
+            if ((self.CollisionFlags & CollisionFlags.CollideWithTileset) != 0) {
                 if (!tileMap.IsTileEmpty(ref hitbox, downwards)) {
                     return false;
                 }
             }
 
             // Check for solid objects
-            if ((me.CollisionFlags & CollisionFlags.CollideWithSolidObjects) != 0) {
-                List<ActorBase> collision = FindCollisionActorsFast(ref hitbox, me);
+            if ((self.CollisionFlags & CollisionFlags.CollideWithSolidObjects) != 0) {
+                List<ActorBase> collision = FindCollisionActorsFast(self, ref hitbox);
                 for (int i = 0; i < collision.Count; i++) {
                     if ((collision[i].CollisionFlags & CollisionFlags.IsSolidObject) == 0) {
                         continue;
@@ -483,10 +479,10 @@ namespace Jazz2.Game
             return true;
         }
 
-        public bool IsPositionEmpty(ref Hitbox hitbox, bool downwards, ActorBase me)
+        public bool IsPositionEmpty(ActorBase self, ref Hitbox hitbox, bool downwards)
         {
             ActorBase solidObject;
-            return IsPositionEmpty(ref hitbox, downwards, me, out solidObject);
+            return IsPositionEmpty(self, ref hitbox, downwards, out solidObject);
         }
 
         public List<Player> GetCollidingPlayers(ref Hitbox hitbox)
@@ -570,13 +566,13 @@ namespace Jazz2.Game
             return ContentResolver.Current.RequestMetadata(path, tileMapPalette);
         }
 
-        public void PlayCommonSound(string name, ActorBase target, float volume = 1f)
+        public void PlayCommonSound(string name, ActorBase target, float gain = 1f)
         {
             SoundResource resource;
             if (commonResources.Sounds.TryGetValue(name, out resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, target);
                 // ToDo: Hardcoded volume
-                instance.Volume = volume * Settings.SfxVolume;
+                instance.Volume = gain * Settings.SfxVolume;
 
                 if (target.Transform.Pos.Y >= api.WaterLevel) {
                     instance.Lowpass = 0.2f;
@@ -585,13 +581,13 @@ namespace Jazz2.Game
             }
         }
 
-        public void PlayCommonSound(string name, Vector3 pos, float volume = 1f)
+        public void PlayCommonSound(string name, Vector3 pos, float gain = 1f)
         {
             SoundResource resource;
             if (commonResources.Sounds.TryGetValue(name, out resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, pos);
                 // ToDo: Hardcoded volume
-                instance.Volume = volume * Settings.SfxVolume;
+                instance.Volume = gain * Settings.SfxVolume;
 
                 if (pos.Y >= api.WaterLevel) {
                     instance.Lowpass = 0.2f;
@@ -785,7 +781,7 @@ namespace Jazz2.Game
             }
 
             // Active Boss
-            if (activeBoss != null && activeBoss.Parent == null) {
+            if (activeBoss != null && activeBoss.ParentScene == null) {
                 activeBoss = null;
 
                 Hud hud = rootObject.GetComponent<Hud>();

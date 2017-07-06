@@ -162,8 +162,8 @@ namespace Jazz2.Game.Tiles
             if (layer.BackgroundStyle != BackgroundStyle.Plain && tileCount.Y == 8 && tileCount.X == 8) {
                 const float perspectiveSpeed = 0.4f;
                 RenderTexturedBackground(device, ref layer, layerIndex,
-                    ((x1 + rem_x) * perspectiveSpeed + lox) /* % 256f*/,
-                    ((y1 + rem_y) * perspectiveSpeed + loy) /* % 256f*/);
+                    ((x1 + rem_x) * perspectiveSpeed + lox),
+                    ((y1 + rem_y) * perspectiveSpeed + loy));
             } else {
                 Material material = tileset.Material.Res;
                 Texture texture = material.MainTexture.Res;
@@ -172,7 +172,7 @@ namespace Jazz2.Game.Tiles
                 // Reserve the required space for vertex data in our locally cached buffer
                 VertexC1P3T2[] vertexData;
 
-                // TODO: this is wrong!
+                // ToDo: This is wrong!
                 //int neededVertices = (int)(((x3 - x1) / 32) * ((y3 - y1) / 32) * 5);
                 int neededVertices = (int)((((x3 - x1) / 32) + 1) * (((y3 - y1) / 32) + 1) * 4);
                 if (cachedVertices[layerIndex] == null || cachedVertices[layerIndex].Length < neededVertices) {
@@ -236,7 +236,7 @@ namespace Jazz2.Game.Tiles
                             tileset.TileSize * texture.UVRatio.Y / texture.ContentHeight
                         );
 
-                        // TODO: Flip normal map somehow
+                        // ToDo: Flip normal map somehow
                         if (isFlippedX) {
                             uvRect.X += uvRect.W;
                             uvRect.W *= -1;

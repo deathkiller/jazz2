@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿
+using System.Collections.Generic;
 using Duality;
 using Jazz2.Actors.Enemies;
 using Jazz2.Game;

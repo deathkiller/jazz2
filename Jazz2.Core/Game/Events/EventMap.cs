@@ -315,7 +315,7 @@ namespace Jazz2.Game.Events
                     return;
                 }
 
-                if (generator.SpawnedActor == null || generator.SpawnedActor.Parent == null) {
+                if (generator.SpawnedActor == null || generator.SpawnedActor.ParentScene == null) {
                     if (generator.TimeLeft <= 0f) {
                         generator.TimeLeft = generator.Delay * Time.FramesPerSecond;
 

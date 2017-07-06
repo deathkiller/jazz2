@@ -69,7 +69,7 @@ namespace Jazz2.Game.Tiles
             }
 
             framesLeft -= timeMult;
-            if (framesLeft >= 0) {
+            if (framesLeft >= 0f) {
                 return;
             }
 

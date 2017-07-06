@@ -84,6 +84,8 @@ namespace Jazz2.Actors.Bosses
         {
             //base.OnUpdate();
 
+            HandleBlinking();
+
             switch (state) {
                 case StateOpen: {
                     if (stateTime <= 0f) {
@@ -148,7 +150,7 @@ namespace Jazz2.Actors.Bosses
                 if (hasShield) {
                     int shieldCount = 0;
                     for (int i = 0; i < shields.Length; i++) {
-                        if (shields[i].Parent != null) {
+                        if (shields[i].ParentScene != null) {
                             if (shields[i].FallTime <= 0f) {
                                 shields[i].Transform.Pos = pos + new Vector3(MathF.Cos(anglePhase + shields[i].Phase) * 50f, MathF.Sin(anglePhase + shields[i].Phase) * 50f, -2f);
                                 shields[i].Recover(anglePhase + shields[i].Phase);
@@ -251,7 +253,7 @@ namespace Jazz2.Actors.Bosses
 
             protected override bool OnPerish(ActorBase collider)
             {
-                CreateParticleDebris();
+                CreateDeathDebris(collider);
                 api.PlayCommonSound(this, "COMMON_SPLAT");
 
                 Explosion.Create(api, Transform.Pos, Explosion.Tiny);

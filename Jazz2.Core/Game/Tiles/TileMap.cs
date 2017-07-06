@@ -157,8 +157,8 @@ namespace Jazz2.Game.Tiles
         internal void ReadAnimatedTiles(string filename)
         {
             using (Stream s = FileOp.Open(filename, FileAccessMode.Read))
-            using (DeflateStream ds = new DeflateStream(s, CompressionMode.Decompress))
-            using (BinaryReader r = new BinaryReader(ds)) {
+            using (DeflateStream deflate = new DeflateStream(s, CompressionMode.Decompress))
+            using (BinaryReader r = new BinaryReader(deflate)) {
                 int count = r.ReadInt32();
 
                 animatedTiles = new RawList<AnimatedTiles>(count);

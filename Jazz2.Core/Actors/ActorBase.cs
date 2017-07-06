@@ -334,7 +334,7 @@ namespace Jazz2.Actors
 
             // Set the actor as airborne if there seems to be enough space below it
             Hitbox hitbox = (currentHitbox + new Vector2(0f, CollisionCheckStep));
-            if (api.IsPositionEmpty(ref hitbox, effectiveSpeedY >= 0, this)) {
+            if (api.IsPositionEmpty(this, ref hitbox, effectiveSpeedY >= 0)) {
                 speedY += gravity * timeMult;
                 canJump = false;
             }
@@ -401,7 +401,7 @@ namespace Jazz2.Actors
             Hitbox translatedHitbox = currentHitbox + newPos - new Vector2(Transform.Pos.X, Transform.Pos.Y);
 
             // ToDo: Fix moving on roofs through windowsill in colon2
-            bool free = force || api.IsPositionEmpty(ref translatedHitbox, speedY >= 0, this);
+            bool free = force || api.IsPositionEmpty(this, ref translatedHitbox, speedY >= 0);
             if (free) {
                 currentHitbox = translatedHitbox;
                 Transform.Pos = new Vector3(newPos.X, newPos.Y, Transform.Pos.Z);

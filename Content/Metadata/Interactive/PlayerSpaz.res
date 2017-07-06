@@ -222,6 +222,11 @@
             "Path": "Spaz/lift_jump_light.png",
             "States": [ 1073741860 ]
         },
+        "PLAYER_SPAZ_LEDGE": {
+            "Path": "Spaz/ledge.png",
+            "FrameRate": 3,
+            "States": [ 1073741861 ]
+        },
         "PLAYER_SPAZ_AIRBOARD": {
             "Path": "Spaz/airboard.png",
             "FrameRate": 6,

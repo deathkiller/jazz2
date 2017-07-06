@@ -54,7 +54,7 @@ namespace Jazz2.Actors.Enemies
         protected override bool OnPerish(ActorBase collider)
         {
             // TODO: Sound of bones
-
+            // TODO: Use CreateDeathDebris(collider); instead?
             CreateParticleDebris();
             api.PlayCommonSound(this, "COMMON_SPLAT");
 

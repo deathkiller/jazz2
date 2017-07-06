@@ -69,7 +69,7 @@ namespace Jazz2.Actors.Weapons
             if (tiles != null) {
                 Hitbox hitbox = currentHitbox + new Vector2(speedX, speedY);
 
-                if (tiles.CheckWeaponDestructible(ref hitbox, WeaponType) > 0) {
+                if (tiles.CheckWeaponDestructible(ref hitbox, WeaponType, strength) > 0) {
                     if (WeaponType != WeaponType.Freezer) {
                         if (owner != null) {
                             owner.AddScore(50);

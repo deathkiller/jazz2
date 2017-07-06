@@ -53,7 +53,7 @@ namespace Jazz2.Actors
         private bool levelExiting;
         private bool isFreefall, inWater, isAirboard, isLifting, isSpring;
 
-        private bool inIdleTransition;
+        private bool inIdleTransition, inLedgeTransition;
         private MovingPlatform carryingObject;
         private bool canDoubleJump = true;
 
@@ -202,16 +202,16 @@ namespace Jazz2.Actors
         protected override void OnUpdate()
         {
             float timeMult = Time.TimeMult;
-            float lastX = Transform.Pos.X;
+            Vector3 lastPos = Transform.Pos;
             float lastForceX = externalForceX;
 
             base.OnUpdate();
 
             FollowCarryingPlatform();
-            UpdateSpeedBasedAnimation(timeMult, lastX, lastForceX);
+            UpdateSpeedBasedAnimation(timeMult, lastPos.X, lastForceX);
 
             PushSolidObjects();
-            CheckSuspendedStatus();
+            CheckSuspendedStatus(lastPos);
             CheckDestructibleTiles();
             CheckEndOfSpecialMoves(timeMult);
 
@@ -777,6 +777,24 @@ namespace Jazz2.Actors
                     case AnimState.Idle:
                         if (newState == AnimState.Jump) {
                             SetTransition(AnimState.TransitionIdleToJump, true);
+                        } else if (!inLedgeTransition) {
+                            Hitbox hitboxL = new Hitbox(currentHitbox.Left + 2, currentHitbox.Bottom + 26, currentHitbox.Left + 4, currentHitbox.Bottom + 28);
+                            Hitbox hitboxR = new Hitbox(currentHitbox.Right - 4, currentHitbox.Bottom + 26, currentHitbox.Right - 2, currentHitbox.Bottom + 28);
+
+                            if (isFacingLeft
+                                ? (api.IsPositionEmpty(this, ref hitboxL, true) && !api.IsPositionEmpty(this, ref hitboxR, true))
+                                : (!api.IsPositionEmpty(this, ref hitboxL, true) && api.IsPositionEmpty(this, ref hitboxR, true))) {
+
+                                inLedgeTransition = true;
+                                // ToDo: Spaz's and Lori's animation should be continual
+                                SetTransition(AnimState.TransitionLedge, true);
+                            }
+                        } else if (newState != AnimState.Idle) {
+                            inLedgeTransition = false;
+
+                            if (currentTransitionState == AnimState.TransitionLedge) {
+                                CancelTransition();
+                            }
                         }
                         break;
                     //case AnimState.SHOOT:
@@ -797,20 +815,16 @@ namespace Jazz2.Actors
             if (canJump && controllable && isActivelyPushing && MathF.Abs(speedX) > float.Epsilon) {
                 ActorBase collider;
                 Hitbox hitbox = currentHitbox + new Vector2(speedX < 0 ? -2f : 2f, 0f);
-                if (!api.IsPositionEmpty(ref hitbox, false, this, out collider)) {
+                if (!api.IsPositionEmpty(this, ref hitbox, false, out collider)) {
                     SolidObjectBase solidObject = collider as SolidObjectBase;
                     if (solidObject != null && solidObject.Push(speedX < 0)) {
                         pushFrames = 3;
-
-                        //if (currentHitbox.Top >= solidObject.Hitbox.Top) {
-                        //    lift = true;
-                        //}
                     }
                 }
             } else if ((collisionFlags & CollisionFlags.IsSolidObject) != 0) {
                 ActorBase collider;
                 Hitbox hitbox = currentHitbox + new Vector2(0f, -2f);
-                if (!api.IsPositionEmpty(ref hitbox, false, this, out collider)) {
+                if (!api.IsPositionEmpty(this, ref hitbox, false, out collider)) {
                     SolidObjectBase solidObject = collider as SolidObjectBase;
                     if (solidObject != null) {
 
@@ -890,8 +904,7 @@ namespace Jazz2.Actors
             if (tiles == null) {
                 return;
             }
-
-            //Hitbox tileCollisionHitbox = currentHitbox.Extend(1f).Extend(-speedX, -speedY, speedX, speedY);
+;
             Hitbox tileCollisionHitbox = currentHitbox + new Vector2(speedX + externalForceX, speedY - externalForceY);
 
             // Buttstomp/etc. tiles checking
@@ -900,7 +913,7 @@ namespace Jazz2.Actors
                 AddScore(destroyedCount * 50);
 
                 ActorBase solidObject;
-                if (!(api.IsPositionEmpty(ref tileCollisionHitbox, false, this, out solidObject))) {
+                if (!(api.IsPositionEmpty(this, ref tileCollisionHitbox, false, out solidObject))) {
                     {
                         TriggerCrate collider = solidObject as TriggerCrate;
                         if (collider != null) {
@@ -941,7 +954,7 @@ namespace Jazz2.Actors
             tiles.CheckCollapseDestructible(ref tileCollisionHitbox);
         }
 
-        private void CheckSuspendedStatus()
+        private void CheckSuspendedStatus(Vector3 lastPos)
         {
             TileMap tiles = api.TileMap;
             if (tiles == null) {
@@ -951,7 +964,21 @@ namespace Jazz2.Actors
             Vector3 pos = Transform.Pos;
 
             AnimState currentState = currentAnimationState;
+
             SuspendType newSuspendState = tiles.GetTileSuspendState(pos.X, pos.Y - 1f);
+
+            //int n = 3;
+            //float dx = (pos.X - lastPos.X) / n;
+            //float dy = (pos.Y - lastPos.Y) / n;
+            //
+            //SuspendType newSuspendState = SuspendType.None;
+            //
+            //for (int i = 1; i < n; i++) {
+            //    newSuspendState = tiles.GetTileSuspendState(pos.X + dx * i, pos.Y + dx * i - 1f);
+            //    if (newSuspendState != SuspendType.None) {
+            //        break;
+            //    }
+            //}
 
             if (newSuspendState == suspendType) {
                 return;
@@ -1028,6 +1055,8 @@ namespace Jazz2.Actors
 
                     collisionFlags |= CollisionFlags.ApplyGravitation;
                     canJump = true;
+
+                    externalForceY = 0.4f;
 
                     Transform.Angle = 0;
 
@@ -1211,14 +1240,14 @@ namespace Jazz2.Actors
                 (events.GetEventByPosition(currentHitbox.Right + extendedHitbox, currentHitbox.Bottom + extendedHitbox, ref p) == EventType.AreaFloatUp) ||
                 (events.GetEventByPosition(currentHitbox.Left - extendedHitbox, currentHitbox.Bottom + extendedHitbox, ref p) == EventType.AreaFloatUp)
                ) {
+                float timeMult = Time.TimeMult;
                 if ((collisionFlags & CollisionFlags.ApplyGravitation) != 0) {
                     float gravity = api.Gravity;
 
-                    externalForceY = gravity * 2;
-                    speedY = MathF.Min(gravity, speedY);
+                    externalForceY = gravity * 2 * timeMult;
+                    speedY = MathF.Min(gravity * timeMult, speedY);
                 } else {
-                    //speedY = Math.Min(api.Gravity * 10, speedY);
-                    speedY -= api.Gravity * 1.2f;
+                    speedY -= api.Gravity * 1.2f * timeMult;
                 }
             }
 
@@ -1487,7 +1516,7 @@ namespace Jazz2.Actors
                     SetPlayerTransition(AnimState.Hurt, false, true, SpecialMoveType.None, delegate {
                         controllable = true;
                     });
-                    SetInvulnerability(180f, true);
+                    SetInvulnerability(180f);
 
                     PlaySound("PLAYER_HURT");
                 } else {
@@ -1599,6 +1628,8 @@ namespace Jazz2.Actors
                     MoveInstantly(new Vector2(speedX, -1), MoveType.Relative, true);
                     externalForceX = (10 * mp);
                     isFacingLeft = !positive;
+
+                    SetPlayerTransition(AnimState.Dash | AnimState.Jump, true, true, SpecialMoveType.None);
                 } else {
                     MoveInstantly(new Vector2(0, mp * 16), MoveType.Relative, true);
                     speedY = (5 * mp);
@@ -1618,12 +1649,12 @@ namespace Jazz2.Actors
         {
             Vector3 pos = Transform.Pos;
             Hitbox hitbox = new Hitbox(pos.X - 14, pos.Y + 8 - 12, pos.X + 14, pos.Y + 8 + 12 + 100);
-            return api.IsPositionEmpty(ref hitbox, true, this);
+            return api.IsPositionEmpty(this, ref hitbox, true);
         }
 
         public void SetCarryingPlatform(MovingPlatform platform)
         {
-            if (speedY < -float.Epsilon || inWater || isAirboard) {
+            if (speedY < 0f || inWater || isAirboard) {
                 return;
             }
 
@@ -1649,7 +1680,6 @@ namespace Jazz2.Actors
                 // eliminate the need of the correction pixel removed from the delta
                 // and to make the ride even smoother (right now the pixel gap is clearly
                 // visible when platforms go down vertically)
-                // ToDo: Sometimes collides with Push animation
                 // ToDo: [It seems it's fixed now] Player fall off at ~10 o'clock sometimes
                 if (
                     !MoveInstantly(delta, MoveType.Relative) &&
@@ -1660,9 +1690,9 @@ namespace Jazz2.Actors
             }
         }
 
-        public void SetInvulnerability(float time, bool blink)
+        public void SetInvulnerability(float time)
         {
-            if (time <= 0) {
+            if (time <= 0f) {
                 isInvulnerable = false;
                 invulnerableTime = 0;
                 return;

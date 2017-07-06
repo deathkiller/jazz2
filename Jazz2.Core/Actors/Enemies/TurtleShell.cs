@@ -122,7 +122,7 @@ namespace Jazz2.Actors.Enemies
             if (tiles != null) {
                 tiles.CheckSpecialDestructible(ref currentHitbox);
                 tiles.CheckCollapseDestructible(ref currentHitbox);
-                tiles.CheckWeaponDestructible(ref currentHitbox, WeaponType.Blaster);
+                tiles.CheckWeaponDestructible(ref currentHitbox, WeaponType.Blaster, 1);
             }
         }
 
@@ -150,7 +150,7 @@ namespace Jazz2.Actors.Enemies
 
         protected override bool OnPerish(ActorBase collider)
         {
-            CreateParticleDebris();
+            CreateDeathDebris(collider);
             api.PlayCommonSound(this, "COMMON_SPLAT");
 
             TryGenerateRandomDrop();

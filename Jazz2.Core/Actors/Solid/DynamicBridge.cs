@@ -103,10 +103,10 @@ namespace Jazz2.Actors.Solid
 
         protected override void OnUpdate()
         {
-            List<ActorBase> collision = api.FindCollisionActorsFast(ref currentHitbox, this);
+            List<ActorBase> collision = api.FindCollisionActorsFast(this, ref currentHitbox);
             for (int j = 0; j < bridgePieces.Count; ++j) {
                 Hitbox hitbox = bridgePieces[j].GetHitboxForParent();
-                collision.AddRange(api.FindCollisionActorsFast(ref hitbox, this));
+                collision.AddRange(api.FindCollisionActorsFast(this, ref hitbox));
             }
 
             Vector3 pos = Transform.Pos;

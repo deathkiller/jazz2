@@ -77,7 +77,7 @@ namespace Jazz2.Actors.Enemies
 
         protected override bool OnPerish(ActorBase collider)
         {
-            CreateParticleDebris();
+            CreateDeathDebris(collider);
             api.PlayCommonSound(this, "COMMON_SPLAT");
 
             TryGenerateRandomDrop();

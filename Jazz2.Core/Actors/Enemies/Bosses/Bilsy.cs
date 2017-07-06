@@ -111,7 +111,7 @@ namespace Jazz2.Actors.Bosses
 
         protected override bool OnPerish(ActorBase collider)
         {
-            CreateParticleDebris();
+            CreateDeathDebris(collider);
 
             api.PlayCommonSound(this, "COMMON_SPLAT");
 
@@ -126,7 +126,7 @@ namespace Jazz2.Actors.Bosses
             for (int i = 0; i < 20; i++) {
                 pos = new Vector3(originPos.X + MathF.Rnd.NextFloat(-320f, 320f), originPos.Y + MathF.Rnd.NextFloat(-240f, 240f), originPos.Z);
                 Hitbox hitbox = new Hitbox(pos.X - 30, pos.Y - 40, pos.X + 30, pos.Y + 40);
-                if (api.IsPositionEmpty(ref hitbox, true, this)) {
+                if (api.IsPositionEmpty(this, ref hitbox, true)) {
                     Transform.Pos = pos;
                     break;
                 }

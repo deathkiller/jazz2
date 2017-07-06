@@ -41,9 +41,9 @@ namespace Jazz2.Actors.Weapons
 
                 Vector3 pos = Transform.Pos;
 
-                List<ActorBase> colliders = api.FindCollisionActorsRadius(pos.X, pos.Y, /*40*/50);
+                List<ActorBase> colliders = api.FindCollisionActorsRadius(pos.X, pos.Y, 50);
                 for (int i = 0; i < colliders.Count; i++) {
-                    if (colliders[i] is EnemyBase || colliders[i] is SolidObjectBase || colliders[i] is TurtleShell) {
+                    if (!colliders[i].IsInvulnerable && (colliders[i] is EnemyBase || colliders[i] is SolidObjectBase || colliders[i] is TurtleShell)) {
                         colliders[i].DecreaseHealth(10);
                     } else if (colliders[i] is Collectible) {
                         colliders[i].HandleCollision(this);
@@ -53,7 +53,7 @@ namespace Jazz2.Actors.Weapons
                 TileMap tiles = api.TileMap;
                 if (tiles != null) {
                     Hitbox hitbox = new Hitbox(pos.X - 34, pos.Y - 34, pos.X + 34, pos.Y + 34);
-                    if (tiles.CheckWeaponDestructible(ref hitbox, WeaponType.TNT) > 0) {
+                    if (tiles.CheckWeaponDestructible(ref hitbox, WeaponType.TNT, 1) > 0) {
                         // ToDo: Add score
                     }
                 }

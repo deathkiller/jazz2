@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using Duality;
 using Duality.Drawing;
+using Duality.Resources;
 using Jazz2.Actors.Weapons;
 using Jazz2.Game;
 using Jazz2.Game.Events;
 using Jazz2.Game.Structs;
+using static Jazz2.Game.Tiles.TileMap;
 
 namespace Jazz2.Actors.Enemies
 {
@@ -70,9 +72,9 @@ namespace Jazz2.Actors.Enemies
             Hitbox h3 = currentHitbox + new Vector2(x + sign * (currentHitbox.Right - currentHitbox.Left) / 2, y + 12);
 
             ushort[] p = null;
-            return ((api.IsPositionEmpty(ref h1, false, this) || api.IsPositionEmpty(ref h2, false, this))
+            return ((api.IsPositionEmpty(this, ref h1, false) || api.IsPositionEmpty(this, ref h2, false))
                      && (events != null && events.GetEventByPosition(pos.X + x, pos.Y + y, ref p) != EventType.AreaStopEnemy)
-                     && !api.IsPositionEmpty(ref h3, true, this));
+                     && !api.IsPositionEmpty(this, ref h3, true));
         }
 
         protected void TryGenerateRandomDrop()
@@ -112,6 +114,57 @@ namespace Jazz2.Actors.Enemies
             }
 
             blinkingTimeout = 6f;
+        }
+
+        protected void CreateDeathDebris(ActorBase collider)
+        {
+            if (collider is AmmoToaster) {
+                const int debrisSizeX = 5;
+                const int debrisSizeY = 3;
+
+                GraphicResource resource = currentTransitionState != AnimState.Idle ? currentTransition : currentAnimation;
+                Material material = resource.Material.Res;
+                Texture texture = material.MainTexture.Res;
+
+                Vector3 pos = Transform.Pos;
+
+                float x = pos.X - resource.Hotspot.X;
+                float y = pos.Y - resource.Hotspot.Y;
+
+                int currentFrame = renderer.CurrentFrame;
+
+                for (int fx = 0; fx < resource.FrameDimensions.X; fx += debrisSizeX + 1) {
+                    for (int fy = 0; fy < resource.FrameDimensions.Y; fy += debrisSizeY + 1) {
+                        float currentSizeX = debrisSizeX * MathF.Rnd.NextFloat(0.8f, 1.1f);
+                        float currentSizeY = debrisSizeY * MathF.Rnd.NextFloat(0.8f, 1.1f);
+                        api.TileMap.CreateDebris(new DestructibleDebris {
+                            Pos = new Vector3(x + (isFacingLeft ? resource.FrameDimensions.X - fx : fx), y + fy, pos.Z),
+                            Size = new Vector2(currentSizeX, currentSizeY),
+                            Speed = new Vector2(((fx - resource.FrameDimensions.X / 2) + MathF.Rnd.NextFloat(-2f, 2f)) * (isFacingLeft ? -1f : 1f) * MathF.Rnd.NextFloat(0.5f, 2f) / resource.FrameDimensions.X,
+                                 MathF.Rnd.NextFloat(0f, 0.2f)),
+                            Acceleration = new Vector2(0f, 0.06f),
+
+                            Scale = 1f,
+                            Alpha = 1f,
+                            AlphaSpeed = -0.002f,
+
+                            Time = 320f,
+
+                            Material = material,
+                            MaterialOffset = new Rect(
+                                 (((float)(currentFrame % resource.FrameConfiguration.X) / resource.FrameConfiguration.X) + ((float)fx / texture.ContentWidth)) * texture.UVRatio.X,
+                                 (((float)(currentFrame / resource.FrameConfiguration.X) / resource.FrameConfiguration.Y) + ((float)fy / texture.ContentHeight)) * texture.UVRatio.Y,
+                                 (currentSizeX * texture.UVRatio.X / texture.ContentWidth),
+                                 (currentSizeY * texture.UVRatio.Y / texture.ContentHeight)
+                             ),
+
+                            CollisionAction = DebrisCollisionAction.Bounce
+                        });
+                    }
+                }
+            } else {
+                CreateParticleDebris();
+            }
         }
 
         public override void HandleCollision(ActorBase other)

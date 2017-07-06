@@ -224,6 +224,11 @@
             "Path": "Jazz/lift_jump_light.png",
             "States": [ 1073741860 ]
         },
+        "PLAYER_JAZZ_LEDGE": {
+            "Path": "Jazz/ledge.png",
+            "FrameRate": 3,
+            "States": [ 1073741861 ]
+        },
         "PLAYER_JAZZ_AIRBOARD": {
             "Path": "Jazz/airboard.png",
             "FrameRate": 6,
