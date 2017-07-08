@@ -68,7 +68,7 @@ namespace Jazz2.Game
 
         private OpenMptStream music;
 
-        private InitLevelData? currentCarryOver;
+        private LevelInitialization? currentCarryOver;
         private float levelChangeTimer;
 
         private WeatherType weatherType;
@@ -76,6 +76,9 @@ namespace Jazz2.Game
         private bool weatherOutdoors;
 
         private int waterLevel = int.MaxValue;
+
+        [ThreadStatic]
+        private static List<ActorBase> collisionCache;
 
         public Controller Root => root;
         public ActorApi Api => api;
@@ -110,7 +113,7 @@ namespace Jazz2.Game
             get { return players; }
         }
 
-        public LevelHandler(Controller root, InitLevelData data)
+        public LevelHandler(Controller root, LevelInitialization data)
         {
             this.root = root;
 
@@ -397,35 +400,53 @@ namespace Jazz2.Game
 
         public List<ActorBase> FindCollisionActorsFast(ActorBase self, ref Hitbox hitbox)
         {
-            List<ActorBase> res = new List<ActorBase>();
+            //List<ActorBase> result = new List<ActorBase>();
+            if (collisionCache == null) {
+                collisionCache = new List<ActorBase>();
+            } else {
+                collisionCache.Clear();
+            }
+
             for (int i = 0; i < actors.Count; ++i) {
                 if (self == actors[i] || (actors[i].CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0) {
                     continue;
                 }
-                if (actors[i].Hitbox.Overlaps(ref hitbox)) {
-                    res.Add(actors[i]);
+                if (actors[i].Hitbox.Intersects(ref hitbox)) {
+                    collisionCache.Add(actors[i]);
                 }
             }
-            return res;
+            return collisionCache;
         }
 
         public List<ActorBase> FindCollisionActors(ActorBase self)
         {
-            List<ActorBase> res = new List<ActorBase>();
+            //List<ActorBase> result = new List<ActorBase>();
+            if (collisionCache == null) {
+                collisionCache = new List<ActorBase>();
+            } else {
+                collisionCache.Clear();
+            }
+
             for (int i = 0; i < actors.Count; ++i) {
                 if (self == actors[i] || (actors[i].CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0) {
                     continue;
                 }
                 if (actors[i].IsCollidingWith(self)) {
-                    res.Add(actors[i]);
+                    collisionCache.Add(actors[i]);
                 }
             }
-            return res;
+            return collisionCache;
         }
 
         public List<ActorBase> FindCollisionActorsRadius(float x, float y, float radius)
         {
-            List<ActorBase> res = new List<ActorBase>();
+            //List<ActorBase> result = new List<ActorBase>();
+            if (collisionCache == null) {
+                collisionCache = new List<ActorBase>();
+            } else {
+                collisionCache.Clear();
+            }
+
             for (int i = 0; i < actors.Count; ++i) {
                 if ((actors[i].CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0) {
                     continue;
@@ -444,10 +465,10 @@ namespace Jazz2.Game
                 // If the distance is less than the circle's radius, an intersection occurs
                 float distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
                 if (distanceSquared < (radius * radius)) {
-                    res.Add(actors[i]);
+                    collisionCache.Add(actors[i]);
                 }
             }
-            return res;
+            return collisionCache;
         }
 
         public bool IsPositionEmpty(ActorBase self, ref Hitbox hitbox, bool downwards, out ActorBase collider)
@@ -485,17 +506,22 @@ namespace Jazz2.Game
             return IsPositionEmpty(self, ref hitbox, downwards, out solidObject);
         }
 
-        public List<Player> GetCollidingPlayers(ref Hitbox hitbox)
+        public List<ActorBase> GetCollidingPlayers(ref Hitbox hitbox)
         {
-            List<Player> result = new List<Player>();
+            //List<Player> result = new List<Player>();
+            if (collisionCache == null) {
+                collisionCache = new List<ActorBase>();
+            } else {
+                collisionCache.Clear();
+            }
 
             foreach (Player p in players) {
-                if (p.Hitbox.Overlaps(ref hitbox)) {
-                    result.Add(p);
+                if (p.Hitbox.Intersects(ref hitbox)) {
+                    collisionCache.Add(p);
                 }
             }
 
-            return result;
+            return collisionCache;
         }
 
         public void InitLevelChange(ExitType exitType, string nextLevel)
@@ -514,7 +540,7 @@ namespace Jazz2.Game
                 nextLevel = (exitType == ExitType.Bonus ? defaultSecretLevel : defaultNextLevel);
             }
 
-            InitLevelData data = default(InitLevelData);
+            LevelInitialization data = default(LevelInitialization);
 
             if (nextLevel != null) {
                 int i = nextLevel.IndexOf('/');

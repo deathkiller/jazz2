@@ -4,127 +4,127 @@
     },
 
     "Animations": {
-        "IDLE": {
+        "Idle": {
             "Path": "Devan/idle.png",
             "States": [ 0 ]
         },
-        "RUN": {
+        "Run": {
             "Path": "Devan/run.png",
             "States": [ 2 ]
         },
-        "WARP_IN": {
+        "WarpIn": {
             "Path": "Devan/warp_in.png",
             "States": [ 1073741843 ]
         },
-        "WARP_OUT": {
+        "WarpOut": {
             "Path": "Devan/warp_out.png",
             "States": [ 1073741844 ]
         },
-        "RUN_END": {
+        "RunEnd": {
             "Path": "Devan/run_end.png",
             "FrameRate": 20,
             "States": [ 1073741824 ]
         },
-        "SHOOT_START": {
+        "ShootStart": {
             "Path": "Devan/shoot.png",
             "FrameCount": 3,
             "FrameRate": 20,
             "States": [ 15 ]
         },
-        "SHOOT": {
+        "Shoot": {
             "Path": "Devan/shoot.png",
             "FrameOffset": 3,
             "FrameCount": 3,
             "FrameRate": 30,
             "States": [ 16 ]
         },
-        "SHOOT_END": {
+        "ShootEnd": {
             "Path": "Devan/shoot.png",
             "FrameOffset": 6,
             "FrameCount": 2,
             "FrameRate": 26,
             "States": [ 17 ]
         },
-        "SHOOT_END_2": {
+        "ShootEnd2": {
             "Path": "Devan/shoot.png",
             "FrameOffset": 8,
             "FrameRate": 28,
             "States": [ 18 ]
         },
         
-        "JUMP_END": {
+        "JumpEnd": {
             "Path": "Devan/jump_end.png",
             "States": [ 1073741826 ]
         },
-        "FREEFALL": {
+        "Freefall": {
             "Path": "Devan/freefall.png",
             "States": [ 65536 ]
         },
 
-        "DISORIENTED_START": {
+        "DisorientedStart": {
             "Path": "Devan/disoriented_start.png",
             "States": [ 666 ]
         },
-        "DISORIENTED": {
+        "Disoriented": {
             "Path": "Devan/disoriented.png",
             "States": [ 667 ]
         },
-        "DISORIENTED_WARP_OUT": {
+        "DisorientedWarpOut": {
             "Path": "Devan/disoriented_warp_out.png",
             "States": [ 6670 ]
         },
 
-        "BULLET": {
+        "Bullet": {
             "Path": "Devan/bullet.png",
             "States": [ 668 ]
         },
         
-        "DEMON_FLY": {
+        "DemonFly": {
             "Path": "Devan/demon_fly.png",
             "FrameRate": 5,
             "States": [ 669 ]
         },
-        "DEMON_TRANSFORM_START": {
+        "DemonTransformStart": {
             "Path": "Devan/demon_transform_start.png",
             "FrameRate": 2,
             "States": [ 670 ]
         },
-        "DEMON_TRANSFORM_END": {
+        "DemonTransformEnd": {
             "Path": "Devan/demon_transform_end.png",
             "FrameRate": 2,
             "States": [ 671 ]
         },
-        "DEMON_TURN": {
+        "DemonTurn": {
             "Path": "Devan/demon_turn.png",
             "FrameRate": 20,
             "States": [ 1073741840 ]
         },
-        "DEMON_SPEW_FIREBALL": {
+        "DemonSpewFireball": {
             "Path": "Devan/demon_spew_fireball.png",
             "FrameCount": 9,
             "States": [ 673 ]
         },
-        "DEMON_SPEW_FIREBALL_END": {
+        "DemonSpewFireballEnd": {
             "Path": "Devan/demon_spew_fireball.png",
             "FrameOffset": 9,
             "FrameRate": 20,
             "States": [ 674 ]
         },
         
-        "DEMON_FIREBALL": {
+        "DemonFireball": {
             "Path": "Devan/demon_fireball.png",
             "States": [ 675 ]
         }
     },
 
     "Sounds": {
-        "SHOOT": {
+        "Shoot": {
             "Paths": [ "Devan/shoot.wav" ]
         },
-        "SPIT_FIREBALL": {
+        "SpitFireball": {
             "Paths": [ "Devan/spit_fireball.wav" ]
         },
-        "FLAP": {
+        "Flap": {
             "Paths": [ "Devan/flap.wav" ]
         }
     }

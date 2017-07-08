@@ -4,12 +4,12 @@
     },
 
     "Animations": {
-        "IDLE": {
+        "Idle": {
             "Path": "Bee/bee.png",
             "FrameRate": 25,
             "States": [ 0 ]
         },
-        "TURN": {
+        "Turn": {
             "Path": "Bee/bee_turn.png",
             "FrameRate": 30,
             "States": [ 1073741840 ]
@@ -17,7 +17,7 @@
     },
 
     "Sounds": {
-        "NOISE": {
+        "Noise": {
             "Paths": [ "Bee/noise.wav" ]
         }
     }

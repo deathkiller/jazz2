@@ -4,7 +4,7 @@
     },
 
     "Animations": {
-        "ENEMY_DRAGONFLY_IDLE": {
+        "Idle": {
             "Path": "Dragonfly/idle.png",
             "States": [ 0 ]
         }

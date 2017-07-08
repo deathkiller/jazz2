@@ -31,6 +31,9 @@ namespace Jazz2.Actors.Solid
 
             PlaySound("Break");
 
+            CreateSpriteDebris("CrateShrapnel1", 3);
+            CreateSpriteDebris("CrateShrapnel2", 2);
+
             SetTransition(AnimState.TransitionDeath, false, delegate {
                 base.OnPerish(collider);
             });

@@ -34,9 +34,7 @@ namespace Jazz2.Actors
         {
             //base.OnUpdate();
 
-            if (active) {
-
-            } else {
+            if (!active) {
                 if (timeLeft <= 0f) {
                     active = true;
                     renderer.Active = true;

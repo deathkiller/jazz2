@@ -103,7 +103,7 @@ namespace Jazz2.Actors.Solid
 
         protected override void OnUpdate()
         {
-            List<ActorBase> collision = api.FindCollisionActorsFast(this, ref currentHitbox);
+            List<ActorBase> collision = new List<ActorBase>(api.FindCollisionActorsFast(this, ref currentHitbox));
             for (int j = 0; j < bridgePieces.Count; ++j) {
                 Hitbox hitbox = bridgePieces[j].GetHitboxForParent();
                 collision.AddRange(api.FindCollisionActorsFast(this, ref hitbox));
@@ -222,7 +222,7 @@ namespace Jazz2.Actors.Solid
                     renderer.AnimFirstFrame = idx % variations;
                 }
 
-                collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.IsSolidObject;
+                collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.IsSolidObject | CollisionFlags.SkipPerPixelCollisions;
 
                 IsOneWay = true;
             }

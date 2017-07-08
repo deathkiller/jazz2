@@ -4,60 +4,60 @@
     },
 
     "Animations": {
-        "OBJECT_MOVING_PLATFORM_CARROTUS_FRUIT": {
+        "CarrotusFruit": {
             "Path": "Platform/carrotus_fruit.png",
             "States": [ 1024 ]
         },
-        "OBJECT_MOVING_PLATFORM_CARROTUS_FRUIT_CHAIN": {
+        "CarrotusFruitChain": {
             "Path": "Platform/carrotus_fruit_chain.png",
             "States": [ 1040 ]
         },
-        "OBJECT_MOVING_PLATFORM_BALL": {
+        "Ball": {
             "Path": "Platform/ball.png",
             "States": [ 2048 ]
         },
-        "OBJECT_MOVING_PLATFORM_BALL_CHAIN": {
+        "BallChain": {
             "Path": "Platform/ball_chain.png",
             "States": [ 2064 ]
         },
-        "OBJECT_MOVING_PLATFORM_CARROTUS_GRASS": {
+        "CarrotusGrass": {
             "Path": "Platform/carrotus_grass.png",
             "States": [ 3072 ]
         },
-        "OBJECT_MOVING_PLATFORM_CARROTUS_GRASS_CHAIN": {
+        "CarrotusGrassChain": {
             "Path": "Platform/carrotus_grass_chain.png",
             "States": [ 3088 ]
         },
-        "OBJECT_MOVING_PLATFORM_LAB": {
+        "Lab": {
             "Path": "Platform/lab.png",
             "States": [ 4096 ]
         },
-        "OBJECT_MOVING_PLATFORM_LAB_CHAIN": {
+        "LabChain": {
             "Path": "Platform/lab_chain.png",
             "States": [ 4112 ]
         },
-        "OBJECT_MOVING_PLATFORM_SONIC": {
+        "Sonic": {
             "Path": "Platform/sonic.png",
             "States": [ 5120 ]
         },
-        "OBJECT_MOVING_PLATFORM_SONIC_CHAIN": {
+        "SonicChain": {
             "Path": "Platform/sonic_chain.png",
             "States": [ 5136 ]
         },
-        "OBJECT_MOVING_PLATFORM_SPIKE": {
+        "Spike": {
             "Path": "Platform/spike.png",
             "States": [ 6144 ]
         },
-        "OBJECT_MOVING_PLATFORM_SPIKE_CHAIN": {
+        "SpikeChain": {
             "Path": "Platform/spike_chain.png",
             "States": [ 6160 ]
         },
         
-        "OBJECT_MOVING_PLATFORM_SPIKE_BALL": {
+        "SpikeBall": {
             "Path": "Object/3d_spike.png",
             "States": [ 7168 ]
         },
-        "OBJECT_MOVING_PLATFORM_SPIKE_BALL_CHAIN": {
+        "SpikeBallChain": {
             "Path": "Object/3d_spike_chain.png",
             "States": [ 7184 ]
         }

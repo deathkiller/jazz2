@@ -61,8 +61,8 @@ namespace Jazz2.Actors.Enemies
 
             if (!isAttacking) {
                 Hitbox hitbox = currentHitbox + new Vector2(speedX * 28, 0);
-                players = api.GetCollidingPlayers(ref hitbox);
-                if (players.Count > 0) {
+                List<ActorBase> colliders = api.GetCollidingPlayers(ref hitbox);
+                if (colliders.Count > 0) {
                     Attack();
                 }
             }
@@ -72,7 +72,7 @@ namespace Jazz2.Actors.Enemies
         {
             // ToDo: Play sound in the middle of transition
             // ToDo: Apply force in the middle of transition
-            PlaySound("ATTACK");
+            PlaySound("Attack");
 
             SetTransition(AnimState.TransitionAttack, false, delegate {
                 speedX = (isFacingLeft ? -1f : 1f) * DefaultSpeed;
@@ -85,7 +85,7 @@ namespace Jazz2.Actors.Enemies
         protected override bool OnPerish(ActorBase collider)
         {
             CreateDeathDebris(collider);
-            api.PlayCommonSound(this, "COMMON_SPLAT");
+            api.PlayCommonSound(this, "Splat");
 
             TryGenerateRandomDrop();
 

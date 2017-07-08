@@ -4,18 +4,18 @@
     },
 
     "Animations": {
-        "IDLE": {
+        "Idle": {
             "Path": "Bubba/hop.png",
             "States": [ 0 ],
             "FrameCount": 1
         },
-        "JUMP_START": {
+        "JumpStart": {
             "Path": "Bubba/hop.png",
             "States": [ 1073741825 ],
             "FrameCount": 4,
             "FrameRate": 11
         },
-        "JUMP": {
+        "Jump": {
             "Path": "Bubba/hop.png",
             "States": [ 4 ],
             "Flags": 1,
@@ -23,67 +23,67 @@
             "FrameCount": 3,
             "FrameRate": 13
         },
-        "FALL": {
+        "Fall": {
             "Path": "Bubba/jump.png",
             "States": [ 8 ],
             "Flags": 1,
             "FrameCount": 3,
             "FrameRate": 12
         },
-        "FALL_END": {
+        "FallEnd": {
             "Path": "Bubba/jump.png",
             "States": [ 1073741826 ],
             "FrameOffset": 3,
             "FrameCount": 6,
             "FrameRate": 14
         },
-        "SPEW_FIREBALL": {
+        "SpewFireball": {
             "Path": "Bubba/spew_fireball.png",
             "FrameCount": 12,
             "FrameRate": 12,
             "States": [ 16 ]
         },
-        "SPEW_FIREBALL_END": {
+        "SpewFireballEnd": {
             "Path": "Bubba/spew_fireball.png",
             "FrameOffset": 12,
             "FrameCount": 4,
             "FrameRate": 16,
             "States": [ 1073741828 ]
         },
-        "CORPSE": {
+        "Corpse": {
             "Path": "Bubba/corpse.png",
             "States": [ 1073741839 ],
             "FrameRate": 5
         },
 
-        "TORNADO_START": {
+        "TornadoStart": {
             "Path": "Bubba/tornado_start.png",
             "States": [ 1073741830 ]
         },
-        "TORNADO": {
+        "Tornado": {
             "Path": "Bubba/tornado.png",
             "States": [ 1073741831 ]
         },
-        "TORNADO_END": {
+        "TornadoEnd": {
             "Path": "Bubba/tornado_end.png",
             "States": [ 1073741832 ]
         },
-        "TORNADO_FALL": {
+        "TornadoFall": {
             "Path": "Bubba/jump_fall.png",
             "States": [ 1073741833 ]
         },
 
-        "FIREBALL": {
+        "Fireball": {
             "Path": "Bubba/fireball.png",
             "States": [ 1073741834 ]
         }
     },
 
     "Sounds": {
-        "JUMP": {
+        "Jump": {
             "Paths": [ "Bubba/hop_1.wav", "Bubba/hop_2.wav" ]
         },
-        "SNEEZE": {
+        "Sneeze": {
             "Paths": [ "Bubba/sneeze.wav" ]
         }
     }

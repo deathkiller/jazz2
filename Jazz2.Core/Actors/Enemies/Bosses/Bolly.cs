@@ -87,10 +87,10 @@ namespace Jazz2.Actors.Bosses
 
         protected override bool OnPerish(ActorBase collider)
         {
-            api.TileMap.CreateParticleDebris(availableAnimations["TOP"], Transform.Pos, 0, isFacingLeft);
-            api.TileMap.CreateParticleDebris(availableAnimations["BOTTOM"], Transform.Pos, 0, isFacingLeft);
+            api.TileMap.CreateParticleDebris(availableAnimations["Top"], Transform.Pos, 0, isFacingLeft);
+            api.TileMap.CreateParticleDebris(availableAnimations["Bottom"], Transform.Pos, 0, isFacingLeft);
 
-            api.PlayCommonSound(this, "COMMON_SPLAT");
+            api.PlayCommonSound(this, "Splat");
 
             Explosion.Create(api, Transform.Pos, Explosion.Large);
 

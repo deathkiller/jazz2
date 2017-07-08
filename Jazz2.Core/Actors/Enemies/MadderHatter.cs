@@ -51,7 +51,7 @@ namespace Jazz2.Actors.Enemies
 
                             SetAnimation((AnimState)1073741824);
                             SetTransition((AnimState)1073741824, false, delegate {
-                                PlaySound("SPIT");
+                                PlaySound("Spit");
 
                                 BulletSpit bullet = new BulletSpit();
                                 bullet.OnAttach(new ActorInstantiationDetails {
@@ -85,10 +85,10 @@ namespace Jazz2.Actors.Enemies
         protected override bool OnPerish(ActorBase collider)
         {
             CreateDeathDebris(collider);
-            api.PlayCommonSound(this, "COMMON_SPLAT");
+            api.PlayCommonSound(this, "Splat");
 
-            CreateSpriteDebris("CUP", 1);
-            CreateSpriteDebris("HAT", 1);
+            CreateSpriteDebris("Cup", 1);
+            CreateSpriteDebris("Hat", 1);
 
             TryGenerateRandomDrop();
 

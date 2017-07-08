@@ -49,7 +49,7 @@ namespace Jazz2.Actors.Enemies
                 speedX = (isFacingLeft ? 1 : -1) * 1.2f;
                 speedY = -4.5f;
 
-                PlaySound("ATTACK");
+                PlaySound("Attack");
 
                 SetTransition(AnimState.TransitionAttack, false, delegate {
                     speedX = speedY = 0;
@@ -64,7 +64,7 @@ namespace Jazz2.Actors.Enemies
         protected override bool OnPerish(ActorBase collider)
         {
             CreateDeathDebris(collider);
-            api.PlayCommonSound(this, "COMMON_SPLAT");
+            api.PlayCommonSound(this, "Splat");
 
             TryGenerateRandomDrop();
 

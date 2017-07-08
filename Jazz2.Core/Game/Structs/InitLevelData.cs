@@ -28,13 +28,12 @@ namespace Jazz2.Game.Structs
         public int Lives;
         public int[] Ammo;
         public byte[] WeaponUpgrades;
-        public int FastFires;
         public int Score;
-        public int FoodCounter;
+        //public int FoodCounter;
         public WeaponType CurrentWeapon;
     }
 
-    public struct InitLevelData
+    public struct LevelInitialization
     {
         public string LevelName;
         public string EpisodeName;
@@ -44,7 +43,7 @@ namespace Jazz2.Game.Structs
 
         public PlayerCarryOver[] PlayerCarryOvers;
 
-        public InitLevelData(string episode, string level, GameDifficulty difficulty, PlayerType playerType)
+        public LevelInitialization(string episode, string level, GameDifficulty difficulty, PlayerType playerType)
         {
             LevelName = level;
             EpisodeName = episode;

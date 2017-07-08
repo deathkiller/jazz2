@@ -24,20 +24,20 @@ namespace Jazz2.Actors.Solid
 
             switch (weaponType) {
                 case WeaponType.Blaster: SetAnimation(AnimState.Idle); break;
-                case WeaponType.Bouncer: SetAnimation("OBJECT_CRATE_AMMO_BOUNCER"); break;
-                case WeaponType.Freezer: SetAnimation("OBJECT_CRATE_AMMO_FREEZER"); break;
-                case WeaponType.Seeker: SetAnimation("OBJECT_CRATE_AMMO_SEEKER"); break;
-                case WeaponType.RF: SetAnimation("OBJECT_CRATE_AMMO_RF"); break;
-                case WeaponType.Toaster: SetAnimation("OBJECT_CRATE_AMMO_TOASTER"); break;
-                case WeaponType.TNT: SetAnimation("OBJECT_CRATE_AMMO_TNT"); break;
-                case WeaponType.Pepper: SetAnimation("OBJECT_CRATE_AMMO_PEPPER"); break;
-                case WeaponType.Electro: SetAnimation("OBJECT_CRATE_AMMO_ELECTRO"); break;
+                default: SetAnimation("CrateAmmo" + weaponType.ToString("G")); break;
             }
         }
 
         protected override bool OnPerish(ActorBase collider)
         {
+            collisionFlags = CollisionFlags.None;
+
+            CreateParticleDebris();
+
+            PlaySound("Break");
+
             if (content.Count == 0) {
+                // Random Ammo create
                 HashSet<WeaponType> availableWeapons = new HashSet<WeaponType>();
                 foreach (Player player in api.Players) {
                     for (int i = 1; i < player.WeaponAmmo.Length; i++) {
@@ -55,22 +55,21 @@ namespace Jazz2.Actors.Solid
                     }
                 }
 
-                CreateSpriteDebris("OBJECT_CRATE_SHRAPNEL_1", 3);
-                CreateSpriteDebris("OBJECT_CRATE_SHRAPNEL_2", 2);
+                CreateSpriteDebris("CrateShrapnel1", 3);
+                CreateSpriteDebris("CrateShrapnel2", 2);
+
+                SetTransition(AnimState.TransitionDeath, false, delegate {
+                    base.OnPerish(collider);
+                });
+                SpawnContent();
+                return true;
             } else {
-                CreateSpriteDebris("OBJECT_CRATE_AMMO_SHRAPNEL_1", 3);
-                CreateSpriteDebris("OBJECT_CRATE_AMMO_SHRAPNEL_2", 2);
+                CreateSpriteDebris("CrateAmmoShrapnel1", 3);
+                CreateSpriteDebris("CrateAmmoShrapnel2", 2);
+
+                SpawnContent();
+                return base.OnPerish(collider);
             }
-
-            collisionFlags = CollisionFlags.None;
-
-            CreateParticleDebris();
-
-            PlaySound("Break");
-
-            SetTransition(AnimState.TransitionDeath, false);
-            SpawnContent();
-            return base.OnPerish(collider);
         }
 
         public override void HandleCollision(ActorBase other)

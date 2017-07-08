@@ -136,7 +136,7 @@ namespace Jazz2.Game
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public List<Player> GetCollidingPlayers(ref Hitbox hitbox)
+        public List<ActorBase> GetCollidingPlayers(ref Hitbox hitbox)
         {
             return levelHandler.GetCollidingPlayers(ref hitbox);
         }

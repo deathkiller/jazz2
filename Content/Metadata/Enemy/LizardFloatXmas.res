@@ -4,23 +4,23 @@
     },
 
     "Animations": {
-        "ENEMY_LIZARD_FLOAT_IDLE": {
+        "Idle": {
             "Path": "Lizard/xmas_copter_idle.png",
             "States": [ 0 ]
         },
-        "ENEMY_LIZARD_FLOAT_ATTACK": {
+        "Attack": {
             "Path": "Lizard/xmas_copter_attack.png",
             "FrameCount": 12,
             "FrameRate": 6,
             "States": [ 1325400065 ]
         },
-        "ENEMY_LIZARD_FLOAT_ATTACK_END": {
+        "AttackEnd": {
             "Path": "Lizard/xmas_copter_attack.png",
             "FrameOffset": 12,
             "FrameRate": 40,
             "States": [ 1325400066 ]
         },
-        "ENEMY_LIZARD_FLOAT_COPTER": {
+        "Copter": {
             "Path": "Lizard/xmas_copter.png",
             "FrameRate": 14,
             "States": [ 32 ]

@@ -63,7 +63,7 @@ namespace Jazz2.Actors.Bosses
                     Spring spring = collisions[i] as Spring;
                     if (spring != null) {
                         // Collide only with hitbox
-                        if (spring.Hitbox.Overlaps(ref currentHitbox)) {
+                        if (spring.Hitbox.Intersects(ref currentHitbox)) {
                             Vector2 force = spring.Activate();
                             int sign = ((force.X + force.Y) > float.Epsilon ? 1 : -1);
                             if (Math.Abs(force.X) > float.Epsilon) {
@@ -78,7 +78,7 @@ namespace Jazz2.Actors.Bosses
                             canJump = false;
 
                             SetAnimation(AnimState.Fall);
-                            PlaySound("SPRING");
+                            PlaySound("Spring");
 
                             api.BroadcastLevelText(endText);
 
@@ -113,7 +113,7 @@ namespace Jazz2.Actors.Bosses
                         isInvulnerable = false;
 
                         state = StateScreaming;
-                        PlaySound("SCREAM");
+                        PlaySound("Scream");
                         SetTransition((AnimState)1073741824, false, delegate {
                             state = MathF.Rnd.OneOf(new[] { StateIdleToStomp, StateIdleToBackstep });
                             stateTime = MathF.Rnd.NextFloat(65, 85);

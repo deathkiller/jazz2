@@ -61,7 +61,7 @@ namespace Jazz2.Actors.Enemies
 
                 if (noiseCooldown <= 0f) {
                     noiseCooldown = MathF.Rnd.NextFloat(100, 300);
-                    PlaySound("NOISE", 0.4f);
+                    PlaySound("Noise", 0.4f);
                 } else {
                     noiseCooldown -= Time.TimeMult;
                 }
@@ -78,7 +78,7 @@ namespace Jazz2.Actors.Enemies
         protected override bool OnPerish(ActorBase collider)
         {
             CreateDeathDebris(collider);
-            api.PlayCommonSound(this, "COMMON_SPLAT");
+            api.PlayCommonSound(this, "Splat");
 
             TryGenerateRandomDrop();
 
@@ -95,7 +95,7 @@ namespace Jazz2.Actors.Enemies
                 
                 if (!(ammo is AmmoFreezer)) {
                     if (attackTime <= 0f) {
-                        PlaySound("ATTACK");
+                        PlaySound("Attack");
 
                         speedX = (isFacingLeft ? -1f : 1f) * attackSpeed;
                         SetAnimation(AnimState.TransitionAttack);

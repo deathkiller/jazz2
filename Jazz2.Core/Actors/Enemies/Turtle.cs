@@ -66,7 +66,7 @@ namespace Jazz2.Actors.Enemies
                 if (api.TileMap.IsTileEmpty(ref hitbox, true)) {
                     hitbox = currentHitbox + new Vector2(speedX * 32, 0);
 
-                    List<Player> players = api.GetCollidingPlayers(ref hitbox);
+                    List<ActorBase> players = api.GetCollidingPlayers(ref hitbox);
                     for (int i = 0; i < players.Count; i++) {
                         if (!players[i].IsInvulnerable) {
                             Attack();

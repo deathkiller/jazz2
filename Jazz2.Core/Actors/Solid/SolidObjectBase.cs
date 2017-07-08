@@ -9,8 +9,7 @@ namespace Jazz2.Actors.Solid
 
         public SolidObjectBase()
         {
-            collisionFlags |= CollisionFlags.CollideWithSolidObjects;
-            collisionFlags |= CollisionFlags.IsSolidObject;
+            collisionFlags |= CollisionFlags.CollideWithSolidObjects | CollisionFlags.IsSolidObject;
         }
 
         public bool Push(bool left)

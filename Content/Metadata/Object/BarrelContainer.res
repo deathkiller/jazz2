@@ -9,16 +9,16 @@
             "FrameRate": 0,
             "States": [ 0 ]
         },
-        "Shrapnel1": {
+        "BarrelShrapnel1": {
             "Path": "Object/container_barrel_shrapnel_1.png"
         },
-        "Shrapnel2": {
+        "BarrelShrapnel2": {
             "Path": "Object/container_barrel_shrapnel_2.png"
         },
-        "Shrapnel3": {
+        "BarrelShrapnel3": {
             "Path": "Object/container_barrel_shrapnel_3.png"
         },
-        "Shrapnel4": {
+        "BarrelShrapnel4": {
             "Path": "Object/container_barrel_shrapnel_4.png"
         }
     },

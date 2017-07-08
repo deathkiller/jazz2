@@ -37,6 +37,10 @@
             "Path": "Object/powerup_upgrade_toaster.png",
             "FrameRate": 6
         },
+        "TNT": {
+            "Path": "Object/powerup_empty.png",
+            "FrameRate": 6
+        },
         "Pepper": {
             "Path": "Object/powerup_upgrade_pepper.png",
             "FrameRate": 6

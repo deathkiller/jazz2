@@ -46,7 +46,7 @@ namespace Jazz2
 
             using (INativeWindow window = DualityApp.OpenWindow(new WindowOptions {
                 Title = AssemblyTitle,
-                RefreshMode = (args.Contains("/mv") ? RefreshMode.ManualSync : RefreshMode.VSync),
+                RefreshMode = (args.Contains("/nv") ? RefreshMode.NoSync : (args.Contains("/mv") ? RefreshMode.ManualSync : RefreshMode.VSync)),
                 Size = LevelRenderSetup.TargetSize
             })) {
                 controller = new Controller(window);

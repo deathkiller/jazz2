@@ -1360,7 +1360,7 @@ namespace Jazz2.Actors
                     Spring spring = collisions[i] as Spring;
                     if (spring != null) {
                         // Collide only with hitbox
-                        if (spring.Hitbox.Overlaps(ref currentHitbox)) {
+                        if (spring.Hitbox.Intersects(ref currentHitbox)) {
                             removeSpecialMove = true;
 
                             Vector2 force = spring.Activate();

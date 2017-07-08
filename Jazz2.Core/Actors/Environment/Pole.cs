@@ -25,6 +25,7 @@ namespace Jazz2.Actors.Environment
 
             canBeFrozen = false;
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
+            //collisionFlags |= CollisionFlags.IsSolidObject;
 
             RequestMetadata("Object/Pole");
 

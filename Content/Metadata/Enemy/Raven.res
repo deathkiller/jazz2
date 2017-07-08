@@ -4,16 +4,16 @@
     },
 
     "Animations": {
-        "IDLE": {
+        "Idle": {
             "Path": "Raven/idle.png",
             "FrameRate": 8,
             "States": [ 0 ]
         },
-        "TURN": {
+        "Turn": {
             "Path": "Raven/turn.png",
             "States": [ 1073741840 ]
         },
-        "ATTACK": {
+        "Attack": {
             "Path": "Raven/attack.png",
             "States": [ 1325400065 ]
         }

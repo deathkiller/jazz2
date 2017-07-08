@@ -67,7 +67,7 @@ namespace Jazz2.Actors.Bosses
                     if (stateTime <= 0f) {
                         state = StateTransition;
                         SetTransition((AnimState)1073741826, false, delegate {
-                            PlaySound("THROW_FIREBALL");
+                            PlaySound("ThrowFireball");
 
                             Vector3 pos = Transform.Pos;
 
@@ -113,7 +113,7 @@ namespace Jazz2.Actors.Bosses
         {
             CreateDeathDebris(collider);
 
-            api.PlayCommonSound(this, "COMMON_SPLAT");
+            api.PlayCommonSound(this, "Splat");
 
             api.BroadcastLevelText(endText);
 
@@ -168,7 +168,7 @@ namespace Jazz2.Actors.Bosses
                 stateTime = 30f;
             });
 
-            PlaySound("APPEAR", 0.8f);
+            PlaySound("Appear", 0.8f);
         }
 
         public class BilsyFireball : EnemyBase
@@ -208,7 +208,7 @@ namespace Jazz2.Actors.Bosses
                 light.RadiusNear = 0f;
                 light.RadiusFar = 30f;
 
-                PlaySound("FIRE_START");
+                PlaySound("FireStart");
             }
 
             protected override void OnUpdate()

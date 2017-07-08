@@ -43,7 +43,7 @@ namespace Jazz2.Actors.Enemies
 
             if (noiseCooldown <= 0f) {
                 noiseCooldown = MathF.Rnd.NextFloat(60, 100);
-                PlaySound("NOISE", 0.4f);
+                PlaySound("Noise", 0.4f);
             } else {
                 noiseCooldown -= Time.TimeMult;
             }
@@ -54,7 +54,7 @@ namespace Jazz2.Actors.Enemies
         protected override bool OnPerish(ActorBase collider)
         {
             CreateDeathDebris(collider);
-            api.PlayCommonSound(this, "COMMON_SPLAT");
+            api.PlayCommonSound(this, "Splat");
 
             Explosion.Create(api, Transform.Pos, Explosion.Large);
 

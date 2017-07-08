@@ -4,22 +4,22 @@
     },
 
     "Animations": {
-        "ENEMY_DOGGY_WALK": {
+        "Walk": {
             "Path": "Doggy/xmas_walk.png",
             "FrameRate": 6,
             "States": [ 1 ]
         },
-        "ENEMY_DOGGY_ATTACK": {
+        "Attack": {
             "Path": "Doggy/xmas_attack.png",
             "States": [ 1325400065 ]
         }
     },
 
     "Sounds": {
-        "ATTACK": {
+        "Attack": {
             "Paths": [ "Doggy/xmas_attack.wav" ]
         },
-        "NOISE": {
+        "Noise": {
             "Paths": [ "Doggy/xmas_noise.wav" ]
         }
     }

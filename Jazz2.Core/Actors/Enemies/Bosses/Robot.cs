@@ -56,7 +56,7 @@ namespace Jazz2.Actors.Bosses
                         speedX = 0f;
 
                         state = StateTransition;
-                        PlaySound("ATTACK_START");
+                        PlaySound("AttackStart");
                         SetAnimation(AnimState.Idle);
                         SetTransition((AnimState)1073741824, false, delegate {
                             shots = MathF.Rnd.Next(1, 4);
@@ -84,15 +84,15 @@ namespace Jazz2.Actors.Bosses
             CreateParticleDebris();
 
             string[] shrapnels = new[] {
-                "SHRAPNEL_1", "SHRAPNEL_2", "SHRAPNEL_3",
-                "SHRAPNEL_4", "SHRAPNEL_5", "SHRAPNEL_6",
-                "SHRAPNEL_7", "SHRAPNEL_8", "SHRAPNEL_9"
+                "Shrapnel1", "Shrapnel2", "Shrapnel3",
+                "Shrapnel4", "Shrapnel5", "Shrapnel6",
+                "Shrapnel7", "Shrapnel8", "Shrapnel9"
             };
             for (int i = 0; i < 6; i++) {
                 CreateSpriteDebris(MathF.Rnd.OneOf(shrapnels), 1);
             }
 
-            api.PlayCommonSound(this, "COMMON_SPLAT");
+            api.PlayCommonSound(this, "Splat");
 
             return base.OnPerish(collider);
         }
@@ -102,16 +102,16 @@ namespace Jazz2.Actors.Bosses
             base.OnHealthChanged(collider);
 
             string[] shrapnels = new[] {
-                "SHRAPNEL_1", "SHRAPNEL_2", "SHRAPNEL_3",
-                "SHRAPNEL_4", "SHRAPNEL_5", "SHRAPNEL_6",
-                "SHRAPNEL_7", "SHRAPNEL_8", "SHRAPNEL_9"
+                "Shrapnel1", "Shrapnel2", "Shrapnel3",
+                "Shrapnel4", "Shrapnel5", "Shrapnel6",
+                "Shrapnel7", "Shrapnel8", "Shrapnel9"
             };
             int n = MathF.Rnd.Next(1, 3);
             for (int i = 0; i < n; i++) {
                 CreateSpriteDebris(MathF.Rnd.OneOf(shrapnels), 1);
             }
 
-            PlaySound("SHRAPNEL");
+            PlaySound("Shrapnel");
         }
 
         private void FollowNearestPlayer(int newState, float time)
@@ -139,7 +139,7 @@ namespace Jazz2.Actors.Bosses
                 speedX = (isFacingLeft ? -3f : 3f) * mult;
                 renderer.AnimDuration = currentAnimation.FrameDuration / mult;
 
-                PlaySound("RUN");
+                PlaySound("Run");
                 SetAnimation(AnimState.Run);
             }
         }
@@ -156,10 +156,10 @@ namespace Jazz2.Actors.Bosses
 
             shots--;
 
-            PlaySound("ATTACK");
+            PlaySound("Attack");
             SetTransition((AnimState)1073741825, false, delegate {
                 if (shots > 0) {
-                    PlaySound("ATTACK_START_SHUTTER");
+                    PlaySound("AttackShutter");
                     Shoot();
                 } else {
                     Run();
@@ -169,7 +169,7 @@ namespace Jazz2.Actors.Bosses
 
         private void Run()
         {
-            PlaySound("ATTACK_END");
+            PlaySound("AttackEnd");
             SetTransition((AnimState)1073741826, false, delegate {
                 state = StatePreparingToRun;
                 stateTime = 10f;

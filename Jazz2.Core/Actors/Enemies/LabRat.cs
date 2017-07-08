@@ -72,7 +72,7 @@ namespace Jazz2.Actors.Enemies
                             isFacingLeft ? 128 : 0, 20,
                             isFacingLeft ? 0 : 128, 20
                         );
-                        List<Player> players = api.GetCollidingPlayers(ref hitbox);
+                        List<ActorBase> players = api.GetCollidingPlayers(ref hitbox);
                         if (players.Count > 0) {
                             Attack();
                         }
@@ -87,7 +87,7 @@ namespace Jazz2.Actors.Enemies
                 }
 
                 if (MathF.Rnd.NextFloat() < 0.006f) {
-                    PlaySound("ENEMY_LAB_RAT_SPONTANEOUS", 0.4f);
+                    PlaySound("Noise", 0.4f);
                 }
 
                 if (canIdle) {
@@ -100,7 +100,7 @@ namespace Jazz2.Actors.Enemies
                         stateTime = MathF.Rnd.NextFloat(260, 320);
 
                         // TODO: Play with timer
-                        //PlaySound("ENEMY_LAB_RAT_IDLE");
+                        //PlaySound("Idle");
                     }
                 } else {
                     if (stateTime <= 0f) {
@@ -132,13 +132,13 @@ namespace Jazz2.Actors.Enemies
             isAttacking = true;
             canJump = false;
 
-            PlaySound("ENEMY_LAB_RAT_ATTACK");
+            PlaySound("Attack");
         }
 
         protected override bool OnPerish(ActorBase collider)
         {
             CreateDeathDebris(collider);
-            api.PlayCommonSound(this, "COMMON_SPLAT");
+            api.PlayCommonSound(this, "Splat");
 
             TryGenerateRandomDrop();
 

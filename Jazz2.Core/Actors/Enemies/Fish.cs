@@ -96,7 +96,7 @@ namespace Jazz2.Actors.Enemies
                 }
             }
 
-            api.PlayCommonSound(this, "COMMON_SPLAT");
+            api.PlayCommonSound(this, "Splat");
 
             Explosion.Create(api, Transform.Pos, Explosion.SmallDark);
 

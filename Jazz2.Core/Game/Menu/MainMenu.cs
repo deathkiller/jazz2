@@ -120,7 +120,7 @@ namespace Jazz2.Game.Menu
             }
         }
 
-        public void SwitchToLevel(InitLevelData data)
+        public void SwitchToLevel(LevelInitialization data)
         {
             root.ChangeLevel(data);
         }

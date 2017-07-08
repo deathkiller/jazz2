@@ -4,38 +4,38 @@
     },
 
     "Animations": {
-        "WALK": {
+        "Walk": {
             "Path": "MadderHatter/walk.png",
             "FrameRate": 4,
             "States": [ 1 ]
         },
-        "ATTACK_START": {
+        "AttackStart": {
             "Path": "MadderHatter/attack.png",
             "FrameCount": 12,
             "FrameRate": 5,
             "States": [ 1073741824 ]
         },
-        "ATTACK_END": {
+        "AttackEnd": {
             "Path": "MadderHatter/attack.png",
             "FrameOffset": 12,
             "FrameRate": 5,
             "States": [ 1073741825 ]
         },
 
-        "BULLET_SPIT": {
+        "Bullet": {
             "Path": "MadderHatter/bullet_spit.png",
             "States": [ 1073741826 ]
         },
-        "CUP": {
+        "Cup": {
             "Path": "MadderHatter/cup.png"
         },
-        "HAT": {
+        "Hat": {
             "Path": "MadderHatter/hat.png"
         }
     },
 
     "Sounds": {
-        "SPIT": {
+        "Spit": {
             "Paths": [ "MadderHatter/spit.wav" ]
         }
     }

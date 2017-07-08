@@ -6,52 +6,52 @@
     "BoundingBox": [ 20, 30 ],
 
     "Animations": {
-        "ENEMY_QUEEN_IDLE": {
+        "Idle": {
             "Path": "Queen/idle.png",
             "States": [ 0 ],
             "FrameRate": 6
         },
-        "ENEMY_QUEEN_FALL": {
+        "Fall": {
             "Path": "Queen/fall.png",
             "States": [ 8 ],
             "FrameRate": 6
         },
 
-        "ENEMY_QUEEN_SCREAM": {
+        "Scream": {
             "Path": "Queen/scream.png",
             "States": [ 1073741824 ],
             "FrameRate": 3
         },
-        "ENEMY_QUEEN_STOMP": {
+        "Stomp": {
             "Path": "Queen/stomp.png",
             "States": [ 1073741825 ]
         },
-        "ENEMY_QUEEN_BACKSTEP": {
+        "Backstep": {
             "Path": "Queen/backstep.png",
             "States": [ 1073741826 ],
             "FrameRate": 8
         },
-        "ENEMY_QUEEN_LEDGE": {
+        "Ledge": {
             "Path": "Queen/ledge.png",
             "States": [ 1073741827 ],
             "FrameRate": 4
         },
-        "ENEMY_QUEEN_LEDGE_RECOVER": {
+        "LedgeRecover": {
             "Path": "Queen/ledge_recover.png",
             "States": [ 1073741828 ],
             "FrameRate": 6
         },
-        "ENEMY_QUEEN_BRICK": {
+        "Brick": {
             "Path": "Queen/brick.png",
             "States": [ 1073741829 ]
         }
     },
 
     "Sounds": {
-        "SCREAM": {
+        "Scream": {
             "Paths": [ "Queen/scream.wav" ]
         },
-        "SPRING": {
+        "Spring": {
             "Paths": [ "Queen/spring.wav" ]
         }
     }

@@ -17,9 +17,9 @@ namespace Jazz2.Game.Structs
             this.Bottom = bottom;
         }
 
-        public bool Overlaps(ref Hitbox other) {
-            return Left < other.Right && Right > other.Left
-                && Top < other.Bottom && Bottom > other.Top;
+        public bool Intersects(ref Hitbox other) {
+            return Left <= other.Right && Right >= other.Left
+                && Top <= other.Bottom && Bottom >= other.Top;
         }
 
         public Hitbox Extend(float left, float top, float right, float bottom)

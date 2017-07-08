@@ -467,6 +467,13 @@ namespace Jazz2.Actors
 
         public bool IsCollidingWith(ActorBase other)
         {
+            bool perPixel1 = (collisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0;
+            bool perPixel2 = (other.collisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0;
+
+            if (perPixel1 && perPixel2 && (Transform.Angle != 0f || other.Transform.Angle != 0f)) {
+                return IsCollidingWithAngled(other);
+            }
+
             GraphicResource res1 = (currentTransitionState != AnimState.Idle ? currentTransition : currentAnimation);
             GraphicResource res2 = (other.currentTransitionState != AnimState.Idle ? other.currentTransition : other.currentAnimation);
 
@@ -497,18 +504,15 @@ namespace Jazz2.Actors
                 box2 = new Rect(pos2.X - hotspot2.X, pos2.Y - hotspot2.Y, size2.X, size2.Y);
             }
 
-            // Bounding-box intersection check
+            // Bounding Box intersection
             Rect inter = box1.Intersection(box2);
             if (inter.W <= 0 || inter.H <= 0) {
                 return false;
             }
 
-            bool perPixel1 = (collisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0;
-            bool perPixel2 = (other.collisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0;
-
             if (!perPixel1 || !perPixel2) {
                 if (perPixel1 == perPixel2) {
-                    return currentHitbox.Overlaps(ref other.currentHitbox);
+                    return currentHitbox.Intersects(ref other.currentHitbox);
                 }
 
                 PixelData p;
@@ -560,7 +564,6 @@ namespace Jazz2.Actors
                 }
 
             } else {
-
                 int x1 = (int)inter.X;
                 int y1 = (int)inter.Y;
                 int x2 = (int)inter.RightX;
@@ -585,11 +588,125 @@ namespace Jazz2.Actors
                         int i2 = i - x2s;
                         if (other.isFacingLeft) i2 = res2.FrameDimensions.X - i2 - 1;
 
-                        if (p1[i1 + dx1, j + dy1].A > 40 && p2[i2 + dx2, j + dy2].A > 40) {
+                        if (p1[i1 + dx1, j + dy1].A > 20 && p2[i2 + dx2, j + dy2].A > 20) {
                             return true;
                         }
                     }
                 }
+            }
+
+            return false;
+        }
+
+        private bool IsCollidingWithAngled(ActorBase other)
+        {
+            GraphicResource res1 = (currentTransitionState != AnimState.Idle ? currentTransition : currentAnimation);
+            GraphicResource res2 = (other.currentTransitionState != AnimState.Idle ? other.currentTransition : other.currentAnimation);
+
+            PixelData p1 = res1?.Material.Res?.MainTexture.Res?.BasePixmap.Res.PixelData?[0];
+            PixelData p2 = res2?.Material.Res?.MainTexture.Res?.BasePixmap.Res.PixelData?[0];
+            if (p1 == null || p2 == null) {
+                return false;
+            }
+
+            var transform1 =
+                Matrix4.CreateTranslation(new Vector3(-res1.Hotspot.X, -res1.Hotspot.Y, 0f));
+            if (isFacingLeft)
+                transform1 *= Matrix4.CreateScale(-1f, 1f, 1f);
+            transform1 *= Matrix4.CreateRotationZ(Transform.Angle) *
+                Matrix4.CreateTranslation(Transform.Pos);
+
+            var transform2 =
+                Matrix4.CreateTranslation(new Vector3(-res2.Hotspot.X, -res2.Hotspot.Y, 0f));
+            if (other.isFacingLeft)
+                transform2 *= Matrix4.CreateScale(-1f, 1f, 1f);
+            transform2 *= Matrix4.CreateRotationZ(other.Transform.Angle) *
+                Matrix4.CreateTranslation(other.Transform.Pos);
+
+            int width1 = res1.FrameDimensions.X;
+            int height1 = res1.FrameDimensions.Y;
+            int width2 = res2.FrameDimensions.X;
+            int height2 = res2.FrameDimensions.Y;
+
+            // Bounding Box intersection
+            Hitbox box1, box2;
+            {
+                var tl = Vector2.Transform(Vector2.Zero, transform1);
+                var tr = Vector2.Transform(new Vector2(width1, 0f), transform1);
+                var bl = Vector2.Transform(new Vector2(0f, height1), transform1);
+                var br = Vector2.Transform(new Vector2(width1, height1), transform1);
+
+                var minX = MathF.Min(tl.X, tr.X, bl.X, br.X);
+                var minY = MathF.Min(tl.Y, tr.Y, bl.Y, br.Y);
+                var maxX = MathF.Max(tl.X, tr.X, bl.X, br.X);
+                var maxY = MathF.Max(tl.Y, tr.Y, bl.Y, br.Y);
+
+                box1 = new Hitbox(
+                    MathF.Floor(minX),
+                    MathF.Floor(minY),
+                    MathF.Ceiling(maxX),
+                    MathF.Ceiling(maxY));
+            }
+            {
+                var tl = Vector2.Transform(Vector2.Zero, transform2);
+                var tr = Vector2.Transform(new Vector2(width2, 0f), transform2);
+                var bl = Vector2.Transform(new Vector2(0f, height2), transform2);
+                var br = Vector2.Transform(new Vector2(width2, height2), transform2);
+
+                var minX = MathF.Min(tl.X, tr.X, bl.X, br.X);
+                var minY = MathF.Min(tl.Y, tr.Y, bl.Y, br.Y);
+                var maxX = MathF.Max(tl.X, tr.X, bl.X, br.X);
+                var maxY = MathF.Max(tl.Y, tr.Y, bl.Y, br.Y);
+
+                box2 = new Hitbox(
+                    MathF.Floor(minX),
+                    MathF.Floor(minY),
+                    MathF.Ceiling(maxX),
+                    MathF.Ceiling(maxY));
+            }
+
+            //Hud.ShowDebugRect(new Rect(box1.Left, box1.Top, box1.Right - box1.Left, box1.Bottom - box1.Top));
+            //Hud.ShowDebugRect(new Rect(box2.Left, box2.Top, box2.Right - box2.Left, box2.Bottom - box2.Top));
+
+            if (!box1.Intersects(ref box2)) {
+                return false;
+            }
+
+            // Per-pixel collision check
+            var transformAToB = transform1 * Matrix4.Invert(transform2);
+
+            // TransformNormal with [1, 0] and [0, 1] vectors
+            var stepX = new Vector2(transformAToB.M11, transformAToB.M12);
+            var stepY = new Vector2(transformAToB.M21, transformAToB.M22);
+
+            var yPosIn2 = Vector2.Transform(Vector2.Zero, transformAToB);
+
+            int frame1 = Math.Min(renderer.CurrentFrame, res1.FrameCount - 1);
+            int dx1 = (frame1 % res1.FrameConfiguration.X) * res1.FrameDimensions.X;
+            int dy1 = (frame1 / res1.FrameConfiguration.X) * res1.FrameDimensions.Y;
+
+            int frame2 = Math.Min(other.renderer.CurrentFrame, res2.FrameCount - 1);
+            int dx2 = (frame2 % res2.FrameConfiguration.X) * res2.FrameDimensions.X;
+            int dy2 = (frame2 / res2.FrameConfiguration.X) * res2.FrameDimensions.Y;
+
+            for (int y1 = 0; y1 < height1; y1++) {
+                var posIn2 = yPosIn2;
+
+                for (int x1 = 0; x1 < width1; x1++) {
+                    var x2 = (int)Math.Round(posIn2.X);
+                    var y2 = (int)Math.Round(posIn2.Y);
+
+                    if (x2 >= 0 && x2 < width2 && y2 >= 0 && y2 < height2) {
+
+                        if (p1[x1 + dx1, y1 + dy1].A > 20 && p2[x2 + dx2, y2 + dy2].A > 20) {
+                            return true;
+                        }
+                    }
+
+                    posIn2 += stepX;
+                }
+
+                yPosIn2 += stepY;
             }
 
             return false;
@@ -609,13 +726,13 @@ namespace Jazz2.Actors
             availableSounds = metadata.Sounds;
         }
 
-        protected SoundInstance PlaySound(string name, float volume = 1f)
+        protected SoundInstance PlaySound(string name, float gain = 1f)
         {
             SoundResource resource;
             if (availableSounds.TryGetValue(name, out resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, this);
                 // ToDo: Hardcoded volume
-                instance.Volume = volume * Settings.SfxVolume;
+                instance.Volume = gain * Settings.SfxVolume;
 
                 if (Transform.Pos.Y >= api.WaterLevel) {
                     instance.Lowpass = 0.2f;

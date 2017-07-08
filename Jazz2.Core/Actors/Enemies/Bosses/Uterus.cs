@@ -89,7 +89,7 @@ namespace Jazz2.Actors.Bosses
             switch (state) {
                 case StateOpen: {
                     if (stateTime <= 0f) {
-                        PlaySound("CLOSING");
+                        PlaySound("Closing");
 
                         state = StateTransition;
                         SetAnimation((AnimState)1073741825);
@@ -121,7 +121,7 @@ namespace Jazz2.Actors.Bosses
 
                 case StateClosed: {
                     if (stateTime <= 0f) {
-                        PlaySound("OPENING");
+                        PlaySound("Opening");
 
                         state = StateTransition;
                         SetAnimation(AnimState.Idle);
@@ -176,7 +176,7 @@ namespace Jazz2.Actors.Bosses
         protected override bool OnPerish(ActorBase collider)
         {
             api.TileMap.CreateParticleDebris(currentAnimation, Transform.Pos, renderer.CurrentFrame, isFacingLeft);
-            api.PlayCommonSound(this, "COMMON_SPLAT");
+            api.PlayCommonSound(this, "Splat");
 
             api.BroadcastLevelText(endText);
 
@@ -254,7 +254,7 @@ namespace Jazz2.Actors.Bosses
             protected override bool OnPerish(ActorBase collider)
             {
                 CreateDeathDebris(collider);
-                api.PlayCommonSound(this, "COMMON_SPLAT");
+                api.PlayCommonSound(this, "Splat");
 
                 Explosion.Create(api, Transform.Pos, Explosion.Tiny);
 

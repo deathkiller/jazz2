@@ -52,7 +52,7 @@ namespace Jazz2.Actors.Environment
             light.Intensity = 1f;
 
             SetTransition(currentAnimationState | (AnimState)0x200, true);
-            PlaySound("OBJECT_PINBALL_BUMPER_HIT");
+            PlaySound("Hit");
 
             Vector3 pos = other.Transform.Pos - Transform.Pos;
             return pos.Xy;

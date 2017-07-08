@@ -26,7 +26,7 @@ namespace Jazz2.Actors.Environment
             if (cooldown > 0f) {
                 cooldown -= Time.TimeMult;
             } else {
-                GraphicResource res = availableAnimations["AMBIENT_BUBBLES"];
+                GraphicResource res = availableAnimations["AmbientBubbles"];
                 Material material = res.Material.Res;
                 Texture texture = material.MainTexture.Res;
 

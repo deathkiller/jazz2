@@ -13,6 +13,7 @@ namespace Jazz2.Actors.Weapons
 
             strength = 1;
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
+            collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
 
             RequestMetadata("Weapon/Pepper");
         }

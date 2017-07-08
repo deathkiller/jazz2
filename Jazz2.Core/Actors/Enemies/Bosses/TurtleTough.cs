@@ -61,7 +61,7 @@ namespace Jazz2.Actors.Bosses
                     if (stateTime <= 0f) {
                         speedX = 0f;
 
-                        PlaySound("ATTACK_START");
+                        PlaySound("AttackStart");
 
                         state = StateTransition;
                         SetAnimation(AnimState.Idle);
@@ -94,7 +94,7 @@ namespace Jazz2.Actors.Bosses
                             if (mace != null) {
                                 mace.DecreaseHealth(int.MaxValue);
 
-                                PlaySound("ATTACK_END");
+                                PlaySound("AttackEnd");
 
                                 SetTransition((AnimState)1073741826, false, delegate {
                                     FollowNearestPlayer(StateWalking1, MathF.Rnd.NextFloat(80, 160));
@@ -114,9 +114,9 @@ namespace Jazz2.Actors.Bosses
         protected override bool OnPerish(ActorBase collider)
         {
             CreateParticleDebris();
-            CreateSpriteDebris("SHELL", 1);
+            CreateSpriteDebris("Shell", 1);
 
-            api.PlayCommonSound(this, "COMMON_SPLAT");
+            api.PlayCommonSound(this, "Splat");
 
             api.BroadcastLevelText(endText);
 

@@ -4,28 +4,28 @@
     },
 
     "Animations": {
-        "OPEN": {
+        "Open": {
             "Path": "Uterus/idle.png",
             "States": [ 0 ],
             "FrameRate": 8
         },
-        "CLOSING": {
+        "Closing": {
             "Path": "Uterus/closed_start.png",
             "States": [ 1073741824 ],
             "FrameRate": 8
         },
-        "CLOSED": {
+        "Closed": {
             "Path": "Uterus/closed_idle.png",
             "States": [ 1073741825 ],
             "FrameRate": 8
         },
-        "OPENING": {
+        "Opening": {
             "Path": "Uterus/closed_end.png",
             "States": [ 1073741826 ],
             "FrameRate": 8
         },
 
-        "SHIELD": {
+        "Shield": {
             "Path": "Uterus/shield.png",
             "States": [ 1073741827 ],
             "FrameRate": 8
@@ -33,10 +33,10 @@
     },
 
     "Sounds": {
-        "CLOSING": {
+        "Closing": {
             "Paths": [ "Uterus/closed_start.wav" ]
         },
-        "OPENING": {
+        "Opening": {
             "Paths": [ "Uterus/closed_end.wav" ]
         }
     }

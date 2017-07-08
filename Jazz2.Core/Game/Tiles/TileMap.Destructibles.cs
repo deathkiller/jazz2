@@ -28,7 +28,7 @@ namespace Jazz2.Game.Tiles
                             levelHandler.AddActor(frozen);
                             hit++;
                         } else if (tile.ExtraData == 0 || tile.ExtraData == (uint)(weapon + 1)) {
-                            if (AdvanceDestructibleTileAnimation(ref tile, tx, ty, strength, "COMMON_SCENERY_DESTRUCT")) {
+                            if (AdvanceDestructibleTileAnimation(ref tile, tx, ty, strength, "SceneryDestruct")) {
                                 hit++;
                             }
                         }
@@ -54,7 +54,7 @@ namespace Jazz2.Game.Tiles
                 for (int ty = y1; ty <= y2; ty++) {
                     ref LayerTile tile = ref levelLayout[sprLayerIndex].Layout[tx + ty * levelWidth];
                     if (tile.DestructType == TileDestructType.Special) {
-                        if (AdvanceDestructibleTileAnimation(ref tile, tx, ty, 1, "COMMON_SCENERY_DESTRUCT")) {
+                        if (AdvanceDestructibleTileAnimation(ref tile, tx, ty, 1, "SceneryDestruct")) {
                             hit++;
                         }
                     }
@@ -79,7 +79,7 @@ namespace Jazz2.Game.Tiles
                 for (int ty = y1; ty <= y2; ty++) {
                     ref LayerTile tile = ref levelLayout[sprLayerIndex].Layout[tx + ty * levelWidth];
                     if (tile.DestructType == TileDestructType.Speed && tile.ExtraData + /*3*/5 <= speed) {
-                        if (AdvanceDestructibleTileAnimation(ref tile, tx, ty, 1, "COMMON_SCENERY_DESTRUCT")) {
+                        if (AdvanceDestructibleTileAnimation(ref tile, tx, ty, 1, "SceneryDestruct")) {
                             hit++;
                         }
                     }
@@ -137,7 +137,7 @@ namespace Jazz2.Game.Tiles
                 Point2 tilePos = activeCollapsingTiles[i];
                 ref LayerTile tile = ref levelLayout[sprLayerIndex].Layout[tilePos.X + tilePos.Y * levelWidth];
                 if (tile.ExtraData == 0) {
-                    if (!AdvanceDestructibleTileAnimation(ref tile, tilePos.X, tilePos.Y, 1, "COMMON_SCENERY_COLLAPSE")) {
+                    if (!AdvanceDestructibleTileAnimation(ref tile, tilePos.X, tilePos.Y, 1, "SceneryCollapse")) {
                         tile.DestructType = TileDestructType.None;
                         activeCollapsingTiles.RemoveAtFast(i);
                     } else {

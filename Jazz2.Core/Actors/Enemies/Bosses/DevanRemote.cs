@@ -46,7 +46,7 @@ namespace Jazz2.Actors.Bosses
             if (activeRobot != null && activeRobot.ParentScene == null) {
                 api.BroadcastLevelText(endText);
 
-                PlaySound("WARP_OUT");
+                PlaySound("WarpOut");
                 SetTransition(AnimState.TransitionWarpOut, false, delegate {
                     DecreaseHealth(int.MaxValue);
                 });

@@ -4,55 +4,55 @@
     },
 
     "Animations": {
-        "IDLE": {
+        "Idle": {
             "Path": "TurtleToughBoss/idle.png",
             "States": [ 0 ],
             "FrameRate": 8
         },
-        "WALK": {
+        "Walk": {
             "Path": "TurtleToughBoss/walk.png",
             "States": [ 1 ],
             "FrameRate": 8
         },
 
-        "ATTACK_START": {
+        "AttackStart": {
             "Path": "TurtleToughBoss/attack_start.png",
             "States": [ 1073741824 ],
             "FrameRate": 6,
             "FrameCount": 15
         },
-        "ATTACK_START_2": {
+        "AttackStart2": {
             "Path": "TurtleToughBoss/attack_start.png",
             "States": [ 1073741825 ],
             "FrameRate": 10,
             "FrameOffset": 15,
             "FrameCount": 4
         },
-        "ATTACK_END": {
+        "AttackEnd": {
             "Path": "TurtleToughBoss/attack_end.png",
             "States": [ 1073741826 ],
             "FrameRate": 7
         },
         
-        "MACE": {
+        "Mace": {
             "Path": "TurtleToughBoss/mace.png",
             "States": [ 1073741827 ],
             "FrameRate": 15
         },
         
-        "SHELL": {
+        "Shell": {
             "Path": "TurtleToughBoss/shell.png"
         }
     },
 
     "Sounds": {
-        "ATTACK_START": {
+        "AttackStart": {
             "Paths": [ "TurtleToughBoss/attack_start.wav" ]
         },
-        "ATTACK_END": {
+        "AttackEnd": {
             "Paths": [ "TurtleToughBoss/attack_end.wav" ]
         },
-        "MACE": {
+        "Mace": {
             "Paths": [ "TurtleToughBoss/mace.wav" ]
         }
     }

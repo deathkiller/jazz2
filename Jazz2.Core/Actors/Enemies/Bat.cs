@@ -76,7 +76,7 @@ namespace Jazz2.Actors.Enemies
                     noiseCooldown -= Time.TimeMult;
                 } else {
                     noiseCooldown = 60f;
-                    PlaySound("ENEMY_BAT_NOISE");
+                    PlaySound("Noise");
                 }
             } else {
                 if (currentTransitionState != AnimState.Idle)
@@ -97,7 +97,7 @@ namespace Jazz2.Actors.Enemies
         protected override bool OnPerish(ActorBase collider)
         {
             CreateDeathDebris(collider);
-            api.PlayCommonSound(this, "COMMON_SPLAT");
+            api.PlayCommonSound(this, "Splat");
 
             TryGenerateRandomDrop();
 

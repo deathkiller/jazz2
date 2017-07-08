@@ -58,7 +58,7 @@ namespace Jazz2.Actors.Environment
             // Explosion.Large is the same as Explosion.Bomb
             Explosion.Create(api, pos, Explosion.Large);
 
-            api.PlayCommonSound(this, "COMMON_BOMB");
+            api.PlayCommonSound(this, "Bomb");
 
             return base.OnPerish(collider);
         }

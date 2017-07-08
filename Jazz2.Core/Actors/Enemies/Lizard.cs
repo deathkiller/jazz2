@@ -56,14 +56,14 @@ namespace Jazz2.Actors.Enemies
             }
 
             if ((MathF.Rnd.Next() & 0x3FF) == 1) {
-                PlaySound("ENEMY_LIZARD_SPONTANEOUS", 0.4f);
+                PlaySound("Noise", 0.4f);
             }
         }
 
         protected override bool OnPerish(ActorBase collider)
         {
             CreateDeathDebris(collider);
-            api.PlayCommonSound(this, "COMMON_SPLAT");
+            api.PlayCommonSound(this, "Splat");
 
             TryGenerateRandomDrop();
 

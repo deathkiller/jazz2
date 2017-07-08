@@ -4,18 +4,18 @@
     },
 
     "Animations": {
-        "IDLE": {
+        "Idle": {
             "Path": "Devan/remote_idle.png",
             "States": [ 0 ]
         },
-        "WARP_OUT": {
+        "WarpOut": {
             "Path": "Devan/remote_warp_out.png",
             "States": [ 1073741844 ]
         }
     },
 
     "Sounds": {
-        "WARP_OUT": {
+        "WarpOut": {
             "Paths": [ "Common/warp_out.wav" ]
         }
     }

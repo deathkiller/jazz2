@@ -70,10 +70,10 @@ namespace Jazz2.Actors.Solid
 
             CreateParticleDebris();
 
-            CreateSpriteDebris("Shrapnel1", 3);
-            CreateSpriteDebris("Shrapnel2", 2);
-            CreateSpriteDebris("Shrapnel3", 2);
-            CreateSpriteDebris("Shrapnel4", 1);
+            CreateSpriteDebris("BarrelShrapnel1", 3);
+            CreateSpriteDebris("BarrelShrapnel2", 2);
+            CreateSpriteDebris("BarrelShrapnel3", 2);
+            CreateSpriteDebris("BarrelShrapnel4", 1);
 
             SetTransition(AnimState.TransitionDeath, false);
             SpawnContent();

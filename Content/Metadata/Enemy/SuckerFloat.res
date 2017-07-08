@@ -4,7 +4,7 @@
     },
 
     "Animations": {
-        "ENEMY_SUCKER_FLOAT": {
+        "Idle": {
             "Path": "Sucker/inflated.png",
             "FrameRate": 5,
             "States": [ 0 ]

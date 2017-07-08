@@ -115,7 +115,7 @@ namespace Jazz2.Game.Menu
             if (DualityApp.Keyboard.KeyHit(Key.Enter)) {
                 if (selectedIndex == 2) {
                     api.PlaySound("MenuSelect", 0.5f);
-                    api.SwitchToLevel(new InitLevelData(
+                    api.SwitchToLevel(new LevelInitialization(
                         episodeName,
                         levelName,
                         (GameDifficulty.Easy + selectedDifficulty),

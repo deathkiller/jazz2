@@ -68,7 +68,7 @@ namespace Jazz2.Actors.Bosses
                                 bool spewFileball = (rand < 0.35f);
                                 bool tornado = (rand < 0.65f);
                                 if (spewFileball) {
-                                    PlaySound("SNEEZE");
+                                    PlaySound("Sneeze");
 
                                     SetTransition(AnimState.Shoot, false, delegate {
                                         Vector3 pos = Transform.Pos;
@@ -126,7 +126,7 @@ namespace Jazz2.Actors.Bosses
         {
             CreateParticleDebris();
 
-            api.PlayCommonSound(this, "COMMON_SPLAT");
+            api.PlayCommonSound(this, "Splat");
 
             api.BroadcastLevelText(endText);
 
@@ -168,7 +168,7 @@ namespace Jazz2.Actors.Bosses
 
                 internalForceY = 1.27f;
 
-                PlaySound("JUMP");
+                PlaySound("Jump");
 
                 SetTransition((AnimState)1073741825, false);
                 SetAnimation(AnimState.Jump);

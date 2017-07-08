@@ -4,79 +4,79 @@
     },
 
     "Animations": {
-        "IDLE": {
+        "Idle": {
             "Path": "Robot/idle.png",
             "States": [ 0 ]
         },
-        "RUN": {
+        "Run": {
             "Path": "Robot/run.png",
             "States": [ 2 ]
         },
-        "ATTACK_START": {
+        "AttackStart": {
             "Path": "Robot/attack_start.png",
             "States": [ 1073741824 ]
         },
-        "ATTACK": {
+        "Attack": {
             "Path": "Robot/attack.png",
             "States": [ 1073741825 ],
             "FrameRate": 12
         },
-        "ATTACK_END": {
+        "AttackEnd": {
             "Path": "Robot/attack_end.png",
             "States": [ 1073741826 ]
         },
         
-        "SPIKE_BALL": {
+        "SpikeBall": {
             "Path": "Robot/spike_ball.png",
             "States": [ 1073741827 ]
         },
         
-        "SHRAPNEL_1": {
+        "Shrapnel1": {
             "Path": "Robot/shrapnel_1.png"
         },
-        "SHRAPNEL_2": {
+        "Shrapnel2": {
             "Path": "Robot/shrapnel_2.png"
         },
-        "SHRAPNEL_3": {
+        "Shrapnel3: {
             "Path": "Robot/shrapnel_3.png"
         },
-        "SHRAPNEL_4": {
+        "Shrapnel4": {
             "Path": "Robot/shrapnel_4.png"
         },
-        "SHRAPNEL_5": {
+        "Shrapnel5": {
             "Path": "Robot/shrapnel_5.png"
         },
-        "SHRAPNEL_6": {
+        "Shrapnel6": {
             "Path": "Robot/shrapnel_6.png"
         },
-        "SHRAPNEL_7": {
+        "Shrapnel7": {
             "Path": "Robot/shrapnel_7.png"
         },
-        "SHRAPNEL_8": {
+        "Shrapnel8": {
             "Path": "Robot/shrapnel_8.png"
         },
-        "SHRAPNEL_9": {
+        "Shrapnel9": {
             "Path": "Robot/shrapnel_9.png"
         }
     },
     
     "Sounds": {
-        "RUN": {
+        "Run": {
             "Paths": [ "Robot/walk_1.wav", "Robot/walk_2.wav", "Robot/walk_3.wav" ]
         },
-        "ATTACK_START": {
+        "AttackStart": {
             "Paths": [ "Robot/attack_start.wav" ]
         },
-        "ATTACK_START_SHUTTER": {
+        "AttackShutter": {
             "Paths": [ "Robot/attack_start_shutter.wav" ]
         },
-        "ATTACK": {
+        "Attack": {
             "Paths": [ "Robot/attack.wav" ]
         },
-        "ATTACK_END": {
+        "AttackEnd": {
             "Paths": [ "Robot/attack_end.wav" ]
         },
-        "SHRAPNEL": {
+        "Shrapnel": {
             "Paths": [ "Robot/shrapnel_1.wav", "Robot/shrapnel_2.wav", "Robot/shrapnel_3.wav", "Robot/shrapnel_4.wav", "Robot/shrapnel_5.wav" ]
         }
     }

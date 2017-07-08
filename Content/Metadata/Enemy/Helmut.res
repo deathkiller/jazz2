@@ -4,12 +4,12 @@
     },
 
     "Animations": {
-        "ENEMY_HELMUT_IDLE": {
+        "Idle": {
             "Path": "Helmut/idle.png",
             "FrameRate": 6,
             "States": [ 0 ]
         },
-        "ENEMY_HELMUT_WALK": {
+        "Walk": {
             "Path": "Helmut/walk.png",
             "FrameRate": 6,
             "States": [ 1, 2, 8, 9, 10 ]

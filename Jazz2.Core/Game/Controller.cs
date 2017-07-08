@@ -48,7 +48,7 @@ namespace Jazz2.Game
             ContentResolver.Current.ReleaseUnreferencedResources();
         }
 
-        public void ChangeLevel(InitLevelData carryOver = default(InitLevelData))
+        public void ChangeLevel(LevelInitialization carryOver = default(LevelInitialization))
         {
             ContentResolver.Current.ResetReferenceFlag();
 

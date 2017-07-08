@@ -4,12 +4,12 @@
     },
 
     "Animations": {
-        "ENEMY_CHICK_WALK": {
+        "Walk": {
             "Path": "FatChick/walk.png",
             "FrameRate": 4,
             "States": [ 1 ]
         },
-        "ENEMY_CHICK_ATTACK": {
+        "Attack": {
             "Path": "FatChick/attack.png",
             "FrameRate": 4,
             "States": [ 1325400065 ]
@@ -17,7 +17,7 @@
     },
 
     "Sounds": {
-        "ATTACK": {
+        "Attack": {
             "Paths": [ "FatChick/attack_1.wav", "FatChick/attack_2.wav", "FatChick/attack_3.wav" ]
         }
     }

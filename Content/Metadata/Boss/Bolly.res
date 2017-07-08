@@ -4,21 +4,21 @@
     },
 
     "Animations": {
-        "TOP": {
+        "Top": {
             "Path": "Bolly/top.png",
             "States": [ 0 ]
         },
-        "BOTTOM": {
+        "Bottom": {
             "Path": "Bolly/bottom.png",
             "States": [ 1 ]
         },
-        "TURRET": {
+        "Turret": {
             "Path": "Bolly/turret.png",
             "States": [ 2 ],
             "FrameRate": 5
         },
 
-        "ROCKET": {
+        "Rocket": {
             "Path": "Bolly/rocket.png",
             "States": [ 1073741824 ]
         }

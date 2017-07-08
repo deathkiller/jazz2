@@ -71,6 +71,10 @@ namespace Jazz2.Game.Structs
             resource.HasGunspot = g.HasGunspot;
             return resource;
         }
+
+        private GraphicResource()
+        {
+        }
     }
 
     // ToDo: Refactor sounds

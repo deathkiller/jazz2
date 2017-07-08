@@ -43,7 +43,7 @@ namespace Jazz2.Actors.Weapons
 
                 List<ActorBase> colliders = api.FindCollisionActorsRadius(pos.X, pos.Y, 50);
                 for (int i = 0; i < colliders.Count; i++) {
-                    if (!colliders[i].IsInvulnerable && (colliders[i] is EnemyBase || colliders[i] is SolidObjectBase || colliders[i] is TurtleShell)) {
+                    if (!colliders[i].IsInvulnerable && (colliders[i] is EnemyBase || colliders[i] is SolidObjectBase || colliders[i] is TurtleShell || colliders[i] is GemGiant)) {
                         colliders[i].DecreaseHealth(10);
                     } else if (colliders[i] is Collectible) {
                         colliders[i].HandleCollision(this);

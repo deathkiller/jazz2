@@ -46,7 +46,7 @@ namespace Jazz2.Actors.Enemies
 
         protected override void OnHealthChanged(ActorBase collider)
         {
-            CreateSpriteDebris("ENEMY_SKELETON_BONE", MathF.Rnd.Next(1, 3));
+            CreateSpriteDebris("Bone", MathF.Rnd.Next(1, 3));
 
             base.OnHealthChanged(collider);
         }
@@ -56,10 +56,10 @@ namespace Jazz2.Actors.Enemies
             // TODO: Sound of bones
             // TODO: Use CreateDeathDebris(collider); instead?
             CreateParticleDebris();
-            api.PlayCommonSound(this, "COMMON_SPLAT");
+            api.PlayCommonSound(this, "Splat");
 
-            CreateSpriteDebris("ENEMY_SKELETON_SKULL", 1);
-            CreateSpriteDebris("ENEMY_SKELETON_BONE", MathF.Rnd.Next(9, 12));
+            CreateSpriteDebris("Skull", 1);
+            CreateSpriteDebris("Bone", MathF.Rnd.Next(9, 12));
 
             TryGenerateRandomDrop();
 

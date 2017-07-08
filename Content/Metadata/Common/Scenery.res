@@ -13,16 +13,16 @@
     },
 
     "Sounds": {
-        "COMMON_SCENERY_DESTRUCT": {
+        "SceneryDestruct": {
             "Paths": [ "Common/scenery_destruct.wav" ]
         },
-        "COMMON_SCENERY_COLLAPSE": {
+        "SceneryCollapse": {
             "Paths": [ "Common/scenery_collapse.wav" ]
         },
-        "COMMON_SPLAT": {
+        "Splat": {
             "Paths": [ "Common/splat_1.wav", "Common/splat_2.wav", "Common/splat_3.wav", "Common/splat_4.wav", "Common/splat_5.wav", "Common/splat_6.wav" ]
         },
-        "COMMON_BOMB": {
+        "Bomb": {
             "Paths": [ "Common/bomb.wav" ]
         }
     },

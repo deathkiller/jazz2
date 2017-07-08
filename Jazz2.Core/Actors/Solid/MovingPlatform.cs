@@ -71,7 +71,7 @@ namespace Jazz2.Actors.Solid
         protected override void OnUpdate()
         {
             phase -= speed * Time.TimeMult;
-            if (phase < 0) {
+            if (phase < 0f) {
                 phase += BaseCycleFrames;
             }
 
@@ -84,10 +84,10 @@ namespace Jazz2.Actors.Solid
             Hitbox hitbox = currentHitbox;
             hitbox.Top -= 2;
 
-            List<Player> players = api.GetCollidingPlayers(ref hitbox);
+            List<ActorBase> players = api.GetCollidingPlayers(ref hitbox);
             if (type != PlatformType.SpikeBall) {
                 for (int i = 0; i < players.Count; i++) {
-                    players[i].SetCarryingPlatform(this);
+                    (players[i] as Player).SetCarryingPlatform(this);
                 }
 
                 if (type == PlatformType.Spike) {
@@ -96,12 +96,12 @@ namespace Jazz2.Actors.Solid
 
                     players = api.GetCollidingPlayers(ref hitbox);
                     for (int i = 0; i < players.Count; i++) {
-                        players[i].TakeDamage(2);
+                        (players[i] as Player).TakeDamage(2);
                     }
                 }
             } else {
                 for (int i = 0; i < players.Count; i++) {
-                    players[i].TakeDamage(2);
+                    (players[i] as Player).TakeDamage(2);
                 }
             }
 

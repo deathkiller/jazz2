@@ -179,7 +179,7 @@ namespace Jazz2.Actors.Bosses
                 case StateDemonSpewingFireball: {
                     state = StateTransition;
                     SetTransition((AnimState)673, false, delegate {
-                        PlaySound("SPIT_FIREBALL");
+                        PlaySound("SpitFireball");
 
                         Fireball fireball = new Fireball();
                         fireball.OnAttach(new ActorInstantiationDetails {
@@ -318,7 +318,7 @@ namespace Jazz2.Actors.Bosses
 
         private void Shoot()
         {
-            PlaySound("SHOOT");
+            PlaySound("Shoot");
 
             SetTransition((AnimState)16, false, delegate {
                 Bullet bullet = new Bullet();
@@ -446,7 +446,7 @@ namespace Jazz2.Actors.Bosses
             {
                 Explosion.Create(api, Transform.Pos, Explosion.SmallDark);
 
-                PlaySound("FLAP");
+                PlaySound("Flap");
 
                 return base.OnPerish(collider);
             }

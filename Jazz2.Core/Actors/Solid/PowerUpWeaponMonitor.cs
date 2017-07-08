@@ -30,13 +30,8 @@ namespace Jazz2.Actors.Solid
                         SetAnimation("BlasterJazz");
                     } 
                     break;
-                case WeaponType.Bouncer: SetAnimation("Bouncer"); break;
-                case WeaponType.Freezer: SetAnimation("Freezer"); break;
-                case WeaponType.Seeker: SetAnimation("Seeker"); break;
-                case WeaponType.RF: SetAnimation("RF"); break;
-                case WeaponType.Toaster: SetAnimation("Toaster"); break;
-                case WeaponType.Pepper: SetAnimation("Pepper"); break;
-                case WeaponType.Electro: SetAnimation("Electro"); break;
+
+                default: SetAnimation(weaponType.ToString("G")); break;
             }
         }
 

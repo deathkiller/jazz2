@@ -4,22 +4,22 @@
     },
 
     "Animations": {
-        "IDLE": {
+        "Idle": {
             "Path": "Demon/idle.png",
             "FrameRate": 3,
             "States": [ 0 ]
         },
-        "ATTACK": {
+        "Attack": {
             "Path": "Demon/attack.png",
             "FrameRate": 5,
             "States": [ 1073741824 ]
         },
-        "ATTACK_START": {
+        "AttackStart": {
             "Path": "Demon/attack_start.png",
             "FrameRate": 12,
             "States": [ 1073741825 ]
         },
-        "ATTACK_END": {
+        "AttackEnd": {
             "Path": "Demon/attack_end.png",
             "FrameRate": 12,
             "States": [ 1073741826 ]
