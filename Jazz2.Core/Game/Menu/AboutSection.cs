@@ -18,7 +18,7 @@ namespace Jazz2.Game.Menu
 
             int charOffset = 0;
 
-            api.DrawStringShadow(device, ref charOffset, "Remake of game Jazz Jackrabbit 2 from year 1998. Supports various\nversions of the game (Shareware Demo, Holiday Hare '98, The Secret Files\nand Christmas Chronicles). Also partially supports JJ2+ extension.", center.X, center.Y - 22f,
+            api.DrawStringShadow(device, ref charOffset, "Remake of game Jazz Jackrabbit 2 from year 1998. Supports various\nversions of the game (Shareware Demo, Holiday Hare '98, The Secret Files\nand Christmas Chronicles). Also, it partially supports JJ2+ extension.", center.X, center.Y - 22f,
                 Alignment.Left, ColorRgba.TransparentBlack, 0.7f, 0.4f, 0.6f, 0.6f, 7f, 0.9f, 1.2f);
 
             api.DrawStringShadow(device, ref charOffset, "Created By", center.X, center.Y + 20f,
