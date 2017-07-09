@@ -4,6 +4,7 @@
     "Fragment": "
         uniform vec2 center;
         uniform float intensity;
+        uniform float brightness;
         uniform float radiusNear;
         uniform float radiusFar;
 
@@ -35,6 +36,6 @@
 
             float noise = 0.3 + 0.7 * texture2D(noiseTex, gl_TexCoord[0].st * vec2(0.3) + vec2(GameTime * 5.0, GameTime * 3.0)).r;
             
-            gl_FragColor = vec4(diffuseFactor * strength * intensity * noise, 0.0, 0.0, 1.0);
+            gl_FragColor = vec4(diffuseFactor * strength * intensity * noise, strength * brightness * noise, 0.0, 1.0);
         }"
 }

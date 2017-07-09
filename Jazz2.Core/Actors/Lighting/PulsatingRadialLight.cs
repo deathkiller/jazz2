@@ -15,12 +15,13 @@ namespace Jazz2.Actors.Lighting
         {
             base.OnAttach(details);
 
-            ushort alpha = details.Params[0];
-            ushort radiusNear1 = details.Params[1];
-            ushort radiusNear2 = details.Params[2];
-            ushort radiusFar = details.Params[3];
-            ushort speed = details.Params[4];
-            ushort sync = details.Params[5];
+            ushort intensity = details.Params[0];
+            ushort brightness = details.Params[1];
+            ushort radiusNear1 = details.Params[2];
+            ushort radiusNear2 = details.Params[3];
+            ushort radiusFar = details.Params[4];
+            ushort speed = details.Params[5];
+            ushort sync = details.Params[6];
 
             collisionFlags = CollisionFlags.None;
 
@@ -32,7 +33,8 @@ namespace Jazz2.Actors.Lighting
             phase = (BaseCycleFrames - ((float)(Time.GameTimer.TotalMilliseconds % BaseCycleFrames) + sync * 175)) % BaseCycleFrames;
 
             light = AddComponent<LightEmitter>();
-            light.Intensity = (alpha / 255f);
+            light.Intensity = (intensity / 255f);
+            light.Brightness = (brightness / 255f);
         }
 
         protected override void OnUpdate()

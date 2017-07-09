@@ -20,8 +20,8 @@ namespace Jazz2.Actors.Weapons
 
             LightEmitter light = AddComponent<LightEmitter>();
             light.Intensity = 0.8f;
-            light.RadiusNear = 4f;
-            light.RadiusFar = 9f;
+            light.RadiusNear = 3f;
+            light.RadiusFar = 12f;
         }
 
         public void OnFire(Player owner, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)

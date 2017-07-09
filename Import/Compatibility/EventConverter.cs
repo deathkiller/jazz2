@@ -634,20 +634,20 @@ namespace Jazz2.Compatibility
 
                         return new ConversionResult {
                             eventType = EventType.LightSteady,
-                            eventParams = new ushort[] {255, radiusNear, radiusFar, 0, 0, 0, 0, 0}
+                            eventParams = new ushort[] { 255, 40, radiusNear, radiusFar, 0, 0, 0, 0 }
                         };
                     }
 
                     case 1: // Single point (ignores the "Size" parameter)
                         return new ConversionResult {
                             eventType = EventType.LightSteady,
-                            eventParams = new ushort[] {127, 0, 16, 0, 0, 0, 0, 0}
+                            eventParams = new ushort[] { 127, 40, 0, 16, 0, 0, 0, 0 }
                         };
 
                     case 2: // Single point (brighter) (ignores the "Size" parameter)
                         return new ConversionResult {
                             eventType = EventType.LightSteady,
-                            eventParams = new ushort[] {255, 0, 16, 0, 0, 0, 0, 0}
+                            eventParams = new ushort[] { 255, 200, 0, 16, 0, 0, 0, 0 }
                         };
 
                     case 3: { // Flicker light
@@ -656,7 +656,7 @@ namespace Jazz2.Compatibility
 
                         return new ConversionResult {
                             eventType = EventType.LightFlicker,
-                            eventParams = new ushort[] {110, radiusNear, radiusFar, 0, 0, 0, 0, 0}
+                            eventParams = new ushort[] { 110, 40, radiusNear, radiusFar, 0, 0, 0, 0 }
                         };
                     }
 
@@ -667,7 +667,7 @@ namespace Jazz2.Compatibility
                         // ToDo: Allow oversaturation
                         return new ConversionResult {
                             eventType = EventType.LightSteady,
-                            eventParams = new ushort[] {255, radiusNear, radiusFar, 0, 0, 0, 0, 0}
+                            eventParams = new ushort[] { 255, 200, radiusNear, radiusFar, 0, 0, 0, 0 }
                         };
                     }
 
@@ -705,7 +705,7 @@ namespace Jazz2.Compatibility
 
                 return new ConversionResult {
                     eventType = EventType.LightPulse,
-                    eventParams = new ushort[] { 255, radiusNear1, radiusNear2, radiusFar, speed, sync, 0, 0 }
+                    eventParams = new ushort[] { 255, 40, radiusNear1, radiusNear2, radiusFar, speed, sync, 0 }
                 };
             });
             convert.Add(JJ2Event.JJ2_LIGHT_FLICKER, (level, jj2Params) => {
@@ -715,7 +715,7 @@ namespace Jazz2.Compatibility
 
                 return new ConversionResult {
                     eventType = EventType.LightFlicker,
-                    eventParams = new ushort[] { 110, 60, 110, 0, 0, 0, 0, 0 }
+                    eventParams = new ushort[] { 110, 40, 60, 110, 0, 0, 0, 0 }
                 };
             });
 

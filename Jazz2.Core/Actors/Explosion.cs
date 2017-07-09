@@ -24,6 +24,9 @@ namespace Jazz2.Actors
 
         public const ushort Generator = 20;
 
+        private ushort type;
+        private LightEmitter light;
+
         public static void Create(ActorApi api, Vector3 pos, ushort type)
         {
             Explosion explosion = new Explosion();
@@ -41,7 +44,7 @@ namespace Jazz2.Actors
 
             collisionFlags = CollisionFlags.None;
 
-            ushort type = details.Params[0];
+            type = details.Params[0];
 
             RequestMetadata("Common/Explosions");
 
@@ -52,7 +55,16 @@ namespace Jazz2.Actors
                 case TinyDark: SetAnimation("TinyDark"); break;
                 case Small: SetAnimation("Small"); break;
                 case SmallDark: SetAnimation("SmallDark"); break;
-                case Large: SetAnimation("Large"); break;
+                case Large: {
+                    SetAnimation("Large");
+
+                    light = AddComponent<LightEmitter>();
+                    light.Intensity = 0.8f;
+                    light.Brightness = 0.9f;
+                    light.RadiusNear = 0f;
+                    light.RadiusFar = 55f;
+                    break;
+                }
 
                 case SmokeBrown: SetAnimation("SmokeBrown"); break;
                 case SmokeGray: SetAnimation("SmokeGray"); break;
@@ -61,10 +73,28 @@ namespace Jazz2.Actors
 
                 case WaterSplash: SetAnimation("WaterSplash"); break;
 
-                case Pepper: SetAnimation("Pepper"); break;
-                case RF: SetAnimation("RF"); break;
+                case Pepper: {
+                    SetAnimation("Pepper");
 
-                case Generator:
+                    light = AddComponent<LightEmitter>();
+                    light.Intensity = 0.5f;
+                    light.Brightness = 0.2f;
+                    light.RadiusNear = 7f;
+                    light.RadiusFar = 14f;
+                    break;
+                }
+                case RF: {
+                    SetAnimation("RF");
+
+                    light = AddComponent<LightEmitter>();
+                    light.Intensity = 0.8f;
+                    light.Brightness = 0.9f;
+                    light.RadiusNear = 0f;
+                    light.RadiusFar = 50f;
+                    break;
+                }
+
+                case Generator: {
                     SetAnimation("Generator");
 
                     // Apply random orientation
@@ -72,6 +102,7 @@ namespace Jazz2.Actors
                     isFacingLeft = (MathF.Rnd.NextFloat() < 0.5f);
                     RefreshFlipMode();
                     break;
+                }
             }
         }
 
@@ -85,6 +116,27 @@ namespace Jazz2.Actors
         protected override void OnUpdate()
         {
             //base.OnUpdate();
+
+            switch (type) {
+                case Large: {
+                    float timeMult = Time.TimeMult;
+                    light.RadiusFar -= timeMult * 5f;
+                    break;
+                }
+
+                case Pepper: {
+                    float timeMult = Time.TimeMult;
+                    light.Intensity -= timeMult * 0.05f;
+                    break;
+                }
+
+                case RF: {
+                    float timeMult = Time.TimeMult;
+                    light.RadiusFar -= timeMult * 0.8f;
+                    light.Intensity -= timeMult * 0.02f;
+                    break;
+                }
+            }
         }
     }
 }

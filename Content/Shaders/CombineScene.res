@@ -23,7 +23,7 @@
             blur = vec4(gray, gray, gray, blur.a);
 
             gl_FragColor = mix(mix(
-                                    main,
+                                    main * (1.0 + /*floor(*/light.g/* * 10) / 10*/),
                                     blur,
                                     vec4(clamp((1.0 - light.r) / sqrt(max(ambientLight, 0.35)), 0.0, 1.0))
                                   ), vec4(0.0, 0.0, 0.0, 1.0), vec4(1.0 - light.r));

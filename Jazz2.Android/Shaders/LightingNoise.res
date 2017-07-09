@@ -7,6 +7,7 @@
 
         uniform vec2 center;
         uniform float intensity;
+        uniform float brightness;
         uniform float radiusNear;
         uniform float radiusFar;
 
@@ -42,6 +43,6 @@
 
             float noise = 0.3 + 0.7 * texture(noiseTex, vTexcoord0.st * vec2(0.3) + vec2(GameTime * 1.5, GameTime)).r;
 
-            vFragColor = vec4(diffuseFactor * strength * intensity * noise, 0, 0, 1);
+            vFragColor = vec4(diffuseFactor * strength * intensity * noise, strength * brightness * noise, 0, 1);
         }"
 }

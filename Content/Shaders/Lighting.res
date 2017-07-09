@@ -4,6 +4,7 @@
     "Fragment": "
         uniform vec2 center;
         uniform float intensity;
+        uniform float brightness;
         uniform float radiusNear;
         uniform float radiusFar;
 
@@ -54,6 +55,6 @@
             //finalColor.rgb += _lightColor[i] * clrSpecular.rgb * specularFactor * diffuseFactor * attenFactor;
 
             float strength = clamp(1.0 - ((dist - radiusNear) / (radiusFar - radiusNear)), 0.0, 1.0);
-            gl_FragColor = vec4(diffuseFactor * strength * intensity, 0, 0, 1);
+            gl_FragColor = vec4(diffuseFactor * strength * intensity, strength * brightness, 0.0, 1.0);
         }"
 }

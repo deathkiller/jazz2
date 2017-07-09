@@ -1,4 +1,5 @@
 ﻿using Duality;
+using Jazz2.Game;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Weapons
@@ -17,6 +18,12 @@ namespace Jazz2.Actors.Weapons
             strength = 1;
 
             RequestMetadata("Weapon/Bouncer");
+
+            LightEmitter light = AddComponent<LightEmitter>();
+            light.Intensity = 0.8f;
+            light.Brightness = 0.2f;
+            light.RadiusNear = 0f;
+            light.RadiusFar = 12f;
         }
 
         public void OnFire(Player owner, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)

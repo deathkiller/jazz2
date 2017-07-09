@@ -72,7 +72,7 @@ namespace Jazz2.Game
             mainTarget = new RenderTarget(AAQuality.Off, /*true*/false, mainTexture, normalTexture);
 
             // Lighting texture
-            lightingTexture = new Texture(null, TextureSizeMode.NonPowerOfTwo, TextureMagFilter.Nearest, TextureMinFilter.Nearest, format: TexturePixelFormat.Single);
+            lightingTexture = new Texture(null, TextureSizeMode.NonPowerOfTwo, TextureMagFilter.Nearest, TextureMinFilter.Nearest, format: TexturePixelFormat.Dual);
             lightingTarget = new RenderTarget(AAQuality.Off, false, lightingTexture);
 
             finalTexture = new Texture(null, TextureSizeMode.NonPowerOfTwo, TextureMagFilter.Nearest, TextureMinFilter.Nearest);
@@ -201,7 +201,8 @@ namespace Jazz2.Game
             float ambientLight = levelHandler.AmbientLightCurrent;
             float viewWaterLevel = (levelHandler.WaterLevel - viewOffset.Y);
 
-            if (ambientLight >= 1f) {
+            // Removed optimization because of bright lights
+            /*if (ambientLight >= 1f) {
                 if (viewWaterLevel < viewSize.Y) {
                     // Render with water, skip lighting phase
                     BatchInfo material = new BatchInfo(combineSceneWaterShader, ColorRgba.White);
@@ -220,7 +221,7 @@ namespace Jazz2.Game
                     Blit(drawDevice, material, finalTarget);
                 }
                 return;
-            }
+            }*/
 
             // Blit ambient light color
             {
@@ -265,6 +266,7 @@ namespace Jazz2.Game
 
                         material.SetUniform("center", pos.X, pos.Y);
                         material.SetUniform("intensity", light.Intensity);
+                        material.SetUniform("brightness", light.Brightness);
                         material.SetUniform("radiusNear", light.RadiusNear);
                         material.SetUniform("radiusFar", light.RadiusFar);
 

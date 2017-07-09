@@ -18,6 +18,7 @@ namespace Jazz2.Actors.Weapons
 
             LightEmitter light = AddComponent<LightEmitter>();
             light.Intensity = 0.8f;
+            light.Brightness = 0.2f;
             light.RadiusNear = 5f;
             light.RadiusFar = 8f;
         }

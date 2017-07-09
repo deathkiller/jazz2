@@ -143,6 +143,7 @@ namespace Jazz2.Actors.Enemies
 
                 LightEmitter light = AddComponent<LightEmitter>();
                 light.Intensity = 0.85f;
+                light.Brightness = 0.4f;
                 light.RadiusNear = 0f;
                 light.RadiusFar = 30f;
             }

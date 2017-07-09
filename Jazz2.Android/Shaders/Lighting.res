@@ -7,6 +7,7 @@
 
         uniform vec2 center;
         uniform float intensity;
+        uniform float brightness;
         uniform float radiusNear;
         uniform float radiusFar;
 
@@ -36,6 +37,6 @@
             float diffuseFactor = 1.0 - max(dot(normal, normalize(lightDir)), 0.0);
 
             float strength = clamp(1.0 - ((dist - radiusNear) / (radiusFar - radiusNear)), 0.0, 1.0);
-            vFragColor = vec4(diffuseFactor * strength * intensity, 0, 0, 1);
+            vFragColor = vec4(diffuseFactor * strength * intensity, strength * brightness, 0, 1);
         }"
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Duality;
 using Jazz2.Actors.Enemies;
+using Jazz2.Game;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Bosses
@@ -419,7 +420,6 @@ namespace Jazz2.Actors.Bosses
 
                 collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
-
                 canBeFrozen = false;
                 health = int.MaxValue;
 
@@ -430,6 +430,12 @@ namespace Jazz2.Actors.Bosses
                 SetAnimation((AnimState)675);
 
                 OnUpdateHitbox();
+
+                LightEmitter light = AddComponent<LightEmitter>();
+                light.Intensity = 0.85f;
+                light.Brightness = 0.4f;
+                light.RadiusNear = 0f;
+                light.RadiusFar = 30f;
             }
 
             protected override void OnUpdate()

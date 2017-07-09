@@ -1,5 +1,6 @@
 ﻿using Duality;
 using Duality.Resources;
+using Jazz2.Game;
 using Jazz2.Game.Structs;
 using static Jazz2.Game.Tiles.TileMap;
 
@@ -19,6 +20,12 @@ namespace Jazz2.Actors.Weapons
             strength = 0;
 
             RequestMetadata("Weapon/Freezer");
+
+            LightEmitter light = AddComponent<LightEmitter>();
+            light.Intensity = 0.8f;
+            light.Brightness = 0.2f;
+            light.RadiusNear = 0f;
+            light.RadiusFar = 20f;
         }
 
         public void OnFire(Player owner, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)

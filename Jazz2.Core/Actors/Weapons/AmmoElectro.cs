@@ -6,8 +6,6 @@ using static Jazz2.Game.Tiles.TileMap;
 
 namespace Jazz2.Actors.Weapons
 {
-    // ToDo: Fly through walls
-
     public class AmmoElectro : AmmoBase
     {
         public override WeaponType WeaponType => WeaponType.Electro;
@@ -17,12 +15,14 @@ namespace Jazz2.Actors.Weapons
             base.OnAttach(details);
 
             strength = 4;
-            collisionFlags &= ~CollisionFlags.ApplyGravitation;
+            collisionFlags &= ~(CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset);
+            collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
 
             RequestMetadata("Weapon/Electro");
 
             LightEmitter light = AddComponent<LightEmitter>();
             light.Intensity = 0.85f;
+            light.Brightness = 0.8f;
             light.RadiusNear = 0f;
             light.RadiusFar = 20f;
         }
