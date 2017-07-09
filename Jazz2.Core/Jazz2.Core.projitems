@@ -92,7 +92,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\GenericContainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\MovingPlatform.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\PowerUpWeaponMonitor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\PowerUpSwapMonitor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\PowerUpMorphMonitor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\PushBox.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\SolidObjectBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\TriggerCrate.cs" />
@@ -164,7 +164,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Duality\Components\Other\RequiredComponentAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Duality\Components\Renderer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Duality\Components\Renderers\SpriteRenderer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Duality\Components\SoundEmitter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Duality\Components\SoundListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Duality\Components\Transform.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Duality\ContentProvider.cs" />

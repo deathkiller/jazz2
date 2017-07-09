@@ -30,7 +30,7 @@
         ModifierRicochet = 0x0145,
         ModifierSlide = 0x0147,
         ModifierDeath = 0x0148,
-        ModifierSetWater = 0x010C,
+        ModifierSetWater = 0x0149,
 
         // Area
         AreaStopEnemy = 0x0143,
@@ -41,6 +41,7 @@
         AreaCallback = 0x0109,
         AreaActivateBoss = 0x010A,
         AreaFlyOff = 0x010B,
+        AreaRevertMorph = 0x010C,
 
         // Triggers
         TriggerCrate = 0x0060,
@@ -195,7 +196,7 @@
         CrateGem = 0x0065,
         BarrelGem = 0x0066,
 
-        PowerUpSwap = 0x0067,
+        PowerUpMorph = 0x0067,
 
         AirboardGenerator = 0x0068
     }

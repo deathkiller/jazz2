@@ -32,7 +32,7 @@ namespace Jazz2.Actors.Enemies
                 if (parentLastHitDir == LastHitDirection.Left || parentLastHitDir == LastHitDirection.Right) {
                     speedX = 3 * (parentLastHitDir == LastHitDirection.Left ? -1 : 1);
                 }
-                PlaySound("ENEMY_SUCKER_DEFLATE");
+                PlaySound("Deflate");
             } else {
                 health = 4;
             }
@@ -54,13 +54,13 @@ namespace Jazz2.Actors.Enemies
             if (currentTransitionState == AnimState.Idle && frozenTimeLeft <= 0) {
                 cycle = (cycle + 1) % (7 * 12);
                 if (cycle == 0) {
-                    PlaySound("ENEMY_SUCKER_WALK_1", 0.4f);
+                    PlaySound("Walk1", 0.4f);
                 }
                 if (cycle == (7 * 7)) {
-                    PlaySound("ENEMY_SUCKER_WALK_2", 0.4f);
+                    PlaySound("Walk2", 0.4f);
                 }
                 if (cycle == (3 * 7) || cycle == (8 * 7)) {
-                    PlaySound("ENEMY_SUCKER_WALK_3", 0.4f);
+                    PlaySound("Walk3", 0.4f);
                 }
                 if ((cycle >= (6 * 7) && cycle < (8 * 7)) || cycle >= (10 * 7)) {
                     speedX = 0.5f * (isFacingLeft ? -1 : 1);

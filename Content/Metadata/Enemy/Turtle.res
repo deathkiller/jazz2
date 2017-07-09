@@ -4,22 +4,22 @@
     },
 
     "Animations": {
-        "ENEMY_TURTLE_WALK": {
+        "Walk": {
             "Path": "Turtle/walk.png",
             "FrameRate": 4,
             "States": [ 0, 1, 2, 8, 9, 10 ]
         },
-        "ENEMY_TURTLE_WITHDRAW": {
+        "Withdraw": {
             "Path": "Turtle/turn_start.png",
             "FrameRate": 7,
             "States": [ 1073741841 ]
         },
-        "ENEMY_TURTLE_WITHDRAW_END": {
+        "WithdrawEnd": {
             "Path": "Turtle/turn_end.png",
             "FrameRate": 7,
             "States": [ 1073741842 ]
         },
-        "ENEMY_TURTLE_ATTACK": {
+        "Attack": {
             "Path": "Turtle/attack.png",
             "FrameRate": 7,
             "States": [ 1325400065 ]
@@ -27,16 +27,16 @@
     },
 
     "Sounds": {
-        "ENEMY_TURTLE_WITHDRAW": {
+        "Withdraw": {
             "Paths": [ "Turtle/turn_start.wav" ]
         },
-        "ENEMY_TURTLE_WITHDRAW_END": {
+        "WithdrawEnd": {
             "Paths": [ "Turtle/turn_end.wav" ]
         },
-        "ENEMY_TURTLE_ATTACK": {
+        "Attack": {
             "Paths": [ "Turtle/attack_neck.wav" ]
         },
-        "ENEMY_TURTLE_ATTACK_2": {
+        "Attack2": {
             "Paths": [ "Turtle/attack_bite.wav" ]
         }
     },

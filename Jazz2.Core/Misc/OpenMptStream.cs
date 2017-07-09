@@ -17,6 +17,19 @@ namespace Jazz2
 #endif
         private const int BufferSize = 4096 * 2; // 4k buffer per channel, low latency is not needed here...
 
+        public static Version Version
+        {
+            get
+            {
+                try {
+                    int raw = openmpt_get_library_version();
+                    return new Version((raw >> 24) & 0xff, (raw >> 16) & 0xff, (raw >> 8) & 0xff, raw & 0xff);
+                } catch {
+                    return null;
+                }
+            }
+        }
+
         private Stream stream;
         private openmpt_stream_callbacks stream_callbacks;
         private IntPtr openmpt_module;
@@ -279,6 +292,8 @@ namespace Jazz2
 
         [DllImport("libopenmpt", CallingConvention = CallingConvention.Cdecl)]
         private static extern int openmpt_module_set_repeat_count(IntPtr mod, int repeat_count);
+        [DllImport("libopenmpt", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int openmpt_get_library_version();
         #endregion
     }
 }

@@ -239,13 +239,13 @@ namespace Jazz2.Game.Menu
             bottomRight.X -= 24f;
             bottomRight.Y -= 10f;
             DrawStringShadow(device, ref charOffset, "v" + App.AssemblyVersion, bottomRight.X, bottomRight.Y, Alignment.BottomRight,
-                ColorRgba.TransparentBlack, 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
+                new ColorRgba(0.45f, 0.5f), 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
 
             // Copyright
             Vector2 bottomLeft = bottomRight;
             bottomLeft.X = 24f;
             DrawStringShadow(device, ref charOffset, "(c) 2016-2017  Dan R.", bottomLeft.X, bottomLeft.Y, Alignment.BottomLeft,
-                ColorRgba.TransparentBlack, 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
+                new ColorRgba(0.45f, 0.5f), 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
 
             // Current section
             if (sectionStack.Count > 0) {

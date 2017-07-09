@@ -211,7 +211,6 @@ namespace Jazz2.Actors
             float gravity = ((collisionFlags & CollisionFlags.ApplyGravitation) != 0 ? api.Gravity : 0);
 
             speedX = MathF.Clamp(speedX, -16f, 16f);
-            // ToDo: Why pow by 0.17f ???
             speedY = MathF.Clamp(speedY - (internalForceY + externalForceY) * timeMult, -16f, 16f);
 
             float effectiveSpeedX, effectiveSpeedY;
@@ -281,11 +280,9 @@ namespace Jazz2.Actors
                     // First, attempt to move horizontally as much as possible.
                     float maxDiff = Math.Abs(effectiveSpeedX);
                     int sign = (effectiveSpeedX > 0f ? 1 : -1);
-                    //bool successX = false;
                     float xDiff = maxDiff;
                     for (; xDiff > float.Epsilon; xDiff -= CollisionCheckStep) {
                         if (MoveInstantly(new Vector2(xDiff * sign, 0f), MoveType.Relative)) {
-                            //successX = true;
                             break;
                         }
                     }
@@ -293,11 +290,13 @@ namespace Jazz2.Actors
                     // Then, try the same vertically.
                     maxDiff = Math.Abs(effectiveSpeedY);
                     sign = (effectiveSpeedY > 0f ? 1 : -1);
-                    //bool successY = false;
                     float yDiff = maxDiff;
                     for (; yDiff > float.Epsilon; yDiff -= CollisionCheckStep) {
-                        if (MoveInstantly(new Vector2(0f, yDiff * sign), MoveType.Relative)) {
-                            //successY = true;
+                        float yDiffSigned = (yDiff * sign);
+                        if (MoveInstantly(new Vector2(0f, yDiffSigned), MoveType.Relative) ||
+                            // Add horizontal tolerance
+                            MoveInstantly(new Vector2(yDiff *  0.2f, yDiffSigned), MoveType.Relative) ||
+                            MoveInstantly(new Vector2(yDiff * -0.2f, yDiffSigned), MoveType.Relative)) {
                             break;
                         }
                     }
@@ -361,7 +360,7 @@ namespace Jazz2.Actors
             }
         }
 
-        public virtual bool Deactivate(int tx, int ty, int tileDistance)
+        public virtual bool OnTileDeactivate(int tx, int ty, int tileDistance)
         {
             EventMap events = api.EventMap;
             if ((flags & (ActorInstantiationFlags.IsCreatedFromEventMap | ActorInstantiationFlags.IsFromGenerator)) != 0 && ((Math.Abs(tx - originTile.X) > tileDistance) || (Math.Abs(ty - originTile.Y) > tileDistance))) {

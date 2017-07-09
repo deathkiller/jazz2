@@ -4,7 +4,7 @@
     },
 
     "Animations": {
-        "ENEMY_TURTLE_TUBE_IDLE": {
+        "Idle": {
             "Path": "TurtleTube/Idle.png",
             "FrameRate": 7,
             "States": [ 0 ]

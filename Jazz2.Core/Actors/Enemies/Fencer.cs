@@ -46,7 +46,11 @@ namespace Jazz2.Actors.Enemies
             isFacingLeft = (pos.X > targetPos.X);
 
             if (stateTime <= 0f) {
-                speedX = (isFacingLeft ? 1 : -1) * 1.2f;
+                if (MathF.Rnd.NextFloat() < 0.3f) {
+                    speedX = (isFacingLeft ? -1 : 1) * 1.8f;
+                } else {
+                    speedX = (isFacingLeft ? -1 : 1) * -1.2f;
+                }
                 speedY = -4.5f;
 
                 PlaySound("Attack");
@@ -55,7 +59,7 @@ namespace Jazz2.Actors.Enemies
                     speedX = speedY = 0;
                 });
 
-                stateTime = MathF.Rnd.NextFloat(240f, 300f);
+                stateTime = MathF.Rnd.NextFloat(180f, 300f);
             } else {
                 stateTime -= Time.TimeMult;
             }

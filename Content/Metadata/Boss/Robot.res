@@ -37,7 +37,7 @@
         "Shrapnel2": {
             "Path": "Robot/shrapnel_2.png"
         },
-        "Shrapnel3: {
+        "Shrapnel3": {
             "Path": "Robot/shrapnel_3.png"
         },
         "Shrapnel4": {

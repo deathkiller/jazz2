@@ -4,46 +4,46 @@
     },
 
     "Animations": {
-        "WALK": {
+        "Walk": {
             "Path": "Monkey/Walk.png",
             "FrameRate": 5,
             "States": [ 1 ]
         },
-        "JUMP": {
+        "Jump": {
             "Path": "Monkey/Jump.png",
             "FrameRate": 5,
             "States": [ 4 ]
         },
         
-        "WALK_START": {
+        "WalkStart": {
             "Path": "Monkey/WalkStart.png",
             "FrameRate": 17,
             "States": [ 1073741824 ]
         },
-        "WALK_END": {
+        "WalkEnd": {
             "Path": "Monkey/WalkEnd.png",
             "FrameRate": 17,
             "States": [ 1073741825 ]
         },
         
-        "ATTACK_START": {
+        "AttackStart": {
             "Path": "Monkey/Attack.png",
             "FrameCount": 8,
             "FrameRate": 8,
             "States": [ 1073741826 ]
         },
-        "ATTACK_END": {
+        "AttackEnd": {
             "Path": "Monkey/Attack.png",
             "FrameOffset": 8,
             "FrameRate": 10,
             "States": [ 1073741827 ]
         },
         
-        "BANANA": {
+        "Banana": {
             "Path": "Monkey/Banana.png",
             "States": [ 1073741828 ]
         },
-        "BANANA_SPLAT": {
+        "BananaSplat": {
             "Path": "Monkey/BananaSplat.png",
             "FrameRate": 12,
             "States": [ 1073741829 ]
@@ -51,10 +51,10 @@
     },
 
     "Sounds": {
-        "BANANA_THROW": {
+        "BananaThrow": {
             "Paths": [ "Monkey/BananaThrow.wav" ]
         },
-        "BANANA_SPLAT": {
+        "BananaSplat": {
             "Paths": [ "Monkey/BananaSplat.wav" ]
         }
     }

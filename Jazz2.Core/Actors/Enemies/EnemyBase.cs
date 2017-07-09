@@ -72,7 +72,7 @@ namespace Jazz2.Actors.Enemies
             Hitbox h3 = currentHitbox + new Vector2(x + sign * (currentHitbox.Right - currentHitbox.Left) / 2, y + 12);
 
             ushort[] p = null;
-            return ((api.IsPositionEmpty(this, ref h1, false) || api.IsPositionEmpty(this, ref h2, false))
+            return ((api.IsPositionEmpty(this, ref h1, true) || api.IsPositionEmpty(this, ref h2, true))
                      && (events != null && events.GetEventByPosition(pos.X + x, pos.Y + y, ref p) != EventType.AreaStopEnemy)
                      && !api.IsPositionEmpty(this, ref h3, true));
         }

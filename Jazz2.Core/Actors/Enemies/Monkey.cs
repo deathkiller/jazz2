@@ -140,7 +140,7 @@ namespace Jazz2.Actors.Enemies
                 RequestMetadata("Enemy/Monkey");
                 SetAnimation((AnimState)1073741828);
 
-                soundThrow = PlaySound("BANANA_THROW");
+                soundThrow = PlaySound("BananaThrow");
 
                 OnUpdateHitbox();
             }
@@ -169,7 +169,7 @@ namespace Jazz2.Actors.Enemies
                     base.OnPerish(collider);
                 });
 
-                PlaySound("BANANA_SPLAT", 0.6f);
+                PlaySound("BananaSplat", 0.6f);
 
                 return false;
             }

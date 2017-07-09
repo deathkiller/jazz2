@@ -4,30 +4,30 @@
     },
 
     "Animations": {
-        "IDLE": {
+        "Idle": {
             "Path": "Dragon/idle.png",
             "States": [ 0 ]
         },
-        "ATTACK_START": {
+        "AttackStart": {
             "Path": "Dragon/attack.png",
             "FrameCount": 5,
             "FrameRate": 12,
             "States": [ 1073741824 ]
         },
-        "ATTACK": {
+        "Attack": {
             "Path": "Dragon/attack.png",
             "FrameOffset": 5,
             "FrameCount": 2,
             "FrameRate": 24,
             "States": [ 1073741825 ]
         },
-        "ATTACK_END": {
+        "AttackEnd": {
             "Path": "Dragon/attack.png",
             "FrameOffset": 7,
             "FrameRate": 50,
             "States": [ 1073741826 ]
         },
-        "TURN": {
+        "Turn": {
             "Path": "Dragon/turn.png",
             "FrameRate": 16,
             "States": [ 1073741840 ]

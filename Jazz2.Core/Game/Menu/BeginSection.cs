@@ -62,9 +62,11 @@ namespace Jazz2.Game.Menu
                 api.PlaySound("MenuSelect", 0.5f);
                 items[selectedIndex].Item2();
             } else if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
-                api.PlaySound("MenuSelect", 0.5f);
-                animation = 0f;
-                selectedIndex = items.Count - 1;
+                if (selectedIndex != items.Count - 1) {
+                    api.PlaySound("MenuSelect", 0.5f);
+                    animation = 0f;
+                    selectedIndex = items.Count - 1;
+                }
             } else if (DualityApp.Keyboard.KeyHit(Key.Up)) {
                 api.PlaySound("MenuSelect", 0.4f);
                 animation = 0f;

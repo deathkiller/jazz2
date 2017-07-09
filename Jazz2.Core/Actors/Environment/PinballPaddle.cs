@@ -37,9 +37,16 @@ namespace Jazz2.Actors.Environment
             Player collider = other as Player;
             if (collider != null && Transform.Pos.Y > collider.Transform.Pos.Y) {
                 if (currentTransitionState == AnimState.Idle) {
-                    // ToDo: Adjust force
-                    float force = 1.9f;
+                    float selfX = Transform.Pos.X;
+                    float colliderX = collider.Transform.Pos.X;
 
+                    float mult = (colliderX - selfX) / currentAnimation.FrameDimensions.X;
+                    if (isFacingLeft) {
+                        mult = 1 - mult;
+                    }
+                    mult = MathF.Clamp(mult * 1.6f, 0.4f, 1f);
+
+                    float force = 1.9f * mult;
                     collider.AddExternalForce(0f, force);
 
                     SetTransition(AnimState.TransitionActivate, false);

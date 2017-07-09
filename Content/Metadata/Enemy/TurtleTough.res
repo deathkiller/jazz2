@@ -4,7 +4,7 @@
     },
 
     "Animations": {
-        "ENEMY_TURTLE_TOUGH_WALK": {
+        "Walk": {
             "Path": "TurtleTough/Walk.png",
             "FrameRate": 5,
             "States": [ 1 ]

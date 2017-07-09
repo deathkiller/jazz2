@@ -3,22 +3,22 @@ using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Solid
 {
-    public class PowerUpSwapMonitor : SolidObjectBase
+    public class PowerUpMorphMonitor : SolidObjectBase
     {
-        private enum SwapType
+        private enum MorphType
         {
             Swap2,
             Swap3,
             ToBird
         }
 
-        private SwapType swapType;
+        private MorphType morphType;
 
         public override void OnAttach(ActorInstantiationDetails details)
         {
             base.OnAttach(details);
 
-            swapType = (SwapType)details.Params[0];
+            morphType = (MorphType)details.Params[0];
 
             Movable = true;
 
@@ -26,10 +26,10 @@ namespace Jazz2.Actors.Solid
 
             RequestMetadata("Object/PowerUpMonitor");
 
-            switch (swapType) {
-                case SwapType.Swap2: SetAnimation("Swap2"); break;
-                case SwapType.Swap3: SetAnimation("Swap3"); break;
-                case SwapType.ToBird: SetAnimation("Bird"); break;
+            switch (morphType) {
+                case MorphType.Swap2: SetAnimation("Swap2"); break;
+                case MorphType.Swap3: SetAnimation("Swap3"); break;
+                case MorphType.ToBird: SetAnimation("Bird"); break;
             }
         }
 
@@ -58,8 +58,8 @@ namespace Jazz2.Actors.Solid
         public void DestroyAndApplyToPlayer(Player player)
         {
             PlayerType targetType;
-            switch (swapType) {
-                case SwapType.Swap2:
+            switch (morphType) {
+                case MorphType.Swap2:
                     if (player.PlayerType != PlayerType.Jazz) {
                         targetType = PlayerType.Jazz;
                     } else  {
@@ -67,7 +67,7 @@ namespace Jazz2.Actors.Solid
                     }
                     break;
 
-                case SwapType.Swap3:
+                case MorphType.Swap3:
                     if (player.PlayerType == PlayerType.Spaz) {
                         targetType = PlayerType.Lori;
                     } else if (player.PlayerType == PlayerType.Lori) {
@@ -85,7 +85,7 @@ namespace Jazz2.Actors.Solid
                     return;
             }
 
-            player.TransformTo(targetType);
+            player.MorphTo(targetType);
 
             DecreaseHealth(int.MaxValue, player);
             PlaySound("Break");

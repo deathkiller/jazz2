@@ -117,7 +117,7 @@ namespace Jazz2.Compatibility
                 } else if(episodeToken == "xmas98" && episodeName == "#Xmas 98@Levels") {
                     name = "Holiday Hare '98";
                 } else if (episodeToken == "xmas99" && episodeName == "#Xmas 99@Levels") {
-                    name = "Christmas Chronicles";
+                    name = "The Christmas Chronicles";
                 } else if (episodeToken == "secretf" && episodeName == "#Secret@Files") {
                     name = "The Secret Files";
                 } else {
@@ -150,7 +150,7 @@ namespace Jazz2.Compatibility
             //}
 
             //if (titleLight != null) {
-            //    titleLight.Save(Path.Combine(path, "titleLight.png"), ImageFormat.Png);
+            //    titleLight.Save(Path.Combine(path, "Title.png"), ImageFormat.Png);
             //}
 
             //if (titleDark != null) {

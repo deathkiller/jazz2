@@ -61,7 +61,7 @@ namespace Jazz2.Actors.Enemies
                     noiseCooldown = MathF.Rnd.NextFloat(300, 500);
 
                     if (MathF.Rnd.NextFloat() < 0.5f) {
-                        PlaySound("NOISE", 0.7f);
+                        PlaySound("Noise", 0.7f);
                     }
                 }
             }
@@ -126,7 +126,7 @@ namespace Jazz2.Actors.Enemies
                 }
             }
 
-            PlaySound("DIE");
+            PlaySound("Die");
 
             TryGenerateRandomDrop();
 
@@ -156,7 +156,7 @@ namespace Jazz2.Actors.Enemies
                     attackTime = 80f;
                     attacking = true;
 
-                    PlaySound("ATTACK", 0.7f);
+                    PlaySound("Attack", 0.7f);
                 });
             }
         }

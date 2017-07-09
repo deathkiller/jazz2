@@ -675,7 +675,14 @@ namespace Import
                 foreach (string metadata in Directory.EnumerateDirectories(Path.Combine(targetPath, "Content", "Metadata"))) {
                     foreach (string path in Directory.EnumerateFiles(metadata, "*.res")) {
                         using (Stream s = File.Open(path, FileMode.Open)) {
-                            MetadataJson json = jsonParser.Parse<MetadataJson>(s);
+                            MetadataJson json;
+                            try {
+                                json = jsonParser.Parse<MetadataJson>(s);
+                            } catch (Exception ex) {
+                                WriteLog(LogType.Error, "\"" + Path.GetFileName(Path.GetDirectoryName(path)) + Path.DirectorySeparatorChar + Path.GetFileName(path) + "\" is corrupted! " + ex.Message);
+                                continue;
+                            }
+                            
 
                             if (json.Animations != null) {
                                 foreach (var animation in json.Animations) {

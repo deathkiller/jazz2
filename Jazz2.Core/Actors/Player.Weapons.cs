@@ -297,7 +297,7 @@ namespace Jazz2.Actors
         {
             Vector3 pos = Transform.Pos;
 
-            AmmoTNT tnt = new AmmoTNT();
+            AmmoTNT tnt = new AmmoTNT(this);
             tnt.OnAttach(new ActorInstantiationDetails {
                 Api = api,
                 Pos = pos

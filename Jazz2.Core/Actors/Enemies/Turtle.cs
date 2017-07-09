@@ -58,7 +58,7 @@ namespace Jazz2.Actors.Enemies
                 isTurning = true;
                 canHurtPlayer = false;
                 speedX = 0;
-                PlaySound("ENEMY_TURTLE_WITHDRAW", 0.4f);
+                PlaySound("Withdraw", 0.4f);
             }
 
             if (!isTurning && !isWithdrawn && !isAttacking) {
@@ -100,7 +100,7 @@ namespace Jazz2.Actors.Enemies
                     SetTransition(AnimState.TransitionWithdrawEnd, false, delegate {
                        HandleTurn(false);
                     });
-                    PlaySound("ENEMY_TURTLE_WITHDRAW_END", 0.4f);
+                    PlaySound("WithdrawEnd", 0.4f);
                     isWithdrawn = true;
                 } else {
                     canHurtPlayer = true;
@@ -119,10 +119,10 @@ namespace Jazz2.Actors.Enemies
             });
             speedX = 0;
             isAttacking = true;
-            PlaySound("ENEMY_TURTLE_ATTACK");
+            PlaySound("Attack");
 
             // ToDo: Play with timer
-            //PlaySound("ENEMY_TURTLE_ATTACK_2");
+            //PlaySound("Attack2");
         }
     }
 }

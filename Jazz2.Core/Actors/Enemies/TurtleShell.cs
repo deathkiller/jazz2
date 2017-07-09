@@ -47,7 +47,7 @@ namespace Jazz2.Actors.Enemies
 
             //collisionFlags |= CollisionFlags.CollideWithSolidObjects;
 
-            PlaySound("ENEMY_TURTLE_SHELL_FLY");
+            PlaySound("Fly");
         }
 
         protected override void OnUpdateHitbox()
@@ -86,7 +86,7 @@ namespace Jazz2.Actors.Enemies
                             speedX = totalSpeed / 2f * (speedX > 0f ? -1f : 1f);
 
                             collider.DecreaseHealth(1, this);
-                            PlaySound("ENEMY_TURTLE_SHELL_IMPACT_SHELL", 0.8f);
+                            PlaySound("ImpactShell", 0.8f);
                         }
                         continue;
                     }
@@ -95,7 +95,7 @@ namespace Jazz2.Actors.Enemies
                 {
                     AmmoBase collider = collisions[i] as AmmoBase;
                     if (collider != null) {
-                        PlaySound("ENEMY_TURTLE_SHELL_FLY");
+                        PlaySound("Fly");
                         continue;
                     }
                 }
@@ -144,7 +144,7 @@ namespace Jazz2.Actors.Enemies
         protected override void OnHitFloorHook()
         {
             if (MathF.Abs(speedY) > 1f) {
-                PlaySound("ENEMY_TURTLE_SHELL_IMPACT_GROUND");
+                PlaySound("ImpactGround");
             }
         }
 

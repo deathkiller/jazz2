@@ -97,6 +97,11 @@ namespace Jazz2.Actors.Bosses
             return base.OnPerish(collider);
         }
 
+        public override bool OnTileDeactivate(int tx, int ty, int tileDistance)
+        {
+            return false;
+        }
+
         protected override void OnHealthChanged(ActorBase collider)
         {
             base.OnHealthChanged(collider);

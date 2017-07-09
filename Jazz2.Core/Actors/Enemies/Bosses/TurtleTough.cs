@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using Duality;
+using Duality.Audio;
 using Jazz2.Actors.Enemies;
 using Jazz2.Game.Structs;
+using static Duality.Component;
 
 namespace Jazz2.Actors.Bosses
 {
@@ -161,6 +163,8 @@ namespace Jazz2.Actors.Bosses
 
             private Vector3 targetSpeed;
 
+            private SoundInstance sound;
+
             public override void OnAttach(ActorInstantiationDetails details)
             {
                 base.OnAttach(details);
@@ -178,6 +182,17 @@ namespace Jazz2.Actors.Bosses
                 FollowNearestPlayer();
 
                 OnUpdateHitbox();
+
+                sound = PlaySound("Mace", 0.7f);
+                sound.Looped = true;
+            }
+
+            protected override void OnDeactivated(ShutdownContext context)
+            {
+                if (sound != null) {
+                    sound.Stop();
+                    sound = null;
+                }
             }
 
             protected override void OnUpdate()

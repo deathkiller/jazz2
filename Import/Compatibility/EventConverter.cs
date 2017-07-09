@@ -562,6 +562,7 @@ namespace Jazz2.Compatibility
             });
 
             convert.Add(JJ2Event.JJ2_AREA_FLY_OFF, NoParamList(EventType.AreaFlyOff));
+            convert.Add(JJ2Event.JJ2_AREA_REVERT_MORPH, NoParamList(EventType.AreaRevertMorph));
 
             // Triggers
             convert.Add(JJ2Event.JJ2_TRIGGER_CRATE, (level, jj2Params) => {
@@ -1006,18 +1007,18 @@ namespace Jazz2.Compatibility
 
                 if (level.Version == JJ2Version.TSF || level.Version == JJ2Version.CC) {
                     return new ConversionResult {
-                        eventType = EventType.PowerUpSwap,
+                        eventType = EventType.PowerUpMorph,
                         eventParams = new ushort[] { 1 }
                     };
                 } else {
                     return new ConversionResult {
-                        eventType = EventType.PowerUpSwap,
+                        eventType = EventType.PowerUpMorph,
                         eventParams = new ushort[] { 0 }
                     };
                 }
             });
 
-            convert.Add(JJ2Event.JJ2_POWERUP_BIRD, ConstantParamList(EventType.PowerUpSwap, 2));
+            convert.Add(JJ2Event.JJ2_POWERUP_BIRD, ConstantParamList(EventType.PowerUpMorph, 2));
 
             // Misc.
             convert.Add(JJ2Event.JJ2_EVA, NoParamList(EventType.Eva));

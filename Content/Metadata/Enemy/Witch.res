@@ -18,6 +18,20 @@
             "Path": "Witch/die.png",
             "FrameRate": 8,
             "States": [ 1073741839 ]
+        },
+        
+        "MagicBullet": {
+            "Path": "Witch/bullet_magic.png",
+            "States": [ 1073741828 ]
+        }
+    },
+
+    "Sounds": {
+        "MagicFire": {
+            "Paths": [ "Witch/magic.wav" ]
+        },
+        "Laugh": {
+            "Paths": [ "Witch/laugh.wav" ]
         }
     }
 }

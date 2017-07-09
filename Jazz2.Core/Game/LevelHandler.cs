@@ -709,7 +709,7 @@ namespace Jazz2.Game
 #endif
 
             for (int i = 0; i < actors.Count; i++) {
-                if (actors[i].Deactivate(tx, ty, ActivateTileRange + 2)) {
+                if (actors[i].OnTileDeactivate(tx, ty, ActivateTileRange + 2)) {
                     i--;
                 }
             }

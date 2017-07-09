@@ -10,6 +10,7 @@
         },
         "WarpOut": {
             "Path": "Devan/remote_warp_out.png",
+            "FrameRate": 10,
             "States": [ 1073741844 ]
         }
     },

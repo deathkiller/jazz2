@@ -48,14 +48,16 @@ namespace Jazz2.Actors.Environment
                 return Vector2.Zero;
             }
 
-            cooldown = 6f;
+            cooldown = 10f;
             light.Intensity = 1f;
 
             SetTransition(currentAnimationState | (AnimState)0x200, true);
             PlaySound("Hit");
 
+            const float force = 24f;
+
             Vector3 pos = other.Transform.Pos - Transform.Pos;
-            return pos.Xy;
+            return pos.Xy.Normalized * force;
         }
     }
 }

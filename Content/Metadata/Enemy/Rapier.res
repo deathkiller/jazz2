@@ -4,27 +4,27 @@
     },
 
     "Animations": {
-        "IDLE": {
+        "Idle": {
             "Path": "Rapier/idle.png",
             "FrameRate": 5,
             "States": [ 0 ]
         },
-        "ATTACK": {
+        "Attack": {
             "Path": "Rapier/attack.png",
             "FrameRate": 5,
             "States": [ 1073741824 ]
         },
-        "ATTACK_START": {
+        "AttackStart": {
             "Path": "Rapier/attack_start.png",
             "FrameRate": 10,
             "States": [ 1073741825 ]
         },
-        "ATTACK_END": {
+        "AttackEnd": {
             "Path": "Rapier/attack_end.png",
             "FrameRate": 10,
             "States": [ 1073741826 ]
         },
-        "ATTACK_SWING": {
+        "AttackSwing": {
             "Path": "Rapier/attack_swing.png",
             "FrameRate": 5,
             "States": [ 1073741827 ]
@@ -32,13 +32,13 @@
     },
 
     "Sounds": {
-        "DIE": {
+        "Die": {
             "Paths": [ "Rapier/die.wav" ]
         },
-        "ATTACK": {
+        "Attack": {
             "Paths": [ "Rapier/clunk.wav" ]
         },
-        "NOISE": {
+        "Noise": {
             "Paths": [ "Rapier/noise_1.wav", "Rapier/noise_2.wav", "Rapier/noise_3.wav" ]
         }
     }

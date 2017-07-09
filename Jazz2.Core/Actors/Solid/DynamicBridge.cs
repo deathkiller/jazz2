@@ -78,7 +78,7 @@ namespace Jazz2.Actors.Solid
             OnUpdateHitbox();
         }
 
-        public override bool Deactivate(int x, int y, int tileDistance)
+        public override bool OnTileDeactivate(int x, int y, int tileDistance)
         {
             if ((flags & ActorInstantiationFlags.IsCreatedFromEventMap) != 0 && (Math.Abs(x - originTile.X) > tileDistance) || (Math.Abs(y - originTile.Y) > tileDistance)) {
                 EventMap events = api.EventMap;
@@ -227,7 +227,7 @@ namespace Jazz2.Actors.Solid
                 IsOneWay = true;
             }
 
-            public override bool Deactivate(int x, int y, int tileDistance)
+            public override bool OnTileDeactivate(int x, int y, int tileDistance)
             {
                 // Removal of bridge pieces is handled by the bridge event
                 return false;

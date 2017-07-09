@@ -46,7 +46,7 @@ namespace Jazz2.Actors
 
         private float controllableTimeout;
 
-        private PlayerType playerType;
+        private PlayerType playerType, playerTypeOriginal;
         private SpecialMoveType currentSpecialMove;
         private bool isAttachedToPole;
         private float copterFramesLeft;
@@ -81,7 +81,7 @@ namespace Jazz2.Actors
         {
             base.OnAttach(details);
 
-            playerType = (PlayerType)details.Params[0];
+            playerType = playerTypeOriginal = (PlayerType)details.Params[0];
 
             switch (playerType) {
                 case PlayerType.Jazz:
@@ -619,7 +619,7 @@ namespace Jazz2.Actors
             currentHitbox = new Hitbox(pos.X - 14f, pos.Y + 8f - 12f, pos.X + 14f, pos.Y + 8f + 12f);
         }
 
-        public override bool Deactivate(int x, int y, int tileDistance)
+        public override bool OnTileDeactivate(int x, int y, int tileDistance)
         {
             // Player can never be deactivated
             return false;
@@ -933,7 +933,7 @@ namespace Jazz2.Actors
                         }
                     }
                     {
-                        PowerUpSwapMonitor collider = solidObject as PowerUpSwapMonitor;
+                        PowerUpMorphMonitor collider = solidObject as PowerUpMorphMonitor;
                         if (collider != null) {
                             collider.DestroyAndApplyToPlayer(this);
                         }
@@ -1191,10 +1191,6 @@ namespace Jazz2.Actors
                 case EventType.AreaActivateBoss: { // Music
                     // ToDo: Implement bosses somehow + music + camera lock
                     api.ActivateBoss(p[0]);
-
-                    // ToDo: Fix deactivating of boss on death, and remove this SavePoint
-                    savePointPos = Transform.Pos.Xy;
-                    savePointLight = api.AmbientLight;
                     break;
                 }
                 case EventType.AreaFlyOff: {
@@ -1205,6 +1201,12 @@ namespace Jazz2.Actors
                         canJump = true;
 
                         SetAnimation(AnimState.Fall);
+                    }
+                    break;
+                }
+                case EventType.AreaRevertMorph: {
+                    if (playerType != playerTypeOriginal) {
+                        MorphTo(playerTypeOriginal);
                     }
                     break;
                 }
@@ -1808,7 +1810,7 @@ namespace Jazz2.Actors
             attachedHud?.ShowLevelText(text);
         }
 
-        public void TransformTo(PlayerType type)
+        public void MorphTo(PlayerType type)
         {
             playerType = type;
 
