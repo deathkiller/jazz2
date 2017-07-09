@@ -17,6 +17,9 @@
     "Sounds": {
         "Fire": {
             "Paths": [ "Weapon/bullet_rf.wav" ]
+        },
+        "Explode": {
+            "Paths": [ "Weapon/tnt_explosion.wav" ]
         }
     }
 }

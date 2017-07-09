@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Import;
 using Jazz2.Game.Structs;
 
@@ -656,7 +657,7 @@ namespace Jazz2.Compatibility
 
                         return new ConversionResult {
                             eventType = EventType.LightFlicker,
-                            eventParams = new ushort[] { 110, 40, radiusNear, radiusFar, 0, 0, 0, 0 }
+                            eventParams = new ushort[] { (ushort)Math.Min(110 + eventParams[1] * 2, 255), 40, radiusNear, radiusFar, 0, 0, 0, 0 }
                         };
                     }
 
@@ -664,7 +665,6 @@ namespace Jazz2.Compatibility
                         ushort radiusNear = (ushort)(eventParams[1] == 0 ? 80 : eventParams[1] * 7);
                         ushort radiusFar = (ushort)(radiusNear * 1.25f);
 
-                        // ToDo: Allow oversaturation
                         return new ConversionResult {
                             eventType = EventType.LightSteady,
                             eventParams = new ushort[] { 255, 200, radiusNear, radiusFar, 0, 0, 0, 0 }

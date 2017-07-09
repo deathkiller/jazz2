@@ -1,4 +1,5 @@
 ﻿using Duality;
+using Jazz2.Game;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Weapons
@@ -39,6 +40,12 @@ namespace Jazz2.Actors.Weapons
             if ((upgrades & 0x1) != 0) {
                 timeLeft = MathF.Rnd.NextFloat(32, 40);
                 state |= (AnimState)1;
+
+                LightEmitter light = AddComponent<LightEmitter>();
+                light.Intensity = 1f;
+                light.Brightness = 1f;
+                light.RadiusNear = 4f;
+                light.RadiusFar = 16f;
             } else {
                 timeLeft = MathF.Rnd.NextFloat(26, 36);
             }

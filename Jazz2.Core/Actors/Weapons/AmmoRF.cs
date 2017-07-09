@@ -7,6 +7,8 @@ namespace Jazz2.Actors.Weapons
 {
     public class AmmoRF : AmmoBase
     {
+        private float smokeTimer = 3f;
+
         public override WeaponType WeaponType => WeaponType.RF;
 
         public override void OnAttach(ActorInstantiationDetails details)
@@ -20,6 +22,7 @@ namespace Jazz2.Actors.Weapons
 
             LightEmitter light = AddComponent<LightEmitter>();
             light.Intensity = 0.8f;
+            light.Brightness = 0.8f;
             light.RadiusNear = 3f;
             light.RadiusFar = 12f;
         }
@@ -65,6 +68,13 @@ namespace Jazz2.Actors.Weapons
 
             speedX *= 1.06f;
             speedY *= 1.06f;
+
+            if (smokeTimer > 0f) {
+                smokeTimer -= Time.TimeMult;
+            } else {
+                Explosion.Create(api, Transform.Pos, Explosion.TinyBlue);
+                smokeTimer = 6f;
+            }
         }
 
         protected override bool OnPerish(ActorBase collider)
@@ -81,6 +91,8 @@ namespace Jazz2.Actors.Weapons
             }
 
             Explosion.Create(api, Transform.Pos + Speed, Explosion.RF);
+
+            PlaySound("Explode");
 
             return base.OnPerish(collider);
         }

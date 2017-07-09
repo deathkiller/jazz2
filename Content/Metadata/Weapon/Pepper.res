@@ -12,7 +12,7 @@
         "BulletUpgraded": {
             "Path": "_custom/pepper_upgraded.png",
             "States": [ 1 ],
-            "Shader": "BasicNormalInvert"
+            "Shader": "BasicNormalAdd"
         }
     },
 

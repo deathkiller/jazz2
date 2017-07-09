@@ -7,20 +7,21 @@ namespace Jazz2.Actors
     {
         // Available explosion types
         public const ushort Tiny = 0;
-        public const ushort TinyDark = 1;
-        public const ushort Small = 2;
-        public const ushort SmallDark = 3;
-        public const ushort Large = 4;
+        public const ushort TinyBlue = 1;
+        public const ushort TinyDark = 2;
+        public const ushort Small = 3;
+        public const ushort SmallDark = 4;
+        public const ushort Large = 5;
 
-        public const ushort SmokeBrown = 5;
-        public const ushort SmokeGray = 6;
-        public const ushort SmokeWhite = 7;
-        public const ushort SmokePoof = 8;
+        public const ushort SmokeBrown = 6;
+        public const ushort SmokeGray = 7;
+        public const ushort SmokeWhite = 8;
+        public const ushort SmokePoof = 9;
 
-        public const ushort WaterSplash = 9;
+        public const ushort WaterSplash = 10;
 
-        public const ushort Pepper = 10;
-        public const ushort RF = 11;
+        public const ushort Pepper = 11;
+        public const ushort RF = 12;
 
         public const ushort Generator = 20;
 
@@ -52,6 +53,7 @@ namespace Jazz2.Actors
             {
                 default:
                 case Tiny: SetAnimation("Tiny"); break;
+                case TinyBlue: SetAnimation("TinyBlue"); break;
                 case TinyDark: SetAnimation("TinyDark"); break;
                 case Small: SetAnimation("Small"); break;
                 case SmallDark: SetAnimation("SmallDark"); break;

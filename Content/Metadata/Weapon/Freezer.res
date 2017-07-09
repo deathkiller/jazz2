@@ -20,6 +20,9 @@
         },
         "FireUpgraded": {
             "Paths": [ "Weapon/bullet_freezer_upgraded_1.wav", "Weapon/bullet_freezer_upgraded_2.wav", "Weapon/bullet_freezer_upgraded_3.wav", "Weapon/bullet_freezer_upgraded_4.wav", "Weapon/bullet_freezer_upgraded_5.wav" ]
+        },
+        "WallPoof": {
+            "Paths": [ "Weapon/wall_poof.wav" ]
         }
     }
 }

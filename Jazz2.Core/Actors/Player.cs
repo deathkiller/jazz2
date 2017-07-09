@@ -487,6 +487,9 @@ namespace Jazz2.Actors
                             PlaySound("PLAYER_JUMP");
                             carryingObject = null;
 
+                            // Gravitation is sometimes off because of active copter, turn it on again
+                            collisionFlags |= CollisionFlags.ApplyGravitation;
+
                             collisionFlags &= ~CollisionFlags.IsSolidObject;
 
                             internalForceY = 1.15f;
@@ -880,6 +883,7 @@ namespace Jazz2.Actors
             }
 
             // Copter Ears
+            // ToDo: Is this still needed?
             bool cancelCopter;
             if ((currentAnimationState & AnimState.Copter) != 0) {
                 cancelCopter = (canJump || suspendType != SuspendType.None || copterFramesLeft <= 0f);

@@ -362,15 +362,20 @@ namespace Jazz2.Actors
 
         public virtual bool OnTileDeactivate(int tx, int ty, int tileDistance)
         {
-            EventMap events = api.EventMap;
-            if ((flags & (ActorInstantiationFlags.IsCreatedFromEventMap | ActorInstantiationFlags.IsFromGenerator)) != 0 && ((Math.Abs(tx - originTile.X) > tileDistance) || (Math.Abs(ty - originTile.Y) > tileDistance))) {
-                if (events != null && (flags & ActorInstantiationFlags.IsCreatedFromEventMap) != 0) {
+            if ((flags & (ActorInstantiationFlags.IsCreatedFromEventMap | ActorInstantiationFlags.IsFromGenerator)) != 0 && ((MathF.Abs(tx - originTile.X) > tileDistance) || (MathF.Abs(ty - originTile.Y) > tileDistance))) {
+                EventMap events = api.EventMap;
+                if (events != null) {
+                    if ((flags & ActorInstantiationFlags.IsFromGenerator) != 0) {
+                        events.ResetGenerator(originTile.X, originTile.Y);
+                    }
+
                     events.Deactivate(originTile.X, originTile.Y);
                 }
 
                 api.RemoveActor(this);
                 return true;
             }
+
             return false;
         }
 
@@ -412,16 +417,6 @@ namespace Jazz2.Actors
         {
             externalForceX += x;
             externalForceY += y;
-        }
-
-        public void DeleteFromEventMap()
-        {
-            if ((flags & ActorInstantiationFlags.IsCreatedFromEventMap) != 0) {
-                EventMap events = api.EventMap;
-                if (events != null) {
-                    events.StoreTileEvent(originTile.X, originTile.Y, EventType.Empty);
-                }
-            }
         }
 
         public void HandleAmmoFrozenStateChange(ActorBase ammo)

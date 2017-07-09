@@ -27,6 +27,10 @@
             "Path": "Common/explosion_tiny.png",
             "FrameRate": 13
         },
+        "TinyBlue": {
+            "Path": "Common/explosion_freezer_maybe.png",
+            "FrameRate": 13
+        },
         "TinyDark": {
             "Path": "Common/explosion_tiny_black.png",
             "FrameRate": 13

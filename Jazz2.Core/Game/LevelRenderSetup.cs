@@ -188,7 +188,6 @@ namespace Jazz2.Game
 
         private void ProcessCombineSceneStep(DrawDevice drawDevice)
         {
-            // ToDo: Rework this, allow oversaturation
             // ToDo: Split lighting to RGB channels
             // ToDo: Implement dynamic lighting/shadows (https://github.com/mattdesl/lwjgl-basics/wiki/2D-Pixel-Perfect-Shadows)
 

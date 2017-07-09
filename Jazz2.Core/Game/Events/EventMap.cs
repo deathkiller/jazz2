@@ -190,7 +190,7 @@ namespace Jazz2.Game.Events
 
                             // ToDo: Remove inlined constants
 
-                            // Flag 0x02: generator
+                            // Flag 0x02: Generator
                             byte generatorFlags, generatorDelay;
                             if ((eventFlags & 0x02) != 0) {
                                 //eventFlags ^= 0x02;
@@ -201,7 +201,7 @@ namespace Jazz2.Game.Events
                                 generatorDelay = 0;
                             }
 
-                            // Flag 0x01: no params provided
+                            // Flag 0x01: No params provided
                             if ((eventFlags & 0x01) == 0) {
                                 eventFlags ^= 0x01;
                                 for (int i = 0; i < 8; ++i) {
@@ -209,10 +209,10 @@ namespace Jazz2.Game.Events
                                 }
                             }
 
-                            // Flag 0x02: generator
+                            // Flag 0x02: Generator
                             if ((eventFlags & 0x02) != 0) {
-                                ushort generatorID = (ushort)generators.Count;
-                                float timeLeft = ((generatorFlags & 0x01) != 0 ? generatorDelay : 0);
+                                ushort generatorIdx = (ushort)generators.Count;
+                                float timeLeft = ((generatorFlags & 0x01) != 0 ? generatorDelay : 0f);
 
                                 generators.Add(new GeneratorInfo {
                                     EventPos = x + y * layoutWidth,
@@ -222,7 +222,7 @@ namespace Jazz2.Game.Events
                                     TimeLeft = timeLeft
                                 });
 
-                                StoreTileEvent(x, y, EventType.Generator, new[] { generatorID });
+                                StoreTileEvent(x, y, EventType.Generator, new[] { generatorIdx });
                                 continue;
                             }
 
@@ -233,13 +233,14 @@ namespace Jazz2.Game.Events
                                     case EventType.Empty:
                                         break;
 
-                                    case EventType.LevelStart:
+                                    case EventType.LevelStart: {
                                         for (int i = 0; i < /*16*/4; i++) {
                                             if ((eventParams[0] & (1 << i)) != 0) { // Bitmask - 1: Jazz, 2: Spaz, 4: Lori
                                                 AddSpawnPosition((PlayerType)i, x, y);
                                             }
                                         }
                                         break;
+                                    }
 
                                     case EventType.ModifierOneWay:
                                     case EventType.ModifierVine:
@@ -252,13 +253,13 @@ namespace Jazz2.Game.Events
                                     case EventType.SceneryCollapse:
                                     case EventType.ModifierHPole:
                                     case EventType.ModifierVPole: {
-                                            StoreTileEvent(x, y, (EventType)eventID, eventParams);
-                                            TileMap tiles = levelHandler.TileMap;
-                                            if (tiles != null) {
-                                                tiles.SetTileEventFlags(x, y, (EventType)eventID, eventParams);
-                                            }
+                                        StoreTileEvent(x, y, (EventType)eventID, eventParams);
+                                        TileMap tiles = levelHandler.TileMap;
+                                        if (tiles != null) {
+                                            tiles.SetTileEventFlags(x, y, (EventType)eventID, eventParams);
                                         }
                                         break;
+                                    }
 
                                     case EventType.WarpTarget:
                                         AddWarpTarget(eventParams[0], x, y);
@@ -305,18 +306,15 @@ namespace Jazz2.Game.Events
 
         public void ProcessGenerators()
         {
-            // ToDo: Generated actors are not deactivated
-
             for (int i = 0; i < generators.Count; i++) {
                 ref GeneratorInfo generator = ref generators.Data[i];
 
                 if (!eventLayout[generator.EventPos].IsEventActive) {
+                    // Generator is inactive (and recharging)
                     generator.TimeLeft -= Time.TimeMult;
-                    return;
-                }
-
-                if (generator.SpawnedActor == null || generator.SpawnedActor.ParentScene == null) {
+                } else if (generator.SpawnedActor == null || generator.SpawnedActor.ParentScene == null) {
                     if (generator.TimeLeft <= 0f) {
+                        // Generator is active and is ready to spawn new actor
                         generator.TimeLeft = generator.Delay * Time.FramesPerSecond;
 
                         int x = generator.EventPos % layoutWidth;
@@ -329,6 +327,7 @@ namespace Jazz2.Game.Events
                             generator.SpawnedActor = actor;
                         }
                     } else {
+                        // Generator is active and recharging
                         generator.TimeLeft -= Time.TimeMult;
                     }
                 }
@@ -344,13 +343,13 @@ namespace Jazz2.Game.Events
 
             Point2 levelSize = tiles.Size;
 
-            int x1 = Math.Max(0, tx - tileDistance);
-            int x2 = Math.Min(levelSize.X - 1, tx + tileDistance);
-            int y1 = Math.Max(0, ty - tileDistance);
-            int y2 = Math.Min(levelSize.Y - 1, ty + tileDistance);
+            int x1 = MathF.Max(0, tx - tileDistance);
+            int x2 = MathF.Min(levelSize.X - 1, tx + tileDistance);
+            int y1 = MathF.Max(0, ty - tileDistance);
+            int y2 = MathF.Min(levelSize.Y - 1, ty + tileDistance);
 
-            for (int x = x1; x <= x2; ++x) {
-                for (int y = y1; y <= y2; ++y) {
+            for (int x = x1; x <= x2; x++) {
+                for (int y = y1; y <= y2; y++) {
                     ref EventTile tile = ref eventLayout[x + y * layoutWidth];
 
                     if (!tile.IsEventActive && tile.EventType != EventType.Empty) {
@@ -381,6 +380,15 @@ namespace Jazz2.Game.Events
             for (int i = 0; i < eventLayout.Length; ++i) {
                 eventLayout[i].IsEventActive = false;
             }
+        }
+
+        public void ResetGenerator(int tx, int ty)
+        {
+            // Linked actor was deactivated, but not destroyed
+            // Reset its generator, so it can be respawned immediately
+            ushort generatorIdx = eventLayout[tx + ty * layoutWidth].EventParams[0];
+
+            generators.Data[generatorIdx].TimeLeft = 0f;
         }
     }
 }

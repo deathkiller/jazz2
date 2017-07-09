@@ -99,6 +99,10 @@ namespace Jazz2.Actors.Weapons
 
                 CollisionAction = DebrisCollisionAction.Disappear
             });
+
+            if (timeLeft <= 0f) {
+                PlaySound("WallPoof");
+            }
         }
 
         protected override bool OnPerish(ActorBase collider)
@@ -111,16 +115,22 @@ namespace Jazz2.Actors.Weapons
         protected override void OnHitFloorHook()
         {
             DecreaseHealth(int.MaxValue);
+
+            PlaySound("WallPoof");
         }
 
         protected override void OnHitWallHook()
         {
             DecreaseHealth(int.MaxValue);
+
+            PlaySound("WallPoof");
         }
 
         protected override void OnHitCeilingHook()
         {
             DecreaseHealth(int.MaxValue);
+
+            PlaySound("WallPoof");
         }
     }
 }
