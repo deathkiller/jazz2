@@ -34,15 +34,14 @@
             vec3 normal = normalize(clrNormal.xyz - vec3(0.5, 0.5, 0.5));
             normal.z = -normal.z;
             
-            vec3 lightDir = vec3((center.x - gl_FragCoord.x), (center.y - gl_FragCoord.y), 0);
+            vec3 lightDir = vec3((center.x - gl_FragCoord.x), (center.y - gl_FragCoord.y), 0.0);
             
             // Diffuse lighting
             float diffuseFactor = 1.0 - max(dot(normal, normalize(lightDir)), 0.0);
 
-            float strength = clamp(1.0 - ((dist - radiusNear) / (radiusFar - radiusNear)), 0.0, 1.0);
-
             float noise = 0.3 + 0.7 * texture(noiseTex, vTexcoord0.st * vec2(0.3) + vec2(GameTime * 1.5, GameTime)).r;
 
-            vFragColor = vec4(diffuseFactor * strength * intensity * noise, strength * brightness * noise, 0, 1);
+            float strength = noise * diffuseFactor * clamp(1.0 - ((dist - radiusNear) / (radiusFar - radiusNear)), 0.0, 1.0);
+            vFragColor = vec4(strength * intensity, strength * brightness, 0.0, 1.0);
         }"
 }

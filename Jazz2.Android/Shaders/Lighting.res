@@ -36,7 +36,7 @@
             // Diffuse lighting
             float diffuseFactor = 1.0 - max(dot(normal, normalize(lightDir)), 0.0);
 
-            float strength = clamp(1.0 - ((dist - radiusNear) / (radiusFar - radiusNear)), 0.0, 1.0);
-            vFragColor = vec4(diffuseFactor * strength * intensity, strength * brightness, 0, 1);
+            float strength = diffuseFactor * clamp(1.0 - ((dist - radiusNear) / (radiusFar - radiusNear)), 0.0, 1.0);
+            vFragColor = vec4(strength * intensity, strength * brightness, 0.0, 1.0);
         }"
 }

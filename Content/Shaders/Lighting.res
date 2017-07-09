@@ -24,7 +24,7 @@
             vec3 normal = normalize(clrNormal.xyz - vec3(0.5, 0.5, 0.5));
             normal.z = -normal.z;
             
-            vec3 lightDir = vec3((center.x - gl_FragCoord.x), (center.y - gl_FragCoord.y), 0);
+            vec3 lightDir = vec3((center.x - gl_FragCoord.x), (center.y - gl_FragCoord.y), 0.0);
             
             // Diffuse lighting
             // Wasn't clamped to 1.0
@@ -54,7 +54,7 @@
             //float specularFactor = pow(max(dot(normal, normalize(eyeDir + lightDir)), 0.000001), clrSpecular.a * 64.0);
             //finalColor.rgb += _lightColor[i] * clrSpecular.rgb * specularFactor * diffuseFactor * attenFactor;
 
-            float strength = clamp(1.0 - ((dist - radiusNear) / (radiusFar - radiusNear)), 0.0, 1.0);
-            gl_FragColor = vec4(diffuseFactor * strength * intensity, strength * brightness, 0.0, 1.0);
+            float strength = diffuseFactor * clamp(1.0 - ((dist - radiusNear) / (radiusFar - radiusNear)), 0.0, 1.0);
+            gl_FragColor = vec4(strength * intensity, strength * brightness, 0.0, 1.0);
         }"
 }
