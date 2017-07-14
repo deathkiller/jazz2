@@ -279,6 +279,9 @@
             "__Paths": [ "Weapon/bullet_blaster_spaz_1.wav", "Weapon/bullet_blaster_spaz_2.wav", "Weapon/bullet_blaster_spaz_3.wav" ],
             "Paths": [ "Weapon/bullet_blaster_jazz_2.wav", "Weapon/bullet_blaster_jazz_3.wav" ]
         },
+        "WEAPON_TOASTER": {
+            "Paths": [ "Weapon/toaster.wav" ]
+        },
         "PLAYER_VINE_ATTACH": {
             "Paths": [ "Common/swish_9.wav" ]
         },

@@ -12,6 +12,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\AirboardGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\AmbientBubbles.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\AmbientSound.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\BirdyCage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\BonusWarp.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Enemies\Bosses\Bilsy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Enemies\Bosses\Bolly.cs" />

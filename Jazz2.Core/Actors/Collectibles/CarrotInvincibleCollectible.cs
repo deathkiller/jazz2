@@ -1,4 +1,6 @@
-﻿namespace Jazz2.Actors.Collectibles
+﻿using Duality;
+
+namespace Jazz2.Actors.Collectibles
 {
     public class CarrotInvincibleCollectible : Collectible
     {
@@ -15,9 +17,9 @@
 
         public override void Collect(Player player)
         {
-            base.Collect(player);
+            player.SetInvulnerability(30 * Time.FramesPerSecond);
 
-            // ToDo: Implement invincible carrots
+            base.Collect(player);
         }
     }
 }

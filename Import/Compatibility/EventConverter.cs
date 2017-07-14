@@ -997,14 +997,6 @@ namespace Jazz2.Compatibility
             ));
 
             convert.Add(JJ2Event.JJ2_POWERUP_SWAP, (level, jj2Params) => {
-                ushort[] eventParams = ConvertParamInt(jj2Params,
-                    Pair.Create(JJ2EventParamType.UInt, 8),  // ExtraEvent
-                    Pair.Create(JJ2EventParamType.UInt, 4),  // NumEvent
-                    Pair.Create(JJ2EventParamType.Bool, 1),  // RandomFly
-                    Pair.Create(JJ2EventParamType.Bool, 1)); // NoBomb
-
-                // ToDo: Implement RandomFly parameter
-
                 if (level.Version == JJ2Version.TSF || level.Version == JJ2Version.CC) {
                     return new ConversionResult {
                         eventType = EventType.PowerUpMorph,
@@ -1019,6 +1011,16 @@ namespace Jazz2.Compatibility
             });
 
             convert.Add(JJ2Event.JJ2_POWERUP_BIRD, ConstantParamList(EventType.PowerUpMorph, 2));
+
+            convert.Add(JJ2Event.JJ2_BIRDY, (level, jj2Params) => {
+                ushort[] eventParams = ConvertParamInt(jj2Params,
+                    Pair.Create(JJ2EventParamType.Bool, 1)); // Chuck (Yellow)
+
+                return new ConversionResult {
+                    eventType = EventType.BirdyCage,
+                    eventParams = new ushort[] { eventParams[0], 0 }
+                };
+            });
 
             // Misc.
             convert.Add(JJ2Event.JJ2_EVA, NoParamList(EventType.Eva));

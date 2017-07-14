@@ -54,17 +54,17 @@ namespace Jazz2.Game.Menu
             canvasBuffer = new CanvasBuffer();
 
             // Load resources
-            fontSmall = new BitmapFont("ui/font_small", 17, 18, 15, 32, 256, -2, canvasBuffer);
-            fontMedium = new BitmapFont("ui/font_medium", 29, 31, 15, 32, 256, -1, canvasBuffer);
+            fontSmall = new BitmapFont("UI/font_small", 17, 18, 15, 32, 256, -2, canvasBuffer);
+            fontMedium = new BitmapFont("UI/font_medium", 29, 31, 15, 32, 256, -1, canvasBuffer);
 
             metadata = ContentResolver.Current.RequestMetadata("UI/MainMenu", null);
 
             PrerenderTexturedBackground();
 
             // Play music
-            //string musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", "Menu.j2b");
+            //string musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", "menu.j2b");
             string musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", MathF.Rnd.OneOf(new[] {
-                "Bonus2.j2b", "Bonus3.j2b"
+                "bonus2.j2b", "bonus3.j2b"
             }));
             music = DualityApp.Sound.PlaySound(new OpenMptStream(musicPath));
             music.BeginFadeIn(0.5f);

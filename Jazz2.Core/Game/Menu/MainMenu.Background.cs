@@ -22,9 +22,9 @@ namespace Jazz2.Game.Menu
             try {
                 IImageCodec codec = ImageCodec.GetRead(ImageCodec.FormatPng);
 
-                string path = PathOp.Combine(DualityApp.DataDirectory, "Tilesets", "Easter99");
-                //string path = PathOp.Combine(DualityApp.DataDirectory, "Tilesets", "Carrot1");
-                //string path = PathOp.Combine(DualityApp.DataDirectory, "Tilesets", "Xmas3");
+                string path = PathOp.Combine(DualityApp.DataDirectory, "Tilesets", "easter99");
+                //string path = PathOp.Combine(DualityApp.DataDirectory, "Tilesets", "carrot1");
+                //string path = PathOp.Combine(DualityApp.DataDirectory, "Tilesets", "xmas3");
                 TileSet levelTileset = new TileSet(
                     codec.Read(FileOp.Open(PathOp.Combine(path, "tiles.png"), FileAccessMode.Read)),
                     codec.Read(FileOp.Open(PathOp.Combine(path, "mask.png"), FileAccessMode.Read)),
@@ -38,7 +38,7 @@ namespace Jazz2.Game.Menu
                 path = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "secretf", "01_easter1");
                 //path = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "prince", "03_carrot1");
                 //path = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "xmas98", "03_xmas3");
-                using (Stream s = FileOp.Open(PathOp.Combine(path, "sky.layer"), FileAccessMode.Read)) {
+                using (Stream s = FileOp.Open(PathOp.Combine(path, "Sky.layer"), FileAccessMode.Read)) {
                     using (DeflateStream deflate = new DeflateStream(s, CompressionMode.Decompress))
                     using (BinaryReader r = new BinaryReader(deflate)) {
 

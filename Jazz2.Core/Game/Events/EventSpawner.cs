@@ -123,6 +123,7 @@ namespace Jazz2.Game.Events
             RegisterSpawnable<GemGiant>(EventType.GemGiant);
 
             RegisterSpawnable<PowerUpMorphMonitor>(EventType.PowerUpMorph);
+            RegisterSpawnable<BirdyCage>(EventType.BirdyCage);
 
             RegisterSpawnable<AirboardGenerator>(EventType.AirboardGenerator);
 

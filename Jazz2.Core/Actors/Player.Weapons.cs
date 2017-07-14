@@ -290,6 +290,8 @@ namespace Jazz2.Actors
             newAmmo.OnFire(this, Speed, angle, isFacingLeft, weaponUpgrades[(int)currentWeapon]);
             api.AddActor(newAmmo);
 
+            //PlaySound("WEAPON_TOASTER", 0.6f);
+           
             weaponCooldown = 6f;
         }
 

@@ -64,12 +64,12 @@ namespace Jazz2.Android
                 new VirtualButton { KeyCode = Key.Space, Left = 0.68f, Top = 0.79f, Width = 0.094f, Height = 0.17f, Material = m4 },
                 new VirtualButton { KeyCode = Key.V, Left = 0.785f, Top = 0.71f, Width = 0.094f, Height = 0.17f, Material = m5 },
                 new VirtualButton { KeyCode = Key.C, Left = 0.89f, Top = 0.64f, Width = 0.094f, Height = 0.17f, Material = m6 },
-
                 new VirtualButton { KeyCode = Key.X, Left = 0.83f, Top = 0.57f, Width = 0.055f, Height = 0.096f, Material = m1 },
+
 #if DEBUG
                 new VirtualButton { KeyCode = Key.D, Left = 0.8f, Top = 0.1f, Width = 0.06f, Height = 0.1f, Material = m2 },
-#endif
                 new VirtualButton { KeyCode = Key.N, Left = 0.9f, Top = 0.1f, Width = 0.08f, Height = 0.16f, Material = m3 },
+#endif
 
                 new VirtualButton { KeyCode = Key.Enter, Left = 0.68f, Top = 0.79f, Width = 0.094f, Height = 0.17f },
                 new VirtualButton { KeyCode = Key.Enter, Left = 0.785f, Top = 0.71f, Width = 0.094f, Height = 0.17f },

@@ -559,16 +559,12 @@ namespace Jazz2.Actors
                 coins += 5;
             } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.U)) {
                 for (int i = 0; i < weaponAmmo.Length; i++) {
-                    weaponAmmo[i] = 100;
+                    if (weaponAmmo[i] >= 0) {
+                        weaponAmmo[i] = 100;
+                    }
                 }
             } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.I)) {
                 AddFastFire(1);
-                //api.AddActor(api.EventSpawner.SpawnEvent(ActorInstantiationFlags.None, EventType.TriggerCrate, Transform.Pos + new Vector3(0f, -100f, 20f), new ushort[8]));
-            }
-#else
-            // ToDo: Remove this in release
-            if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.N)) {
-                api.InitLevelChange(ExitType.Warp, null);
             }
 #endif
         }

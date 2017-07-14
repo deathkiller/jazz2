@@ -54,7 +54,7 @@ namespace Jazz2.Game
         {
             canvasBuffer = new CanvasBuffer();
 
-            fontSmall = new BitmapFont("ui/font_small", 17, 18, 15, 32, 256, -2, canvasBuffer);
+            fontSmall = new BitmapFont("UI/font_small", 17, 18, 15, 32, 256, -2, canvasBuffer);
 
             // ToDo: Pass palette from LevelHandler to adjust HUD colors
             Metadata m = ContentResolver.Current.RequestMetadata("UI/HUD", null);
