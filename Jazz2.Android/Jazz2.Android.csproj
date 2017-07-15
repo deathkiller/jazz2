@@ -66,6 +66,7 @@
     <Compile Include="Backend\Sound\AudioBackend.cs" />
     <Compile Include="Backend\Sound\NativeAudioBuffer.cs" />
     <Compile Include="Backend\Sound\NativeAudioSource.cs" />
+    <Compile Include="CrashHandlerActivity.cs" />
     <Compile Include="GLView.Touch.cs">
       <SubType>Code</SubType>
       <DependentUpon>GLView.cs</DependentUpon>

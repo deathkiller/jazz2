@@ -24,6 +24,8 @@ namespace Jazz2.Android
         {
             base.OnCreate(bundle);
 
+            CrashHandlerActivity.Register(this);
+
             Window.AddFlags(WindowManagerFlags.KeepScreenOn);
             //Window.ClearFlags(WindowManagerFlags.TranslucentNavigation | WindowManagerFlags.TranslucentStatus);
 
