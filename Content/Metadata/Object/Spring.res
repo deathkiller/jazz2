@@ -104,7 +104,7 @@
             "Paths": [ "Spring/spring_ver_down.wav" ]
         },
         "Horizontal": {
-            "Paths": [ "Spring/spring.wav" ]
+            "Paths": [ "Spring/Spring.wav" ]
         }
     }
 }

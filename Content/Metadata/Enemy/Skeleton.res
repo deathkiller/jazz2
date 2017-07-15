@@ -5,15 +5,15 @@
 
     "Animations": {
         "Walk": {
-            "Path": "Skeleton/walk.png",
+            "Path": "Skeleton/Walk.png",
             "FrameRate": 3,
             "States": [ 1 ]
         },
         "Bone": {
-            "Path": "Skeleton/bone.png"
+            "Path": "Skeleton/Bone.png"
         },
         "Skull": {
-            "Path": "Skeleton/skull.png"
+            "Path": "Skeleton/Skull.png"
         }
     }
 }

@@ -143,7 +143,7 @@
             "States": [ 1073741833 ]
         },
         "PLAYER_SPAZ_BUTTSTOMP_START": {
-            "Path": "Spaz/spring.png",
+            "Path": "Spaz/Spring.png",
             "States": [ 1073741834 ]
         },
         "PLAYER_SPAZ_BUTTSTOMP_END": {
@@ -190,7 +190,7 @@
             "States": [ 1073741848 ]
         },
         "PLAYER_SPAZ_SPRING": {
-            "Path": "Spaz/spring.png",
+            "Path": "Spaz/Spring.png",
             "States": [ 262144, 262145, 262146 ]
         },
         "PLAYER_SPAZ_PUSH": {

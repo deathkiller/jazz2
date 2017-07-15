@@ -21,13 +21,13 @@ namespace Jazz2.Actors
 
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
-            if (delay > 0) {
-                renderer.Active = false;
-
-                timeLeft = delay * Time.FramesPerSecond;
-            } else {
+            //if (delay > 0) {
+            //    renderer.Active = false;
+            //
+            //    timeLeft = delay * Time.FramesPerSecond;
+            //} else {
                 active = true;
-            }
+            //}
         }
 
         protected override void OnUpdate()

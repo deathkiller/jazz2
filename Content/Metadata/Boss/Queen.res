@@ -52,7 +52,7 @@
             "Paths": [ "Queen/scream.wav" ]
         },
         "Spring": {
-            "Paths": [ "Queen/spring.wav" ]
+            "Paths": [ "Queen/Spring.wav" ]
         }
     }
 }

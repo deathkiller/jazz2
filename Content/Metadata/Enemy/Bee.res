@@ -5,7 +5,7 @@
 
     "Animations": {
         "Idle": {
-            "Path": "Bee/bee.png",
+            "Path": "Bee/Bee.png",
             "FrameRate": 25,
             "States": [ 0 ]
         },

@@ -5,22 +5,22 @@
 
     "Animations": {
         "PICKUP_GEM_RED": {
-            "Path": "Pickup/gem.png",
+            "Path": "Pickup/Gem.png",
             "Shader": "Colorize",
             "ShaderColor": [ 210, 110, 145, 190 ]
         },
         "PICKUP_GEM_GREEN": {
-            "Path": "Pickup/gem.png",
+            "Path": "Pickup/Gem.png",
             "Shader": "Colorize",
             "ShaderColor": [ 110, 200, 140, 190 ]
         },
         "PICKUP_GEM_BLUE": {
-            "Path": "Pickup/gem.png",
+            "Path": "Pickup/Gem.png",
             "Shader": "Colorize",
             "ShaderColor": [ 110, 145, 220, 190 ]
         },
         "PICKUP_GEM_PURPLE": {
-            "Path": "Pickup/gem.png",
+            "Path": "Pickup/Gem.png",
             "Shader": "Colorize",
             "ShaderColor": [ 145, 105, 205, 190 ]
         },

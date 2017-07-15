@@ -145,7 +145,7 @@
             "States": [ 1073741833 ]
         },
         "PLAYER_LORI_BUTTSTOMP_START": {
-            "Path": "Lori/spring.png",
+            "Path": "Lori/Spring.png",
             "States": [ 1073741834 ]
         },
         "PLAYER_LORI_BUTTSTOMP_END": {
@@ -195,7 +195,7 @@
             "States": [ 1073741848 ]
         },
         "PLAYER_LORI_SPRING": {
-            "Path": "Lori/spring.png",
+            "Path": "Lori/Spring.png",
             "States": [ 262144, 262145, 262146 ]
         },
         "PLAYER_LORI_PUSH": {

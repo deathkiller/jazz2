@@ -630,7 +630,7 @@ namespace Import
             WriteLog(LogType.Info, "Checking \"Music\" and \"Tileset\" directories for missing files...");
 
             foreach (string unreferenced in new[] { "boss1.j2b", "boss2.j2b", "bonus2.j2b", "bonus3.j2b", "menu.j2b" }) {
-                if (!File.Exists(Path.Combine(targetPath, "Content", "Music", unreferenced))) {
+                if (!FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Music", unreferenced))) {
                     WriteLog(LogType.Warning, "\"" + Path.Combine("Music", unreferenced) + "\" is missing!");
                 }
             }
@@ -643,17 +643,17 @@ namespace Import
                             LevelConfigJson json = jsonParser.Parse<LevelConfigJson>(s);
 
                             if (!string.IsNullOrEmpty(json.Description.DefaultMusic)) {
-                                if (!File.Exists(Path.Combine(targetPath, "Content", "Music", json.Description.DefaultMusic))) {
+                                if (!FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Music", json.Description.DefaultMusic))) {
                                     WriteLog(LogType.Warning, "\"" + Path.Combine("Music", json.Description.DefaultMusic) + "\" is missing!");
                                 }
                             }
 
                             if (!string.IsNullOrEmpty(json.Description.DefaultTileset)) {
                                 if (!Directory.Exists(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset)) ||
-                                    !File.Exists(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "Tiles.png")) ||
-                                    !File.Exists(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "mask.png")) ||
-                                    !File.Exists(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "normal.png")) ||
-                                    !File.Exists(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, ".palette"))) {
+                                    !FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "tiles.png")) ||
+                                    !FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "mask.png")) ||
+                                    !FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "normal.png")) ||
+                                    !FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, ".palette"))) {
                                     WriteLog(LogType.Warning, "\"" + Path.Combine("Tilesets", json.Description.DefaultTileset) + "\" is missing!");
                                 }
                             }
@@ -666,7 +666,7 @@ namespace Import
             WriteLog(LogType.Info, "Checking \"Animations\" directory for missing files...");
 
             foreach (string unreferenced in new[] { "_custom/noise.png", "UI/font_medium.png", "UI/font_medium.png.res", "UI/font_medium.png.config", "UI/font_small.png", "UI/font_small.png.res", "UI/font_small.png.config" }) {
-                if (!File.Exists(Path.Combine(targetPath, "Content", "Animations", unreferenced))) {
+                if (!FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Animations", unreferenced))) {
                     WriteLog(LogType.Warning, "\"" + Path.Combine("Animations", unreferenced.Replace('/', Path.DirectorySeparatorChar)) + "\" is missing!");
                 }
             }
@@ -689,10 +689,10 @@ namespace Import
                                     if (animation.Value == null) {
                                         continue;
                                     }
-                                    if (!File.Exists(Path.Combine(targetPath, "Content", "Animations", animation.Value.Path))) {
+                                    if (!FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Animations", animation.Value.Path))) {
                                         WriteLog(LogType.Warning, "\"" + Path.Combine("Animations", animation.Value.Path.Replace('/', Path.DirectorySeparatorChar)) + "\" is missing!");
                                     }
-                                    if (!File.Exists(Path.Combine(targetPath, "Content", "Animations", animation.Value.Path + ".res"))) {
+                                    if (!FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Animations", animation.Value.Path + ".res"))) {
                                         WriteLog(LogType.Warning, "\"" + Path.Combine("Animations", animation.Value.Path.Replace('/', Path.DirectorySeparatorChar)) + ".res" + "\" is missing!");
                                     }
                                 }
@@ -705,7 +705,7 @@ namespace Import
                                             if (soundPath == null) {
                                                 continue;
                                             }
-                                            if (!File.Exists(Path.Combine(targetPath, "Content", "Animations", soundPath))) {
+                                            if (!FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Animations", soundPath))) {
                                                 WriteLog(LogType.Warning, "\"" + Path.Combine("Animations", soundPath.Replace('/', Path.DirectorySeparatorChar)) + "\" is missing!");
                                             }
                                         }
@@ -715,6 +715,60 @@ namespace Import
                         }
                     }
                 }
+            }
+        }
+
+        private static bool FileExistsCaseSensitive(string path)
+        {
+            path = path.Replace('/', Path.DirectorySeparatorChar);
+
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
+                if (File.Exists(path)) {
+                    string directory = Path.GetDirectoryName(path);
+                    string fileName = Path.GetFileName(path);
+                    string found = Directory.EnumerateFiles(directory, fileName).First();
+                    if (found == null || found == path) {
+
+                        directory = directory.TrimEnd(Path.DirectorySeparatorChar);
+
+                        while (true) {
+                            int index = directory.LastIndexOf(Path.DirectorySeparatorChar);
+                            if (index >= 0) {
+                                string directoryName = directory.Substring(index + 1);
+                                string parent = directory.Substring(0, index);
+
+                                bool isDrive = (parent.Length == 2 && char.IsLetter(parent[0]) && parent[1] == ':');
+                                if (isDrive) {
+                                    // Parent directory is probably drive specifier (C:)
+                                    // Append backslash...
+                                    parent += Path.DirectorySeparatorChar;
+                                }
+
+                                found = Directory.EnumerateDirectories(parent, directoryName).First();
+                                if (found != null && found != directory) {
+                                    return false;
+                                }
+
+                                if (isDrive) {
+                                    // Parent directory is probably drive specifier (C:)
+                                    // Check is done...
+                                    break;
+                                }
+
+                                directory = parent;
+                            } else {
+                                // No directory separator found
+                                break;
+                            }
+                        }
+
+                        return true;
+                    }
+                }
+
+                return false;
+            } else {
+                return File.Exists(path);
             }
         }
     }

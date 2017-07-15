@@ -145,7 +145,7 @@
             "States": [ 1073741833 ]
         },
         "PLAYER_JAZZ_BUTTSTOMP_START": {
-            "Path": "Jazz/spring.png",
+            "Path": "Jazz/Spring.png",
             "States": [ 1073741834 ]
         },
         "PLAYER_JAZZ_BUTTSTOMP_END": {
@@ -192,7 +192,7 @@
             "States": [ 1073741848 ]
         },
         "PLAYER_JAZZ_SPRING": {
-            "Path": "Jazz/spring.png",
+            "Path": "Jazz/Spring.png",
             "States": [ 262144, 262145, 262146 ]
         },
         "PLAYER_JAZZ_PUSH": {

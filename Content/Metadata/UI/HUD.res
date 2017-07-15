@@ -86,7 +86,7 @@
         },
 
         "PickupGem": {
-            "Path": "Pickup/gem.png",
+            "Path": "Pickup/Gem.png",
             "Shader": "Colorize"
         },
         "PickupCoin": {

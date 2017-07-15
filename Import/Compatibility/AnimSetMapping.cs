@@ -62,7 +62,7 @@ namespace Jazz2.Compatibility
             } else if (version != JJ2Version.Unknown) {
                 // set 0 (all)
                 mapping.Add("Unknown", "flame_blue");
-                mapping.Add("Common", "bomb");
+                mapping.Add("Common", "Bomb");
                 mapping.Add("Common", "smoke_poof");
                 mapping.Add("Common", "explosion_rf");
                 mapping.Add("Common", "explosion_small");
@@ -1063,7 +1063,7 @@ namespace Jazz2.Compatibility
                 mapping.Add("Sucker", "walk_ver_up");
 
                 mapping.NextSet(); // set 100 (1.24) / set 96 (1.23)
-                mapping.Add("TurtleTube", "idle");
+                mapping.Add("TurtleTube", "Idle");
 
                 mapping.NextSet();
                 mapping.Add("TurtleToughBoss", "attack_start");
@@ -1074,7 +1074,7 @@ namespace Jazz2.Compatibility
                 mapping.Add("TurtleToughBoss", "walk");
 
                 mapping.NextSet();
-                mapping.Add("TurtleTough", "walk");
+                mapping.Add("TurtleTough", "Walk");
 
                 mapping.NextSet();
                 mapping.Add("Turtle", "attack");
