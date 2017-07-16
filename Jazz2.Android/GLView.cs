@@ -8,6 +8,7 @@ using Jazz2.Game;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Platform.Android;
+using Vector2 = Duality.Vector2;
 using Debug = System.Diagnostics.Debug;
 using NativeWindow = Duality.Backend.Android.OpenTK.NativeWindow;
 using INativeWindow = Duality.Backend.INativeWindow;
@@ -38,7 +39,11 @@ namespace Jazz2.Android
             INativeWindow window = DualityApp.OpenWindow(new WindowOptions {
                 ScreenMode = ScreenMode.Window
             });
-            (window as NativeWindow).BindContext(Context);
+
+            if (window is NativeWindow) {
+                // Backend was initialized successfully
+                (window as NativeWindow).BindContext(Context);
+            }
 
             InitInput();
 
@@ -100,7 +105,12 @@ namespace Jazz2.Android
             //base.OnUpdateFrame(e);
 
             if (DualityApp.ExecContext == DualityApp.ExecutionContext.Terminated) {
-                (Context as Activity).FinishAndRemoveTask();
+                if (Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop) {
+                    (Context as Activity).FinishAndRemoveTask();
+                } else {
+                    (Context as Activity).Finish();
+                }
+
                 return;
             }
 
@@ -112,7 +122,7 @@ namespace Jazz2.Android
             //base.OnRenderFrame(e);
 
             //try {
-                DualityApp.Render(null, new Rect(viewportWidth, viewportHeight), new Duality.Vector2(viewportWidth, viewportHeight));
+                DualityApp.Render(null, new Rect(viewportWidth, viewportHeight), new Vector2(viewportWidth, viewportHeight));
             //} catch (Exception ex) {
             //    Console.WriteLine(ex.ToString());
             //}

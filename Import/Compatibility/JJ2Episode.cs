@@ -111,6 +111,7 @@ namespace Jazz2.Compatibility
                 w.WriteLine("        \"Target\": \"Jazz² Resurrection\"");
                 w.WriteLine("    },");
 
+                // Hard-coded episode name conversion
                 string name;
                 if (episodeToken == "share" && episodeName == "#Shareware@Levels") {
                     name = "Shareware Demo";

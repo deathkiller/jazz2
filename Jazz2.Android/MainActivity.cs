@@ -1,4 +1,5 @@
-﻿using Android.App;
+﻿using System;
+using Android.App;
 using Android.Content.PM;
 using Android.Graphics;
 using Android.OS;
@@ -27,19 +28,27 @@ namespace Jazz2.Android
             CrashHandlerActivity.Register(this);
 
             Window.AddFlags(WindowManagerFlags.KeepScreenOn);
-            //Window.ClearFlags(WindowManagerFlags.TranslucentNavigation | WindowManagerFlags.TranslucentStatus);
 
-            View decorView = Window.DecorView;
-            decorView.SystemUiVisibility |= (StatusBarVisibility)SystemUiFlags.LayoutStable;
-            decorView.SystemUiVisibility |= (StatusBarVisibility)SystemUiFlags.LayoutFullscreen;
-            decorView.SystemUiVisibility |= (StatusBarVisibility)SystemUiFlags.Immersive;
+            try {
+                View decorView = Window.DecorView;
+                decorView.SystemUiVisibility |= (StatusBarVisibility)SystemUiFlags.LayoutStable;
+                decorView.SystemUiVisibility |= (StatusBarVisibility)SystemUiFlags.LayoutFullscreen;
+                decorView.SystemUiVisibility |= (StatusBarVisibility)SystemUiFlags.Immersive;
 
-            //if ((int)Build.VERSION.SdkInt < 18)
-            //    RequestedOrientation = ScreenOrientation.SensorLandscape;
+                //if ((int)Build.VERSION.SdkInt < 18)
+                //    RequestedOrientation = ScreenOrientation.SensorLandscape;
 
-            Window.ClearFlags(WindowManagerFlags.TranslucentStatus);
-            Window.AddFlags(WindowManagerFlags.DrawsSystemBarBackgrounds);
-            Window.SetStatusBarColor(Color.Argb(0x22, 0x00, 0x00, 0x00));
+                Window.ClearFlags(WindowManagerFlags.TranslucentStatus);
+                Window.AddFlags(WindowManagerFlags.DrawsSystemBarBackgrounds);
+
+                if (Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop) {
+                    Window.SetStatusBarColor(Color.Argb(0x22, 0x00, 0x00, 0x00));
+                }
+            } catch /*(Exception ex)*/ {
+#if DEBUG
+                throw;
+#endif
+            }
 
             // Create our OpenGL view, and display it
             view = new GLView(this);

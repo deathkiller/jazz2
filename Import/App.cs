@@ -52,6 +52,7 @@ namespace Import
                     case "/skip-levels": processLevels = false; break;
                     case "/skip-music": processMusic = false; break;
                     case "/skip-tilesets": processTilesets = false; break;
+                    case "/skip-all": processAnims = processLevels = processMusic = processTilesets = false; break;
 
                     case "/all": all = true; break;
                     case "/no-wait": noWait = true; break;
@@ -229,6 +230,7 @@ namespace Import
             Console.WriteLine("   /skip-levels    Don't convert level files (*.j2l files).");
             Console.WriteLine("   /skip-music     Don't convert music files (*.j2b files).");
             Console.WriteLine("   /skip-tilesets  Don't convert tileset files (*.j2t files).");
+            Console.WriteLine("   /skip-all       Don't convert anything.");
             Console.WriteLine("   /all            Convert all (even unused) music and tileset files.");
             Console.WriteLine("                   Otherwise only files referenced in levels will be converted.");
             Console.WriteLine("   /no-wait        Don't show (Press any key to exit) message when it's done.");
@@ -244,11 +246,14 @@ namespace Import
             targetPath = Path.Combine(targetPath, "Content", "Animations");
             Directory.CreateDirectory(targetPath);
 
-            JJ2Anims.Convert(Path.Combine(sourcePath, "Anims.j2a"), targetPath, false);
+            string animsPath = Path.Combine(sourcePath, "Anims.j2a");
+            if (FileResolveCaseInsensitive(ref animsPath)) {
+                JJ2Anims.Convert(animsPath, targetPath, false);
+            }
 
-            string plusExtension = Path.Combine(sourcePath, "Plus.j2a");
-            if (File.Exists(plusExtension)) {
-                JJ2Anims.Convert(plusExtension, targetPath, true);
+            string plusPath = Path.Combine(sourcePath, "Plus.j2a");
+            if (FileResolveCaseInsensitive(ref plusPath)) {
+                JJ2Anims.Convert(plusPath, targetPath, true);
             }
         }
 
@@ -256,7 +261,8 @@ namespace Import
         {
             WriteLog(LogType.Info, "Importing levels...");
 
-            string xmasEpisodeToken = (File.Exists(Path.Combine(sourcePath, "xmas99.j2e")) ? "xmas99" : "xmas98");
+            string xmasEpisodePath = Path.Combine(sourcePath, "xmas99.j2e");
+            string xmasEpisodeToken = (FileResolveCaseInsensitive(ref xmasEpisodePath) ? "xmas99" : "xmas98");
 
             Dictionary<string, Tuple<string, string>> knownLevels = new Dictionary<string, Tuple<string, string>> {
                 ["castle1"] = Tuple.Create("prince", "01"),
@@ -355,7 +361,8 @@ namespace Import
 
             Parallel.ForEach(Directory.EnumerateFiles(sourcePath, "*.j2l"), file => {
                 try {
-                    bool isPlusEnhanced = File.Exists(Path.ChangeExtension(file, ".j2as"));
+                    string asPath = Path.ChangeExtension(file, ".j2as");
+                    bool isPlusEnhanced = FileResolveCaseInsensitive(ref asPath);
 
                     JJ2Level l = JJ2Level.Open(file, false);
                     string levelToken = l.CurrentLevelToken.ToLower().Replace(" ", "_").Replace("\"", "").Replace("'", "");
@@ -431,8 +438,7 @@ namespace Import
             for (int i = 0; i < exts.Length; i++) {
                 foreach (string file in Directory.EnumerateFiles(sourcePath, "*" + exts[i], SearchOption.TopDirectoryOnly)) {
                     string token = Path.GetFileNameWithoutExtension(file).ToLowerInvariant();
-                    if (usedMusic != null &&
-                        !usedMusic.Contains(token)) {
+                    if (usedMusic != null && !usedMusic.Contains(token)) {
                         WriteLog(LogType.Warning, "File \"" + Path.GetFileName(file) + "\" not used! Skipped.");
                         continue;
                     }
@@ -456,8 +462,7 @@ namespace Import
 
             Parallel.ForEach(Directory.EnumerateFiles(sourcePath, "*.j2t"), file => {
                 string token = Path.GetFileNameWithoutExtension(file).ToLowerInvariant();
-                if (usedTilesets != null &&
-                    !usedTilesets.Contains(token)) {
+                if (usedTilesets != null && !usedTilesets.Contains(token)) {
                     WriteLog(LogType.Warning, "File \"" + Path.GetFileName(file) + "\" not used! Skipped.");
                     return;
                 }
@@ -507,6 +512,7 @@ namespace Import
             if (Directory.Exists(Path.Combine(targetPath, "Content", "Episodes"))) {
                 WriteLog(LogType.Info, "Cleaning \"Music\" and \"Tileset\" directories...");
 
+                // Paths in the set have to be lower-case
                 usedMusic.Add("boss1");
                 usedMusic.Add("boss2");
                 usedMusic.Add("bonus2");
@@ -565,6 +571,7 @@ namespace Import
             if (Directory.Exists(Path.Combine(targetPath, "Content", "Metadata"))) {
                 WriteLog(LogType.Info, "Cleaning \"Animations\" directory...");
 
+                // Paths in the set have to be lower-case
                 usedAnimations.Add("_custom/noise.png");
                 usedAnimations.Add("ui/font_small.png");
                 usedAnimations.Add("ui/font_medium.png");
@@ -682,7 +689,6 @@ namespace Import
                                 WriteLog(LogType.Error, "\"" + Path.GetFileName(Path.GetDirectoryName(path)) + Path.DirectorySeparatorChar + Path.GetFileName(path) + "\" is corrupted! " + ex.Message);
                                 continue;
                             }
-                            
 
                             if (json.Animations != null) {
                                 foreach (var animation in json.Animations) {
@@ -723,6 +729,7 @@ namespace Import
             path = path.Replace('/', Path.DirectorySeparatorChar);
 
             if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
+                // Check case-sensitive on Windows
                 if (File.Exists(path)) {
                     string directory = Path.GetDirectoryName(path);
                     string fileName = Path.GetFileName(path);
@@ -769,6 +776,23 @@ namespace Import
                 return false;
             } else {
                 return File.Exists(path);
+            }
+        }
+
+        public static bool FileResolveCaseInsensitive(ref string path)
+        {
+            if (File.Exists(path)) {
+                return true;
+            }
+
+            string directory = Path.GetDirectoryName(path);
+            string fileName = Path.GetFileName(path);
+            string found = Directory.EnumerateFiles(directory).FirstOrDefault(current => string.Compare(Path.GetFileName(current), fileName, true) == 0);
+            if (found == null) {
+                return false;
+            } else {
+                path = found;
+                return true;
             }
         }
     }
