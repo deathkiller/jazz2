@@ -8,7 +8,7 @@
 
             scoreValue = 500;
 
-            SetAnimation("PICKUP_CARROT_FLY");
+            SetAnimation("CarrotFly");
 
             SetFacingDirection();
         }

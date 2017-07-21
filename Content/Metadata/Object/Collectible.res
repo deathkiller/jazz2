@@ -4,231 +4,238 @@
     },
 
     "Animations": {
-        "PICKUP_GEM_RED": {
+        "GemRed": {
             "Path": "Pickup/Gem.png",
             "Shader": "Colorize",
             "ShaderColor": [ 210, 110, 145, 190 ]
         },
-        "PICKUP_GEM_GREEN": {
+        "GemGreen": {
             "Path": "Pickup/Gem.png",
             "Shader": "Colorize",
             "ShaderColor": [ 110, 200, 140, 190 ]
         },
-        "PICKUP_GEM_BLUE": {
+        "GemBlue": {
             "Path": "Pickup/Gem.png",
             "Shader": "Colorize",
             "ShaderColor": [ 110, 145, 220, 190 ]
         },
-        "PICKUP_GEM_PURPLE": {
+        "GemPurple": {
             "Path": "Pickup/Gem.png",
             "Shader": "Colorize",
             "ShaderColor": [ 145, 105, 205, 190 ]
         },
-        "PICKUP_COIN_GOLD": {
+
+        "CoinGold": {
             "Path": "Pickup/coin_gold.png",
             "FrameRate": 5,
             "Shader": "SmoothAnimNormal"
         },
-        "PICKUP_COIN_SILVER": {
+        "CoinSilver": {
             "Path": "Pickup/coin_silver.png",
             "FrameRate": 5,
             "Shader": "SmoothAnimNormal"
         },
-        "PICKUP_CARROT": {
+
+        "Carrot": {
             "Path": "Pickup/carrot.png"
         },
-        "PICKUP_CARROT_FULL": {
+        "CarrotFull": {
             "Path": "Pickup/carrot_full.png",
             "FrameRate": 8,
             "Shader": "SmoothAnimNormal"
         },
-        "PICKUP_CARROT_FLY": {
+        "CarrotFly": {
             "Path": "Pickup/carrot_fly.png",
             "Shader": "SmoothAnimNormal"
         },
-        "PICKUP_CARROT_INVINCIBLE": {
+        "CarrotInvincible": {
             "Path": "Pickup/carrot_invincibility.png",
             "FrameRate": 8,
             "Shader": "SmoothAnimNormal"
         },
-        "PICKUP_ONEUP": {
+
+        "OneUp": {
             "Path": "Pickup/1up.png"
         },
-        "PICKUP_FASTFIRE_JAZZ": {
+
+        "FastFireJazz": {
             "Path": "Pickup/fast_fire_jazz.png"
         },
-        "PICKUP_FASTFIRE_SPAZ": {
+        "FastFireSpaz": {
             "Path": "Pickup/fast_fire_spaz.png"
         },
-        "PICKUP_FASTFIRE_LORI": {
+        "FastFireLori": {
             "Path": "Pickup/fast_fire_lori.png"
         },
-        "PICKUP_AMMO_BOUNCER": {
+
+        "AmmoBouncer": {
             "Path": "Pickup/ammo_bouncer.png",
             "Shader": "SmoothAnimNormal"
         },
-        "PICKUP_AMMO_FREEZER": {
+        "AmmoFreezer": {
             "Path": "Pickup/ammo_freezer.png",
             "Shader": "SmoothAnimNormal"
         },
-        "PICKUP_AMMO_SEEKER": {
+        "AmmoSeeker": {
             "Path": "Pickup/ammo_seeker.png",
             "Shader": "SmoothAnimNormal"
         },
-        "PICKUP_AMMO_RF": {
+        "AmmoRF": {
             "Path": "Pickup/ammo_rf.png",
             "Shader": "SmoothAnimNormal"
         },
-        "PICKUP_AMMO_TOASTER": {
+        "AmmoToaster": {
             "Path": "Pickup/ammo_toaster.png",
             "Shader": "SmoothAnimNormal"
         },
-        "PICKUP_AMMO_TNT": {
+        "AmmoTNT": {
             "Path": "Object/tnt.png",
             "Shader": "SmoothAnimNormal"
         },
-        "PICKUP_AMMO_PEPPER": {
+        "AmmoPepper": {
             "Path": "Pickup/ammo_pepper.png",
             "Shader": "SmoothAnimNormal"
         },
-        "PICKUP_AMMO_ELECTRO": {
+        "AmmoElectro": {
             "Path": "Pickup/ammo_electro.png",
             "Shader": "SmoothAnimNormal"
         },
-        "PICKUP_AMMO_POWERUP_BOUNCER": {
-            "Path": "Pickup/ammo_bouncer_upgraded.png",
+
+        "AmmoPowerUpBouncer": {
+            "_Path": "Pickup/ammo_bouncer_upgraded.png",
             "Shader": "SmoothAnimNormal"
         },
-        "PICKUP_AMMO_POWERUP_FREEZER": {
-            "Path": "Pickup/ammo_freezer_upgraded.png",
+        "AmmoPowerUpFreezer": {
+            "_Path": "Pickup/ammo_freezer_upgraded.png",
             "Shader": "SmoothAnimNormal"
         },
-        "PICKUP_AMMO_POWERUP_SEEKER": {
-            "Path": "Pickup/ammo_seeker_upgraded.png",
+        "AmmoPowerUpSeeker": {
+            "_Path": "Pickup/ammo_seeker_upgraded.png",
             "Shader": "SmoothAnimNormal"
         },
-        "PICKUP_AMMO_POWERUP_RF": {
-            "Path": "Pickup/ammo_rf_upgraded.png",
+        "AmmoPowerUpRF": {
+            "_Path": "Pickup/ammo_rf_upgraded.png",
             "Shader": "SmoothAnimNormal"
         },
-        "PICKUP_AMMO_POWERUP_TOASTER": {
-            "Path": "Pickup/ammo_toaster_upgraded.png",
+        "AmmoPowerUpToaster": {
+            "_Path": "Pickup/ammo_toaster_upgraded.png",
             "Shader": "SmoothAnimNormal"
         },
-        "PICKUP_AMMO_POWERUP_PEPPER": {
-            "Path": "Pickup/ammo_pepper_upgraded.png",
+        "AmmoPowerUpPepper": {
+            "_Path": "Pickup/ammo_pepper_upgraded.png",
             "Shader": "SmoothAnimNormal"
         },
-        "PICKUP_AMMO_POWERUP_ELECTRO": {
-            "Path": "Pickup/ammo_electro_upgraded.png",
+        "AmmoPowerUpElectro": {
+            "_Path": "Pickup/ammo_electro_upgraded.png",
             "Shader": "SmoothAnimNormal"
         },
-        "PICKUP_FOOD_APPLE": {
+
+        "FoodApple": {
             "Path": "Pickup/food_apple.png"
         },
-        "PICKUP_FOOD_BANANA": {
+        "FoodBanana": {
             "Path": "Pickup/food_banana.png"
         },
-        "PICKUP_FOOD_BURGER": {
+        "FoodBurger": {
             "Path": "Pickup/food_burger.png"
         },
-        "PICKUP_FOOD_CAKE": {
+        "FoodCake": {
             "Path": "Pickup/food_cake.png"
         },
-        "PICKUP_FOOD_CANDY": {
+        "FoodCandy": {
             "Path": "Pickup/food_candy.png"
         },
-        "PICKUP_FOOD_CHEESE": {
+        "FoodCheese": {
             "Path": "Pickup/food_cheese.png"
         },
-        "PICKUP_FOOD_CHERRY": {
+        "FoodCherry": {
             "Path": "Pickup/food_cherry.png"
         },
-        "PICKUP_FOOD_CHICKEN": {
+        "FoodChickenLeg": {
             "Path": "Pickup/food_chicken.png"
         },
-        "PICKUP_FOOD_CHIPS": {
+        "FoodChips": {
             "Path": "Pickup/food_chips.png"
         },
-        "PICKUP_FOOD_CHOCOLATE": {
+        "FoodChocolate": {
             "Path": "Pickup/food_chocolate.png"
         },
-        "PICKUP_FOOD_COLA": {
+        "FoodCola": {
             "Path": "Pickup/food_cola.png"
         },
-        "PICKUP_FOOD_CUCUMBER": {
+        "FoodCucumber": {
             "Path": "Pickup/food_cucumber.png"
         },
-        "PICKUP_FOOD_CUPCAKE": {
+        "FoodCupcake": {
             "Path": "Pickup/food_cupcake.png"
         },
-        "PICKUP_FOOD_DONUT": {
+        "FoodDonut": {
             "Path": "Pickup/food_donut.png"
         },
-        "PICKUP_FOOD_EGGPLANT": {
+        "FoodEggplant": {
             "Path": "Pickup/food_eggplant.png"
         },
-        "PICKUP_FOOD_FRIES": {
+        "FoodFries": {
             "Path": "Pickup/food_fries.png"
         },
-        "PICKUP_FOOD_GRAPES": {
+        "FoodGrapes": {
             "Path": "Pickup/food_grapes.png"
         },
-        "PICKUP_FOOD_HAM": {
+        "FoodHam": {
             "Path": "Pickup/food_ham.png"
         },
-        "PICKUP_FOOD_HOTDOG": {
+        "FoodHotDog": {
             "Path": "Pickup/food_hotdog.png"
         },
-        "PICKUP_FOOD_ICECREAM": {
+        "FoodIceCream": {
             "Path": "Pickup/food_ice_cream.png"
         },
-        "PICKUP_FOOD_LEMON": {
+        "FoodLemon": {
             "Path": "Pickup/food_lemon.png"
         },
-        "PICKUP_FOOD_LETTUCE": {
+        "FoodLettuce": {
             "Path": "Pickup/food_lettuce.png"
         },
-        "PICKUP_FOOD_LIME": {
+        "FoodLime": {
             "Path": "Pickup/food_lime.png"
         },
-        "PICKUP_FOOD_MILK": {
+        "FoodMilk": {
             "Path": "Pickup/food_milk.png"
         },
-        "PICKUP_FOOD_ORANGE": {
+        "FoodOrange": {
             "Path": "Pickup/food_orange.png"
         },
-        "PICKUP_FOOD_PEACH": {
+        "FoodPeach": {
             "Path": "Pickup/food_peach.png"
         },
-        "PICKUP_FOOD_PEAR": {
+        "FoodPear": {
             "Path": "Pickup/food_pear.png"
         },
-        "PICKUP_FOOD_PIE": {
+        "FoodPie": {
             "Path": "Pickup/food_pie.png"
         },
-        "PICKUP_FOOD_PIZZA": {
+        "FoodPizza": {
             "Path": "Pickup/food_pizza.png"
         },
-        "PICKUP_FOOD_PRETZEL": {
+        "FoodPretzel": {
             "Path": "Pickup/food_pretzel.png"
         },
-        "PICKUP_FOOD_SANDWICH": {
+        "FoodSandwich": {
             "Path": "Pickup/food_sandwich.png"
         },
-        "PICKUP_FOOD_SODA": {
+        "FoodSoda": {
             "Path": "Pickup/food_soda.png"
         },
-        "PICKUP_FOOD_STRAWBERRY": {
+        "FoodStrawberry": {
             "Path": "Pickup/food_strawberry.png"
         },
-        "PICKUP_FOOD_TACO": {
+        "FoodTaco": {
             "Path": "Pickup/food_taco.png"
         },
-        "PICKUP_FOOD_THING": {
+        "FoodThing": {
             "Path": "Pickup/food_thing.png"
         },
-        "PICKUP_FOOD_WATERMELON": {
+        "FoodWaterMelon": {
             "Path": "Pickup/food_watermelon.png"
         }
     }

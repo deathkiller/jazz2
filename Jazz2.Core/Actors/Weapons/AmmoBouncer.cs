@@ -126,8 +126,6 @@ namespace Jazz2.Actors.Weapons
 
         protected override void OnRicochet()
         {
-            // Nothing to do...
-
             speedX = -speedX;
         }
     }

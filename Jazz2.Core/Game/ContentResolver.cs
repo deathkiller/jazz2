@@ -174,6 +174,11 @@ namespace Jazz2.Game
                     metadata.Graphics = new Dictionary<string, GraphicResource>();
 
                     foreach (KeyValuePair<string, MetadataJson.AnimationsSection> g in json.Animations) {
+                        if (g.Value.Path == null) {
+                            // No path provided, skip resource...
+                            continue;
+                        }
+
                         ContentRef<DrawTechnique> drawTechnique;
                         if (g.Value.Shader == null) {
                             drawTechnique = basicNormal;
@@ -222,6 +227,7 @@ namespace Jazz2.Game
 
                     foreach (var s in json.Sounds) {
                         if (s.Value.Paths == null || s.Value.Paths.Count == 0) {
+                            // No path provided, skip resource...
                             continue;
                         }
 

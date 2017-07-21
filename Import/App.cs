@@ -692,7 +692,7 @@ namespace Import
 
                             if (json.Animations != null) {
                                 foreach (var animation in json.Animations) {
-                                    if (animation.Value == null) {
+                                    if (animation.Value == null || animation.Value.Path == null) {
                                         continue;
                                     }
                                     if (!FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Animations", animation.Value.Path))) {
@@ -706,14 +706,15 @@ namespace Import
 
                             if (json.Sounds != null) {
                                 foreach (var sound in json.Sounds) {
-                                    if (sound.Value.Paths != null) {
-                                        foreach (var soundPath in sound.Value.Paths) {
-                                            if (soundPath == null) {
-                                                continue;
-                                            }
-                                            if (!FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Animations", soundPath))) {
-                                                WriteLog(LogType.Warning, "\"" + Path.Combine("Animations", soundPath.Replace('/', Path.DirectorySeparatorChar)) + "\" is missing!");
-                                            }
+                                    if (sound.Value == null || sound.Value.Paths == null) {
+                                        continue;
+                                    }
+                                    foreach (var soundPath in sound.Value.Paths) {
+                                        if (soundPath == null) {
+                                            continue;
+                                        }
+                                        if (!FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Animations", soundPath))) {
+                                            WriteLog(LogType.Warning, "\"" + Path.Combine("Animations", soundPath.Replace('/', Path.DirectorySeparatorChar)) + "\" is missing!");
                                         }
                                     }
                                 }

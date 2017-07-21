@@ -6,7 +6,7 @@ namespace Jazz2.Actors
 {
     public class FrozenBlock : SolidObjectBase
     {
-        private float ttl = 250;
+        private float timeLeft = 250f;
 
         public override void OnAttach(ActorInstantiationDetails details)
         {
@@ -23,8 +23,8 @@ namespace Jazz2.Actors
         {
             base.OnUpdate();
 
-            ttl -= Time.TimeMult;
-            if (ttl <= 0) {
+            timeLeft -= Time.TimeMult;
+            if (timeLeft <= 0) {
                 DecreaseHealth(int.MaxValue);
             }
         }

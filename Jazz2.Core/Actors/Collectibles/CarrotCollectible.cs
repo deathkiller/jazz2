@@ -12,10 +12,10 @@
 
             if (maxCarrot) {
                 scoreValue = 500;
-                SetAnimation("PICKUP_CARROT_FULL");
+                SetAnimation("CarrotFull");
             } else {
                 scoreValue = 200;
-                SetAnimation("PICKUP_CARROT");
+                SetAnimation("Carrot");
             }
 
             SetFacingDirection();

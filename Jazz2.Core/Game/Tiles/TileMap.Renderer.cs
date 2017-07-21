@@ -55,7 +55,7 @@ namespace Jazz2.Game.Tiles
             // less than 1 for backgrounds that move slower, more than 1 for foregrounds that move faster
             // Offset: any difference to starting coordinates caused by an inherent automatic speed a layer has
 
-            // Literal 70 is the same as in drawLayer, it's the offscreen offset of the first tile to draw.
+            // Literal 70 is the same as in DrawLayer, it's the offscreen offset of the first tile to draw.
             // Don't touch unless absolutely necessary.
             return (coordinate * speed + offset + (70 + (isY ? (viewHeight - 200) : (viewWidth - 320)) / 2) * (speed - 1));
         }

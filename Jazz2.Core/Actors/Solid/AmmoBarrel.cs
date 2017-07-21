@@ -15,7 +15,7 @@ namespace Jazz2.Actors.Solid
 
             WeaponType weaponType = (WeaponType)details.Params[0];
             if (weaponType != WeaponType.Blaster) {
-                GenerateContents(weaponType - WeaponType.Bouncer + EventType.AmmoBouncer, 5);
+                GenerateContents(EventType.Ammo, 5, (ushort)weaponType);
             }
 
             RequestMetadata("Object/BarrelContainer");
@@ -55,12 +55,14 @@ namespace Jazz2.Actors.Solid
                     }
                 }
 
-                if (availableWeapons.Count > 0) {
-                    int n = MathF.Rnd.Next(4, 7);
-                    for (int i = 0; i < n; i++) {
-                        WeaponType weapon = MathF.Rnd.OneOf(availableWeapons);
-                        GenerateContents(weapon - WeaponType.Bouncer + EventType.AmmoBouncer, 1);
-                    }
+                if (availableWeapons.Count == 0) {
+                    availableWeapons.Add(WeaponType.Bouncer);
+                }
+
+                int n = MathF.Rnd.Next(4, 7);
+                for (int i = 0; i < n; i++) {
+                    WeaponType weaponType = MathF.Rnd.OneOf(availableWeapons);
+                    GenerateContents(EventType.Ammo, 1, (ushort)weaponType);
                 }
             }
 

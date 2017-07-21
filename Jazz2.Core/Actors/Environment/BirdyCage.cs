@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Jazz2.Actors.Solid;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Environment
 {
-    public class BirdyCage : ActorBase
+    public class BirdyCage : SolidObjectBase //ActorBase
     {
         private bool activated;
 

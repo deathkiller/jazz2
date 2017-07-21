@@ -12,6 +12,7 @@ namespace Jazz2.Game
         private Rect viewRect;
 
         private Vector2 distanceFactor;
+        private Vector3 lastPos;
 
         /// <summary>
         /// [GET / SET] How smooth the camera should follow its target.
@@ -32,7 +33,12 @@ namespace Jazz2.Game
         public ActorBase TargetObject
         {
             get { return targetObj; }
-            set { targetObj = value; }
+            set {
+                targetObj = value;
+                if (targetObj != null && targetObj.Transform != null) {
+                    lastPos = targetObj.Transform.Pos;
+                }
+            }
         }
 
         public Rect ViewRect
@@ -53,7 +59,7 @@ namespace Jazz2.Game
             // The position to focus on.
             Vector3 focusPos = targetObj.Transform.Pos;
             // The position where the camera itself should move
-            Vector3 targetPos = focusPos - new Vector3(0.0f, 0.0f, camera.FocusDist);
+            Vector3 targetPos = (focusPos - new Vector3(0.0f, 0.0f, camera.FocusDist) + lastPos) * 0.5f;
             // A relative movement vector that would place the camera directly at its target position.
             //Vector3 posDiff = (targetPos - transform.Pos);
             // Add a threshold to the position difference, before it gets noticed by the camera
@@ -68,6 +74,8 @@ namespace Jazz2.Game
 
             //Vector3 targetVelocityAdjusted = targetVelocity * Time.TimeMult;
 
+            lastPos = targetPos;
+
             Vector2 halfView = LevelRenderSetup.TargetSize * 0.5f;
 
             // Clamp camera position to level bounds
@@ -78,7 +86,7 @@ namespace Jazz2.Game
             //);
 
             Vector3 speed = targetObj.Speed;
-            distanceFactor.X = MathF.Lerp(distanceFactor.X, speed.X * 6f, 0.2f);
+            distanceFactor.X = MathF.Lerp(distanceFactor.X, speed.X * /*6f*/8f, 0.2f);
             distanceFactor.Y = MathF.Lerp(distanceFactor.Y, speed.Y * 5f, 0.04f);
 
             transform.Pos = new Vector3(

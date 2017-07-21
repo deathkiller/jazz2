@@ -85,15 +85,6 @@ namespace Jazz2.Game
             levelHandler.RemoveActor(actor);
         }
 
-        public ActorBase CreateActor(EventType type, float x, float y, float z, ushort[] spawnParams, bool returnOnly)
-        {
-            ActorBase actor = levelHandler.EventSpawner.SpawnEvent(ActorInstantiationFlags.None, type, (int)x / 32, (int)y / 32, z, spawnParams);
-            if (!returnOnly) {
-                levelHandler.AddActor(actor);
-            }
-            return actor;
-        }
-
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif

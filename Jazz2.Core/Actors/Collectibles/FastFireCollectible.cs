@@ -10,11 +10,11 @@
 
             PlayerType player = (api.Players.Count == 0 ? PlayerType.Jazz : api.Players[0].PlayerType);
             if (player == PlayerType.Spaz) {
-                SetAnimation("PICKUP_FASTFIRE_SPAZ");
+                SetAnimation("FastFireSpaz");
             } else if (player == PlayerType.Lori) {
-                SetAnimation("PICKUP_FASTFIRE_LORI");
+                SetAnimation("FastFireLori");
             } else {
-                SetAnimation("PICKUP_FASTFIRE_JAZZ");
+                SetAnimation("FastFireJazz");
             }
 
             SetFacingDirection();

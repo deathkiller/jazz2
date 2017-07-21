@@ -210,6 +210,7 @@
         },
         "PLAYER_SPAZ_LIFT": {
             "Path": "Spaz/lift.png",
+            "Flags": 1,
             "FrameRate": 16,
             "States": [ 131072 ]
         },

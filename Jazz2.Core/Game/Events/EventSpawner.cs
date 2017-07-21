@@ -127,17 +127,9 @@ namespace Jazz2.Game.Events
 
             RegisterSpawnable<AirboardGenerator>(EventType.AirboardGenerator);
 
-            for (EventType eventNo = EventType.AmmoBouncer; eventNo <= EventType.AmmoElectro; eventNo++) {
-                RegisterSpawnable<AmmoCollectible>(eventNo, (ushort)(eventNo - EventType.AmmoBouncer + WeaponType.Bouncer));
-            }
-
-            for (EventType eventNo = EventType.PowerUpBlaster; eventNo <= EventType.PowerUpElectro; eventNo++) {
-                RegisterSpawnable<PowerUpWeaponMonitor>(eventNo, (ushort)(eventNo - EventType.PowerUpBlaster));
-            }
-
-            for (EventType eventNo = EventType.FoodApple; eventNo <= EventType.FoodCheese; eventNo++) {
-                RegisterSpawnable<FoodCollectible>(eventNo, (ushort)eventNo);
-            }
+            RegisterSpawnable<AmmoCollectible>(EventType.Ammo);
+            RegisterSpawnable<PowerUpWeaponMonitor>(EventType.PowerUpWeapon);
+            RegisterSpawnable<FoodCollectible>(EventType.Food);
         }
 
         public ActorBase SpawnEvent(ActorInstantiationFlags flags, EventType type, int x, int y, float z, ushort[] spawnParams)

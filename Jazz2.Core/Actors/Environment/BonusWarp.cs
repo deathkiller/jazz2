@@ -5,10 +5,9 @@ namespace Jazz2.Actors.Environment
 {
     public class BonusWarp : ActorBase
     {
-        private ushort warpTarget;
-        private ushort cost;
+        private ushort warpTarget, cost;
 
-        public ushort Cost { get { return cost; } }
+        public ushort Cost => cost;
 
         public Vector2 WarpTarget
         {

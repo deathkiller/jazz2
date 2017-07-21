@@ -351,6 +351,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\Menu\S\MenuControlBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Menu\S\SettingsSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Menu\StartGameOptionsSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\Structs\FoodType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Tiles\AnimatedTile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Tiles\TileMap.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Tiles\TileMap.Debris.cs" />
@@ -367,7 +368,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\Structs\InitLevelData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Structs\Layers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Structs\Resources.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\Structs\WeaponTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\Structs\WeaponType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Misc\Updater.cs" />
   </ItemGroup>

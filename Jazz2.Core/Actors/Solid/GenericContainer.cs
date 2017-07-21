@@ -34,7 +34,7 @@ namespace Jazz2.Actors.Solid
             content.Clear();
         }
 
-        protected void InsertActor(ActorBase actor)
+        protected void StoreActor(ActorBase actor)
         {
             content.Add(actor);
         }
@@ -44,9 +44,9 @@ namespace Jazz2.Actors.Solid
             Vector3 pos = Transform.Pos;
 
             for (uint i = 0; i < count; ++i) {
-                ActorBase actor = api.CreateActor(type, pos.X, pos.Y, pos.Z + 10, eventParams, true);
+                ActorBase actor = api.EventSpawner.SpawnEvent(ActorInstantiationFlags.None, type, pos + new Vector3(0f, 0f, 10f), eventParams);
                 if (actor != null) {
-                    InsertActor(actor);
+                    StoreActor(actor);
                 }
             }
         }

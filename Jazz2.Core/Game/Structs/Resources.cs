@@ -58,18 +58,18 @@ namespace Jazz2.Game.Structs
                 textures.Add("normalTex", g.TextureNormal);
             }
 
-            GraphicResource resource = new GraphicResource();
-            resource.Material = new Material(drawTechnique, color, textures);
-            resource.FrameDimensions = g.FrameDimensions;
-            resource.FrameConfiguration = g.FrameConfiguration;
-            resource.FrameDuration = g.FrameDuration;
-            resource.FrameCount = g.FrameCount;
-            resource.Hotspot = g.Hotspot;
-            resource.Coldspot = g.Coldspot;
-            resource.Gunspot = g.Gunspot;
-            resource.HasColdspot = g.HasColdspot;
-            resource.HasGunspot = g.HasGunspot;
-            return resource;
+            GraphicResource res = new GraphicResource();
+            res.Material = new Material(drawTechnique, color, textures);
+            res.FrameDimensions = g.FrameDimensions;
+            res.FrameConfiguration = g.FrameConfiguration;
+            res.FrameDuration = g.FrameDuration;
+            res.FrameCount = g.FrameCount;
+            res.Hotspot = g.Hotspot;
+            res.Coldspot = g.Coldspot;
+            res.Gunspot = g.Gunspot;
+            res.HasColdspot = g.HasColdspot;
+            res.HasGunspot = g.HasGunspot;
+            return res;
         }
 
         private GraphicResource()

@@ -8,7 +8,7 @@
 
             scoreValue = 1000;
 
-            SetAnimation("PICKUP_ONEUP");
+            SetAnimation("OneUp");
         }
 
         public override void Collect(Player player) {

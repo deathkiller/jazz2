@@ -560,7 +560,7 @@ namespace Jazz2.Actors
             } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.U)) {
                 for (int i = 0; i < weaponAmmo.Length; i++) {
                     if (weaponAmmo[i] >= 0) {
-                        weaponAmmo[i] = 100;
+                        weaponAmmo[i] = 99;
                     }
                 }
             } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.I)) {
@@ -914,29 +914,19 @@ namespace Jazz2.Actors
 
                 ActorBase solidObject;
                 if (!(api.IsPositionEmpty(this, ref tileCollisionHitbox, false, out solidObject))) {
-                    {
-                        TriggerCrate collider = solidObject as TriggerCrate;
-                        if (collider != null) {
+                    switch (solidObject) {
+                        case TriggerCrate collider:
                             collider.DecreaseHealth(1, this);
-                        }
-                    }
-                    {
-                        GenericContainer collider = solidObject as GenericContainer;
-                        if (collider != null) {
+                            break;
+                        case GenericContainer collider:
                             collider.DecreaseHealth(1, this);
-                        }
-                    }
-                    {
-                        PowerUpWeaponMonitor collider = solidObject as PowerUpWeaponMonitor;
-                        if (collider != null) {
+                            break;
+                        case PowerUpWeaponMonitor collider:
                             collider.DestroyAndApplyToPlayer(this);
-                        }
-                    }
-                    {
-                        PowerUpMorphMonitor collider = solidObject as PowerUpMorphMonitor;
-                        if (collider != null) {
+                            break;
+                        case PowerUpMorphMonitor collider:
                             collider.DestroyAndApplyToPlayer(this);
-                        }
+                            break;
                     }
                 }
             }
@@ -1024,8 +1014,7 @@ namespace Jazz2.Actors
                 if (Transform.Pos.Y >= api.WaterLevel) {
                     collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
-                    if (Math.Abs(speedX) > 1f || Math.Abs(speedY) > 1f) {
-
+                    if (MathF.Abs(speedX) > 1f || MathF.Abs(speedY) > 1f) {
                         float angle;
                         if (speedX == 0f) {
                             if (isFacingLeft) {

@@ -13,19 +13,19 @@
             switch (gemType) {
                 case 0: // Red (+1)
                     scoreValue = 100;
-                    SetAnimation("PICKUP_GEM_RED");
+                    SetAnimation("GemRed");
                     break;
                 case 1: // Green (+5)
                     scoreValue = 500;
-                    SetAnimation("PICKUP_GEM_GREEN");
+                    SetAnimation("GemGreen");
                     break;
                 case 2: // Blue (+10)
                     scoreValue = 1000;
-                    SetAnimation("PICKUP_GEM_BLUE");
+                    SetAnimation("GemBlue");
                     break;
                 case 3: // Purple
                     scoreValue = 100;
-                    SetAnimation("PICKUP_GEM_PURPLE");
+                    SetAnimation("GemPurple");
                     break;
             }
 

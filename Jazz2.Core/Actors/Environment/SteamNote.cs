@@ -26,7 +26,7 @@ namespace Jazz2.Actors.Environment
 
         protected override void OnUpdate()
         {
-            base.OnUpdate();
+            //base.OnUpdate();
 
             if (cooldown > 0f) {
                 cooldown -= Time.TimeMult;

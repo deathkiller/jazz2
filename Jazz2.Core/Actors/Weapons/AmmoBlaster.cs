@@ -1,4 +1,5 @@
 ﻿using Duality;
+using Jazz2.Actors.Bosses;
 using Jazz2.Game;
 using Jazz2.Game.Structs;
 
@@ -103,6 +104,23 @@ namespace Jazz2.Actors.Weapons
             Transform.Angle = MathF.Atan2(speedY, speedX);
 
             PlaySound("Ricochet");
+        }
+
+        public override void HandleCollision(ActorBase other)
+        {
+            switch (other) {
+                case Queen queen:
+                    if (queen.IsInvulnerable) {
+                        OnRicochet();
+                    } else {
+                        base.HandleCollision(other);
+                    }
+                    break;
+
+                default:
+                    base.HandleCollision(other);
+                    break;
+            }
         }
     }
 }

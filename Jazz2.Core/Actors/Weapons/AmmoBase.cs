@@ -48,21 +48,7 @@ namespace Jazz2.Actors.Weapons
             List<ActorBase> collisions = api.FindCollisionActors(this);
             for (int i = 0; i < collisions.Count; i++) {
                 collisions[i].HandleCollision(this);
-
-                if (collisions[i] is EnemyBase ||
-                    collisions[i] is PushBox) {
-                    DecreaseHealth(int.MaxValue);
-                    return;
-                }
-
-                if (collisions[i] is TriggerCrate || collisions[i] is BarrelContainer || collisions[i] is PowerUpWeaponMonitor) {
-                    if (lastRicochet != collisions[i]) {
-                        lastRicochet = collisions[i];
-                        OnRicochet();
-                    }
-                } else if(collisions[i] is SolidObjectBase) {
-                    DecreaseHealth(int.MaxValue);
-                }
+                this.HandleCollision(collisions[i]);
             }
 
             TileMap tiles = api.TileMap;
@@ -97,6 +83,18 @@ namespace Jazz2.Actors.Weapons
         {
             speedY = speedY * -0.9f + (MathF.Rnd.Next() % 100 - 50) * 0.1f;
             speedX = speedX * -0.9f + (MathF.Rnd.Next() % 100 - 50) * 0.1f;
+        }
+
+        public override void HandleCollision(ActorBase other)
+        {
+            if (other is TriggerCrate || other is BarrelContainer || other is PowerUpWeaponMonitor) {
+                if (lastRicochet != other) {
+                    lastRicochet = other;
+                    OnRicochet();
+                }
+            } else if (other is EnemyBase || other is SolidObjectBase) {
+                DecreaseHealth(int.MaxValue);
+            }
         }
     }
 }

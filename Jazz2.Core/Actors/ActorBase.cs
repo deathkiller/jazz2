@@ -239,7 +239,7 @@ namespace Jazz2.Actors
                 // Not doing this will cause hiccups with uphill slopes in particular.
                 // Beach tileset also has some spots where two properly set up adjacent
                 // tiles have a 2px jump, so adapt to that.
-                float maxYDiff = Math.Max(3.0f, Math.Abs(effectiveSpeedX) + 2.5f);
+                float maxYDiff = MathF.Max(3.0f, MathF.Abs(effectiveSpeedX) + 2.5f);
                 for (float yDiff = maxYDiff + effectiveSpeedY; yDiff >= -maxYDiff + effectiveSpeedY; yDiff -= CollisionCheckStep) {
                     if (MoveInstantly(new Vector2(effectiveSpeedX, yDiff), MoveType.Relative)) {
                         success = true;
@@ -248,7 +248,7 @@ namespace Jazz2.Actors
                 }
 
                 // Also try to move horizontally as far as possible.
-                float maxDiff = Math.Abs(effectiveSpeedX);
+                float maxDiff = MathF.Abs(effectiveSpeedX);
                 float xDiff = maxDiff;
                 if (!success) {
                     int sign = (effectiveSpeedX > 0f ? 1 : -1);
@@ -271,14 +271,14 @@ namespace Jazz2.Actors
                 // Airborne movement is handled here.
                 // First, attempt to move directly based on the current speed values.
                 if (MoveInstantly(new Vector2(effectiveSpeedX, effectiveSpeedY), MoveType.Relative)) {
-                    if (Math.Abs(effectiveSpeedY) < float.Epsilon) {
+                    if (MathF.Abs(effectiveSpeedY) < float.Epsilon) {
                         canJump = true;
                     }
                 } else if (!success) {
                     // There is an obstacle so we need to make compromises.
 
                     // First, attempt to move horizontally as much as possible.
-                    float maxDiff = Math.Abs(effectiveSpeedX);
+                    float maxDiff = MathF.Abs(effectiveSpeedX);
                     int sign = (effectiveSpeedX > 0f ? 1 : -1);
                     float xDiff = maxDiff;
                     for (; xDiff > float.Epsilon; xDiff -= CollisionCheckStep) {
@@ -288,7 +288,7 @@ namespace Jazz2.Actors
                     }
 
                     // Then, try the same vertically.
-                    maxDiff = Math.Abs(effectiveSpeedY);
+                    maxDiff = MathF.Abs(effectiveSpeedY);
                     sign = (effectiveSpeedY > 0f ? 1 : -1);
                     float yDiff = maxDiff;
                     for (; yDiff > float.Epsilon; yDiff -= CollisionCheckStep) {
@@ -322,7 +322,7 @@ namespace Jazz2.Actors
 
                     // If the actor didn't move all the way horizontally,
                     // it hit a wall (or was already touching it)
-                    if (xDiff < Math.Abs(effectiveSpeedX)) {
+                    if (xDiff < MathF.Abs(effectiveSpeedX)) {
                         if (xDiff > CollisionCheckStep || (xDiff > 0f && elasticity > 0f)) {
                             speedX = -(elasticity * speedX);
                         }
@@ -339,15 +339,15 @@ namespace Jazz2.Actors
             }
 
             // Reduce all forces if they are present
-            if (Math.Abs(externalForceX) > float.Epsilon) {
+            if (MathF.Abs(externalForceX) > float.Epsilon) {
                 if (externalForceX > 0f) {
-                    externalForceX = Math.Max(externalForceX - friction * timeMult, 0f);
+                    externalForceX = MathF.Max(externalForceX - friction * timeMult, 0f);
                 } else {
-                    externalForceX = Math.Min(externalForceX + friction * timeMult, 0f);
+                    externalForceX = MathF.Min(externalForceX + friction * timeMult, 0f);
                 }
             }
-            externalForceY = Math.Max(externalForceY - gravity * 0.33f * timeMult, 0f);
-            internalForceY = Math.Max(internalForceY - gravity * 0.33f * timeMult, 0f);
+            externalForceY = MathF.Max(externalForceY - gravity * 0.33f * timeMult, 0f);
+            internalForceY = MathF.Max(internalForceY - gravity * 0.33f * timeMult, 0f);
         }
 
 #if NET45
@@ -421,20 +421,20 @@ namespace Jazz2.Actors
 
         public void HandleAmmoFrozenStateChange(ActorBase ammo)
         {
-            // ToDo: Use actor type specifying function instead when available
-            // ToDo: Refactor collision detection
-            AmmoFreezer freezer = ammo as AmmoFreezer;
-            if (freezer != null && freezer.Owner != this) {
-                frozenTimeLeft = freezer.FrozenDuration;
+            switch (ammo) {
+                case AmmoFreezer freezer:
+                    if (freezer.Owner != this) {
+                        frozenTimeLeft = freezer.FrozenDuration;
 
-                if (renderer != null) {
-                    renderer.AnimPaused = true;
-                }
-            }
+                        if (renderer != null) {
+                            renderer.AnimPaused = true;
+                        }
+                    }
+                    break;
 
-            AmmoToaster toaster = ammo as AmmoToaster;
-            if (toaster != null) {
-                frozenTimeLeft = 0f;
+                case AmmoToaster toaster:
+                    frozenTimeLeft = 0f;
+                    break;
             }
         }
 
@@ -464,6 +464,7 @@ namespace Jazz2.Actors
             bool perPixel1 = (collisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0;
             bool perPixel2 = (other.collisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0;
 
+            // Limitation - both have to support per-pixel collisions
             if (perPixel1 && perPixel2 && (Transform.Angle != 0f || other.Transform.Angle != 0f)) {
                 return IsCollidingWithAngled(other);
             }
@@ -675,11 +676,11 @@ namespace Jazz2.Actors
 
             var yPosIn2 = Vector2.Transform(Vector2.Zero, transformAToB);
 
-            int frame1 = Math.Min(renderer.CurrentFrame, res1.FrameCount - 1);
+            int frame1 = MathF.Min(renderer.CurrentFrame, res1.FrameCount - 1);
             int dx1 = (frame1 % res1.FrameConfiguration.X) * res1.FrameDimensions.X;
             int dy1 = (frame1 / res1.FrameConfiguration.X) * res1.FrameDimensions.Y;
 
-            int frame2 = Math.Min(other.renderer.CurrentFrame, res2.FrameCount - 1);
+            int frame2 = MathF.Min(other.renderer.CurrentFrame, res2.FrameCount - 1);
             int dx2 = (frame2 % res2.FrameConfiguration.X) * res2.FrameDimensions.X;
             int dy2 = (frame2 / res2.FrameConfiguration.X) * res2.FrameDimensions.Y;
 
@@ -687,8 +688,8 @@ namespace Jazz2.Actors
                 var posIn2 = yPosIn2;
 
                 for (int x1 = 0; x1 < width1; x1++) {
-                    var x2 = (int)Math.Round(posIn2.X);
-                    var y2 = (int)Math.Round(posIn2.Y);
+                    var x2 = (int)MathF.Round(posIn2.X);
+                    var y2 = (int)MathF.Round(posIn2.Y);
 
                     if (x2 >= 0 && x2 < width2 && y2 >= 0 && y2 < height2) {
 

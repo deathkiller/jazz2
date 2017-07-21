@@ -35,17 +35,10 @@ namespace Jazz2.Game.Tiles
 
             IImageCodec codec = ImageCodec.GetRead(ImageCodec.FormatPng);
 
-            PixelData normal;
-            if (FileOp.Exists(normalPath)) {
-                normal = codec.Read(FileOp.Open(normalPath, FileAccessMode.Read));
-            } else {
-                normal = null;
-            }
-
             tileset = new TileSet(
                 codec.Read(FileOp.Open(tilesPath, FileAccessMode.Read)),
                 codec.Read(FileOp.Open(maskPath, FileAccessMode.Read)),
-                normal
+                (FileOp.Exists(normalPath) ? codec.Read(FileOp.Open(normalPath, FileAccessMode.Read)) : null)
             );
 
             if (!tileset.IsValid) {

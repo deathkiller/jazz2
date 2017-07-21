@@ -212,6 +212,7 @@
         },
         "PLAYER_JAZZ_LIFT": {
             "Path": "Jazz/lift.png",
+            "Flags": 1,
             "FrameRate": 16,
             "States": [ 131072 ]
         },

@@ -5,7 +5,7 @@ namespace Jazz2.Actors.Environment
 {
     public class Bomb : ActorBase
     {
-        private float time = MathF.Rnd.NextFloat(40f, 90f);
+        private float timeLeft = MathF.Rnd.NextFloat(40f, 90f);
 
         public override void OnAttach(ActorInstantiationDetails details)
         {
@@ -30,8 +30,8 @@ namespace Jazz2.Actors.Environment
         {
             base.OnUpdate();
 
-            if (time > 0f) {
-                time -= Time.TimeMult;
+            if (timeLeft > 0f) {
+                timeLeft -= Time.TimeMult;
             } else {
                 DecreaseHealth(int.MaxValue);
             }

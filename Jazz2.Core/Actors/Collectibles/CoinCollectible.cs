@@ -14,12 +14,12 @@
                 case 0: // Silver
                     coinValue = 1;
                     scoreValue = 500;
-                    SetAnimation("PICKUP_COIN_SILVER");
+                    SetAnimation("CoinSilver");
                     break;
                 case 1: // Gold
                     coinValue = 5;
                     scoreValue = 1000;
-                    SetAnimation("PICKUP_COIN_GOLD");
+                    SetAnimation("CoinGold");
                     break;
             }
 
