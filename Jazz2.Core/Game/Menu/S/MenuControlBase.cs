@@ -7,7 +7,7 @@ namespace Jazz2.Game.Menu.S
     {
         protected readonly MainMenu api;
 
-        public abstract bool IsEnabled { get; }
+        public abstract bool IsEnabled { get; set; }
         public abstract bool IsInputCaptured { get; }
 
         public MenuControlBase(MainMenu api)

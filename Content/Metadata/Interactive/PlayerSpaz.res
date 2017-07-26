@@ -98,6 +98,7 @@
         },
         "PLAYER_SPAZ_AERIAL_SHOOT": {
             "Path": "Spaz/fall_shoot.png",
+            "FrameRate": 14,
             "States": [ 20, 21, 22, 23, 24, 25, 26, 27 ]
         },
         "PLAYER_SPAZ_VINE_SHOOT": {

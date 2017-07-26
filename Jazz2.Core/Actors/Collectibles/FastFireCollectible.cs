@@ -20,7 +20,8 @@
             SetFacingDirection();
         }
 
-        public override void Collect(Player player) {
+        protected override void Collect(Player player)
+        {
             if (player.AddFastFire(1)) {
                 base.Collect(player);
             }

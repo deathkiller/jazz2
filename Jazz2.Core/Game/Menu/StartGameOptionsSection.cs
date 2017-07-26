@@ -47,7 +47,7 @@ namespace Jazz2.Game.Menu
                 case 2: difficultyName = "MenuDifficultyLori"; break;
             }
 
-            api.DrawMaterial(c, "MenuDim", center.X * 0.36f, center.Y * 1.4f, Alignment.Center, ColorRgba.White, 30f, 40f);
+            api.DrawMaterial(c, "MenuDim", center.X * 0.36f, center.Y * 1.4f, Alignment.Center, ColorRgba.White, 24f, 36f);
             api.DrawMaterial(c, difficultyName, selectedDifficulty, center.X * 0.36f, center.Y * 1.4f + 3f, Alignment.Center, new ColorRgba(0f, 0.2f), 0.88f, 0.88f);
             api.DrawMaterial(c, difficultyName, selectedDifficulty, center.X * 0.36f, center.Y * 1.4f, Alignment.Center, ColorRgba.White, 0.88f, 0.88f);
 
@@ -55,6 +55,8 @@ namespace Jazz2.Game.Menu
             for (int i = 0; i < items.Length; i++) {
                 if (selectedIndex == i) {
                     float size = 0.5f + MainMenu.EaseOutElastic(animation) * 0.6f;
+
+                    api.DrawMaterial(c, "MenuGlow", center.X, center.Y, Alignment.Center, ColorRgba.White.WithAlpha(0.4f * size), (items[i].Length + 3) * 0.5f * size, 4f * size);
 
                     api.DrawStringShadow(device, ref charOffset, items[i], center.X, center.Y,
                         Alignment.Center, null, size, 0.7f, 1.1f, 1.1f, charSpacing: 0.9f);
@@ -72,6 +74,8 @@ namespace Jazz2.Game.Menu
                     };
                     for (int j = 0; j < playerTypes.Length; j++) {
                         if (selectedPlayerType == j) {
+                            api.DrawMaterial(c, "MenuGlow", center.X + (j - 1) * 100f, center.Y + 28f, Alignment.Center, ColorRgba.White.WithAlpha(0.2f), (playerTypes[j].Length + 3) * 0.4f, 2.2f);
+
                             api.DrawStringShadow(device, ref charOffset, playerTypes[j], center.X + (j - 1) * 100f, center.Y + 28f, Alignment.Center,
                                 /*null*/playerColors[j], 0.9f, 0.4f, 0.55f, 0.55f, 8f, 0.9f);
                         } else {
@@ -88,6 +92,8 @@ namespace Jazz2.Game.Menu
                     string[] difficultyTypes = { "Easy", "Medium", "Hard" };
                     for (int j = 0; j < difficultyTypes.Length; j++) {
                         if (selectedDifficulty == j) {
+                            api.DrawMaterial(c, "MenuGlow", center.X + (j - 1) * 100f, center.Y + 28f, Alignment.Center, ColorRgba.White.WithAlpha(0.2f), (difficultyTypes[j].Length + 3) * 0.4f, 2.2f);
+
                             api.DrawStringShadow(device, ref charOffset, difficultyTypes[j], center.X + (j - 1) * 100f, center.Y + 28f, Alignment.Center,
                                 null, 0.9f, 0.4f, 0.55f, 0.55f, 8f, 0.9f);
                         } else {
@@ -126,6 +132,8 @@ namespace Jazz2.Game.Menu
                 if (selectedIndex == 0) {
                     if (selectedPlayerType > 0) {
                         selectedPlayerType--;
+                    } else {
+                        selectedPlayerType = 3 - 1;
                     }
                 } else if (selectedIndex == 1) {
                     if (selectedDifficulty > 0) {
@@ -136,6 +144,8 @@ namespace Jazz2.Game.Menu
                 if (selectedIndex == 0) {
                     if (selectedPlayerType < 3 - 1) {
                         selectedPlayerType++;
+                    } else {
+                        selectedPlayerType = 0;
                     }
                 } else if (selectedIndex == 1) {
                     if (selectedDifficulty < 3 - 1) {

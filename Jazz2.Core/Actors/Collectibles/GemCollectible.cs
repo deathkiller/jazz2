@@ -37,7 +37,8 @@
             UpdateHitbox(18, 18);
         }
 
-        public override void Collect(Player player) {
+        protected override void Collect(Player player)
+        {
             int value;
             switch (gemType) {
                 default:

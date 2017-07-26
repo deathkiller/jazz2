@@ -159,6 +159,28 @@ namespace Jazz2.Game.Menu
             }
         }
 
+        public void DrawMaterial(Canvas c, string name, float x, float y, Alignment alignment, ColorRgba color, float scaleX, float scaleY, Rect texRect)
+        {
+            GraphicResource res;
+            if (metadata.Graphics.TryGetValue(name, out res)) {
+                Texture texture = res.Material.Res.MainTexture.Res;
+
+                Vector2 originPos = new Vector2(x, y);
+                alignment.ApplyTo(ref originPos, new Vector2(texture.InternalWidth * scaleX, texture.InternalHeight * scaleY));
+
+                c.State.SetMaterial(res.Material);
+                //c.State.SetMaterial(Material.SolidWhite);
+                c.State.ColorTint = color;
+
+                Rect tempRect = c.State.TextureCoordinateRect;
+                c.State.TextureCoordinateRect = texRect;
+
+                c.FillRect((int)originPos.X, (int)originPos.Y, texture.InternalWidth * scaleX, texture.InternalHeight * scaleY);
+
+                c.State.TextureCoordinateRect = tempRect;
+            }
+        }
+
         public void DrawMaterial(Canvas c, string name, int frame, float x, float y, Alignment alignment, ColorRgba color, float scaleX = 1f, float scaleY = 1f)
         {
             GraphicResource res;

@@ -28,7 +28,8 @@ namespace Jazz2.Actors.Collectibles
             SetFacingDirection();
         }
 
-        public override void Collect(Player player) {
+        protected override void Collect(Player player)
+        {
             player.ConsumeFood(isDrinkable);
 
             base.Collect(player);

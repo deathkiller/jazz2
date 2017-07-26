@@ -85,8 +85,10 @@ namespace Jazz2.Game
             //    0
             //);
 
+            float timeMult = Time.TimeMult;
+
             Vector3 speed = targetObj.Speed;
-            distanceFactor.X = MathF.Lerp(distanceFactor.X, speed.X * /*6f*/8f, 0.2f);
+            distanceFactor.X = MathF.Lerp(distanceFactor.X, speed.X * 8f, 0.2f);
             distanceFactor.Y = MathF.Lerp(distanceFactor.Y, speed.Y * 5f, 0.04f);
 
             transform.Pos = new Vector3(

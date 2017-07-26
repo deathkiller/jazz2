@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Duality;
-using Duality.Audio;
-using Jazz2.Actors.Collectibles;
 using Jazz2.Actors.Enemies;
 using Jazz2.Actors.Environment;
 using Jazz2.Actors.Solid;
@@ -33,7 +31,7 @@ namespace Jazz2.Actors
         private const float MAX_DASHING_SPEED = 9.0f;
         private const float MAX_RUNNING_SPEED = 4.0f;
         private const float ACCELERATION = 0.2f;
-        private const float DECELERATION = 0.22f; // 0.25f
+        private const float DECELERATION = 0.22f;
 
         private bool isActivelyPushing;
         private int pushFrames;
@@ -59,8 +57,8 @@ namespace Jazz2.Actors
 
         private bool isSugarRush;
         private int lives, score, coins;
-        private Vector2 savePointPos;
-        private float savePointLight;
+        private Vector2 checkpointPos;
+        private float checkpointLight;
 
         private int gems, gemsPitch;
         private float gemsTimer;
@@ -112,8 +110,8 @@ namespace Jazz2.Actors
             maxHealth = health = 5;
             currentWeapon = WeaponType.Toaster;
 
-            savePointPos = details.Pos.Xy;
-            savePointLight = api.AmbientLight;
+            checkpointPos = details.Pos.Xy;
+            checkpointLight = api.AmbientLight;
         }
 
         public void ReceiveLevelCarryOver(ExitType exitType, ref PlayerCarryOver carryOver)
@@ -215,9 +213,9 @@ namespace Jazz2.Actors
             CheckDestructibleTiles();
             CheckEndOfSpecialMoves(timeMult);
 
-            HandleWater();
-            HandleAreaEvents();
-            HandleActorCollisions();
+            OnHandleWater();
+            OnHandleAreaEvents();
+            OnHandleActorCollisions();
 
             // Weapons
             if (weaponCooldown > 0f) {
@@ -666,8 +664,8 @@ namespace Jazz2.Actors
                         weaponUpgrades[(int)WeaponType.Blaster] = (byte)(weaponUpgrades[(int)WeaponType.Blaster] & 0x1);
 
                         // Return to the last save point
-                        MoveInstantly(savePointPos, MoveType.Absolute, true);
-                        api.AmbientLight = savePointLight;
+                        MoveInstantly(checkpointPos, MoveType.Absolute, true);
+                        api.AmbientLight = checkpointLight;
                         api.WarpCameraToTarget(this);
                     } else {
                         api.HandleGameOver();
@@ -710,6 +708,10 @@ namespace Jazz2.Actors
                         } else if (Math.Abs(speedX) > float.Epsilon) {
                             // Walking, speed is less than 2px/frame (mostly a transition zone)
                             composite |= AnimState.Walk;
+                        }
+
+                        if (inIdleTransition) {
+                            CancelTransition();
                         }
                     } else {
                         if (inIdleTransition && Math.Abs(speedX) <= float.Epsilon) {
@@ -904,7 +906,7 @@ namespace Jazz2.Actors
             if (tiles == null) {
                 return;
             }
-;
+
             Hitbox tileCollisionHitbox = currentHitbox + new Vector2(speedX + externalForceX, speedY - externalForceY);
 
             // Buttstomp/etc. tiles checking
@@ -931,7 +933,7 @@ namespace Jazz2.Actors
                 }
             }
 
-            tileCollisionHitbox = currentHitbox.Extend(MathF.Abs(speedX), MathF.Abs(speedY)).Extend(3);
+            tileCollisionHitbox = currentHitbox.Extend(MathF.Abs(speedX), MathF.Abs(speedY)).Extend(3f);
 
             // Speed tiles checking
             if (MathF.Abs(speedX) > float.Epsilon || MathF.Abs(speedY) > float.Epsilon || isSugarRush) {
@@ -1008,7 +1010,7 @@ namespace Jazz2.Actors
             }
         }
 
-        private void HandleWater()
+        private void OnHandleWater()
         {
             if (inWater) {
                 if (Transform.Pos.Y >= api.WaterLevel) {
@@ -1063,7 +1065,7 @@ namespace Jazz2.Actors
             }
         }
 
-        private void HandleAreaEvents()
+        private void OnHandleAreaEvents()
         {
             EventMap events = api.EventMap;
             if (events == null) {
@@ -1076,7 +1078,7 @@ namespace Jazz2.Actors
             EventType tileEvent = events.GetEventByPosition(pos.X, pos.Y, ref p);
             switch (tileEvent) {
                 case EventType.LightSet: { // Intensity, Red, Green, Blue, Flicker
-                    // ToDo: Change only player view, handle multiplayer
+                    // ToDo: Change only player view, handle splitscreen multiplayer
                     api.AmbientLight = p[0] * 0.01f;
                     break;
                 }
@@ -1099,7 +1101,7 @@ namespace Jazz2.Actors
                 }
                 case EventType.ModifierTube: { // XSpeed, YSpeed, Trig Sample, Become Noclip, Noclip Only, Wait Time
                     // ToDo: Implement other parameters
-                    // ToDo: Doesn't work well sometimes
+                    // ToDo: Doesn't work well sometimes, it's too fast
                     EndDamagingMove();
                     // ToDo: Check this...
                     controllable = true;
@@ -1223,7 +1225,7 @@ namespace Jazz2.Actors
             // Check floating from each corner of an extended hitbox
             // Player should not pass from a single tile wide gap if the columns left or right have
             // float events, so checking for a wider box is necessary.
-            const float extendedHitbox = 2f; // 5f
+            const float extendedHitbox = 2f;
 
             if ((events.GetEventByPosition(pos.X, pos.Y, ref p) == EventType.AreaFloatUp) ||
                 (events.GetEventByPosition(currentHitbox.Left - extendedHitbox, currentHitbox.Top - extendedHitbox, ref p) == EventType.AreaFloatUp) ||
@@ -1235,7 +1237,7 @@ namespace Jazz2.Actors
                 if ((collisionFlags & CollisionFlags.ApplyGravitation) != 0) {
                     float gravity = api.Gravity;
 
-                    externalForceY = gravity * 2 * timeMult;
+                    externalForceY = gravity * 2f * timeMult;
                     speedY = MathF.Min(gravity * timeMult, speedY);
                 } else {
                     speedY -= api.Gravity * 1.2f * timeMult;
@@ -1248,14 +1250,14 @@ namespace Jazz2.Actors
                 (events.GetEventByPosition(currentHitbox.Right + extendedHitbox, currentHitbox.Bottom + extendedHitbox, ref p) == EventType.AreaHForce) ||
                 (events.GetEventByPosition(currentHitbox.Left - extendedHitbox, currentHitbox.Bottom + extendedHitbox, ref p) == EventType.AreaHForce)
                ) {
-                //speedX += (p[3] - p[2]) * 0.1f;//0.4f
-                if (/*!canJump &&*/ (p[5] != 0 || p[4] != 0)) {
-                    MoveInstantly(new Vector2((p[5] - p[4]) * /*0.6f*/0.4f, 0), MoveType.RelativeTime);
+                if ((p[5] != 0 || p[4] != 0)) {
+                    MoveInstantly(new Vector2((p[5] - p[4]) * 0.4f, 0), MoveType.RelativeTime);
                 }
             }
 
             //
             if (canJump) {
+                // Floor events
                 tileEvent = events.GetEventByPosition(pos.X, pos.Y + 32, ref p);
                 switch (tileEvent) {
                     case EventType.AreaHForce: {
@@ -1271,7 +1273,7 @@ namespace Jazz2.Actors
             }
         }
 
-        private void HandleActorCollisions()
+        private void OnHandleActorCollisions()
         {
             List<ActorBase> collisions = api.FindCollisionActors(this);
             bool removeSpecialMove = false;
@@ -1287,6 +1289,7 @@ namespace Jazz2.Actors
                         if ((currentAnimationState & AnimState.Buttstomp) != 0) {
                             removeSpecialMove = true;
                             speedY *= -0.6f;
+                            canJump = true;
                         }
 
                         continue;
@@ -1326,26 +1329,6 @@ namespace Jazz2.Actors
                         }
                         continue;
                     }
-                }
-                {
-                    SavePoint collider = collisions[i] as SavePoint;
-                    if (collider != null) {
-                        if (collider.ActivateSavePoint()) {
-                            savePointPos = collider.Transform.Pos.Xy + new Vector2(0f, -20f);
-                            savePointLight = api.AmbientLight;
-                        }
-                        continue;
-                    }
-                }
-                {
-                    //SignEol collider = collisions[i] as SignEol;
-                    //if (collider != null) {
-                    //    if (!levelExiting) {
-                    //        api.InitLevelChange(collider.ExitType, null);
-                    //        PlaySound("PLAYER_EOL");
-                    //    }
-                    //    continue;
-                    //}
                 }
                 {
                     Spring spring = collisions[i] as Spring;
@@ -1416,30 +1399,6 @@ namespace Jazz2.Actors
                         continue;
                     }
                 }
-                {
-                    Collectible collectible = collisions[i] as Collectible;
-                    if (collectible != null) {
-                        collectible.Collect(this);
-                    }
-                }
-
-                if (!isAirboard) {
-                    AirboardGenerator airboard = collisions[i] as AirboardGenerator;
-                    if (airboard != null) {
-                        if (airboard.Activate()) {
-                            isAirboard = true;
-
-                            controllable = true;
-                            EndDamagingMove();
-                            collisionFlags &= ~CollisionFlags.ApplyGravitation;
-
-                            speedY = 0f;
-                            externalForceY = 0f;
-
-                            MoveInstantly(new Vector2(0f, -16f), MoveType.Relative);
-                        }
-                    }
-                }
 
                 if (currentTransitionState == AnimState.Idle || currentTransitionCancellable) {
                     BonusWarp collider = collisions[i] as BonusWarp;
@@ -1457,8 +1416,12 @@ namespace Jazz2.Actors
 
                             bonusWarpTimer = 400f;
                         }
+
+                        continue;
                     }
                 }
+
+                collisions[i].HandleCollision(this);
             }
 
             if (removeSpecialMove) {
@@ -1705,126 +1668,6 @@ namespace Jazz2.Actors
                 attachedHud.Owner = this;
                 attachedHud.ChangeCurrentWeapon(currentWeapon, weaponUpgrades[(int)currentWeapon]);
             }
-        }
-
-        public void AddScore(int plus)
-        {
-            score = Math.Min(score + plus, 999999999);
-        }
-
-        public bool AddHealth(int count)
-        {
-            const int healthLimit = 5;
-
-            if (health >= healthLimit) {
-                return false;
-            }
-
-            if (count < 0) {
-                //if (health < maxHealth) {
-                    health = Math.Max(maxHealth, healthLimit);
-                //}
-                PlaySound("PLAYER_CONSUME_MAX_CARROT");
-            } else {
-                health = Math.Min(health + count, healthLimit);
-                if (maxHealth < health) {
-                    maxHealth = health;
-                }
-                PlaySound("PLAYER_CONSUME_FOOD");
-            }
-
-            return true;
-        }
-
-        public void AddLives(int count)
-        {
-            lives += count;
-
-            PlaySound("PLAYER_PICKUP_ONEUP");
-        }
-
-        public void AddCoins(int count)
-        {
-            coins += count;
-
-            attachedHud?.ShowCoins(coins);
-            PlaySound("PLAYER_PICKUP_COIN");
-        }
-
-        public void AddGems(int count)
-        {
-            gems += count;
-
-            attachedHud?.ShowGems(gems);
-
-            SoundResource resource;
-            if (availableSounds.TryGetValue("PLAYER_PICKUP_GEM", out resource)) {
-                SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, this);
-                // ToDo: Hardcoded volume
-                instance.Volume = Settings.SfxVolume;
-                instance.Pitch = MathF.Min(0.7f + gemsPitch * 0.05f, 1.3f);
-            }
-
-            gemsTimer = 120f;
-            gemsPitch++;
-        }
-
-        public void ConsumeFood(bool isDrinkable) {
-            // ToDo: Implement Sugar Rush (+ HUD)
-            /*foodCounter += 1;
-            if (foodCounter >= SUGAR_RUSH_THRESHOLD) {
-                foodCounter = foodCounter % SUGAR_RUSH_THRESHOLD;
-                if (!isSugarRush) {
-                    api->pauseMusic();
-                    playNonPositionalSound("PLAYER_SUGAR_RUSH");
-
-                    isSugarRush = true;
-                    osd->setSugarRushActive();
-                    addTimer(21.548 * 70.0, false, [this]() {
-                        isSugarRush = false;
-                        api->resumeMusic();
-                    });
-                }
-            }*/
-
-            if (isDrinkable) {
-                PlaySound("PLAYER_CONSUME_DRINK");
-            } else {
-                PlaySound("PLAYER_CONSUME_FOOD");
-            }
-        }
-
-        public void ShowLevelText(string text)
-        {
-            attachedHud?.ShowLevelText(text);
-        }
-
-        public void MorphTo(PlayerType type)
-        {
-            playerType = type;
-
-            Explosion.Create(api, Transform.Pos + new Vector3(-12f, -6f, -4f), Explosion.SmokeBrown);
-            Explosion.Create(api, Transform.Pos + new Vector3(-8f, 28f, -4f), Explosion.SmokeBrown);
-            Explosion.Create(api, Transform.Pos + new Vector3(12f, 10f, -4f), Explosion.SmokeBrown);
-
-            Explosion.Create(api, Transform.Pos + new Vector3(0f, 12f, -6f), Explosion.SmokePoof);
-
-            // Load new metadata
-            switch (playerType) {
-                case PlayerType.Jazz:
-                    RequestMetadata("Interactive/PlayerJazz");
-                    break;
-                case PlayerType.Spaz:
-                    RequestMetadata("Interactive/PlayerSpaz");
-                    break;
-                case PlayerType.Lori:
-                    RequestMetadata("Interactive/PlayerLori");
-                    break;
-            }
-
-            // Refresh animation state
-            currentAnimation = null;
-            SetAnimation(currentAnimationState);
         }
     }
 }

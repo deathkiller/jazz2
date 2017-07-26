@@ -13,7 +13,7 @@ namespace Jazz2.Game.Menu
         {
             Version libopenmptVersion = OpenMptStream.Version;
             if (libopenmptVersion != null) {
-                libopenmptText = "Uses libopenmpt library (v" + libopenmptVersion + ") released under BSD license.";
+                libopenmptText = "Uses libopenmpt library (v\f[w:75]" + libopenmptVersion + "\f[w:100]) released under BSD license.";
             }
         }
 
@@ -22,13 +22,13 @@ namespace Jazz2.Game.Menu
             Vector2 pos = device.TargetSize * 0.5f;
             pos.Y *= 0.5f + 0.2f;
 
-            api.DrawMaterial(c, "MenuDim", pos.X, ((pos.Y + 60f) + 420f) * 0.5f, Alignment.Center, ColorRgba.White, 80f, 27f);
+            api.DrawMaterial(c, "MenuDim", pos.X, ((pos.Y + 60f) + 420f) * 0.5f, Alignment.Center, ColorRgba.White, 55f, 14.2f, new Rect(0f, 0.3f, 1f, 0.7f));
 
             pos.X *= 0.35f;
 
             int charOffset = 0;
 
-            api.DrawStringShadow(device, ref charOffset, "Reimplementation of game Jazz Jackrabbit 2 from year 1998. Supports various\nversions of the game (Shareware Demo, Holiday Hare '98, The Secret Files\nand Christmas Chronicles). Also, it partially supports JJ2+ extension.", pos.X, pos.Y - 22f,
+            api.DrawStringShadow(device, ref charOffset, "Reimplementation of game Jazz Jackrabbit 2 from year 1998. Supports various\nversions of the game (Shareware Demo, Holiday Hare '98, The Secret Files and\nChristmas Chronicles). Also, it partially supports some features of JJ2+ extension.", pos.X, pos.Y - 22f,
                 Alignment.Left, ColorRgba.TransparentBlack, 0.7f, 0.4f, 0.6f, 0.6f, 7f, 0.9f, 1.2f);
 
             api.DrawStringShadow(device, ref charOffset, "Created By", pos.X, pos.Y + 20f,

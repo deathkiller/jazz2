@@ -4,7 +4,7 @@ using Duality;
 using Duality.Drawing;
 using Duality.Input;
 
-namespace Jazz2.Game.Menu
+namespace Jazz2.Game.Menu.I
 {
     public class InGameMenuBeginSection : InGameMenuSection
     {
@@ -40,6 +40,8 @@ namespace Jazz2.Game.Menu
             for (int i = 0; i < items.Count; i++) {
                 if (selectedIndex == i) {
                     float size = 0.5f + MainMenu.EaseOutElastic(animation) * 0.6f;
+
+                    api.DrawMaterial(c, "MenuGlow", center.X, center.Y, Alignment.Center, ColorRgba.White.WithAlpha(0.2f * size), (items[i].Item1.Length + 3) * 0.5f * size, 4f * size);
 
                     api.DrawStringShadow(device, ref charOffset, items[i].Item1, center.X, center.Y,
                         Alignment.Center, null, size, 0.7f, 1.1f, 1.1f, charSpacing: 0.9f);

@@ -17,6 +17,10 @@
         "MenuDim": {
             "Path": "_custom/dim.png"
         },
+        "MenuGlow": {
+            "Path": "_custom/glow.png",
+            "Shader": "Add"
+        },
         "MenuDifficultyJazz": {
             "Path": "UI/character_art_difficulty_jazz.png"
         },

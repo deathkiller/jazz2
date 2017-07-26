@@ -41,6 +41,8 @@ namespace Jazz2.Game.Menu
                 if (selectedIndex == i) {
                     float size = 0.5f + MainMenu.EaseOutElastic(animation) * 0.6f;
 
+                    api.DrawMaterial(c, "MenuGlow", center.X, center.Y, Alignment.Center, ColorRgba.White.WithAlpha(0.4f * size), (items[i].Item1.Length + 3) * 0.5f * size, 4f * size);
+
                     api.DrawStringShadow(device, ref charOffset, items[i].Item1, center.X, center.Y,
                         Alignment.Center, null, size, 0.7f, 1.1f, 1.1f, charSpacing: 0.9f);
                 } else {

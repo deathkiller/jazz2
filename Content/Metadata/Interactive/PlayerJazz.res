@@ -100,6 +100,7 @@
         },
         "PLAYER_JAZZ_AERIAL_SHOOT": {
             "Path": "Jazz/fall_shoot.png",
+            "FrameRate": 14,
             "States": [ 20, 21, 22, 23, 24, 25, 26, 27 ]
         },
         "PLAYER_JAZZ_VINE_SHOOT": {

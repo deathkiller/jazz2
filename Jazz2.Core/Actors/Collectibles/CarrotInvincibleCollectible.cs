@@ -15,7 +15,7 @@ namespace Jazz2.Actors.Collectibles
             SetFacingDirection();
         }
 
-        public override void Collect(Player player)
+        protected override void Collect(Player player)
         {
             player.SetInvulnerability(30 * Time.FramesPerSecond);
 

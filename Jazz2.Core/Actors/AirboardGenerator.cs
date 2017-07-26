@@ -44,19 +44,20 @@ namespace Jazz2.Actors
             }
         }
 
-        public bool Activate()
+        public override void HandleCollision(ActorBase other)
         {
-            if (active) {
-                active = false;
-                renderer.Active = false;
+            switch (other) {
+                case Player player:
+                    if (active && player.AttachToAirboard()) {
+                        active = false;
+                        renderer.Active = false;
 
-                timeLeft = delay * Time.FramesPerSecond;
+                        timeLeft = delay * Time.FramesPerSecond;
 
-                Explosion.Create(api, Transform.Pos, Explosion.Generator);
-                return true;
+                        Explosion.Create(api, Transform.Pos, Explosion.Generator);
+                    }
+                    break;
             }
-
-            return false;
         }
     }
 }

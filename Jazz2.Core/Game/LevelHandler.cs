@@ -16,7 +16,7 @@ using Jazz2.Actors;
 using Jazz2.Actors.Bosses;
 using Jazz2.Actors.Solid;
 using Jazz2.Game.Events;
-using Jazz2.Game.Menu;
+using Jazz2.Game.Menu.I;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
 

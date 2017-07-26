@@ -17,7 +17,8 @@ namespace Jazz2.Actors.Collectibles
             SetAnimation("Ammo" + weaponType.ToString("G"));
         }
 
-        public override void Collect(Player player) {
+        protected override void Collect(Player player)
+        {
             if (player.AddAmmo(weaponType, 3)) {
                 base.Collect(player);
             }

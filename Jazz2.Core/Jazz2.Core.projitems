@@ -77,6 +77,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\PinballBumper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\PinballPaddle.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Player.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Player.Interactions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Player.Weapons.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\PlayerCorpse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\Pole.cs" />
@@ -336,10 +337,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\Menu\BeginSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Menu\CustomLevelSelectSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Menu\EpisodeSelectSection.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\Menu\InGameBeginSection.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\Menu\InGameMenu.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\Menu\InGameMenuRenderSetup.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\Menu\InGameMenuSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\Menu\I\InGameBeginSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\Menu\I\InGameMenu.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\Menu\I\InGameMenuRenderSetup.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\Menu\I\InGameMenuSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Menu\MainMenu.Background.cs">
       <DependentUpon>MainMenu.cs</DependentUpon>
     </Compile>
@@ -381,6 +382,7 @@
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Duality\EmbeddedResources\SmoothAnim.vert" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Game\Menu\I\" />
     <Folder Include="$(MSBuildThisFileDirectory)Misc\" />
   </ItemGroup>
 </Project>

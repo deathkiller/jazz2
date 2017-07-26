@@ -125,7 +125,7 @@ namespace Jazz2.Game.Menu
 
             const float topLine = 96f;
             float bottomLine = device.TargetSize.Y - 42;
-            api.DrawMaterial(c, "MenuDim", center.X, (topLine + bottomLine) * 0.5f, Alignment.Center, ColorRgba.White, 80f, (bottomLine - topLine) / 8.4f);
+            api.DrawMaterial(c, "MenuDim", center.X, (topLine + bottomLine) * 0.5f, Alignment.Center, ColorRgba.White, 55f, (bottomLine - topLine) * 0.063f, new Rect(0f, 0.3f, 1f, 0.4f));
 
             int charOffset = 0;
             if (levelList.Count > 0) {

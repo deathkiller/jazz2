@@ -334,7 +334,7 @@ namespace Jazz2.Game
         {
             switch (path) {
                 case "Solid": return DrawTechnique.Solid;
-                //case "Add": return DrawTechnique.Add;
+                case "Add": return DrawTechnique.Add;
                 //case "Alpha": return DrawTechnique.Alpha;
                 //case "Invert": return DrawTechnique.Invert;
                 //case "Light": return DrawTechnique.Light;

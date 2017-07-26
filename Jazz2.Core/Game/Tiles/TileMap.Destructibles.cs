@@ -126,9 +126,7 @@ namespace Jazz2.Game.Tiles
             int max = (animatedTiles[tile.DestructAnimation].Length - 2);
             if (tile.DestructFrameIndex < max) {
                 // Tile not destroyed yet, advance counter by one
-                int maxAmount = max - tile.DestructFrameIndex;
-                int current = MathF.Min(amount, maxAmount);
-                amount -= current;
+                int current = MathF.Min(amount, max - tile.DestructFrameIndex);
 
                 tile.DestructFrameIndex = tile.DestructFrameIndex + current;
                 tile.TileID = animatedTiles[tile.DestructAnimation][tile.DestructFrameIndex];
@@ -137,6 +135,8 @@ namespace Jazz2.Game.Tiles
                     levelHandler.PlayCommonSound(soundName, new Vector3(x * 32 + 16, y * 32 + 16, LevelHandler.MainPlaneZ));
                     CreateTileDebris(animatedTiles[tile.DestructAnimation][animatedTiles[tile.DestructAnimation].Length - 1], x, y);
                 }
+
+                amount -= current;
                 return true;
             }
             return false;

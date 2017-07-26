@@ -21,7 +21,8 @@
             SetFacingDirection();
         }
 
-        public override void Collect(Player player) {
+        protected override void Collect(Player player)
+        {
             if (player.AddHealth(maxCarrot ? -1 : 1)) {
                 base.Collect(player);
             }

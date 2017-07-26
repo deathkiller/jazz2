@@ -105,6 +105,7 @@
         },
         "PLAYER_LORI_AERIAL_SHOOT": {
             "Path": "Lori/fall_shoot.png",
+            "FrameRate": 14,
             "States": [ 20, 21, 22, 23, 24, 25, 26, 27 ]
         },
         "PLAYER_LORI_VINE_SHOOT": {

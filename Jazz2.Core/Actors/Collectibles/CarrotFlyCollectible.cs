@@ -13,7 +13,7 @@
             SetFacingDirection();
         }
 
-        public override void Collect(Player player)
+        protected override void Collect(Player player)
         {
             base.Collect(player);
 

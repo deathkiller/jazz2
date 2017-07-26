@@ -1,5 +1,4 @@
-﻿using System;
-using Duality;
+﻿using Duality;
 using Jazz2.Actors.Enemies;
 using Jazz2.Actors.Weapons;
 
@@ -39,7 +38,7 @@ namespace Jazz2.Actors.Collectibles
         protected void SetFacingDirection()
         {
             Vector3 pos = Transform.Pos;
-            if ((Math.Round(pos.X + pos.Y) / 32) % 2 == 0) {
+            if ((((int)(pos.X + pos.Y) / 32) & 1) == 0) {
                 isFacingLeft = true;
             }
         }
@@ -60,21 +59,27 @@ namespace Jazz2.Actors.Collectibles
 
         public override void HandleCollision(ActorBase other)
         {
-            bool impactable = (other is AmmoBase || other is AmmoTNT || other is TurtleShell);
+            switch (other) {
+                case Player player:
+                    Collect(player);
+                    break;
 
-            if (impactable) {
-                if (untouched) {
-                    Vector3 speed = other.Speed;
-                    externalForceX +=  speed.X / 2f * (0.9f + (MathF.Rnd.Next() % 2000) / 10000f);
-                    externalForceY += -speed.Y / 4f * (0.9f + (MathF.Rnd.Next() % 2000) / 10000f);
+                default:
+                    if (other is AmmoBase || other is AmmoTNT || other is TurtleShell) {
+                        if (untouched) {
+                            Vector3 speed = other.Speed;
+                            externalForceX +=  speed.X / 2f * (0.9f + MathF.Rnd.NextFloat(0.2f));
+                            externalForceY += -speed.Y / 4f * (0.9f + MathF.Rnd.NextFloat(0.2f));
 
-                    untouched = false;
-                    collisionFlags |= CollisionFlags.ApplyGravitation;
-                }
+                            untouched = false;
+                            collisionFlags |= CollisionFlags.ApplyGravitation;
+                        }
+                    }
+                    break;
             }
         }
 
-        public virtual void Collect(Player player)
+        protected virtual void Collect(Player player)
         {
             player.AddScore(scoreValue);
 

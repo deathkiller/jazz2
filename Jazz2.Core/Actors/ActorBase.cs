@@ -306,7 +306,7 @@ namespace Jazz2.Actors
                     // collides with a wall from the side while in the air)
                     if (yDiff < Math.Abs(effectiveSpeedY)) {
                         if (effectiveSpeedY > 0f) {
-                            speedY = -(elasticity * effectiveSpeedY);
+                            speedY = -(elasticity * effectiveSpeedY / timeMult);
                             
                             OnHitFloorHook();
 

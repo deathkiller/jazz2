@@ -187,12 +187,12 @@ namespace Jazz2.Game.Tiles
             }
         }
 
-        private void UpdateDebris()
+        private void UpdateDebris(float timeMult)
         {
             for (int i = 0; i < debrisList.Count; i++) {
                 ref DestructibleDebris debris = ref debrisList.Data[i];
 
-                debris.Time -= Time.TimeMult;
+                debris.Time -= timeMult;
                 if (debris.Scale <= 0f || debris.Alpha <= 0f) {
                     debrisList.RemoveAtFast(i);
                     i--;
@@ -204,8 +204,8 @@ namespace Jazz2.Game.Tiles
 
                 if (debris.CollisionAction != DebrisCollisionAction.None) {
                     // Debris should collide with tilemap
-                    float nx = debris.Pos.X + debris.Speed.X;
-                    float ny = debris.Pos.Y + debris.Speed.Y;
+                    float nx = debris.Pos.X + debris.Speed.X * timeMult;
+                    float ny = debris.Pos.Y + debris.Speed.Y * timeMult;
                     Hitbox hitbox = new Hitbox(nx - 1, ny - 1, nx + 1, ny + 1);
                     if (IsTileEmpty(ref hitbox, true)) {
                         // Nothing...
@@ -220,7 +220,7 @@ namespace Jazz2.Game.Tiles
                         // collides with a wall from the side while in the air)
                         hitbox = new Hitbox(nx - 1, debris.Pos.Y - 1, nx + 1, debris.Pos.Y + 1);
                         if (IsTileEmpty(ref hitbox, true)) {
-                            if (debris.Speed.Y > 0) {
+                            if (debris.Speed.Y > 0f) {
                                 debris.Speed.Y = -(0.8f/*elasticity*/ * debris.Speed.Y);
                                 //OnHitFloorHook();
                             } else {
@@ -240,19 +240,19 @@ namespace Jazz2.Game.Tiles
                     }
                 }
 
-                debris.Pos.X += debris.Speed.X * Time.TimeMult;
-                debris.Pos.Y += debris.Speed.Y * Time.TimeMult;
+                debris.Pos.X += debris.Speed.X * timeMult;
+                debris.Pos.Y += debris.Speed.Y * timeMult;
 
-                if (debris.Acceleration.X != 0) {
-                    debris.Speed.X = Math.Min(debris.Speed.X + debris.Acceleration.X * Time.TimeMult, 10f);
+                if (debris.Acceleration.X != 0f) {
+                    debris.Speed.X = MathF.Min(debris.Speed.X + debris.Acceleration.X * timeMult, 10f);
                 }
-                if (debris.Acceleration.Y != 0) {
-                    debris.Speed.Y = Math.Min(debris.Speed.Y + debris.Acceleration.Y * Time.TimeMult, 10f);
+                if (debris.Acceleration.Y != 0f) {
+                    debris.Speed.Y = MathF.Min(debris.Speed.Y + debris.Acceleration.Y * timeMult, 10f);
                 }
 
-                debris.Scale += debris.ScaleSpeed * Time.TimeMult;
-                debris.Angle += debris.AngleSpeed * Time.TimeMult;
-                debris.Alpha += debris.AlphaSpeed * Time.TimeMult;
+                debris.Scale += debris.ScaleSpeed * timeMult;
+                debris.Angle += debris.AngleSpeed * timeMult;
+                debris.Alpha += debris.AlphaSpeed * timeMult;
             }
         }
 

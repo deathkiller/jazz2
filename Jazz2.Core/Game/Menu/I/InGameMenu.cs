@@ -7,7 +7,7 @@ using Duality.Drawing;
 using Duality.Resources;
 using Jazz2.Game.Structs;
 
-namespace Jazz2.Game.Menu
+namespace Jazz2.Game.Menu.I
 {
     public partial class InGameMenu : Scene
     {

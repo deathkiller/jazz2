@@ -22,19 +22,21 @@ namespace Jazz2.Actors
             UpdateHitbox(20, 20);
         }
 
-        public bool ActivateSavePoint()
+        public override void HandleCollision(ActorBase other)
         {
-            if (!activated) {
-                activated = true;
+            switch (other) {
+                case Player player:
+                    if (!activated) {
+                        activated = true;
 
-                SetAnimation("Opened");
-                SetTransition(AnimState.TransitionActivate, false);
+                        player.SetCheckpoint(Transform.Pos.Xy);
 
-                PlaySound("TransitionActivate");
+                        SetAnimation("Opened");
+                        SetTransition(AnimState.TransitionActivate, false);
 
-                return true;
-            } else {
-                return false;
+                        PlaySound("TransitionActivate");
+                    }
+                    break;
             }
         }
     }

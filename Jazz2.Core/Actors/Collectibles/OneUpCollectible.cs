@@ -11,7 +11,8 @@
             SetAnimation("OneUp");
         }
 
-        public override void Collect(Player player) {
+        protected override void Collect(Player player)
+        {
             player.AddLives(1);
 
             base.Collect(player);

@@ -50,15 +50,17 @@ namespace Jazz2.Game.Tiles
 
         void ICmpUpdatable.OnUpdate()
         {
+            float timeMult = Time.TimeMult;
+
             int n = animatedTiles.Count;
             AnimatedTiles[] list = animatedTiles.Data;
             for (int i = 0; i < n; i++) {
-                list[i].UpdateTile(Time.TimeMult);
+                list[i].UpdateTile(timeMult);
             }
 
             AdvanceCollapsingTileTimers();
 
-            UpdateDebris();
+            UpdateDebris(timeMult);
         }
 
         internal void ReadLayerConfiguration(LayerType type, int layerIdx, string path, string layerName, LevelHandler.LevelConfigJson.LayerSection layer)
