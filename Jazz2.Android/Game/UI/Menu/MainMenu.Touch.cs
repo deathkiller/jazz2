@@ -5,7 +5,7 @@ using Duality.Drawing;
 using Duality.Resources;
 using Jazz2.Android;
 
-namespace Jazz2.Game.Menu
+namespace Jazz2.Game.UI.Menu
 {
     partial class MainMenu
     {

@@ -60,7 +60,7 @@ namespace Jazz2.Actors.Weapons
                 TileMap tiles = api.TileMap;
                 if (tiles != null) {
                     Hitbox hitbox = new Hitbox(pos.X - 34, pos.Y - 34, pos.X + 34, pos.Y + 34);
-                    int destroyedCount = tiles.CheckWeaponDestructible(ref hitbox, WeaponType.TNT, 1);
+                    int destroyedCount = tiles.CheckWeaponDestructible(ref hitbox, WeaponType.TNT, 8);
                     if (destroyedCount > 0 && owner != null) {
                         owner.AddScore(destroyedCount * 50);
                     }

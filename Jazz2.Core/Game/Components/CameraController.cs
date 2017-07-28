@@ -37,6 +37,8 @@ namespace Jazz2.Game
                 targetObj = value;
                 if (targetObj != null && targetObj.Transform != null) {
                     lastPos = targetObj.Transform.Pos;
+
+                    gameobj.Transform.Pos = lastPos;
                 }
             }
         }
@@ -84,8 +86,6 @@ namespace Jazz2.Game
             //    MathF.Round(MathF.Clamp(transform.Pos.Y + targetVelocityAdjusted.Y, viewRect.Y + halfView.Y, viewRect.BottomY - halfView.Y)),
             //    0
             //);
-
-            float timeMult = Time.TimeMult;
 
             Vector3 speed = targetObj.Speed;
             distanceFactor.X = MathF.Lerp(distanceFactor.X, speed.X * 8f, 0.2f);

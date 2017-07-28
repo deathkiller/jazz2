@@ -3,25 +3,29 @@ using System.Collections.Generic;
 using Duality;
 using Duality.Drawing;
 using Duality.Input;
+using Jazz2.Game.UI.Menu.S;
 
-namespace Jazz2.Game.Menu.I
+namespace Jazz2.Game.UI.Menu
 {
-    public class InGameMenuBeginSection : InGameMenuSection
+    public class BeginSection : MainMenuSection
     {
         private List<Tuple<string, Action>> items;
 
         private int selectedIndex;
         private float animation;
 
-        public InGameMenuBeginSection()
+        public BeginSection()
         {
             items = new List<Tuple<string, Action>> {
-                Tuple.Create<string, Action>("Resume", OnPlayStoryPressed),
-                Tuple.Create<string, Action>("Exit to menu", OnExitPressed),
+                Tuple.Create<string, Action>("Play Story", OnPlayStoryPressed),
+                Tuple.Create<string, Action>("Play Custom Game", OnPlayCustomGamePressed),
+                Tuple.Create<string, Action>("Settings", OnSettingsPressed),
+                Tuple.Create<string, Action>("About", OnAboutPressed),
+                Tuple.Create<string, Action>("Exit", OnExitPressed),
             };
         }
 
-        public override void OnShow(InGameMenu root)
+        public override void OnShow(MainMenu root)
         {
             animation = 0f;
             base.OnShow(root);
@@ -30,24 +34,20 @@ namespace Jazz2.Game.Menu.I
         public override void OnPaint(IDrawDevice device, Canvas c)
         {
             Vector2 center = device.TargetSize * 0.5f;
-            center.Y *= 0.96f;
-
-            const float topLine = 131f;
-            float bottomLine = device.TargetSize.Y - 42;
-            api.DrawMaterial(c, "MenuDim", center.X, (topLine + bottomLine) * 0.5f, Alignment.Center, new ColorRgba(0f, 1f), 80f, (bottomLine - topLine) / 7.6f);
+            center.Y *= 0.76f;
 
             int charOffset = 0;
             for (int i = 0; i < items.Count; i++) {
                 if (selectedIndex == i) {
-                    float size = 0.5f + MainMenu.EaseOutElastic(animation) * 0.6f;
+                    float size = 0.5f + Ease.OutElastic(animation) * 0.6f;
 
-                    api.DrawMaterial(c, "MenuGlow", center.X, center.Y, Alignment.Center, ColorRgba.White.WithAlpha(0.2f * size), (items[i].Item1.Length + 3) * 0.5f * size, 4f * size);
+                    api.DrawMaterial(c, "MenuGlow", center.X, center.Y, Alignment.Center, ColorRgba.White.WithAlpha(0.4f * size), (items[i].Item1.Length + 3) * 0.5f * size, 4f * size);
 
                     api.DrawStringShadow(device, ref charOffset, items[i].Item1, center.X, center.Y,
                         Alignment.Center, null, size, 0.7f, 1.1f, 1.1f, charSpacing: 0.9f);
                 } else {
                     api.DrawString(device, ref charOffset, items[i].Item1, center.X, center.Y,
-                        Alignment.Center, new ColorRgba(0.4f, 0.5f), 0.9f);
+                        Alignment.Center, ColorRgba.TransparentBlack, 0.9f);
                 }
 
                 center.Y += 34f + 8f;
@@ -64,8 +64,11 @@ namespace Jazz2.Game.Menu.I
                 api.PlaySound("MenuSelect", 0.5f);
                 items[selectedIndex].Item2();
             } else if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
-                api.PlaySound("MenuSelect", 0.5f);
-                api.SwitchToCurrentGame();
+                if (selectedIndex != items.Count - 1) {
+                    api.PlaySound("MenuSelect", 0.5f);
+                    animation = 0f;
+                    selectedIndex = items.Count - 1;
+                }
             } else if (DualityApp.Keyboard.KeyHit(Key.Up)) {
                 api.PlaySound("MenuSelect", 0.4f);
                 animation = 0f;
@@ -87,12 +90,27 @@ namespace Jazz2.Game.Menu.I
 
         private void OnPlayStoryPressed()
         {
-            api.SwitchToCurrentGame();
+            api.SwitchToSection(new EpisodeSelectSection());
+        }
+
+        private void OnPlayCustomGamePressed()
+        {
+            api.SwitchToSection(new CustomLevelSelectSection());
+        }
+
+        private void OnSettingsPressed()
+        {
+            api.SwitchToSection(new SettingsSection());
+        }
+
+        private void OnAboutPressed()
+        {
+            api.SwitchToSection(new AboutSection());
         }
 
         private void OnExitPressed()
         {
-            api.SwitchToMainMenu();
+            DualityApp.Terminate();
         }
     }
 }

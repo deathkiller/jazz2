@@ -1,8 +1,8 @@
 ﻿using Duality;
 using Duality.Backend;
 using Duality.Resources;
-using Jazz2.Game.Menu;
 using Jazz2.Game.Structs;
+using Jazz2.Game.UI.Menu;
 
 namespace Jazz2.Game
 {

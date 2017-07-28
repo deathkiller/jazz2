@@ -7,7 +7,7 @@ using Duality.Drawing;
 using Duality.Input;
 using Duality.IO;
 
-namespace Jazz2.Game.Menu
+namespace Jazz2.Game.UI.Menu
 {
     public class EpisodeSelectSection : MainMenuSection
     {
@@ -79,7 +79,7 @@ namespace Jazz2.Game.Menu
 
                 for (int i = 0; i < episodes.Count; i++) {
                     if (selectedIndex == i) {
-                        float size = 0.5f + MainMenu.EaseOutElastic(animation) * 0.6f;
+                        float size = 0.5f + Ease.OutElastic(animation) * 0.6f;
 
                         api.DrawStringShadow(device, ref charOffset, episodes[i].Name, center.X, topItem,
                             Alignment.Center, null, size, 0.7f, 1.1f, 1.1f, charSpacing: 0.9f);

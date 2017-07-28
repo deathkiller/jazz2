@@ -27,6 +27,7 @@ namespace Jazz2.Actors.Enemies
 
         protected override void OnUpdate()
         {
+            OnUpdateHitbox();
             HandleBlinking();
 
             if (frozenTimeLeft > 0) {

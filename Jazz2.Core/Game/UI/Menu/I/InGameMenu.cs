@@ -4,18 +4,18 @@ using Duality;
 using Duality.Audio;
 using Duality.Components;
 using Duality.Drawing;
-using Duality.IO;
 using Duality.Resources;
 using Jazz2.Game.Structs;
 
-namespace Jazz2.Game.Menu
+namespace Jazz2.Game.UI.Menu.I
 {
-    public partial class MainMenu : Scene
+    public partial class InGameMenu : Scene
     {
         private readonly Controller root;
         private readonly GameObject rootObject;
+        private readonly LevelHandler levelHandler;
 
-        private Stack<MainMenuSection> sectionStack;
+        private Stack<InGameMenuSection> sectionStack;
 
         private CanvasBuffer canvasBuffer;
         private BitmapFont fontSmall, fontMedium;
@@ -24,18 +24,17 @@ namespace Jazz2.Game.Menu
 
         public ContentRef<Material> TopLine, BottomLine, Dim;
 
-        private OpenMptStream music;
+        private Material finalMaterial;
+        private float transition;
 
-        private static string newVersion;
-
-        public MainMenu(Controller root)
+        public InGameMenu(Controller root, LevelHandler levelHandler)
         {
             this.root = root;
+            this.levelHandler = levelHandler;
 
-            root.Title = null;
             root.Immersive = true;
 
-            rootObject = new GameObject("MainMenu");
+            rootObject = new GameObject("InGameMenu");
             rootObject.AddComponent(new LocalController(this));
             AddObject(rootObject);
 
@@ -59,42 +58,25 @@ namespace Jazz2.Game.Menu
 
             metadata = ContentResolver.Current.RequestMetadata("UI/MainMenu", null);
 
-            PrerenderTexturedBackground();
-
-            // Play music
-            //string musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", "menu.j2b");
-            string musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", MathF.Rnd.OneOf(new[] {
-                "bonus2.j2b", "bonus3.j2b"
-            }));
-            music = DualityApp.Sound.PlaySound(new OpenMptStream(musicPath));
-            music.BeginFadeIn(0.5f);
+            // Get game screen
+            Camera cameraLevel = levelHandler.FindComponent<Camera>();
+            LevelRenderSetup renderSetup = cameraLevel.ActiveRenderSetup as LevelRenderSetup;
+            if (renderSetup != null) {
+                finalMaterial = new Material(DrawTechnique.Solid, ColorRgba.White, renderSetup.FunalTexture);
+            }
 
             InitTouch();
 
             // Show Begin section
-            sectionStack = new Stack<MainMenuSection>();
+            sectionStack = new Stack<InGameMenuSection>();
 
-            SwitchToSection(new BeginSection());
+            SwitchToSection(new InGameMenuBeginSection());
 
-            if (newVersion == null) {
-                Updater.CheckUpdates(OnCheckUpdates);
-            }
         }
 
-        protected override void OnDisposing(bool manually)
-        {
-            if (music != null) {
-                music.FadeOut(1f);
-                music = null;
-            }
-
-            base.OnDisposing(manually);
-        }
-
-        public void SwitchToSection(MainMenuSection section)
+        public void SwitchToSection(InGameMenuSection section)
         {
             if (sectionStack.Count > 0) {
-                //renderSetup.BeginPageTransition();
                 sectionStack.Peek().OnHide();
             }
 
@@ -102,15 +84,13 @@ namespace Jazz2.Game.Menu
             section.OnShow(this);
         }
 
-        public void LeaveSection(MainMenuSection section)
+        public void LeaveSection(InGameMenuSection section)
         {
             if (sectionStack.Count > 0) {
-                MainMenuSection activeSection = sectionStack.Pop();
+                InGameMenuSection activeSection = sectionStack.Pop();
                 if (activeSection != section) {
                     throw new InvalidOperationException();
                 }
-
-                //renderSetup.BeginPageTransition();
 
                 activeSection.OnHide();
 
@@ -120,9 +100,19 @@ namespace Jazz2.Game.Menu
             }
         }
 
-        public void SwitchToLevel(LevelInitialization data)
+        public void SwitchToCurrentGame()
         {
-            root.ChangeLevel(data);
+            root.Immersive = false;
+
+            Scene.Current.DisposeLater();
+            Scene.SwitchTo(levelHandler);
+        }
+
+        public void SwitchToMainMenu()
+        {
+            levelHandler.Dispose();
+
+            root.ShowMainMenu();
         }
 
         public void DrawString(IDrawDevice device, ref int charOffset, string text, float x,
@@ -156,28 +146,6 @@ namespace Jazz2.Game.Menu
                 c.State.SetMaterial(res.Material);
                 c.State.ColorTint = color;
                 c.FillRect((int)originPos.X, (int)originPos.Y, texture.InternalWidth * scaleX, texture.InternalHeight * scaleY);
-            }
-        }
-
-        public void DrawMaterial(Canvas c, string name, float x, float y, Alignment alignment, ColorRgba color, float scaleX, float scaleY, Rect texRect)
-        {
-            GraphicResource res;
-            if (metadata.Graphics.TryGetValue(name, out res)) {
-                Texture texture = res.Material.Res.MainTexture.Res;
-
-                Vector2 originPos = new Vector2(x, y);
-                alignment.ApplyTo(ref originPos, new Vector2(texture.InternalWidth * scaleX, texture.InternalHeight * scaleY));
-
-                c.State.SetMaterial(res.Material);
-                //c.State.SetMaterial(Material.SolidWhite);
-                c.State.ColorTint = color;
-
-                Rect tempRect = c.State.TextureCoordinateRect;
-                c.State.TextureCoordinateRect = texRect;
-
-                c.FillRect((int)originPos.X, (int)originPos.Y, texture.InternalWidth * scaleX, texture.InternalHeight * scaleY);
-
-                c.State.TextureCoordinateRect = tempRect;
             }
         }
 
@@ -215,16 +183,16 @@ namespace Jazz2.Game.Menu
             }
         }
 
-        public static float EaseOutElastic(float t)
-        {
-            float p = 0.3f;
-            return MathF.Pow(2, -10 * t) * MathF.Sin((t - p / 4) * (2 * MathF.Pi) / p) + 1;
-        }
-
         private void OnUpdate()
         {
             if (sectionStack.Count > 0) {
                 sectionStack.Peek().OnUpdate();
+            }
+
+            if (transition < 1f) {
+                transition += Time.TimeMult * 0.14f;
+            } else {
+                transition = 1f;
             }
         }
 
@@ -237,18 +205,21 @@ namespace Jazz2.Game.Menu
             int charOffset = 0;
             int charOffsetShadow = 0;
 
-            RenderTexturedBackground(device);
+            c.State.SetMaterial(finalMaterial);
+            c.State.ColorTint = new ColorRgba(1f - transition * 0.5f);
+            c.State.TextureCoordinateRect = new Rect(0, 0, 1, 1);
+            c.FillRect(0, 0, device.TargetSize.X, device.TargetSize.Y);
 
             // Title
             DrawMaterial(c, "MenuCarrot", -1, center.X - 76f, 64f + 2f, Alignment.Center, new ColorRgba(0f, 0.3f), 0.8f, 0.8f);
             DrawMaterial(c, "MenuCarrot", -1, center.X - 76f, 64f, Alignment.Center, ColorRgba.White, 0.8f, 0.8f);
 
             fontMedium.DrawString(device, ref charOffsetShadow, "Jazz", center.X - 63f, 70f + 2f, Alignment.Left,
-                new ColorRgba(0f, 0.32f), 0.75f, 1.63f, 3f, 3f, 0f, 0.92f);
+                new ColorRgba(0f, 0.35f), 0.75f, 1.63f, 3f, 3f, 0f, 0.92f);
             fontMedium.DrawString(device, ref charOffsetShadow, "2", center.X - 19f, 70f - 8f + 2f, Alignment.Left,
-                new ColorRgba(0f, 0.32f), 0.5f, 0f, 0f, 0f, 0f);
+                new ColorRgba(0f, 0.35f), 0.5f, 0f, 0f, 0f, 0f);
             fontMedium.DrawString(device, ref charOffsetShadow, "Resurrection", center.X - 10f, 70f + 4f + 2.5f, Alignment.Left,
-                new ColorRgba(0f, 0.3f), 0.5f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
+                new ColorRgba(0f, 0.33f), 0.5f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
 
             fontMedium.DrawString(device, ref charOffset, "Jazz", center.X - 63f, 70f, Alignment.Left,
                 new ColorRgba(0.54f, 0.44f, 0.34f, 0.5f), 0.75f, 1.63f, 3f, 3f, 0f, 0.92f);
@@ -262,19 +233,13 @@ namespace Jazz2.Game.Menu
             bottomRight.X -= 24f;
             bottomRight.Y -= 10f;
             DrawStringShadow(device, ref charOffset, "v" + App.AssemblyVersion, bottomRight.X, bottomRight.Y, Alignment.BottomRight,
-                ColorRgba.TransparentBlack, 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
+                new ColorRgba(0.45f, 0.5f), 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
 
             // Copyright
             Vector2 bottomLeft = bottomRight;
             bottomLeft.X = 24f;
             DrawStringShadow(device, ref charOffset, "(c) 2016-2017  Dan R.", bottomLeft.X, bottomLeft.Y, Alignment.BottomLeft,
-                ColorRgba.TransparentBlack, 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
-
-            // New Version
-            if (!string.IsNullOrEmpty(newVersion)) {
-                DrawStringShadow(device, ref charOffset, "New version available: " + newVersion, (bottomLeft.X + bottomRight.X) * 0.5f, bottomLeft.Y, Alignment.Bottom,
-                    new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f), 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.9f);
-            }
+                new ColorRgba(0.45f, 0.5f), 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
 
             // Current section
             if (sectionStack.Count > 0) {
@@ -284,38 +249,30 @@ namespace Jazz2.Game.Menu
             DrawTouch(device, c, device.TargetSize);
         }
 
-        private void OnCheckUpdates(bool newAvailable, string version)
-        {
-            if (newAvailable) {
-                newVersion = version;
-            } else {
-                newVersion = "";
-            }
-        }
-
         partial void InitTouch();
 
         partial void DrawTouch(IDrawDevice device, Canvas c, Vector2 size);
 
+
         private class LocalController : Component, ICmpUpdatable, ICmpRenderer
         {
-            private readonly MainMenu mainMenu;
+            private readonly InGameMenu menu;
 
-            public LocalController(MainMenu mainMenu)
+            public LocalController(InGameMenu menu)
             {
-                this.mainMenu = mainMenu;
+                this.menu = menu;
             }
 
             void ICmpUpdatable.OnUpdate()
             {
-                mainMenu.OnUpdate();
+                menu.OnUpdate();
             }
 
             float ICmpRenderer.BoundRadius => float.MaxValue;
 
             void ICmpRenderer.Draw(IDrawDevice device)
             {
-                mainMenu.OnRender(device);
+                menu.OnRender(device);
             }
 
             bool ICmpRenderer.IsVisible(IDrawDevice device)

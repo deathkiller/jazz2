@@ -11,7 +11,7 @@
         "PLAYER_JAZZ_RUN": {
             "Path": "Jazz/run.png",
             "FrameRate": 8,
-            "States": [ 1, 2 ]
+            "States": [ 1, 2, 17, 18 ]
         },
         "PLAYER_JAZZ_JUMP": {
             "Path": "Jazz/jump.png",
@@ -37,7 +37,7 @@
         "PLAYER_JAZZ_DASH": {
             "Path": "Jazz/dash.png",
             "FrameRate": 20,
-            "States": [ 3 ]
+            "States": [ 3, 19 ]
         },
         "PLAYER_JAZZ_DASH_JUMP": {
             "Path": "Jazz/ball.png",
@@ -101,7 +101,7 @@
         "PLAYER_JAZZ_AERIAL_SHOOT": {
             "Path": "Jazz/fall_shoot.png",
             "FrameRate": 14,
-            "States": [ 20, 21, 22, 23, 24, 25, 26, 27 ]
+            "States": [ 20, 21, 22, 23, 24, 25, 26, 27, 262160, 262161, 262162, 262163 ]
         },
         "PLAYER_JAZZ_VINE_SHOOT": {
             "Path": "Jazz/vine_shoot.png",

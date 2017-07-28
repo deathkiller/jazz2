@@ -8,7 +8,7 @@ using Duality.Resources;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
 
-namespace Jazz2.Game.Menu
+namespace Jazz2.Game.UI.Menu
 {
     partial class MainMenu
     {

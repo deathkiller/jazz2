@@ -1,12 +1,12 @@
 ﻿using Duality.Drawing;
 
-namespace Jazz2.Game.Menu.I
+namespace Jazz2.Game.UI.Menu
 {
-    public abstract class InGameMenuSection
+    public abstract class MainMenuSection
     {
-        protected InGameMenu api;
+        protected MainMenu api;
 
-        public virtual void OnShow(InGameMenu api)
+        public virtual void OnShow(MainMenu api)
         {
             this.api = api;
         }

@@ -5,7 +5,7 @@ using Duality.Drawing;
 using Duality.IO;
 using Duality.Resources;
 
-namespace Jazz2.Game
+namespace Jazz2.Game.UI
 {
     public class BitmapFont
     {

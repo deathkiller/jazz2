@@ -114,72 +114,72 @@ namespace Duality
         /// or was loaded explicitly outside the ContentProvider, this will set the Resources <see cref="Path"/> Property
         /// and register it in the ContentProvider. If the Resource already is a permanent, this parameter will be ignored.
         /// </param>
-        public void Save(string saveAsPath = null, bool makePermanent = true)
-        {
-            if (this.Disposed) throw new ObjectDisposedException("Can't save a Resource that has been disposed.");
-            if (string.IsNullOrWhiteSpace(saveAsPath)) {
-                saveAsPath = this.path;
-                if (string.IsNullOrWhiteSpace(saveAsPath))
-                    throw new ArgumentException("Can't save a Resource to an undefined path.", nameof(saveAsPath));
-            }
-
-            // Prepare saving the Resource and abort if an error occurred in the process
-            bool preparedSuccessfully = this.CheckedOnSaving(saveAsPath);
-            if (!preparedSuccessfully) return;
-
-            // We're saving a new Resource for the first time: Register it in the library
-            bool isPermanent = !string.IsNullOrWhiteSpace(this.path);
-            if (makePermanent && !isPermanent) {
-                this.path = saveAsPath;
-                ContentProvider.AddContent(this.path, this);
-            }
-
-            string dirName = PathOp.GetDirectoryName(saveAsPath);
-            if (!string.IsNullOrEmpty(dirName) && !DirectoryOp.Exists(dirName)) DirectoryOp.Create(dirName);
-            using (Stream str = FileOp.Create(saveAsPath)) {
-                // ToDo: Implement Duality serialization
-                //this.WriteToStream(str);
-            }
-            this.CheckedOnSaved(saveAsPath);
-        }
+        //public void Save(string saveAsPath = null, bool makePermanent = true)
+        //{
+        //    if (this.Disposed) throw new ObjectDisposedException("Can't save a Resource that has been disposed.");
+        //    if (string.IsNullOrWhiteSpace(saveAsPath)) {
+        //        saveAsPath = this.path;
+        //        if (string.IsNullOrWhiteSpace(saveAsPath))
+        //            throw new ArgumentException("Can't save a Resource to an undefined path.", nameof(saveAsPath));
+        //    }
+        //
+        //    // Prepare saving the Resource and abort if an error occurred in the process
+        //    bool preparedSuccessfully = this.CheckedOnSaving(saveAsPath);
+        //    if (!preparedSuccessfully) return;
+        //
+        //    // We're saving a new Resource for the first time: Register it in the library
+        //    bool isPermanent = !string.IsNullOrWhiteSpace(this.path);
+        //    if (makePermanent && !isPermanent) {
+        //        this.path = saveAsPath;
+        //        ContentProvider.AddContent(this.path, this);
+        //    }
+        //
+        //    string dirName = PathOp.GetDirectoryName(saveAsPath);
+        //    if (!string.IsNullOrEmpty(dirName) && !DirectoryOp.Exists(dirName)) DirectoryOp.Create(dirName);
+        //    using (Stream str = FileOp.Create(saveAsPath)) {
+        //        // ToDo: Implement Duality serialization
+        //        //this.WriteToStream(str);
+        //    }
+        //    this.CheckedOnSaved(saveAsPath);
+        //}
 
         /// <summary>
         /// Saves the Resource to the specified stream.
         /// </summary>
         /// <param name="str"></param>
-        public void Save(Stream str)
-        {
-            if (this.Disposed) throw new ObjectDisposedException("Can't save a Resource that has been disposed.");
+        //public void Save(Stream str)
+        //{
+        //    if (this.Disposed) throw new ObjectDisposedException("Can't save a Resource that has been disposed.");
+        //
+        //    this.CheckedOnSaving(null);
+        //    this.CheckedOnSaved(null);
+        //}
 
-            this.CheckedOnSaving(null);
-            this.CheckedOnSaved(null);
-        }
+        //private bool CheckedOnSaving(string saveAsPath)
+        //{
+        //    if (this.initState != InitState.Initialized) return true;
+        //    try {
+        //        if (ResourceSaving != null) ResourceSaving(this, new ResourceSaveEventArgs(this, saveAsPath));
+        //        this.OnSaving(saveAsPath);
+        //        return true;
+        //    } catch (Exception e) {
+        //        Console.WriteLine("OnSaving() of {0} failed: {1}", this, /*Log.Exception(*/e/*)*/);
+        //        return false;
+        //    }
+        //}
 
-        private bool CheckedOnSaving(string saveAsPath)
-        {
-            if (this.initState != InitState.Initialized) return true;
-            try {
-                if (ResourceSaving != null) ResourceSaving(this, new ResourceSaveEventArgs(this, saveAsPath));
-                this.OnSaving(saveAsPath);
-                return true;
-            } catch (Exception e) {
-                Console.WriteLine("OnSaving() of {0} failed: {1}", this, /*Log.Exception(*/e/*)*/);
-                return false;
-            }
-        }
-
-        private bool CheckedOnSaved(string saveAsPath)
-        {
-            if (this.initState != InitState.Initialized) return true;
-            try {
-                this.OnSaved(saveAsPath);
-                if (ResourceSaved != null) ResourceSaved(this, new ResourceSaveEventArgs(this, saveAsPath));
-                return true;
-            } catch (Exception e) {
-                Console.WriteLine("OnSaved() of {0} failed: {1}", this, /*Log.Exception(*/e/*)*/);
-                return false;
-            }
-        }
+        //private bool CheckedOnSaved(string saveAsPath)
+        //{
+        //    if (this.initState != InitState.Initialized) return true;
+        //    try {
+        //        this.OnSaved(saveAsPath);
+        //        if (ResourceSaved != null) ResourceSaved(this, new ResourceSaveEventArgs(this, saveAsPath));
+        //        return true;
+        //    } catch (Exception e) {
+        //        Console.WriteLine("OnSaved() of {0} failed: {1}", this, /*Log.Exception(*/e/*)*/);
+        //        return false;
+        //    }
+        //}
 
         /// <summary>
         /// Called when this Resource is now beginning to be saved.
@@ -307,54 +307,52 @@ namespace Duality
         /// uninitialized Resources or register them in the ContentProvider.
         /// </param>
         /// <returns>The Resource that has been loaded.</returns>
-        public static T Load<T>(/*Serializer*/object formatter, string resPath = null, Action<T> loadCallback = null, bool initResource = true) where T : Resource
-        {
-            T newContent = null;
-
-            try {
-                // ToDo: Rework resources
-                //Resource res = formatter.ReadObject<Resource>();
-                Resource res = null;
-                if (res == null) throw new Exception("Loading Resource failed");
-
-                res.initState = InitState.Initializing;
-                res.path = resPath;
-                if (loadCallback != null) loadCallback(res as T); // Callback before initializing.
-                if (initResource) Init(res);
-                newContent = res as T;
-            } catch (Exception e) {
-                Console.WriteLine("Can't load {0} from '{1}', because an error occurred: {3}{2}",
-					/*Log.Type(*/typeof(T)/*)*/,
-					resPath ?? formatter.ToString(),
-					/*Log.Exception(*/e/*)*/,
-					Environment.NewLine);
-            }
-
-            return newContent;
-        }
+        //public static T Load<T>(Serializer formatter, string resPath = null, Action<T> loadCallback = null, bool initResource = true) where T : Resource
+        //{
+        //    T newContent = null;
+        //
+        //    try {
+        //        Resource res = formatter.ReadObject<Resource>();
+        //        if (res == null) throw new Exception("Loading Resource failed");
+        //
+        //        res.initState = InitState.Initializing;
+        //        res.path = resPath;
+        //        if (loadCallback != null) loadCallback(res as T); // Callback before initializing.
+        //        if (initResource) Init(res);
+        //        newContent = res as T;
+        //    } catch (Exception e) {
+        //        Console.WriteLine("Can't load {0} from '{1}', because an error occurred: {3}{2}",
+		//		    /*Log.Type(*/typeof(T)/*)*/,
+		//		    resPath ?? formatter.ToString(),
+		//		    /*Log.Exception(*/e/*)*/,
+		//		    Environment.NewLine);
+        //    }
+        //
+        //    return newContent;
+        //}
 
         /// <summary>
         /// Initializes a Resource that has been loaded without initialization. You shouldn't need this method in almost all cases.
         /// Only use it when you know exactly what you're doing. Consider requesting the Resource from the <see cref="ContentProvider"/> instead.
         /// </summary>
         /// <param name="res">The Resource to initialize.</param>
-        public static void Init(Resource res)
-        {
-            if (res.initState != InitState.Initializing) return;
-            res.OnLoaded();
-            if (ResourceLoaded != null) ResourceLoaded(res, new ResourceEventArgs(res));
-            res.initState = InitState.Initialized;
-        }
+        //public static void Init(Resource res)
+        //{
+        //    if (res.initState != InitState.Initializing) return;
+        //    res.OnLoaded();
+        //    if (ResourceLoaded != null) ResourceLoaded(res, new ResourceEventArgs(res));
+        //    res.initState = InitState.Initialized;
+        //}
 
         /// <summary>
         /// Determines whether or not the specified path points to a Duality Resource file.
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns></returns>
-        public static bool IsResourceFile(string filePath)
-        {
-            return string.Equals(PathOp.GetExtension(filePath), FileExt, StringComparison.OrdinalIgnoreCase);
-        }
+        //public static bool IsResourceFile(string filePath)
+        //{
+        //    return string.Equals(PathOp.GetExtension(filePath), FileExt, StringComparison.OrdinalIgnoreCase);
+        //}
         /// <summary>
         /// Returns all Resource files that are located in the specified directory. This doesn't affect
         /// any actual content- or load states.
@@ -373,25 +371,25 @@ namespace Duality
         /// </summary>
         /// <param name="resType">The Resource Type to return the file extension from.</param>
         /// <returns>The specified Resource Type's file extension.</returns>
-        public static string GetFileExtByType(Type resType)
-        {
-            if (resType == null || resType == typeof(Resource))
-                return FileExt;
-            else
-                return "." + resType.Name + FileExt;
-        }
+        //public static string GetFileExtByType(Type resType)
+        //{
+        //    if (resType == null || resType == typeof(Resource))
+        //        return FileExt;
+        //    else
+        //        return "." + resType.Name + FileExt;
+        //}
         /// <summary>
         /// Returns the Resource file extension for a specific Resource Type.
         /// </summary>
         /// <param name="resType">The Resource Type to return the file extension from.</param>
         /// <returns>The specified Resource Type's file extension.</returns>
-        public static string GetFileExtByType<T>() where T : Resource
-        {
-            if (typeof(T) == typeof(Resource))
-                return FileExt;
-            else
-                return "." + typeof(T).Name + FileExt;
-        }
+        //public static string GetFileExtByType<T>() where T : Resource
+        //{
+        //    if (typeof(T) == typeof(Resource))
+        //        return FileExt;
+        //    else
+        //        return "." + typeof(T).Name + FileExt;
+        //}
         /// <summary>
         /// Returns the Resource Type that is associated with the specified file, based on its extension.
         /// </summary>
@@ -428,16 +426,16 @@ namespace Duality
         /// <param name="field"></param>
         /// <param name="obj"></param>
         /// <returns></returns>
-        /*public static bool PrefabLinkedFieldBlocker(FieldInfo field, object obj)
-		{
-			Component cmp = obj as Component;
-			if (cmp == null || cmp.GameObj == null) return false;
-
-			Resources.PrefabLink link = cmp.GameObj.AffectedByPrefabLink;
-			if (link == null || !link.AffectsObject(cmp)) return false;
-
-			return field.DeclaringType != typeof(Component);
-		}*/
+        //public static bool PrefabLinkedFieldBlocker(FieldInfo field, object obj)
+        //{
+	    //    Component cmp = obj as Component;
+	    //    if (cmp == null || cmp.GameObj == null) return false;
+        //
+	    //    Resources.PrefabLink link = cmp.GameObj.AffectedByPrefabLink;
+	    //    if (link == null || !link.AffectsObject(cmp)) return false;
+        //
+	    //    return field.DeclaringType != typeof(Component);
+        //}
 
         internal static void RunCleanup()
         {
@@ -508,13 +506,11 @@ namespace Duality
         }
     }
 
-    /*
     /// <summary>
     /// Indicates that a field will be assumed null when serializing it as part of a Resource serialization.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Field)]
-    public class DontSerializeResourceAttribute : Attribute { }
-    */
+    //[AttributeUsage(AttributeTargets.Field)]
+    //public class DontSerializeResourceAttribute : Attribute { }
 
     /// <summary>
     /// Allows to explicitly specify what kinds of Resources a certain Resource Type is able to reference.

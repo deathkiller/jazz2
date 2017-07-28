@@ -10,7 +10,7 @@ using Jazz2.Actors;
 using Jazz2.Actors.Bosses;
 using Jazz2.Game.Structs;
 
-namespace Jazz2.Game
+namespace Jazz2.Game.UI
 {
     public partial class Hud : Component, ICmpRenderer
     {

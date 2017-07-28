@@ -8,6 +8,7 @@ using Jazz2.Game;
 using Jazz2.Game.Events;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
+using Jazz2.Game.UI;
 
 namespace Jazz2.Actors
 {
@@ -34,7 +35,6 @@ namespace Jazz2.Actors
         private const float DECELERATION = 0.22f;
 
         private bool isActivelyPushing;
-        private int pushFrames;
         private bool controllable = true;
 
         private bool wasUpPressed;
@@ -47,7 +47,7 @@ namespace Jazz2.Actors
         private PlayerType playerType, playerTypeOriginal;
         private SpecialMoveType currentSpecialMove;
         private bool isAttachedToPole;
-        private float copterFramesLeft;
+        private float copterFramesLeft, fireFramesLeft, pushFramesLeft;
         private bool levelExiting;
         private bool isFreefall, inWater, isAirboard, isLifting, isSpring;
 
@@ -208,7 +208,7 @@ namespace Jazz2.Actors
             FollowCarryingPlatform();
             UpdateSpeedBasedAnimation(timeMult, lastPos.X, lastForceX);
 
-            PushSolidObjects();
+            PushSolidObjects(timeMult);
             CheckSuspendedStatus(lastPos);
             CheckDestructibleTiles();
             CheckEndOfSpecialMoves(timeMult);
@@ -264,6 +264,19 @@ namespace Jazz2.Actors
 
             if (lastPoleTime > 0f) {
                 lastPoleTime -= timeMult;
+            }
+
+            if (fireFramesLeft > 0f) {
+                fireFramesLeft -= timeMult;
+
+                if (fireFramesLeft <= 0f) {
+                    // ToDo: Handle crouch, vine
+                    // ToDo: (... & 0x7) is only quickfix,
+                    // ToDo: It seems this transition is canceled somewhere
+                    if (!inWater && !isAirboard && !isLifting && (currentAnimationState & AnimState.Run) == 0) {
+                        SetTransition((currentAnimationState & (AnimState)0x00000007) | AnimState.TransitionShootToIdle, true);
+                    }
+                }
             }
 
             Hud.ShowDebugText("- Pos.: {" + (int)Transform.Pos.X + "; " + (int)Transform.Pos.Y + "}");
@@ -507,9 +520,10 @@ namespace Jazz2.Actors
 
             // Fire
             if (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.Space)) {
-                if (!isLifting && (currentAnimationState & AnimState.Push) == 0 && pushFrames <= 0f) {
+                if (!isLifting && (currentAnimationState & AnimState.Push) == 0 && pushFramesLeft <= 0f) {
                     if (weaponAmmo[(int)currentWeapon] != 0) {
                         SetAnimation(currentAnimationState | AnimState.Shoot);
+                        fireFramesLeft = 16f;
 
                         if (!wasFirePressed) {
                             wasFirePressed = true;
@@ -521,13 +535,8 @@ namespace Jazz2.Actors
                 }
             } else if (wasFirePressed) {
                 wasFirePressed = false;
-                // ToDo: Handle crouch, vine
-                // ToDo: (... & 0x7) is only quickfix
-                if (!inWater && !isAirboard && !isLifting && (currentAnimationState & AnimState.Run) == 0) {
-                    SetTransition((currentAnimationState & (AnimState)0x00000007) | AnimState.TransitionShootToIdle, true);
-                }
 
-                //weaponCooldown = 0f;
+                weaponCooldown = 0f;
             }
 
             // ToDo: Debug keys only
@@ -688,7 +697,7 @@ namespace Jazz2.Actors
                     newState = AnimState.Airboard;
                 } else if (isLifting) {
                     newState = AnimState.Lift;
-                } else if (canJump && isActivelyPushing && (pushFrames > 0 || (carryingObject == null && Math.Abs((posX - lastX) - (speedX * timeMult)) > 0.1f && Math.Abs(/*externalForceX*/lastForceX) < float.Epsilon && (isFacingLeft ^ (speedX > 0))))) {
+                } else if (canJump && isActivelyPushing && (pushFramesLeft > 0f || (carryingObject == null && MathF.Abs((posX - lastX) - (speedX * timeMult)) > 0.1f && MathF.Abs(/*externalForceX*/lastForceX) < float.Epsilon && (isFacingLeft ^ (speedX > 0))))) {
                     newState = AnimState.Push;
                 } else {
 
@@ -699,13 +708,13 @@ namespace Jazz2.Actors
                     // Only certain ones don't need to be preserved from earlier state, others should be set as expected
                     AnimState composite = unchecked(currentAnimationState & (AnimState)0xFFF8BFE0);
                     if (isActivelyPushing) {
-                        if (Math.Abs(speedX) > MAX_RUNNING_SPEED + float.Epsilon) {
+                        if (MathF.Abs(speedX) > MAX_RUNNING_SPEED + float.Epsilon) {
                             // Shift-running, speed is more than 3px/frame
                             composite |= AnimState.Dash;
-                        } else if (Math.Abs(speedX) > 2) {
+                        } else if (MathF.Abs(speedX) > 2) {
                             // Running, speed is between 2px and 3px/frame
                             composite |= AnimState.Run;
-                        } else if (Math.Abs(speedX) > float.Epsilon) {
+                        } else if (MathF.Abs(speedX) > float.Epsilon) {
                             // Walking, speed is less than 2px/frame (mostly a transition zone)
                             composite |= AnimState.Walk;
                         }
@@ -714,11 +723,13 @@ namespace Jazz2.Actors
                             CancelTransition();
                         }
                     } else {
-                        if (inIdleTransition && Math.Abs(speedX) <= float.Epsilon) {
+                        if (inIdleTransition && MathF.Abs(speedX) <= float.Epsilon) {
                             CancelTransition();
-                        } else if (wasFirePressed) {
-                            composite |= AnimState.Shoot;
                         }
+                    }
+
+                    if (fireFramesLeft > 0f) {
+                        composite |= AnimState.Shoot;
                     }
 
                     if (suspendType != SuspendType.None) {
@@ -807,10 +818,10 @@ namespace Jazz2.Actors
             }
         }
 
-        private void PushSolidObjects()
+        private void PushSolidObjects(float timeMult)
         {
-            if (pushFrames > 0) {
-                pushFrames--;
+            if (pushFramesLeft > 0f) {
+                pushFramesLeft -= timeMult;
             }
 
             if (canJump && controllable && isActivelyPushing && MathF.Abs(speedX) > float.Epsilon) {
@@ -819,7 +830,7 @@ namespace Jazz2.Actors
                 if (!api.IsPositionEmpty(this, ref hitbox, false, out collider)) {
                     SolidObjectBase solidObject = collider as SolidObjectBase;
                     if (solidObject != null && solidObject.Push(speedX < 0)) {
-                        pushFrames = 3;
+                        pushFramesLeft = 3f;
                     }
                 }
             } else if ((collisionFlags & CollisionFlags.IsSolidObject) != 0) {
@@ -907,7 +918,7 @@ namespace Jazz2.Actors
                 return;
             }
 
-            Hitbox tileCollisionHitbox = currentHitbox + new Vector2(speedX + externalForceX, speedY - externalForceY);
+            Hitbox tileCollisionHitbox = currentHitbox + new Vector2((speedX + externalForceX) * 2f, (speedY - externalForceY) * 2f);
 
             // Buttstomp/etc. tiles checking
             if (currentSpecialMove != SpecialMoveType.None || isSugarRush) {
@@ -933,7 +944,7 @@ namespace Jazz2.Actors
                 }
             }
 
-            tileCollisionHitbox = currentHitbox.Extend(MathF.Abs(speedX), MathF.Abs(speedY)).Extend(3f);
+            //tileCollisionHitbox = currentHitbox.Extend(MathF.Abs(speedX), MathF.Abs(speedY)).Extend(3f);
 
             // Speed tiles checking
             if (MathF.Abs(speedX) > float.Epsilon || MathF.Abs(speedY) > float.Epsilon || isSugarRush) {
@@ -1587,7 +1598,7 @@ namespace Jazz2.Actors
                 } else {
                     MoveInstantly(new Vector2(0, mp * 16), MoveType.Relative, true);
                     speedY = (5 * mp);
-                    externalForceY = (-2 * mp);
+                    externalForceY = (-1.75f * mp);
                 }
                 //controllable = true;
                 collisionFlags |= CollisionFlags.ApplyGravitation;

@@ -16,9 +16,10 @@ using Jazz2.Actors;
 using Jazz2.Actors.Bosses;
 using Jazz2.Actors.Solid;
 using Jazz2.Game.Events;
-using Jazz2.Game.Menu.I;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
+using Jazz2.Game.UI;
+using Jazz2.Game.UI.Menu.I;
 
 namespace Jazz2.Game
 {
@@ -579,11 +580,13 @@ namespace Jazz2.Game
             return text;
         }
 
-        public void WarpCameraToTarget(GameObject target)
+        public void WarpCameraToTarget(ActorBase target)
         {
-            if (camera.GetComponent<CameraController>().TargetObject == target) {
-                Vector3 pos = target.Transform.Pos;
-                camera.Transform.Pos = new Vector3(pos.X, pos.Y, 0);
+            CameraController controller = camera.GetComponent<CameraController>();
+            if (controller != null && controller.TargetObject == target) {
+                //Vector3 pos = target.Transform.Pos;
+                //camera.Transform.Pos = new Vector3(pos.X, pos.Y, 0);
+                controller.TargetObject = target;
             }
         }
 

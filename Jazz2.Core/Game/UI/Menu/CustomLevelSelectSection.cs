@@ -10,7 +10,7 @@ using Duality.IO;
 using Duality.Resources;
 using static Jazz2.Game.LevelHandler;
 
-namespace Jazz2.Game.Menu
+namespace Jazz2.Game.UI.Menu
 {
     public class CustomLevelSelectSection : MainMenuSection
     {
@@ -154,7 +154,7 @@ namespace Jazz2.Game.Menu
                         charOffset = 0;
 
                         float xMultiplier = levelList[i].DisplayName.Length * 0.5f;
-                        float easing = MainMenu.EaseOutElastic(animation);
+                        float easing = Ease.OutElastic(animation);
                         float x = column1 + xMultiplier - easing * xMultiplier;
                         float size = 0.7f + easing * 0.1f;
 

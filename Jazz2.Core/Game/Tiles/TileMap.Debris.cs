@@ -1,8 +1,8 @@
-﻿using System;
-using Duality;
+﻿using Duality;
 using Duality.Drawing;
 using Duality.Resources;
 using Jazz2.Game.Structs;
+using Jazz2.Game.UI;
 
 namespace Jazz2.Game.Tiles
 {

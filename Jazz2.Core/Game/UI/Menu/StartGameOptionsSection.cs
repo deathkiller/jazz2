@@ -5,7 +5,7 @@ using Duality.Input;
 using Jazz2.Actors;
 using Jazz2.Game.Structs;
 
-namespace Jazz2.Game.Menu
+namespace Jazz2.Game.UI.Menu
 {
     public class StartGameOptionsSection : MainMenuSection
     {
@@ -54,7 +54,7 @@ namespace Jazz2.Game.Menu
             int charOffset = 0;
             for (int i = 0; i < items.Length; i++) {
                 if (selectedIndex == i) {
-                    float size = 0.5f + MainMenu.EaseOutElastic(animation) * 0.6f;
+                    float size = 0.5f + Ease.OutElastic(animation) * 0.6f;
 
                     api.DrawMaterial(c, "MenuGlow", center.X, center.Y, Alignment.Center, ColorRgba.White.WithAlpha(0.4f * size), (items[i].Length + 3) * 0.5f * size, 4f * size);
 

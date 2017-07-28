@@ -2,7 +2,7 @@
 using Duality.Drawing;
 using Jazz2.Android;
 
-namespace Jazz2.Game
+namespace Jazz2.Game.UI
 {
     partial class Hud
     {

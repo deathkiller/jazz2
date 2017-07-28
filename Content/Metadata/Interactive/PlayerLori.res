@@ -12,7 +12,7 @@
         "PLAYER_LORI_RUN": {
             "Path": "Lori/run.png",
             "FrameRate": 8,
-            "States": [ 1, 2 ]
+            "States": [ 1, 2, 17, 18 ]
         },
         "PLAYER_LORI_JUMP": {
             "Path": "Lori/jump.png",
@@ -38,7 +38,7 @@
         "PLAYER_LORI_DASH": {
             "Path": "Lori/dash.png",
             "FrameRate": 20,
-            "States": [ 3 ]
+            "States": [ 3, 19 ]
         },
         "PLAYER_LORI_DASH_JUMP": {
             "Path": "Lori/ball.png",
@@ -106,7 +106,7 @@
         "PLAYER_LORI_AERIAL_SHOOT": {
             "Path": "Lori/fall_shoot.png",
             "FrameRate": 14,
-            "States": [ 20, 21, 22, 23, 24, 25, 26, 27 ]
+            "States": [ 20, 21, 22, 23, 24, 25, 26, 27, 262160, 262161, 262162, 262163 ]
         },
         "PLAYER_LORI_VINE_SHOOT": {
             "Path": "Lori/vine_shoot.png",

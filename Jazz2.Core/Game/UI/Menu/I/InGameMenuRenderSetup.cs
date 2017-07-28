@@ -2,7 +2,7 @@
 using Duality.Drawing;
 using Duality.Resources;
 
-namespace Jazz2.Game.Menu.I
+namespace Jazz2.Game.UI.Menu.I
 {
     public class InGameMenuRenderSetup : RenderSetup
     {

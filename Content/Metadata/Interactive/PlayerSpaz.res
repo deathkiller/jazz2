@@ -10,7 +10,7 @@
         },
         "PLAYER_SPAZ_RUN": {
             "Path": "Spaz/run.png",
-            "States": [ 1, 2 ]
+            "States": [ 1, 2, 17, 18 ]
         },
         "PLAYER_SPAZ_JUMP": {
             "Path": "Spaz/jump.png",
@@ -36,7 +36,7 @@
         "PLAYER_SPAZ_DASH": {
             "Path": "Spaz/dash.png",
             "FrameRate": 20,
-            "States": [ 3 ]
+            "States": [ 3, 19 ]
         },
         "PLAYER_SPAZ_DASH_JUMP": {
             "Path": "Spaz/ball.png",
@@ -99,7 +99,7 @@
         "PLAYER_SPAZ_AERIAL_SHOOT": {
             "Path": "Spaz/fall_shoot.png",
             "FrameRate": 14,
-            "States": [ 20, 21, 22, 23, 24, 25, 26, 27 ]
+            "States": [ 20, 21, 22, 23, 24, 25, 26, 27, 262160, 262161, 262162, 262163 ]
         },
         "PLAYER_SPAZ_VINE_SHOOT": {
             "Path": "Spaz/vine_shoot.png",

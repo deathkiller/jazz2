@@ -54,6 +54,7 @@ namespace Jazz2.Actors.Bosses
         protected override void OnUpdate()
         {
             if (isDemon) {
+                OnUpdateHitbox();
                 HandleBlinking();
 
                 MoveInstantly(new Vector2(speedX, speedY), MoveType.RelativeTime, true);

@@ -3,7 +3,7 @@ using Duality;
 using Duality.Drawing;
 using Duality.Input;
 
-namespace Jazz2.Game.Menu
+namespace Jazz2.Game.UI.Menu
 {
     public class AboutSection : MainMenuSection
     {

@@ -84,6 +84,7 @@ namespace Jazz2.Actors.Bosses
         {
             //base.OnUpdate();
 
+            OnUpdateHitbox();
             HandleBlinking();
 
             switch (state) {

@@ -71,8 +71,8 @@
       <SubType>Code</SubType>
       <DependentUpon>GLView.cs</DependentUpon>
     </Compile>
-    <Compile Include="TouchExtensions\Hud.Touch.cs" />
-    <Compile Include="TouchExtensions\InGameMenu.Touch.cs" />
+    <Compile Include="Game\UI\Hud.Touch.cs" />
+    <Compile Include="Game\UI\Menu\I\InGameMenu.Touch.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="GLView.cs" />
     <Compile Include="Backend\Drawing\OpenTK\ExtMethodsColorDataElementType.cs" />
@@ -84,7 +84,7 @@
     <Compile Include="Backend\Drawing\OpenTK\NativeShaderProgram.cs" />
     <Compile Include="Backend\Drawing\OpenTK\NativeTexture.cs" />
     <Compile Include="Backend\Drawing\OpenTK\NativeWindow.cs" />
-    <Compile Include="TouchExtensions\MainMenu.Touch.cs" />
+    <Compile Include="Game\UI\Menu\MainMenu.Touch.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Backend\System\NativeFileSystem.cs" />
