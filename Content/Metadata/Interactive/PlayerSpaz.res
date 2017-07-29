@@ -83,6 +83,10 @@
             "Path": "Spaz/vine_idle.png",
             "States": [ 12 ]
         },
+        "PLAYER_SPAZ_HOOK_LOOKUP": {
+            "Path": "Spaz/vine_shoot_up_end.png",
+            "States": [ 76 ]
+        },
         "PLAYER_SPAZ_HOOK_MOVE": {
             "Path": "Spaz/vine_walk.png",
             "States": [ 14, 15 ]
@@ -101,9 +105,13 @@
             "FrameRate": 14,
             "States": [ 20, 21, 22, 23, 24, 25, 26, 27, 262160, 262161, 262162, 262163 ]
         },
-        "PLAYER_SPAZ_VINE_SHOOT": {
+        "PLAYER_SPAZ_HOOK_SHOOT": {
             "Path": "Spaz/vine_shoot.png",
             "States": [ 28, 29, 30, 31 ]
+        },
+        "PLAYER_SPAZ_HOOK_LOOKUP_SHOOT": {
+            "Path": "Spaz/vine_shoot_up.png",
+            "States": [ 92 ]
         },
         "PLAYER_SPAZ_RUN_TO_IDLE": {
             "Path": "Spaz/run_stop.png",
@@ -125,6 +133,16 @@
             "Path": "Spaz/shoot_start.png",
             "FrameRate": 20,
             "States": [ 1073741828 ]
+        },
+        "PLAYER_SPAZ_VINE_SHOOT_TO_VINE": {
+            "Path": "Spaz/vine_shoot_end.png",
+            "FrameRate": 20,
+            "States": [ 1073741829 ]
+        },
+        "PLAYER_SPAZ_COPTER_SHOOT_TO_COPTER": {
+            "Path": "Spaz/copter_shoot_start.png",
+            "FrameRate": 24,
+            "States": [ 1073741830 ]
         },
         "PLAYER_SPAZ_SIDEKICK_A": {
             "Path": "Spaz/sidekick_start.png",

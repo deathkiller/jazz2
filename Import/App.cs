@@ -27,6 +27,8 @@ namespace Import
 
         private static void Main(string[] args)
         {
+            Utils.TryEnableUnicode();
+
             Console.Title = Jazz2.App.AssemblyTitle;
 
             if (args.Length < 1) {
@@ -218,7 +220,7 @@ namespace Import
             Console.BackgroundColor = ConsoleColor.DarkCyan;
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write(new string(' ', width));
-            Console.Write(("  " + appName + " /clean").PadRight(width));
+            Console.Write(("  " + appName + " /clean /skip-all").PadRight(width));
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.Write(new string('_', width));
             Console.ResetColor();
@@ -583,16 +585,23 @@ namespace Import
 
                             if (json.Animations != null) {
                                 foreach (var animation in json.Animations) {
+                                    if (animation.Value == null || animation.Value.Path == null) {
+                                        continue;
+                                    }
                                     usedAnimations.Add(animation.Value.Path.ToLowerInvariant());
                                 }
                             }
 
                             if (json.Sounds != null) {
                                 foreach (var sound in json.Sounds) {
-                                    if (sound.Value.Paths != null) {
-                                        foreach (var soundPath in sound.Value.Paths) {
-                                            usedAnimations.Add(soundPath.ToLowerInvariant());
+                                    if (sound.Value == null || sound.Value.Paths == null) {
+                                        continue;
+                                    }
+                                    foreach (var soundPath in sound.Value.Paths) {
+                                        if (soundPath == null) {
+                                            continue;
                                         }
+                                        usedAnimations.Add(soundPath.ToLowerInvariant());
                                     }
                                 }
                             }

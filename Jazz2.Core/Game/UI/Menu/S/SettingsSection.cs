@@ -24,7 +24,12 @@ namespace Jazz2.Game.UI.Menu.S
             base.OnShow(root);
 
             controls = new MenuControlBase[] {
+                // 3xBRZ shader is not available in OpenGL ES 3.0 version
+#if __ANDROID__
+                new ChoiceControl(api, "Resize Mode", (int)Resize, "None", "HQ2x"),
+#else
                 new ChoiceControl(api, "Resize Mode", (int)Resize, "None", "HQ2x", "3xBRZ"),
+#endif
                 //new LinkControl(api, "Controls", () => {}),
             };
         }

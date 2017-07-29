@@ -29,8 +29,8 @@ namespace Jazz2.Actors
             Sidekick
         }
 
-        private const float MAX_DASHING_SPEED = 9.0f;
-        private const float MAX_RUNNING_SPEED = 4.0f;
+        private const float MAX_DASHING_SPEED = 9f;
+        private const float MAX_RUNNING_SPEED = 4f;
         private const float ACCELERATION = 0.2f;
         private const float DECELERATION = 0.22f;
 
@@ -210,7 +210,7 @@ namespace Jazz2.Actors
 
             PushSolidObjects(timeMult);
             CheckSuspendedStatus(lastPos);
-            CheckDestructibleTiles();
+            CheckDestructibleTiles(timeMult);
             CheckEndOfSpecialMoves(timeMult);
 
             OnHandleWater();
@@ -270,11 +270,17 @@ namespace Jazz2.Actors
                 fireFramesLeft -= timeMult;
 
                 if (fireFramesLeft <= 0f) {
-                    // ToDo: Handle crouch, vine
-                    // ToDo: (... & 0x7) is only quickfix,
-                    // ToDo: It seems this transition is canceled somewhere
-                    if (!inWater && !isAirboard && !isLifting && (currentAnimationState & AnimState.Run) == 0) {
-                        SetTransition((currentAnimationState & (AnimState)0x00000007) | AnimState.TransitionShootToIdle, true);
+                    // Play post-fire animation
+                    if ((currentAnimationState & (AnimState.Walk | AnimState.Run | AnimState.Dash | AnimState.Crouch | AnimState.Buttstomp | AnimState.Swim | AnimState.Airboard | AnimState.Lift)) == 0 &&
+                        ((currentAnimationState & AnimState.Hook) == 0 || (currentAnimationState & AnimState.Hook) == AnimState.Hook)) {
+
+                        if ((currentAnimationState & AnimState.Hook) != 0) {
+                            SetTransition(AnimState.TransitionHookShootToHook, false);
+                        } else if ((currentAnimationState & AnimState.Copter) != 0) {
+                            SetTransition(AnimState.TransitionCopterShootToCopter, false);
+                        } else {
+                            SetTransition(AnimState.TransitionShootToIdle, false);
+                        }
                     }
                 }
             }
@@ -332,10 +338,10 @@ namespace Jazz2.Actors
                 // Look-up
                 if (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.Up)) {
                     if (!wasUpPressed) {
-                        if (canJump && !isLifting && Math.Abs(speedX) < float.Epsilon) {
+                        if ((canJump || suspendType != SuspendType.None) && !isLifting && Math.Abs(speedX) < float.Epsilon) {
                             wasUpPressed = true;
 
-                            SetAnimation(AnimState.Lookup);
+                            SetAnimation(AnimState.Lookup | (currentAnimationState & AnimState.Hook));
                         }
                     }
                 } else if (wasUpPressed) {
@@ -414,7 +420,7 @@ namespace Jazz2.Actors
                         } else {
 
                             switch (playerType) {
-                                case PlayerType.Jazz:
+                                case PlayerType.Jazz: {
                                     if ((currentAnimationState & AnimState.Crouch) != 0) {
                                         controllable = false;
                                         SetAnimation(AnimState.Uppercut);
@@ -435,8 +441,8 @@ namespace Jazz2.Actors
                                         }
                                     }
                                     break;
-
-                                case PlayerType.Spaz:
+                                }
+                                case PlayerType.Spaz: {
                                     if ((currentAnimationState & AnimState.Crouch) != 0) {
                                         controllable = false;
                                         SetAnimation(AnimState.Uppercut);
@@ -462,8 +468,8 @@ namespace Jazz2.Actors
                                         }
                                     }
                                     break;
-
-                                case PlayerType.Lori:
+                                }
+                                case PlayerType.Lori: {
                                     if ((currentAnimationState & AnimState.Crouch) != 0) {
                                         controllable = false;
                                         SetAnimation(AnimState.Uppercut);
@@ -483,6 +489,7 @@ namespace Jazz2.Actors
                                         }
                                     }
                                     break;
+                                }
                             }
 
                         }
@@ -700,22 +707,14 @@ namespace Jazz2.Actors
                 } else if (canJump && isActivelyPushing && (pushFramesLeft > 0f || (carryingObject == null && MathF.Abs((posX - lastX) - (speedX * timeMult)) > 0.1f && MathF.Abs(/*externalForceX*/lastForceX) < float.Epsilon && (isFacingLeft ^ (speedX > 0))))) {
                     newState = AnimState.Push;
                 } else {
-
-                    // determine current animation last bits from speeds
-                    // it's okay to call setAnimation on every tick because it doesn't do
-                    // anything if the animation is the same as it was earlier
-
                     // Only certain ones don't need to be preserved from earlier state, others should be set as expected
                     AnimState composite = unchecked(currentAnimationState & (AnimState)0xFFF8BFE0);
                     if (isActivelyPushing) {
-                        if (MathF.Abs(speedX) > MAX_RUNNING_SPEED + float.Epsilon) {
-                            // Shift-running, speed is more than 3px/frame
+                        if (MathF.Abs(speedX) > MAX_RUNNING_SPEED) {
                             composite |= AnimState.Dash;
-                        } else if (MathF.Abs(speedX) > 2) {
-                            // Running, speed is between 2px and 3px/frame
+                        } else if (MathF.Abs(speedX) > 2f) {
                             composite |= AnimState.Run;
                         } else if (MathF.Abs(speedX) > float.Epsilon) {
-                            // Walking, speed is less than 2px/frame (mostly a transition zone)
                             composite |= AnimState.Walk;
                         }
 
@@ -883,7 +882,7 @@ namespace Jazz2.Actors
             }
 
             // Sidekick
-            if (currentSpecialMove == SpecialMoveType.Sidekick && currentTransitionState == AnimState.Idle /*&& ((currentAnimationState & AnimState.UPPERCUT) != 0)*/ && Math.Abs(speedX) < 0.01f) {
+            if (currentSpecialMove == SpecialMoveType.Sidekick && currentTransitionState == AnimState.Idle /*&& ((currentAnimationState & AnimState.UPPERCUT) != 0)*/ && MathF.Abs(speedX) < 0.01f) {
                 EndDamagingMove();
                 controllable = true;
                 if (suspendType == SuspendType.None) {
@@ -911,14 +910,14 @@ namespace Jazz2.Actors
             }
         }
 
-        private void CheckDestructibleTiles()
+        private void CheckDestructibleTiles(float timeMult)
         {
             TileMap tiles = api.TileMap;
             if (tiles == null) {
                 return;
             }
 
-            Hitbox tileCollisionHitbox = currentHitbox + new Vector2((speedX + externalForceX) * 2f, (speedY - externalForceY) * 2f);
+            Hitbox tileCollisionHitbox = currentHitbox + new Vector2((speedX + externalForceX) * 2f * timeMult, (speedY - externalForceY) * 2f * timeMult);
 
             // Buttstomp/etc. tiles checking
             if (currentSpecialMove != SpecialMoveType.None || isSugarRush) {
@@ -949,7 +948,7 @@ namespace Jazz2.Actors
             // Speed tiles checking
             if (MathF.Abs(speedX) > float.Epsilon || MathF.Abs(speedY) > float.Epsilon || isSugarRush) {
                 int destroyedCount = tiles.CheckSpecialSpeedDestructible(ref tileCollisionHitbox,
-                    isSugarRush ? 64.0 : MathF.Max(MathF.Abs(speedX), MathF.Abs(speedY)));
+                    isSugarRush ? 64f : MathF.Max(MathF.Abs(speedX), MathF.Abs(speedY)));
 
                 AddScore(destroyedCount * 50);
             }

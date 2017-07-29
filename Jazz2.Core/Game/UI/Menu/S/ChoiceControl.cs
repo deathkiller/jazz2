@@ -54,14 +54,30 @@ namespace Jazz2.Game.UI.Menu.S
                     ColorRgba.TransparentBlack, 0.9f);
             }
 
-            for (int i = 0; i < choices.Length; i++) {
-                if (selectedIndex == i) {
-                    api.DrawMaterial(c, "MenuGlow", pos.X + (i - 1) * 100f, pos.Y + 28f, Alignment.Center, ColorRgba.White.WithAlpha(0.2f), (choices[i].Length + 3) * 0.4f, 2.2f);
+            if (choices.Length == 0) {
+                return;
+            }
 
-                    api.DrawStringShadow(device, ref charOffset, choices[i], pos.X + (i - 1) * 100f, pos.Y + 28f, Alignment.Center,
+            float offset, spacing;
+            if (choices.Length == 1) {
+                offset = spacing = 0f;
+            } else if (choices.Length == 2) {
+                offset = 50f;
+                spacing = 100f;
+            } else {
+                offset = 100f;
+                spacing = 300f / choices.Length;
+            }
+
+            for (int i = 0; i < choices.Length; i++) {
+                float x = pos.X - offset + i * spacing;
+                if (selectedIndex == i) {
+                    api.DrawMaterial(c, "MenuGlow", x, pos.Y + 28f, Alignment.Center, ColorRgba.White.WithAlpha(0.2f), (choices[i].Length + 3) * 0.4f, 2.2f);
+
+                    api.DrawStringShadow(device, ref charOffset, choices[i], x, pos.Y + 28f, Alignment.Center,
                         null, 0.9f, 0.4f, 0.55f, 0.55f, 8f, 0.9f);
                 } else {
-                    api.DrawString(device, ref charOffset, choices[i], pos.X + (i - 1) * 100f, pos.Y + 28f, Alignment.Center,
+                    api.DrawString(device, ref charOffset, choices[i], x, pos.Y + 28f, Alignment.Center,
                         ColorRgba.TransparentBlack, 0.8f, charSpacing: 0.9f);
                 }
             }

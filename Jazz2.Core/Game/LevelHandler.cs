@@ -706,7 +706,7 @@ namespace Jazz2.Game
 
             // ToDo: Remove this branching
 #if __ANDROID__
-            const int ActivateTileRange = 17;
+            const int ActivateTileRange = 19;
 #else
             const int ActivateTileRange = 26;
 #endif

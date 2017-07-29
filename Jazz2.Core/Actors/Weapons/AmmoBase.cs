@@ -53,7 +53,9 @@ namespace Jazz2.Actors.Weapons
 
             TileMap tiles = api.TileMap;
             if (tiles != null) {
-                Hitbox hitbox = currentHitbox + new Vector2(speedX, speedY);
+                float timeMult = Time.TimeMult;
+
+                Hitbox hitbox = currentHitbox + new Vector2(speedX * timeMult, speedY * timeMult);
 
                 if (tiles.CheckWeaponDestructible(ref hitbox, WeaponType, strength) > 0) {
                     if (WeaponType != WeaponType.Freezer) {
@@ -68,7 +70,7 @@ namespace Jazz2.Actors.Weapons
                     if (events != null) {
                         Vector3 pos = Transform.Pos;
                         ushort[] eventParams = null;
-                        switch (events.GetEventByPosition(pos.X + speedX, pos.Y + speedY, ref eventParams)) {
+                        switch (events.GetEventByPosition(pos.X + speedX * timeMult, pos.Y + speedY * timeMult, ref eventParams)) {
                             case EventType.ModifierRicochet:
                                 lastRicochet = null;
                                 OnRicochet();

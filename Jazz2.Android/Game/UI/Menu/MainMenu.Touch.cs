@@ -23,7 +23,7 @@ namespace Jazz2.Game.UI.Menu
         partial void DrawTouch(IDrawDevice device, Canvas c, Vector2 size)
         {
             int y = (statusBarHeight * (int)size.Y / DualityApp.WindowSize.Y);
-            c.State.SetMaterial(new Material(DrawTechnique.Alpha, new ColorRgba(1f, 0.3f)));
+            c.State.SetMaterial(new Material(DrawTechnique.Alpha, new ColorRgba(0.9f, 0.4f)));
             c.State.ColorTint = ColorRgba.White;
             c.DrawLine(0, y, size.X, y);
 

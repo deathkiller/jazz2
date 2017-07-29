@@ -89,6 +89,10 @@
             "Path": "Lori/vine_idle.png",
             "States": [ 12 ]
         },
+        "PLAYER_LORI_HOOK_LOOKUP": {
+            "Path": "Lori/vine_shoot_up_end.png",
+            "States": [ 76 ]
+        },
         "PLAYER_LORI_HOOK_MOVE": {
             "Path": "Lori/vine_walk.png",
             "States": [ 14, 15 ]
@@ -108,9 +112,13 @@
             "FrameRate": 14,
             "States": [ 20, 21, 22, 23, 24, 25, 26, 27, 262160, 262161, 262162, 262163 ]
         },
-        "PLAYER_LORI_VINE_SHOOT": {
+        "PLAYER_LORI_HOOK_SHOOT": {
             "Path": "Lori/vine_shoot.png",
             "States": [ 28, 29, 30, 31 ]
+        },
+        "PLAYER_LORI_HOOK_LOOKUP_SHOOT": {
+            "Path": "Lori/vine_shoot_up.png",
+            "States": [ 92 ]
         },
         "PLAYER_LORI_RUN_TO_IDLE": {
             "Path": "Lori/run_stop.png",
@@ -132,6 +140,16 @@
             "Path": "Lori/shoot_start.png",
             "FrameRate": 20,
             "States": [ 1073741828 ]
+        },
+        "PLAYER_LORI_VINE_SHOOT_TO_VINE": {
+            "Path": "Lori/vine_shoot_end.png",
+            "FrameRate": 20,
+            "States": [ 1073741829 ]
+        },
+        "PLAYER_LORI_COPTER_SHOOT_TO_COPTER": {
+            "Path": "Lori/copter_shoot_start.png",
+            "FrameRate": 24,
+            "States": [ 1073741830 ]
         },
         "PLAYER_LORI_SIDEKICK_A": {
             "Path": "Lori/sidekick.png",

@@ -84,6 +84,10 @@
             "Path": "Jazz/vine_idle.png",
             "States": [ 12 ]
         },
+        "PLAYER_JAZZ_HOOK_LOOKUP": {
+            "Path": "Jazz/vine_shoot_up_end.png",
+            "States": [ 76 ]
+        },
         "PLAYER_JAZZ_HOOK_MOVE": {
             "Path": "Jazz/vine_walk.png",
             "States": [ 14, 15 ]
@@ -103,9 +107,13 @@
             "FrameRate": 14,
             "States": [ 20, 21, 22, 23, 24, 25, 26, 27, 262160, 262161, 262162, 262163 ]
         },
-        "PLAYER_JAZZ_VINE_SHOOT": {
+        "PLAYER_JAZZ_HOOK_SHOOT": {
             "Path": "Jazz/vine_shoot.png",
             "States": [ 28, 29, 30, 31 ]
+        },
+        "PLAYER_JAZZ_HOOK_LOOKUP_SHOOT": {
+            "Path": "Jazz/vine_shoot_up.png",
+            "States": [ 92 ]
         },
         "PLAYER_JAZZ_RUN_TO_IDLE": {
             "Path": "Jazz/run_stop.png",
@@ -124,9 +132,19 @@
             "States": [ 1073741826 ]
         },
         "PLAYER_JAZZ_IDLE_SHOOT_TO_IDLE": {
-            "Path": "Jazz/shoot_start.png",
+            "Path": "Jazz/shoot_end.png",
             "FrameRate": 20,
             "States": [ 1073741828 ]
+        },
+        "PLAYER_JAZZ_VINE_SHOOT_TO_VINE": {
+            "Path": "Jazz/vine_shoot_end.png",
+            "FrameRate": 20,
+            "States": [ 1073741829 ]
+        },
+        "PLAYER_JAZZ_COPTER_SHOOT_TO_COPTER": {
+            "Path": "Jazz/copter_shoot_start.png",
+            "FrameRate": 24,
+            "States": [ 1073741830 ]
         },
         "PLAYER_JAZZ_UPPERCUT_A": {
             "Path": "Jazz/uppercut_start.png",

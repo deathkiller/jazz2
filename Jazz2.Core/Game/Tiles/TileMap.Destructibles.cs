@@ -69,7 +69,7 @@ namespace Jazz2.Game.Tiles
             return hit;
         }
 
-        public int CheckSpecialSpeedDestructible(ref Hitbox hitbox, double speed)
+        public int CheckSpecialSpeedDestructible(ref Hitbox hitbox, float speed)
         {
             //int x1 = Math.Max(0, (int)hitbox.Left / 32);
             //int x2 = Math.Min((int)hitbox.Right / 32, levelWidth - 1);
