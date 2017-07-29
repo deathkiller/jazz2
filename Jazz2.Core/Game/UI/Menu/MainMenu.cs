@@ -95,7 +95,7 @@ namespace Jazz2.Game.UI.Menu
         {
             if (sectionStack.Count > 0) {
                 //renderSetup.BeginPageTransition();
-                sectionStack.Peek().OnHide();
+                sectionStack.Peek().OnHide(false);
             }
 
             sectionStack.Push(section);
@@ -112,7 +112,7 @@ namespace Jazz2.Game.UI.Menu
 
                 //renderSetup.BeginPageTransition();
 
-                activeSection.OnHide();
+                activeSection.OnHide(true);
 
                 if (sectionStack.Count > 0) {
                     sectionStack.Peek().OnShow(this);
@@ -124,6 +124,13 @@ namespace Jazz2.Game.UI.Menu
         {
             root.ChangeLevel(data);
         }
+
+#if MULTIPLAYER
+        public void SwitchToServer(System.Net.IPEndPoint endPoint)
+        {
+            root.ConnectToServer(endPoint);
+        }
+#endif
 
         public void DrawString(IDrawDevice device, ref int charOffset, string text, float x,
             float y, Alignment align, ColorRgba? color, float scale = 1f, float angleOffset = 0f, float varianceX = 4f, float varianceY = 4f,

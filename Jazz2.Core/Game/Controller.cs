@@ -64,5 +64,12 @@ namespace Jazz2.Game
 
             ContentResolver.Current.ReleaseUnreferencedResources();
         }
+
+#if MULTIPLAYER
+        public void ConnectToServer(System.Net.IPEndPoint endPoint)
+        {
+            // ToDo
+        }
+#endif
     }
 }

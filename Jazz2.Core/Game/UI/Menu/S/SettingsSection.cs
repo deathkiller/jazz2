@@ -1,26 +1,13 @@
-﻿using System;
-using Duality;
+﻿using Duality;
 using Duality.Drawing;
-using Duality.Input;
 using static Jazz2.Settings;
 
 namespace Jazz2.Game.UI.Menu.S
 {
-    public class SettingsSection : MainMenuSection
+    public class SettingsSection : MainMenuSectionWithControls
     {
-        private MenuControlBase[] controls;
-
-        private int selectedIndex;
-        private float animation;
-
-        public SettingsSection()
-        {
-        }
-
         public override void OnShow(MainMenu root)
         {
-            animation = 0f;
-
             base.OnShow(root);
 
             controls = new MenuControlBase[] {
@@ -34,16 +21,22 @@ namespace Jazz2.Game.UI.Menu.S
             };
         }
 
-        public override void OnPaint(IDrawDevice device, Canvas c)
+        public override void OnHide(bool isRemoved)
         {
-            Vector2 center = device.TargetSize * 0.5f;
-            center.Y *= 0.8f;
-
-            int charOffset = 0;
-            for (int i = 0; i < controls.Length; i++) {
-                controls[i].OnDraw(device, c, ref center, selectedIndex == i);
+            if (isRemoved) {
+                Commit();
             }
 
+            base.OnHide(isRemoved);
+        }
+
+        public override void OnPaint(IDrawDevice device, Canvas c)
+        {
+            base.OnPaint(device, c);
+
+            Vector2 center = device.TargetSize * 0.5f;
+
+            int charOffset = 0;
 #if __ANDROID__
             var fs = (DualityApp.SystemBackend.FileSystem as Duality.Backend.Android.NativeFileSystem);
             if (fs != null) {
@@ -60,42 +53,6 @@ namespace Jazz2.Game.UI.Menu.S
                 "Controls\nArrows = Move\nV = Jump\nSpace = Fire\nC = Run\nX = Switch Weapon",
                 center.X, center.Y + 40f, Alignment.Top, ColorRgba.TransparentBlack, 0.82f, charSpacing: 0.9f);
 #endif
-        }
-
-        public override void OnUpdate()
-        {
-            if (animation < 1f) {
-                animation = Math.Min(animation + Time.TimeMult * 0.016f, 1f);
-            }
-
-            controls[selectedIndex].OnUpdate();
-
-            if (!controls[selectedIndex].IsInputCaptured) {
-                if (DualityApp.Keyboard.KeyHit(Key.Enter)) {
-                    //
-                } else if (DualityApp.Keyboard.KeyHit(Key.Up)) {
-                    api.PlaySound("MenuSelect", 0.4f);
-                    animation = 0f;
-                    if (selectedIndex > 0) {
-                        selectedIndex--;
-                    } else {
-                        selectedIndex = controls.Length - 1;
-                    }
-                } else if (DualityApp.Keyboard.KeyHit(Key.Down)) {
-                    api.PlaySound("MenuSelect", 0.4f);
-                    animation = 0f;
-                    if (selectedIndex < controls.Length - 1) {
-                        selectedIndex++;
-                    } else {
-                        selectedIndex = 0;
-                    }
-                } else if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
-                    Commit();
-
-                    api.PlaySound("MenuSelect", 0.5f);
-                    api.LeaveSection(this);
-                }
-            }
         }
 
         private void Commit()

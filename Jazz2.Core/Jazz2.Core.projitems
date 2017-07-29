@@ -323,6 +323,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Ease.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExtensionMethods.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\ActorApi.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\Multiplayer\ServerDiscovery.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\BitmapFont.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Components\ActorRenderer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Components\CameraController.cs" />
@@ -336,6 +337,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\LevelRenderSetup.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\AboutSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\BeginSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\CustomGameSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\CustomLevelSelectSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\EpisodeSelectSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\I\InGameBeginSection.cs" />
@@ -348,10 +350,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\MainMenu.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\MainMenuRenderSetup.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\MainMenuSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\MultiplayerServerSelectSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\ChoiceControl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\SettingsSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\LinkControl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\MenuControlBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\SettingsSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\MainMenuSectionWithControls.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\StartGameOptionsSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Structs\FoodType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Tiles\AnimatedTile.cs" />
@@ -383,8 +387,6 @@
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Duality\EmbeddedResources\SmoothAnim.vert" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Game\UI\Menu\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Game\UI\" />
     <Folder Include="$(MSBuildThisFileDirectory)Misc\" />
   </ItemGroup>
 </Project>

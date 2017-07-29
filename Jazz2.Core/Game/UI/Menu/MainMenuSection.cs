@@ -11,7 +11,7 @@ namespace Jazz2.Game.UI.Menu
             this.api = api;
         }
 
-        public virtual void OnHide()
+        public virtual void OnHide(bool isRemoved)
         {
             this.api = null;
         }

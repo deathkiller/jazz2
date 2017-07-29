@@ -95,7 +95,11 @@ namespace Jazz2.Game.UI.Menu
 
         private void OnPlayCustomGamePressed()
         {
+#if MULTIPLAYER
+            api.SwitchToSection(new CustomGameSection());
+#else
             api.SwitchToSection(new CustomLevelSelectSection());
+#endif
         }
 
         private void OnSettingsPressed()

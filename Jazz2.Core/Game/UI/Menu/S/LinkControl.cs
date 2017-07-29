@@ -50,7 +50,7 @@ namespace Jazz2.Game.UI.Menu.S
                     ColorRgba.TransparentBlack, 0.9f);
             }
 
-            pos.Y += 30f;
+            pos.Y += 40f;
         }
 
         public override void OnUpdate()
