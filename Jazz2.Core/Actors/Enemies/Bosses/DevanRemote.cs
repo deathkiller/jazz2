@@ -44,6 +44,8 @@ namespace Jazz2.Actors.Bosses
             base.OnUpdate();
 
             if (activeRobot != null && activeRobot.ParentScene == null) {
+                activeRobot = null;
+
                 api.BroadcastLevelText(endText);
 
                 PlaySound("WarpOut");

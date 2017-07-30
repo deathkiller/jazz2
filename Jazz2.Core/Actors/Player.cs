@@ -271,7 +271,7 @@ namespace Jazz2.Actors
 
                 if (fireFramesLeft <= 0f) {
                     // Play post-fire animation
-                    if ((currentAnimationState & (AnimState.Walk | AnimState.Run | AnimState.Dash | AnimState.Crouch | AnimState.Buttstomp | AnimState.Swim | AnimState.Airboard | AnimState.Lift)) == 0 &&
+                    if ((currentAnimationState & (AnimState.Walk | AnimState.Run | AnimState.Dash | AnimState.Crouch | AnimState.Buttstomp | AnimState.Swim | AnimState.Airboard | AnimState.Lift | AnimState.Spring)) == 0 &&
                         ((currentAnimationState & AnimState.Hook) == 0 || (currentAnimationState & AnimState.Hook) == AnimState.Hook)) {
 
                         if ((currentAnimationState & AnimState.Hook) != 0) {
@@ -510,8 +510,8 @@ namespace Jazz2.Actors
 
                             collisionFlags &= ~CollisionFlags.IsSolidObject;
 
-                            internalForceY = 1.15f;
-                            speedY = -3f - MathF.Max(0f, (MathF.Abs(speedX) - 4f) * 0.3f);
+                            internalForceY = /*1.15f*/1.02f;
+                            speedY = /*-3f*/-3.5f - MathF.Max(0f, (MathF.Abs(speedX) - 4f) * 0.3f);
                         }
                     }
                 } else {
@@ -529,7 +529,13 @@ namespace Jazz2.Actors
             if (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.Space)) {
                 if (!isLifting && (currentAnimationState & AnimState.Push) == 0 && pushFramesLeft <= 0f) {
                     if (weaponAmmo[(int)currentWeapon] != 0) {
+                        if (currentTransitionState == AnimState.Spring) {
+                            currentTransitionCancellable = true;
+                            CancelTransition();
+                        }
+
                         SetAnimation(currentAnimationState | AnimState.Shoot);
+
                         fireFramesLeft = 16f;
 
                         if (!wasFirePressed) {
@@ -560,13 +566,13 @@ namespace Jazz2.Actors
 
 #if DEBUG
             if (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.T)) {
-                WarpToPosition(new Vector2(Transform.Pos.X, Transform.Pos.Y - (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f)));
+                WarpToPosition(new Vector2(Transform.Pos.X, Transform.Pos.Y - (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f)), false);
             } else if (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.G)) {
-                WarpToPosition(new Vector2(Transform.Pos.X, Transform.Pos.Y + (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f)));
+                WarpToPosition(new Vector2(Transform.Pos.X, Transform.Pos.Y + (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f)), false);
             } else if (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.F)) {
-                WarpToPosition(new Vector2(Transform.Pos.X - (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f), Transform.Pos.Y));
+                WarpToPosition(new Vector2(Transform.Pos.X - (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f), Transform.Pos.Y), false);
             } else if (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.H)) {
-                WarpToPosition(new Vector2(Transform.Pos.X + (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f), Transform.Pos.Y));
+                WarpToPosition(new Vector2(Transform.Pos.X + (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f), Transform.Pos.Y), false);
             } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.N)) {
                 api.InitLevelChange(ExitType.Warp, null);
             } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.J)) {
@@ -651,6 +657,9 @@ namespace Jazz2.Actors
                         // Reset health and remove one life
                         health = maxHealth;
 
+                        // Remove fast fires
+                        weaponUpgrades[(int)WeaponType.Blaster] = (byte)(weaponUpgrades[(int)WeaponType.Blaster] & 0x1);
+
                         // Negate all possible movement effects etc.
                         currentTransitionState = AnimState.Idle;
 
@@ -663,6 +672,7 @@ namespace Jazz2.Actors
                         controllable = true;
                         isAirboard = false;
 
+                        // Spawn coprse
                         PlayerCorpse corpse = new PlayerCorpse();
                         corpse.OnAttach(new ActorInstantiationDetails {
                             Api = api,
@@ -671,18 +681,24 @@ namespace Jazz2.Actors
                         });
                         api.AddActor(corpse);
 
-                        isInvulnerable = false;
-
                         SetAnimation(AnimState.Idle);
-                        collisionFlags |= CollisionFlags.ApplyGravitation;
 
-                        // Remove fast fires
-                        weaponUpgrades[(int)WeaponType.Blaster] = (byte)(weaponUpgrades[(int)WeaponType.Blaster] & 0x1);
+                        if (api.HandlePlayerDied(this)) {
+                            // Player can be respawned immediately
+                            isInvulnerable = false;
+                            collisionFlags |= CollisionFlags.ApplyGravitation;
 
-                        // Return to the last save point
-                        MoveInstantly(checkpointPos, MoveType.Absolute, true);
-                        api.AmbientLight = checkpointLight;
-                        api.WarpCameraToTarget(this);
+                            // Return to the last save point
+                            MoveInstantly(checkpointPos, MoveType.Absolute, true);
+                            api.AmbientLight = checkpointLight;
+                            api.WarpCameraToTarget(this);
+                        } else {
+                            // Respawn is delayed
+                            controllable = false;
+                            renderer.Active = false;
+
+                            // ToDo: Turn off collisions
+                        }
                     } else {
                         api.HandleGameOver();
                     }
@@ -1092,11 +1108,11 @@ namespace Jazz2.Actors
                     api.AmbientLight = p[0] * 0.01f;
                     break;
                 }
-                case EventType.WarpOrigin: { // Warp ID, Set Lap, Show Anim, Fast
+                case EventType.WarpOrigin: { // Warp ID, Fast. Set Lap
                     if (currentTransitionState == AnimState.Idle || currentTransitionCancellable) {
                         Vector2 c = events.GetWarpTarget(p[0]);
                         if (c.X != -1f && c.Y != -1f) {
-                            WarpToPosition(c);
+                            WarpToPosition(c, p[1] != 0);
                         }
                     }
                     break;
@@ -1411,11 +1427,11 @@ namespace Jazz2.Actors
                 }
 
                 if (currentTransitionState == AnimState.Idle || currentTransitionCancellable) {
-                    BonusWarp collider = collisions[i] as BonusWarp;
-                    if (collider != null) {
-                        if (collider.Cost <= coins) {
-                            coins -= collider.Cost;
-                            WarpToPosition(collider.WarpTarget);
+                    BonusWarp warp = collisions[i] as BonusWarp;
+                    if (warp != null) {
+                        if (warp.Cost <= coins) {
+                            coins -= warp.Cost;
+                            warp.Activate(this);
 
                             // Convert remaing coins to gems
                             gems += coins;
@@ -1492,37 +1508,46 @@ namespace Jazz2.Actors
             }
         }
 
-        public void WarpToPosition(Vector2 pos)
+        public void WarpToPosition(Vector2 pos, bool fast)
         {
-            //inFreefall = inFreefall || (!canJump && speedY > 14f);
-            SetPlayerTransition(isFreefall ? AnimState.TransitionWarpInFreefall : AnimState.TransitionWarpIn, false, true, SpecialMoveType.None, delegate {
+            if (fast) {
                 Vector3 posOld = Transform.Pos;
-                bool isFar = (new Vector2(posOld.X - pos.X, posOld.Y - pos.Y).Length > 250);
 
                 MoveInstantly(pos, MoveType.Absolute, true);
-                PlaySound("COMMON_WARP_OUT");
 
-                if (isFar) {
+                if (new Vector2(posOld.X - pos.X, posOld.Y - pos.Y).Length > 250) {
                     api.WarpCameraToTarget(this);
                 }
+            } else {
+                //inFreefall = inFreefall || (!canJump && speedY > 14f);
+                SetPlayerTransition(isFreefall ? AnimState.TransitionWarpInFreefall : AnimState.TransitionWarpIn, false, true, SpecialMoveType.None, delegate {
+                    Vector3 posOld = Transform.Pos;
 
-                isFreefall = isFreefall || CanFreefall();
-                SetPlayerTransition(isFreefall ? AnimState.TransitionWarpOutFreefall : AnimState.TransitionWarpOut, false, true, SpecialMoveType.None, delegate {
-                    isInvulnerable = false;
-                    collisionFlags |= CollisionFlags.ApplyGravitation;
-                    controllable = true;
+                    MoveInstantly(pos, MoveType.Absolute, true);
+                    PlaySound("COMMON_WARP_OUT");
+
+                    if (new Vector2(posOld.X - pos.X, posOld.Y - pos.Y).Length > 250) {
+                        api.WarpCameraToTarget(this);
+                    }
+
+                    isFreefall = isFreefall || CanFreefall();
+                    SetPlayerTransition(isFreefall ? AnimState.TransitionWarpOutFreefall : AnimState.TransitionWarpOut, false, true, SpecialMoveType.None, delegate {
+                        isInvulnerable = false;
+                        collisionFlags |= CollisionFlags.ApplyGravitation;
+                        controllable = true;
+                    });
                 });
-            });
 
-            EndDamagingMove();
-            isInvulnerable = true;
-            collisionFlags &= ~CollisionFlags.ApplyGravitation;
-            speedX = 0;
-            speedY = 0;
-            externalForceX = 0;
-            externalForceY = 0;
-            internalForceY = 0;
-            PlaySound("COMMON_WARP_IN");
+                EndDamagingMove();
+                isInvulnerable = true;
+                collisionFlags &= ~CollisionFlags.ApplyGravitation;
+                speedX = 0;
+                speedY = 0;
+                externalForceX = 0;
+                externalForceY = 0;
+                internalForceY = 0;
+                PlaySound("COMMON_WARP_IN");
+            }
         }
 
         private void InitialPoleStage(bool horizontal)

@@ -1,4 +1,5 @@
 ﻿using Duality;
+using Jazz2.Actors.Bosses;
 using Jazz2.Game;
 using Jazz2.Game.Structs;
 
@@ -127,6 +128,23 @@ namespace Jazz2.Actors.Weapons
         protected override void OnRicochet()
         {
             speedX = -speedX;
+        }
+
+        public override void HandleCollision(ActorBase other)
+        {
+            switch (other) {
+                case Queen queen:
+                    if (queen.IsInvulnerable) {
+                        OnRicochet();
+                    } else {
+                        base.HandleCollision(other);
+                    }
+                    break;
+
+                default:
+                    base.HandleCollision(other);
+                    break;
+            }
         }
     }
 }

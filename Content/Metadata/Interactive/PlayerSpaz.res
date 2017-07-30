@@ -210,7 +210,7 @@
         },
         "PLAYER_SPAZ_SPRING": {
             "Path": "Spaz/Spring.png",
-            "States": [ 262144, 262145, 262146 ]
+            "States": [ 262144, 262145, 262146, 262147 ]
         },
         "PLAYER_SPAZ_PUSH": {
             "Path": "Spaz/push.png",

@@ -352,7 +352,6 @@ namespace Jazz2.Actors.Bosses
             });
         }
 
-        // ToDo: Implement oversaturated light
         private class Bullet : EnemyBase
         {
             public override void OnAttach(ActorInstantiationDetails details)
@@ -372,6 +371,12 @@ namespace Jazz2.Actors.Bosses
                 SetAnimation((AnimState)668);
 
                 OnUpdateHitbox();
+
+                LightEmitter light = AddComponent<LightEmitter>();
+                light.Intensity = 0.8f;
+                light.Brightness = 0.8f;
+                light.RadiusNear = 0f;
+                light.RadiusFar = 28f;
             }
 
             protected override void OnUpdate()

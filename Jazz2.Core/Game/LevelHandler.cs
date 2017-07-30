@@ -573,6 +573,12 @@ namespace Jazz2.Game
             root.ShowMainMenu();
         }
 
+        public bool HandlePlayerDied(Player player)
+        {
+            // Single player can respawn immediately
+            return true;
+        }
+
         public string GetLevelText(int textID)
         {
             string text;

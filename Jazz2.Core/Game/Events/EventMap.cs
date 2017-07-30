@@ -123,7 +123,7 @@ namespace Jazz2.Game.Events
                 return new Vector2(-1, -1);
             }
 
-            return targets[MathF.Rnd.Next() % targets.Count];
+            return targets[MathF.Rnd.Next(targets.Count)];
         }
 
         private void AddWarpTarget(uint id, int x, int y)
@@ -143,7 +143,7 @@ namespace Jazz2.Game.Events
                 return new Vector2(-1, -1);
             }
 
-            return targets[MathF.Rnd.Next() % targets.Count];
+            return targets[MathF.Rnd.Next(targets.Count)];
         }
 
         private void AddSpawnPosition(PlayerType type, int x, int y)

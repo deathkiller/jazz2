@@ -135,22 +135,6 @@ namespace Jazz2.Game
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public void InitLevelChange(ExitType exitType, string nextLevel)
-        {
-            levelHandler.InitLevelChange(exitType, nextLevel);
-        }
-
-#if NET45
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public void HandleGameOver()
-        {
-            levelHandler.HandleGameOver();
-        }
-
-#if NET45
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public void WarpCameraToTarget(ActorBase target)
         {
             levelHandler.WarpCameraToTarget(target);
@@ -202,6 +186,31 @@ namespace Jazz2.Game
         public void BroadcastLevelText(int id)
         {
             levelHandler.BroadcastLevelText(levelHandler.GetLevelText(id));
+        }
+
+
+#if NET45
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public void InitLevelChange(ExitType exitType, string nextLevel)
+        {
+            levelHandler.InitLevelChange(exitType, nextLevel);
+        }
+
+#if NET45
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public void HandleGameOver()
+        {
+            levelHandler.HandleGameOver();
+        }
+
+#if NET45
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public bool HandlePlayerDied(Player player)
+        {
+            return levelHandler.HandlePlayerDied(player);
         }
     }
 }

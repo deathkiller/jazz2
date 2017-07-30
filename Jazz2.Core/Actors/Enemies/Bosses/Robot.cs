@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Duality;
 using Jazz2.Actors.Enemies;
+using Jazz2.Game;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Bosses
@@ -181,7 +182,6 @@ namespace Jazz2.Actors.Bosses
             });
         }
 
-        // ToDo: Implement oversaturated light
         private class SpikeBall : EnemyBase
         {
             public override void OnAttach(ActorInstantiationDetails details)
@@ -199,6 +199,12 @@ namespace Jazz2.Actors.Bosses
                 SetAnimation((AnimState)1073741827);
 
                 OnUpdateHitbox();
+
+                LightEmitter light = AddComponent<LightEmitter>();
+                light.Intensity = 0.1f;
+                light.Brightness = 0.8f;
+                light.RadiusNear = 0f;
+                light.RadiusFar = 22f;
             }
 
             protected override void OnUpdate()

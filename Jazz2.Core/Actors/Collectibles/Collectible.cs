@@ -21,7 +21,7 @@ namespace Jazz2.Actors.Collectibles
             collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
 
             Vector3 pos = Transform.Pos;
-            phase = ((pos.X / 32) + (pos.Y / 32));
+            phase = ((pos.X / 32) + (pos.Y / 32)) * 2f;
 
             if ((flags & (ActorInstantiationFlags.IsCreatedFromEventMap | ActorInstantiationFlags.IsFromGenerator)) != 0) {
                 untouched = true;
@@ -50,7 +50,7 @@ namespace Jazz2.Actors.Collectibles
             if (untouched) {
                 phase += Time.TimeMult * 0.15f;
 
-                float waveOffset = 3f * MathF.Cos((phase * 0.25f) * MathF.Pi) + 1f;
+                float waveOffset = 3.2f * MathF.Cos((phase * 0.25f) * MathF.Pi) + 0.6f;
                 Vector3 pos = Transform.Pos;
                 pos.Y = startingY + waveOffset;
                 Transform.Pos = pos;

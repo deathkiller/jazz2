@@ -595,15 +595,15 @@ namespace Jazz2.Compatibility
                     Pair.Create(JJ2EventParamType.Bool, 1),  // Show Anim
                     Pair.Create(JJ2EventParamType.Bool, 1)); // Fast (JJ2+)
 
-                if (eventParams[1] > 0) {
+                if (eventParams[1] > 0 || eventParams[3] != 0) {
                     return new ConversionResult {
                         eventType = EventType.WarpCoinBonus,
-                        eventParams = new[] { eventParams[0], eventParams[2], eventParams[3], eventParams[1], eventParams[4] }
+                        eventParams = new[] { eventParams[0], eventParams[4], eventParams[2], eventParams[1], eventParams[3] }
                     };
                 } else {
                     return new ConversionResult {
                         eventType = EventType.WarpOrigin,
-                        eventParams = new[] { eventParams[0], eventParams[2], eventParams[3], eventParams[4] }
+                        eventParams = new[] { eventParams[0], eventParams[4], eventParams[2] }
                     };
                 }
             });

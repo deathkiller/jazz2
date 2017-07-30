@@ -24,7 +24,15 @@
         },
         "Stomp": {
             "Path": "Queen/stomp.png",
+            "FrameRate": 10,
+            "FrameCount": 6,
             "States": [ 1073741825 ]
+        },
+        "StompEnd": {
+            "Path": "Queen/stomp.png",
+            "FrameRate": 20,
+            "FrameOffset": 6,
+            "States": [ 1073741830 ]
         },
         "Backstep": {
             "Path": "Queen/backstep.png",
@@ -53,6 +61,12 @@
         },
         "Spring": {
             "Paths": [ "Queen/Spring.wav" ]
+        },
+        "Stomp": {
+            "Paths": [ "Common/gunsm1.wav" ]
+        },
+        "BrickFalling": {
+            "Paths": [ "Common/holyflut.wav" ]
         }
     }
 }

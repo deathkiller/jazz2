@@ -15,6 +15,8 @@ namespace Jazz2.Actors.Collectibles
             scoreValue = 100;
 
             SetAnimation("Ammo" + weaponType.ToString("G"));
+
+            SetFacingDirection();
         }
 
         protected override void Collect(Player player)

@@ -215,7 +215,7 @@
         },
         "PLAYER_LORI_SPRING": {
             "Path": "Lori/Spring.png",
-            "States": [ 262144, 262145, 262146 ]
+            "States": [ 262144, 262145, 262146, 262147 ]
         },
         "PLAYER_LORI_PUSH": {
             "Path": "Lori/push.png",

@@ -15,18 +15,12 @@ namespace Jazz2.Game.UI.Menu
     {
         private class Server
         {
-            public string Name;
             public IPEndPoint EndPoint;
+
+            public string Name;
             public int CurrentPlayers;
             public int MaxPlayers;
-
-            public Server(string name, IPEndPoint endPoint, int currentPlayers, int maxPlayers)
-            {
-                Name = name;
-                EndPoint = endPoint;
-                CurrentPlayers = currentPlayers;
-                MaxPlayers = maxPlayers;
-            }
+            public int LatencyMs;
         }
 
         private ServerDiscovery discovery;
@@ -84,8 +78,8 @@ namespace Jazz2.Game.UI.Menu
                 float column1 = column2;
                 float column3 = column2;
                 column1 *= 0.3f;
-                column2 *= 0.85f;
-                column3 *= 1.05f;
+                column2 *= 0.78f;
+                column3 *= 1.08f;
 
                 for (int i_ = 0; i_ < itemCount; i_++) {
                     int i = xOffset + i_;
@@ -93,37 +87,39 @@ namespace Jazz2.Game.UI.Menu
                         break;
                     }
 
+                    Server server = serverList[i];
+
                     if (selectedIndex == i) {
                         charOffset = 0;
 
-                        float xMultiplier = serverList[i].Name.Length * 0.5f;
+                        float xMultiplier = server.Name.Length * 0.5f;
                         float easing = Ease.OutElastic(animation);
                         float x = column1 + xMultiplier - easing * xMultiplier;
                         float size = 0.7f + easing * 0.1f;
 
                         // Column 2
-                        api.DrawStringShadow(device, ref charOffset, serverList[i].CurrentPlayers + " / " + serverList[i].MaxPlayers, column2, currentItem, Alignment.Left,
-                            new ColorRgba(0.48f, 0.5f), 0.8f, 0.4f, 1f, 1f, 8f, charSpacing: 0.88f);
+                        api.DrawStringShadow(device, ref charOffset, server.CurrentPlayers + " / " + server.MaxPlayers + "  " + server.LatencyMs + " ms", column2, currentItem, Alignment.Left,
+                            new ColorRgba(0.48f, 0.5f), 0.8f, 0.4f, 1f, 1f, 8f, charSpacing: 0.8f);
 
                         // Column 3
-                        api.DrawStringShadow(device, ref charOffset, serverList[i].EndPoint.ToString(), column3, currentItem, Alignment.Left,
-                            new ColorRgba(0.48f, 0.5f), 0.8f, 0.4f, 1f, 1f, 8f, charSpacing: 0.88f);
+                        api.DrawStringShadow(device, ref charOffset, server.EndPoint.ToString(), column3, currentItem, Alignment.Left,
+                            new ColorRgba(0.48f, 0.5f), 0.8f, 0.4f, 1f, 1f, 8f, charSpacing: 0.8f);
 
                         // Column 1
-                        api.DrawStringShadow(device, ref charOffset, serverList[i].Name, x, currentItem, Alignment.Left,
+                        api.DrawStringShadow(device, ref charOffset, server.Name, x, currentItem, Alignment.Left,
                             null, size, 0.4f, 1f, 1f, 8f, charSpacing: 0.88f);
                         
                     } else {
                         // Column 2
-                        api.DrawString(device, ref charOffset, serverList[i].CurrentPlayers + " / " + serverList[i].MaxPlayers, column2, currentItem, Alignment.Left,
+                        api.DrawString(device, ref charOffset, server.CurrentPlayers + " / " + server.MaxPlayers + "  " + server.LatencyMs + " ms", column2, currentItem, Alignment.Left,
                             ColorRgba.TransparentBlack, 0.7f);
 
                         // Column 3
-                        api.DrawString(device, ref charOffset, serverList[i].EndPoint.ToString(), column3, currentItem, Alignment.Left,
+                        api.DrawString(device, ref charOffset, server.EndPoint.ToString(), column3, currentItem, Alignment.Left,
                             ColorRgba.TransparentBlack, 0.7f);
 
                         // Column 1
-                        api.DrawString(device, ref charOffset, serverList[i].Name, column1, currentItem, Alignment.Left,
+                        api.DrawString(device, ref charOffset, server.Name, column1, currentItem, Alignment.Left,
                             ColorRgba.TransparentBlack, 0.7f);
                     }
 
@@ -202,18 +198,26 @@ namespace Jazz2.Game.UI.Menu
             }
         }
 
-        private void OnServerFound(string name, IPEndPoint endPoint, int currentPlayers, int maxPlayers)
+        private void OnServerFound(string name, IPEndPoint endPoint, int currentPlayers, int maxPlayers, int latencyMs)
         {
             for (int i = 0; i < serverList.Count; i++) {
-                if (serverList[i].EndPoint == endPoint) {
-                    serverList[i].Name = name;
-                    serverList[i].CurrentPlayers = currentPlayers;
-                    serverList[i].MaxPlayers = maxPlayers;
+                Server server = serverList[i];
+                if (server.EndPoint == endPoint) {
+                    server.Name = name;
+                    server.CurrentPlayers = currentPlayers;
+                    server.MaxPlayers = maxPlayers;
+                    server.LatencyMs = latencyMs;
                     return;
                 }
             }
 
-            serverList.Add(new Server(name, endPoint, currentPlayers, maxPlayers));
+            serverList.Add(new Server {
+                EndPoint = endPoint,
+                Name = name,
+                CurrentPlayers = currentPlayers,
+                MaxPlayers = maxPlayers,
+                LatencyMs = latencyMs
+            });
         }
     }
 }

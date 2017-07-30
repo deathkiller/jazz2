@@ -21,6 +21,7 @@ namespace Jazz2.Actors.Bosses
         private float stateTime;
         private int lastHealth;
         private bool queuedBackstep;
+        private float brickStartRangeX;
 
         private float stepSize;
 
@@ -100,6 +101,8 @@ namespace Jazz2.Actors.Bosses
                         if (colliders[i] is Player) {
                             state = StateIdleToScream;
                             stateTime = 260f;
+
+                            brickStartRangeX = pos.X - 180f;
                             break;
                         }
                     }
@@ -115,7 +118,7 @@ namespace Jazz2.Actors.Bosses
                         state = StateScreaming;
                         PlaySound("Scream");
                         SetTransition((AnimState)1073741824, false, delegate {
-                            state = MathF.Rnd.OneOf(new[] { StateIdleToStomp, StateIdleToBackstep });
+                            state = (MathF.Rnd.NextFloat() < 0.8f ? StateIdleToStomp : StateIdleToBackstep);
                             stateTime = MathF.Rnd.NextFloat(65, 85);
 
                             isInvulnerable = true;
@@ -132,17 +135,21 @@ namespace Jazz2.Actors.Bosses
                     if (stateTime <= 0f) {
                         state = StateTransition;
                         SetTransition((AnimState)1073741825, false, delegate {
-                            state = StateIdleToBackstep;
-                            stateTime = MathF.Rnd.NextFloat(70, 80);
+                            PlaySound("Stomp");
 
-                            Vector3 pos = Transform.Pos;
+                            SetTransition((AnimState)1073741830, false, delegate {
+                                state = StateIdleToBackstep;
+                                stateTime = MathF.Rnd.NextFloat(70, 80);
 
-                            Brick brick = new Brick();
-                            brick.OnAttach(new ActorInstantiationDetails {
-                                Api = api,
-                                Pos = new Vector3(pos.X - MathF.Rnd.NextFloat(50, 180), pos.Y - 200f, pos.Z + 20f)
+                                Vector3 pos = Transform.Pos;
+
+                                Brick brick = new Brick();
+                                brick.OnAttach(new ActorInstantiationDetails {
+                                    Api = api,
+                                    Pos = new Vector3(brickStartRangeX + MathF.Rnd.NextFloat(pos.X - brickStartRangeX - 50), pos.Y - 200f, pos.Z + 20f)
+                                });
+                                api.AddActor(brick);
                             });
-                            api.AddActor(brick);
                         });
                     }
                     break;
@@ -242,8 +249,10 @@ namespace Jazz2.Actors.Bosses
                 return;
             }
 
-            Hitbox tileCollisionHitbox = currentHitbox.Extend(4f).Extend(-speedX, -speedY, speedX, speedY);
-            int destroyedCount = tiles.CheckWeaponDestructible(ref tileCollisionHitbox, WeaponType.Blaster, 1);
+            float timeMult = Time.TimeMult;
+            Hitbox tileCollisionHitbox = currentHitbox + new Vector2((speedX + externalForceX) * 2f * timeMult, (speedY - externalForceY) * 2f * timeMult);
+
+            tiles.CheckWeaponDestructible(ref tileCollisionHitbox, WeaponType.Blaster, int.MaxValue);
         }
 
         private class Brick : EnemyBase
@@ -260,6 +269,8 @@ namespace Jazz2.Actors.Bosses
 
                 RequestMetadata("Boss/Queen");
                 SetAnimation((AnimState)1073741829);
+
+                PlaySound("BrickFalling", 0.3f);
             }
 
             protected override void OnUpdate()

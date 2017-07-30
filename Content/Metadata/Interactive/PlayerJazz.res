@@ -212,7 +212,7 @@
         },
         "PLAYER_JAZZ_SPRING": {
             "Path": "Jazz/Spring.png",
-            "States": [ 262144, 262145, 262146 ]
+            "States": [ 262144, 262145, 262146, 262147 ]
         },
         "PLAYER_JAZZ_PUSH": {
             "Path": "Jazz/push.png",

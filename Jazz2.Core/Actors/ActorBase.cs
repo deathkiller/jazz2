@@ -382,7 +382,6 @@ namespace Jazz2.Actors
         public virtual void HandleCollision(ActorBase other)
         {
             // Objects should override this if they need to.
-            // ToDo: Refactor collision detection
 
             if (canBeFrozen) {
                 HandleAmmoFrozenStateChange(other);

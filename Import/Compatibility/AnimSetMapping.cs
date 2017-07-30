@@ -22,7 +22,7 @@ namespace Jazz2.Compatibility
             AnimSetMapping mapping = new AnimSetMapping(version);
 
             if (version == JJ2Version.PlusExtension) {
-                mapping.SkipItems(5);
+                mapping.SkipItems(5); // Unimplemented weapon
                 mapping.Add("Pickup", "fast_fire_lori");
                 mapping.Add("UI", "blaster_upgraded_lori");
 
@@ -32,17 +32,15 @@ namespace Jazz2.Compatibility
                 mapping.NextSet();
                 mapping.Add("Object", "crate_ammo_pepper");
                 mapping.Add("Object", "crate_ammo_electro");
-                mapping.Add("Object", "powerup_unknown1");
+                mapping.Add("Object", "powerup_shield_laser");
                 mapping.Add("Object", "powerup_unknown2");
                 mapping.Add("Object", "powerup_empty");
                 mapping.Add("Object", "powerup_upgrade_blaster_lori");
-                mapping.DiscardItems(1);
+                mapping.Add("Common", "SugarRushStars");
+                mapping.SkipItems(); // Carrotade
 
-                mapping.NextSet();
-
-                // ToDo: Wrong hotspot...
-                //mapping.Add("Lori", "eol");
-                //mapping.Add("Lori", "idle");
+                mapping.NextSet(); // 3
+                mapping.DiscardItems(3); // Lori's continue animations
 
                 mapping.NextSet(); // 4
 
@@ -56,8 +54,8 @@ namespace Jazz2.Compatibility
                 mapping.Add("UI", "logo_plus_large", JJ2DefaultPalette.Menu, skipNormalMap: true);
                 mapping.Add("UI", "logo_plus_small", JJ2DefaultPalette.Menu, skipNormalMap: true);
 
-                mapping.NextSet();
-                mapping.DiscardItems(5);
+                mapping.NextSet(); // 6
+                mapping.DiscardItems(5); // Reticles
 
             } else if (version != JJ2Version.Unknown) {
                 // set 0 (all)
@@ -1612,7 +1610,7 @@ namespace Jazz2.Compatibility
                 mapping.Add("Object", "rolling_rock");
                 mapping.NextSet(2); // set 81 (1.24) / set 77 (1.23)
                 mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Unknown", "sugar_rush_heartbeat");
-                mapping.Add("Pickup", "food_sugar_rush");
+                mapping.Add("Common", "SugarRush");
                 mapping.NextSet();
                 mapping.Add("Common", "science_noise");
                 mapping.NextSet();
