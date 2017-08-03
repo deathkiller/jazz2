@@ -40,6 +40,10 @@ namespace Jazz2.Actors.Environment
             if (light.Intensity > 0f) {
                 light.Intensity -= Time.TimeMult * 0.01f;
             }
+
+            if (light.Brightness > 0f) {
+                light.Brightness -= Time.TimeMult * 0.02f;
+            }
         }
 
         public Vector2 Activate(ActorBase other)
@@ -50,6 +54,7 @@ namespace Jazz2.Actors.Environment
 
             cooldown = 10f;
             light.Intensity = 1f;
+            light.Brightness = 0.4f;
 
             SetTransition(currentAnimationState | (AnimState)0x200, true);
             PlaySound("Hit");

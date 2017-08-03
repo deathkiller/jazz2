@@ -166,9 +166,8 @@ namespace Jazz2.Actors.Enemies
                     FollowNearestPlayer();
                 }
 
-                List<ActorBase> collisions = api.FindCollisionActors(this);
-                for (int i = 0; i < collisions.Count; i++) {
-                    if (collisions[i] is Player) {
+                foreach (ActorBase collision in api.FindCollisionActors(this)) {
+                    if (collision is Player) {
                         DecreaseHealth(int.MaxValue);
                         owner.OnPlayerHit();
                         // ToDo: Frog

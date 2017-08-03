@@ -46,9 +46,8 @@ namespace Jazz2.Actors.Environment
         {
             Vector3 pos = Transform.Pos;
 
-            List<ActorBase> colliders = api.FindCollisionActorsRadius(pos.X, pos.Y, 40);
-            for (int i = 0; i < colliders.Count; i++) {
-                Player player = colliders[i] as Player;
+            foreach (ActorBase collision in api.FindCollisionActorsRadius(pos.X, pos.Y, 40)) {
+                Player player = collision as Player;
                 if (player != null) {
                     bool pushLeft = (pos.X > player.Transform.Pos.X);
                     player.TakeDamage(pushLeft ? -8f : 8f);

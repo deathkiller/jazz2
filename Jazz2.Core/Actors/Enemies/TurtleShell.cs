@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Duality;
+﻿using Duality;
 using Jazz2.Actors.Collectibles;
 using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
@@ -67,17 +66,12 @@ namespace Jazz2.Actors.Enemies
                 speedX = MathF.Max(MathF.Abs(speedX) - 10f * friction, 0f) * (speedX > float.Epsilon ? 1f : -1f);
             }
 
-            List<ActorBase> collisions = api.FindCollisionActors(this);
-            for (int i = 0; i < collisions.Count; i++) {
-                {
-                    TurtleShell collider = collisions[i] as TurtleShell;
-                    if (collider != null) {
+            foreach (ActorBase collision in api.FindCollisionActors(this)) {
+                switch (collision) {
+                    case TurtleShell collider: {
                         if (speedY - collider.speedY > 1f && speedY > 0f) {
                             collider.DecreaseHealth(10, this);
-                            continue;
-                        }
-
-                        if (MathF.Abs(speedX) > MathF.Abs(collider.speedX)) {
+                        } else if (MathF.Abs(speedX) > MathF.Abs(collider.speedX)) {
                             // Handle this only in the faster of the two.
                             pos.X = collider.Transform.Pos.X + (speedX > 0 ? -1f : 1f) * (currentAnimation.FrameDimensions.X + 1);
                             float totalSpeed = MathF.Abs(speedX) + MathF.Abs(collider.speedX);
@@ -88,32 +82,20 @@ namespace Jazz2.Actors.Enemies
                             collider.DecreaseHealth(1, this);
                             PlaySound("ImpactShell", 0.8f);
                         }
-                        continue;
+                        break;
                     }
-                }
-
-                {
-                    AmmoBase collider = collisions[i] as AmmoBase;
-                    if (collider != null) {
+                    case AmmoBase collider: {
                         PlaySound("Fly");
-                        continue;
+                        break;
                     }
-                }
-
-                {
-                    EnemyBase collider = collisions[i] as EnemyBase;
-                    if (collider != null && MathF.Abs(speedX) > 3f) {
+                    case EnemyBase collider: {
                         collider.DecreaseHealth(1, this);
                         speedX = MathF.Max(MathF.Abs(speedX), 2f) * (speedX > 0f ? -1f : 1f);
-                        continue;
+                        break;
                     }
-                }
-
-                {
-                    Collectible collider = collisions[i] as Collectible;
-                    if (collider != null) {
+                    case Collectible collider: {
                         collider.HandleCollision(this);
-                        continue;
+                        break;
                     }
                 }
             }

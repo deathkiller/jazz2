@@ -6,6 +6,7 @@ using Duality.Audio;
 using Duality.Components;
 using Duality.Components.Renderers;
 using Duality.Drawing;
+using Jazz2.Actors.Lighting;
 using Jazz2.Actors.Weapons;
 using Jazz2.Game;
 using Jazz2.Game.Events;
@@ -21,7 +22,9 @@ namespace Jazz2.Actors
         None = 0,
 
         IsCreatedFromEventMap = 1 << 0,
-        IsFromGenerator = 1 << 1
+        IsFromGenerator = 1 << 1,
+
+        Illuminated = 1 << 2,
     }
 
     public struct ActorInstantiationDetails
@@ -704,6 +707,15 @@ namespace Jazz2.Actors
             }
 
             return false;
+        }
+
+        protected void Illuminate()
+        {
+            const int lightCount = 20;
+
+            for (int i = 0; i < lightCount; i++) {
+                new IlluminateLightPart(1f).Parent = this;
+            }
         }
 
         protected void RequestMetadata(string path)

@@ -28,6 +28,18 @@ namespace Jazz2.Compatibility
 
                 episode.episodeToken = Path.GetFileNameWithoutExtension(path).ToLower(CultureInfo.InvariantCulture);
 
+
+                // ToDo: Implement JJ2+ extended data
+                // the condition of unlocking (currently only defined for 0 meaning "always unlocked"
+                // and 1 meaning "requires the previous episode to be finished", stored as a 4-byte-long
+                // integer starting at byte 0x4), binary flags of various purpose (currently supported
+                // flags are 1 and 2 used to reset respectively player ammo and lives when the episode
+                // begins; stored as a 4-byte-long integer starting at byte 0x8), file name of the preceding
+                // episode (used mostly to determine whether the episode should be locked, stored
+                // as a 32-byte-long chain of characters starting at byte 0x4C), file name of the following
+                // episode (that is cycled to after the episode ends, stored as a 32-byte-long
+                // chain of characters starting at byte 0x6C)
+
                 // Header (208 bytes)
                 int headerSize = r.ReadInt32();
                 episode.position = r.ReadInt32();
@@ -102,7 +114,7 @@ namespace Jazz2.Compatibility
             return result;
         }
 
-        public void Convert(string path, Func<string, JJ2Level.LevelToken> levelTokenConversion = null)
+        public void Convert(string path, Func<string, JJ2Level.LevelToken> levelTokenConversion = null, Func<JJ2Episode, string> episodeNameConversion = null)
         {
             using (Stream s = File.Create(Path.Combine(path, ".res")))
             using (StreamWriter w = new StreamWriter(s, new UTF8Encoding(false))) {
@@ -111,19 +123,9 @@ namespace Jazz2.Compatibility
                 w.WriteLine("        \"Target\": \"Jazz² Resurrection\"");
                 w.WriteLine("    },");
 
-                // Hard-coded episode name conversion
-                string name;
-                if (episodeToken == "share" && episodeName == "#Shareware@Levels") {
-                    name = "Shareware Demo";
-                } else if(episodeToken == "xmas98" && episodeName == "#Xmas 98@Levels") {
-                    name = "Holiday Hare '98";
-                } else if (episodeToken == "xmas99" && episodeName == "#Xmas 99@Levels") {
-                    name = "The Christmas Chronicles";
-                } else if (episodeToken == "secretf" && episodeName == "#Secret@Files") {
-                    name = "The Secret Files";
-                } else {
-                    // @ is new line, # is ???
-                    name = episodeName.Replace("#", "").Replace("@", " ");
+                string name = episodeName;
+                if (episodeNameConversion != null) {
+                    name = episodeNameConversion(this);
                 }
 
                 w.WriteLine("    \"Name\": \"" + name + "\",");

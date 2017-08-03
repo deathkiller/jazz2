@@ -59,9 +59,8 @@ namespace Jazz2.Actors.Bosses
 
             if (!canJump && state != StateDead) {
                 // It can only die by collision with spring in the air
-                List<ActorBase> collisions = api.FindCollisionActors(this);
-                for (int i = 0; i < collisions.Count; i++) {
-                    Spring spring = collisions[i] as Spring;
+                foreach (ActorBase collision in api.FindCollisionActors(this)) {
+                    Spring spring = collision as Spring;
                     if (spring != null) {
                         // Collide only with hitbox
                         if (spring.Hitbox.Intersects(ref currentHitbox)) {
@@ -95,10 +94,8 @@ namespace Jazz2.Actors.Bosses
                 case StateWaiting: {
                     // Waiting for player to enter the arena
                     Vector3 pos = Transform.Pos;
-                    Hitbox hitbox = new Hitbox(pos.X - 300, pos.Y - 120, pos.X + 60, pos.Y + 120);
-                    List<ActorBase> colliders = api.FindCollisionActorsFast(this, ref hitbox);
-                    for (int i = 0; i < colliders.Count; i++) {
-                        if (colliders[i] is Player) {
+                    foreach (ActorBase collision in api.FindCollisionActorsFast(this, new Hitbox(pos.X - 300, pos.Y - 120, pos.X + 60, pos.Y + 120))) {
+                        if (collision is Player) {
                             state = StateIdleToScream;
                             stateTime = 260f;
 

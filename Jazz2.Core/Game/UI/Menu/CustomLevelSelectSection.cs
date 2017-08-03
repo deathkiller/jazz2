@@ -81,7 +81,7 @@ namespace Jazz2.Game.UI.Menu
                                 }
 #endif
                                 if ((config.Description.Flags & LevelFlags.Multiplayer) != 0 && (config.Description.Flags & (LevelFlags.MultiplayerRace | LevelFlags.MultiplayerFlags)) == 0) {
-                                    icon += " Multi";
+                                    icon += " Battle";
                                 }
                                 if ((config.Description.Flags & LevelFlags.MultiplayerRace) != 0) {
                                     icon += " Race";
@@ -141,7 +141,7 @@ namespace Jazz2.Game.UI.Menu
                 float column2 = device.TargetSize.X * 0.55f;
                 float sx = column2 * 1.52f;
                 float column1 = column2;
-                column1 *= 0.3f;
+                column1 *= 0.36f;
                 column2 *= 1.1f;
 
                 for (int i_ = 0; i_ < itemCount; i_++) {
@@ -167,7 +167,7 @@ namespace Jazz2.Game.UI.Menu
                             null, size, 0.4f, 1f, 1f, 8f, charSpacing: 0.88f);
 
                         // Column 0
-                        api.DrawStringShadow(device, ref charOffset, levelList[i].Icon, column1 - 12f, currentItem, Alignment.Right,
+                        api.DrawStringShadow(device, ref charOffset, levelList[i].Icon, column1 - 16f, currentItem, Alignment.Right,
                             new ColorRgba(0.48f, 0.5f), size, 0.4f, 1f, 1f, 8f, charSpacing: 0.68f);
                     } else {
                         // Column 2
@@ -179,7 +179,7 @@ namespace Jazz2.Game.UI.Menu
                             ColorRgba.TransparentBlack, 0.7f);
 
                         // Column 0
-                        api.DrawString(device, ref charOffset, levelList[i].Icon, column1 - 12f, currentItem, Alignment.Right,
+                        api.DrawString(device, ref charOffset, levelList[i].Icon, column1 - 16f, currentItem, Alignment.Right,
                             ColorRgba.TransparentBlack, 0.7f, charSpacing: 0.7f);
                     }
 
@@ -280,8 +280,8 @@ namespace Jazz2.Game.UI.Menu
                         animation = 0f;
                         if (selectedIndex > 0) {
                             selectedIndex--;
-                            while (selectedIndex < xOffset) {
-                                xOffset--;
+                            if (selectedIndex < xOffset) {
+                                xOffset = selectedIndex;
                             }
                         } else {
                             selectedIndex = levelList.Count - 1;
@@ -295,8 +295,8 @@ namespace Jazz2.Game.UI.Menu
                         animation = 0f;
                         if (selectedIndex < levelList.Count - 1) {
                             selectedIndex++;
-                            while (selectedIndex >= xOffset + itemCount) {
-                                xOffset++;
+                            if (selectedIndex >= xOffset + itemCount) {
+                                xOffset = selectedIndex - (itemCount - 1);
                             }
                         } else {
                             selectedIndex = 0;
@@ -306,6 +306,24 @@ namespace Jazz2.Game.UI.Menu
                     }
                 } else {
                     pressedCount = 0;
+                }
+
+                if (DualityApp.Keyboard.KeyHit(Key.PageUp)) {
+                    api.PlaySound("MenuSelect", 0.4f);
+                    animation = 0f;
+
+                    selectedIndex = MathF.Max(0, selectedIndex - itemCount);
+                    if (selectedIndex < xOffset) {
+                        xOffset = selectedIndex;
+                    }
+                } else if(DualityApp.Keyboard.KeyHit(Key.PageDown)) {
+                    api.PlaySound("MenuSelect", 0.4f);
+                    animation = 0f;
+
+                    selectedIndex = MathF.Min(levelList.Count - 1, selectedIndex + itemCount);
+                    if (selectedIndex >= xOffset + itemCount) {
+                        xOffset = selectedIndex - (itemCount - 1);
+                    }
                 }
             }
         }

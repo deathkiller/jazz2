@@ -70,6 +70,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Eva.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Explosion.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\FrozenBlock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Lighting\IlluminateLight.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Lighting\FlickerLight.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Lighting\PulsatingRadialLight.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Lighting\StaticRadialLight.cs" />

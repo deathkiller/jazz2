@@ -33,6 +33,10 @@ namespace Jazz2.Actors.Collectibles
             }
 
             RequestMetadata("Object/Collectible");
+
+            if ((details.Flags & ActorInstantiationFlags.Illuminated) != 0) {
+                Illuminate();
+            }
         }
 
         protected void SetFacingDirection()

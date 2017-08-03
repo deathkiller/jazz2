@@ -47,13 +47,11 @@ namespace Jazz2.Actors.Weapons
                 PlaySound("Explosion");
 
                 Vector3 pos = Transform.Pos;
-
-                List<ActorBase> colliders = api.FindCollisionActorsRadius(pos.X, pos.Y, 50);
-                for (int i = 0; i < colliders.Count; i++) {
-                    if (!colliders[i].IsInvulnerable && (colliders[i] is EnemyBase || colliders[i] is SolidObjectBase || colliders[i] is TurtleShell || colliders[i] is GemGiant)) {
-                        colliders[i].DecreaseHealth(10, this);
-                    } else if (colliders[i] is Collectible) {
-                        colliders[i].HandleCollision(this);
+                foreach (ActorBase collision in api.FindCollisionActorsRadius(pos.X, pos.Y, 50)) {
+                    if (!collision.IsInvulnerable && (collision is EnemyBase || collision is SolidObjectBase || collision is TurtleShell || collision is GemGiant)) {
+                        collision.DecreaseHealth(10, this);
+                    } else if (collision is Collectible) {
+                        collision.HandleCollision(this);
                     }
                 }
 

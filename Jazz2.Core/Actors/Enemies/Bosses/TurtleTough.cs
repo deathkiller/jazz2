@@ -90,9 +90,8 @@ namespace Jazz2.Actors.Bosses
 
                 case StateAttacking: {
                     if (stateTime <= 0f) {
-                        List<ActorBase> collisions = api.FindCollisionActors(this);
-                        for (int i = 0; i < collisions.Count; i++) {
-                            Mace mace = collisions[i] as Mace;
+                        foreach (ActorBase collision in api.FindCollisionActors(this)) {
+                            Mace mace = collision as Mace;
                             if (mace != null) {
                                 mace.DecreaseHealth(int.MaxValue);
 

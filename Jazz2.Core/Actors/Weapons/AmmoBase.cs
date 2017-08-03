@@ -45,10 +45,9 @@ namespace Jazz2.Actors.Weapons
 
         protected void CheckCollisions()
         {
-            List<ActorBase> collisions = api.FindCollisionActors(this);
-            for (int i = 0; i < collisions.Count; i++) {
-                collisions[i].HandleCollision(this);
-                this.HandleCollision(collisions[i]);
+            foreach (ActorBase collision in api.FindCollisionActors(this)) {
+                collision.HandleCollision(this);
+                this.HandleCollision(collision);
             }
 
             TileMap tiles = api.TileMap;

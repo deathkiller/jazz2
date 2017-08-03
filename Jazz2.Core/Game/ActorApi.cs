@@ -88,7 +88,7 @@ namespace Jazz2.Game
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public List<ActorBase> FindCollisionActors(ActorBase self)
+        public IEnumerable<ActorBase> FindCollisionActors(ActorBase self)
         {
             return levelHandler.FindCollisionActors(self);
         }
@@ -96,15 +96,15 @@ namespace Jazz2.Game
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public List<ActorBase> FindCollisionActorsFast(ActorBase self, ref Hitbox hitbox)
+        public IEnumerable<ActorBase> FindCollisionActorsFast(ActorBase self, Hitbox hitbox)
         {
-            return levelHandler.FindCollisionActorsFast(self, ref hitbox);
+            return levelHandler.FindCollisionActorsFast(self, hitbox);
         }
 
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public List<ActorBase> FindCollisionActorsRadius(float x, float y, float radius)
+        public IEnumerable<ActorBase> FindCollisionActorsRadius(float x, float y, float radius)
         {
             return levelHandler.FindCollisionActorsRadius(x, y, radius);
         }
@@ -127,9 +127,9 @@ namespace Jazz2.Game
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public List<ActorBase> GetCollidingPlayers(ref Hitbox hitbox)
+        public IEnumerable<Player> GetCollidingPlayers(Hitbox hitbox)
         {
-            return levelHandler.GetCollidingPlayers(ref hitbox);
+            return levelHandler.GetCollidingPlayers(hitbox);
         }
 
 #if NET45
@@ -138,6 +138,14 @@ namespace Jazz2.Game
         public void WarpCameraToTarget(ActorBase target)
         {
             levelHandler.WarpCameraToTarget(target);
+        }
+
+#if NET45
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public void LimitCameraView(float left, float width)
+        {
+            levelHandler.LimitCameraView(left, width);
         }
 
 #if NET45

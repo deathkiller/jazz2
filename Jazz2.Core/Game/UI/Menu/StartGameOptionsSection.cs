@@ -22,6 +22,8 @@ namespace Jazz2.Game.UI.Menu
         private int selectedDifficulty = 1;
         private float animation;
 
+        private int availableCharacters;
+
         public StartGameOptionsSection(string episodeName, string levelName)
         {
             this.episodeName = episodeName;
@@ -32,6 +34,8 @@ namespace Jazz2.Game.UI.Menu
         {
             animation = 0f;
             base.OnShow(root);
+
+            availableCharacters = (api.IsAnimationPresent("MenuDifficultyLori") ? 3 : 2);
         }
 
         public override void OnPaint(IDrawDevice device, Canvas c)
@@ -72,14 +76,27 @@ namespace Jazz2.Game.UI.Menu
                         new ColorRgba(0.45f, 0.27f, 0.22f, 0.5f),
                         new ColorRgba(0.5f, 0.45f, 0.22f, 0.5f)
                     };
-                    for (int j = 0; j < playerTypes.Length; j++) {
-                        if (selectedPlayerType == j) {
-                            api.DrawMaterial(c, "MenuGlow", center.X + (j - 1) * 100f, center.Y + 28f, Alignment.Center, ColorRgba.White.WithAlpha(0.2f), (playerTypes[j].Length + 3) * 0.4f, 2.2f);
 
-                            api.DrawStringShadow(device, ref charOffset, playerTypes[j], center.X + (j - 1) * 100f, center.Y + 28f, Alignment.Center,
+                    float offset, spacing;
+                    if (availableCharacters == 1) {
+                        offset = spacing = 0f;
+                    } else if (availableCharacters == 2) {
+                        offset = 50f;
+                        spacing = 100f;
+                    } else {
+                        offset = 100f;
+                        spacing = 300f / availableCharacters;
+                    }
+
+                    for (int j = 0; j < /*playerTypes.Length*/availableCharacters; j++) {
+                        float x = center.X - offset + j * spacing;
+                        if (selectedPlayerType == j) {
+                            api.DrawMaterial(c, "MenuGlow", x, center.Y + 28f, Alignment.Center, ColorRgba.White.WithAlpha(0.2f), (playerTypes[j].Length + 3) * 0.4f, 2.2f);
+
+                            api.DrawStringShadow(device, ref charOffset, playerTypes[j], x, center.Y + 28f, Alignment.Center,
                                 /*null*/playerColors[j], 0.9f, 0.4f, 0.55f, 0.55f, 8f, 0.9f);
                         } else {
-                            api.DrawString(device, ref charOffset, playerTypes[j], center.X + (j - 1) * 100f, center.Y + 28f, Alignment.Center,
+                            api.DrawString(device, ref charOffset, playerTypes[j], x, center.Y + 28f, Alignment.Center,
                                 ColorRgba.TransparentBlack, 0.8f, charSpacing: 0.9f);
                         }
                     }
@@ -133,7 +150,7 @@ namespace Jazz2.Game.UI.Menu
                     if (selectedPlayerType > 0) {
                         selectedPlayerType--;
                     } else {
-                        selectedPlayerType = 3 - 1;
+                        selectedPlayerType = availableCharacters - 1;
                     }
                 } else if (selectedIndex == 1) {
                     if (selectedDifficulty > 0) {
@@ -142,7 +159,7 @@ namespace Jazz2.Game.UI.Menu
                 }
             } else if (DualityApp.Keyboard.KeyHit(Key.Right)) {
                 if (selectedIndex == 0) {
-                    if (selectedPlayerType < 3 - 1) {
+                    if (selectedPlayerType < availableCharacters - 1) {
                         selectedPlayerType++;
                     } else {
                         selectedPlayerType = 0;

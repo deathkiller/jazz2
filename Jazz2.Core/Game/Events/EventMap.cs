@@ -16,6 +16,7 @@ namespace Jazz2.Game.Events
         private struct EventTile
         {
             public EventType EventType;
+            public ActorInstantiationFlags EventFlags;
             public ushort[] EventParams;
             public bool IsEventActive;
         }
@@ -185,14 +186,14 @@ namespace Jazz2.Game.Events
 
                             encounteredEvents.Add((EventType)eventID);
 
-                            byte eventFlags = r.ReadByte();
+                            byte flags = r.ReadByte();
                             ushort[] eventParams = new ushort[8];
 
                             // ToDo: Remove inlined constants
 
                             // Flag 0x02: Generator
                             byte generatorFlags, generatorDelay;
-                            if ((eventFlags & 0x02) != 0) {
+                            if ((flags & 0x02) != 0) {
                                 //eventFlags ^= 0x02;
                                 generatorFlags = r.ReadByte();
                                 generatorDelay = r.ReadByte();
@@ -202,15 +203,17 @@ namespace Jazz2.Game.Events
                             }
 
                             // Flag 0x01: No params provided
-                            if ((eventFlags & 0x01) == 0) {
-                                eventFlags ^= 0x01;
+                            if ((flags & 0x01) == 0) {
+                                flags ^= 0x01;
                                 for (int i = 0; i < 8; ++i) {
                                     eventParams[i] = r.ReadUInt16();
                                 }
                             }
 
+                            ActorInstantiationFlags eventFlags = (ActorInstantiationFlags)(flags & 0x04);
+
                             // Flag 0x02: Generator
-                            if ((eventFlags & 0x02) != 0) {
+                            if ((flags & 0x02) != 0) {
                                 ushort generatorIdx = (ushort)generators.Count;
                                 float timeLeft = ((generatorFlags & 0x01) != 0 ? generatorDelay : 0f);
 
@@ -222,13 +225,13 @@ namespace Jazz2.Game.Events
                                     TimeLeft = timeLeft
                                 });
 
-                                StoreTileEvent(x, y, EventType.Generator, new[] { generatorIdx });
+                                StoreTileEvent(x, y, EventType.Generator, eventFlags, new[] { generatorIdx });
                                 continue;
                             }
 
                             // If the difficulty bytes for the event don't match the selected difficulty, don't add anything to the event map.
                             // Additionally, never show events that are multiplayer-only for now.
-                            if (eventFlags == 0 || ((eventFlags & (0x01 << difficultyBit)) != 0 && (eventFlags & 0x80) == 0)) {
+                            if (flags == 0 || ((flags & (0x01 << difficultyBit)) != 0 && (flags & 0x80) == 0)) {
                                 switch ((EventType)eventID) {
                                     case EventType.Empty:
                                         break;
@@ -253,7 +256,7 @@ namespace Jazz2.Game.Events
                                     case EventType.SceneryCollapse:
                                     case EventType.ModifierHPole:
                                     case EventType.ModifierVPole: {
-                                        StoreTileEvent(x, y, (EventType)eventID, eventParams);
+                                        StoreTileEvent(x, y, (EventType)eventID, eventFlags, eventParams);
                                         TileMap tiles = levelHandler.TileMap;
                                         if (tiles != null) {
                                             tiles.SetTileEventFlags(x, y, (EventType)eventID, eventParams);
@@ -266,11 +269,11 @@ namespace Jazz2.Game.Events
                                         break;
                                     case EventType.LightReset:
                                         eventParams[0] = (ushort)levelHandler.AmbientLightDefault;
-                                        StoreTileEvent(x, y, EventType.LightSet, eventParams);
+                                        StoreTileEvent(x, y, EventType.LightSet, eventFlags, eventParams);
                                         break;
 
                                     default:
-                                        StoreTileEvent(x, y, (EventType)eventID, eventParams);
+                                        StoreTileEvent(x, y, (EventType)eventID, eventFlags, eventParams);
                                         break;
                                 }
                             }
@@ -280,16 +283,17 @@ namespace Jazz2.Game.Events
             }
         }
 
-        public void StoreTileEvent(int x, int y, EventType e, ushort[] tileParams = null)
+        public void StoreTileEvent(int x, int y, EventType eventType, ActorInstantiationFlags eventFlags = ActorInstantiationFlags.None, ushort[] tileParams = null)
         {
-            if (e == EventType.Empty && (x < 0 || y < 0 || y >= layoutHeight || x >= layoutWidth)) {
+            if (eventType == EventType.Empty && (x < 0 || y < 0 || y >= layoutHeight || x >= layoutWidth)) {
                 return;
             }
 
             EventTile tile = new EventTile {
-                EventType = e,
-                IsEventActive = false,
-                EventParams = new ushort[8]
+                EventType = eventType,
+                EventFlags = eventFlags,
+                EventParams = new ushort[8],
+                IsEventActive = false
             };
 
             // Store event parameters
@@ -356,7 +360,7 @@ namespace Jazz2.Game.Events
                         if (tile.EventType == EventType.Weather) {
                             levelHandler.ApplyWeather((LevelHandler.WeatherType)tile.EventParams[0], tile.EventParams[1], tile.EventParams[2] != 0);
                         } else if (tile.EventType != EventType.Generator) {
-                            ActorBase actor = levelHandler.EventSpawner.SpawnEvent(ActorInstantiationFlags.IsCreatedFromEventMap, tile.EventType, x, y, LevelHandler.MainPlaneZ, tile.EventParams);
+                            ActorBase actor = levelHandler.EventSpawner.SpawnEvent(ActorInstantiationFlags.IsCreatedFromEventMap | tile.EventFlags, tile.EventType, x, y, LevelHandler.MainPlaneZ, tile.EventParams);
                             if (actor != null) {
                                 levelHandler.AddActor(actor);
                             }

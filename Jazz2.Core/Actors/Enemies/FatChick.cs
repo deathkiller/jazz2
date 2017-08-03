@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Duality;
 using Jazz2.Game.Structs;
 
@@ -59,12 +60,8 @@ namespace Jazz2.Actors.Enemies
                 speedX = (isFacingLeft ? -1f : 1f) * DefaultSpeed;
             }
 
-            if (!isAttacking) {
-                Hitbox hitbox = currentHitbox + new Vector2(speedX * 28, 0);
-                List<ActorBase> colliders = api.GetCollidingPlayers(ref hitbox);
-                if (colliders.Count > 0) {
-                    Attack();
-                }
+            if (!isAttacking && api.GetCollidingPlayers(currentHitbox + new Vector2(speedX * 28, 0)).Any()) {
+                Attack();
             }
         }
 

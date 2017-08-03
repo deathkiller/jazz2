@@ -84,24 +84,22 @@ namespace Jazz2.Actors.Solid
             Hitbox hitbox = currentHitbox;
             hitbox.Top -= 2;
 
-            List<ActorBase> players = api.GetCollidingPlayers(ref hitbox);
             if (type != PlatformType.SpikeBall) {
-                for (int i = 0; i < players.Count; i++) {
-                    (players[i] as Player).SetCarryingPlatform(this);
+                foreach (Player player in api.GetCollidingPlayers(hitbox)) {
+                    player.SetCarryingPlatform(this);
                 }
 
                 if (type == PlatformType.Spike) {
                     hitbox.Top += 40;
                     hitbox.Bottom += 40;
 
-                    players = api.GetCollidingPlayers(ref hitbox);
-                    for (int i = 0; i < players.Count; i++) {
-                        (players[i] as Player).TakeDamage(2);
+                    foreach (Player player in api.GetCollidingPlayers(hitbox)) {
+                        player.TakeDamage(2);
                     }
                 }
             } else {
-                for (int i = 0; i < players.Count; i++) {
-                    (players[i] as Player).TakeDamage(2);
+                foreach (Player player in api.GetCollidingPlayers(hitbox)) {
+                    player.TakeDamage(2);
                 }
             }
 

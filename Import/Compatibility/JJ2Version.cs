@@ -11,6 +11,7 @@ namespace Jazz2.Compatibility
         CC = 0x0008,
 
         PlusExtension = 0x0100,
+        SharewareDemo = 0x0200,
 
         Unknown = 0x0000,
         All = 0xffff

@@ -91,6 +91,10 @@
         },
         "PickupCoin": {
             "Path": "Pickup/coin_silver.png"
+        },
+        
+        "BossHealthBar": {
+            "Path": "UI/boss_health_bar.png"
         }
     }
 }

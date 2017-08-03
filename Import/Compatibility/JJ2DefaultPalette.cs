@@ -2854,5 +2854,267 @@ namespace Jazz2.Compatibility
             Color.FromArgb(255, 254, 254, 254), // 254
             Color.FromArgb(255, 255, 255, 255), // 255
         };
+
+        // Fixed palette for Toaster PowerUp Monitor
+        public static readonly Color[] ToasterPowerUpFix = {
+            Color.FromArgb(0, 0, 0, 0), // 0
+            Color.FromArgb(255, 0, 0, 1), // 1
+            Color.FromArgb(255, 0, 1, 0), // 2
+            Color.FromArgb(255, 1, 0, 0), // 3
+            Color.FromArgb(255, 0, 1, 1), // 4
+            Color.FromArgb(255, 1, 0, 1), // 5
+            Color.FromArgb(255, 1, 1, 0), // 6
+            Color.FromArgb(255, 1, 1, 1), // 7
+            Color.FromArgb(255, 0, 0, 2), // 8
+            Color.FromArgb(255, 0, 1, 2), // 9
+            Color.FromArgb(255, 255, 67, 195), // 10
+            Color.FromArgb(255, 174, 176, 188), // 11
+            Color.FromArgb(255, 63, 237, 224), // 12
+            Color.FromArgb(255, 160, 153, 218), // 13
+            Color.FromArgb(255, 36, 38, 50), // 14
+            Color.FromArgb(255, 255, 255, 254), // 15
+            Color.FromArgb(255, 199, 255, 0), // 16
+            Color.FromArgb(255, 147, 223, 0), // 17
+            Color.FromArgb(255, 107, 191, 0), // 18
+            Color.FromArgb(255, 71, 163, 0), // 19
+            Color.FromArgb(255, 43, 131, 0), // 20
+            Color.FromArgb(255, 19, 103, 0), // 21
+            Color.FromArgb(255, 7, 55, 0), // 22
+            Color.FromArgb(255, 0, 12, 0), // 23
+            Color.FromArgb(255, 219, 99, 255), // 24 -> 88
+            Color.FromArgb(255, 207, 47, 255), // 25 -> 89
+            Color.FromArgb(255, 199, 0, 255), // 26 -> 90
+            Color.FromArgb(255, 159, 0, 207), // 27 -> 91
+            Color.FromArgb(255, 119, 0, 159), // 28 -> 92
+            Color.FromArgb(255, 83, 0, 111), // 29 -> 93
+            Color.FromArgb(255, 47, 0, 63), // 30 -> 94
+            Color.FromArgb(255, 12, 0, 0), // 31
+            Color.FromArgb(255, 255, 255, 0), // 32 -> 40
+            Color.FromArgb(255, 255, 199, 0), // 33 -> 41
+            Color.FromArgb(255, 255, 147, 0), // 34 -> 42
+            Color.FromArgb(255, 255, 95, 0), // 35 -> 43
+            Color.FromArgb(255, 203, 55, 0), // 36 -> 44
+            Color.FromArgb(255, 155, 27, 0), // 37 -> 45
+            Color.FromArgb(255, 0, 47, 79), // 38
+            Color.FromArgb(255, 0, 7, 11), // 39
+            Color.FromArgb(255, 255, 255, 0), // 40
+            Color.FromArgb(255, 255, 199, 0), // 41
+            Color.FromArgb(255, 255, 147, 0), // 42
+            Color.FromArgb(255, 255, 95, 0), // 43
+            Color.FromArgb(255, 203, 55, 0), // 44
+            Color.FromArgb(255, 155, 27, 0), // 45
+            Color.FromArgb(255, 83, 7, 0), // 46
+            Color.FromArgb(255, 11, 0, 0), // 47
+            Color.FromArgb(255, 251, 139, 183), // 48
+            Color.FromArgb(255, 247, 91, 151), // 49
+            Color.FromArgb(255, 243, 43, 123), // 50
+            Color.FromArgb(255, 239, 0, 99), // 51
+            Color.FromArgb(255, 191, 0, 75), // 52
+            Color.FromArgb(255, 147, 0, 55), // 53
+            Color.FromArgb(255, 99, 0, 35), // 54
+            Color.FromArgb(255, 55, 0, 19), // 55
+            Color.FromArgb(255, 56, 176, 181), // 56
+            Color.FromArgb(255, 78, 219, 201), // 57
+            Color.FromArgb(255, 202, 198, 245), // 58
+            Color.FromArgb(255, 219, 195, 0), // 59
+            Color.FromArgb(255, 187, 147, 0), // 60
+            Color.FromArgb(255, 155, 107, 0), // 61
+            Color.FromArgb(255, 83, 55, 0), // 62
+            Color.FromArgb(255, 11, 7, 0), // 63
+            Color.FromArgb(255, 255, 243, 211), // 64
+            Color.FromArgb(255, 219, 207, 175), // 65
+            Color.FromArgb(255, 187, 175, 147), // 66
+            Color.FromArgb(255, 155, 139, 115), // 67
+            Color.FromArgb(255, 119, 107, 87), // 68
+            Color.FromArgb(255, 87, 75, 63), // 69
+            Color.FromArgb(255, 47, 35, 31), // 70
+            Color.FromArgb(255, 11, 7, 7), // 71
+            Color.FromArgb(255, 211, 231, 255), // 72
+            Color.FromArgb(255, 255, 199, 0), // 73 -> 41
+            Color.FromArgb(255, 255, 147, 0), // 74 -> 42
+            Color.FromArgb(255, 255, 95, 0), // 75 -> 43
+            Color.FromArgb(255, 203, 55, 0), // 76 -> 44
+            Color.FromArgb(255, 51, 63, 87), // 77
+            Color.FromArgb(255, 27, 31, 47), // 78
+            Color.FromArgb(255, 7, 7, 11), // 79
+            Color.FromArgb(255, 0, 255, 163), // 80
+            Color.FromArgb(255, 0, 227, 127), // 81
+            Color.FromArgb(255, 7, 199, 95), // 82
+            Color.FromArgb(255, 7, 171, 67), // 83
+            Color.FromArgb(255, 11, 143, 47), // 84
+            Color.FromArgb(255, 11, 119, 31), // 85
+            Color.FromArgb(255, 0, 63, 7), // 86
+            Color.FromArgb(255, 0, 11, 0), // 87
+            Color.FromArgb(255, 219, 99, 255), // 88
+            Color.FromArgb(255, 207, 47, 255), // 89
+            Color.FromArgb(255, 199, 0, 255), // 90
+            Color.FromArgb(255, 159, 0, 207), // 91
+            Color.FromArgb(255, 119, 0, 159), // 92
+            Color.FromArgb(255, 83, 0, 111), // 93
+            Color.FromArgb(255, 47, 0, 63), // 94
+            Color.FromArgb(255, 11, 0, 15), // 95
+            Color.FromArgb(255, 207, 0, 143), // 96
+            Color.FromArgb(255, 191, 0, 131), // 97
+            Color.FromArgb(255, 175, 0, 123), // 98
+            Color.FromArgb(255, 163, 7, 111), // 99
+            Color.FromArgb(255, 147, 7, 103), // 100
+            Color.FromArgb(255, 135, 7, 91), // 101
+            Color.FromArgb(255, 119, 7, 83), // 102
+            Color.FromArgb(255, 103, 7, 71), // 103
+            Color.FromArgb(255, 91, 7, 63), // 104
+            Color.FromArgb(255, 79, 7, 55), // 105
+            Color.FromArgb(255, 67, 0, 51), // 106
+            Color.FromArgb(255, 55, 0, 43), // 107
+            Color.FromArgb(255, 43, 0, 35), // 108
+            Color.FromArgb(255, 31, 0, 27), // 109
+            Color.FromArgb(255, 19, 0, 15), // 110
+            Color.FromArgb(255, 7, 0, 7), // 111
+            Color.FromArgb(255, 211, 59, 255), // 112
+            Color.FromArgb(255, 183, 43, 239), // 113
+            Color.FromArgb(255, 159, 31, 223), // 114
+            Color.FromArgb(255, 135, 23, 207), // 115
+            Color.FromArgb(255, 111, 11, 191), // 116
+            Color.FromArgb(255, 91, 7, 175), // 117
+            Color.FromArgb(255, 71, 0, 159), // 118
+            Color.FromArgb(255, 55, 0, 143), // 119
+            Color.FromArgb(255, 39, 0, 127), // 120
+            Color.FromArgb(255, 31, 0, 111), // 121
+            Color.FromArgb(255, 19, 0, 95), // 122
+            Color.FromArgb(255, 11, 0, 79), // 123
+            Color.FromArgb(255, 7, 0, 63), // 124
+            Color.FromArgb(255, 0, 0, 47), // 125
+            Color.FromArgb(255, 0, 0, 31), // 126
+            Color.FromArgb(255, 0, 0, 15), // 127
+            Color.FromArgb(255, 0, 255, 247), // 128
+            Color.FromArgb(255, 0, 231, 223), // 129
+            Color.FromArgb(255, 0, 207, 203), // 130
+            Color.FromArgb(255, 0, 183, 179), // 131
+            Color.FromArgb(255, 0, 159, 155), // 132
+            Color.FromArgb(255, 0, 135, 131), // 133
+            Color.FromArgb(255, 0, 111, 111), // 134
+            Color.FromArgb(255, 0, 99, 99), // 135
+            Color.FromArgb(255, 0, 87, 87), // 136
+            Color.FromArgb(255, 0, 79, 79), // 137
+            Color.FromArgb(255, 0, 67, 67), // 138
+            Color.FromArgb(255, 0, 55, 56), // 139
+            Color.FromArgb(255, 0, 47, 47), // 140
+            Color.FromArgb(255, 0, 35, 35), // 141
+            Color.FromArgb(255, 0, 23, 23), // 142
+            Color.FromArgb(255, 0, 15, 15), // 143
+            Color.FromArgb(255, 119, 27, 199), // 144
+            Color.FromArgb(255, 103, 23, 187), // 145
+            Color.FromArgb(255, 87, 19, 175), // 146
+            Color.FromArgb(255, 71, 15, 167), // 147
+            Color.FromArgb(255, 59, 15, 155), // 148
+            Color.FromArgb(255, 47, 11, 147), // 149
+            Color.FromArgb(255, 35, 11, 135), // 150
+            Color.FromArgb(255, 27, 7, 123), // 151
+            Color.FromArgb(255, 15, 7, 115), // 152
+            Color.FromArgb(255, 7, 7, 103), // 153
+            Color.FromArgb(255, 0, 0, 95), // 154
+            Color.FromArgb(255, 0, 7, 83), // 155
+            Color.FromArgb(255, 0, 7, 71), // 156
+            Color.FromArgb(255, 0, 11, 63), // 157
+            Color.FromArgb(255, 0, 11, 51), // 158
+            Color.FromArgb(255, 0, 12, 43), // 159
+            Color.FromArgb(255, 0, 139, 175), // 160
+            Color.FromArgb(255, 0, 131, 163), // 161
+            Color.FromArgb(255, 0, 127, 151), // 162
+            Color.FromArgb(255, 0, 119, 143), // 163
+            Color.FromArgb(255, 0, 111, 131), // 164
+            Color.FromArgb(255, 0, 103, 119), // 165
+            Color.FromArgb(255, 0, 95, 111), // 166
+            Color.FromArgb(255, 0, 87, 99), // 167
+            Color.FromArgb(255, 0, 79, 87), // 168
+            Color.FromArgb(255, 0, 71, 79), // 169
+            Color.FromArgb(255, 0, 63, 67), // 170
+            Color.FromArgb(255, 0, 55, 55), // 171
+            Color.FromArgb(255, 95, 183, 183), // 172
+            Color.FromArgb(255, 141, 131, 214), // 173
+            Color.FromArgb(255, 207, 177, 28), // 174
+            Color.FromArgb(255, 65, 168, 179), // 175
+            Color.FromArgb(255, 107, 71, 251), // 176
+            Color.FromArgb(255, 99, 67, 243), // 177
+            Color.FromArgb(255, 95, 67, 239), // 178
+            Color.FromArgb(255, 91, 63, 231), // 179
+            Color.FromArgb(255, 83, 59, 227), // 180
+            Color.FromArgb(255, 79, 55, 219), // 181
+            Color.FromArgb(255, 71, 55, 211), // 182
+            Color.FromArgb(255, 67, 51, 207), // 183
+            Color.FromArgb(255, 63, 51, 199), // 184
+            Color.FromArgb(255, 59, 47, 195), // 185
+            Color.FromArgb(255, 55, 43, 187), // 186
+            Color.FromArgb(255, 51, 43, 183), // 187
+            Color.FromArgb(255, 43, 39, 175), // 188
+            Color.FromArgb(255, 43, 39, 171), // 189
+            Color.FromArgb(255, 39, 35, 163), // 190
+            Color.FromArgb(255, 35, 35, 159), // 191
+            Color.FromArgb(255, 31, 31, 151), // 192
+            Color.FromArgb(255, 31, 31, 147), // 193
+            Color.FromArgb(255, 27, 31, 139), // 194
+            Color.FromArgb(255, 27, 31, 135), // 195
+            Color.FromArgb(255, 23, 31, 127), // 196
+            Color.FromArgb(255, 23, 31, 123), // 197
+            Color.FromArgb(255, 19, 31, 111), // 198
+            Color.FromArgb(255, 15, 27, 103), // 199
+            Color.FromArgb(255, 11, 23, 91), // 200
+            Color.FromArgb(255, 7, 19, 79), // 201
+            Color.FromArgb(255, 7, 19, 71), // 202
+            Color.FromArgb(255, 0, 15, 63), // 203
+            Color.FromArgb(255, 0, 11, 55), // 204
+            Color.FromArgb(255, 0, 11, 43), // 205
+            Color.FromArgb(255, 0, 7, 35), // 206
+            Color.FromArgb(255, 0, 7, 27), // 207
+            // Colors from here on are suspicious. Not sure if they are used anywhere with the set colors,
+            // but they _are_ used with the diamond graphics, which they don't match with.
+            Color.FromArgb(255, 120, 226, 220), // 208
+            Color.FromArgb(255, 82, 205, 193), // 209
+            Color.FromArgb(255, 98, 100, 112), // 210
+            Color.FromArgb(255, 60, 251, 232), // 211
+            Color.FromArgb(255, 96, 187, 169), // 212
+            Color.FromArgb(255, 191, 255, 255), // 213
+            Color.FromArgb(255, 209, 255, 255), // 214
+            Color.FromArgb(255, 64, 152, 152), // 215
+            Color.FromArgb(255, 203, 255, 255), // 216
+            Color.FromArgb(255, 121, 147, 218), // 217
+            Color.FromArgb(255, 209, 158, 33), // 218
+            Color.FromArgb(255, 113, 106, 171), // 219
+            Color.FromArgb(255, 152, 154, 166), // 220
+            Color.FromArgb(255, 115, 144, 197), // 221
+            Color.FromArgb(255, 214, 255, 255), // 222
+            Color.FromArgb(255, 182, 190, 11), // 223
+            Color.FromArgb(255, 197, 211, 252), // 224
+            Color.FromArgb(255, 26, 146, 151), // 225
+            Color.FromArgb(255, 207, 255, 255), // 226
+            Color.FromArgb(255, 75, 71, 118), // 227
+            Color.FromArgb(255, 158, 125, 250), // 228
+            Color.FromArgb(255, 123, 155, 190), // 229
+            Color.FromArgb(255, 126, 214, 214), // 230
+            Color.FromArgb(255, 197, 199, 211), // 231
+            Color.FromArgb(255, 33, 168, 185), // 232
+            Color.FromArgb(255, 85, 75, 158), // 233
+            Color.FromArgb(255, 47, 138, 120), // 234
+            Color.FromArgb(255, 101, 174, 162), // 235
+            Color.FromArgb(255, 67, 93, 164), // 236
+            Color.FromArgb(255, 27, 201, 188), // 237
+            Color.FromArgb(255, 124, 129, 224), // 238
+            Color.FromArgb(255, 86, 56, 163), // 239
+            Color.FromArgb(255, 30, 133, 144), // 240
+            Color.FromArgb(255, 182, 193, 252), // 241
+            Color.FromArgb(255, 89, 195, 189), // 242
+            Color.FromArgb(255, 173, 255, 255), // 243
+            Color.FromArgb(255, 86, 100, 141), // 244
+            Color.FromArgb(255, 222, 116, 25), // 245
+            Color.FromArgb(255, 0, 2, 1), // 246
+            Color.FromArgb(255, 0, 2, 2), // 247
+            Color.FromArgb(255, 1, 0, 2), // 248
+            Color.FromArgb(255, 2, 0, 1), // 249
+            Color.FromArgb(255, 2, 0, 2), // 250
+            Color.FromArgb(255, 1, 2, 0), // 251
+            Color.FromArgb(255, 2, 1, 0), // 252
+            Color.FromArgb(255, 2, 2, 0), // 253
+            Color.FromArgb(255, 1, 1, 2), // 254
+            Color.FromArgb(255, 254, 255, 255) // 255
+        };
     }
 }

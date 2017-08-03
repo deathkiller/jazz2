@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Duality;
 using Jazz2.Game;
 using Jazz2.Game.Events;
@@ -103,31 +104,28 @@ namespace Jazz2.Actors.Solid
 
         protected override void OnUpdate()
         {
-            List<ActorBase> collision = new List<ActorBase>(api.FindCollisionActorsFast(this, ref currentHitbox));
+            IEnumerable<ActorBase> collisions = api.FindCollisionActorsFast(this, currentHitbox);
             for (int j = 0; j < bridgePieces.Count; ++j) {
-                Hitbox hitbox = bridgePieces[j].GetHitboxForParent();
-                collision.AddRange(api.FindCollisionActorsFast(this, ref hitbox));
+                collisions = collisions.Concat(api.FindCollisionActorsFast(this, bridgePieces[j].GetHitboxForParent()));
             }
 
             Vector3 pos = Transform.Pos;
 
             bool found = false;
-            for (int i = 0; i < collision.Count; ++i) {
-                ActorBase collisionPtr = collision[i];
-
+            foreach (ActorBase collision in collisions) {
                 // ToDo: This code only works with one player
-                Player p = collisionPtr as Player;
-                if (p != null) {
-                    if (p != lastPlayer) {
-                        if (p.Speed.Y < -0.5f) {
+                Player player = collision as Player;
+                if (player != null) {
+                    if (player != lastPlayer) {
+                        if (player.Speed.Y < -0.5f) {
                             continue;
                         }
 
-                        lastPlayer = p;
+                        lastPlayer = player;
                     }
 
                     found = true;
-                    Vector3 coords = p.Transform.Pos;
+                    Vector3 coords = player.Transform.Pos;
                     int length = bridgePieces.Count;
 
                     // This marks which bridge piece is under the player and should be positioned

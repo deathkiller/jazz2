@@ -78,9 +78,6 @@ namespace Jazz2.Game
 
         private int waterLevel = int.MaxValue;
 
-        [ThreadStatic]
-        private static List<ActorBase> collisionCache;
-
         public Controller Root => root;
         public ActorApi Api => api;
 
@@ -281,7 +278,7 @@ namespace Jazz2.Game
         private void LoadLevel(string level, string episode)
         {
             string levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", episode, level);
-            using (Stream s = DualityApp.SystemBackend.FileSystem.OpenFile(PathOp.Combine(levelPath, ".res"), FileAccessMode.Read)) {
+            using (Stream s = FileOp.Open(PathOp.Combine(levelPath, ".res"), FileAccessMode.Read)) {
                 // ToDo: Cache parser, move JSON parsing to ContentResolver
                 JsonParser json = new JsonParser();
                 LevelConfigJson config = json.Parse<LevelConfigJson>(s);
@@ -399,55 +396,32 @@ namespace Jazz2.Game
             AddObject(actor);
         }
 
-        public List<ActorBase> FindCollisionActorsFast(ActorBase self, ref Hitbox hitbox)
+        public IEnumerable<ActorBase> FindCollisionActorsFast(ActorBase self, Hitbox hitbox)
         {
-            //List<ActorBase> result = new List<ActorBase>();
-            if (collisionCache == null) {
-                collisionCache = new List<ActorBase>();
-            } else {
-                collisionCache.Clear();
-            }
-
             for (int i = 0; i < actors.Count; ++i) {
                 if (self == actors[i] || (actors[i].CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0) {
                     continue;
                 }
                 if (actors[i].Hitbox.Intersects(ref hitbox)) {
-                    collisionCache.Add(actors[i]);
+                    yield return actors[i];
                 }
             }
-            return collisionCache;
         }
 
-        public List<ActorBase> FindCollisionActors(ActorBase self)
+        public IEnumerable<ActorBase> FindCollisionActors(ActorBase self)
         {
-            //List<ActorBase> result = new List<ActorBase>();
-            if (collisionCache == null) {
-                collisionCache = new List<ActorBase>();
-            } else {
-                collisionCache.Clear();
-            }
-
             for (int i = 0; i < actors.Count; ++i) {
                 if (self == actors[i] || (actors[i].CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0) {
                     continue;
                 }
                 if (actors[i].IsCollidingWith(self)) {
-                    collisionCache.Add(actors[i]);
+                    yield return actors[i];
                 }
             }
-            return collisionCache;
         }
 
-        public List<ActorBase> FindCollisionActorsRadius(float x, float y, float radius)
+        public IEnumerable<ActorBase> FindCollisionActorsRadius(float x, float y, float radius)
         {
-            //List<ActorBase> result = new List<ActorBase>();
-            if (collisionCache == null) {
-                collisionCache = new List<ActorBase>();
-            } else {
-                collisionCache.Clear();
-            }
-
             for (int i = 0; i < actors.Count; ++i) {
                 if ((actors[i].CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0) {
                     continue;
@@ -466,10 +440,9 @@ namespace Jazz2.Game
                 // If the distance is less than the circle's radius, an intersection occurs
                 float distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
                 if (distanceSquared < (radius * radius)) {
-                    collisionCache.Add(actors[i]);
+                    yield return actors[i];
                 }
             }
-            return collisionCache;
         }
 
         public bool IsPositionEmpty(ActorBase self, ref Hitbox hitbox, bool downwards, out ActorBase collider)
@@ -484,15 +457,14 @@ namespace Jazz2.Game
 
             // Check for solid objects
             if ((self.CollisionFlags & CollisionFlags.CollideWithSolidObjects) != 0) {
-                List<ActorBase> collision = FindCollisionActorsFast(self, ref hitbox);
-                for (int i = 0; i < collision.Count; i++) {
-                    if ((collision[i].CollisionFlags & CollisionFlags.IsSolidObject) == 0) {
+                foreach (ActorBase collision in FindCollisionActorsFast(self, hitbox)) {
+                    if ((collision.CollisionFlags & CollisionFlags.IsSolidObject) == 0) {
                         continue;
                     }
 
-                    SolidObjectBase solidObject = collision[i] as SolidObjectBase;
+                    SolidObjectBase solidObject = collision as SolidObjectBase;
                     if (solidObject == null || (solidObject != null && (!solidObject.IsOneWay || downwards))) {
-                        collider = collision[i];
+                        collider = collision;
                         return false;
                     }
                 }
@@ -507,22 +479,13 @@ namespace Jazz2.Game
             return IsPositionEmpty(self, ref hitbox, downwards, out solidObject);
         }
 
-        public List<ActorBase> GetCollidingPlayers(ref Hitbox hitbox)
+        public IEnumerable<Player> GetCollidingPlayers(Hitbox hitbox)
         {
-            //List<Player> result = new List<Player>();
-            if (collisionCache == null) {
-                collisionCache = new List<ActorBase>();
-            } else {
-                collisionCache.Clear();
-            }
-
-            foreach (Player p in players) {
-                if (p.Hitbox.Intersects(ref hitbox)) {
-                    collisionCache.Add(p);
+            foreach (Player player in players) {
+                if (player.Hitbox.Intersects(ref hitbox)) {
+                    yield return player;
                 }
             }
-
-            return collisionCache;
         }
 
         public void InitLevelChange(ExitType exitType, string nextLevel)
@@ -590,9 +553,42 @@ namespace Jazz2.Game
         {
             CameraController controller = camera.GetComponent<CameraController>();
             if (controller != null && controller.TargetObject == target) {
-                //Vector3 pos = target.Transform.Pos;
-                //camera.Transform.Pos = new Vector3(pos.X, pos.Y, 0);
                 controller.TargetObject = target;
+            }
+        }
+
+        public void LimitCameraView(float left, float width)
+        {
+            // ToDo: Implement smooth transition
+            CameraController controller = camera.GetComponent<CameraController>();
+            if (controller != null) {
+                Rect currentView = controller.ViewRect;
+                currentView.X = left;
+
+                if (width > 0f) {
+                    currentView.W = width;
+
+                    // ToDo: Quick fix
+                    if (currentView.W < 720) {
+                        currentView.W = 720;
+                    }
+
+                    // Add 1 tile gap to prevent player from stucking
+                    tileMap.SetSolidLimit((int)left / 32 - 1, (int)width / 32 + 2);
+                } else {
+                    currentView.W = (tileMap.Size.X * tileMap.Tileset.TileSize) - left;
+
+                    // ToDo: Quick fix
+                    if (currentView.W < 720) {
+                        currentView.X -= 720 - currentView.W;
+                        currentView.W = 720;
+                    }
+
+                    // Add 1 tile gap to prevent player from stucking
+                    tileMap.SetSolidLimit((int)left / 32 - 1, 0);
+                }
+
+                controller.ViewRect = currentView;
             }
         }
 

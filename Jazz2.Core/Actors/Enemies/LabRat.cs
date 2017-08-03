@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Linq;
 using Duality;
 using Jazz2.Game.Structs;
 
@@ -67,13 +66,13 @@ namespace Jazz2.Actors.Enemies
                 }
 
                 if (canAttack) {
-                    if (Math.Abs(speedY) < float.Epsilon) {
+                    if (MathF.Abs(speedY) < float.Epsilon) {
                         Hitbox hitbox = currentHitbox.Extend(
                             isFacingLeft ? 128 : 0, 20,
                             isFacingLeft ? 0 : 128, 20
                         );
-                        List<ActorBase> players = api.GetCollidingPlayers(ref hitbox);
-                        if (players.Count > 0) {
+
+                        if (api.GetCollidingPlayers(hitbox).Any()) {
                             Attack();
                         }
                     }

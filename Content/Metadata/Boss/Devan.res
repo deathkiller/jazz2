@@ -41,13 +41,13 @@
         "ShootEnd": {
             "Path": "Devan/shoot.png",
             "FrameOffset": 6,
-            "FrameCount": 2,
-            "FrameRate": 26,
+            "FrameCount": 1,
+            "FrameRate": 40,
             "States": [ 17 ]
         },
         "ShootEnd2": {
             "Path": "Devan/shoot.png",
-            "FrameOffset": 8,
+            "FrameOffset": 7,
             "FrameRate": 28,
             "States": [ 18 ]
         },
@@ -126,6 +126,9 @@
         },
         "Flap": {
             "Paths": [ "Devan/flap.wav" ]
+        },
+        "WallPoof": {
+            "Paths": [ "Weapon/wall_poof.wav" ]
         }
     }
 }

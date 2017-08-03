@@ -160,7 +160,7 @@ namespace Jazz2.Actors.Bosses
                         state = StateTransition;
                         SetTransition(AnimState.TransitionRunToIdle, false, delegate {
                             SetTransition((AnimState)15, false, delegate {
-                                shots = MathF.Rnd.Next(1, 5);
+                                shots = MathF.Rnd.Next(1, 8);
                                 Shoot();
                             });
                         });
@@ -391,7 +391,7 @@ namespace Jazz2.Actors.Bosses
 
             protected override bool OnPerish(ActorBase collider)
             {
-                Explosion.Create(api, Transform.Pos, Explosion.SmallDark);
+                Explosion.Create(api, Transform.Pos, Explosion.Small);
 
                 return base.OnPerish(collider);
             }
@@ -403,16 +403,22 @@ namespace Jazz2.Actors.Bosses
             protected override void OnHitFloorHook()
             {
                 DecreaseHealth(int.MaxValue);
+
+                PlaySound("WallPoof");
             }
 
             protected override void OnHitWallHook()
             {
                 DecreaseHealth(int.MaxValue);
+
+                PlaySound("WallPoof");
             }
 
             protected override void OnHitCeilingHook()
             {
                 DecreaseHealth(int.MaxValue);
+
+                PlaySound("WallPoof");
             }
         }
 

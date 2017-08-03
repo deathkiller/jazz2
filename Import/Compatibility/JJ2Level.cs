@@ -855,7 +855,7 @@ namespace Jazz2.Compatibility
                     randomColor ^= true;
                     colorIndex = -1;
                 } else if (current[j] == '~') {
-                    // ToDo: Is this correct?
+                    // Freeze the active color
                     randomColor = false;
                 } else if (current[j] == '|') {
                     // Custom color

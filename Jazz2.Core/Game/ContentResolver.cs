@@ -179,45 +179,53 @@ namespace Jazz2.Game
                             continue;
                         }
 
-                        ContentRef<DrawTechnique> drawTechnique;
-                        if (g.Value.Shader == null) {
-                            drawTechnique = basicNormal;
-                        } else {
-                            drawTechnique = RequestShader(g.Value.Shader);
-                        }
-
-                        ColorRgba color;
-                        if (g.Value.ShaderColors == null || g.Value.ShaderColors.Count < 4) {
-                            color = ColorRgba.White;
-                        } else {
-                            color = new ColorRgba((byte)g.Value.ShaderColors[0], (byte)g.Value.ShaderColors[1], (byte)g.Value.ShaderColors[2], (byte)g.Value.ShaderColors[3]);
-                        }
-
-                        // Create copy of generic resource
-                        GraphicResource resource = GraphicResource.From(RequestGraphicResource(g.Value.Path, palette), drawTechnique, color);
-
-                        resource.FrameOffset = g.Value.FrameOffset;
-
-                        string raw1, raw2; int raw3;
-                        if ((raw1 = g.Value.FrameCount as string) != null && int.TryParse(raw1, out raw3)) {
-                            resource.FrameCount = raw3;
-                        } else {
-                            resource.FrameCount -= resource.FrameOffset;
-                        }
-                        if ((raw2 = g.Value.FrameRate as string) != null && int.TryParse(raw2, out raw3)) {
-                            resource.FrameDuration = (1f / raw3) * 5; // ToDo: I don't know...
-                        }
-
-                        resource.OnlyOnce = (g.Value.Flags & 0x01) != 0;
-
-                        if (g.Value.States != null) {
-                            resource.State = new HashSet<AnimState>();
-                            for (int i = 0; i < g.Value.States.Count; i++) {
-                                resource.State.Add((AnimState)g.Value.States[i]);
+#if !DEBUG__
+                        try {
+#endif
+                            ContentRef<DrawTechnique> drawTechnique;
+                            if (g.Value.Shader == null) {
+                                drawTechnique = basicNormal;
+                            } else {
+                                drawTechnique = RequestShader(g.Value.Shader);
                             }
-                        }
 
-                        metadata.Graphics[g.Key] = resource;
+                            ColorRgba color;
+                            if (g.Value.ShaderColors == null || g.Value.ShaderColors.Count < 4) {
+                                color = ColorRgba.White;
+                            } else {
+                                color = new ColorRgba((byte)g.Value.ShaderColors[0], (byte)g.Value.ShaderColors[1], (byte)g.Value.ShaderColors[2], (byte)g.Value.ShaderColors[3]);
+                            }
+
+                            // Create copy of generic resource
+                            GraphicResource resource = GraphicResource.From(RequestGraphicResource(g.Value.Path, palette), drawTechnique, color);
+
+                            resource.FrameOffset = g.Value.FrameOffset;
+
+                            string raw1, raw2; int raw3;
+                            if ((raw1 = g.Value.FrameCount as string) != null && int.TryParse(raw1, out raw3)) {
+                                resource.FrameCount = raw3;
+                            } else {
+                                resource.FrameCount -= resource.FrameOffset;
+                            }
+                            if ((raw2 = g.Value.FrameRate as string) != null && int.TryParse(raw2, out raw3)) {
+                                resource.FrameDuration = (1f / raw3) * 5; // ToDo: I don't know...
+                            }
+
+                            resource.OnlyOnce = (g.Value.Flags & 0x01) != 0;
+
+                            if (g.Value.States != null) {
+                                resource.State = new HashSet<AnimState>();
+                                for (int i = 0; i < g.Value.States.Count; i++) {
+                                    resource.State.Add((AnimState)g.Value.States[i]);
+                                }
+                            }
+
+                            metadata.Graphics[g.Key] = resource;
+#if !DEBUG__
+                        } catch (Exception ex) {
+                            Console.WriteLine("Can't load animation \"" + g.Key + "\" from metadata \"" + path + "\": " + ex);
+                        }
+#endif
                     }
                 }
 
@@ -231,16 +239,24 @@ namespace Jazz2.Game
                             continue;
                         }
 
-                        IList<string> filenames = s.Value.Paths;
-                        ContentRef<AudioData>[] data = new ContentRef<AudioData>[filenames.Count];
-                        for (int i = 0; i < data.Length; i++) {
+#if !DEBUG__
+                        try {
+#endif
+                            IList<string> filenames = s.Value.Paths;
+                            ContentRef<AudioData>[] data = new ContentRef<AudioData>[filenames.Count];
+                            for (int i = 0; i < data.Length; i++) {
 
-                            data[i] = new AudioData(FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, "Animations", filenames[i]), FileAccessMode.Read));
+                                data[i] = new AudioData(FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, "Animations", filenames[i]), FileAccessMode.Read));
+                            }
+
+                            SoundResource resource = new SoundResource();
+                            resource.Sound = new Sound(data);
+                            metadata.Sounds[s.Key] = resource;
+#if !DEBUG__
+                        } catch (Exception ex) {
+                            Console.WriteLine("Can't load sound \"" + s.Key + "\" from metadata \"" + path + "\": " + ex);
                         }
-
-                        SoundResource resource = new SoundResource();
-                        resource.Sound = new Sound(data);
-                        metadata.Sounds[s.Key] = resource;
+#endif
                     }
                 }
 

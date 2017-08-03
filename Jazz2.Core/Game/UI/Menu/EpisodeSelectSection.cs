@@ -66,7 +66,7 @@ namespace Jazz2.Game.UI.Menu
             api.DrawMaterial(c, "MenuDim", center.X, (topLine + bottomLine) * 0.5f, Alignment.Center, ColorRgba.White, 55f, (bottomLine - topLine) * 0.063f, new Rect(0f, 0.3f, 1f, 0.4f));
 
             int charOffset = 0;
-            api.DrawStringShadow(device, ref charOffset, "Select episode", center.X, 110f,
+            api.DrawStringShadow(device, ref charOffset, "Select Episode", center.X, 110f,
                 Alignment.Center, new ColorRgba(0.5f, 0.5f), 0.9f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
 
             if (episodes.Count > 0) {

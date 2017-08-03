@@ -22,6 +22,7 @@ namespace Jazz2.Game.Tiles
 
         private int levelWidth, levelHeight, sprLayerIndex;
         private bool hasPit;
+        private int limitLeft, limitRight;
 
         private BitArray triggerState;
 
@@ -114,7 +115,7 @@ namespace Jazz2.Game.Tiles
                     tile.IsAnimated = isAnimated;
 
                     if (legacyTranslucent) {
-                        tile.MaterialAlpha = 127;
+                        tile.MaterialAlpha = /*127*/180;
                     }
 
                     newLayer.Layout[i] = tile;
@@ -124,6 +125,9 @@ namespace Jazz2.Game.Tiles
                     levelWidth = width;
                     levelHeight = height;
                     sprLayerIndex = levelLayout.Count;
+
+                    // No limit
+                    limitRight = levelWidth;
                 }
 
                 newLayer.LayoutWidth = width;
@@ -239,7 +243,7 @@ namespace Jazz2.Game.Tiles
         {
             // ToDo: Is this function used correctly?
             // Consider out-of-level coordinates as solid walls
-            if (x < 0 || y < 0 || x >= levelWidth) {
+            if (x < limitLeft || y < 0 || x >= limitRight) {
                 return false;
             }
             if (y >= levelHeight) {
@@ -263,22 +267,23 @@ namespace Jazz2.Game.Tiles
             //int tileSize = Tileset.TileSize;
             const int tileSize = 32;
 
-            int levelWidthPx = levelWidth * tileSize;
-            int levelHeightPx = levelHeight * tileSize;
+            int limitLeftPx = limitLeft * tileSize;
+            int limitRightPx = limitRight * tileSize;
+            int limitBottomPx = levelHeight * tileSize;
 
             // Consider out-of-level coordinates as solid walls
-            if (hitbox.Left < 0 || hitbox.Top < 0 || hitbox.Right >= levelWidthPx) {
+            if (hitbox.Left < limitLeftPx || hitbox.Top < 0 || hitbox.Right >= limitRightPx) {
                 return false;
             }
-            if (hitbox.Bottom >= levelHeightPx) {
+            if (hitbox.Bottom >= limitBottomPx) {
                 return hasPit;
             }
 
             // Check all covered tiles for collisions; if all are empty, no need to do pixel level collision checking
-            int hx1 = (int)Math.Floor(hitbox.Left);
-            int hx2 = (int)Math.Min(Math.Ceiling(hitbox.Right), levelWidthPx - 1);
-            int hy1 = (int)Math.Floor(hitbox.Top);
-            int hy2 = (int)Math.Min(Math.Ceiling(hitbox.Bottom), levelHeightPx - 1);
+            int hx1 = (int)MathF.Max(MathF.Floor(hitbox.Left), limitLeftPx);
+            int hx2 = (int)MathF.Min(MathF.Ceiling(hitbox.Right), limitRightPx - 1);
+            int hy1 = (int)MathF.Floor(hitbox.Top);
+            int hy2 = (int)MathF.Min(MathF.Ceiling(hitbox.Bottom), limitBottomPx - 1);
 
             LayerTile[] sprLayerLayout = levelLayout.Data[sprLayerIndex].Layout;
 
@@ -392,6 +397,16 @@ namespace Jazz2.Game.Tiles
             }
 
             return SuspendType.None;
+        }
+
+        public void SetSolidLimit(int tileLeft, int tileWidth)
+        {
+            limitLeft = tileLeft;
+            if (tileWidth > 0) {
+                limitRight = tileLeft + tileWidth;
+            } else {
+                limitRight = levelWidth;
+            }
         }
     }
 }

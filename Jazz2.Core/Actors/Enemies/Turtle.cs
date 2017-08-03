@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Duality;
+﻿using Duality;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Enemies
@@ -64,11 +63,8 @@ namespace Jazz2.Actors.Enemies
             if (!isTurning && !isWithdrawn && !isAttacking) {
                 Hitbox hitbox = currentHitbox + new Vector2(speedX * 32, 0);
                 if (api.TileMap.IsTileEmpty(ref hitbox, true)) {
-                    hitbox = currentHitbox + new Vector2(speedX * 32, 0);
-
-                    List<ActorBase> players = api.GetCollidingPlayers(ref hitbox);
-                    for (int i = 0; i < players.Count; i++) {
-                        if (!players[i].IsInvulnerable) {
+                    foreach (Player player in api.GetCollidingPlayers(currentHitbox + new Vector2(speedX * 32, 0))) {
+                        if (!player.IsInvulnerable) {
                             Attack();
                             break;
                         }

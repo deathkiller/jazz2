@@ -511,7 +511,7 @@ namespace Jazz2.Actors
                             collisionFlags &= ~CollisionFlags.IsSolidObject;
 
                             internalForceY = /*1.15f*/1.02f;
-                            speedY = /*-3f*/-3.5f - MathF.Max(0f, (MathF.Abs(speedX) - 4f) * 0.3f);
+                            speedY = /*-3f*/-3.55f - MathF.Max(0f, (MathF.Abs(speedX) - 4f) * 0.3f);
                         }
                     }
                 } else {
@@ -691,6 +691,7 @@ namespace Jazz2.Actors
                             // Return to the last save point
                             MoveInstantly(checkpointPos, MoveType.Absolute, true);
                             api.AmbientLight = checkpointLight;
+                            api.LimitCameraView(0, 0);
                             api.WarpCameraToTarget(this);
                         } else {
                             // Respawn is delayed
@@ -1073,7 +1074,7 @@ namespace Jazz2.Actors
                     collisionFlags |= CollisionFlags.ApplyGravitation;
                     canJump = true;
 
-                    externalForceY = 0.4f;
+                    externalForceY = 0.45f;
 
                     Transform.Angle = 0;
 
@@ -1108,7 +1109,7 @@ namespace Jazz2.Actors
                     api.AmbientLight = p[0] * 0.01f;
                     break;
                 }
-                case EventType.WarpOrigin: { // Warp ID, Fast. Set Lap
+                case EventType.WarpOrigin: { // Warp ID, Fast, Set Lap
                     if (currentTransitionState == AnimState.Idle || currentTransitionCancellable) {
                         Vector2 c = events.GetWarpTarget(p[0]);
                         if (c.X != -1f && c.Y != -1f) {
@@ -1244,6 +1245,10 @@ namespace Jazz2.Actors
                     api.WaterLevel = p[0];
                     break;
                 }
+                case EventType.ModifierLimitCameraView: { // Left, Width
+                    api.LimitCameraView((p[0] == 0 ? (int)(pos.X / 32) : p[0]) * 32, p[1] * 32);
+                    break;
+                }
             }
 
             // ToDo: Implement Slide modifier with JJ2+ parameter
@@ -1301,14 +1306,13 @@ namespace Jazz2.Actors
 
         private void OnHandleActorCollisions()
         {
-            List<ActorBase> collisions = api.FindCollisionActors(this);
             bool removeSpecialMove = false;
 
-            for (int i = 0; i < collisions.Count; i++) {
+            foreach (ActorBase collision in api.FindCollisionActors(this)) {
                 // Different things happen with different actor types
 
                 if (currentSpecialMove != SpecialMoveType.None || isSugarRush) {
-                    TurtleShell collider = collisions[i] as TurtleShell;
+                    TurtleShell collider = collision as TurtleShell;
                     if (collider != null) {
                         collider.DecreaseHealth(int.MaxValue, this);
 
@@ -1323,7 +1327,7 @@ namespace Jazz2.Actors
                 }
 
                 {
-                    EnemyBase collider = collisions[i] as EnemyBase;
+                    EnemyBase collider = collision as EnemyBase;
                     if (collider != null) {
                         if (currentSpecialMove != SpecialMoveType.None || isSugarRush) {
                             collider.DecreaseHealth(4, this);
@@ -1357,7 +1361,7 @@ namespace Jazz2.Actors
                     }
                 }
                 {
-                    Spring spring = collisions[i] as Spring;
+                    Spring spring = collision as Spring;
                     if (spring != null) {
                         // Collide only with hitbox
                         if (spring.Hitbox.Intersects(ref currentHitbox)) {
@@ -1395,13 +1399,13 @@ namespace Jazz2.Actors
                     }
                 }
                 {
-                    PinballBumper bumper = collisions[i] as PinballBumper;
+                    PinballBumper bumper = collision as PinballBumper;
                     if (bumper != null) {
-                        removeSpecialMove = true;
-                        canJump = false;
-
                         Vector2 force = bumper.Activate(this);
                         if (force != Vector2.Zero) {
+                            removeSpecialMove = true;
+                            canJump = false;
+
                             speedX += force.X * 0.4f;
                             speedY += force.Y * 0.4f;
                             externalForceX += force.X * 0.04f;
@@ -1415,10 +1419,13 @@ namespace Jazz2.Actors
                     }
                 }
                 {
-                    PinballPaddle paddle = collisions[i] as PinballPaddle;
+                    PinballPaddle paddle = collision as PinballPaddle;
                     if (paddle != null) {
                         Vector2 force = paddle.Activate(this);
                         if (force != Vector2.Zero) {
+                            removeSpecialMove = true;
+                            canJump = false;
+
                             speedX = force.X;
                             speedY = force.Y;
                         }
@@ -1427,7 +1434,7 @@ namespace Jazz2.Actors
                 }
 
                 if (currentTransitionState == AnimState.Idle || currentTransitionCancellable) {
-                    BonusWarp warp = collisions[i] as BonusWarp;
+                    BonusWarp warp = collision as BonusWarp;
                     if (warp != null) {
                         if (warp.Cost <= coins) {
                             coins -= warp.Cost;
@@ -1447,7 +1454,7 @@ namespace Jazz2.Actors
                     }
                 }
 
-                collisions[i].HandleCollision(this);
+                collision.HandleCollision(this);
             }
 
             if (removeSpecialMove) {

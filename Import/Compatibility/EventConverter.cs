@@ -472,6 +472,17 @@ namespace Jazz2.Compatibility
                 };
             });
 
+            convert.Add(JJ2Event.JJ2_AREA_LIMIT_X_SCROLL, (level, jj2Params) => {
+                ushort[] eventParams = ConvertParamInt(jj2Params,
+                    Pair.Create(JJ2EventParamType.UInt, 10),  // Left (Tiles)
+                    Pair.Create(JJ2EventParamType.UInt, 10)); // Width (Tiles)
+
+                return new ConversionResult {
+                    eventType = EventType.ModifierLimitCameraView,
+                    eventParams = new ushort[] { eventParams[0], eventParams[1], 0, 0, 0, 0, 0, 0 }
+                };
+            });
+
             // Area
             convert.Add(JJ2Event.JJ2_AREA_STOP_ENEMY, NoParamList(EventType.AreaStopEnemy));
             convert.Add(JJ2Event.JJ2_AREA_FLOAT_UP, NoParamList(EventType.AreaFloatUp));
@@ -623,9 +634,8 @@ namespace Jazz2.Compatibility
             convert.Add(JJ2Event.JJ2_LIGHT_DIM, ConstantParamList(EventType.LightSteady, 127, 60, 100, 0, 0, 0, 0, 0));
             convert.Add(JJ2Event.JJ2_LIGHT_STEADY, (level, jj2Params) => {
                 ushort[] eventParams = ConvertParamInt(jj2Params,
-                    Pair.Create(JJ2EventParamType.UInt, 3), // Type
-                    Pair.Create(JJ2EventParamType.UInt, 7)  // Size
-                );
+                    Pair.Create(JJ2EventParamType.UInt, 3),  // Type
+                    Pair.Create(JJ2EventParamType.UInt, 7)); // Size
 
                 switch (eventParams[0]) {
                     default:
@@ -671,8 +681,12 @@ namespace Jazz2.Compatibility
                         };
                     }
 
-                    //case 5: // Laser shield/Illuminate Surroundings
-                        // ToDo
+                    case 5: { // Laser shield/Illuminate Surroundings
+                        return new ConversionResult {
+                            eventType = EventType.LightIlluminate,
+                            eventParams = new ushort[] { (ushort)(eventParams[1] < 1 ? 1 : eventParams[1]), 0, 0, 0, 0, 0, 0, 0 }
+                        };
+                    }
 
                     case 6: // Ring of light
                         // ToDo
@@ -695,7 +709,7 @@ namespace Jazz2.Compatibility
                     Pair.Create(JJ2EventParamType.UInt, 5)  // Size
                 );
 
-                ushort radiusNear1 = (ushort)(eventParams[1] == 0 ? 20 : eventParams[1] * 4.8f);
+                ushort radiusNear1 = (ushort)(eventParams[3] == 0 ? 20 : eventParams[3] * 4.8f);
                 ushort radiusNear2 = (ushort)(radiusNear1 * 2);
                 ushort radiusFar = (ushort)(radiusNear1 * 2.4f);
 
@@ -703,10 +717,30 @@ namespace Jazz2.Compatibility
 
                 ushort sync = eventParams[1];
 
-                return new ConversionResult {
-                    eventType = EventType.LightPulse,
-                    eventParams = new ushort[] { 255, 10, radiusNear1, radiusNear2, radiusFar, speed, sync, 0 }
-                };
+                switch (eventParams[2]) {
+                    default:
+                    case 0: { // Normal
+                        return new ConversionResult {
+                            eventType = EventType.LightPulse,
+                            eventParams = new ushort[] { 255, 10, radiusNear1, radiusNear2, radiusFar, speed, sync, 0 }
+                        };
+                    }
+
+                    case 4: { // Bright normal light
+                        return new ConversionResult {
+                            eventType = EventType.LightPulse,
+                            eventParams = new ushort[] { 255, 200, radiusNear1, radiusNear2, radiusFar, speed, sync, 0 }
+                        };
+                    }
+
+                    case 5: { // Laser shield/Illuminate Surroundings
+                        // ToDo: Not pulsating yet
+                        return new ConversionResult {
+                            eventType = EventType.LightIlluminate,
+                            eventParams = new ushort[] { (ushort)(eventParams[1] < 1 ? 1 : eventParams[1]), 0, 0, 0, 0, 0, 0, 0 }
+                        };
+                    }
+                }
             });
             convert.Add(JJ2Event.JJ2_LIGHT_FLICKER, (level, jj2Params) => {
                 ushort[] eventParams = ConvertParamInt(jj2Params,

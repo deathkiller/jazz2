@@ -44,6 +44,7 @@ namespace Jazz2.Game.Events
             RegisterSpawnable<StaticRadialLight>(EventType.LightSteady);
             RegisterSpawnable<PulsatingRadialLight>(EventType.LightPulse);
             RegisterSpawnable<FlickerLight>(EventType.LightFlicker);
+            RegisterSpawnable<IlluminateLight>(EventType.LightIlluminate);
 
             // Environment
             RegisterSpawnable<Spring>(EventType.Spring);

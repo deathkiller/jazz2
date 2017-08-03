@@ -1,4 +1,5 @@
-﻿using Jazz2.Game.Events;
+﻿using Duality;
+using Jazz2.Game.Events;
 
 namespace Jazz2.Actors.Environment
 {
@@ -56,7 +57,13 @@ namespace Jazz2.Actors.Environment
                 return;
             }
 
-            player.WarpToPosition(events.GetWarpTarget(warpTarget), fast);
+            Vector2 targetPos = events.GetWarpTarget(warpTarget);
+            if (targetPos.X < 0f || targetPos.Y < 0f) {
+                // Warp target not found
+                return;
+            }
+
+            player.WarpToPosition(targetPos, fast);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.IO.Compression;
+using System.Text.Json;
 using Duality;
 using Duality.Drawing;
 using Duality.IO;
@@ -16,29 +17,62 @@ namespace Jazz2.Game.UI.Menu
         private ContentRef<DrawTechnique> texturedBackgroundShader;
         private VertexC1P3T2[] cachedVertices;
         private float backgroundX, backgroundY, backgroundPhase;
+        private float[] horizonColor;
 
         private void PrerenderTexturedBackground()
         {
             try {
                 IImageCodec codec = ImageCodec.GetRead(ImageCodec.FormatPng);
 
-                string path = PathOp.Combine(DualityApp.DataDirectory, "Tilesets", "easter99");
-                //string path = PathOp.Combine(DualityApp.DataDirectory, "Tilesets", "carrot1");
-                //string path = PathOp.Combine(DualityApp.DataDirectory, "Tilesets", "xmas3");
-                TileSet levelTileset = new TileSet(
-                    codec.Read(FileOp.Open(PathOp.Combine(path, "tiles.png"), FileAccessMode.Read)),
-                    codec.Read(FileOp.Open(PathOp.Combine(path, "mask.png"), FileAccessMode.Read)),
-                    null
-                );
-
-                if (!levelTileset.IsValid) {
-                    return;
+                // Try to use "The Secret Files" background
+                string levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "secretf", "01_easter1");
+                if (!DirectoryOp.Exists(levelPath)) {
+                    // Try to use "Base Game" background
+                    levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "prince", "03_carrot1");
+                    if (!DirectoryOp.Exists(levelPath)) {
+                        // Try to use "Holiday Hare '98" background
+                        levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "xmas98", "03_xmas3");
+                        if (!DirectoryOp.Exists(levelPath)) {
+                            // Try to use "Christmas Chronicles" background
+                            levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "xmas99", "03_xmas3");
+                            if (!DirectoryOp.Exists(levelPath)) {
+                                // Try to use "Shareware Demo" background;
+                                levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "share", "03_share3");
+                                if (!DirectoryOp.Exists(levelPath)) {
+                                    // No usable background found
+                                    throw new FileNotFoundException();
+                                }
+                            }
+                        }
+                    }
                 }
 
-                path = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "secretf", "01_easter1");
-                //path = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "prince", "03_carrot1");
-                //path = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "xmas98", "03_xmas3");
-                using (Stream s = FileOp.Open(PathOp.Combine(path, "Sky.layer"), FileAccessMode.Read)) {
+                // Load metadata
+                JsonParser json = new JsonParser();
+                LevelHandler.LevelConfigJson config;
+                using (Stream s = FileOp.Open(PathOp.Combine(levelPath, ".res"), FileAccessMode.Read)) {
+                    config = json.Parse<LevelHandler.LevelConfigJson>(s);
+                }
+
+                LevelHandler.LevelConfigJson.LayerSection layer;
+                if (config.Layers.TryGetValue("Sky", out layer)) {
+                    if (layer.BackgroundColor != null && layer.BackgroundColor.Count >= 3) {
+                        horizonColor = new float[] { layer.BackgroundColor[0] / 255f, layer.BackgroundColor[1] / 255f, layer.BackgroundColor[2] / 255f, 1f };
+                    }
+                }
+
+                // Render background layer to texture
+                string tilesetPath = PathOp.Combine(DualityApp.DataDirectory, "Tilesets", config.Description.DefaultTileset);
+                TileSet levelTileset = new TileSet(
+                    codec.Read(FileOp.Open(PathOp.Combine(tilesetPath, "tiles.png"), FileAccessMode.Read)),
+                    codec.Read(FileOp.Open(PathOp.Combine(tilesetPath, "mask.png"), FileAccessMode.Read)),
+                    null
+                );
+                if (!levelTileset.IsValid) {
+                    throw new InvalidDataException();
+                }
+
+                using (Stream s = FileOp.Open(PathOp.Combine(levelPath, "Sky.layer"), FileAccessMode.Read)) {
                     using (DeflateStream deflate = new DeflateStream(s, CompressionMode.Decompress))
                     using (BinaryReader r = new BinaryReader(deflate)) {
 
@@ -76,7 +110,7 @@ namespace Jazz2.Game.UI.Menu
                             tile.IsAnimated = isAnimated;
 
                             if (legacyTranslucent) {
-                                tile.MaterialAlpha = 127;
+                                tile.MaterialAlpha = /*127*/180;
                             }
 
                             newLayer.Layout[i] = tile;
@@ -90,7 +124,7 @@ namespace Jazz2.Game.UI.Menu
             } catch (Exception ex) {
                 Console.WriteLine("Cannot prerender textured background: " + ex);
 
-                cachedTexturedBackground = new Texture(new Pixmap(new PixelData(4, 4, ColorRgba.Black)));
+                cachedTexturedBackground = new Texture(new Pixmap(new PixelData(2, 2, ColorRgba.Black)));
             }
         }
 
@@ -259,7 +293,7 @@ namespace Jazz2.Game.UI.Menu
 
             // Setup custom pixel shader
             BatchInfo material = new BatchInfo(texturedBackgroundShader, ColorRgba.White, cachedTexturedBackground);
-            material.SetUniform("horizonColor", 25 / 255f, 90 / 255f, 255 / 255f, 255 / 255f);
+            material.SetUniform("horizonColor", horizonColor);
             material.SetUniform("shift", backgroundX, backgroundY);
 
             device.AddVertices(material, VertexMode.Quads, vertexData);

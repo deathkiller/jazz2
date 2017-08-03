@@ -62,10 +62,12 @@ namespace Jazz2.Game.UI.Menu
             PrerenderTexturedBackground();
 
             // Play music
-            //string musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", "menu.j2b");
             string musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", MathF.Rnd.OneOf(new[] {
                 "bonus2.j2b", "bonus3.j2b"
             }));
+            if (!FileOp.Exists(musicPath)) {
+                musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", "menu.j2b");
+            }
             music = DualityApp.Sound.PlaySound(new OpenMptStream(musicPath));
             music.BeginFadeIn(0.5f);
 
@@ -220,6 +222,11 @@ namespace Jazz2.Game.UI.Menu
                 // TODO: Hardcoded volume
                 instance.Volume = volume * Settings.SfxVolume;
             }
+        }
+
+        public bool IsAnimationPresent(string name)
+        {
+            return metadata.Graphics.ContainsKey(name);
         }
 
         private void OnUpdate()

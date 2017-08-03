@@ -31,6 +31,7 @@
         ModifierSlide = 0x0147,
         ModifierDeath = 0x0148,
         ModifierSetWater = 0x0149,
+        ModifierLimitCameraView = 0x014B,
 
         // Area
         AreaStopEnemy = 0x0143,
@@ -59,6 +60,7 @@
         LightSteady = 0x0121,
         LightPulse = 0x0122,
         LightFlicker = 0x0123,
+        LightIlluminate = 0x0125,
 
         // Environment
         Spring = 0x00C0,

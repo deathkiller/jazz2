@@ -87,304 +87,316 @@ namespace Jazz2.Compatibility
                     throw new InvalidOperationException("Header size mismatch");
                 }
 
-                for (int i = 0; i < setCnt; ++i) {
-                    uint magicANIM = r.ReadUInt32();
-                    byte animCount = r.ReadByte();
-                    byte sndCount = r.ReadByte();
-                    ushort frameCount = r.ReadUInt16();
-                    uint cumulativeSndIndex = r.ReadUInt32();
-                    int infoBlockLenC = r.ReadInt32();
-                    int infoBlockLenU = r.ReadInt32();
-                    int frameDataBlockLenC = r.ReadInt32();
-                    int frameDataBlockLenU = r.ReadInt32();
-                    int imageDataBlockLenC = r.ReadInt32();
-                    int imageDataBlockLenU = r.ReadInt32();
-                    int sampleDataBlockLenC = r.ReadInt32();
-                    int sampleDataBlockLenU = r.ReadInt32();
+                bool isStreamComplete = true;
 
-                    JJ2Block infoBlock = new JJ2Block(s, infoBlockLenC, infoBlockLenU);
-                    JJ2Block frameDataBlock = new JJ2Block(s, frameDataBlockLenC, frameDataBlockLenU);
-                    JJ2Block imageDataBlock = new JJ2Block(s, imageDataBlockLenC, imageDataBlockLenU);
-                    JJ2Block sampleDataBlock = new JJ2Block(s, sampleDataBlockLenC, sampleDataBlockLenU);
+                try {
+                    for (int i = 0; i < setCnt; ++i) {
+                        uint magicANIM = r.ReadUInt32();
+                        byte animCount = r.ReadByte();
+                        byte sndCount = r.ReadByte();
+                        ushort frameCount = r.ReadUInt16();
+                        uint cumulativeSndIndex = r.ReadUInt32();
+                        int infoBlockLenC = r.ReadInt32();
+                        int infoBlockLenU = r.ReadInt32();
+                        int frameDataBlockLenC = r.ReadInt32();
+                        int frameDataBlockLenU = r.ReadInt32();
+                        int imageDataBlockLenC = r.ReadInt32();
+                        int imageDataBlockLenU = r.ReadInt32();
+                        int sampleDataBlockLenC = r.ReadInt32();
+                        int sampleDataBlockLenU = r.ReadInt32();
 
-                    if (magicANIM != 0x4D494E41) {
-                        Console.WriteLine("Header for set " + i + " is incorrect (bad magic value)! Skipping the subfile.");
-                        continue;
-                    }
+                        JJ2Block infoBlock = new JJ2Block(s, infoBlockLenC, infoBlockLenU);
+                        JJ2Block frameDataBlock = new JJ2Block(s, frameDataBlockLenC, frameDataBlockLenU);
+                        JJ2Block imageDataBlock = new JJ2Block(s, imageDataBlockLenC, imageDataBlockLenU);
+                        JJ2Block sampleDataBlock = new JJ2Block(s, sampleDataBlockLenC, sampleDataBlockLenU);
 
-                    List<J2Anim> setAnims = new List<J2Anim>();
-
-                    for (ushort j = 0; j < animCount; ++j) {
-                        J2Anim anim = new J2Anim();
-                        anim.set = i;
-                        anim.anim = j;
-                        anim.frameCnt = infoBlock.ReadUInt16();
-                        anim.fps = infoBlock.ReadUInt16();
-                        anim.normalizedHotspot = Pair.Create((short)0, (short)0);
-                        anim.adjustedSize = Pair.Create((short)0, (short)0);
-                        anim.frames = new List<J2AnimFrame>();
-
-                        // Skip the rest, seems to be 0x00000000 for all headers
-                        infoBlock.DiscardBytes(4);
-
-                        anims.Add(anim);
-                        setAnims.Add(anim);
-                    }
-
-                    if (i == 65 && setAnims.Count > 5) {
-                        seemsLikeCC = true;
-                    }
-
-                    if (frameCount > 0) {
-                        if (setAnims.Count == 0) {
-                            throw new InvalidOperationException("Set has frames but no anims");
+                        if (magicANIM != 0x4D494E41) {
+                            Console.WriteLine("Header for set " + i + " is incorrect (bad magic value)! Skipping the subfile.");
+                            continue;
                         }
 
-                        Pair<short, short> lastColdspot = Pair.Create((short)0, (short)0);
-                        Pair<short, short> lastGunspot = Pair.Create((short)0, (short)0);
-                        Pair<short, short> lastHotspot = Pair.Create((short)0, (short)0);
+                        List<J2Anim> setAnims = new List<J2Anim>();
 
-                        J2Anim currentAnim = setAnims[0];
-                        ushort currentAnimIdx = 0;
-                        ushort currentFrame = 0;
-                        for (ushort j = 0; j < frameCount; j++) {
-                            if (currentFrame >= currentAnim.frameCnt) {
-                                currentAnim = setAnims[++currentAnimIdx];
-                                currentFrame = 0;
+                        for (ushort j = 0; j < animCount; ++j) {
+                            J2Anim anim = new J2Anim();
+                            anim.set = i;
+                            anim.anim = j;
+                            anim.frameCnt = infoBlock.ReadUInt16();
+                            anim.fps = infoBlock.ReadUInt16();
+                            anim.normalizedHotspot = Pair.Create((short)0, (short)0);
+                            anim.adjustedSize = Pair.Create((short)0, (short)0);
+                            anim.frames = new List<J2AnimFrame>();
+
+                            // Skip the rest, seems to be 0x00000000 for all headers
+                            infoBlock.DiscardBytes(4);
+
+                            anims.Add(anim);
+                            setAnims.Add(anim);
+                        }
+
+                        if (i == 65 && setAnims.Count > 5) {
+                            seemsLikeCC = true;
+                        }
+
+                        if (frameCount > 0) {
+                            if (setAnims.Count == 0) {
+                                throw new InvalidOperationException("Set has frames but no anims");
                             }
 
-                            J2AnimFrame frame = new J2AnimFrame();
-                            frame.size = Pair.Create(frameDataBlock.ReadUInt16(), frameDataBlock.ReadUInt16());
-                            frame.coldspot = Pair.Create(frameDataBlock.ReadInt16(), frameDataBlock.ReadInt16());
-                            frame.hotspot = Pair.Create(frameDataBlock.ReadInt16(), frameDataBlock.ReadInt16());
-                            frame.gunspot = Pair.Create(frameDataBlock.ReadInt16(), frameDataBlock.ReadInt16());
+                            Pair<short, short> lastColdspot = Pair.Create((short)0, (short)0);
+                            Pair<short, short> lastGunspot = Pair.Create((short)0, (short)0);
+                            Pair<short, short> lastHotspot = Pair.Create((short)0, (short)0);
 
-                            frame.imageAddr = frameDataBlock.ReadInt32();
-                            frame.maskAddr = frameDataBlock.ReadInt32();
+                            J2Anim currentAnim = setAnims[0];
+                            ushort currentAnimIdx = 0;
+                            ushort currentFrame = 0;
+                            for (ushort j = 0; j < frameCount; j++) {
+                                if (currentFrame >= currentAnim.frameCnt) {
+                                    currentAnim = setAnims[++currentAnimIdx];
+                                    currentFrame = 0;
+                                }
 
-                            // Adjust normalized position
-                            // In the output images, we want to make the hotspot and image size constant.
-                            currentAnim.normalizedHotspot = Pair.Create((short)Math.Max(-frame.hotspot.First, currentAnim.normalizedHotspot.First), (short)Math.Max(-frame.hotspot.Second, currentAnim.normalizedHotspot.Second));
-                            currentAnim.largestOffset = Pair.Create((short)Math.Max(frame.size.First + frame.hotspot.First, currentAnim.largestOffset.First), (short)Math.Max(frame.size.Second + frame.hotspot.Second, currentAnim.largestOffset.Second));
-                            currentAnim.adjustedSize = Pair.Create((short)Math.Max(
-                                currentAnim.normalizedHotspot.First + currentAnim.largestOffset.First,
-                                currentAnim.adjustedSize.First
-                            ), (short)Math.Max(
-                                currentAnim.normalizedHotspot.Second + currentAnim.largestOffset.Second,
-                                currentAnim.adjustedSize.Second
-                            ));
+                                J2AnimFrame frame = new J2AnimFrame();
+                                frame.size = Pair.Create(frameDataBlock.ReadUInt16(), frameDataBlock.ReadUInt16());
+                                frame.coldspot = Pair.Create(frameDataBlock.ReadInt16(), frameDataBlock.ReadInt16());
+                                frame.hotspot = Pair.Create(frameDataBlock.ReadInt16(), frameDataBlock.ReadInt16());
+                                frame.gunspot = Pair.Create(frameDataBlock.ReadInt16(), frameDataBlock.ReadInt16());
 
-                            currentAnim.frames.Add(frame);
+                                frame.imageAddr = frameDataBlock.ReadInt32();
+                                frame.maskAddr = frameDataBlock.ReadInt32();
+
+                                // Adjust normalized position
+                                // In the output images, we want to make the hotspot and image size constant.
+                                currentAnim.normalizedHotspot = Pair.Create((short)Math.Max(-frame.hotspot.First, currentAnim.normalizedHotspot.First), (short)Math.Max(-frame.hotspot.Second, currentAnim.normalizedHotspot.Second));
+                                currentAnim.largestOffset = Pair.Create((short)Math.Max(frame.size.First + frame.hotspot.First, currentAnim.largestOffset.First), (short)Math.Max(frame.size.Second + frame.hotspot.Second, currentAnim.largestOffset.Second));
+                                currentAnim.adjustedSize = Pair.Create((short)Math.Max(
+                                    currentAnim.normalizedHotspot.First + currentAnim.largestOffset.First,
+                                    currentAnim.adjustedSize.First
+                                ), (short)Math.Max(
+                                    currentAnim.normalizedHotspot.Second + currentAnim.largestOffset.Second,
+                                    currentAnim.adjustedSize.Second
+                                ));
+
+                                currentAnim.frames.Add(frame);
 
 #if DEBUG
-                            if (currentFrame > 0) {
-                                Pair<short, short> diffOld, diffNew;
+                                if (currentFrame > 0) {
+                                    Pair<short, short> diffOld, diffNew;
 
-                                if (frame.coldspot.First != 0 && frame.coldspot.Second != 0) {
-                                    diffNew = Pair.Create((short)(frame.coldspot.First - frame.hotspot.First), (short)(frame.coldspot.Second - frame.hotspot.Second));
-                                    diffOld = Pair.Create((short)(lastColdspot.First - lastHotspot.First), (short)(lastColdspot.Second - lastHotspot.Second));
-                                    if (diffNew != diffOld) {
-                                        Console.WriteLine("[" + currentAnim.set + ":" + currentAnim.anim + "] Animation coldspots don't agree!");
-                                        Console.WriteLine("    F" + (currentFrame - 1) + ": " + diffOld.First + "," + diffOld.Second + ", "
-                                            + "F" + currentFrame + ": " + diffNew.First + "," + diffNew.Second);
+                                    if (frame.coldspot.First != 0 && frame.coldspot.Second != 0) {
+                                        diffNew = Pair.Create((short)(frame.coldspot.First - frame.hotspot.First), (short)(frame.coldspot.Second - frame.hotspot.Second));
+                                        diffOld = Pair.Create((short)(lastColdspot.First - lastHotspot.First), (short)(lastColdspot.Second - lastHotspot.Second));
+                                        if (diffNew != diffOld) {
+                                            Console.WriteLine("[" + currentAnim.set + ":" + currentAnim.anim + "] Animation coldspots don't agree!");
+                                            Console.WriteLine("    F" + (currentFrame - 1) + ": " + diffOld.First + "," + diffOld.Second + ", "
+                                                + "F" + currentFrame + ": " + diffNew.First + "," + diffNew.Second);
+                                        }
+                                    }
+
+                                    if (frame.gunspot.First != 0 && frame.gunspot.Second != 0) {
+                                        diffNew = Pair.Create((short)(frame.gunspot.First - frame.hotspot.First), (short)(frame.gunspot.Second - frame.hotspot.Second));
+                                        diffOld = Pair.Create((short)(lastGunspot.First - lastHotspot.First), (short)(lastGunspot.Second - lastHotspot.Second));
+                                        if (diffNew != diffOld) {
+                                            Console.WriteLine("[" + currentAnim.set + ":" + currentAnim.anim + "] Animation gunspots don't agree!");
+                                            Console.WriteLine("    F" + (currentFrame - 1) + ": " + diffOld.First + "," + diffOld.Second + ", "
+                                                + "F" + currentFrame + ": " + diffNew.First + "," + diffNew.Second);
+                                        }
                                     }
                                 }
-
-                                if (frame.gunspot.First != 0 && frame.gunspot.Second != 0) {
-                                    diffNew = Pair.Create((short)(frame.gunspot.First - frame.hotspot.First), (short)(frame.gunspot.Second - frame.hotspot.Second));
-                                    diffOld = Pair.Create((short)(lastGunspot.First - lastHotspot.First), (short)(lastGunspot.Second - lastHotspot.Second));
-                                    if (diffNew != diffOld) {
-                                        Console.WriteLine("[" + currentAnim.set + ":" + currentAnim.anim + "] Animation gunspots don't agree!");
-                                        Console.WriteLine("    F" + (currentFrame - 1) + ": " + diffOld.First + "," + diffOld.Second + ", "
-                                            + "F" + currentFrame + ": " + diffNew.First + "," + diffNew.Second);
-                                    }
-                                }
-                            }
 #endif
 
-                            lastColdspot = frame.coldspot;
-                            lastGunspot = frame.gunspot;
-                            lastHotspot = frame.hotspot;
+                                lastColdspot = frame.coldspot;
+                                lastGunspot = frame.gunspot;
+                                lastHotspot = frame.hotspot;
 
-                            currentFrame++;
-                        }
-
-                        // Read the image data for each animation frame
-                        for (ushort j = 0; j < setAnims.Count; j++) {
-                            J2Anim anim = setAnims[j];
-
-                            if (anim.frameCnt < anim.frames.Count) {
-                                Console.WriteLine("[" + i + ":" + j + "] Frame count doesn't match! Expected " + anim.frameCnt + " frames but read " + anim.frames.Count);
-                                throw new InvalidOperationException();
+                                currentFrame++;
                             }
 
-                            for (ushort frame = 0; frame < anim.frameCnt; ++frame) {
-                                int dpos = (int)(anim.frames[frame].imageAddr + 4);
+                            // Read the image data for each animation frame
+                            for (ushort j = 0; j < setAnims.Count; j++) {
+                                J2Anim anim = setAnims[j];
 
-                                imageDataBlock.SeekTo(dpos - 4);
-                                ushort width2 = imageDataBlock.ReadUInt16();
-                                imageDataBlock.SeekTo(dpos - 2);
-                                ushort height2 = imageDataBlock.ReadUInt16();
-
-                                J2AnimFrame frameData = anim.frames[frame];
-                                frameData.drawTransparent = (width2 & 0x8000) > 0;
-
-                                ushort pxRead = 0;
-                                ushort pxTotal = (ushort)(frameData.size.First * frameData.size.Second);
-                                bool lastOpEmpty = true;
-
-                                List<byte> imageData = new List<byte>(pxTotal);
-
-                                while (pxRead < pxTotal) {
-                                    if (dpos > 0x10000000) {
-                                        Console.WriteLine("[" + i + ":" + j + "] Loading image data probably failed! Aborting.");
-                                        break;
-                                    }
-                                    imageDataBlock.SeekTo(dpos);
-                                    byte op = imageDataBlock.ReadByte();
-                                    //if (op == 0) {
-                                    //    Console.WriteLine("[" + i + ":" + j + "] Next image operation should probably not be 0x00.");
-                                    //}
-
-                                    if (op < 0x80) {
-                                        // Skip the given number of pixels, writing them with the transparent color 0
-                                        pxRead += op;
-                                        while (op-- > 0) {
-                                            imageData.Add((byte)0x00);
-                                        }
-                                        dpos++;
-                                    } else if (op == 0x80) {
-                                        // Skip until the end of the line
-                                        ushort linePxLeft = (ushort)(frameData.size.First - pxRead % frameData.size.First);
-                                        if (pxRead % anim.frames[frame].size.First == 0 && !lastOpEmpty) {
-                                            linePxLeft = 0;
-                                        }
-
-                                        pxRead += linePxLeft;
-                                        while (linePxLeft-- > 0) {
-                                            imageData.Add((byte)0x00);
-                                        }
-                                        dpos++;
-                                    } else {
-                                        // Copy specified amount of pixels (ignoring the high bit)
-                                        ushort bytesToRead = (ushort)(op & 0x7F);
-                                        imageDataBlock.SeekTo(dpos + 1);
-                                        byte[] nextData = imageDataBlock.ReadRawBytes(bytesToRead);
-                                        imageData.AddRange(nextData);
-                                        pxRead += bytesToRead;
-                                        dpos += bytesToRead + 1;
-                                    }
-
-                                    lastOpEmpty = (op == 0x80);
+                                if (anim.frameCnt < anim.frames.Count) {
+                                    Console.WriteLine("[" + i + ":" + j + "] Frame count doesn't match! Expected " + anim.frameCnt + " frames but read " + anim.frames.Count);
+                                    throw new InvalidOperationException();
                                 }
 
-                                frameData.imageData = imageData.ToArray();
+                                for (ushort frame = 0; frame < anim.frameCnt; ++frame) {
+                                    int dpos = (int)(anim.frames[frame].imageAddr + 4);
 
-                                frameData.maskData = new BitArray(pxTotal, false);
-                                dpos = frameData.maskAddr;
-                                pxRead = 0;
+                                    imageDataBlock.SeekTo(dpos - 4);
+                                    ushort width2 = imageDataBlock.ReadUInt16();
+                                    imageDataBlock.SeekTo(dpos - 2);
+                                    ushort height2 = imageDataBlock.ReadUInt16();
 
-                                // No mask
-                                if (dpos == unchecked((int)0xFFFFFFFF)) {
-                                    continue;
-                                }
+                                    J2AnimFrame frameData = anim.frames[frame];
+                                    frameData.drawTransparent = (width2 & 0x8000) > 0;
 
-                                while (pxRead < pxTotal) {
-                                    imageDataBlock.SeekTo(dpos);
-                                    byte b = imageDataBlock.ReadByte();
-                                    for (byte bit = 0; bit < 8 && (pxRead + bit) < pxTotal; ++bit) {
-                                        frameData.maskData[pxRead + bit] = ((b & (1 << (7 - bit))) != 0);
+                                    ushort pxRead = 0;
+                                    ushort pxTotal = (ushort)(frameData.size.First * frameData.size.Second);
+                                    bool lastOpEmpty = true;
+
+                                    List<byte> imageData = new List<byte>(pxTotal);
+
+                                    while (pxRead < pxTotal) {
+                                        if (dpos > 0x10000000) {
+                                            Console.WriteLine("[" + i + ":" + j + "] Loading image data probably failed! Aborting.");
+                                            break;
+                                        }
+                                        imageDataBlock.SeekTo(dpos);
+                                        byte op = imageDataBlock.ReadByte();
+                                        //if (op == 0) {
+                                        //    Console.WriteLine("[" + i + ":" + j + "] Next image operation should probably not be 0x00.");
+                                        //}
+
+                                        if (op < 0x80) {
+                                            // Skip the given number of pixels, writing them with the transparent color 0
+                                            pxRead += op;
+                                            while (op-- > 0) {
+                                                imageData.Add((byte)0x00);
+                                            }
+                                            dpos++;
+                                        } else if (op == 0x80) {
+                                            // Skip until the end of the line
+                                            ushort linePxLeft = (ushort)(frameData.size.First - pxRead % frameData.size.First);
+                                            if (pxRead % anim.frames[frame].size.First == 0 && !lastOpEmpty) {
+                                                linePxLeft = 0;
+                                            }
+
+                                            pxRead += linePxLeft;
+                                            while (linePxLeft-- > 0) {
+                                                imageData.Add((byte)0x00);
+                                            }
+                                            dpos++;
+                                        } else {
+                                            // Copy specified amount of pixels (ignoring the high bit)
+                                            ushort bytesToRead = (ushort)(op & 0x7F);
+                                            imageDataBlock.SeekTo(dpos + 1);
+                                            byte[] nextData = imageDataBlock.ReadRawBytes(bytesToRead);
+                                            imageData.AddRange(nextData);
+                                            pxRead += bytesToRead;
+                                            dpos += bytesToRead + 1;
+                                        }
+
+                                        lastOpEmpty = (op == 0x80);
                                     }
-                                    pxRead += 8;
+
+                                    frameData.imageData = imageData.ToArray();
+
+                                    frameData.maskData = new BitArray(pxTotal, false);
+                                    dpos = frameData.maskAddr;
+                                    pxRead = 0;
+
+                                    // No mask
+                                    if (dpos == unchecked((int)0xFFFFFFFF)) {
+                                        continue;
+                                    }
+
+                                    while (pxRead < pxTotal) {
+                                        imageDataBlock.SeekTo(dpos);
+                                        byte b = imageDataBlock.ReadByte();
+                                        for (byte bit = 0; bit < 8 && (pxRead + bit) < pxTotal; ++bit) {
+                                            frameData.maskData[pxRead + bit] = ((b & (1 << (7 - bit))) != 0);
+                                        }
+                                        pxRead += 8;
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    for (ushort j = 0; j < sndCount; ++j) {
-                        J2Sample sample = new J2Sample();
-                        sample.id = (ushort)(cumulativeSndIndex + j);
-                        sample.idInSet = j;
-                        sample.set = i;
+                        for (ushort j = 0; j < sndCount; ++j) {
+                            J2Sample sample = new J2Sample();
+                            sample.id = (ushort)(cumulativeSndIndex + j);
+                            sample.idInSet = j;
+                            sample.set = i;
 
-                        int totalSize = sampleDataBlock.ReadInt32();
-                        uint magicRIFF = sampleDataBlock.ReadUInt32();
-                        int chunkSize = sampleDataBlock.ReadInt32();
-                        // "ASFF" for 1.20, "AS  " for 1.24
-                        uint format = sampleDataBlock.ReadUInt32();
-                        bool isASFF = (format == 0x46465341);
+                            int totalSize = sampleDataBlock.ReadInt32();
+                            uint magicRIFF = sampleDataBlock.ReadUInt32();
+                            int chunkSize = sampleDataBlock.ReadInt32();
+                            // "ASFF" for 1.20, "AS  " for 1.24
+                            uint format = sampleDataBlock.ReadUInt32();
+                            bool isASFF = (format == 0x46465341);
 
-                        uint magicSAMP = sampleDataBlock.ReadUInt32();
-                        uint sampSize = sampleDataBlock.ReadUInt32();
-                        // Padding/unknown data #1
-                        // For set 0 sample 0:
-                        //       1.20                           1.24
-                        //  +00  00 00 00 00 00 00 00 00   +00  40 00 00 00 00 00 00 00
-                        //  +08  00 00 00 00 00 00 00 00   +08  00 00 00 00 00 00 00 00
-                        //  +10  00 00 00 00 00 00 00 00   +10  00 00 00 00 00 00 00 00
-                        //  +18  00 00 00 00               +18  00 00 00 00 00 00 00 00
-                        //                                 +20  00 00 00 00 00 40 FF 7F
-                        sampleDataBlock.DiscardBytes(40 - (isASFF ? 12 : 0));
-                        if (isASFF) {
-                            // All 1.20 samples seem to be 8-bit. Some of them are among those
-                            // for which 1.24 reads as 24-bit but that might just be a mistake.
+                            uint magicSAMP = sampleDataBlock.ReadUInt32();
+                            uint sampSize = sampleDataBlock.ReadUInt32();
+                            // Padding/unknown data #1
+                            // For set 0 sample 0:
+                            //       1.20                           1.24
+                            //  +00  00 00 00 00 00 00 00 00   +00  40 00 00 00 00 00 00 00
+                            //  +08  00 00 00 00 00 00 00 00   +08  00 00 00 00 00 00 00 00
+                            //  +10  00 00 00 00 00 00 00 00   +10  00 00 00 00 00 00 00 00
+                            //  +18  00 00 00 00               +18  00 00 00 00 00 00 00 00
+                            //                                 +20  00 00 00 00 00 40 FF 7F
+                            sampleDataBlock.DiscardBytes(40 - (isASFF ? 12 : 0));
+                            if (isASFF) {
+                                // All 1.20 samples seem to be 8-bit. Some of them are among those
+                                // for which 1.24 reads as 24-bit but that might just be a mistake.
+                                sampleDataBlock.DiscardBytes(2);
+
+                                sample.multiplier = 0;
+                            } else {
+                                // for 1.24. 1.20 has "20 40" instead in s0s0 which makes no sense
+                                sample.multiplier = sampleDataBlock.ReadUInt16();
+                            }
+                            // Unknown. s0s0 1.20: 00 80, 1.24: 80 00
                             sampleDataBlock.DiscardBytes(2);
 
-                            sample.multiplier = 0;
-                        } else {
-                            // for 1.24. 1.20 has "20 40" instead in s0s0 which makes no sense
-                            sample.multiplier = sampleDataBlock.ReadUInt16();
+                            uint payloadSize = sampleDataBlock.ReadUInt32();
+                            // Padding #2, all zeroes in both
+                            sampleDataBlock.DiscardBytes(8);
+
+                            sample.sampleRate = sampleDataBlock.ReadUInt32();
+                            int actualDataSize = chunkSize - 76 + (isASFF ? 12 : 0);
+
+                            sample.soundData = sampleDataBlock.ReadRawBytes(actualDataSize);
+                            // Padding #3
+                            sampleDataBlock.DiscardBytes(4);
+
+                            if (magicRIFF != 0x46464952 || magicSAMP != 0x504D4153) {
+                                throw new InvalidOperationException("Sample has invalid header");
+                            }
+
+                            if (sample.soundData.Length < actualDataSize) {
+                                Console.WriteLine("[" + i + ":" + j + "] Sample was shorter than expected! (Expected "
+                                    + actualDataSize + " bytes, only read " + sample.soundData.Length + ")");
+                            }
+
+                            if (totalSize > chunkSize + 12) {
+                                // Sample data is probably aligned to X bytes since the next sample doesn't always appear right after the first ends.
+                                Console.WriteLine("[" + i + ":" + j + "] Adjusted read offset by " + (totalSize - chunkSize - 12) + " bytes.");
+
+                                sampleDataBlock.DiscardBytes(totalSize - chunkSize - 12);
+                            }
+
+                            samples.Add(sample);
                         }
-                        // Unknown. s0s0 1.20: 00 80, 1.24: 80 00
-                        sampleDataBlock.DiscardBytes(2);
-
-                        uint payloadSize = sampleDataBlock.ReadUInt32();
-                        // Padding #2, all zeroes in both
-                        sampleDataBlock.DiscardBytes(8);
-
-                        sample.sampleRate = sampleDataBlock.ReadUInt32();
-                        int actualDataSize = chunkSize - 76 + (isASFF ? 12 : 0);
-
-                        sample.soundData = sampleDataBlock.ReadRawBytes(actualDataSize);
-                        // Padding #3
-                        sampleDataBlock.DiscardBytes(4);
-
-                        if (magicRIFF != 0x46464952 || magicSAMP != 0x504D4153) {
-                            throw new InvalidOperationException("Sample has invalid header");
-                        }
-
-                        if (sample.soundData.Length < actualDataSize) {
-                            Console.WriteLine("[" + i + ":" + j + "] Sample was shorter than expected! (Expected "
-                                + actualDataSize + " bytes, only read " + sample.soundData.Length + ")");
-                        }
-
-                        if (totalSize > chunkSize + 12) {
-                            // Sample data is probably aligned to X bytes since the next sample doesn't always appear right after the first ends.
-                            Console.WriteLine("[" + i + ":" + j + "] Adjusted read offset by " + (totalSize - chunkSize - 12) + " bytes.");
-
-                            sampleDataBlock.DiscardBytes(totalSize - chunkSize - 12);
-                        }
-
-                        samples.Add(sample);
                     }
+                } catch (EndOfStreamException) {
+                    isStreamComplete = false;
+                    Console.WriteLine("Stream should contain " + setCnt + " sets, but no more data found!");
                 }
 
                 JJ2Version version;
                 if (headerLen == 464) {
-                    version = JJ2Version.BaseGame;
-                    Console.WriteLine("Detected Jazz Jackrabbit 2 version 1.20/1.23.");
+                    if (isStreamComplete) {
+                        version = JJ2Version.BaseGame;
+                        Console.WriteLine("Detected Jazz Jackrabbit 2 (v1.20/1.23)");
+                    } else {
+                        version = JJ2Version.BaseGame | JJ2Version.SharewareDemo;
+                        Console.WriteLine("Detected Jazz Jackrabbit 2 (v1.20/1.23): Shareware Demo");
+                    }
                 } else if (headerLen == 500 && seemsLikeCC) {
                     version = JJ2Version.CC;
-                    Console.WriteLine("Detected Jazz Jackrabbit 2: Christmas Chronicles.");
+                    Console.WriteLine("Detected Jazz Jackrabbit 2: Christmas Chronicles");
                 } else if (headerLen == 500 && !seemsLikeCC) {
                     version = JJ2Version.TSF;
-                    Console.WriteLine("Detected Jazz Jackrabbit 2: The Secret Files.");
+                    Console.WriteLine("Detected Jazz Jackrabbit 2: The Secret Files");
                 } else if (headerLen == 476) {
                     version = JJ2Version.HH;
-                    Console.WriteLine("Detected Jazz Jackrabbit 2: Holiday Hare '98.");
+                    Console.WriteLine("Detected Jazz Jackrabbit 2: Holiday Hare '98");
                 } else if (headerLen == 64) {
                     version = JJ2Version.PlusExtension;
-                    Console.WriteLine("Detected Jazz Jackrabbit 2 Plus extension.");
+                    Console.WriteLine("Detected Jazz Jackrabbit 2 Plus extension");
                 } else {
                     version = JJ2Version.Unknown;
                     Console.WriteLine("Could not determine the version. Header size: " + headerLen + " bytes");
@@ -432,13 +444,16 @@ namespace Jazz2.Compatibility
                                 currentAnim.adjustedSize.Second * currentAnim.frameConfiguration.Second,
                                 PixelFormat.Format32bppArgb);
 
+                            // ToDo: Hardcoded name
+                            bool applyToasterPowerUpFix = (data.Category == "Object" && data.Name == "powerup_upgrade_toaster");
+
                             for (int j = 0; j < currentAnim.frames.Count; j++) {
                                 J2AnimFrame frame = currentAnim.frames[j];
                                 int offsetX = currentAnim.normalizedHotspot.First + frame.hotspot.First;
                                 int offsetY = currentAnim.normalizedHotspot.Second + frame.hotspot.Second;
 
-                                for (ushort y = 0; y < frame.size.Second; ++y) {
-                                    for (ushort x = 0; x < frame.size.First; ++x) {
+                                for (ushort y = 0; y < frame.size.Second; y++) {
+                                    for (ushort x = 0; x < frame.size.First; x++) {
                                         int targetX =
                                             (j % currentAnim.frameConfiguration.First) * currentAnim.adjustedSize.First +
                                             offsetX + x;
@@ -448,8 +463,15 @@ namespace Jazz2.Compatibility
                                         byte colorIdx = frame.imageData[frame.size.First * y + x];
 
                                         Color color = data.Palette[colorIdx];
+                                        // Apply palette fixes
+                                        if (applyToasterPowerUpFix) {
+                                            if (x >= 2 && y >= 3 && x <= 15 && y <= 20) {
+                                                color = JJ2DefaultPalette.ToasterPowerUpFix[colorIdx];
+                                            }
+                                        }
+                                        // Apply transparency
                                         if (frame.drawTransparent) {
-                                            color = Color.FromArgb(Math.Min(127, (int)color.A), color);
+                                            color = Color.FromArgb(Math.Min(/*127*/160, (int)color.A), color);
                                         }
 
                                         img.SetPixel(targetX, targetY, color);
@@ -518,6 +540,7 @@ namespace Jazz2.Compatibility
                                 int flags = 0;
                                 if (data.Palette == JJ2DefaultPalette.ByIndex)
                                     flags |= 1;
+
                                 if (flags != 0) {
                                     w.WriteLine("    \"Flags\": " + flags + ",");
                                 }

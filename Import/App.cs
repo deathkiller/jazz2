@@ -251,6 +251,12 @@ namespace Import
             string animsPath = Path.Combine(sourcePath, "Anims.j2a");
             if (FileResolveCaseInsensitive(ref animsPath)) {
                 JJ2Anims.Convert(animsPath, targetPath, false);
+            } else {
+                // Try to convert Shareware Demo
+                animsPath = Path.Combine(sourcePath, "AnimsSw.j2a");
+                if (FileResolveCaseInsensitive(ref animsPath)) {
+                    JJ2Anims.Convert(animsPath, targetPath, false);
+                }
             }
 
             string plusPath = Path.Combine(sourcePath, "Plus.j2a");
@@ -339,6 +345,21 @@ namespace Import
                 };
             };
 
+            Func<JJ2Episode, string> episodeNameConversion = episode => {
+                if (episode.Token == "share" && episode.Name == "#Shareware@Levels") {
+                    return "Shareware Demo";
+                } else if (episode.Token == "xmas98" && episode.Name == "#Xmas 98@Levels") {
+                    return "Holiday Hare '98";
+                } else if (episode.Token == "xmas99" && episode.Name == "#Xmas 99@Levels") {
+                    return "The Christmas Chronicles";
+                } else if (episode.Token == "secretf" && episode.Name == "#Secret@Files") {
+                    return "The Secret Files";
+                } else {
+                    // @ is new line, # is random color
+                    return episode.Name.Replace("#", "").Replace("@", " ");
+                }
+            };
+
             Dictionary<EventConverter.JJ2Event, int> unsupportedEvents = new Dictionary<EventConverter.JJ2Event, int>();
 
             Directory.CreateDirectory(Path.Combine(targetPath, "Content", "Episodes"));
@@ -352,7 +373,7 @@ namespace Import
 
                     string output = Path.Combine(targetPath, "Content", "Episodes", e.Token);
                     Directory.CreateDirectory(output);
-                    e.Convert(output, levelTokenConversion);
+                    e.Convert(output, levelTokenConversion, episodeNameConversion);
 
                     WriteLog(LogType.Debug, "Converted episode \"" + e.Token + "\" (" + e.Name + ")");
                 } catch (Exception ex) {
