@@ -100,6 +100,9 @@
             "Path": "Pickup/ammo_electro.png",
             "Shader": "SmoothAnimNormal"
         },
+        "AmmoThunderbolt": {
+            "Path": "_custom/thunderbolt_ammo.png"
+        },
 
         "AmmoPowerUpBouncer": {
             "_Path": "Pickup/ammo_bouncer_upgraded.png",
@@ -128,6 +131,9 @@
         "AmmoPowerUpElectro": {
             "_Path": "Pickup/ammo_electro_upgraded.png",
             "Shader": "SmoothAnimNormal"
+        },
+        "AmmoPowerUpThunderbolt": {
+            "_Path": "_custom/thunderbolt_ammo.png"
         },
 
         "FoodApple": {

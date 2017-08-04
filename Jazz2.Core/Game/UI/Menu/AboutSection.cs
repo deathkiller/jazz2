@@ -69,7 +69,7 @@ namespace Jazz2.Game.UI.Menu
             api.DrawStringShadow(device, ref charOffset, "Stefanos Apostolopoulos  <stapostol@gmail.com>", pos.X + 25f, y + 16f,
                 Alignment.Left, ColorRgba.TransparentBlack, 0.8f, 0.4f, 0.7f, 0.7f, 7f, 0.9f);
 
-            api.DrawMaterial(c, "MenuLineTop", /*center.X*/device.TargetSize.X * 0.5f, pos.Y + 60f, Alignment.Center, ColorRgba.White, 1.6f);
+            api.DrawMaterial(c, "MenuLine", 0, /*center.X*/device.TargetSize.X * 0.5f, pos.Y + 60f, Alignment.Center, ColorRgba.White, 1.6f);
         }
 
         public override void OnUpdate()

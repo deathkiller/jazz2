@@ -179,7 +179,7 @@ namespace Jazz2.Game
                             continue;
                         }
 
-#if !DEBUG__
+#if !THROW_ON_MISSING_RESOURCES
                         try {
 #endif
                             ContentRef<DrawTechnique> drawTechnique;
@@ -221,7 +221,7 @@ namespace Jazz2.Game
                             }
 
                             metadata.Graphics[g.Key] = resource;
-#if !DEBUG__
+#if !THROW_ON_MISSING_RESOURCES
                         } catch (Exception ex) {
                             Console.WriteLine("Can't load animation \"" + g.Key + "\" from metadata \"" + path + "\": " + ex);
                         }
@@ -239,7 +239,7 @@ namespace Jazz2.Game
                             continue;
                         }
 
-#if !DEBUG__
+#if !THROW_ON_MISSING_RESOURCES
                         try {
 #endif
                             IList<string> filenames = s.Value.Paths;
@@ -252,7 +252,7 @@ namespace Jazz2.Game
                             SoundResource resource = new SoundResource();
                             resource.Sound = new Sound(data);
                             metadata.Sounds[s.Key] = resource;
-#if !DEBUG__
+#if !THROW_ON_MISSING_RESOURCES
                         } catch (Exception ex) {
                             Console.WriteLine("Can't load sound \"" + s.Key + "\" from metadata \"" + path + "\": " + ex);
                         }

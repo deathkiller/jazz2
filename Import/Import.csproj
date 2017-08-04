@@ -42,6 +42,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression.FileSystem" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Compatibility\EventConverter.cs" />
@@ -55,6 +56,7 @@
     <Compile Include="Compatibility\JJ2Tileset.cs" />
     <Compile Include="Compatibility\JJ2Version.cs" />
     <Compile Include="App.cs" />
+    <Compile Include="DemoDownloader.cs" />
     <Compile Include="Migrations\MetadataV1ToV2.cs" />
     <Compile Include="NormalMapGenerator.cs" />
     <Compile Include="Pair.cs" />

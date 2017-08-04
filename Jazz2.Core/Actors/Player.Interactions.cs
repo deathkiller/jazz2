@@ -22,13 +22,13 @@ namespace Jazz2.Actors
 
             if (count < 0) {
                 health = Math.Max(maxHealth, healthLimit);
-                PlaySound("PLAYER_CONSUME_MAX_CARROT");
+                PlaySound("PickupMaxCarrot");
             } else {
                 health = Math.Min(health + count, healthLimit);
                 if (maxHealth < health) {
                     maxHealth = health;
                 }
-                PlaySound("PLAYER_CONSUME_FOOD");
+                PlaySound("PickupFood");
             }
 
             return true;
@@ -38,7 +38,7 @@ namespace Jazz2.Actors
         {
             lives += count;
 
-            PlaySound("PLAYER_PICKUP_ONEUP");
+            PlaySound("PickupOneUp");
         }
 
         public void AddCoins(int count)
@@ -46,7 +46,7 @@ namespace Jazz2.Actors
             coins += count;
 
             attachedHud?.ShowCoins(coins);
-            PlaySound("PLAYER_PICKUP_COIN");
+            PlaySound("PickupCoin");
         }
 
         public void AddGems(int count)
@@ -55,13 +55,8 @@ namespace Jazz2.Actors
 
             attachedHud?.ShowGems(gems);
 
-            SoundResource resource;
-            if (availableSounds.TryGetValue("PLAYER_PICKUP_GEM", out resource)) {
-                SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, this);
-                // ToDo: Hardcoded volume
-                instance.Volume = Settings.SfxVolume;
-                instance.Pitch = MathF.Min(0.7f + gemsPitch * 0.05f, 1.3f);
-            }
+            SoundInstance sound = PlaySound("PickupGem");
+            sound.Pitch = MathF.Min(0.7f + gemsPitch * 0.05f, 1.3f);
 
             gemsTimer = 120f;
             gemsPitch++;
@@ -87,9 +82,9 @@ namespace Jazz2.Actors
             }*/
 
             if (isDrinkable) {
-                PlaySound("PLAYER_CONSUME_DRINK");
+                PlaySound("PickupDrink");
             } else {
-                PlaySound("PLAYER_CONSUME_FOOD");
+                PlaySound("PickupFood");
             }
         }
 

@@ -406,7 +406,7 @@ namespace Jazz2.Compatibility
                 AnimSetMapping sampleMapping = AnimSetMapping.GetSampleMapping(version);
 
                 if (anims.Count > 0) {
-                    Console.WriteLine("Exporting animations...");
+                    Console.WriteLine("Importing animations...");
 
                     // Process the extracted data next
                     Parallel.ForEach(Partitioner.Create(0, anims.Count), range => {
@@ -597,7 +597,7 @@ namespace Jazz2.Compatibility
                 }
 
                 if (samples.Count > 0) {
-                    Console.WriteLine("Exporting audio samples...");
+                    Console.WriteLine("Importing audio samples...");
 
                     Parallel.ForEach(Partitioner.Create(0, samples.Count), range => {
                         for (int i = range.Item1; i < range.Item2; i++) {

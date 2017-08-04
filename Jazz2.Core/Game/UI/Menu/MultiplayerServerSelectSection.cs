@@ -143,8 +143,8 @@ namespace Jazz2.Game.UI.Menu
                     new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f), 0.9f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
             }
 
-            api.DrawMaterial(c, "MenuLineTop", center.X, topLine, Alignment.Center, ColorRgba.White, 1.6f);
-            api.DrawMaterial(c, "MenuLineBottom", center.X, bottomLine, Alignment.Center, ColorRgba.White, 1.6f);
+            api.DrawMaterial(c, "MenuLine", 0, center.X, topLine, Alignment.Center, ColorRgba.White, 1.6f);
+            api.DrawMaterial(c, "MenuLine", 1, center.X, bottomLine, Alignment.Center, ColorRgba.White, 1.6f);
         }
 
         public override void OnUpdate()

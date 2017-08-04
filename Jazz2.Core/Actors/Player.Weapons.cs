@@ -32,7 +32,7 @@ namespace Jazz2.Actors
                 attachedHud?.ChangeCurrentWeapon(currentWeapon, weaponUpgrades[(int)currentWeapon]);
             }
 
-            PlaySound("PLAYER_PICKUP_AMMO");
+            PlaySound("PickupAmmo");
             return true;
         }
 
@@ -56,7 +56,7 @@ namespace Jazz2.Actors
 
             weaponUpgrades[(int)WeaponType.Blaster] = (byte)((weaponUpgrades[(int)WeaponType.Blaster] & 0x1) | (current << 1));
 
-            PlaySound("PLAYER_PICKUP_AMMO");
+            PlaySound("PickupAmmo");
             return true;
         }
 
@@ -103,6 +103,12 @@ namespace Jazz2.Actors
                     FireWeaponElectro();
                     break;
 
+                case WeaponType.Thunderbolt:
+                    if (!FireWeaponThunderbolt()) {
+                        return;
+                    }
+                    break;
+
                 default:
                     return;
             }
@@ -112,13 +118,13 @@ namespace Jazz2.Actors
 
                 // No ammo, switch weapons
                 if (weaponAmmo[(int)currentWeapon] == 0) {
-                    do {
+                    for (int i = 0; i < (int)WeaponType.Count && weaponAmmo[(int)currentWeapon] == 0; i++) {
                         currentWeapon = (WeaponType)((int)(currentWeapon + 1) % (int)WeaponType.Count);
-                    } while (weaponAmmo[(int)currentWeapon] == 0);
+                    }
 
                     attachedHud?.ChangeCurrentWeapon(currentWeapon, weaponUpgrades[(int)currentWeapon]);
 
-                    PlaySound("PLAYER_SWITCH_AMMO");
+                    PlaySound("SwitchAmmo");
                 }
             }
         }
@@ -157,7 +163,7 @@ namespace Jazz2.Actors
             newAmmo.OnFire(this, Speed, angle, isFacingLeft, weaponUpgrades[(int)currentWeapon]);
             api.AddActor(newAmmo);
 
-            PlaySound("WEAPON_BLASTER");
+            PlaySound("WeaponBlaster");
             weaponCooldown = 40f - (weaponUpgrades[(int)WeaponType.Blaster] >> 1) * 2f;
         }
 
@@ -290,8 +296,8 @@ namespace Jazz2.Actors
             newAmmo.OnFire(this, Speed, angle, isFacingLeft, weaponUpgrades[(int)currentWeapon]);
             api.AddActor(newAmmo);
 
-            //PlaySound("WEAPON_TOASTER", 0.6f);
-           
+            //PlaySound("WeaponToaster", 0.6f);
+
             weaponCooldown = 6f;
         }
 
@@ -347,6 +353,30 @@ namespace Jazz2.Actors
             api.AddActor(newAmmo);
 
             weaponCooldown = 32f - (weaponUpgrades[(int)WeaponType.Blaster] >> 1) * 1.2f;
+        }
+
+        private bool FireWeaponThunderbolt()
+        {
+            if (isActivelyPushing || inWater || !(canJump || isAirboard) || wasUpPressed || MathF.Abs(speedX) > 0.1f || MathF.Abs(speedY) > 0.1f || MathF.Abs(externalForceX) > 0.1f || MathF.Abs(externalForceY) > 0.1f) {
+                return false;
+            }
+
+            Vector3 pos; float angle;
+            GetFirePointAndAngle(out pos, out angle);
+
+            AmmoThunderbolt newAmmo = new AmmoThunderbolt();
+            newAmmo.OnAttach(new ActorInstantiationDetails {
+                Api = api,
+                Pos = pos
+            });
+            newAmmo.OnFire(this, Speed, angle, isFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            api.AddActor(newAmmo);
+
+            controllable = false;
+            controllableTimeout = weaponCooldown = 42f - (weaponUpgrades[(int)WeaponType.Blaster] >> 1) * 1f;
+
+            fireFramesLeft = 50f;
+            return true;
         }
     }
 }

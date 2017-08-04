@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -33,6 +35,10 @@ namespace Import
 
             if (args.Length < 1) {
                 ShowHelp();
+
+                DemoDownloader.Start();
+                Console.ReadLine();
+
                 return;
             }
 
@@ -64,6 +70,11 @@ namespace Import
                     case "/check": check = true; break;
 
                     default:
+                        if (File.Exists(args[i]) && Path.GetExtension(args[i]) == ".png") {
+                            AdaptImageToPalette(args[i]);
+                            return;
+                        }
+
                         if (!Directory.Exists(args[i]) && File.Exists(args[i])) {
                             args[i] = Path.GetDirectoryName(args[i]);
                         }
@@ -241,9 +252,9 @@ namespace Import
             Console.WriteLine("   /check          Check that all needed assets are present.");
         }
 
-        private static void ConvertJJ2Anims(string sourcePath, string targetPath)
+        public static void ConvertJJ2Anims(string sourcePath, string targetPath)
         {
-            WriteLog(LogType.Info, "Importing animations...");
+            WriteLog(LogType.Info, "Importing assets...");
 
             targetPath = Path.Combine(targetPath, "Content", "Animations");
             Directory.CreateDirectory(targetPath);
@@ -265,7 +276,7 @@ namespace Import
             }
         }
 
-        private static void ConvertJJ2Levels(string sourcePath, string targetPath, HashSet<string> usedTilesets, HashSet<string> usedMusic)
+        public static void ConvertJJ2Levels(string sourcePath, string targetPath, HashSet<string> usedTilesets, HashSet<string> usedMusic)
         {
             WriteLog(LogType.Info, "Importing levels...");
 
@@ -450,7 +461,7 @@ namespace Import
             }
         }
 
-        private static void ConvertJJ2Music(string sourcePath, string targetPath, HashSet<string> usedMusic)
+        public static void ConvertJJ2Music(string sourcePath, string targetPath, HashSet<string> usedMusic)
         {
             WriteLog(LogType.Info, "Importing music...");
 
@@ -477,7 +488,7 @@ namespace Import
             }
         }
 
-        private static void ConvertJJ2Tilesets(string sourcePath, string targetPath, HashSet<string> usedTilesets)
+        public static void ConvertJJ2Tilesets(string sourcePath, string targetPath, HashSet<string> usedTilesets)
         {
             WriteLog(LogType.Info, "Importing tilesets...");
 
@@ -753,6 +764,52 @@ namespace Import
                     }
                 }
             }
+        }
+
+        private static void AdaptImageToPalette(string path)
+        {
+            WriteLog(LogType.Info, "Adapting image to \"Sprite\" palette...");
+
+            Random r = new Random();
+            int diffMax = 0, diffTotal = 0;
+
+            using (FileStream s = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+                using (Bitmap b = new Bitmap(s)) {
+                    for (int x = 0; x < b.Width; x++) {
+                        for (int y = 0; y < b.Height; y++) {
+                            Color color = b.GetPixel(x, y);
+
+                            Color bestMatch = Color.Transparent;
+                            Color secondMatch = Color.Transparent;
+                            int bestMatchDiff = int.MaxValue;
+                            for (int i = 0; i < JJ2DefaultPalette.Sprite.Length; i++) {
+                                Color current = JJ2DefaultPalette.Sprite[i];
+                                int currentDiff = Math.Abs(color.R - current.R) + Math.Abs(color.G - current.G) + Math.Abs(color.B - current.B) + Math.Abs(color.A - current.A);
+                                if (currentDiff < bestMatchDiff) {
+                                    secondMatch = bestMatch;
+                                    bestMatch = current;
+                                    bestMatchDiff = currentDiff;
+                                }
+                            }
+
+                            if (r.Next(100) < 10 && Math.Abs(color.A - secondMatch.A) < 20) {
+                                bestMatch = secondMatch;
+                            }
+
+                            b.SetPixel(x, y, bestMatch);
+
+                            diffMax = Math.Max(diffMax, bestMatchDiff);
+                            diffTotal += bestMatchDiff;
+                        }
+                    }
+
+                    b.Save(Path.ChangeExtension(path, ".new" + Path.GetExtension(path)), ImageFormat.Png);
+                }
+            }
+
+            WriteLog(LogType.Info, "Image adapted! - Max. diff: " + diffMax + " - Total diff: " + diffTotal);
+
+            Console.ReadLine();
         }
 
         private static bool FileExistsCaseSensitive(string path)

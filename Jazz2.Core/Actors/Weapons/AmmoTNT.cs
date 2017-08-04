@@ -49,7 +49,7 @@ namespace Jazz2.Actors.Weapons
                 Vector3 pos = Transform.Pos;
                 foreach (ActorBase collision in api.FindCollisionActorsRadius(pos.X, pos.Y, 50)) {
                     if (!collision.IsInvulnerable && (collision is EnemyBase || collision is SolidObjectBase || collision is TurtleShell || collision is GemGiant)) {
-                        collision.DecreaseHealth(10, this);
+                        collision.DecreaseHealth(5, this);
                     } else if (collision is Collectible) {
                         collision.HandleCollision(this);
                     }

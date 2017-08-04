@@ -108,6 +108,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoPepper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoRF.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoSeeker.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoThunderbolt.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoTNT.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoToaster.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Disposable.cs" />

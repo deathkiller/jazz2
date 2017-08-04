@@ -38,38 +38,45 @@
         "WeaponElectro": {
             "Path": "Pickup/ammo_electro.png"
         },
-        "WeaponPowerupBlasterJazz": {
+        "WeaponThunderbolt": {
+            "Path": "_custom/thunderbolt_ammo.png"
+        },
+
+        "WeaponPowerUpBlasterJazz": {
             "Path": "UI/blaster_upgraded_jazz.png"
         },
-        "WeaponPowerupBlasterSpaz": {
+        "WeaponPowerUpBlasterSpaz": {
             "Path": "UI/blaster_upgraded_spaz.png"
         },
-        "WeaponPowerupBlasterLori": {
+        "WeaponPowerUpBlasterLori": {
             "Path": "UI/blaster_upgraded_lori.png"
         },
-        "WeaponPowerupBouncer": {
+        "WeaponPowerUpBouncer": {
             "Path": "Pickup/ammo_bouncer_upgraded.png"
         },
-        "WeaponPowerupFreezer": {
+        "WeaponPowerUpFreezer": {
             "Path": "Pickup/ammo_freezer_upgraded.png"
         },
-        "WeaponPowerupSeeker": {
+        "WeaponPowerUpSeeker": {
             "Path": "Pickup/ammo_seeker_upgraded.png"
         },
-        "WeaponPowerupRF": {
+        "WeaponPowerUpRF": {
             "Path": "Pickup/ammo_rf_upgraded.png"
         },
-        "WeaponPowerupToaster": {
+        "WeaponPowerUpToaster": {
             "Path": "Pickup/ammo_toaster_upgraded.png"
         },
-        "WeaponPowerupTNT": {
+        "WeaponPowerUpTNT": {
             "Path": "Object/tnt.png"
         },
-        "WeaponPowerupPepper": {
+        "WeaponPowerUpPepper": {
             "Path": "Pickup/ammo_pepper_upgraded.png"
         },
-        "WeaponPowerupElectro": {
+        "WeaponPowerUpElectro": {
             "Path": "Pickup/ammo_electro_upgraded.png"
+        },
+        "WeaponPowerUpThunderbolt": {
+            "Path": "_custom/thunderbolt_ammo.png"
         },
 
         "CharacterJazz": {

@@ -11,7 +11,7 @@
         },
         "Attack": {
             "Path": "FatChick/attack.png",
-            "FrameRate": 4,
+            "FrameRate": 6,
             "States": [ 1325400065 ]
         }
     },

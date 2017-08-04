@@ -414,22 +414,17 @@ namespace Jazz2.Game.UI
                 switch (weapon) {
                     case WeaponType.Blaster:
                         if (owner.PlayerType == PlayerType.Spaz) {
-                            currentWeaponString = "WeaponPowerupBlasterSpaz";
+                            currentWeaponString = "WeaponPowerUpBlasterSpaz";
                         } else if (owner.PlayerType == PlayerType.Lori) {
-                            currentWeaponString = "WeaponPowerupBlasterLori";
+                            currentWeaponString = "WeaponPowerUpBlasterLori";
                         } else {
-                            currentWeaponString = "WeaponPowerupBlasterJazz";
+                            currentWeaponString = "WeaponPowerUpBlasterJazz";
                         }
                         break;
 
-                    case WeaponType.Bouncer: currentWeaponString = "WeaponPowerupBouncer"; break;
-                    case WeaponType.Freezer: currentWeaponString = "WeaponPowerupFreezer"; break;
-                    case WeaponType.Seeker: currentWeaponString = "WeaponPowerupSeeker"; break;
-                    case WeaponType.RF: currentWeaponString = "WeaponPowerupRF"; break;
-                    case WeaponType.Toaster: currentWeaponString = "WeaponPowerupToaster"; break;
-                    case WeaponType.TNT: currentWeaponString = "WeaponPowerupTNT"; break;
-                    case WeaponType.Pepper: currentWeaponString = "WeaponPowerupPepper"; break;
-                    case WeaponType.Electro: currentWeaponString = "WeaponPowerupElectro"; break;
+                    default:
+                        currentWeaponString = "WeaponPowerUp" + weapon.ToString("G");
+                        break;
                 }
             } else {
                 switch (weapon) {
@@ -443,14 +438,9 @@ namespace Jazz2.Game.UI
                         }
                         break;
 
-                    case WeaponType.Bouncer: currentWeaponString = "WeaponBouncer"; break;
-                    case WeaponType.Freezer: currentWeaponString = "WeaponFreezer"; break;
-                    case WeaponType.Seeker: currentWeaponString = "WeaponSeeker"; break;
-                    case WeaponType.RF: currentWeaponString = "WeaponRF"; break;
-                    case WeaponType.Toaster: currentWeaponString = "WeaponToaster"; break;
-                    case WeaponType.TNT: currentWeaponString = "WeaponTNT"; break;
-                    case WeaponType.Pepper: currentWeaponString = "WeaponPepper"; break;
-                    case WeaponType.Electro: currentWeaponString = "WeaponElectro"; break;
+                    default:
+                        currentWeaponString = "Weapon" + weapon.ToString("G");
+                        break;
                 }
             }
         }

@@ -8,11 +8,8 @@
             "Path": "Pickup/carrot_invincibility.png",
             "FrameRate": 7
         },
-        "MenuLineTop": {
-            "Path": "_custom/line_top.png"
-        },
-        "MenuLineBottom": {
-            "Path": "_custom/line_bottom.png"
+        "MenuLine": {
+            "Path": "_custom/line.png"
         },
         "MenuDim": {
             "Path": "_custom/dim.png"

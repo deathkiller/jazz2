@@ -12,6 +12,8 @@
         Pepper = 7,
         Electro = 8,
 
+        Thunderbolt = 9,
+
         Count,
         Unknown = ushort.MaxValue
     }

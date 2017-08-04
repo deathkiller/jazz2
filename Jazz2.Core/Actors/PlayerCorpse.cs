@@ -21,7 +21,7 @@
                     break;
             }
 
-            SetAnimation("CORPSE");
+            SetAnimation("Corpse");
             RefreshFlipMode();
 
             collisionFlags = CollisionFlags.None;

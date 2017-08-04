@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Duality;
 using Jazz2.Actors.Enemies;
 using Jazz2.Actors.Environment;
@@ -135,7 +134,7 @@ namespace Jazz2.Actors
             }
 
             if (exitType == ExitType.Warp || exitType == ExitType.Bonus) {
-                PlaySound("COMMON_WARP_OUT");
+                PlaySound("WarpOut");
 
                 collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
@@ -172,7 +171,7 @@ namespace Jazz2.Actors
                 SetPlayerTransition(isFreefall ? AnimState.TransitionWarpInFreefall : AnimState.TransitionWarpIn, false, true, SpecialMoveType.None, delegate {
                     renderer.Active = false;
                 });
-                PlaySound("COMMON_WARP_IN");
+                PlaySound("WarpIn");
                 //});
             } else {
                 // ToDo: Sound with timer
@@ -180,10 +179,10 @@ namespace Jazz2.Actors
                 SetPlayerTransition(AnimState.TransitionEndOfLevel, false, true, SpecialMoveType.None, delegate {
                     renderer.Active = false;
                 });
-                PlaySound("PLAYER_EOL_1");
+                PlaySound("EndOfLevel1");
                 //});
                 //addTimer(335u, false, [this]() {
-                //PlayNonPositionalSound("PLAYER_EOL_2");
+                //PlayNonPositionalSound("EndOfLevel2");
                 //});
             }
 
@@ -271,13 +270,14 @@ namespace Jazz2.Actors
 
                 if (fireFramesLeft <= 0f) {
                     // Play post-fire animation
-                    if ((currentAnimationState & (AnimState.Walk | AnimState.Run | AnimState.Dash | AnimState.Crouch | AnimState.Buttstomp | AnimState.Swim | AnimState.Airboard | AnimState.Lift | AnimState.Spring)) == 0 &&
-                        ((currentAnimationState & AnimState.Hook) == 0 || (currentAnimationState & AnimState.Hook) == AnimState.Hook)) {
+                    if ((currentAnimationState & (AnimState.Walk | AnimState.Run | AnimState.Dash | AnimState.Crouch | AnimState.Buttstomp | AnimState.Swim | AnimState.Airboard | AnimState.Lift | AnimState.Spring)) == 0) {
 
-                        if ((currentAnimationState & AnimState.Hook) != 0) {
+                        if ((currentAnimationState & AnimState.Hook) == AnimState.Hook) {
                             SetTransition(AnimState.TransitionHookShootToHook, false);
                         } else if ((currentAnimationState & AnimState.Copter) != 0) {
                             SetTransition(AnimState.TransitionCopterShootToCopter, false);
+                        } else if ((currentAnimationState & AnimState.Fall) != 0) {
+                            SetTransition(AnimState.TransitionFallShootToFall, false);
                         } else {
                             SetTransition(AnimState.TransitionShootToIdle, false);
                         }
@@ -381,8 +381,8 @@ namespace Jazz2.Actors
                             SetPlayerTransition(AnimState.TransitionButtstompStart, true, false, SpecialMoveType.Buttstomp, delegate {
                                 speedY = 9;
                                 SetAnimation(AnimState.Buttstomp);
-                                PlaySound("PLAYER_BUTTSTOMP"); // ToDo: Sound freq. 0.8f here ???
-                                PlaySound("PLAYER_BUTTSTOMP_2");
+                                PlaySound("Buttstomp"); // ToDo: Sound freq. 0.8f here ???
+                                PlaySound("Buttstomp2");
                             });
                         }
                     }
@@ -400,7 +400,7 @@ namespace Jazz2.Actors
                         if (isLifting && canJump && currentSpecialMove == SpecialMoveType.None) {
                             canJump = false;
                             SetAnimation(currentAnimationState & (~AnimState.Lookup & ~AnimState.Crouch));
-                            PlaySound("COMMON_JUMP");
+                            PlaySound("Jump");
                             carryingObject = null;
 
                             collisionFlags &= ~CollisionFlags.IsSolidObject;
@@ -453,7 +453,7 @@ namespace Jazz2.Actors
                                             SetPlayerTransition(AnimState.TransitionUppercutB, true, true, SpecialMoveType.Sidekick);
                                         });
 
-                                        PlaySound("PLAYER_SIDEKICK");
+                                        PlaySound("Sidekick");
                                     } else {
                                         if (!canJump && canDoubleJump) {
                                             canDoubleJump = false;
@@ -462,7 +462,7 @@ namespace Jazz2.Actors
                                             internalForceY = 1.15f;
                                             speedY = -2f - MathF.Max(0f, (MathF.Abs(speedX) - 4f) * 0.3f);
 
-                                            PlaySound("PLAYER_DOUBLE_JUMP");
+                                            PlaySound("DoubleJump");
 
                                             SetTransition(AnimState.Spring, false);
                                         }
@@ -502,7 +502,7 @@ namespace Jazz2.Actors
                             canJump = false;
                             isFreefall = false;
                             SetAnimation(currentAnimationState & (~AnimState.Lookup & ~AnimState.Crouch));
-                            PlaySound("PLAYER_JUMP");
+                            PlaySound("Jump");
                             carryingObject = null;
 
                             // Gravitation is sometimes off because of active copter, turn it on again
@@ -536,7 +536,7 @@ namespace Jazz2.Actors
 
                         SetAnimation(currentAnimationState | AnimState.Shoot);
 
-                        fireFramesLeft = 16f;
+                        fireFramesLeft = 18f;
 
                         if (!wasFirePressed) {
                             wasFirePressed = true;
@@ -578,13 +578,23 @@ namespace Jazz2.Actors
             } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.J)) {
                 coins += 5;
             } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.U)) {
+                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Ammo");
+
                 for (int i = 0; i < weaponAmmo.Length; i++) {
                     if (weaponAmmo[i] >= 0) {
                         weaponAmmo[i] = 99;
                     }
                 }
             } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.I)) {
+                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add FastFire");
+
                 AddFastFire(1);
+            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.O)) {
+                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add all PowerUps");
+
+                for (int i = 0; i < weaponAmmo.Length; i++) {
+                    AddWeaponUpgrade((WeaponType)i, 0x1);
+                }
             }
 #endif
         }
@@ -595,7 +605,7 @@ namespace Jazz2.Actors
             if (api.EventMap.IsHurting(pos.X, pos.Y + 24)) {
                 TakeDamage(speedX * 0.25f);
             } else if (!canJump && !inWater && !isAirboard) {
-                PlaySound("COMMON_LAND", 0.8f);
+                PlaySound("Land", 0.8f);
 
                 if (MathF.Rnd.NextFloat() < 0.6f) {
                     Explosion.Create(api, pos + new Vector3(0f, 20f, 0f), Explosion.TinyDark);
@@ -825,11 +835,6 @@ namespace Jazz2.Actors
                             }
                         }
                         break;
-                    //case AnimState.SHOOT:
-                    //    if (newState == AnimState.IDLE) {
-                    //        SetTransition(AnimState.TRANSITION_IDLE_SHOOT_TO_IDLE, true);
-                    //    }
-                    //    break;
                 }
             }
         }
@@ -1010,7 +1015,7 @@ namespace Jazz2.Actors
                     collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
                     if (speedY > 0 && newSuspendState == SuspendType.Vine) {
-                        PlaySound("PLAYER_VINE_ATTACH");
+                        PlaySound("HookAttach");
                     }
 
                     speedY = 0;
@@ -1175,10 +1180,10 @@ namespace Jazz2.Actors
                                 nextLevel = api.GetLevelText(p[2]).SubstringByOffset('|', p[3]);
                             }
                             api.InitLevelChange((ExitType)p[0], nextLevel);
-                            PlaySound("PLAYER_EOL");
+                            PlaySound("EndOfLevel");
                         } else if (bonusWarpTimer <= 0f) {
                             attachedHud?.ShowCoins(coins);
-                            PlaySound("PLAYER_BONUS_WARP_NOT_ENOUGH_COINS");
+                            PlaySound("BonusWarpNotEnoughCoins");
 
                             bonusWarpTimer = 400f;
                         }
@@ -1393,7 +1398,7 @@ namespace Jazz2.Actors
                             }
                             canJump = false;
 
-                            PlaySound("PLAYER_SPRING");
+                            PlaySound("Spring");
                         }
                         continue;
                     }
@@ -1445,7 +1450,7 @@ namespace Jazz2.Actors
                             coins = 0;
                         } else if (bonusWarpTimer <= 0f) {
                             attachedHud?.ShowCoins(coins);
-                            PlaySound("PLAYER_BONUS_WARP_NOT_ENOUGH_COINS");
+                            PlaySound("BonusWarpNotEnoughCoins");
 
                             bonusWarpTimer = 400f;
                         }
@@ -1505,12 +1510,12 @@ namespace Jazz2.Actors
                     });
                     SetInvulnerability(180f);
 
-                    PlaySound("PLAYER_HURT");
+                    PlaySound("Hurt");
                 } else {
                     externalForceX = 0f;
                     speedY = 0f;
 
-                    PlaySound("PLAYER_DIE");
+                    PlaySound("Die");
                 }
             }
         }
@@ -1531,7 +1536,7 @@ namespace Jazz2.Actors
                     Vector3 posOld = Transform.Pos;
 
                     MoveInstantly(pos, MoveType.Absolute, true);
-                    PlaySound("COMMON_WARP_OUT");
+                    PlaySound("WarpOut");
 
                     if (new Vector2(posOld.X - pos.X, posOld.Y - pos.Y).Length > 250) {
                         api.WarpCameraToTarget(this);
@@ -1553,7 +1558,7 @@ namespace Jazz2.Actors
                 externalForceX = 0;
                 externalForceY = 0;
                 internalForceY = 0;
-                PlaySound("COMMON_WARP_IN");
+                PlaySound("WarpIn");
             }
         }
 
@@ -1605,7 +1610,7 @@ namespace Jazz2.Actors
                 NextPoleStage(horizontal, positive, 2);
             });
 
-            PlaySound("PLAYER_POLE");
+            PlaySound("Pole");
         }
 
         private void NextPoleStage(bool horizontal, bool positive, int stagesLeft)
@@ -1616,7 +1621,7 @@ namespace Jazz2.Actors
                     NextPoleStage(horizontal, positive, stagesLeft - 1);
                 });
 
-                PlaySound("PLAYER_POLE");
+                PlaySound("Pole");
             } else {
                 int mp = (positive ? 1 : -1);
                 if (horizontal) {
