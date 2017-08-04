@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Jazz² Resurrection")]
-[assembly: AssemblyDescription("Remake of game called Jazz Jackrabbit 2 from year 1998.")]
+[assembly: AssemblyDescription("Reimplementation of game called Jazz Jackrabbit 2 from year 1998.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Jazz² Resurrection")]
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.4.5.0")]
-[assembly: AssemblyFileVersion("0.4.5.0")]
+[assembly: AssemblyVersion("0.4.6.0")]
+[assembly: AssemblyFileVersion("0.4.6.0")]

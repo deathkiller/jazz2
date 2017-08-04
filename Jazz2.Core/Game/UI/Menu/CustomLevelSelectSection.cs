@@ -266,8 +266,10 @@ namespace Jazz2.Game.UI.Menu
             }
 
             if (DualityApp.Keyboard.KeyHit(Key.Enter)) {
-                api.PlaySound("MenuSelect", 0.5f);
-                api.SwitchToSection(new StartGameOptionsSection(levelList[selectedIndex].EpisodeName, levelList[selectedIndex].LevelName));
+                if (levelList.Count > 0) {
+                    api.PlaySound("MenuSelect", 0.5f);
+                    api.SwitchToSection(new StartGameOptionsSection(levelList[selectedIndex].EpisodeName, levelList[selectedIndex].LevelName));
+                }
             } else if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
                 api.PlaySound("MenuSelect", 0.5f);
                 api.LeaveSection(this);

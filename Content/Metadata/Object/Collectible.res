@@ -229,7 +229,7 @@
         "FoodSandwich": {
             "Path": "Pickup/food_sandwich.png"
         },
-        "FoodSoda": {
+        "FoodPepsi": {
             "Path": "Pickup/food_soda.png"
         },
         "FoodStrawberry": {
