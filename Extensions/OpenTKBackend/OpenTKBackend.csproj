@@ -69,7 +69,7 @@
     <None Include="Packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(TargetPath)" "$(SolutionDir)Jazz2\Bin\$(ConfigurationName)\Extensions\$(TargetName).core$(TargetExt)"</PostBuildEvent>
-  </PropertyGroup>
+  <Target Name="AfterBuild">
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(SolutionDir)Jazz2\Bin\$(ConfigurationName)\Extensions\$(TargetName).core$(TargetExt)" />
+  </Target>
 </Project>

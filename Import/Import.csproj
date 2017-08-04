@@ -77,7 +77,7 @@
     <None Include="Icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(TargetPath)" "$(SolutionDir)Jazz2\Bin\$(ConfigurationName)\$(TargetFileName)"</PostBuildEvent>
-  </PropertyGroup>
+  <Target Name="AfterBuild">
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(SolutionDir)Jazz2\Bin\$(ConfigurationName)\" />
+  </Target>
 </Project>
