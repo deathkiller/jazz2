@@ -1367,6 +1367,7 @@ namespace Jazz2.Actors
                         // Collide only with hitbox
                         if (spring.Hitbox.Intersects(ref currentHitbox)) {
                             removeSpecialMove = true;
+                            copterFramesLeft = 0f;
 
                             Vector2 force = spring.Activate();
                             int sign = ((force.X + force.Y) > float.Epsilon ? 1 : -1);
@@ -1425,6 +1426,7 @@ namespace Jazz2.Actors
                         Vector2 force = paddle.Activate(this);
                         if (force != Vector2.Zero) {
                             removeSpecialMove = true;
+                            copterFramesLeft = 0f;
                             canJump = false;
 
                             speedX = force.X;

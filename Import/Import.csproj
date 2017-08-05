@@ -78,6 +78,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(SolutionDir)Jazz2\Bin\$(ConfigurationName)\" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(SolutionDir)Jazz2\Bin\$(ConfigurationName)\" SkipUnchangedFiles="true" />
   </Target>
 </Project>

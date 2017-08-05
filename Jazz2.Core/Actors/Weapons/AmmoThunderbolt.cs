@@ -17,6 +17,7 @@ namespace Jazz2.Actors.Weapons
         {
             base.OnAttach(details);
 
+            health = int.MaxValue;
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
             RequestMetadata("Weapon/Thunderbolt");
@@ -34,22 +35,18 @@ namespace Jazz2.Actors.Weapons
             base.isFacingLeft = isFacingLeft;
             base.upgrades = upgrades;
 
-            //float angleRel = angle * (isFacingLeft ? -1 : 1);
-
             AnimState state = AnimState.Idle;
-            if ((upgrades & 0x1) != 0) {
-                timeLeft = 188;
-                strength = 2;
-            } else {
-                timeLeft = 144;
+            //if ((upgrades & 0x1) != 0) {
+            //    strength = 2;
+            //} else {
                 strength = 1;
-            }
+            //}
 
             if (MathF.Rnd.NextBool()) {
                 state |= (AnimState)1;
             }
 
-            //Transform.Angle = angleRel;
+            Transform.Angle = angle;
 
             SetAnimation(state);
 
@@ -68,7 +65,7 @@ namespace Jazz2.Actors.Weapons
             }
 
             Parent = owner;
-            Transform.RelativePos = Transform.Pos - owner.Transform.Pos + new Vector3(0, 0, 4);
+            Transform.RelativePos = Transform.Pos - owner.Transform.Pos + new Vector3(0f, 0f, 4f);
         }
 
         protected override void OnUpdate()
@@ -98,22 +95,28 @@ namespace Jazz2.Actors.Weapons
                 return;
             }
 
-            Vector3 pos = Transform.Pos;
-            if (isFacingLeft) {
-                currentHitbox = new Hitbox(
-                    pos.X - currentAnimation.Hotspot.X - currentAnimation.FrameDimensions.X,
-                    pos.Y - currentAnimation.Hotspot.Y,
-                    pos.X - currentAnimation.Hotspot.X,
-                    pos.Y - currentAnimation.Hotspot.Y + currentAnimation.FrameDimensions.Y
-                );
-            } else {
-                currentHitbox = new Hitbox(
-                    pos.X - currentAnimation.Hotspot.X,
-                    pos.Y - currentAnimation.Hotspot.Y,
-                    pos.X - currentAnimation.Hotspot.X + currentAnimation.FrameDimensions.X,
-                    pos.Y - currentAnimation.Hotspot.Y + currentAnimation.FrameDimensions.Y
-                );
-            }
+            Matrix4 transform =
+                Matrix4.CreateTranslation(new Vector3(-currentAnimation.Hotspot.X, -currentAnimation.Hotspot.Y, 0f));
+            if (isFacingLeft)
+                transform *= Matrix4.CreateScale(-1f, 1f, 1f);
+            transform *= Matrix4.CreateRotationZ(Transform.Angle) *
+                Matrix4.CreateTranslation(Transform.Pos);
+
+            Vector2 tl = Vector2.Transform(Vector2.Zero, transform);
+            Vector2 tr = Vector2.Transform(new Vector2(currentAnimation.FrameDimensions.X, 0f), transform);
+            Vector2 bl = Vector2.Transform(new Vector2(0f, currentAnimation.FrameDimensions.Y), transform);
+            Vector2 br = Vector2.Transform(new Vector2(currentAnimation.FrameDimensions.X, currentAnimation.FrameDimensions.Y), transform);
+
+            float minX = MathF.Min(tl.X, tr.X, bl.X, br.X);
+            float minY = MathF.Min(tl.Y, tr.Y, bl.Y, br.Y);
+            float maxX = MathF.Max(tl.X, tr.X, bl.X, br.X);
+            float maxY = MathF.Max(tl.Y, tr.Y, bl.Y, br.Y);
+
+            currentHitbox = new Hitbox(
+                MathF.Floor(minX),
+                MathF.Floor(minY),
+                MathF.Ceiling(maxX),
+                MathF.Ceiling(maxY));
         }
 
         protected override void OnRicochet()

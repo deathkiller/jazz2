@@ -420,14 +420,16 @@ namespace Jazz2.Compatibility
 
                             data.Palette = data.Palette ?? JJ2DefaultPalette.Sprite;
 
+                            Pair<short, short> size = Pair.Create((short)(currentAnim.adjustedSize.First + data.AddBorder * 2), (short)(currentAnim.adjustedSize.Second + data.AddBorder * 2));
+
                             // Determine the frame configuration to use.
                             // Each asset must fit into a 4096 by 4096 texture,
                             // as that is the smallest texture size we have decided to support.
                             currentAnim.frameConfiguration = Pair.Create((short)currentAnim.frameCnt, (short)1);
                             if (currentAnim.frameCnt > 1) {
                                 short second = (short)Math.Max(1,
-                                    (int)Math.Ceiling(Math.Sqrt(currentAnim.frameCnt * currentAnim.adjustedSize.First /
-                                                                currentAnim.adjustedSize.Second)));
+                                    (int)Math.Ceiling(Math.Sqrt(currentAnim.frameCnt * size.First /
+                                                                size.Second)));
                                 short first = (short)Math.Max(1,
                                     (int)Math.Ceiling(currentAnim.frameCnt * 1.0 / second));
 
@@ -440,8 +442,8 @@ namespace Jazz2.Compatibility
                                 currentAnim.frameConfiguration = Pair.Create(first, second);
                             }
 
-                            Bitmap img = new Bitmap(currentAnim.adjustedSize.First * currentAnim.frameConfiguration.First,
-                                currentAnim.adjustedSize.Second * currentAnim.frameConfiguration.Second,
+                            Bitmap img = new Bitmap(size.First * currentAnim.frameConfiguration.First,
+                                size.Second * currentAnim.frameConfiguration.Second,
                                 PixelFormat.Format32bppArgb);
 
                             // ToDo: Hardcoded name
@@ -455,11 +457,11 @@ namespace Jazz2.Compatibility
                                 for (ushort y = 0; y < frame.size.Second; y++) {
                                     for (ushort x = 0; x < frame.size.First; x++) {
                                         int targetX =
-                                            (j % currentAnim.frameConfiguration.First) * currentAnim.adjustedSize.First +
-                                            offsetX + x;
+                                            (j % currentAnim.frameConfiguration.First) * size.First +
+                                            offsetX + x + data.AddBorder;
                                         int targetY =
-                                            (j / currentAnim.frameConfiguration.First) * currentAnim.adjustedSize.Second +
-                                            offsetY + y;
+                                            (j / currentAnim.frameConfiguration.First) * size.Second +
+                                            offsetY + y + data.AddBorder;
                                         byte colorIdx = frame.imageData[frame.size.First * y + x];
 
                                         Color color = data.Palette[colorIdx];
@@ -471,7 +473,7 @@ namespace Jazz2.Compatibility
                                         }
                                         // Apply transparency
                                         if (frame.drawTransparent) {
-                                            color = Color.FromArgb(Math.Min(/*127*/160, (int)color.A), color);
+                                            color = Color.FromArgb(Math.Min(/*127*/150, (int)color.A), color);
                                         }
 
                                         img.SetPixel(targetX, targetY, color);
@@ -546,8 +548,8 @@ namespace Jazz2.Compatibility
                                 }
 
                                 w.WriteLine("    \"FrameSize\": [ " +
-                                            currentAnim.adjustedSize.First.ToString(CultureInfo.InvariantCulture) + ", " +
-                                            currentAnim.adjustedSize.Second.ToString(CultureInfo.InvariantCulture) + " ],");
+                                            size.First.ToString(CultureInfo.InvariantCulture) + ", " +
+                                            size.Second.ToString(CultureInfo.InvariantCulture) + " ],");
                                 w.WriteLine("    \"FrameConfiguration\": [ " +
                                             currentAnim.frameConfiguration.First.ToString(CultureInfo.InvariantCulture) +
                                             ", " +
@@ -560,9 +562,9 @@ namespace Jazz2.Compatibility
                                 if (currentAnim.normalizedHotspot.First != 0 || currentAnim.normalizedHotspot.Second != 0) {
                                     w.WriteLine(",");
                                     w.Write("    \"Hotspot\": [ " +
-                                            currentAnim.normalizedHotspot.First.ToString(CultureInfo.InvariantCulture) +
+                                            (currentAnim.normalizedHotspot.First + data.AddBorder).ToString(CultureInfo.InvariantCulture) +
                                             ", " +
-                                            currentAnim.normalizedHotspot.Second.ToString(CultureInfo.InvariantCulture) +
+                                            (currentAnim.normalizedHotspot.Second + data.AddBorder).ToString(CultureInfo.InvariantCulture) +
                                             " ]");
                                 }
 
@@ -571,10 +573,10 @@ namespace Jazz2.Compatibility
                                     w.WriteLine(",");
                                     w.Write("    \"Coldspot\": [ " +
                                             ((currentAnim.normalizedHotspot.First + currentAnim.frames[0].hotspot.First) -
-                                             currentAnim.frames[0].coldspot.First).ToString(CultureInfo.InvariantCulture) +
+                                             currentAnim.frames[0].coldspot.First + data.AddBorder).ToString(CultureInfo.InvariantCulture) +
                                             ", " +
                                             ((currentAnim.normalizedHotspot.Second + currentAnim.frames[0].hotspot.Second) -
-                                             currentAnim.frames[0].coldspot.Second).ToString(CultureInfo.InvariantCulture) +
+                                             currentAnim.frames[0].coldspot.Second + data.AddBorder).ToString(CultureInfo.InvariantCulture) +
                                             " ]");
                                 }
 
@@ -582,10 +584,10 @@ namespace Jazz2.Compatibility
                                     w.WriteLine(",");
                                     w.Write("    \"Gunspot\": [ " +
                                             ((currentAnim.normalizedHotspot.First + currentAnim.frames[0].hotspot.First) -
-                                             currentAnim.frames[0].gunspot.First).ToString(CultureInfo.InvariantCulture) +
+                                             currentAnim.frames[0].gunspot.First + data.AddBorder).ToString(CultureInfo.InvariantCulture) +
                                             ", " +
                                             ((currentAnim.normalizedHotspot.Second + currentAnim.frames[0].hotspot.Second) -
-                                             currentAnim.frames[0].gunspot.Second).ToString(CultureInfo.InvariantCulture) +
+                                             currentAnim.frames[0].gunspot.Second + data.AddBorder).ToString(CultureInfo.InvariantCulture) +
                                             " ]");
                                 }
 

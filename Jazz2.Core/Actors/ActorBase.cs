@@ -606,14 +606,14 @@ namespace Jazz2.Actors
                 return false;
             }
 
-            var transform1 =
+            Matrix4 transform1 =
                 Matrix4.CreateTranslation(new Vector3(-res1.Hotspot.X, -res1.Hotspot.Y, 0f));
             if (isFacingLeft)
                 transform1 *= Matrix4.CreateScale(-1f, 1f, 1f);
             transform1 *= Matrix4.CreateRotationZ(Transform.Angle) *
                 Matrix4.CreateTranslation(Transform.Pos);
 
-            var transform2 =
+            Matrix4 transform2 =
                 Matrix4.CreateTranslation(new Vector3(-res2.Hotspot.X, -res2.Hotspot.Y, 0f));
             if (other.isFacingLeft)
                 transform2 *= Matrix4.CreateScale(-1f, 1f, 1f);
@@ -628,15 +628,15 @@ namespace Jazz2.Actors
             // Bounding Box intersection
             Hitbox box1, box2;
             {
-                var tl = Vector2.Transform(Vector2.Zero, transform1);
-                var tr = Vector2.Transform(new Vector2(width1, 0f), transform1);
-                var bl = Vector2.Transform(new Vector2(0f, height1), transform1);
-                var br = Vector2.Transform(new Vector2(width1, height1), transform1);
+                Vector2 tl = Vector2.Transform(Vector2.Zero, transform1);
+                Vector2 tr = Vector2.Transform(new Vector2(width1, 0f), transform1);
+                Vector2 bl = Vector2.Transform(new Vector2(0f, height1), transform1);
+                Vector2 br = Vector2.Transform(new Vector2(width1, height1), transform1);
 
-                var minX = MathF.Min(tl.X, tr.X, bl.X, br.X);
-                var minY = MathF.Min(tl.Y, tr.Y, bl.Y, br.Y);
-                var maxX = MathF.Max(tl.X, tr.X, bl.X, br.X);
-                var maxY = MathF.Max(tl.Y, tr.Y, bl.Y, br.Y);
+                float minX = MathF.Min(tl.X, tr.X, bl.X, br.X);
+                float minY = MathF.Min(tl.Y, tr.Y, bl.Y, br.Y);
+                float maxX = MathF.Max(tl.X, tr.X, bl.X, br.X);
+                float maxY = MathF.Max(tl.Y, tr.Y, bl.Y, br.Y);
 
                 box1 = new Hitbox(
                     MathF.Floor(minX),
@@ -645,15 +645,15 @@ namespace Jazz2.Actors
                     MathF.Ceiling(maxY));
             }
             {
-                var tl = Vector2.Transform(Vector2.Zero, transform2);
-                var tr = Vector2.Transform(new Vector2(width2, 0f), transform2);
-                var bl = Vector2.Transform(new Vector2(0f, height2), transform2);
-                var br = Vector2.Transform(new Vector2(width2, height2), transform2);
+                Vector2 tl = Vector2.Transform(Vector2.Zero, transform2);
+                Vector2 tr = Vector2.Transform(new Vector2(width2, 0f), transform2);
+                Vector2 bl = Vector2.Transform(new Vector2(0f, height2), transform2);
+                Vector2 br = Vector2.Transform(new Vector2(width2, height2), transform2);
 
-                var minX = MathF.Min(tl.X, tr.X, bl.X, br.X);
-                var minY = MathF.Min(tl.Y, tr.Y, bl.Y, br.Y);
-                var maxX = MathF.Max(tl.X, tr.X, bl.X, br.X);
-                var maxY = MathF.Max(tl.Y, tr.Y, bl.Y, br.Y);
+                float minX = MathF.Min(tl.X, tr.X, bl.X, br.X);
+                float minY = MathF.Min(tl.Y, tr.Y, bl.Y, br.Y);
+                float maxX = MathF.Max(tl.X, tr.X, bl.X, br.X);
+                float maxY = MathF.Max(tl.Y, tr.Y, bl.Y, br.Y);
 
                 box2 = new Hitbox(
                     MathF.Floor(minX),
@@ -670,13 +670,13 @@ namespace Jazz2.Actors
             }
 
             // Per-pixel collision check
-            var transformAToB = transform1 * Matrix4.Invert(transform2);
+            Matrix4 transformAToB = transform1 * Matrix4.Invert(transform2);
 
             // TransformNormal with [1, 0] and [0, 1] vectors
-            var stepX = new Vector2(transformAToB.M11, transformAToB.M12);
-            var stepY = new Vector2(transformAToB.M21, transformAToB.M22);
+            Vector2 stepX = new Vector2(transformAToB.M11, transformAToB.M12);
+            Vector2 stepY = new Vector2(transformAToB.M21, transformAToB.M22);
 
-            var yPosIn2 = Vector2.Transform(Vector2.Zero, transformAToB);
+            Vector2 yPosIn2 = Vector2.Transform(Vector2.Zero, transformAToB);
 
             int frame1 = MathF.Min(renderer.CurrentFrame, res1.FrameCount - 1);
             int dx1 = (frame1 % res1.FrameConfiguration.X) * res1.FrameDimensions.X;
@@ -687,11 +687,11 @@ namespace Jazz2.Actors
             int dy2 = (frame2 / res2.FrameConfiguration.X) * res2.FrameDimensions.Y;
 
             for (int y1 = 0; y1 < height1; y1++) {
-                var posIn2 = yPosIn2;
+                Vector2 posIn2 = yPosIn2;
 
                 for (int x1 = 0; x1 < width1; x1++) {
-                    var x2 = (int)MathF.Round(posIn2.X);
-                    var y2 = (int)MathF.Round(posIn2.Y);
+                    int x2 = (int)MathF.Round(posIn2.X);
+                    int y2 = (int)MathF.Round(posIn2.Y);
 
                     if (x2 >= 0 && x2 < width2 && y2 >= 0 && y2 < height2) {
 

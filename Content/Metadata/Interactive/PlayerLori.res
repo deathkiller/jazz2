@@ -309,7 +309,7 @@
             "Paths": [ "Pickup/food_edible_1.wav", "Pickup/food_edible_2.wav", "Pickup/food_edible_3.wav", "Pickup/food_edible_4.wav" ]
         },
         "PickupMaxCarrot": {
-            "Paths": [ "Jazz/carrot.wav" ]
+
         },
         "WeaponBlaster": {
             "__Paths": [ "Weapon/bullet_blaster_jazz_1.wav", "Weapon/bullet_blaster_jazz_2.wav", "Weapon/bullet_blaster_jazz_3.wav", "Weapon/bullet_blaster_jazz_4.wav" ],
@@ -325,7 +325,7 @@
             "Paths": [ "Common/down.wav" ]
         },
         "Buttstomp2": {
-            "Paths": [ "Lori/yahoo.wav" ]
+            "Paths": [ "Lori/fall.wav" ]
         },
         "EndOfLevel1": {
             "Paths": [ "Common/char_revup.wav" ]

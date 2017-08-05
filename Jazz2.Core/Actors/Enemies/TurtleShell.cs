@@ -39,7 +39,7 @@ namespace Jazz2.Actors.Enemies
             SetAnimation(AnimState.Idle);
 
             canHurtPlayer = false;
-            friction = api.Gravity / 100;
+            friction = api.Gravity * 0.05f;
             elasticity = 0.5f;
             // ToDo: Test the actual number
             health = 8;
@@ -56,14 +56,14 @@ namespace Jazz2.Actors.Enemies
 
         protected override void OnUpdate()
         {
-            speedX = MathF.Max(MathF.Abs(speedX) - friction, 0f) * (speedX > float.Epsilon ? 1f : -1f);
+            speedX = MathF.Max(MathF.Abs(speedX) - friction, 0f) * (speedX >= 0f ? 1f : -1f);
 
             double posYBefore = Transform.Pos.Y;
             base.OnUpdate();
 
             Vector3 pos = Transform.Pos;
             if (posYBefore - pos.Y > 0.5 && MathF.Abs(speedY) < 1) {
-                speedX = MathF.Max(MathF.Abs(speedX) - 10f * friction, 0f) * (speedX > float.Epsilon ? 1f : -1f);
+                speedX = MathF.Max(MathF.Abs(speedX) - 10f * friction, 0f) * (speedX >= 0f ? 1f : -1f);
             }
 
             foreach (ActorBase collision in api.FindCollisionActors(this)) {
@@ -73,11 +73,11 @@ namespace Jazz2.Actors.Enemies
                             collider.DecreaseHealth(10, this);
                         } else if (MathF.Abs(speedX) > MathF.Abs(collider.speedX)) {
                             // Handle this only in the faster of the two.
-                            pos.X = collider.Transform.Pos.X + (speedX > 0 ? -1f : 1f) * (currentAnimation.FrameDimensions.X + 1);
+                            pos.X = collider.Transform.Pos.X + (speedX >= 0 ? -1f : 1f) * (currentAnimation.FrameDimensions.X + 1);
                             float totalSpeed = MathF.Abs(speedX) + MathF.Abs(collider.speedX);
 
-                            collider.speedX = totalSpeed / 2 * (speedX > 0f ? 1f : -1f);
-                            speedX = totalSpeed / 2f * (speedX > 0f ? -1f : 1f);
+                            collider.speedX = totalSpeed / 2 * (speedX >= 0f ? 1f : -1f);
+                            speedX = totalSpeed / 2f * (speedX >= 0f ? -1f : 1f);
 
                             collider.DecreaseHealth(1, this);
                             PlaySound("ImpactShell", 0.8f);
@@ -90,7 +90,7 @@ namespace Jazz2.Actors.Enemies
                     }
                     case EnemyBase collider: {
                         collider.DecreaseHealth(1, this);
-                        speedX = MathF.Max(MathF.Abs(speedX), 2f) * (speedX > 0f ? -1f : 1f);
+                        speedX = MathF.Max(MathF.Abs(speedX), 2f) * (speedX >= 0f ? -1f : 1f);
                         break;
                     }
                     case Collectible collider: {

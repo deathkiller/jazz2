@@ -13,6 +13,7 @@ namespace Jazz2.Compatibility
 
             public Color[] Palette;
             public bool SkipNormalMap;
+            public int AddBorder;
         }
 
         public const string Discard = ":discard";
@@ -47,12 +48,16 @@ namespace Jazz2.Compatibility
                 mapping.Add("UI", "font_medium");
                 mapping.Add("UI", "font_small");
                 mapping.Add("UI", "font_large");
-                mapping.Add("UI", "logo_plus", skipNormalMap: true);
+
+                //mapping.Add("UI", "logo_plus", skipNormalMap: true);
+                mapping.DiscardItems(1);
 
                 mapping.NextSet(); // 5
                 mapping.Add("Object", "powerup_swap_characters_lori");
-                mapping.Add("UI", "logo_plus_large", JJ2DefaultPalette.Menu, skipNormalMap: true);
-                mapping.Add("UI", "logo_plus_small", JJ2DefaultPalette.Menu, skipNormalMap: true);
+
+                //mapping.Add("UI", "logo_plus_large", JJ2DefaultPalette.Menu, skipNormalMap: true);
+                //mapping.Add("UI", "logo_plus_small", JJ2DefaultPalette.Menu, skipNormalMap: true);
+                mapping.DiscardItems(2);
 
                 mapping.NextSet(); // 6
                 mapping.DiscardItems(5); // Reticles
@@ -72,13 +77,15 @@ namespace Jazz2.Compatibility
                 mapping.Add("Unknown", "bubble");
 
                 //mapping.Add("Unknown", "brown_thing");
-                mapping.DiscardItems();
+                mapping.DiscardItems(1);
 
                 mapping.Add("Common", "explosion_pepper");
+
                 //mapping.Add("Unknown", "bullet_maybe_electro");
-                //mapping.Add("Unknown", "bullet_maybe_electro_trail");
                 mapping.Add("Weapon", "bullet_maybe_electro", JJ2DefaultPalette.ByIndex);
+                //mapping.Add("Unknown", "bullet_maybe_electro_trail");
                 mapping.Add("Weapon", "bullet_maybe_electro_trail", JJ2DefaultPalette.ByIndex);
+
                 mapping.Add("Unknown", "flame_red");
                 mapping.Add("Weapon", "bullet_shield_fireball");
                 mapping.Add("Unknown", "flare_diag_downleft");
@@ -87,10 +94,12 @@ namespace Jazz2.Compatibility
                 mapping.Add("UI", "blaster_upgraded_jazz");
                 mapping.Add("UI", "blaster_upgraded_spaz");
                 mapping.Add("Weapon", "bullet_blaster_upgraded");
+
                 //mapping.Add("Weapon", "bullet_blaster_upgraded_ver");
-                mapping.DiscardItems();
+                mapping.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_blaster_ver");
-                mapping.DiscardItems();
+                mapping.DiscardItems(1);
+
                 mapping.Add("Weapon", "bullet_bouncer");
                 mapping.Add("Pickup", "ammo_bouncer_upgraded");
                 mapping.Add("Pickup", "ammo_bouncer");
@@ -99,46 +108,58 @@ namespace Jazz2.Compatibility
                 mapping.Add("Pickup", "ammo_freezer_upgraded");
                 mapping.Add("Pickup", "ammo_freezer");
                 mapping.Add("Weapon", "bullet_freezer_upgraded_hor");
+
                 //mapping.Add("Weapon", "bullet_freezer_ver");
-                mapping.DiscardItems();
+                mapping.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_freezer_upgraded_ver");
-                mapping.DiscardItems();
+                mapping.DiscardItems(1);
+
                 mapping.Add("Pickup", "ammo_seeker_upgraded");
                 mapping.Add("Pickup", "ammo_seeker");
+
                 //mapping.Add("Weapon", "bullet_seeker_ver_down");
-                mapping.DiscardItems();
+                mapping.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_seeker_diag_downright");
-                mapping.DiscardItems();
+                mapping.DiscardItems(1);
+
                 mapping.Add("Weapon", "bullet_seeker_hor");
+
                 //mapping.Add("Weapon", "bullet_seeker_ver_up");
-                mapping.DiscardItems();
+                mapping.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_seeker_diag_upright");
-                mapping.DiscardItems();
+                mapping.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_seeker_upgraded_ver_down");
-                mapping.DiscardItems();
+                mapping.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_seeker_upgraded_diag_downright");
-                mapping.DiscardItems();
+                mapping.DiscardItems(1);
+
                 mapping.Add("Weapon", "bullet_seeker_upgraded_hor");
+
                 //mapping.Add("Weapon", "bullet_seeker_upgraded_ver_up");
-                mapping.DiscardItems();
+                mapping.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_seeker_upgraded_diag_upright");
-                mapping.DiscardItems();
+                mapping.DiscardItems(1);
+
                 mapping.Add("Weapon", "bullet_rf_hor");
+
                 //mapping.Add("Weapon", "bullet_rf_diag_downright");
-                mapping.DiscardItems();
+                mapping.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_rf_upgraded_diag_downright");
-                mapping.DiscardItems();
+                mapping.DiscardItems(1);
+
                 mapping.Add("Pickup", "ammo_rf_upgraded");
                 mapping.Add("Pickup", "ammo_rf");
                 mapping.Add("Weapon", "bullet_rf_upgraded_hor");
+
                 //mapping.Add("Weapon", "bullet_rf_upgraded_ver");
-                mapping.DiscardItems();
+                mapping.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_rf_upgraded_diag_upright");
-                mapping.DiscardItems();
+                mapping.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_rf_ver");
-                mapping.DiscardItems();
+                mapping.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_rf_diag_upright");
-                mapping.DiscardItems();
+                mapping.DiscardItems(1);
+
                 mapping.Add("Weapon", "bullet_toaster");
                 mapping.Add("Pickup", "ammo_toaster_upgraded");
                 mapping.Add("Pickup", "ammo_toaster");
@@ -148,10 +169,12 @@ namespace Jazz2.Compatibility
                 mapping.Add("Pickup", "ammo_pepper_upgraded");
                 mapping.Add("Pickup", "ammo_pepper");
                 mapping.Add("Weapon", "bullet_fireball_upgraded_hor");
+
                 //mapping.Add("Weapon", "bullet_fireball_ver");
-                mapping.DiscardItems();
+                mapping.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_fireball_upgraded_ver");
-                mapping.DiscardItems();
+                mapping.DiscardItems(1);
+
                 mapping.Add("Weapon", "bullet_bladegun");
                 mapping.Add("Pickup", "ammo_electro_upgraded");
                 mapping.Add("Pickup", "ammo_electro");
@@ -186,7 +209,10 @@ namespace Jazz2.Compatibility
                     mapping.NextSet();
                     mapping.Add("Object", "PushBoxRock");
                     mapping.NextSet();
-                    mapping.Add("Unknown", "diamondus_tileset_tree");
+
+                    //mapping.Add("Unknown", "diamondus_tileset_tree");
+                    mapping.DiscardItems(1);
+
                     mapping.NextSet();
                     mapping.Add("Bilsy", "throw_fireball");
                     mapping.Add("Bilsy", "appear");
@@ -438,8 +464,11 @@ namespace Jazz2.Compatibility
                 mapping.Add("UI", "font_medium");
                 mapping.Add("UI", "font_small");
                 mapping.Add("UI", "font_large");
-                mapping.Add("UI", "logo", skipNormalMap: true);
-                mapping.Add(JJ2Version.CC, "UI", "cc_logo");
+
+                //mapping.Add("UI", "logo", skipNormalMap: true);
+                mapping.DiscardItems(1);
+                //mapping.Add(JJ2Version.CC, "UI", "cc_logo");
+                mapping.DiscardItems(1, JJ2Version.CC);
 
                 mapping.NextSet();
                 mapping.Add("Frog", "fall_land");
@@ -593,6 +622,7 @@ namespace Jazz2.Compatibility
                 mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unarmed_run");
                 mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unarmed_stare");
                 mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_lookup_start_2");
+
                 mapping.NextSet();
                 mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Unimplemented", "bonus_jazz_idle_flavor_2");
                 mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Unimplemented", "bonus_jazz_jump_2");
@@ -711,7 +741,8 @@ namespace Jazz2.Compatibility
 
                 mapping.NextSet(1, JJ2Version.TSF | JJ2Version.CC);
                 mapping.NextSet();
-                mapping.Add("UI", "multiplayer_char", JJ2DefaultPalette.Menu, skipNormalMap: true);
+                //mapping.Add("UI", "multiplayer_char", JJ2DefaultPalette.Menu, skipNormalMap: true);
+                mapping.DiscardItems(1);
 
                 //mapping.Add("UI", "multiplayer_color", JJ2DefaultPalette.Menu);
                 mapping.DiscardItems(1);
@@ -725,21 +756,28 @@ namespace Jazz2.Compatibility
                 mapping.DiscardItems(1);
 
                 mapping.Add("UI", "multiplayer_mode", JJ2DefaultPalette.Menu, skipNormalMap: true);
-                mapping.Add("UI", "character_name_jazz", JJ2DefaultPalette.Menu, skipNormalMap: true);
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "UI", "character_name_lori", JJ2DefaultPalette.Menu, skipNormalMap: true);
-                mapping.Add("UI", "character_name_spaz", JJ2DefaultPalette.Menu, skipNormalMap: true);
+
+                //mapping.Add("UI", "character_name_jazz", JJ2DefaultPalette.Menu, skipNormalMap: true);
+                mapping.DiscardItems(1);
+                //mapping.Add(JJ2Version.TSF | JJ2Version.CC, "UI", "character_name_lori", JJ2DefaultPalette.Menu, skipNormalMap: true);
+                mapping.DiscardItems(1, JJ2Version.TSF | JJ2Version.CC);
+                //mapping.Add("UI", "character_name_spaz", JJ2DefaultPalette.Menu, skipNormalMap: true);
+                mapping.DiscardItems(1);
+
                 mapping.Add("UI", "character_art_jazz", JJ2DefaultPalette.Menu, skipNormalMap: true);
                 mapping.Add(JJ2Version.TSF | JJ2Version.CC, "UI", "character_art_lori", JJ2DefaultPalette.Menu, skipNormalMap: true);
                 mapping.Add("UI", "character_art_spaz", JJ2DefaultPalette.Menu, skipNormalMap: true);
                 mapping.NextSet();
-                mapping.Add("UI", "font_medium_2", JJ2DefaultPalette.Menu);
-                mapping.Add("UI", "font_small_2", JJ2DefaultPalette.Menu);
-                mapping.Add("UI", "logo_large", JJ2DefaultPalette.Menu, skipNormalMap: true);
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "UI", "tsf_title", JJ2DefaultPalette.Menu, skipNormalMap: true);
-                mapping.Add(JJ2Version.CC, "UI", "menu_snow", JJ2DefaultPalette.Menu);
-                mapping.Add("UI", "logo_small", JJ2DefaultPalette.Menu, skipNormalMap: true);
-                mapping.Add(JJ2Version.CC, "UI", "cc_title", JJ2DefaultPalette.Menu, skipNormalMap: true);
-                mapping.Add(JJ2Version.CC, "UI", "cc_title_small", JJ2DefaultPalette.Menu, skipNormalMap: true);
+
+                //mapping.Add("UI", "font_medium_2", JJ2DefaultPalette.Menu);
+                //mapping.Add("UI", "font_small_2", JJ2DefaultPalette.Menu);
+                //mapping.Add("UI", "logo_large", JJ2DefaultPalette.Menu, skipNormalMap: true);
+                //mapping.Add(JJ2Version.TSF | JJ2Version.CC, "UI", "tsf_title", JJ2DefaultPalette.Menu, skipNormalMap: true);
+                //mapping.Add(JJ2Version.CC, "UI", "menu_snow", JJ2DefaultPalette.Menu);
+                //mapping.Add("UI", "logo_small", JJ2DefaultPalette.Menu, skipNormalMap: true);
+                //mapping.Add(JJ2Version.CC, "UI", "cc_title", JJ2DefaultPalette.Menu, skipNormalMap: true);
+                //mapping.Add(JJ2Version.CC, "UI", "cc_title_small", JJ2DefaultPalette.Menu, skipNormalMap: true);
+                mapping.DiscardItems(8);
 
                 if (isFull) {
                     mapping.NextSet(2);
@@ -863,8 +901,10 @@ namespace Jazz2.Compatibility
                     mapping.Add("Pinball", "Bumper500Hit", /*JJ2DefaultPalette.PINBALL_PALETTE*/ JJ2DefaultPalette.ByIndex);
                     mapping.Add("Pinball", "BumperCarrot", /*JJ2DefaultPalette.PINBALL_PALETTE*/ JJ2DefaultPalette.ByIndex);
                     mapping.Add("Pinball", "BumperCarrotHit", /*JJ2DefaultPalette.PINBALL_PALETTE*/ JJ2DefaultPalette.ByIndex);
-                    mapping.Add("Pinball", "PaddleLeft", JJ2DefaultPalette.ByIndex);
-                    mapping.Add("Pinball", "PaddleRight", JJ2DefaultPalette.ByIndex);
+
+                    mapping.Add("Pinball", "PaddleLeft", JJ2DefaultPalette.ByIndex, addBorder: 1);
+                    //mapping.Add("Pinball", "PaddleRight", JJ2DefaultPalette.ByIndex);
+                    mapping.DiscardItems(1);
 
                     mapping.NextSet();
                     mapping.Add("Platform", "lab");
@@ -1478,9 +1518,11 @@ namespace Jazz2.Compatibility
                 mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "level_complete");
                 mapping.NextSet();
                 mapping.Add("Spaz", "level_complete");
+
                 mapping.NextSet();
-                mapping.Add("Cinematic", "logo_epic_1");
-                mapping.Add("Cinematic", "logo_epic_2");
+                //mapping.Add("Cinematic", "logo_epic_1");
+                //mapping.Add("Cinematic", "logo_epic_2");
+                mapping.DiscardItems(2);
 
                 mapping.NextSet();
                 mapping.Add("Eva", "Kiss1");
@@ -1643,46 +1685,48 @@ namespace Jazz2.Compatibility
                 }
 
                 mapping.NextSet();
-                mapping.Add("Cinematic", "orangegames_1_boom_l");
-                mapping.Add("Cinematic", "orangegames_1_boom_r");
-                mapping.Add("Cinematic", "orangegames_7_bubble_l");
-                mapping.Add("Cinematic", "orangegames_7_bubble_r");
-                mapping.Add("Cinematic", "orangegames_2_glass_1_l");
-                mapping.Add("Cinematic", "orangegames_2_glass_1_r");
-                mapping.Add("Cinematic", "orangegames_5_glass_2_l");
-                mapping.Add("Cinematic", "orangegames_5_glass_2_r");
-                mapping.Add("Cinematic", "orangegames_6_merge");
-                mapping.Add("Cinematic", "orangegames_3_sweep_1_l");
-                mapping.Add("Cinematic", "orangegames_3_sweep_1_r");
-                mapping.Add("Cinematic", "orangegames_4_sweep_2_l");
-                mapping.Add("Cinematic", "orangegames_4_sweep_2_r");
-                mapping.Add("Cinematic", "orangegames_5_sweep_3_l");
-                mapping.Add("Cinematic", "orangegames_5_sweep_3_r");
+                //mapping.Add("Cinematic", "orangegames_1_boom_l");
+                //mapping.Add("Cinematic", "orangegames_1_boom_r");
+                //mapping.Add("Cinematic", "orangegames_7_bubble_l");
+                //mapping.Add("Cinematic", "orangegames_7_bubble_r");
+                //mapping.Add("Cinematic", "orangegames_2_glass_1_l");
+                //mapping.Add("Cinematic", "orangegames_2_glass_1_r");
+                //mapping.Add("Cinematic", "orangegames_5_glass_2_l");
+                //mapping.Add("Cinematic", "orangegames_5_glass_2_r");
+                //mapping.Add("Cinematic", "orangegames_6_merge");
+                //mapping.Add("Cinematic", "orangegames_3_sweep_1_l");
+                //mapping.Add("Cinematic", "orangegames_3_sweep_1_r");
+                //mapping.Add("Cinematic", "orangegames_4_sweep_2_l");
+                //mapping.Add("Cinematic", "orangegames_4_sweep_2_r");
+                //mapping.Add("Cinematic", "orangegames_5_sweep_3_l");
+                //mapping.Add("Cinematic", "orangegames_5_sweep_3_r");
+                mapping.DiscardItems(15);
                 mapping.NextSet(); // set 70 (1.24) / set 66 (1.23)
-                mapping.Add("Cinematic", "project2_unused_crunch");
-                mapping.Add("Cinematic", "project2_10_fart");
-                mapping.Add("Cinematic", "project2_unused_foew1");
-                mapping.Add("Cinematic", "project2_unused_foew4");
-                mapping.Add("Cinematic", "project2_unused_foew5");
-                mapping.Add("Cinematic", "project2_unused_frog1");
-                mapping.Add("Cinematic", "project2_unused_frog2");
-                mapping.Add("Cinematic", "project2_unused_frog3");
-                mapping.Add("Cinematic", "project2_unused_frog4");
-                mapping.Add("Cinematic", "project2_unused_frog5");
-                mapping.Add("Cinematic", "project2_unused_kiss4");
-                mapping.Add("Cinematic", "project2_unused_open");
-                mapping.Add("Cinematic", "project2_unused_pinch1");
-                mapping.Add("Cinematic", "project2_unused_pinch2");
-                mapping.Add("Cinematic", "project2_3_plop_1");
-                mapping.Add("Cinematic", "project2_4_plop_2");
-                mapping.Add("Cinematic", "project2_5_plop_3");
-                mapping.Add("Cinematic", "project2_6_plop_4");
-                mapping.Add("Cinematic", "project2_7_plop_5");
-                mapping.Add("Cinematic", "project2_9_spit");
-                mapping.Add("Cinematic", "project2_unused_splout");
-                mapping.Add("Cinematic", "project2_2_splat");
-                mapping.Add("Cinematic", "project2_1_8_throw");
-                mapping.Add("Cinematic", "project2_unused_tong");
+                //mapping.Add("Cinematic", "project2_unused_crunch");
+                //mapping.Add("Cinematic", "project2_10_fart");
+                //mapping.Add("Cinematic", "project2_unused_foew1");
+                //mapping.Add("Cinematic", "project2_unused_foew4");
+                //mapping.Add("Cinematic", "project2_unused_foew5");
+                //mapping.Add("Cinematic", "project2_unused_frog1");
+                //mapping.Add("Cinematic", "project2_unused_frog2");
+                //mapping.Add("Cinematic", "project2_unused_frog3");
+                //mapping.Add("Cinematic", "project2_unused_frog4");
+                //mapping.Add("Cinematic", "project2_unused_frog5");
+                //mapping.Add("Cinematic", "project2_unused_kiss4");
+                //mapping.Add("Cinematic", "project2_unused_open");
+                //mapping.Add("Cinematic", "project2_unused_pinch1");
+                //mapping.Add("Cinematic", "project2_unused_pinch2");
+                //mapping.Add("Cinematic", "project2_3_plop_1");
+                //mapping.Add("Cinematic", "project2_4_plop_2");
+                //mapping.Add("Cinematic", "project2_5_plop_3");
+                //mapping.Add("Cinematic", "project2_6_plop_4");
+                //mapping.Add("Cinematic", "project2_7_plop_5");
+                //mapping.Add("Cinematic", "project2_9_spit");
+                //mapping.Add("Cinematic", "project2_unused_splout");
+                //mapping.Add("Cinematic", "project2_2_splat");
+                //mapping.Add("Cinematic", "project2_1_8_throw");
+                //mapping.Add("Cinematic", "project2_unused_tong");
+                mapping.DiscardItems(24);
                 mapping.NextSet();
                 mapping.Add("Object", "SavepointOpen");
                 mapping.Add("Object", "copter");
@@ -1917,13 +1961,15 @@ namespace Jazz2.Compatibility
             this.version = version;
         }
 
-        private void DiscardItems(int advanceBy = 1)
+        private void DiscardItems(int advanceBy, JJ2Version appliesTo = JJ2Version.All)
         {
-            for (int i = 0; i < advanceBy; i++) {
-                data.Add(Pair.Create(currentSet, currentItem), new Data {
-                    Category = Discard
-                });
-                currentItem++;
+            if ((version & appliesTo) != 0) {
+                for (int i = 0; i < advanceBy; i++) {
+                    data.Add(Pair.Create(currentSet, currentItem), new Data {
+                        Category = Discard
+                    });
+                    currentItem++;
+                }
             }
         }
 
@@ -1934,31 +1980,33 @@ namespace Jazz2.Compatibility
 
         private void NextSet(int advanceBy = 1, JJ2Version appliesTo = JJ2Version.All)
         {
-            if ((version & appliesTo) > 0) {
+            if ((version & appliesTo) != 0) {
                 currentSet += advanceBy;
                 currentItem = 0;
             }
         }
 
-        private void Add(JJ2Version appliesTo, string category, string name, Color[] palette = null, bool skipNormalMap = false) {
-            if ((version & appliesTo) > 0) {
+        private void Add(JJ2Version appliesTo, string category, string name, Color[] palette = null, bool skipNormalMap = false, int addBorder = 0) {
+            if ((version & appliesTo) != 0) {
                 data.Add(Pair.Create(currentSet, currentItem), new Data {
                     Category = category,
                     Name = name,
                     Palette = palette,
-                    SkipNormalMap = skipNormalMap
+                    SkipNormalMap = skipNormalMap,
+                    AddBorder = addBorder
                 });
                 currentItem++;
             }
         }
 
-        private void Add(string category, string name, Color[] palette = null, bool skipNormalMap = false)
+        private void Add(string category, string name, Color[] palette = null, bool skipNormalMap = false, int addBorder = 0)
         {
             data.Add(Pair.Create(currentSet, currentItem), new Data {
                 Category = category,
                 Name = name,
                 Palette = palette,
-                SkipNormalMap = skipNormalMap
+                SkipNormalMap = skipNormalMap,
+                AddBorder = addBorder
             });
             currentItem++;
         }

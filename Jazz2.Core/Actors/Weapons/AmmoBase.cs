@@ -63,7 +63,7 @@ namespace Jazz2.Actors.Weapons
                         }
                     }
 
-                    DecreaseHealth(int.MaxValue);
+                    DecreaseHealth(1);
                 } else if (!tiles.IsTileEmpty(ref hitbox, false)) {
                     EventMap events = api.EventMap;
                     if (events != null) {
