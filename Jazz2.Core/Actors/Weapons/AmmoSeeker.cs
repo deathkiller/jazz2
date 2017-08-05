@@ -89,7 +89,7 @@ namespace Jazz2.Actors.Weapons
                 }
             }
 
-            Explosion.Create(api, Transform.Pos + Speed, Explosion.Large);
+            Explosion.Create(api, pos + Speed, Explosion.Large);
 
             return base.OnPerish(collider);
         }

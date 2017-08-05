@@ -46,6 +46,9 @@
             "Paths": [ "Bilsy/fire_start.wav" ]
         },
         "Appear": {
+            "Paths": [ "Bilsy/appear_2.wav" ]
+        },
+        "Disappear": {
             "Paths": [ "Bilsy/appear_1.wav" ]
         }
     }

@@ -89,7 +89,7 @@ namespace Jazz2.Actors.Weapons
                 }
             }
 
-            Explosion.Create(api, Transform.Pos + Speed, Explosion.RF);
+            Explosion.Create(api, pos + Speed, Explosion.RF);
 
             PlaySound("Explode");
 

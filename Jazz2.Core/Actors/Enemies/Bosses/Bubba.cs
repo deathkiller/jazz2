@@ -254,8 +254,16 @@ namespace Jazz2.Actors.Bosses
                 UpdateHitbox(18, 18);
             }
 
+            protected override bool OnPerish(ActorBase collider)
+            {
+                Explosion.Create(api, Transform.Pos + Speed, Explosion.RF);
+
+                return base.OnPerish(collider);
+            }
+
             public override void HandleCollision(ActorBase other)
             {
+                // Nothing to do...
             }
         }
     }

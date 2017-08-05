@@ -189,11 +189,9 @@ namespace Jazz2.Actors
             isFacingLeft = false;
             isInvulnerable = true;
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
-            speedX = 0;
-            speedY = 0;
-            externalForceX = 0;
-            externalForceY = 0;
-            internalForceY = 0;
+            speedX = speedY = 0f;
+            externalForceX = externalForceY = internalForceY = 0f;
+            fireFramesLeft = copterFramesLeft = pushFramesLeft = 0f;
         }
 
         protected override void OnUpdate()
@@ -674,11 +672,9 @@ namespace Jazz2.Actors
                         currentTransitionState = AnimState.Idle;
 
                         canJump = false;
-                        externalForceX = 0f;
-                        externalForceY = 0f;
-                        internalForceY = 0f;
-                        speedX = 0f;
-                        speedY = 0f;
+                        speedX = speedY = 0f;
+                        externalForceX = externalForceY = internalForceY = 0f;
+                        fireFramesLeft = copterFramesLeft = pushFramesLeft = weaponCooldown = 0f;
                         controllable = true;
                         isAirboard = false;
 
@@ -1479,6 +1475,7 @@ namespace Jazz2.Actors
         {
             if (removeControl) {
                 controllable = false;
+                controllableTimeout = 0f;
             }
 
             currentSpecialMove = specialMove;
@@ -1493,6 +1490,9 @@ namespace Jazz2.Actors
                 internalForceY = 0f;
                 speedX = 0f;
                 canJump = false;
+
+                fireFramesLeft = copterFramesLeft = pushFramesLeft = 0f;
+
                 if (health > 0) {
                     externalForceX = pushForce;
 
@@ -1553,11 +1553,11 @@ namespace Jazz2.Actors
                 EndDamagingMove();
                 isInvulnerable = true;
                 collisionFlags &= ~CollisionFlags.ApplyGravitation;
-                speedX = 0;
-                speedY = 0;
-                externalForceX = 0;
-                externalForceY = 0;
-                internalForceY = 0;
+
+                speedX = speedY = 0f;
+                externalForceX = externalForceY = internalForceY = 0f;
+                fireFramesLeft = copterFramesLeft = pushFramesLeft = 0f;
+
                 PlaySound("WarpIn");
             }
         }

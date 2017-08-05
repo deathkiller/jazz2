@@ -92,6 +92,8 @@ namespace Jazz2.Actors.Bosses
                     if (stateTime <= 0f) {
                         canBeFrozen = false;
 
+                        PlaySound("Disappear", 0.8f);
+
                         state = StateTransition;
                         SetTransition((AnimState)1073741825, false, delegate {
                             Teleport();
@@ -224,11 +226,20 @@ namespace Jazz2.Actors.Bosses
 
                     FollowNearestPlayer();
                 }
+
+                // ToDo: Spawn fire particles
             }
 
             protected override void OnUpdateHitbox()
             {
                 UpdateHitbox(18, 18);
+            }
+
+            protected override bool OnPerish(ActorBase collider)
+            {
+                Explosion.Create(api, Transform.Pos + Speed, Explosion.RF);
+
+                return base.OnPerish(collider);
             }
 
             public override void HandleCollision(ActorBase other)

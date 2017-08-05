@@ -9,13 +9,13 @@ Jazz² Resurrection is reimplementation of game ***Jazz Jackrabbit 2*** from yea
   * Copy `x86/openal32.dll` to `‹Game›/Extensions/OpenALSoft32.dll`
   * Copy `x64/openal32.dll` to `‹Game›/Extensions/OpenALSoft64.dll`
 * [libopenmpt](http://lib.openmpt.org/libopenmpt/)
-  * Copy `libopenmpt.dll` (and its dependencies) to `‹Game›` directory
+  * Copy `libopenmpt.dll` (32-bit, and its dependencies) to `‹Game›` directory
 
 ### Linux
-* [Mono](http://www.mono-project.com/download/) 5.0 (or newer)
+* [Mono](http://www.mono-project.com/download/) 4.6 (or newer)
 * OpenAL
 * [libopenmpt](http://lib.openmpt.org/libopenmpt/)
-  * Copy `libopenmpt.so` (and its dependencies) to `‹Game›` directory
+  * Copy `libopenmpt.so` (32-bit, and its dependencies) to `‹Game›` directory
 
 ### Android
 * Xamarin
@@ -43,6 +43,26 @@ Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) (or equiv
 * Run the application
 
 *Requires device with Android 4.4 (or newer) and OpenGL ES 3.0. `‹SDCard›` could be internal or external storage. The application tries to autodetect correct path. Also, you can use `‹SDCard›/Android/Data/Jazz2.Android` or `‹SDCard›/Download/Jazz2.Android` instead.*
+
+## Building the solution
+### Windows
+* Open the solution in [Microsoft Visual Studio 2017](https://www.visualstudio.com/)
+* Copy dependencies to `/Jazz2/Bin/Debug/` or `/Jazz2/Bin/Release/`
+
+### Linux
+* Install [Mono 5.0 (or newer)](http://www.mono-project.com/download/#download-lin)
+* Run following commands in directory with the solution file (.sln):
+```bash
+sudo apt install nuget
+nuget restore
+msbuild
+```
+* Copy `/Packages/AdamsLair.OpenTK.x.y.z/lib/OpenTK.dll.config` to `/Jazz2/Bin/Debug/OpenTK.dll.config`
+* Obtain and copy `libopenmpt.so` to `/Jazz2/Bin/Debug/libopenmpt.so` to enable music playback
+* Then you can rebuild the solution only with `msbuild` command
+* Use `msbuild /p:Configuration=Release` to build Release configuration, you have to replace `Debug` with `Release` in paths
+
+*Errors about Jazz2.Android project can be ignored, if you don't need Android build.*
 
 ## License
 This software is licensed under the [GNU General Public License v3.0](./LICENSE).

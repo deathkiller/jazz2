@@ -70,6 +70,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
-    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(SolutionDir)Jazz2\Bin\$(ConfigurationName)\Extensions\$(TargetName).core$(TargetExt)" />
+    <Copy SourceFiles="$(TargetDir)/OpenTK.dll" DestinationFiles="$(SolutionDir)Jazz2\Bin\$(ConfigurationName)\OpenTK.dll" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(SolutionDir)Jazz2\Bin\$(ConfigurationName)\Extensions\$(TargetName).core$(TargetExt)" SkipUnchangedFiles="true" />
   </Target>
 </Project>
