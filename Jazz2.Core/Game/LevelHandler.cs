@@ -597,6 +597,11 @@ namespace Jazz2.Game
             return ContentResolver.Current.RequestMetadata(path, tileMapPalette);
         }
 
+        public Metadata RequestMetadataAsync(string path)
+        {
+            return ContentResolver.Current.RequestMetadataAsync(path, tileMapPalette);
+        }
+
         public void PlayCommonSound(string name, ActorBase target, float gain = 1f)
         {
             SoundResource resource;
@@ -763,7 +768,7 @@ namespace Jazz2.Game
 
                         tileMap.CreateDebris(new TileMap.DestructibleDebris {
                             Pos = debrisPos,
-                            Size = res.FrameDimensions,
+                            Size = res.Base.FrameDimensions,
                             Speed = new Vector2(speedX, speedY),
 
                             Scale = scale,
@@ -791,7 +796,7 @@ namespace Jazz2.Game
 
                         tileMap.CreateDebris(new TileMap.DestructibleDebris {
                             Pos = debrisPos,
-                            Size = res.FrameDimensions,
+                            Size = res.Base.FrameDimensions,
                             Speed = new Vector2(speedX, speedY),
                             Acceleration = new Vector2(accel, -MathF.Abs(accel)),
 

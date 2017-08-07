@@ -12,7 +12,7 @@ using Jazz2.Game.Structs;
 
 namespace Jazz2.Game
 {
-    public class ContentResolver
+    public partial class ContentResolver
     {
         #region JSON
         public class MetadataJson
@@ -104,6 +104,8 @@ namespace Jazz2.Game
             //cachedSounds = new Dictionary<string, ContentRef<Sound>>();
 
             basicNormal = RequestShader("BasicNormal");
+
+            AllowAsyncLoading();
         }
 
         public void ResetReferenceFlag()
@@ -158,6 +160,18 @@ namespace Jazz2.Game
 
         public Metadata RequestMetadata(string path, ColorRgba[] palette)
         {
+            Metadata metadata = RequestMetadataInner(path, palette, false);
+
+            if (metadata.AsyncFinalizingRequired) {
+                metadata.AsyncFinalizingRequired = false;
+                FinalizeAsyncLoadedResources(metadata);
+            }
+
+            return metadata;
+        }
+
+        public Metadata RequestMetadataInner(string path, ColorRgba[] palette, bool async)
+        {
             Metadata metadata;
             if (!cachedMetadata.TryGetValue(path, out metadata)) {
                 string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Metadata", path + ".res");
@@ -168,6 +182,7 @@ namespace Jazz2.Game
                 }
 
                 metadata = new Metadata();
+                metadata.AsyncFinalizingRequired = async;
 
                 // Pre-load graphics
                 if (json.Animations != null) {
@@ -182,13 +197,6 @@ namespace Jazz2.Game
 #if !THROW_ON_MISSING_RESOURCES
                         try {
 #endif
-                            ContentRef<DrawTechnique> drawTechnique;
-                            if (g.Value.Shader == null) {
-                                drawTechnique = basicNormal;
-                            } else {
-                                drawTechnique = RequestShader(g.Value.Shader);
-                            }
-
                             ColorRgba color;
                             if (g.Value.ShaderColors == null || g.Value.ShaderColors.Count < 4) {
                                 color = ColorRgba.White;
@@ -196,31 +204,45 @@ namespace Jazz2.Game
                                 color = new ColorRgba((byte)g.Value.ShaderColors[0], (byte)g.Value.ShaderColors[1], (byte)g.Value.ShaderColors[2], (byte)g.Value.ShaderColors[3]);
                             }
 
-                            // Create copy of generic resource
-                            GraphicResource resource = GraphicResource.From(RequestGraphicResource(g.Value.Path, palette), drawTechnique, color);
+                            GenericGraphicResource resBase = RequestGraphicResource(g.Value.Path, palette, async);
 
-                            resource.FrameOffset = g.Value.FrameOffset;
+                            // Create copy of generic resource
+                            GraphicResource res;
+                            if (async) {
+                                res = GraphicResource.From(resBase, g.Value.Shader, color);
+                            } else {
+                                ContentRef<DrawTechnique> drawTechnique;
+                                if (g.Value.Shader == null) {
+                                    drawTechnique = basicNormal;
+                                } else {
+                                    drawTechnique = RequestShader(g.Value.Shader);
+                                }
+
+                                res = GraphicResource.From(resBase, drawTechnique, color);
+                            }
+
+                            res.FrameOffset = g.Value.FrameOffset;
 
                             string raw1, raw2; int raw3;
                             if ((raw1 = g.Value.FrameCount as string) != null && int.TryParse(raw1, out raw3)) {
-                                resource.FrameCount = raw3;
+                                res.FrameCount = raw3;
                             } else {
-                                resource.FrameCount -= resource.FrameOffset;
+                                res.FrameCount -= res.FrameOffset;
                             }
                             if ((raw2 = g.Value.FrameRate as string) != null && int.TryParse(raw2, out raw3)) {
-                                resource.FrameDuration = (1f / raw3) * 5; // ToDo: I don't know...
+                                res.FrameDuration = (1f / raw3) * 5; // ToDo: I don't know...
                             }
 
-                            resource.OnlyOnce = (g.Value.Flags & 0x01) != 0;
+                            res.OnlyOnce = (g.Value.Flags & 0x01) != 0;
 
                             if (g.Value.States != null) {
-                                resource.State = new HashSet<AnimState>();
+                                res.State = new HashSet<AnimState>();
                                 for (int i = 0; i < g.Value.States.Count; i++) {
-                                    resource.State.Add((AnimState)g.Value.States[i]);
+                                    res.State.Add((AnimState)g.Value.States[i]);
                                 }
                             }
 
-                            metadata.Graphics[g.Key] = resource;
+                            metadata.Graphics[g.Key] = res;
 #if !THROW_ON_MISSING_RESOURCES
                         } catch (Exception ex) {
                             Console.WriteLine("Can't load animation \"" + g.Key + "\" from metadata \"" + path + "\": " + ex);
@@ -270,7 +292,7 @@ namespace Jazz2.Game
                 // Request children
                 if (json.Preload != null) {
                     for (int i = 0; i < json.Preload.Count; i++) {
-                        RequestMetadata(json.Preload[i], palette);
+                        RequestMetadataInner(json.Preload[i], palette, async);
                     }
                 }
             }
@@ -279,7 +301,7 @@ namespace Jazz2.Game
             return metadata;
         }
 
-        public GenericGraphicResource RequestGraphicResource(string path, ColorRgba[] palette)
+        public GenericGraphicResource RequestGraphicResource(string path, ColorRgba[] palette, bool async = false)
         {
             GenericGraphicResource resource;
             if (!cachedGraphics.TryGetValue(path, out resource)) {
@@ -328,14 +350,30 @@ namespace Jazz2.Game
 
                 Pixmap map = new Pixmap(pixelData);
                 map.GenerateAnimAtlas(resource.FrameConfiguration.X, resource.FrameConfiguration.Y, 0);
-                resource.Texture = new Texture(map, TextureSizeMode.NonPowerOfTwo, wrapX: json.TextureWrap, wrapY: json.TextureWrap);
+                if (async) {
+                    GenericGraphicResourceAsyncFinalize asyncFinalize = new GenericGraphicResourceAsyncFinalize();
+                    asyncFinalize.TextureMap = map;
 
-                string filenameNormal = pathAbsolute.Replace(".png", ".n.png");
-                if (FileOp.Exists(filenameNormal)) {
-                    pixelData = imageCodec.Read(FileOp.Open(filenameNormal, FileAccessMode.Read));
-                    resource.TextureNormal = new Texture(new Pixmap(pixelData), TextureSizeMode.NonPowerOfTwo);
+                    string filenameNormal = pathAbsolute.Replace(".png", ".n.png");
+                    if (FileOp.Exists(filenameNormal)) {
+                        asyncFinalize.TextureNormalMap = new Pixmap(imageCodec.Read(FileOp.Open(filenameNormal, FileAccessMode.Read)));
+                    } else {
+                        resource.TextureNormal = defaultNormal;
+                    }
+
+                    asyncFinalize.TextureWrap = json.TextureWrap;
+
+                    resource.AsyncFinalize = asyncFinalize;
                 } else {
-                    resource.TextureNormal = defaultNormal;
+                    resource.Texture = new Texture(map, TextureSizeMode.NonPowerOfTwo, wrapX: json.TextureWrap, wrapY: json.TextureWrap);
+
+                    string filenameNormal = pathAbsolute.Replace(".png", ".n.png");
+                    if (FileOp.Exists(filenameNormal)) {
+                        pixelData = imageCodec.Read(FileOp.Open(filenameNormal, FileAccessMode.Read));
+                        resource.TextureNormal = new Texture(new Pixmap(pixelData), TextureSizeMode.NonPowerOfTwo, wrapX: json.TextureWrap, wrapY: json.TextureWrap);
+                    } else {
+                        resource.TextureNormal = defaultNormal;
+                    }
                 }
 
                 cachedGraphics[path] = resource;
@@ -344,7 +382,6 @@ namespace Jazz2.Game
             resource.Referenced = true;
             return resource;
         }
-
 
         public ContentRef<DrawTechnique> RequestShader(string path)
         {

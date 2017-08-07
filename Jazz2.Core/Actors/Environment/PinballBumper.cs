@@ -57,7 +57,7 @@ namespace Jazz2.Actors.Environment
             light.Brightness = 0.4f;
 
             SetTransition(currentAnimationState | (AnimState)0x200, true);
-            PlaySound("Hit");
+            PlaySound("Hit", 0.8f);
 
             const float force = 24f;
 

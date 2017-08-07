@@ -114,23 +114,23 @@ namespace Jazz2.Game.Tiles
             }
         }
 
-        public void CreateParticleDebris(GraphicResource resource, Vector3 pos, int currentFrame, bool isFacingLeft)
+        public void CreateParticleDebris(GraphicResource res, Vector3 pos, int currentFrame, bool isFacingLeft)
         {
             const int debrisSize = 3;
 
-            Material material = resource.Material.Res;
+            Material material = res.Material.Res;
             Texture texture = material.MainTexture.Res;
 
-            float x = pos.X - resource.Hotspot.X;
-            float y = pos.Y - resource.Hotspot.Y;
+            float x = pos.X - res.Base.Hotspot.X;
+            float y = pos.Y - res.Base.Hotspot.Y;
 
-            for (int fx = 0; fx < resource.FrameDimensions.X; fx += debrisSize + 1) {
-                for (int fy = 0; fy < resource.FrameDimensions.Y; fy += debrisSize + 1) {
+            for (int fx = 0; fx < res.Base.FrameDimensions.X; fx += debrisSize + 1) {
+                for (int fy = 0; fy < res.Base.FrameDimensions.Y; fy += debrisSize + 1) {
                     float currentSize = debrisSize * MathF.Rnd.NextFloat(0.2f, 1.1f);
                     debrisList.Add(new DestructibleDebris {
-                        Pos = new Vector3(x + (isFacingLeft ? resource.FrameDimensions.X - fx : fx), y + fy, pos.Z),
+                        Pos = new Vector3(x + (isFacingLeft ? res.Base.FrameDimensions.X - fx : fx), y + fy, pos.Z),
                         Size = new Vector2(currentSize /** (isFacingLeft ? -1f : 1f)*/, currentSize),
-                        Speed = new Vector2(((fx - resource.FrameDimensions.X / 2) + MathF.Rnd.NextFloat(-2f, 2f)) * (isFacingLeft ? -1f : 1f) * MathF.Rnd.NextFloat(2f, 8f) / resource.FrameDimensions.X,
+                        Speed = new Vector2(((fx - res.Base.FrameDimensions.X / 2) + MathF.Rnd.NextFloat(-2f, 2f)) * (isFacingLeft ? -1f : 1f) * MathF.Rnd.NextFloat(2f, 8f) / res.Base.FrameDimensions.X,
                             -1f * MathF.Rnd.NextFloat(2.2f, 4f)),
                         Acceleration = new Vector2(0f, 0.2f),
 
@@ -142,8 +142,8 @@ namespace Jazz2.Game.Tiles
 
                         Material = material,
                         MaterialOffset = new Rect(
-                            (((float)(currentFrame % resource.FrameConfiguration.X) / resource.FrameConfiguration.X) + ((float)fx / texture.ContentWidth)) * texture.UVRatio.X,
-                            (((float)(currentFrame / resource.FrameConfiguration.X) / resource.FrameConfiguration.Y) + ((float)fy / texture.ContentHeight)) * texture.UVRatio.Y,
+                            (((float)(currentFrame % res.Base.FrameConfiguration.X) / res.Base.FrameConfiguration.X) + ((float)fx / texture.ContentWidth)) * texture.UVRatio.X,
+                            (((float)(currentFrame / res.Base.FrameConfiguration.X) / res.Base.FrameConfiguration.Y) + ((float)fy / texture.ContentHeight)) * texture.UVRatio.Y,
                             (currentSize * texture.UVRatio.X / texture.ContentWidth),
                             (currentSize * texture.UVRatio.Y / texture.ContentHeight)
                         ),
@@ -154,19 +154,19 @@ namespace Jazz2.Game.Tiles
             }
         }
 
-        public void CreateSpriteDebris(GraphicResource resource, Vector3 pos, int count)
+        public void CreateSpriteDebris(GraphicResource res, Vector3 pos, int count)
         {
-            Material material = resource.Material.Res;
+            Material material = res.Material.Res;
             Texture texture = material.MainTexture.Res;
 
-            float x = pos.X - resource.Hotspot.X;
-            float y = pos.Y - resource.Hotspot.Y;
+            float x = pos.X - res.Base.Hotspot.X;
+            float y = pos.Y - res.Base.Hotspot.Y;
 
             for (int i = 0; i < count; i++) {
                 float speedX = MathF.Rnd.NextFloat(-1f, 1f) * MathF.Rnd.NextFloat(0.2f, 0.8f) * count;
                 debrisList.Add(new DestructibleDebris {
                     Pos = new Vector3(x, y, pos.Z),
-                    Size = resource.FrameDimensions,
+                    Size = res.Base.FrameDimensions,
                     Speed = new Vector2(speedX, -1f * MathF.Rnd.NextFloat(2.2f, 4f)),
                     Acceleration = new Vector2(0f, 0.2f),
 
@@ -180,7 +180,7 @@ namespace Jazz2.Game.Tiles
                     Time = 560f,
 
                     Material = material,
-                    MaterialOffset = texture.LookupAtlas(resource.FrameOffset + MathF.Rnd.Next(resource.FrameCount)),
+                    MaterialOffset = texture.LookupAtlas(res.FrameOffset + MathF.Rnd.Next(res.FrameCount)),
 
                     CollisionAction = DebrisCollisionAction.Bounce
                 });

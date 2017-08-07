@@ -73,7 +73,7 @@ namespace Jazz2.Actors.Enemies
                             collider.DecreaseHealth(10, this);
                         } else if (MathF.Abs(speedX) > MathF.Abs(collider.speedX)) {
                             // Handle this only in the faster of the two.
-                            pos.X = collider.Transform.Pos.X + (speedX >= 0 ? -1f : 1f) * (currentAnimation.FrameDimensions.X + 1);
+                            pos.X = collider.Transform.Pos.X + (speedX >= 0 ? -1f : 1f) * (currentAnimation.Base.FrameDimensions.X + 1);
                             float totalSpeed = MathF.Abs(speedX) + MathF.Abs(collider.speedX);
 
                             collider.speedX = totalSpeed / 2 * (speedX >= 0f ? 1f : -1f);

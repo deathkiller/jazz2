@@ -91,8 +91,8 @@ namespace Jazz2.Actors.Weapons
 
                     Material = material,
                     MaterialOffset = new Rect(
-                        (((float)(currentFrame % currentAnimation.FrameConfiguration.X) / currentAnimation.FrameConfiguration.X) + ((float)dx / texture.ContentWidth) + 0.5f) * texture.UVRatio.X,
-                        (((float)(currentFrame / currentAnimation.FrameConfiguration.X) / currentAnimation.FrameConfiguration.Y) + ((float)dy / texture.ContentHeight) + 0.5f) * texture.UVRatio.Y,
+                        (((float)(currentFrame % currentAnimation.Base.FrameConfiguration.X) / currentAnimation.Base.FrameConfiguration.X) + ((float)dx / texture.ContentWidth) + 0.5f) * texture.UVRatio.X,
+                        (((float)(currentFrame / currentAnimation.Base.FrameConfiguration.X) / currentAnimation.Base.FrameConfiguration.Y) + ((float)dy / texture.ContentHeight) + 0.5f) * texture.UVRatio.Y,
                         (currentSize * texture.UVRatio.X / texture.ContentWidth),
                         (currentSize * texture.UVRatio.Y / texture.ContentHeight)
                     )

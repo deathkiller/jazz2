@@ -122,25 +122,25 @@ namespace Jazz2.Actors.Enemies
                 const int debrisSizeX = 5;
                 const int debrisSizeY = 3;
 
-                GraphicResource resource = currentTransitionState != AnimState.Idle ? currentTransition : currentAnimation;
-                Material material = resource.Material.Res;
+                GraphicResource res = currentTransitionState != AnimState.Idle ? currentTransition : currentAnimation;
+                Material material = res.Material.Res;
                 Texture texture = material.MainTexture.Res;
 
                 Vector3 pos = Transform.Pos;
 
-                float x = pos.X - resource.Hotspot.X;
-                float y = pos.Y - resource.Hotspot.Y;
+                float x = pos.X - res.Base.Hotspot.X;
+                float y = pos.Y - res.Base.Hotspot.Y;
 
                 int currentFrame = renderer.CurrentFrame;
 
-                for (int fx = 0; fx < resource.FrameDimensions.X; fx += debrisSizeX + 1) {
-                    for (int fy = 0; fy < resource.FrameDimensions.Y; fy += debrisSizeY + 1) {
+                for (int fx = 0; fx < res.Base.FrameDimensions.X; fx += debrisSizeX + 1) {
+                    for (int fy = 0; fy < res.Base.FrameDimensions.Y; fy += debrisSizeY + 1) {
                         float currentSizeX = debrisSizeX * MathF.Rnd.NextFloat(0.8f, 1.1f);
                         float currentSizeY = debrisSizeY * MathF.Rnd.NextFloat(0.8f, 1.1f);
                         api.TileMap.CreateDebris(new DestructibleDebris {
-                            Pos = new Vector3(x + (isFacingLeft ? resource.FrameDimensions.X - fx : fx), y + fy, pos.Z),
+                            Pos = new Vector3(x + (isFacingLeft ? res.Base.FrameDimensions.X - fx : fx), y + fy, pos.Z),
                             Size = new Vector2(currentSizeX, currentSizeY),
-                            Speed = new Vector2(((fx - resource.FrameDimensions.X / 2) + MathF.Rnd.NextFloat(-2f, 2f)) * (isFacingLeft ? -1f : 1f) * MathF.Rnd.NextFloat(0.5f, 2f) / resource.FrameDimensions.X,
+                            Speed = new Vector2(((fx - res.Base.FrameDimensions.X / 2) + MathF.Rnd.NextFloat(-2f, 2f)) * (isFacingLeft ? -1f : 1f) * MathF.Rnd.NextFloat(0.5f, 2f) / res.Base.FrameDimensions.X,
                                  MathF.Rnd.NextFloat(0f, 0.2f)),
                             Acceleration = new Vector2(0f, 0.06f),
 
@@ -152,8 +152,8 @@ namespace Jazz2.Actors.Enemies
 
                             Material = material,
                             MaterialOffset = new Rect(
-                                 (((float)(currentFrame % resource.FrameConfiguration.X) / resource.FrameConfiguration.X) + ((float)fx / texture.ContentWidth)) * texture.UVRatio.X,
-                                 (((float)(currentFrame / resource.FrameConfiguration.X) / resource.FrameConfiguration.Y) + ((float)fy / texture.ContentHeight)) * texture.UVRatio.Y,
+                                 (((float)(currentFrame % res.Base.FrameConfiguration.X) / res.Base.FrameConfiguration.X) + ((float)fx / texture.ContentWidth)) * texture.UVRatio.X,
+                                 (((float)(currentFrame / res.Base.FrameConfiguration.X) / res.Base.FrameConfiguration.Y) + ((float)fy / texture.ContentHeight)) * texture.UVRatio.Y,
                                  (currentSizeX * texture.UVRatio.X / texture.ContentWidth),
                                  (currentSizeY * texture.UVRatio.Y / texture.ContentHeight)
                              ),

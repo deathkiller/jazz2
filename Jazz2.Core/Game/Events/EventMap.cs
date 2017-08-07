@@ -356,16 +356,22 @@ namespace Jazz2.Game.Events
                     ref EventTile tile = ref eventLayout[x + y * layoutWidth];
 
                     if (!tile.IsEventActive && tile.EventType != EventType.Empty) {
-                        if (tile.EventType == EventType.Weather) {
-                            levelHandler.ApplyWeather((LevelHandler.WeatherType)tile.EventParams[0], tile.EventParams[1], tile.EventParams[2] != 0);
-                        } else if (tile.EventType != EventType.Generator) {
-                            ActorBase actor = levelHandler.EventSpawner.SpawnEvent(ActorInstantiationFlags.IsCreatedFromEventMap | tile.EventFlags, tile.EventType, x, y, LevelHandler.MainPlaneZ, tile.EventParams);
-                            if (actor != null) {
-                                levelHandler.AddActor(actor);
+                        try {
+                            if (tile.EventType == EventType.Weather) {
+                                levelHandler.ApplyWeather((LevelHandler.WeatherType)tile.EventParams[0], tile.EventParams[1], tile.EventParams[2] != 0);
+                            } else if (tile.EventType != EventType.Generator) {
+                                ActorBase actor = levelHandler.EventSpawner.SpawnEvent(ActorInstantiationFlags.IsCreatedFromEventMap | tile.EventFlags, tile.EventType, x, y, LevelHandler.MainPlaneZ, tile.EventParams);
+                                if (actor != null) {
+                                    levelHandler.AddActor(actor);
+                                }
                             }
-                        }
 
-                        tile.IsEventActive = true;
+                            tile.IsEventActive = true;
+                        } catch (ResourcesNotReady) {
+                            // A spawned actor needs resources that are not loaded in memory yet.
+                            // Request is added into queue. Second thread starts to fetch these resources
+                            // and current thread tries to spawn this actor again in next frames.
+                        }
                     }
                 }
             }

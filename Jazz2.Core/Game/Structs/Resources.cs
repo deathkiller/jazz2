@@ -13,11 +13,14 @@ namespace Jazz2.Game.Structs
         public Dictionary<string, SoundResource> Sounds;
 
         public Point2 BoundingBox;
+
+        public bool AsyncFinalizingRequired;
     }
 
     public class GenericGraphicResource
     {
         public bool Referenced;
+        public GenericGraphicResourceAsyncFinalize AsyncFinalize;
 
         public ContentRef<Texture> Texture;
         public ContentRef<Texture> TextureNormal;
@@ -35,40 +38,46 @@ namespace Jazz2.Game.Structs
     public class GraphicResource
     {
         public bool Referenced;
+        public GenericGraphicResource Base;
+        public GraphicResourceAsyncFinalize AsyncFinalize;
 
         public HashSet<AnimState> State;
         public ContentRef<Material> Material;
-        public Point2 FrameDimensions;
-        public Point2 FrameConfiguration;
         public float FrameDuration;
         public int FrameCount;
         public int FrameOffset;
-        public Point2 Hotspot;
-        public Point2 Coldspot;
-        public Point2 Gunspot;
-        public bool HasColdspot;
-        public bool HasGunspot;
         public bool OnlyOnce;
 
-        public static GraphicResource From(GenericGraphicResource g, ContentRef<DrawTechnique> drawTechnique, ColorRgba color)
+        public static GraphicResource From(GenericGraphicResource resBase, ContentRef<DrawTechnique> drawTechnique, ColorRgba color)
         {
+            GraphicResource res = new GraphicResource();
+            res.FrameDuration = resBase.FrameDuration;
+            res.FrameCount = resBase.FrameCount;
+            res.Base = resBase;
+
             Dictionary<string, ContentRef<Texture>> textures = new Dictionary<string, ContentRef<Texture>>();
-            textures.Add("mainTex", g.Texture);
-            if (g.TextureNormal != null) {
-                textures.Add("normalTex", g.TextureNormal);
+            textures.Add("mainTex", resBase.Texture);
+            if (resBase.TextureNormal != null) {
+                textures.Add("normalTex", resBase.TextureNormal);
             }
 
-            GraphicResource res = new GraphicResource();
             res.Material = new Material(drawTechnique, color, textures);
-            res.FrameDimensions = g.FrameDimensions;
-            res.FrameConfiguration = g.FrameConfiguration;
-            res.FrameDuration = g.FrameDuration;
-            res.FrameCount = g.FrameCount;
-            res.Hotspot = g.Hotspot;
-            res.Coldspot = g.Coldspot;
-            res.Gunspot = g.Gunspot;
-            res.HasColdspot = g.HasColdspot;
-            res.HasGunspot = g.HasGunspot;
+
+            return res;
+        }
+
+        public static GraphicResource From(GenericGraphicResource resBase, string shader, ColorRgba color)
+        {
+            GraphicResource res = new GraphicResource();
+            res.FrameDuration = resBase.FrameDuration;
+            res.FrameCount = resBase.FrameCount;
+            res.Base = resBase;
+
+            res.AsyncFinalize = new GraphicResourceAsyncFinalize {
+                Shader = shader,
+                Color = color
+            };
+
             return res;
         }
 
@@ -76,10 +85,28 @@ namespace Jazz2.Game.Structs
         {
         }
     }
-
     // ToDo: Refactor sounds
     public class SoundResource
     {
         public ContentRef<Sound> Sound;
+    }
+
+    public class MetadataAsyncRequest
+    {
+        //public Metadata Metadata;
+        public ColorRgba[] Palette;
+    }
+
+    public class GenericGraphicResourceAsyncFinalize
+    {
+        public Pixmap TextureMap;
+        public Pixmap TextureNormalMap;
+        public TextureWrapMode TextureWrap;
+    }
+
+    public class GraphicResourceAsyncFinalize
+    {
+        public string Shader;
+        public ColorRgba Color;
     }
 }

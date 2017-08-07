@@ -325,6 +325,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Ease.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExtensionMethods.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\ActorApi.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\ContentResolver.Async.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Multiplayer\ServerDiscovery.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\BitmapFont.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Components\ActorRenderer.cs" />

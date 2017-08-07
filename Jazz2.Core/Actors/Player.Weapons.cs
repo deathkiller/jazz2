@@ -136,15 +136,15 @@ namespace Jazz2.Actors
             if (inWater) {
                 angle = Transform.Angle;
 
-                int size = (currentAnimation.FrameDimensions.X / 2);
+                int size = (currentAnimation.Base.FrameDimensions.X / 2);
                 pos.X += (MathF.Cos(angle) * size) * (isFacingLeft ? -1f : 1f);
                 pos.Y += (MathF.Sin(angle) * size) * (isFacingLeft ? -1f : 1f);
                 
             } else {
                 angle = ((currentAnimationState & AnimState.Lookup) > 0 ? MathF.PiOver2 * (isFacingLeft ? 1 : -1) : 0f);
 
-                pos.X += (currentAnimation.Hotspot.X - currentAnimation.Gunspot.X) * (isFacingLeft ? 1 : -1);
-                pos.Y -= (currentAnimation.Hotspot.Y - currentAnimation.Gunspot.Y);
+                pos.X += (currentAnimation.Base.Hotspot.X - currentAnimation.Base.Gunspot.X) * (isFacingLeft ? 1 : -1);
+                pos.Y -= (currentAnimation.Base.Hotspot.Y - currentAnimation.Base.Gunspot.Y);
             }
 
             pos.Z += 2f;

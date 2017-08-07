@@ -38,7 +38,7 @@ namespace Jazz2.Actors.Environment
 
                     api.TileMap.CreateDebris(new TileMap.DestructibleDebris {
                         Pos = Transform.Pos,
-                        Size = res.FrameDimensions,
+                        Size = res.Base.FrameDimensions,
                         Speed = new Vector2(speedX, speedY),
                         Acceleration = new Vector2(0f, accel),
 

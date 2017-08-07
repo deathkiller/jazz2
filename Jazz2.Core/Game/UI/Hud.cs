@@ -121,8 +121,8 @@ namespace Jazz2.Game.UI
                 GraphicResource res;
                 if (graphics.TryGetValue(currentWeaponString, out res)) {
                     float y = size.Y;
-                    if (res.FrameDimensions.Y < 20) {
-                        y -= MathF.Round((20 - res.FrameDimensions.Y) * 0.5f);
+                    if (res.Base.FrameDimensions.Y < 20) {
+                        y -= MathF.Round((20 - res.Base.FrameDimensions.Y) * 0.5f);
                     }
 
                     DrawMaterial(c, currentWeaponString, size.X - 40, y + 1.6f, Alignment.BottomRight, new ColorRgba(0f, 0.4f));
@@ -346,13 +346,13 @@ namespace Jazz2.Game.UI
             int curAnimFrame = (int)(Time.GameTimer.TotalSeconds * 0.86f * res.FrameCount / res.FrameDuration) % res.FrameCount;
 
             Vector2 originPos = new Vector2(x, y);
-            alignment.ApplyTo(ref originPos, new Vector2(res.FrameDimensions.X * scale, res.FrameDimensions.Y * scale));
+            alignment.ApplyTo(ref originPos, new Vector2(res.Base.FrameDimensions.X * scale, res.Base.FrameDimensions.Y * scale));
 
             c.State.SetMaterial(res.Material);
             c.State.ColorTint = color;
             c.State.TextureCoordinateRect = res.Material.Res.MainTexture.Res.LookupAtlas(curAnimFrame);
 
-            c.FillRect(originPos.X, originPos.Y, res.FrameDimensions.X * scale, res.FrameDimensions.Y * scale);
+            c.FillRect(originPos.X, originPos.Y, res.Base.FrameDimensions.X * scale, res.Base.FrameDimensions.Y * scale);
         }
 
         public void DrawMaterial(Canvas c, string name, int frame, float x, float y, Alignment alignment, ColorRgba color, float scaleX = 1f, float scaleY = 1f)

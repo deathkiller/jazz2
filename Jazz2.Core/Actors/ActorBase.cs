@@ -138,21 +138,21 @@ namespace Jazz2.Actors
 
             Vector3 pos = Transform.Pos;
 
-            if (currentAnimation.HasColdspot) {
+            if (currentAnimation.Base.HasColdspot) {
                 currentHitbox = new Hitbox(
-                    pos.X - currentAnimation.Hotspot.X + currentAnimation.Coldspot.X - (w / 2),
-                    pos.Y - currentAnimation.Hotspot.Y + currentAnimation.Coldspot.Y - h,
-                    pos.X - currentAnimation.Hotspot.X + currentAnimation.Coldspot.X + (w / 2),
-                    pos.Y - currentAnimation.Hotspot.Y + currentAnimation.Coldspot.Y
+                    pos.X - currentAnimation.Base.Hotspot.X + currentAnimation.Base.Coldspot.X - (w / 2),
+                    pos.Y - currentAnimation.Base.Hotspot.Y + currentAnimation.Base.Coldspot.Y - h,
+                    pos.X - currentAnimation.Base.Hotspot.X + currentAnimation.Base.Coldspot.X + (w / 2),
+                    pos.Y - currentAnimation.Base.Hotspot.Y + currentAnimation.Base.Coldspot.Y
                 );
             } else {
                 // Collision base set to the bottom of the sprite.
                 // This is probably still not the correct way to do it, but at least it works for now.
                 currentHitbox = new Hitbox(
                     pos.X - (w / 2),
-                    pos.Y - currentAnimation.Hotspot.Y + currentAnimation.FrameDimensions.Y - h,
+                    pos.Y - currentAnimation.Base.Hotspot.Y + currentAnimation.Base.FrameDimensions.Y - h,
                     pos.X + (w / 2),
-                    pos.Y - currentAnimation.Hotspot.Y + currentAnimation.FrameDimensions.Y
+                    pos.Y - currentAnimation.Base.Hotspot.Y + currentAnimation.Base.FrameDimensions.Y
                 );
             }
         }
@@ -483,11 +483,11 @@ namespace Jazz2.Actors
             Vector3 pos1 = Transform.Pos;
             Vector3 pos2 = other.Transform.Pos;
 
-            Point2 hotspot1 = res1.Hotspot;
-            Point2 hotspot2 = res2.Hotspot;
+            Point2 hotspot1 = res1.Base.Hotspot;
+            Point2 hotspot2 = res2.Base.Hotspot;
 
-            Point2 size1 = res1.FrameDimensions;
-            Point2 size2 = res2.FrameDimensions;
+            Point2 size1 = res1.Base.FrameDimensions;
+            Point2 size2 = res2.Base.FrameDimensions;
 
             Rect box1, box2;
             if (isFacingLeft) {
@@ -529,8 +529,8 @@ namespace Jazz2.Actors
                     xs = (int)box1.X;
 
                     int frame1 = Math.Min(renderer.CurrentFrame, res.FrameCount - 1);
-                    dx = (frame1 % res.FrameConfiguration.X) * res.FrameDimensions.X;
-                    dy = (frame1 / res.FrameConfiguration.X) * res.FrameDimensions.Y - (int)box1.Y;
+                    dx = (frame1 % res.Base.FrameConfiguration.X) * res.Base.FrameDimensions.X;
+                    dy = (frame1 / res.Base.FrameConfiguration.X) * res.Base.FrameDimensions.Y - (int)box1.Y;
                 } else {
                     p = p2;
                     res = res2;
@@ -544,15 +544,15 @@ namespace Jazz2.Actors
                     xs = (int)box2.X;
 
                     int frame2 = Math.Min(other.renderer.CurrentFrame, res.FrameCount - 1);
-                    dx = (frame2 % res.FrameConfiguration.X) * res.FrameDimensions.X;
-                    dy = (frame2 / res.FrameConfiguration.X) * res.FrameDimensions.Y - (int)box2.Y;
+                    dx = (frame2 % res.Base.FrameConfiguration.X) * res.Base.FrameDimensions.X;
+                    dy = (frame2 / res.Base.FrameConfiguration.X) * res.Base.FrameDimensions.Y - (int)box2.Y;
                 }
 
                 // Per-pixel collision check
                 for (int i = x1; i < x2; i++) {
                     for (int j = y1; j < y2; j++) {
                         int i1 = i - xs;
-                        if (isFacingLeftCurrent) i1 = res.FrameDimensions.X - i1 - 1;
+                        if (isFacingLeftCurrent) i1 = res.Base.FrameDimensions.X - i1 - 1;
 
                         if (p[i1 + dx, j + dy].A > 40) {
                             return true;
@@ -570,20 +570,20 @@ namespace Jazz2.Actors
                 int x2s = (int)box2.X;
 
                 int frame1 = Math.Min(renderer.CurrentFrame, res1.FrameCount - 1);
-                int dx1 = (frame1 % res1.FrameConfiguration.X) * res1.FrameDimensions.X;
-                int dy1 = (frame1 / res1.FrameConfiguration.X) * res1.FrameDimensions.Y - (int)box1.Y;
+                int dx1 = (frame1 % res1.Base.FrameConfiguration.X) * res1.Base.FrameDimensions.X;
+                int dy1 = (frame1 / res1.Base.FrameConfiguration.X) * res1.Base.FrameDimensions.Y - (int)box1.Y;
 
                 int frame2 = Math.Min(other.renderer.CurrentFrame, res2.FrameCount - 1);
-                int dx2 = (frame2 % res2.FrameConfiguration.X) * res2.FrameDimensions.X;
-                int dy2 = (frame2 / res2.FrameConfiguration.X) * res2.FrameDimensions.Y - (int)box2.Y;
+                int dx2 = (frame2 % res2.Base.FrameConfiguration.X) * res2.Base.FrameDimensions.X;
+                int dy2 = (frame2 / res2.Base.FrameConfiguration.X) * res2.Base.FrameDimensions.Y - (int)box2.Y;
 
                 // Per-pixel collision check
                 for (int i = x1; i < x2; i++) {
                     for (int j = y1; j < y2; j++) {
                         int i1 = i - x1s;
-                        if (isFacingLeft) i1 = res1.FrameDimensions.X - i1 - 1;
+                        if (isFacingLeft) i1 = res1.Base.FrameDimensions.X - i1 - 1;
                         int i2 = i - x2s;
-                        if (other.isFacingLeft) i2 = res2.FrameDimensions.X - i2 - 1;
+                        if (other.isFacingLeft) i2 = res2.Base.FrameDimensions.X - i2 - 1;
 
                         if (p1[i1 + dx1, j + dy1].A > 20 && p2[i2 + dx2, j + dy2].A > 20) {
                             return true;
@@ -607,23 +607,23 @@ namespace Jazz2.Actors
             }
 
             Matrix4 transform1 =
-                Matrix4.CreateTranslation(new Vector3(-res1.Hotspot.X, -res1.Hotspot.Y, 0f));
+                Matrix4.CreateTranslation(new Vector3(-res1.Base.Hotspot.X, -res1.Base.Hotspot.Y, 0f));
             if (isFacingLeft)
                 transform1 *= Matrix4.CreateScale(-1f, 1f, 1f);
             transform1 *= Matrix4.CreateRotationZ(Transform.Angle) *
                 Matrix4.CreateTranslation(Transform.Pos);
 
             Matrix4 transform2 =
-                Matrix4.CreateTranslation(new Vector3(-res2.Hotspot.X, -res2.Hotspot.Y, 0f));
+                Matrix4.CreateTranslation(new Vector3(-res2.Base.Hotspot.X, -res2.Base.Hotspot.Y, 0f));
             if (other.isFacingLeft)
                 transform2 *= Matrix4.CreateScale(-1f, 1f, 1f);
             transform2 *= Matrix4.CreateRotationZ(other.Transform.Angle) *
                 Matrix4.CreateTranslation(other.Transform.Pos);
 
-            int width1 = res1.FrameDimensions.X;
-            int height1 = res1.FrameDimensions.Y;
-            int width2 = res2.FrameDimensions.X;
-            int height2 = res2.FrameDimensions.Y;
+            int width1 = res1.Base.FrameDimensions.X;
+            int height1 = res1.Base.FrameDimensions.Y;
+            int width2 = res2.Base.FrameDimensions.X;
+            int height2 = res2.Base.FrameDimensions.Y;
 
             // Bounding Box intersection
             Hitbox box1, box2;
@@ -679,12 +679,12 @@ namespace Jazz2.Actors
             Vector2 yPosIn2 = Vector2.Transform(Vector2.Zero, transformAToB);
 
             int frame1 = MathF.Min(renderer.CurrentFrame, res1.FrameCount - 1);
-            int dx1 = (frame1 % res1.FrameConfiguration.X) * res1.FrameDimensions.X;
-            int dy1 = (frame1 / res1.FrameConfiguration.X) * res1.FrameDimensions.Y;
+            int dx1 = (frame1 % res1.Base.FrameConfiguration.X) * res1.Base.FrameDimensions.X;
+            int dy1 = (frame1 / res1.Base.FrameConfiguration.X) * res1.Base.FrameDimensions.Y;
 
             int frame2 = MathF.Min(other.renderer.CurrentFrame, res2.FrameCount - 1);
-            int dx2 = (frame2 % res2.FrameConfiguration.X) * res2.FrameDimensions.X;
-            int dy2 = (frame2 / res2.FrameConfiguration.X) * res2.FrameDimensions.Y;
+            int dx2 = (frame2 % res2.Base.FrameConfiguration.X) * res2.Base.FrameDimensions.X;
+            int dy2 = (frame2 / res2.Base.FrameConfiguration.X) * res2.Base.FrameDimensions.Y;
 
             for (int y1 = 0; y1 < height1; y1++) {
                 Vector2 posIn2 = yPosIn2;
@@ -720,15 +720,15 @@ namespace Jazz2.Actors
 
         protected void RequestMetadata(string path)
         {
-            Metadata metadata = api.RequestMetadata(path);
+            Metadata metadata;
+            if ((flags & ActorInstantiationFlags.IsCreatedFromEventMap) != 0) {
+                metadata = api.RequestMetadataAsync(path);
+            } else {
+                metadata = api.RequestMetadata(path);
+            }
 
             boundingBox = metadata.BoundingBox;
-
             availableAnimations = metadata.Graphics;
-            //if (availableAnimations != null) {
-            //    SetAnimation(AnimState.IDLE);
-            //}
-
             availableSounds = metadata.Sounds;
         }
 
@@ -764,8 +764,12 @@ namespace Jazz2.Actors
         {
             TileMap tilemap = api.TileMap;
             if (tilemap != null) {
-                GraphicResource resource = availableAnimations[identifier];
-                tilemap.CreateSpriteDebris(resource, Transform.Pos, count);
+                GraphicResource res;
+                if (availableAnimations.TryGetValue(identifier, out res)) {
+                    tilemap.CreateSpriteDebris(res, Transform.Pos, count);
+                } else {
+                    Console.WriteLine("Can't create sprite debris \"" + identifier + "\" from " + GetType().FullName);
+                }
             }
         }
 
@@ -782,7 +786,7 @@ namespace Jazz2.Actors
             }
 
             renderer.SharedMaterial = resource.Material;
-            renderer.FrameConfiguration = resource.FrameConfiguration;
+            renderer.FrameConfiguration = resource.Base.FrameConfiguration;
 
             if (float.IsInfinity(resource.FrameDuration)) {
                 if (resource.FrameCount > 1) {
@@ -801,10 +805,10 @@ namespace Jazz2.Actors
             renderer.AnimFrameCount = resource.FrameCount;
             renderer.AnimDuration = resource.FrameDuration;
             renderer.Rect = new Rect(
-                -resource.Hotspot.X,
-                -resource.Hotspot.Y,
-                resource.FrameDimensions.X,
-                resource.FrameDimensions.Y
+                -resource.Base.Hotspot.X,
+                -resource.Base.Hotspot.Y,
+                resource.Base.FrameDimensions.X,
+                resource.Base.FrameDimensions.Y
             );
 
             renderer.AnimTime = 0;
@@ -818,7 +822,7 @@ namespace Jazz2.Actors
             // ToDo: Remove this bounding box reduction
             // ToDo: Move bounding box calculation to Import project
             if (boundingBox.X == 0 || boundingBox.Y == 0) {
-                boundingBox = currentAnimation.FrameDimensions - new Point2(4, 0);
+                boundingBox = currentAnimation.Base.FrameDimensions - new Point2(4, 0);
             }
 
             RefreshAnimation();
@@ -853,7 +857,7 @@ namespace Jazz2.Actors
                 currentAnimation = candidates[MathF.Rnd.Next() % candidates.Count];
 
                 if (boundingBox.X == 0 || boundingBox.Y == 0) {
-                    boundingBox = currentAnimation.FrameDimensions - new Point2(2, 2);
+                    boundingBox = currentAnimation.Base.FrameDimensions - new Point2(2, 2);
                 }
 
                 RefreshAnimation();

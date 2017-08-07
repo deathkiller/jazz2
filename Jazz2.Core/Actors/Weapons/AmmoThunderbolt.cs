@@ -11,6 +11,8 @@ namespace Jazz2.Actors.Weapons
         private LightEmitter light;
         private SoundInstance sound;
 
+        private float noDamageTimeLeft;
+
         public override WeaponType WeaponType => WeaponType.Thunderbolt;
 
         public override void OnAttach(ActorInstantiationDetails details)
@@ -39,7 +41,7 @@ namespace Jazz2.Actors.Weapons
             //if ((upgrades & 0x1) != 0) {
             //    strength = 2;
             //} else {
-                strength = 1;
+            //    strength = 1;
             //}
 
             if (MathF.Rnd.NextBool()) {
@@ -87,6 +89,18 @@ namespace Jazz2.Actors.Weapons
             if (sound != null && sound.Pitch > 0.9f) {
                 sound.Pitch -= Time.TimeMult * 0.04f;
             }
+
+            if (strength > 0) {
+                strength = 0;
+
+                noDamageTimeLeft = 2f;
+            } else {
+                if (noDamageTimeLeft > 0f) {
+                    noDamageTimeLeft -= Time.TimeMult;
+                } else {
+                    strength = 1;
+                }
+            }
         }
 
         protected override void OnUpdateHitbox()
@@ -96,16 +110,16 @@ namespace Jazz2.Actors.Weapons
             }
 
             Matrix4 transform =
-                Matrix4.CreateTranslation(new Vector3(-currentAnimation.Hotspot.X, -currentAnimation.Hotspot.Y, 0f));
+                Matrix4.CreateTranslation(new Vector3(-currentAnimation.Base.Hotspot.X, -currentAnimation.Base.Hotspot.Y, 0f));
             if (isFacingLeft)
                 transform *= Matrix4.CreateScale(-1f, 1f, 1f);
             transform *= Matrix4.CreateRotationZ(Transform.Angle) *
                 Matrix4.CreateTranslation(Transform.Pos);
 
             Vector2 tl = Vector2.Transform(Vector2.Zero, transform);
-            Vector2 tr = Vector2.Transform(new Vector2(currentAnimation.FrameDimensions.X, 0f), transform);
-            Vector2 bl = Vector2.Transform(new Vector2(0f, currentAnimation.FrameDimensions.Y), transform);
-            Vector2 br = Vector2.Transform(new Vector2(currentAnimation.FrameDimensions.X, currentAnimation.FrameDimensions.Y), transform);
+            Vector2 tr = Vector2.Transform(new Vector2(currentAnimation.Base.FrameDimensions.X, 0f), transform);
+            Vector2 bl = Vector2.Transform(new Vector2(0f, currentAnimation.Base.FrameDimensions.Y), transform);
+            Vector2 br = Vector2.Transform(new Vector2(currentAnimation.Base.FrameDimensions.X, currentAnimation.Base.FrameDimensions.Y), transform);
 
             float minX = MathF.Min(tl.X, tr.X, bl.X, br.X);
             float minY = MathF.Min(tl.Y, tr.Y, bl.Y, br.Y);

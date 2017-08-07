@@ -159,6 +159,14 @@ namespace Jazz2.Game
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+        public Metadata RequestMetadataAsync(string path)
+        {
+            return levelHandler.RequestMetadataAsync(path);
+        }
+
+#if NET45
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public void PlayCommonSound(ActorBase target, string name, float gain = 1f)
         {
             levelHandler.PlayCommonSound(name, target, gain);

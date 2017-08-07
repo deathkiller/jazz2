@@ -148,7 +148,7 @@
         },
         "CopterShootToCopter": {
             "Path": "Lori/copter_shoot_start.png",
-            "FrameRate": 24,
+            "FrameRate": 27,
             "States": [ 1073741830 ]
         },
         

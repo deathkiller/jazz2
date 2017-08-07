@@ -273,6 +273,7 @@ namespace Jazz2.Actors
                         if ((currentAnimationState & AnimState.Hook) == AnimState.Hook) {
                             SetTransition(AnimState.TransitionHookShootToHook, false);
                         } else if ((currentAnimationState & AnimState.Copter) != 0) {
+                            SetAnimation(AnimState.Copter);
                             SetTransition(AnimState.TransitionCopterShootToCopter, false);
                         } else if ((currentAnimationState & AnimState.Fall) != 0) {
                             SetTransition(AnimState.TransitionFallShootToFall, false);
