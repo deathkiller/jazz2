@@ -178,7 +178,9 @@ namespace Jazz2.Game
 
                 MetadataJson json;
                 using (Stream s = DualityApp.SystemBackend.FileSystem.OpenFile(pathAbsolute, FileAccessMode.Read)) {
-                    json = jsonParser.Parse<MetadataJson>(s);
+                    lock (jsonParser) {
+                        json = jsonParser.Parse<MetadataJson>(s);
+                    }
                 }
 
                 metadata = new Metadata();
@@ -309,7 +311,9 @@ namespace Jazz2.Game
 
                 SpriteJson json;
                 using (Stream s = FileOp.Open(pathAbsolute + ".res", FileAccessMode.Read)) {
-                    json = jsonParser.Parse<SpriteJson>(s);
+                    lock (jsonParser) {
+                        json = jsonParser.Parse<SpriteJson>(s);
+                    }
                 }
 
                 resource = new GenericGraphicResource {
@@ -404,7 +408,9 @@ namespace Jazz2.Game
 
                 ShaderJson json;
                 using (Stream s = FileOp.Open(pathAbsolute, FileAccessMode.Read)) {
-                    json = jsonParser.Parse<ShaderJson>(s);
+                    lock (jsonParser) {
+                        json = jsonParser.Parse<ShaderJson>(s);
+                    }
                 }
 
                 if (json.Fragment == null && json.Vertex == null) {

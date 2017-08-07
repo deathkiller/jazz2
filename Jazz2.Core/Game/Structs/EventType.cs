@@ -127,6 +127,7 @@
         Coin = 0x0048,
         Gem = 0x0040,
         GemGiant = 0x0041,
+        GemRing = 0x0042,
         Carrot = 0x0050,
         CarrotFly = 0x0051,
         CarrotInvincible = 0x0052,

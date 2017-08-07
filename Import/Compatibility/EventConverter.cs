@@ -915,6 +915,17 @@ namespace Jazz2.Compatibility
             convert.Add(JJ2Event.JJ2_GEM_BLUE_RECT, ConstantParamList(EventType.Gem, 2));
 
             convert.Add(JJ2Event.JJ2_GEM_SUPER, ConstantParamList(EventType.GemGiant));
+            convert.Add(JJ2Event.JJ2_GEM_RING, (level, jj2Params) => {
+                ushort[] eventParams = ConvertParamInt(jj2Params,
+                    Pair.Create(JJ2EventParamType.UInt, 5),  // Length
+                    Pair.Create(JJ2EventParamType.UInt, 5),  // Speed
+                    Pair.Create(JJ2EventParamType.Bool, 8)); // Event
+
+                return new ConversionResult {
+                    eventType = EventType.GemRing,
+                    eventParams = eventParams
+                };
+            });
 
             convert.Add(JJ2Event.JJ2_CARROT, ConstantParamList(EventType.Carrot, 0));
             convert.Add(JJ2Event.JJ2_CARROT_FULL, ConstantParamList(EventType.Carrot, 1));

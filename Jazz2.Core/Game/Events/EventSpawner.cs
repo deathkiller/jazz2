@@ -122,6 +122,7 @@ namespace Jazz2.Game.Events
             RegisterSpawnable<GemCrate>(EventType.CrateGem);
             RegisterSpawnable<GemBarrel>(EventType.BarrelGem);
             RegisterSpawnable<GemGiant>(EventType.GemGiant);
+            RegisterSpawnable<GemRing>(EventType.GemRing);
 
             RegisterSpawnable<PowerUpMorphMonitor>(EventType.PowerUpMorph);
             RegisterSpawnable<BirdyCage>(EventType.BirdyCage);

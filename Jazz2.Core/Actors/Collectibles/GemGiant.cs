@@ -2,7 +2,7 @@
 using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
 
-namespace Jazz2.Actors.Solid
+namespace Jazz2.Actors.Collectibles
 {
     public class GemGiant : ActorBase
     {
