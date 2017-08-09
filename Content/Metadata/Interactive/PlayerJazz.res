@@ -259,6 +259,11 @@
             "FrameRate": 6,
             "States": [ 1024 ]
         },
+        "LedgeClimb": {
+            "Path": "Jazz/unused_ledge_climb.png",
+            "FrameRate": 8,
+            "States": [ 1073741862 ]
+        },
         
         "Corpse": {
             "Path": "Jazz/corpse.png"

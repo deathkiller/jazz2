@@ -631,6 +631,44 @@ namespace Jazz2.Actors
             Vector3 pos = Transform.Pos;
             if (api.EventMap.IsHurting(pos.X + (speedX > 0f ? 1f : -1f) * 16f, pos.Y)) {
                 TakeDamage(speedX * 0.25f);
+            } else {
+
+                if (isActivelyPushing && !canJump && speedY >= -2f) {
+                    if (FindAnimationCandidates(AnimState.TransitionLedgeClimb).Count > 0) {
+                        // Character supports ledge climbing
+                        Hitbox hitbox1 = currentHitbox + new Vector2(isFacingLeft ? -16f : 16f, -42f);
+                        Hitbox hitbox2 = currentHitbox + new Vector2(isFacingLeft ? -16f : 16f, -42f + 2f);
+                        Hitbox hitbox3 = currentHitbox + new Vector2(isFacingLeft ? -16f : 16f, -42f + 2f + 24f);
+                        Hitbox hitbox4 = currentHitbox + new Vector2(isFacingLeft ? -16f : 16f, 20f);
+                        if ( api.IsPositionEmpty(this, ref hitbox1, false) &&
+                            !api.IsPositionEmpty(this, ref hitbox2, false) &&
+                            !api.IsPositionEmpty(this, ref hitbox3, false) &&
+                            !api.IsPositionEmpty(this, ref hitbox4, false)) {
+
+                            controllable = false;
+                            collisionFlags &= ~(CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset);
+
+                            speedX = externalForceX = externalForceY = 0f;
+                            speedY = -1.36f;
+
+                            MoveInstantly(new Vector2(isFacingLeft ? -9f : 9f, 0f), MoveType.Relative);
+
+                            SetTransition(AnimState.TransitionLedgeClimb, false, delegate {
+                                canJump = true;
+                                controllable = true;
+                                collisionFlags |= CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset;
+
+                                MoveInstantly(new Vector2(isFacingLeft ? -4f : 4f, 0f), MoveType.Relative);
+
+                                for (int y = -2; y > -10; y -= 2) {
+                                    if (MoveInstantly(new Vector2(0f, y), MoveType.Relative)) {
+                                        break;
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
             }
         }
 

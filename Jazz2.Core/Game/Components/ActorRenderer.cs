@@ -391,6 +391,8 @@ namespace Jazz2.Game
 #if DEBUG && !SHOW_HITBOXES
             Structs.Hitbox h = ((Actors.ActorBase)gameobj).Hitbox;
             Hud.ShowDebugRect(new Rect(h.Left, h.Top, h.Right - h.Left, h.Bottom - h.Top));
+            Vector3 pos = ((Actors.ActorBase)gameobj).Transform.Pos;
+            Hud.ShowDebugRect(new Rect(pos.X - 1, pos.Y - 1 , 3, 3));
 #endif
         }
     }

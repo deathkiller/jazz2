@@ -340,7 +340,6 @@ namespace Jazz2.Game
 
                 CameraController controller = camera.GetComponent<CameraController>();
                 controller.ViewRect = new Rect(tileMap.Size * tileMap.Tileset.TileSize);
-                //controller.Smoothness = ((config.Description.Flags & LevelFlags.FastCamera) != 0 ? -2.6f : 1f);
 
                 // Read events
                 eventMap = new EventMap(this, tileMap.Size);
@@ -376,7 +375,6 @@ namespace Jazz2.Game
         {
             actors.Add(actor);
 
-            //actor.Parent = rootObject;
             AddObject(actor);
         }
 
@@ -392,7 +390,6 @@ namespace Jazz2.Game
             players.Add(actor);
             actors.Add(actor);
 
-            //actor.Parent = rootObject;
             AddObject(actor);
         }
 

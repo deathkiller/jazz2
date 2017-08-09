@@ -75,6 +75,7 @@ namespace Jazz2.Game.Structs
         TransitionLiftEnd = 0x40000024,
 
         TransitionLedge = 0x40000025,
+        TransitionLedgeClimb = 0x40000026,
 
         TransitionFallShootToFall = 0x40000030,
 

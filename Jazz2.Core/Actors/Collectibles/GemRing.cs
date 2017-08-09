@@ -8,6 +8,9 @@ namespace Jazz2.Actors.Collectibles
         private GemPart[] parts;
         private float phase;
 
+        private bool collected;
+        private float collectedPhase;
+
         public override void OnAttach(ActorInstantiationDetails details)
         {
             base.OnAttach(details);
@@ -16,6 +19,7 @@ namespace Jazz2.Actors.Collectibles
 
             untouched = false;
 
+            // Workaround: Some animation have to be loaded for collision detection
             RequestMetadata("Object/GemGiant");
             SetAnimation(AnimState.Idle);
 
@@ -32,35 +36,54 @@ namespace Jazz2.Actors.Collectibles
 
         protected override void OnUpdate()
         {
-            base.OnUpdate();
+            //base.OnUpdate();
 
-            for (int i = 0; i < parts.Length; i++) {
-                float angle = phase + i * MathF.TwoPi / parts.Length;
-                float distance = 32f + MathF.Sin(phase * 1.1f) * 8f;
-                parts[i].Transform.RelativePos = new Vector3(MathF.Cos(angle) * distance, MathF.Sin(angle) * distance, 0f);
-                parts[i].Transform.Angle = angle + MathF.PiOver2;
+            if (collected) {
+                if (collectedPhase > 100f) {
+                    DecreaseHealth(int.MaxValue);
+                    return;
+                }
+
+                for (int i = 0; i < parts.Length; i++) {
+                    float angle = phase + i * MathF.TwoPi / parts.Length;
+                    float distance = 32f + collectedPhase * 3.2f;
+                    parts[i].Transform.RelativePos = new Vector3(MathF.Cos(angle) * distance, MathF.Sin(angle) * distance, 0f);
+                    parts[i].Transform.Angle = angle + MathF.PiOver2;
+                    parts[i].Transform.Scale += 0.02f;
+                }
+
+                phase += Time.TimeMult * 0.16f;
+                collectedPhase += Time.TimeMult;
+            } else {
+                for (int i = 0; i < parts.Length; i++) {
+                    float angle = phase + i * MathF.TwoPi / parts.Length;
+                    float distance = 32f + MathF.Sin(phase * 1.1f) * 8f;
+                    parts[i].Transform.RelativePos = new Vector3(MathF.Cos(angle) * distance, MathF.Sin(angle) * distance, 0f);
+                    parts[i].Transform.Angle = angle + MathF.PiOver2;
+                }
+
+                phase += Time.TimeMult * 0.05f;
             }
-
-            phase += Time.TimeMult * 0.05f;
         }
 
-        /*protected override void OnUpdateHitbox()
+        protected override bool OnPerish(ActorBase collider)
         {
-            Vector3 pos = Transform.Pos;
-
-            currentHitbox = new Hitbox(
-                pos.X - 120,
-                pos.Y - 120,
-                pos.X + 120,
-                pos.Y + 120
-            );
-        }*/
+            return base.OnPerish(collider);
+        }
 
         protected override void Collect(Player player)
         {
-            player.AddGems(parts.Length);
+            if (!collected) {
+                collected = true;
+                collisionFlags &= ~CollisionFlags.CollideWithOtherActors;
 
-            base.Collect(player);
+                player.AddGems(parts.Length);
+
+                //base.Collect(player);
+
+                // ToDo: Add correct score value
+                //player.AddScore(scoreValue);
+            }
         }
 
         public class GemPart : ActorBase
