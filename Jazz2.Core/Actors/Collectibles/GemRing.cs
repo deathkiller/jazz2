@@ -5,6 +5,7 @@ namespace Jazz2.Actors.Collectibles
 {
     public class GemRing : Collectible
     {
+        private float speed;
         private GemPart[] parts;
         private float phase;
 
@@ -14,6 +15,10 @@ namespace Jazz2.Actors.Collectibles
         public override void OnAttach(ActorInstantiationDetails details)
         {
             base.OnAttach(details);
+
+            int length = (details.Params[0] > 0 ? details.Params[0] : 8);
+            speed = (details.Params[1] > 0 ? details.Params[1] : 8) * 0.00625f;
+            // "Event" parameter will not be implemented
 
             collisionFlags &= ~(CollisionFlags.ApplyGravitation | CollisionFlags.SkipPerPixelCollisions);
 
@@ -25,7 +30,7 @@ namespace Jazz2.Actors.Collectibles
 
             renderer.Active = false;
 
-            parts = new GemPart[8];
+            parts = new GemPart[length];
             for (int i = 0; i < parts.Length; i++) {
                 parts[i] = new GemPart();
                 parts[i].OnAttach(details);
@@ -46,29 +51,24 @@ namespace Jazz2.Actors.Collectibles
 
                 for (int i = 0; i < parts.Length; i++) {
                     float angle = phase + i * MathF.TwoPi / parts.Length;
-                    float distance = 32f + collectedPhase * 3.2f;
+                    float distance = 8 * 4 + collectedPhase * 3.6f;
                     parts[i].Transform.RelativePos = new Vector3(MathF.Cos(angle) * distance, MathF.Sin(angle) * distance, 0f);
                     parts[i].Transform.Angle = angle + MathF.PiOver2;
                     parts[i].Transform.Scale += 0.02f;
                 }
 
-                phase += Time.TimeMult * 0.16f;
+                phase += Time.TimeMult * speed * 3f;
                 collectedPhase += Time.TimeMult;
             } else {
                 for (int i = 0; i < parts.Length; i++) {
                     float angle = phase + i * MathF.TwoPi / parts.Length;
-                    float distance = 32f + MathF.Sin(phase * 1.1f) * 8f;
+                    float distance = 8 * (4 + MathF.Sin(phase * 1.1f));
                     parts[i].Transform.RelativePos = new Vector3(MathF.Cos(angle) * distance, MathF.Sin(angle) * distance, 0f);
                     parts[i].Transform.Angle = angle + MathF.PiOver2;
                 }
 
-                phase += Time.TimeMult * 0.05f;
+                phase += Time.TimeMult * speed;
             }
-        }
-
-        protected override bool OnPerish(ActorBase collider)
-        {
-            return base.OnPerish(collider);
         }
 
         protected override void Collect(Player player)

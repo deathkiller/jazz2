@@ -633,33 +633,52 @@ namespace Jazz2.Actors
                 TakeDamage(speedX * 0.25f);
             } else {
 
-                if (isActivelyPushing && !canJump && speedY >= -2f) {
+                if (isActivelyPushing && !canJump && speedY >= -1f && externalForceY <= 0f) {
+                    // Character supports ledge climbing
                     if (FindAnimationCandidates(AnimState.TransitionLedgeClimb).Count > 0) {
-                        // Character supports ledge climbing
-                        Hitbox hitbox1 = currentHitbox + new Vector2(isFacingLeft ? -16f : 16f, -42f);
-                        Hitbox hitbox2 = currentHitbox + new Vector2(isFacingLeft ? -16f : 16f, -42f + 2f);
-                        Hitbox hitbox3 = currentHitbox + new Vector2(isFacingLeft ? -16f : 16f, -42f + 2f + 24f);
-                        Hitbox hitbox4 = currentHitbox + new Vector2(isFacingLeft ? -16f : 16f, 20f);
+                        const int maxTolerance = 6;
+
+                        float x = (isFacingLeft ? -16f : 16f);
+                        Hitbox hitbox1 = currentHitbox + new Vector2(x, -42f - maxTolerance);   // Empty space to climb to
+                        Hitbox hitbox2 = currentHitbox + new Vector2(x, -42f + 2f);             // Wall below the empty space
+                        Hitbox hitbox3 = currentHitbox + new Vector2(x, -42f + 2f + 24f);       // Wall between the player and the wall above (vertically)
+                        Hitbox hitbox4 = currentHitbox + new Vector2(x,  20f);                  // Wall below the player
                         if ( api.IsPositionEmpty(this, ref hitbox1, false) &&
                             !api.IsPositionEmpty(this, ref hitbox2, false) &&
                             !api.IsPositionEmpty(this, ref hitbox3, false) &&
                             !api.IsPositionEmpty(this, ref hitbox4, false)) {
 
+                            // Move the player upwards, if it is in tolerance, so the animation will look better
+                            for (int y = 0; y >= -maxTolerance; y -= 2) {
+                                Hitbox hitbox = currentHitbox + new Vector2(x, -42f + y);
+                                if (api.IsPositionEmpty(this, ref hitbox, false)) {
+                                    MoveInstantly(new Vector2(0f, y), MoveType.Relative, true);
+                                    break;
+                                }
+                            }
+
+                            // Prepare the player for animation
                             controllable = false;
                             collisionFlags &= ~(CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset);
 
                             speedX = externalForceX = externalForceY = 0f;
                             speedY = -1.36f;
+                            copterFramesLeft = 0f;
 
-                            MoveInstantly(new Vector2(isFacingLeft ? -9f : 9f, 0f), MoveType.Relative);
+                            // Stick the player to wall
+                            MoveInstantly(new Vector2(isFacingLeft ? -9f : 9f, 0f), MoveType.Relative, true);
 
+                            SetAnimation(AnimState.Idle);
                             SetTransition(AnimState.TransitionLedgeClimb, false, delegate {
+                                // Reset the player to normal state
                                 canJump = true;
                                 controllable = true;
                                 collisionFlags |= CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset;
 
+                                // Move it far from the ledge
                                 MoveInstantly(new Vector2(isFacingLeft ? -4f : 4f, 0f), MoveType.Relative);
 
+                                // Move the player upwards, so it will not be stuck in the wall
                                 for (int y = -2; y > -10; y -= 2) {
                                     if (MoveInstantly(new Vector2(0f, y), MoveType.Relative)) {
                                         break;
@@ -1370,28 +1389,29 @@ namespace Jazz2.Actors
                     EnemyBase collider = collision as EnemyBase;
                     if (collider != null) {
                         if (currentSpecialMove != SpecialMoveType.None || isSugarRush) {
-                            collider.DecreaseHealth(4, this);
+                            if (!collider.IsInvulnerable) {
+                                collider.DecreaseHealth(4, this);
 
-                            Explosion.Create(api, collider.Transform.Pos, Explosion.Small);
+                                Explosion.Create(api, collider.Transform.Pos, Explosion.Small);
 
-                            if (isSugarRush) {
-                                if (canJump) {
-                                    speedY = 3;
-                                    canJump = false;
-                                    externalForceY = 0.6f;
+                                if (isSugarRush) {
+                                    if (canJump) {
+                                        speedY = 3;
+                                        canJump = false;
+                                        externalForceY = 0.6f;
+                                    }
+                                    speedY *= -0.5f;
                                 }
-                                speedY *= -0.5f;
+                                if ((currentAnimationState & AnimState.Buttstomp) != 0) {
+                                    removeSpecialMove = true;
+                                    speedY *= -0.6f;
+                                    canJump = true;
+                                } else if (currentSpecialMove != SpecialMoveType.None && collider.Health >= 0) {
+                                    removeSpecialMove = true;
+                                    externalForceX = 0f;
+                                    externalForceY = 0f;
+                                }
                             }
-                            if ((currentAnimationState & AnimState.Buttstomp) != 0) {
-                                removeSpecialMove = true;
-                                speedY *= -0.6f;
-                                canJump = true;
-                            } else if (currentSpecialMove != SpecialMoveType.None && collider.Health >= 0) {
-                                removeSpecialMove = true;
-                                externalForceX = 0f;
-                                externalForceY = 0f;
-                            }
-                            
                         } else {
                             if (collider.CanHurtPlayer) {
                                 TakeDamage(4 * (Transform.Pos.X > collider.Transform.Pos.X ? 1 : -1));

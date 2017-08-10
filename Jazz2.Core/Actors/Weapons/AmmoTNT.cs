@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Duality;
+﻿using Duality;
 using Jazz2.Actors.Collectibles;
 using Jazz2.Actors.Enemies;
 using Jazz2.Actors.Solid;
@@ -14,6 +13,8 @@ namespace Jazz2.Actors.Weapons
 
         private float lifetime = 80f;
         private bool exploded;
+
+        public Player Owner => owner;
 
         public AmmoTNT(Player owner)
         {
@@ -48,10 +49,10 @@ namespace Jazz2.Actors.Weapons
 
                 Vector3 pos = Transform.Pos;
                 foreach (ActorBase collision in api.FindCollisionActorsRadius(pos.X, pos.Y, 50)) {
-                    if (!collision.IsInvulnerable && (collision is EnemyBase || collision is SolidObjectBase || collision is TurtleShell || collision is GemGiant)) {
-                        collision.DecreaseHealth(5, this);
-                    } else if (collision is Collectible) {
+                    if (collision is Collectible || collision is PowerUpWeaponMonitor || collision is PowerUpMorphMonitor) {
                         collision.HandleCollision(this);
+                    } else if (!collision.IsInvulnerable && (collision is EnemyBase || collision is SolidObjectBase || collision is TurtleShell || collision is GemGiant)) {
+                        collision.DecreaseHealth(5, this);
                     }
                 }
 

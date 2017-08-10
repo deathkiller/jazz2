@@ -923,7 +923,7 @@ namespace Jazz2.Compatibility
 
                 return new ConversionResult {
                     eventType = EventType.GemRing,
-                    eventParams = eventParams
+                    eventParams = new ushort[] { eventParams[0], eventParams[1] }
                 };
             });
 
