@@ -28,15 +28,22 @@ namespace Jazz2.Actors.Solid
                 return;
             }
 
-            AmmoBase collider = other as AmmoBase;
-            if (collider != null) {
-                if ((collider.WeaponType == WeaponType.RF ||
-                     collider.WeaponType == WeaponType.Seeker ||
-                     collider.WeaponType == WeaponType.Pepper ||
-                     collider.WeaponType == WeaponType.Electro)) {
+            switch (other) {
+                case AmmoBase collision: {
+                    if ((collision.WeaponType == WeaponType.RF ||
+                         collision.WeaponType == WeaponType.Seeker ||
+                         collision.WeaponType == WeaponType.Pepper ||
+                         collision.WeaponType == WeaponType.Electro)) {
 
-                    DecreaseHealth(int.MaxValue);
-                    collider.DecreaseHealth(int.MaxValue);
+                        DecreaseHealth(collision.Strength, collision);
+                        collision.DecreaseHealth(int.MaxValue);
+                    }
+                    break;
+                }
+
+                case AmmoTNT collision: {
+                    DecreaseHealth(int.MaxValue, collision);
+                    break;
                 }
             }
 

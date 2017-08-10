@@ -464,16 +464,18 @@ namespace Jazz2.Compatibility
                                             offsetY + y + data.AddBorder;
                                         byte colorIdx = frame.imageData[frame.size.First * y + x];
 
-                                        Color color = data.Palette[colorIdx];
                                         // Apply palette fixes
                                         if (applyToasterPowerUpFix) {
                                             if (x >= 2 && y >= 3 && x <= 15 && y <= 20) {
-                                                color = JJ2DefaultPalette.ToasterPowerUpFix[colorIdx];
+                                                colorIdx = JJ2DefaultPalette.ToasterPowerUpFix[colorIdx];
                                             }
                                         }
+
+                                        Color color = data.Palette[colorIdx];
+
                                         // Apply transparency
                                         if (frame.drawTransparent) {
-                                            color = Color.FromArgb(Math.Min(/*127*/150, (int)color.A), color);
+                                            color = Color.FromArgb(Math.Min(/*127*/140, (int)color.A), color);
                                         }
 
                                         img.SetPixel(targetX, targetY, color);

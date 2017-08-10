@@ -110,7 +110,7 @@ namespace Jazz2.Game.UI.Menu
                             tile.IsAnimated = isAnimated;
 
                             if (legacyTranslucent) {
-                                tile.MaterialAlpha = /*127*/180;
+                                tile.MaterialAlpha = /*127*/140;
                             }
 
                             newLayer.Layout[i] = tile;

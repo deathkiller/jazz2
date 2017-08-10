@@ -45,7 +45,7 @@ namespace Jazz2.Game.Tiles
                 );
 
                 if ((tileFlags[i] & 0x80) > 0) {
-                    pseudotile.MaterialAlpha = /*127*/180;
+                    pseudotile.MaterialAlpha = /*127*/140;
                 } else {
                     pseudotile.MaterialAlpha = 255;
                 }

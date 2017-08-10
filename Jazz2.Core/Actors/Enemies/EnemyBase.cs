@@ -173,14 +173,20 @@ namespace Jazz2.Actors.Enemies
 
             // ToDo: Use actor type specifying function instead when available
             if (!isInvulnerable) {
-                AmmoBase ammo = other as AmmoBase;
-                if (ammo != null) {
-                    DecreaseHealth(ammo.Strength, ammo);
-                    Vector3 ammoSpeed = ammo.Speed;
-                    if (MathF.Abs(ammoSpeed.X) > float.Epsilon) {
-                        lastHitDir = (ammoSpeed.X > 0 ? LastHitDirection.Right : LastHitDirection.Left);
-                    } else {
-                        lastHitDir = (ammoSpeed.Y > 0 ? LastHitDirection.Down : LastHitDirection.Up);
+                switch (other) {
+                    case AmmoBase collision: {
+                        DecreaseHealth(collision.Strength, collision);
+                        Vector3 ammoSpeed = collision.Speed;
+                        if (MathF.Abs(ammoSpeed.X) > float.Epsilon) {
+                            lastHitDir = (ammoSpeed.X > 0 ? LastHitDirection.Right : LastHitDirection.Left);
+                        } else {
+                            lastHitDir = (ammoSpeed.Y > 0 ? LastHitDirection.Down : LastHitDirection.Up);
+                        }
+                        break;
+                    }
+                    case AmmoTNT collision: {
+                        DecreaseHealth(5, collision);
+                        break;
                     }
                 }
             }

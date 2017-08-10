@@ -36,9 +36,16 @@ namespace Jazz2.Actors.Collectibles
 
         public override void HandleCollision(ActorBase other)
         {
-            AmmoBase collider = other as AmmoBase;
-            if (collider != null) {
-                DecreaseHealth(collider.Strength, collider);
+            switch (other) {
+                case AmmoBase collision: {
+                    DecreaseHealth(collision.Strength, collision);
+                    break;
+                }
+
+                case AmmoTNT collision: {
+                    DecreaseHealth(int.MaxValue, collision);
+                    break;
+                }
             }
         }
     }

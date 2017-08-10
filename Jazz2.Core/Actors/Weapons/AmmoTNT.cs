@@ -49,11 +49,7 @@ namespace Jazz2.Actors.Weapons
 
                 Vector3 pos = Transform.Pos;
                 foreach (ActorBase collision in api.FindCollisionActorsRadius(pos.X, pos.Y, 50)) {
-                    if (collision is Collectible || collision is PowerUpWeaponMonitor || collision is PowerUpMorphMonitor) {
-                        collision.HandleCollision(this);
-                    } else if (!collision.IsInvulnerable && (collision is EnemyBase || collision is SolidObjectBase || collision is TurtleShell || collision is GemGiant)) {
-                        collision.DecreaseHealth(5, this);
-                    }
+                    collision.HandleCollision(this);
                 }
 
                 TileMap tiles = api.TileMap;
