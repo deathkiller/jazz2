@@ -74,6 +74,8 @@ namespace Jazz2.Actors
         public int Lives => lives;
         public PlayerType PlayerType => playerType;
 
+        public bool CanBreakSolidObjects => (currentSpecialMove != SpecialMoveType.None || isSugarRush);
+
         public override void OnAttach(ActorInstantiationDetails details)
         {
             base.OnAttach(details);
@@ -638,7 +640,7 @@ namespace Jazz2.Actors
                     if (FindAnimationCandidates(AnimState.TransitionLedgeClimb).Count > 0) {
                         const int maxTolerance = 6;
 
-                        float x = (isFacingLeft ? -16f : 16f);
+                        float x = (isFacingLeft ? -10f : 10f);
                         Hitbox hitbox1 = currentHitbox + new Vector2(x, -42f - maxTolerance);   // Empty space to climb to
                         Hitbox hitbox2 = currentHitbox + new Vector2(x, -42f + 2f);             // Wall below the empty space
                         Hitbox hitbox3 = currentHitbox + new Vector2(x, -42f + 2f + 24f);       // Wall between the player and the wall above (vertically)
@@ -1001,21 +1003,8 @@ namespace Jazz2.Actors
                 AddScore(destroyedCount * 50);
 
                 ActorBase solidObject;
-                if (!(api.IsPositionEmpty(this, ref tileCollisionHitbox, false, out solidObject))) {
-                    switch (solidObject) {
-                        case TriggerCrate collider:
-                            collider.DecreaseHealth(1, this);
-                            break;
-                        case GenericContainer collider:
-                            collider.DecreaseHealth(1, this);
-                            break;
-                        case PowerUpWeaponMonitor collider:
-                            collider.DestroyAndApplyToPlayer(this);
-                            break;
-                        case PowerUpMorphMonitor collider:
-                            collider.DestroyAndApplyToPlayer(this);
-                            break;
-                    }
+                if (!(api.IsPositionEmpty(this, ref tileCollisionHitbox, false, out solidObject)) && solidObject != null) {
+                    solidObject.HandleCollision(this);
                 }
             }
 
@@ -1618,6 +1607,9 @@ namespace Jazz2.Actors
                 speedX = speedY = 0f;
                 externalForceX = externalForceY = internalForceY = 0f;
                 fireFramesLeft = copterFramesLeft = pushFramesLeft = 0f;
+
+                // For warping from the water
+                Transform.Angle = 0f;
 
                 PlaySound("WarpIn");
             }

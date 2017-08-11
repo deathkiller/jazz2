@@ -3,22 +3,15 @@ using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Solid
 {
-    public class PowerUpMorphMonitor : SolidObjectBase
+    public class PowerUpShieldMonitor : SolidObjectBase
     {
-        private enum MorphType
-        {
-            Swap2,
-            Swap3,
-            ToBird
-        }
-
-        private MorphType morphType;
+        private ushort shieldType;
 
         public override void OnAttach(ActorInstantiationDetails details)
         {
             base.OnAttach(details);
 
-            morphType = (MorphType)details.Params[0];
+            shieldType = details.Params[0];
 
             Movable = true;
 
@@ -26,10 +19,13 @@ namespace Jazz2.Actors.Solid
 
             RequestMetadata("Object/PowerUpMonitor");
 
-            switch (morphType) {
-                case MorphType.Swap2: SetAnimation("Swap2"); break;
-                case MorphType.Swap3: SetAnimation("Swap3"); break;
-                case MorphType.ToBird: SetAnimation("Bird"); break;
+            switch (shieldType) {
+                case 0: SetAnimation("ShieldFire"); break;
+                case 1: SetAnimation("ShieldWater"); break;
+                case 2: SetAnimation("ShieldLaser"); break;
+                case 3: SetAnimation("ShieldLightning"); break;
+
+                default: SetAnimation("Empty"); break;
             }
         }
 
@@ -42,9 +38,9 @@ namespace Jazz2.Actors.Solid
             switch (other) {
                 case AmmoBase collision: {
                     if ((collision.WeaponType == WeaponType.RF ||
-                         collision.WeaponType == WeaponType.Seeker ||
-                         collision.WeaponType == WeaponType.Pepper ||
-                         collision.WeaponType == WeaponType.Electro) &&
+                            collision.WeaponType == WeaponType.Seeker ||
+                            collision.WeaponType == WeaponType.Pepper ||
+                            collision.WeaponType == WeaponType.Electro) &&
                         collision.Owner != null) {
 
                         DestroyAndApplyToPlayer(collision.Owner);
@@ -73,35 +69,7 @@ namespace Jazz2.Actors.Solid
 
         public void DestroyAndApplyToPlayer(Player player)
         {
-            PlayerType targetType;
-            switch (morphType) {
-                case MorphType.Swap2:
-                    if (player.PlayerType != PlayerType.Jazz) {
-                        targetType = PlayerType.Jazz;
-                    } else  {
-                        targetType = PlayerType.Spaz;
-                    }
-                    break;
-
-                case MorphType.Swap3:
-                    if (player.PlayerType == PlayerType.Spaz) {
-                        targetType = PlayerType.Lori;
-                    } else if (player.PlayerType == PlayerType.Lori) {
-                        targetType = PlayerType.Jazz;
-                    } else {
-                        targetType = PlayerType.Spaz;
-                    }
-                    break;
-
-                //case SwapType.ToBird:
-                //    // ToDo: Implement Birds
-                //    break;
-
-                default:
-                    return;
-            }
-
-            player.MorphTo(targetType);
+            // ToDo
 
             DecreaseHealth(int.MaxValue, player);
             PlaySound("Break");

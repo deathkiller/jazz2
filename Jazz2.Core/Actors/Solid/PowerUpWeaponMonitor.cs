@@ -58,7 +58,13 @@ namespace Jazz2.Actors.Solid
                 case AmmoTNT collision: {
                     if (collision.Owner != null) {
                         DestroyAndApplyToPlayer(collision.Owner);
-                        collision.DecreaseHealth(int.MaxValue);
+                    }
+                    break;
+                }
+
+                case Player collision: {
+                    if (collision.CanBreakSolidObjects) {
+                        DestroyAndApplyToPlayer(collision);
                     }
                     break;
                 }

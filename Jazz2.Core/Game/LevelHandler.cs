@@ -55,6 +55,7 @@ namespace Jazz2.Game
         private string defaultNextLevel;
         private string defaultSecretLevel;
         private GameDifficulty difficulty;
+        private string musicPath;
 
         private bool exiting;
         private float ambientLightCurrent;
@@ -365,7 +366,7 @@ namespace Jazz2.Game
                 }*/
 
                 // Load default music
-                string musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", config.Description.DefaultMusic);
+                musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", config.Description.DefaultMusic);
                 music = DualityApp.Sound.PlaySound(new OpenMptStream(musicPath));
                 music.BeginFadeIn(0.5f);
             }
@@ -535,6 +536,24 @@ namespace Jazz2.Game
 
         public bool HandlePlayerDied(Player player)
         {
+            if (activeBoss != null) {
+                activeBoss.DeactivateBoss();
+                activeBoss = null;
+
+                Hud hud = rootObject.GetComponent<Hud>();
+                if (hud != null) {
+                    hud.ActiveBoss = null;
+                }
+
+                if (music != null) {
+                    music.FadeOut(1f);
+                }
+
+                // Load default music again
+                music = DualityApp.Sound.PlaySound(new OpenMptStream(musicPath));
+                music.BeginFadeIn(0.4f);
+            }
+
             // Single player can respawn immediately
             return true;
         }

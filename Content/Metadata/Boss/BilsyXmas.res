@@ -34,6 +34,7 @@
         
         "Fireball": {
             "Path": "Bilsy/xmas_bullet_fireball.png",
+            "FrameRate": 20,
             "States": [ 1073741828 ]
         }
     },

@@ -243,6 +243,10 @@
         },
         "FoodWaterMelon": {
             "Path": "Pickup/food_watermelon.png"
+        },
+
+        "Stopwatch": {
+            "Path": "Pickup/stopwatch.png"
         }
     }
 }

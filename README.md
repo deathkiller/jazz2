@@ -46,7 +46,8 @@ Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) (or equiv
 
 ## Building the solution
 ### Windows
-* Open the solution in [Microsoft Visual Studio 2017](https://www.visualstudio.com/)
+* Open the solution in [Microsoft Visual Studio 2017](https://www.visualstudio.com/) and build it
+* Copy `/Packages/AdamsLair.OpenTK.x.y.z/lib/OpenTK.dll.config` to `/Jazz2/Bin/Debug/OpenTK.dll.config`
 * Copy dependencies to `/Jazz2/Bin/Debug/` or `/Jazz2/Bin/Release/`
 
 ### Linux

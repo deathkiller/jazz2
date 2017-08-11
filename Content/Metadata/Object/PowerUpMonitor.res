@@ -4,6 +4,11 @@
     },
 
     "Animations": {
+        "Empty": {
+            "Path": "Object/powerup_empty.png",
+            "FrameRate": 6
+        },
+
         "BlasterJazz": {
             "Path": "Object/powerup_upgrade_blaster_jazz.png",
             "FrameRate": 6
@@ -60,6 +65,23 @@
         },
         "Bird": {
             "Path": "Object/powerup_transform_birdy.png",
+            "FrameRate": 6
+        },
+        
+        "ShieldFire": {
+            "Path": "Object/powerup_shield_fire.png",
+            "FrameRate": 6
+        },
+        "ShieldWater": {
+            "Path": "Object/powerup_shield_bubble.png",
+            "FrameRate": 6
+        },
+        "ShieldLaser": {
+            "Path": "Object/powerup_shield_laser.png",
+            "FrameRate": 6
+        },
+        "ShieldLightning": {
+            "Path": "Object/powerup_shield_lightning.png",
             "FrameRate": 6
         }
     },

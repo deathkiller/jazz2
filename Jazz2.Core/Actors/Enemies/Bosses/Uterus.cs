@@ -3,6 +3,7 @@ using Duality;
 using Jazz2.Actors.Enemies;
 using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
+using static Duality.Component;
 
 namespace Jazz2.Actors.Bosses
 {
@@ -69,8 +70,10 @@ namespace Jazz2.Actors.Bosses
             }
         }
 
-        protected override void OnDeactivated(Component.ShutdownContext context)
+        protected override void OnDeactivated(ShutdownContext context)
         {
+            state = StateWaiting;
+
             if (shields != null) {
                 for (int i = 0; i < shields.Length; i++) {
                     api.RemoveActor(shields[i]);

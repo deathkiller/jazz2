@@ -92,6 +92,20 @@ namespace Jazz2.Actors.Enemies
             }
         }
 
+        protected override void OnAnimationStarted()
+        {
+            if (blinkingTimeout < 1f) {
+                // Reset renderer
+                renderer.CustomMaterial = null;
+            } else {
+                // Refresh temporary material
+                BatchInfo blinkMaterial = renderer.SharedMaterial.Res.Info;
+                blinkMaterial.Technique = ContentResolver.Current.RequestShader("Colorize");
+                blinkMaterial.MainColor = new ColorRgba(1f, 0.5f);
+                renderer.CustomMaterial = blinkMaterial;
+            }
+        }
+
         protected void HandleBlinking()
         {
             if (blinkingTimeout > 0f) {
@@ -107,6 +121,7 @@ namespace Jazz2.Actors.Enemies
         protected void StartBlinking()
         {
             if (blinkingTimeout <= 0f) {
+                // Create temporary material
                 BatchInfo blinkMaterial = renderer.SharedMaterial.Res.Info;
                 blinkMaterial.Technique = ContentResolver.Current.RequestShader("Colorize");
                 blinkMaterial.MainColor = new ColorRgba(1f, 0.5f);

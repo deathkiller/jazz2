@@ -152,6 +152,9 @@
         PowerUpMorph = 0x0067,
         BirdyCage = 0x0068,
 
-        AirboardGenerator = 0x0069
+        AirboardGenerator = 0x0069,
+
+        PowerUpShield = 0x006A,
+        Stopwatch = 0x006B
     }
 }

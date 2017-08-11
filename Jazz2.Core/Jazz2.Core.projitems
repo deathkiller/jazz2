@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Actors\AirboardGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Collectibles\Stopwatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\AmbientBubbles.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\AmbientSound.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\BirdyCage.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Collectibles\GemRing.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\GenericContainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\MovingPlatform.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\PowerUpShieldMonitor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\PowerUpWeaponMonitor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\PowerUpMorphMonitor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\PushBox.cs" />

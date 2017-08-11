@@ -812,6 +812,8 @@ namespace Jazz2.Actors
             );
 
             renderer.AnimTime = 0;
+
+            OnAnimationStarted();
         }
 
         protected void SetAnimation(string identifier)
@@ -906,6 +908,11 @@ namespace Jazz2.Actors
 
                 RefreshAnimation();
             }
+        }
+
+        protected virtual void OnAnimationStarted()
+        {
+            // Could be overriden
         }
 
         protected virtual void OnAnimationFinished()

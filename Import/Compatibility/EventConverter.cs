@@ -1118,6 +1118,12 @@ namespace Jazz2.Compatibility
                     eventParams = new ushort[] { (ushort)(eventParams[0] == 0 ? 30 : eventParams[0]), 0, 0, 0, 0, 0, 0, 0 }
                 };
             });
+
+            convert.Add(JJ2Event.JJ2_SHIELD_FIRE, ConstantParamList(EventType.PowerUpShield, 0));
+            convert.Add(JJ2Event.JJ2_SHIELD_WATER, ConstantParamList(EventType.PowerUpShield, 1));
+            convert.Add(JJ2Event.JJ2_SHIELD_LASER, ConstantParamList(EventType.PowerUpShield, 2));
+            convert.Add(JJ2Event.JJ2_SHIELD_LIGHTNING, ConstantParamList(EventType.PowerUpShield, 3));
+            convert.Add(JJ2Event.JJ2_STOPWATCH, NoParamList(EventType.Stopwatch));
         }
 
         public static ConversionResult Convert(JJ2Level level, JJ2Event old, uint eventParams)

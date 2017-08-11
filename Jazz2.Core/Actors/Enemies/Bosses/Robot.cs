@@ -22,7 +22,6 @@ namespace Jazz2.Actors.Bosses
         {
             base.OnAttach(details);
 
-            SetHealthByDifficulty(100);
             scoreValue = 2000;
 
             RequestMetadata("Boss/Robot");
@@ -31,6 +30,9 @@ namespace Jazz2.Actors.Bosses
 
         public void Activate()
         {
+            // Reset health after deactivating
+            SetHealthByDifficulty(100);
+
             FollowNearestPlayer(StateRunning1, MathF.Rnd.NextFloat(20, 40));
         }
 
@@ -98,10 +100,10 @@ namespace Jazz2.Actors.Bosses
             return base.OnPerish(collider);
         }
 
-        public override bool OnTileDeactivate(int tx, int ty, int tileDistance)
-        {
-            return false;
-        }
+        //public override bool OnTileDeactivate(int tx, int ty, int tileDistance)
+        //{
+        //    return false;
+        //}
 
         protected override void OnHealthChanged(ActorBase collider)
         {

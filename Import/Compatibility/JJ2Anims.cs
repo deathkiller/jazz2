@@ -466,7 +466,7 @@ namespace Jazz2.Compatibility
 
                                         // Apply palette fixes
                                         if (applyToasterPowerUpFix) {
-                                            if (x >= 2 && y >= 3 && x <= 15 && y <= 20) {
+                                            if ((x >= 3 && y >= 4 && x <= 15 && y <= 20) || (x >= 2 && y >= 7 && x <= 15 && y <= 19)) {
                                                 colorIdx = JJ2DefaultPalette.ToasterPowerUpFix[colorIdx];
                                             }
                                         }

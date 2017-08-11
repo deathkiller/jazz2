@@ -17,6 +17,7 @@ namespace Jazz2.Actors.Bosses
 
         private int state = StateWaiting;
         private float stateTime;
+        private Mace currentMace;
 
         private ushort endText;
 
@@ -38,6 +39,13 @@ namespace Jazz2.Actors.Bosses
         public override void OnBossActivated()
         {
             FollowNearestPlayer(StateWalking1, MathF.Rnd.NextFloat(120, 160));
+        }
+
+        protected override void OnDeactivated(ShutdownContext context)
+        {
+            if (currentMace != null) {
+                api.RemoveActor(currentMace);
+            }
         }
 
         protected override void OnUpdate()
@@ -68,12 +76,12 @@ namespace Jazz2.Actors.Bosses
                         state = StateTransition;
                         SetAnimation(AnimState.Idle);
                         SetTransition((AnimState)1073741824, false, delegate {
-                            Mace mace = new Mace();
-                            mace.OnAttach(new ActorInstantiationDetails {
+                            currentMace = new Mace();
+                            currentMace.OnAttach(new ActorInstantiationDetails {
                                 Api = api,
                                 Pos = Transform.Pos
                             });
-                            api.AddActor(mace);
+                            api.AddActor(currentMace);
 
                             SetTransition((AnimState)1073741825, false, delegate {
                                 state = StateAttacking;
@@ -92,8 +100,9 @@ namespace Jazz2.Actors.Bosses
                     if (stateTime <= 0f) {
                         foreach (ActorBase collision in api.FindCollisionActors(this)) {
                             Mace mace = collision as Mace;
-                            if (mace != null) {
-                                mace.DecreaseHealth(int.MaxValue);
+                            if (mace != null && mace == currentMace) {
+                                currentMace.DecreaseHealth(int.MaxValue);
+                                currentMace = null;
 
                                 PlaySound("AttackEnd");
 
