@@ -31,6 +31,7 @@ namespace Jazz2.Game.UI
         private float gemsTime = -1f;
 
         private BossBase activeBoss;
+        private float activeBossTime;
 
 #if DEBUG
         private static StringBuilder debugString;
@@ -47,7 +48,10 @@ namespace Jazz2.Game.UI
         public BossBase ActiveBoss
         {
             get { return activeBoss; }
-            set { activeBoss = value; }
+            set {
+                activeBoss = value;
+                activeBossTime = 0f;
+            }
         }
 
         public Hud()
@@ -143,13 +147,30 @@ namespace Jazz2.Game.UI
 
             // Active Boss (health bar)
             if (activeBoss != null && activeBoss.MaxHealth != int.MaxValue) {
+                const float TransitionTime = 60f;
+                float y, alpha;
+                if (activeBossTime < TransitionTime) {
+                    activeBossTime += Time.TimeMult;
+
+                    if (activeBossTime > TransitionTime) {
+                        activeBossTime = TransitionTime;
+                    }
+
+                    y = (TransitionTime - activeBossTime) / 8f;
+                    y = size.Y * 0.1f - (y * y);
+                    alpha = MathF.Max(activeBossTime / TransitionTime, 0f);
+                } else {
+                    y = size.Y * 0.1f;
+                    alpha = 1f;
+                }
+
                 float perc = 0.08f + 0.84f * activeBoss.Health / activeBoss.MaxHealth;
 
-                DrawMaterial(c, "BossHealthBar", 0, size.X * 0.5f, size.Y * 0.1f + 2f, Alignment.Center, new ColorRgba(0f, 0.1f));
-                DrawMaterial(c, "BossHealthBar", 0, size.X * 0.5f, size.Y * 0.1f + 1f, Alignment.Center, new ColorRgba(0f, 0.2f));
+                DrawMaterial(c, "BossHealthBar", 0, size.X * 0.5f, y + 2f, Alignment.Center, new ColorRgba(0f, 0.1f * alpha));
+                DrawMaterial(c, "BossHealthBar", 0, size.X * 0.5f, y + 1f, Alignment.Center, new ColorRgba(0f, 0.2f * alpha));
 
-                DrawMaterial(c, "BossHealthBar", 0, size.X * 0.5f, size.Y * 0.1f, Alignment.Center, ColorRgba.White);
-                DrawMaterialClipped(c, "BossHealthBar", 1, size.X * 0.5f, size.Y * 0.1f, Alignment.Center, ColorRgba.White, perc, 1f);
+                DrawMaterial(c, "BossHealthBar", 0, size.X * 0.5f, y, Alignment.Center, new ColorRgba(1f, alpha));
+                DrawMaterialClipped(c, "BossHealthBar", 1, size.X * 0.5f, y, Alignment.Center, new ColorRgba(1f, alpha), perc, 1f);
             }
 
             // Misc.

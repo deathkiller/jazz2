@@ -546,7 +546,7 @@ namespace Jazz2.Game
                 }
 
                 if (music != null) {
-                    music.FadeOut(1f);
+                    music.FadeOut(1.8f);
                 }
 
                 // Load default music again

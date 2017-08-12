@@ -45,6 +45,7 @@ namespace Jazz2.Actors.Bosses
         {
             if (currentMace != null) {
                 api.RemoveActor(currentMace);
+                currentMace = null;
             }
         }
 

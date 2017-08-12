@@ -57,7 +57,7 @@
 
             float topDist = abs(gl_TexCoord[0].y - waterLevel - waveHeight);
             float isNearTop = 1.0 - aastep(viewSizeInv.y * 2.8, topDist);
-            float isVeryNearTop = 1.0 - aastep(viewSizeInv.y * 1.4, topDist);
+            float isVeryNearTop = 1.0 - aastep(viewSizeInv.y * (0.8 - 100.0 * waveHeight), topDist);
 
             float topColorBlendFac = isNearTop * isTexelBelow;
             main.rgb = mix(main.rgb, texture2D(mainTex, vec2(gl_TexCoord[0].x,

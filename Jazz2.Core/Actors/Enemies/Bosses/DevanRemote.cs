@@ -16,8 +16,6 @@ namespace Jazz2.Actors.Bosses
             introText = details.Params[1];
             endText = details.Params[2];
 
-            maxHealth = int.MaxValue;
-
             canBeFrozen = false;
             collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.ApplyGravitation;
             isFacingLeft = true;
@@ -34,6 +32,10 @@ namespace Jazz2.Actors.Bosses
                 activeRobot = obj as Robot;
                 if (activeRobot != null) {
                     activeRobot.Activate();
+
+                    // Copy health to Devan to enable HealthBar
+                    health = activeRobot.Health;
+                    maxHealth = activeRobot.MaxHealth;
                     break;
                 }
             }
@@ -43,15 +45,21 @@ namespace Jazz2.Actors.Bosses
         {
             base.OnUpdate();
 
-            if (activeRobot != null && activeRobot.ParentScene == null) {
-                activeRobot = null;
+            if (activeRobot != null) {
+                if (activeRobot.ParentScene == null) {
+                    activeRobot = null;
 
-                api.BroadcastLevelText(endText);
+                    health = 0;
 
-                PlaySound("WarpOut");
-                SetTransition(AnimState.TransitionWarpOut, false, delegate {
-                    DecreaseHealth(int.MaxValue);
-                });
+                    api.BroadcastLevelText(endText);
+
+                    PlaySound("WarpOut");
+                    SetTransition(AnimState.TransitionWarpOut, false, delegate {
+                        DecreaseHealth(int.MaxValue);
+                    });
+                } else {
+                    health = activeRobot.Health;
+                }
             }
         }
     }
