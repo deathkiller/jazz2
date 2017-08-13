@@ -212,7 +212,7 @@ namespace Duality.Resources
         {
             foreach (var target in this.targets.Where(t => t != null).Res()) {
                 if (target.ContentWidth == 0 || target.ContentHeight == 0) {
-                    Console.WriteLine("Error initializing '{0}' because '{1}' has a dimension of zero.", this, target);
+                    //Console.WriteLine("Error initializing '{0}' because '{1}' has a dimension of zero.", this, target);
                     return;
                 }
             }

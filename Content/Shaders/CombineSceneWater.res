@@ -1,7 +1,5 @@
 {
     "Fragment": "
-        #version 130
-
         uniform vec2 ViewSize;
         uniform vec3 CameraPosition;
         uniform float GameTime;
@@ -59,7 +57,7 @@
             float isNearTop = 1.0 - aastep(viewSizeInv.y * 2.8, topDist);
             float isVeryNearTop = 1.0 - aastep(viewSizeInv.y * (0.8 - 100.0 * waveHeight), topDist);
 
-            float topColorBlendFac = isNearTop * isTexelBelow;
+            float topColorBlendFac = isNearTop * isTexelBelow * 0.6;
             main.rgb = mix(main.rgb, texture2D(mainTex, vec2(gl_TexCoord[0].x,
                 (waterLevel - gl_TexCoord[0].y + waterLevel) * 0.97 + waveHeight - viewSizeInv.y * 1.0
             )).rgb, vec3(topColorBlendFac));

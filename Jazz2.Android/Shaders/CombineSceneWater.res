@@ -37,7 +37,7 @@
 
         void main() {
             vec3 waterColor = vec3(0.4, 0.6, 0.8);
-            float time = GameTime * 0.06;
+            float time = GameTime * 0.065;
             vec2 viewSizeInv = (1.0 / ViewSize);
 
             vec2 uvWorld = vTexcoord0.xy + (CameraPosition.xy * viewSizeInv.xy);
@@ -63,11 +63,13 @@
 
             float topDist = abs(vTexcoord0.y - waterLevel - waveHeight);
             float isNearTop = 1.0 - aastep(viewSizeInv.y * 2.8, topDist);
-            float isVeryNearTop = 1.0 - aastep(viewSizeInv.y * 1.4, topDist);
+            float isVeryNearTop = 1.0 - aastep(viewSizeInv.y * (0.8 - 100.0 * waveHeight), topDist);
 
-            float topColorBlendFac = isNearTop * isTexelBelow;
-            main.rgb = mix(main.rgb, waterColor, vec3(topColorBlendFac));
-            main.rgb += vec3(0.2 * isVeryNearTop * isTexelBelow);
+            float topColorBlendFac = isNearTop * isTexelBelow * 0.6;
+            main.rgb = mix(main.rgb, texture(mainTex, vec2(vTexcoord0.x,
+                (waterLevel - vTexcoord0.y + waterLevel) * 0.97 + waveHeight - viewSizeInv.y * 1.0
+            )).rgb, vec3(topColorBlendFac));
+            main.rgb += vec3(0.2 * isVeryNearTop);
             
             vec4 blur1 = texture(blurHalfTex, uv);
             vec4 blur2 = texture(blurQuarterTex, uv);

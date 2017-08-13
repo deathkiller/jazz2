@@ -22,7 +22,7 @@
             float distance = length(targetCoord);
 
             // x-coordinate of tunnel
-            float xShift = (targetCoord.x == 0 ? sign(targetCoord.y) * 0.5 : atan(targetCoord.y, targetCoord.x) * INV_PI);
+            float xShift = (targetCoord.x == 0.0 ? sign(targetCoord.y) * 0.5 : atan(targetCoord.y, targetCoord.x) * INV_PI);
 
             vec2 texturePos = vec2(
                 (xShift)         * 1.0 + (shift.x * 0.01),

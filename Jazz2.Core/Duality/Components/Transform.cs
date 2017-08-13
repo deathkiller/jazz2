@@ -813,12 +813,12 @@ namespace Duality.Components
 					if (t == null) continue;
 					if (!t.ignoreParent)
 					{
-						t.UpdateAbs(updateTempVel);
-
 						t.changes |= this.changes;
 						if ((this.changes & DirtyFlags.Scale) != DirtyFlags.None || (this.changes & DirtyFlags.Angle) != DirtyFlags.None)
 							t.changes |= DirtyFlags.Pos;
-					}
+
+                        t.UpdateAbs(updateTempVel);
+                    }
 					else
 					{
 						t.UpdateRel(updateTempVel);

@@ -39,7 +39,8 @@ namespace Duality.Resources
 		private List<RenderSetupTargetResize> autoResizeTargets = new List<RenderSetupTargetResize>();
 
 		private Dictionary<ContentRef<RenderTarget>,Point2> originalTargetSizes = new Dictionary<ContentRef<RenderTarget>,Point2>();
-		private List<Predicate<ICmpRenderer>> rendererFilter = new List<Predicate<ICmpRenderer>>();
+        private RawList<ICmpRenderer> collectRendererBuffer = new RawList<ICmpRenderer>();
+        private List<Predicate<ICmpRenderer>> rendererFilter = new List<Predicate<ICmpRenderer>>();
 		private EventHandler<CollectDrawcallEventArgs> eventCollectDrawcalls = null;
 
 
@@ -337,29 +338,28 @@ namespace Duality.Resources
 
 				// Query renderers
 				IRendererVisibilityStrategy visibilityStrategy = scene.VisibilityStrategy;
-				RawList<ICmpRenderer> visibleRenderers;
-				{
-					if (visibilityStrategy == null) return;
-					//Profile.TimeQueryVisibleRenderers.BeginMeasure();
+                if (visibilityStrategy == null) return;
 
-					visibleRenderers = new RawList<ICmpRenderer>();
-					visibilityStrategy.QueryVisibleRenderers(drawDevice, visibleRenderers);
-					if (this.rendererFilter.Count > 0)
-					{
-						visibleRenderers.RemoveAll(r => {
-							for (int i = 0; i < this.rendererFilter.Count; i++)
-							{
-								if (!this.rendererFilter[i](r)) return true;
-							}
-							return false;
-						});
-					}
+                //Profile.TimeQueryVisibleRenderers.BeginMeasure();
 
-					//Profile.TimeQueryVisibleRenderers.EndMeasure();
-				}
+                if (this.collectRendererBuffer == null)
+                    this.collectRendererBuffer = new RawList<ICmpRenderer>();
+                this.collectRendererBuffer.Clear();
 
-				this.OnCollectRendererDrawcalls(drawDevice, visibleRenderers, visibilityStrategy.IsRendererQuerySorted);
-			}
+                visibilityStrategy.QueryVisibleRenderers(drawDevice, this.collectRendererBuffer);
+                if (this.rendererFilter.Count > 0) {
+                    this.collectRendererBuffer.RemoveAll(r => {
+                        for (int i = 0; i < this.rendererFilter.Count; i++) {
+                            if (!this.rendererFilter[i](r)) return true;
+                        }
+                        return false;
+                    });
+                }
+
+                //Profile.TimeQueryVisibleRenderers.EndMeasure();
+
+                this.OnCollectRendererDrawcalls(drawDevice, this.collectRendererBuffer, visibilityStrategy.IsRendererQuerySorted);
+            }
 			catch (Exception e)
 			{
 				Console.WriteLine("There was an error while {0} was collecting renderer drawcalls: {1}", this, e);

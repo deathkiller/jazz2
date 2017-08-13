@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Reflection;
+using System.Threading;
 using Lidgren.Network;
 
 namespace Jazz2.Server
@@ -26,6 +28,7 @@ namespace Jazz2.Server
         //private static IPEndPoint masterServerEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 10667);
         private static IPEndPoint masterServerEndpoint = null;
 
+        private static Thread threadGame;
         private static ServerConnection server;
         private static byte neededMajor, neededMinor, neededBuild;
 
@@ -34,6 +37,7 @@ namespace Jazz2.Server
         private static Dictionary<IPEndPoint, ServerDescription> registeredHosts;
 
         private static double lastRegisteredToMaster;
+        private static int lastGameLoadMs;
 
         private static void Main(string[] args)
         {
@@ -84,6 +88,11 @@ namespace Jazz2.Server
                 RegisterToMasterServer();
             }
 
+            // Create game loop (~60fps)
+            threadGame = new Thread(OnGameLoop);
+            threadGame.IsBackground = true;
+            threadGame.Start();
+
             ReportProgress("Ready!", 100);
             Console.WriteLine();
 
@@ -119,7 +128,30 @@ namespace Jazz2.Server
 
             //ClearCallbacks();
 
+            Thread threadGame_ = threadGame;
+            threadGame = null;
+            threadGame_.Join();
+
             server.Close();
+        }
+
+        private static void OnGameLoop()
+        {
+            Stopwatch sw = new Stopwatch();
+
+            while (threadGame != null) {
+                sw.Restart();
+
+                // ToDo: Update components
+
+                sw.Stop();
+
+                lastGameLoadMs = (int)sw.ElapsedMilliseconds;
+                int sleepMs = 1000 / 60 - lastGameLoadMs;
+                if (sleepMs > 0) {
+                    Thread.Sleep(sleepMs);
+                }
+            }
         }
 
         #region Startup
