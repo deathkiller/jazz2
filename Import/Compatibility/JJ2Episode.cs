@@ -114,7 +114,7 @@ namespace Jazz2.Compatibility
             return result;
         }
 
-        public void Convert(string path, Func<string, JJ2Level.LevelToken> levelTokenConversion = null, Func<JJ2Episode, string> episodeNameConversion = null)
+        public void Convert(string path, Func<string, JJ2Level.LevelToken> levelTokenConversion = null, Func<JJ2Episode, string> episodeNameConversion = null, Func<JJ2Episode, Tuple<string, string>> episodePrevNext = null)
         {
             using (Stream s = File.Create(Path.Combine(path, ".res")))
             using (StreamWriter w = new StreamWriter(s, new UTF8Encoding(false))) {
@@ -141,8 +141,22 @@ namespace Jazz2.Compatibility
                     firstLevel = token.Level;
                 }
 
-                w.WriteLine("    \"FirstLevel\": \"" + firstLevel + "\"");
+                w.Write("    \"FirstLevel\": \"" + firstLevel + "\"");
 
+                if (episodePrevNext != null) {
+                    var prevNext = episodePrevNext(this);
+                    if (!string.IsNullOrEmpty(prevNext.Item1)) {
+                        w.WriteLine(",");
+                        w.Write("    \"PreviousEpisode\": \"" + prevNext.Item1 + "\"");
+                    }
+
+                    if (!string.IsNullOrEmpty(prevNext.Item2)) {
+                        w.WriteLine(",");
+                        w.Write("    \"NextEpisode\": \"" + prevNext.Item2 + "\"");
+                    }
+                }
+
+                w.WriteLine();
                 w.Write("}");
             }
 

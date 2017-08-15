@@ -102,6 +102,7 @@ namespace Jazz2.Game.Structs
         public Pixmap TextureMap;
         public Pixmap TextureNormalMap;
         public TextureWrapMode TextureWrap;
+        public bool LinearSampling;
     }
 
     public class GraphicResourceAsyncFinalize

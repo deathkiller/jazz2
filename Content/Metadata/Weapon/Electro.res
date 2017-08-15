@@ -5,11 +5,12 @@
 
     "Animations": {
         "Bullet": {
-            "Path": "Weapon/bullet_maybe_electro.png",
-            "States": [ 0 ],
-            "ShaderColor": [ 255, 255, 255, 230 ],
-            "__Shader": "Colorize",
-            "__ShaderColor": [ 130, 100, 80, 160 ]
+            "Path": "Weapon/bullet_bladegun.png",
+            "States": [ 0 ]
+        },
+        "BulletUpgraded": {
+            "Path": "Weapon/bullet_bladegun_alt.png",
+            "States": [ 1 ]
         }
     },
 

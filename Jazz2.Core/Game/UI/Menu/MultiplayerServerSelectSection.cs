@@ -44,7 +44,7 @@ namespace Jazz2.Game.UI.Menu
             base.OnShow(root);
             animation = 0f;
 
-            discovery = new ServerDiscovery("J²R", 10666, OnServerFound);
+            discovery = new ServerDiscovery("J²", 10666, OnServerFound);
         }
 
         public override void OnHide(bool isRemoved)

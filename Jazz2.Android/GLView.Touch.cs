@@ -21,6 +21,7 @@ namespace Jazz2.Android
             public int CurrentPointerId = -1;
         }
 
+        internal static bool allowVibrations = true;
         internal static bool showVirtualButtons;
         internal static VirtualButton[] virtualButtons;
 
@@ -102,7 +103,7 @@ namespace Jazz2.Android
                                 button.CurrentPointerId = pointerId;
                                 pressedButtons[(int)button.KeyCode] = true;
 
-                                if (!vibrated) {
+                                if (allowVibrations && !vibrated) {
                                     vibrator.Vibrate(16);
                                     vibrated = true;
                                 }
@@ -130,7 +131,9 @@ namespace Jazz2.Android
                                         button.CurrentPointerId = pointerId;
                                         pressedButtons[(int)button.KeyCode] = true;
 
-                                        vibrator.Vibrate(11);
+                                        if (allowVibrations) {
+                                            vibrator.Vibrate(11);
+                                        }
                                         break;
                                     }
                                 }

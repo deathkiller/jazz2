@@ -8,10 +8,10 @@ using Jazz2.Game;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Platform.Android;
-using Vector2 = Duality.Vector2;
 using Debug = System.Diagnostics.Debug;
-using NativeWindow = Duality.Backend.Android.OpenTK.NativeWindow;
 using INativeWindow = Duality.Backend.INativeWindow;
+using NativeWindow = Duality.Backend.Android.OpenTK.NativeWindow;
+using Vector2 = Duality.Vector2;
 
 namespace Jazz2.Android
 {
@@ -35,6 +35,7 @@ namespace Jazz2.Android
             viewportHeight = Height;
 
             DualityApp.Init(DualityApp.ExecutionContext.Game, /*new DefaultAssemblyLoader()*/null, null);
+
             DualityApp.WindowSize = new Point2(viewportWidth, viewportHeight);
             INativeWindow window = DualityApp.OpenWindow(new WindowOptions {
                 ScreenMode = ScreenMode.Window
@@ -44,6 +45,9 @@ namespace Jazz2.Android
                 // Backend was initialized successfully
                 (window as NativeWindow).BindContext(Context);
             }
+
+            FocusableInTouchMode = true;
+            RequestFocus();
 
             InitInput();
 

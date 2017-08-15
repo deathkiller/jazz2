@@ -6,20 +6,13 @@ using Duality;
 using Duality.Drawing;
 using Duality.Input;
 using Duality.IO;
+using Jazz2.Game.Structs;
+using Jazz2.Storage;
 
 namespace Jazz2.Game.UI.Menu
 {
     public class EpisodeSelectSection : MainMenuSection
     {
-        private class Episode
-        {
-            public string Token;
-
-            public string Name { get; set; }
-            public int Position { get; set; }
-            public string FirstLevel { get; set; }
-        }
-
         private List<Episode> episodes = new List<Episode>();
 
         private int selectedIndex;
@@ -40,6 +33,13 @@ namespace Jazz2.Game.UI.Menu
 
                     if (!DirectoryOp.Exists(PathOp.Combine(episode, json.FirstLevel))) {
                         continue;
+                    }
+
+                    if (json.PreviousEpisode != null) {
+                        int time = Preferences.Get<int>("EpisodeTime_" + json.PreviousEpisode);
+                        json.IsAvailable = (time > 0);
+                    } else {
+                        json.IsAvailable = true;
                     }
 
                     if (episodes.Count >= json.Position) {
@@ -81,11 +81,21 @@ namespace Jazz2.Game.UI.Menu
                     if (selectedIndex == i) {
                         float size = 0.5f + Ease.OutElastic(animation) * 0.6f;
 
-                        api.DrawStringShadow(device, ref charOffset, episodes[i].Name, center.X, topItem,
-                            Alignment.Center, null, size, 0.7f, 1.1f, 1.1f, charSpacing: 0.9f);
+                        if (episodes[i].IsAvailable) {
+                            api.DrawStringShadow(device, ref charOffset, episodes[i].Name, center.X, topItem,
+                                Alignment.Center, null, size, 0.7f, 1.1f, 1.1f, charSpacing: 0.9f);
+                        } else {
+                            api.DrawString(device, ref charOffset, episodes[i].Name, center.X, topItem,
+                                Alignment.Center, new ColorRgba(0.48f, 0.48f), size);
+                        }
                     } else {
-                        api.DrawString(device, ref charOffset, episodes[i].Name, center.X, topItem,
-                            Alignment.Center, ColorRgba.TransparentBlack, 0.9f);
+                        if (episodes[i].IsAvailable) {
+                            api.DrawString(device, ref charOffset, episodes[i].Name, center.X, topItem,
+                                Alignment.Center, ColorRgba.TransparentBlack, 0.9f);
+                        } else {
+                            api.DrawString(device, ref charOffset, episodes[i].Name, center.X, topItem,
+                                Alignment.Center, new ColorRgba(0.4f, 0.4f), 0.9f);
+                        }
                     }
 
                     topItem += itemSpacing;
@@ -106,8 +116,10 @@ namespace Jazz2.Game.UI.Menu
             }
 
             if (DualityApp.Keyboard.KeyHit(Key.Enter)) {
-                api.PlaySound("MenuSelect", 0.5f);
-                api.SwitchToSection(new StartGameOptionsSection(episodes[selectedIndex].Token, episodes[selectedIndex].FirstLevel));
+                if (episodes[selectedIndex].IsAvailable) {
+                    api.PlaySound("MenuSelect", 0.5f);
+                    api.SwitchToSection(new StartGameOptionsSection(episodes[selectedIndex].Token, episodes[selectedIndex].FirstLevel, episodes[selectedIndex].PreviousEpisode));
+                }
             } else if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
                 api.PlaySound("MenuSelect", 0.5f);
                 api.LeaveSection(this);

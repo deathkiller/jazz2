@@ -43,6 +43,8 @@ namespace Jazz2.Game.Structs
 
         public PlayerCarryOver[] PlayerCarryOvers;
 
+        public string LastEpisodeName;
+
         public LevelInitialization(string episode, string level, GameDifficulty difficulty, PlayerType playerType)
         {
             LevelName = level;
@@ -57,6 +59,8 @@ namespace Jazz2.Game.Structs
                     Lives = 3
                 }
             };
+
+            LastEpisodeName = null;
         }
     }
 }

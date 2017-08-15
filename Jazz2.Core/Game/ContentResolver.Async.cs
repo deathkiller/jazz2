@@ -54,10 +54,22 @@ namespace Jazz2.Game
                     GraphicResource res = pair.Value;
                     GenericGraphicResource resBase = res.Base;
                     if (resBase.AsyncFinalize != null) {
-                        resBase.Texture = new Texture(resBase.AsyncFinalize.TextureMap, TextureSizeMode.NonPowerOfTwo, wrapX: resBase.AsyncFinalize.TextureWrap, wrapY: resBase.AsyncFinalize.TextureWrap);
+                        TextureMagFilter magFilter; TextureMinFilter minFilter;
+                        // Linear Sampling is forced for now
+                        //if (resBase.AsyncFinalize.LinearSampling) {
+                            magFilter = TextureMagFilter.Linear;
+                            minFilter = TextureMinFilter.LinearMipmapLinear;
+                        //} else {
+                        //    magFilter = TextureMagFilter.Nearest;
+                        //    minFilter = TextureMinFilter.Nearest;
+                        //}
+
+                        resBase.Texture = new Texture(resBase.AsyncFinalize.TextureMap, TextureSizeMode.NonPowerOfTwo,
+                            magFilter, minFilter, resBase.AsyncFinalize.TextureWrap, resBase.AsyncFinalize.TextureWrap);
 
                         if (resBase.AsyncFinalize.TextureNormalMap != null) {
-                            resBase.TextureNormal = new Texture(resBase.AsyncFinalize.TextureNormalMap, TextureSizeMode.NonPowerOfTwo, wrapX: resBase.AsyncFinalize.TextureWrap, wrapY: resBase.AsyncFinalize.TextureWrap);
+                            resBase.TextureNormal = new Texture(resBase.AsyncFinalize.TextureNormalMap, TextureSizeMode.NonPowerOfTwo,
+                                magFilter, minFilter, resBase.AsyncFinalize.TextureWrap, resBase.AsyncFinalize.TextureWrap);
                         }
 
                         resBase.AsyncFinalize = null;

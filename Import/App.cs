@@ -371,6 +371,21 @@ namespace Import
                 }
             };
 
+            // Previous/Next Episode mapping
+            Func<JJ2Episode, Tuple<string, string>> episodePrevNext = episode => {
+                if (episode.Token == "prince") {
+                    return Tuple.Create("", "rescue");
+                } else if (episode.Token == "rescue") {
+                    return Tuple.Create("prince", "flash");
+                } else if (episode.Token == "flash") {
+                    return Tuple.Create("rescue", "monk");
+                } else if (episode.Token == "monk") {
+                    return Tuple.Create("flash", "");
+                } else {
+                    return Tuple.Create("", "");
+                }
+            };
+
             Dictionary<EventConverter.JJ2Event, int> unsupportedEvents = new Dictionary<EventConverter.JJ2Event, int>();
 
             Directory.CreateDirectory(Path.Combine(targetPath, "Content", "Episodes"));
@@ -384,7 +399,7 @@ namespace Import
 
                     string output = Path.Combine(targetPath, "Content", "Episodes", e.Token);
                     Directory.CreateDirectory(output);
-                    e.Convert(output, levelTokenConversion, episodeNameConversion);
+                    e.Convert(output, levelTokenConversion, episodeNameConversion, episodePrevNext);
 
                     WriteLog(LogType.Debug, "Converted episode \"" + e.Token + "\" (" + e.Name + ")");
                 } catch (Exception ex) {

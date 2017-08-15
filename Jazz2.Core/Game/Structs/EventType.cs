@@ -11,7 +11,7 @@
         // Basic
         LevelStart = 0x0100,
         LevelStartMP = 0x0101,
-        SavePoint = 0x005A,
+        Checkpoint = 0x005A,
 
         // Scenery
         SceneryDestruct = 0x0116,
@@ -155,6 +155,7 @@
         AirboardGenerator = 0x0069,
 
         PowerUpShield = 0x006A,
-        Stopwatch = 0x006B
+        Stopwatch = 0x006B,
+        SpikeBall = 0x006C,
     }
 }

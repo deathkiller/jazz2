@@ -20,7 +20,12 @@ namespace Jazz2.Server
             public double LastHeartbeat;
         }
 
-        private const string token = "J²R";
+        private class Player
+        {
+
+        }
+
+        private const string token = "J²";
 
         private static string name;
         private static int port, maxPlayers;
@@ -33,7 +38,7 @@ namespace Jazz2.Server
         private static byte neededMajor, neededMinor, neededBuild;
 
         private static Dictionary<byte, Action<NetIncomingMessage, bool>> callbacks;
-
+        private static Dictionary<NetConnection, Player> players;
         private static Dictionary<IPEndPoint, ServerDescription> registeredHosts;
 
         private static double lastRegisteredToMaster;
@@ -78,6 +83,7 @@ namespace Jazz2.Server
                 ReportProgress("Max. Players: " + maxPlayers);
 
                 callbacks = new Dictionary<byte, Action<NetIncomingMessage, bool>>();
+                players = new Dictionary<NetConnection, Player>();
 
                 server = new ServerConnection(token, port, maxPlayers);
                 server.MessageReceived += OnMessageReceived;
@@ -232,6 +238,10 @@ namespace Jazz2.Server
             }
 
             args.Allow = true;
+
+            players[args.Message.SenderConnection] = new Player {
+
+            };
         }
 
         private static void OnMessageReceived(MessageReceivedEventArgs args)

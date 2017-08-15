@@ -4,12 +4,13 @@ using Duality.Drawing;
 using Duality.Input;
 using Jazz2.Actors;
 using Jazz2.Game.Structs;
+using Jazz2.Storage;
 
 namespace Jazz2.Game.UI.Menu
 {
     public class StartGameOptionsSection : MainMenuSection
     {
-        private readonly string episodeName, levelName;
+        private readonly string episodeName, levelName, previousEpisodeName;
 
         private readonly string[] items = {
             "Character",
@@ -24,10 +25,11 @@ namespace Jazz2.Game.UI.Menu
 
         private int availableCharacters;
 
-        public StartGameOptionsSection(string episodeName, string levelName)
+        public StartGameOptionsSection(string episodeName, string levelName, string previousEpisodeName)
         {
             this.episodeName = episodeName;
             this.levelName = levelName;
+            this.previousEpisodeName = previousEpisodeName;
         }
 
         public override void OnShow(MainMenu root)
@@ -138,12 +140,32 @@ namespace Jazz2.Game.UI.Menu
             if (DualityApp.Keyboard.KeyHit(Key.Enter)) {
                 if (selectedIndex == 2) {
                     api.PlaySound("MenuSelect", 0.5f);
-                    api.SwitchToLevel(new LevelInitialization(
+                    LevelInitialization carryOver = new LevelInitialization(
                         episodeName,
                         levelName,
                         (GameDifficulty.Easy + selectedDifficulty),
                         (PlayerType.Jazz + selectedPlayerType)
-                    ));
+                    );
+
+                    if (!string.IsNullOrEmpty(previousEpisodeName)) {
+                        ref PlayerCarryOver player = ref carryOver.PlayerCarryOvers[0];
+
+                        byte lives = Preferences.Get<byte>("EpisodeLives_" + previousEpisodeName);
+                        int[] ammo = Preferences.Get<int[]>("EpisodeAmmo_" + previousEpisodeName);
+                        byte[] upgrades = Preferences.Get<byte[]>("EpisodeUpgrades_" + previousEpisodeName);
+
+                        if (lives > 0) {
+                            player.Lives = lives;
+                        }
+                        if (ammo != null) {
+                            player.Ammo = ammo;
+                        }
+                        if (upgrades != null) {
+                            player.WeaponUpgrades = upgrades;
+                        }
+                    }
+
+                    api.SwitchToLevel(carryOver);
                 }
             } else if (DualityApp.Keyboard.KeyHit(Key.Left)) {
                 if (selectedIndex == 0) {

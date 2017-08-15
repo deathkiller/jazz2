@@ -2,7 +2,7 @@
 
 namespace Jazz2.Actors
 {
-    public class SavePoint : ActorBase
+    public class Checkpoint : ActorBase
     {
         private bool activated;
 
@@ -12,7 +12,7 @@ namespace Jazz2.Actors
 
             canBeFrozen = false;
 
-            RequestMetadata("Object/SavePoint");
+            RequestMetadata("Object/Checkpoint");
 
             SetAnimation("Closed");
         }

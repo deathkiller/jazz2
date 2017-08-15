@@ -34,8 +34,8 @@ namespace Jazz2.Game.UI
         private float activeBossTime;
 
 #if DEBUG
-        private static StringBuilder debugString;
-        private static List<Rect> debugRects;
+        private static StringBuilder debugString = new StringBuilder();
+        private static List<Rect> debugRects = new List<Rect>();
         private bool enableDebug;
 #endif
 
@@ -63,11 +63,6 @@ namespace Jazz2.Game.UI
             // ToDo: Pass palette from LevelHandler to adjust HUD colors
             Metadata m = ContentResolver.Current.RequestMetadata("UI/HUD", null);
             graphics = m.Graphics;
-
-#if DEBUG
-            debugString = new StringBuilder();
-            debugRects = new List<Rect>();
-#endif
         }
 
         float ICmpRenderer.BoundRadius => float.MaxValue;

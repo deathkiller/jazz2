@@ -1,30 +1,19 @@
 ﻿using Duality;
 using Duality.Components;
+using Duality.Drawing;
+using Jazz2.Actors.Enemies;
 using Jazz2.Game;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Solid
 {
-    public class MovingPlatform : SolidObjectBase
+    public class SpikeBall : EnemyBase
     {
-        private enum PlatformType
-        {
-            CarrotusFruit = 1,
-            Ball = 2,
-            CarrotusGrass = 3,
-            Lab = 4,
-            Sonic = 5,
-            Spike = 6,
-
-            SpikeBall = 7,
-        }
-
         private const float BaseCycleFrames = 800f;
 
-        private PlatformType type;
         private float speed;
         private int length;
-        private bool isSwing;
+        private bool isSwing, shade;
 
         private float phase;
         private Vector3 originPos;
@@ -36,25 +25,25 @@ namespace Jazz2.Actors.Solid
 
             originPos = Transform.Pos;
 
-            type = (PlatformType)details.Params[0];
-            length = details.Params[3];
-            speed = (details.Params[2] > short.MaxValue ? -(ushort.MaxValue - details.Params[2]) : details.Params[2]) * 0.78f;
-            ushort sync = details.Params[1];
-            isSwing = details.Params[4] != 0;
+            length = details.Params[2];
+            speed = (details.Params[1] > short.MaxValue ? -(ushort.MaxValue - details.Params[2]) : details.Params[2]) * 0.78f;
+            ushort sync = details.Params[0];
+            isSwing = details.Params[3] != 0;
+            shade = details.Params[4] != 0;
 
             phase = (BaseCycleFrames - (float)(Time.GameTimer.TotalMilliseconds % BaseCycleFrames - sync * 175) * speed) % BaseCycleFrames;
 
-            collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.IsSolidObject;
-            IsOneWay = true;
+            isInvulnerable = true;
+            collisionFlags = CollisionFlags.CollideWithOtherActors;
             canBeFrozen = false;
 
             RequestMetadata("Object/MovingPlatform");
 
-            SetAnimation((AnimState)((int)type << 10));
+            SetAnimation((AnimState)(7 /*SpikeBall*/ << 10));
 
             pieces = new ChainPiece[length];
             for (int i = 0; i < length; i++) {
-                pieces[i] = new ChainPiece(api, originPos + new Vector3(0f, 0f, 4f), (AnimState)((int)type << 10) + 16, i);
+                pieces[i] = new ChainPiece(api, originPos + new Vector3(0f, 0f, 4f), (AnimState)(7 /*SpikeBall*/ << 10) + 16, i);
                 api.AddActor(pieces[i]);
             }
         }
@@ -73,50 +62,33 @@ namespace Jazz2.Actors.Solid
                 phase += BaseCycleFrames;
             }
 
-            MoveInstantly(GetPhasePosition(false, length), MoveType.Absolute, true);
+            float scale;
+            Transform.Pos = GetPhasePosition(false, length, out scale);
+            OnUpdateHitbox();
 
-            for (int i = 0; i < length; i++) {
-                pieces[i].Transform.Pos = new Vector3(GetPhasePosition(false, i), pieces[i].Transform.Pos.Z);
+            canHurtPlayer = MathF.Abs(1f - scale) < 0.1f;
+
+            Transform.Scale = scale;
+
+            if (shade) {
+                if (scale < 1f) {
+                    renderer.ColorTint = new ColorRgba(scale, 1f);
+                } else {
+                    renderer.ColorTint = ColorRgba.White;
+                }
             }
 
-            Hitbox hitbox = currentHitbox;
-            hitbox.Top -= 2;
+            for (int i = 0; i < length; i++) {
+                pieces[i].Transform.Pos = GetPhasePosition(false, i, out scale);
+                pieces[i].Transform.Scale = scale;
 
-            if (type != PlatformType.SpikeBall) {
-                foreach (Player player in api.GetCollidingPlayers(hitbox)) {
-                    player.SetCarryingPlatform(this);
-                }
-
-                if (type == PlatformType.Spike) {
-                    hitbox.Top += 40;
-                    hitbox.Bottom += 40;
-
-                    foreach (Player player in api.GetCollidingPlayers(hitbox)) {
-                        player.TakeDamage(2);
-                    }
-                }
-            } else {
-                foreach (Player player in api.GetCollidingPlayers(hitbox)) {
-                    player.TakeDamage(2);
-                }
+                // ToDo: Shade chain pieces
             }
 
             base.OnUpdate();
         }
 
-        protected override void OnUpdateHitbox()
-        {
-            base.OnUpdateHitbox();
-
-            currentHitbox.Bottom = currentHitbox.Top + 10;
-        }
-
-        public Vector2 GetLocationDelta()
-        {
-            return GetPhasePosition(true, length) - GetPhasePosition(false, length);
-        }
-
-        public Vector2 GetPhasePosition(bool next, int distance)
+        public Vector3 GetPhasePosition(bool next, int distance, out float scale)
         {
             float effectivePhase = phase;
             if (next) {
@@ -138,9 +110,11 @@ namespace Jazz2.Actors.Solid
             float multiX = MathF.Cos(effectivePhase / BaseCycleFrames * MathF.TwoPi);
             float multiY = MathF.Sin(effectivePhase / BaseCycleFrames * MathF.TwoPi);
 
-            return new Vector2(
-                originPos.X + multiX * distance * 12,
-                originPos.Y + multiY * distance * 12
+            scale = 1f + multiX * 0.4f * distance / length;
+            return new Vector3(
+                originPos.X,
+                originPos.Y - multiY * distance * 12f,
+                originPos.Z - 10f - multiX * 10f * distance / length
             );
         }
 
@@ -165,7 +139,7 @@ namespace Jazz2.Actors.Solid
 
             protected override void OnUpdate()
             {
-                // Controlled by MovingPlatform
+                // Controlled by SpikeBall
             }
         }
     }

@@ -96,7 +96,7 @@ namespace Jazz2.Game
             jsonParser = new JsonParser();
             imageCodec = ImageCodec.GetRead(ImageCodec.FormatPng);
 
-            defaultNormal = new Texture(new Pixmap(new PixelData(2, 2, new ColorRgba(0.5f, 0.5f, 1f))));
+            defaultNormal = new Texture(new Pixmap(new PixelData(2, 2, new ColorRgba(0.5f, 0.5f, 1f))), TextureSizeMode.Default, TextureMagFilter.Nearest, TextureMinFilter.Nearest);
 
             cachedMetadata = new Dictionary<string, Metadata>();
             cachedGraphics = new Dictionary<string, GenericGraphicResource>();
@@ -352,6 +352,8 @@ namespace Jazz2.Game
                     });
                 }
 
+                bool linearSampling = (json.Flags & 0x02) != 0x00;
+
                 Pixmap map = new Pixmap(pixelData);
                 map.GenerateAnimAtlas(resource.FrameConfiguration.X, resource.FrameConfiguration.Y, 0);
                 if (async) {
@@ -366,15 +368,29 @@ namespace Jazz2.Game
                     }
 
                     asyncFinalize.TextureWrap = json.TextureWrap;
+                    asyncFinalize.LinearSampling = linearSampling;
 
                     resource.AsyncFinalize = asyncFinalize;
                 } else {
-                    resource.Texture = new Texture(map, TextureSizeMode.NonPowerOfTwo, wrapX: json.TextureWrap, wrapY: json.TextureWrap);
+                    TextureMagFilter magFilter; TextureMinFilter minFilter;
+                    // Linear Sampling is forced for now
+                    //if (linearSampling) {
+                        magFilter = TextureMagFilter.Linear;
+                        minFilter = TextureMinFilter.LinearMipmapLinear;
+                    //} else {
+                    //    magFilter = TextureMagFilter.Nearest;
+                    //    minFilter = TextureMinFilter.Nearest;
+                    //}
+
+                    resource.Texture = new Texture(map, TextureSizeMode.NonPowerOfTwo,
+                        magFilter, minFilter, json.TextureWrap, json.TextureWrap);
 
                     string filenameNormal = pathAbsolute.Replace(".png", ".n.png");
                     if (FileOp.Exists(filenameNormal)) {
                         pixelData = imageCodec.Read(FileOp.Open(filenameNormal, FileAccessMode.Read));
-                        resource.TextureNormal = new Texture(new Pixmap(pixelData), TextureSizeMode.NonPowerOfTwo, wrapX: json.TextureWrap, wrapY: json.TextureWrap);
+
+                        resource.TextureNormal = new Texture(new Pixmap(pixelData), TextureSizeMode.NonPowerOfTwo,
+                            magFilter, minFilter, json.TextureWrap, json.TextureWrap);
                     } else {
                         resource.TextureNormal = defaultNormal;
                     }

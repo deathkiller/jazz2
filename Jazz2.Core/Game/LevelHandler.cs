@@ -523,6 +523,8 @@ namespace Jazz2.Game
                 data.PlayerCarryOvers[i] = players[i].PrepareLevelCarryOver();
             }
 
+            data.LastEpisodeName = episodeName;
+
             currentCarryOver = data;
 
             levelChangeTimer = (exitType == ExitType.Warp || exitType == ExitType.Bonus ? /*27f*/50f : /*98f*/130f);
@@ -729,7 +731,7 @@ namespace Jazz2.Game
 
             // ToDo: Remove this branching
 #if __ANDROID__
-            const int ActivateTileRange = 19;
+            const int ActivateTileRange = 20;
 #else
             const int ActivateTileRange = 26;
 #endif

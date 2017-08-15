@@ -490,7 +490,8 @@ namespace Jazz2.Compatibility
                     mapping.Add("Platform", "carrotus_fruit");
                     mapping.Add("Platform", "carrotus_fruit_chain");
                     mapping.NextSet();
-                    mapping.Add("Pickup", "gem_gemring", JJ2DefaultPalette.Gem);
+                    //mapping.Add("Pickup", "gem_gemring", JJ2DefaultPalette.Gem);
+                    mapping.DiscardItems(1);
                     mapping.NextSet(); // set 50 (1.24) / set 49 (1.23)
                     mapping.Add("Unimplemented", "boxing_glove_stiff");
                     mapping.Add("Unimplemented", "boxing_glove_stiff_idle");
@@ -821,7 +822,7 @@ namespace Jazz2.Compatibility
                 mapping.Add("Pickup", "food_chocolate");
                 mapping.Add("Pickup", "food_cola");
                 mapping.Add("Pickup", "carrot");
-                mapping.Add("Pickup", "Gem", JJ2DefaultPalette.Gem);
+                mapping.Add("Pickup", "Gem", JJ2DefaultPalette.Gem, addBorder: 1);
                 mapping.Add("Pickup", "food_cucumber");
                 mapping.Add("Pickup", "food_cupcake");
                 mapping.Add("Pickup", "food_donut");
@@ -834,7 +835,10 @@ namespace Jazz2.Compatibility
                 mapping.Add("Pickup", "food_fries");
                 mapping.Add("Pickup", "fast_feet");
                 mapping.Add("Object", "GemSuper", JJ2DefaultPalette.Gem);
-                mapping.Add("Pickup", "Gem2", JJ2DefaultPalette.Gem);
+
+                //mapping.Add("Pickup", "Gem2", JJ2DefaultPalette.Gem);
+                mapping.DiscardItems(1);
+
                 mapping.Add("Pickup", "airboard");
                 mapping.Add("Pickup", "coin_gold");
                 mapping.Add("Pickup", "food_grapes");
@@ -1122,8 +1126,9 @@ namespace Jazz2.Compatibility
                     mapping.Add("Object", "3d_spike_chain");
 
                     mapping.NextSet();
-                    mapping.Add("Object", "3d_spike_2");
-                    mapping.Add("Object", "3d_spike_2_chain");
+                    //mapping.Add("Object", "3d_spike_2");
+                    //mapping.Add("Object", "3d_spike_2_chain");
+                    mapping.DiscardItems(2);
 
                     mapping.NextSet();
                     mapping.Add("Platform", "spike");

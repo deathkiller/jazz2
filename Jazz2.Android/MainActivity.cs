@@ -1,5 +1,4 @@
-﻿using System;
-using Android.App;
+﻿using Android.App;
 using Android.Content.PM;
 using Android.Graphics;
 using Android.OS;
@@ -70,16 +69,6 @@ namespace Jazz2.Android
         {
             base.OnResume();
             view.Resume();
-        }
-
-        public override bool OnKeyDown(Keycode keyCode, KeyEvent e)
-        {
-            return view.OnKeyDown(keyCode, e);
-        }
-
-        public override bool OnKeyUp(Keycode keyCode, KeyEvent e)
-        {
-            return view.OnKeyUp(keyCode, e);
         }
     }
 }

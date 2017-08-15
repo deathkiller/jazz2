@@ -29,7 +29,7 @@
         },
         
         "MenuSettingsStorage": {
-            "Path": "_custom/dim.png"
+            "Path": "_custom/storage.png"
         }
     },
 

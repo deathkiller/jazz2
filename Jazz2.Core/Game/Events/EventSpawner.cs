@@ -32,7 +32,7 @@ namespace Jazz2.Game.Events
             spawnableEvents = new Dictionary<EventType, SpawnFunction>();
 
             // Basic
-            RegisterSpawnable<SavePoint>(EventType.SavePoint);
+            RegisterSpawnable<Checkpoint>(EventType.Checkpoint);
 
             // Triggers
             RegisterSpawnable<TriggerCrate>(EventType.TriggerCrate);
@@ -50,6 +50,7 @@ namespace Jazz2.Game.Events
             RegisterSpawnable<Spring>(EventType.Spring);
             RegisterSpawnable<DynamicBridge>(EventType.Bridge);
             RegisterSpawnable<MovingPlatform>(EventType.MovingPlatform);
+            RegisterSpawnable<SpikeBall>(EventType.SpikeBall);
             RegisterSpawnable<PushBox>(EventType.PushableBox);
             RegisterSpawnable<Eva>(EventType.Eva);
             RegisterSpawnable<Pole>(EventType.Pole);
@@ -157,12 +158,12 @@ namespace Jazz2.Game.Events
             spawnableEvents.Add(type, spawner);
         }
 
-        public void RegisterSpawnable<T>(EventType type) where T : ActorBase//, new()
+        public void RegisterSpawnable<T>(EventType type) where T : ActorBase, new()
         {
             RegisterSpawnable(type, CreateCommonActorEvent<T>);
         }
 
-        public void RegisterSpawnable<T>(EventType type, params ushort[] spawnParams) where T : ActorBase//, new()
+        public void RegisterSpawnable<T>(EventType type, params ushort[] spawnParams) where T : ActorBase, new()
         {
             RegisterSpawnable(type, (fromEventMap, x, y, z, p) => {
                 return CreateCommonActorEvent<T>(fromEventMap, x, y, z, spawnParams);

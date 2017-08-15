@@ -311,7 +311,7 @@ namespace Jazz2.Compatibility
                 Pair.Create(JJ2EventParamType.UInt, 2)  // Team (JJ2+)
             ));
 
-            convert.Add(JJ2Event.JJ2_SAVE_POINT, NoParamList(EventType.SavePoint));
+            convert.Add(JJ2Event.JJ2_SAVE_POINT, NoParamList(EventType.Checkpoint));
 
             // Scenery
             convert.Add(JJ2Event.JJ2_SCENERY_DESTRUCT, (level, jj2Params) => {
@@ -764,6 +764,21 @@ namespace Jazz2.Compatibility
             convert.Add(JJ2Event.JJ2_PLATFORM_SONIC, GetPlatformConverter(5));
             convert.Add(JJ2Event.JJ2_PLATFORM_SPIKE, GetPlatformConverter(6));
             convert.Add(JJ2Event.JJ2_BOLL_SPIKE, GetPlatformConverter(7));
+
+            convert.Add(JJ2Event.JJ2_BOLL_SPIKE_3D, (level, jj2Params) => {
+                ushort[] eventParams = ConvertParamInt(jj2Params,
+                    Pair.Create(JJ2EventParamType.UInt, 2), // Sync
+                    Pair.Create(JJ2EventParamType.Int, 6),  // Speed
+                    Pair.Create(JJ2EventParamType.UInt, 4), // Length
+                    Pair.Create(JJ2EventParamType.Bool, 1), // Swing
+                    Pair.Create(JJ2EventParamType.Bool, 1)  // Shade
+                );
+
+                return new ConversionResult {
+                    eventType = EventType.SpikeBall,
+                    eventParams = new ushort[] { eventParams[0], eventParams[1], eventParams[2], eventParams[3], eventParams[4] }
+                };
+            });
 
             convert.Add(JJ2Event.JJ2_SPRING_RED, GetSpringConverter(0 /*Red*/, false, false));
             convert.Add(JJ2Event.JJ2_SPRING_GREEN, GetSpringConverter(1 /*Green*/, false, false));

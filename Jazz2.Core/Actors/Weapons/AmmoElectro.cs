@@ -8,6 +8,8 @@ namespace Jazz2.Actors.Weapons
 {
     public class AmmoElectro : AmmoBase
     {
+        private LightEmitter light;
+
         public override WeaponType WeaponType => WeaponType.Electro;
 
         public override void OnAttach(ActorInstantiationDetails details)
@@ -20,11 +22,11 @@ namespace Jazz2.Actors.Weapons
 
             RequestMetadata("Weapon/Electro");
 
-            LightEmitter light = AddComponent<LightEmitter>();
-            light.Intensity = 0.85f;
-            light.Brightness = 0.8f;
+            light = AddComponent<LightEmitter>();
+            light.Intensity = 0.4f;
+            light.Brightness = 0.2f;
             light.RadiusNear = 0f;
-            light.RadiusFar = 20f;
+            light.RadiusFar = 12f;
         }
 
         public void OnFire(Player owner, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
@@ -47,12 +49,13 @@ namespace Jazz2.Actors.Weapons
             AnimState state = AnimState.Idle;
             if ((upgrades & 0x1) != 0) {
                 timeLeft = 44;
-                //state |= (AnimState)1;
+                state |= (AnimState)1;
             } else {
                 timeLeft = 44;
             }
 
             Transform.Angle = angle;
+            Transform.Scale = 0.5f;
 
             SetAnimation(state);
             PlaySound("Fire");
@@ -66,7 +69,15 @@ namespace Jazz2.Actors.Weapons
 
             base.OnUpdate();
 
-            for (int i = 0; i < 3; i++) {
+            float timeMult = Time.TimeMult;
+
+            Transform.Scale += 0.014f * timeMult;
+
+            light.Intensity += 0.016f * timeMult;
+            light.Brightness += 0.02f * timeMult;
+            light.RadiusFar += 0.1f * timeMult;
+
+            for (int i = 0; i < 5; i++) {
                 Material material = currentAnimation.Material.Res;
                 Texture texture = material.MainTexture.Res;
 
@@ -74,18 +85,24 @@ namespace Jazz2.Actors.Weapons
                 float dx = MathF.Rnd.NextFloat(-10f, 10f);
                 float dy = MathF.Rnd.NextFloat(-10f, 10f);
 
-                const float currentSize = 1.2f;
+                float currentSizeX = MathF.Rnd.NextFloat(2f, 6f);
+                float currentSizeY = 1f;
                 int currentFrame = renderer.CurrentFrame;
+
+                float sx = MathF.Rnd.NextFloat(-0.6f, 0.6f);
+                float sy = MathF.Rnd.NextFloat(-0.6f, 0.6f);
 
                 api.TileMap.CreateDebris(new DestructibleDebris {
                     Pos = new Vector3(pos.X + dx, pos.Y + dy, pos.Z),
-                    Size = new Vector2(currentSize, currentSize),
-                    Speed = new Vector2(0f, 0f),
-                    Acceleration = new Vector2(0f, 0f),
+                    Size = new Vector2(currentSizeX, currentSizeY),
+                    Speed = new Vector2(sx, sy),
+                    Acceleration = new Vector2(sx * 0.1f, sy * 0.1f),
 
                     Scale = 1f,
                     Alpha = 1f,
                     AlphaSpeed = MathF.Rnd.NextFloat(-0.05f, -0.02f),
+
+                    Angle = MathF.Atan2(sy, sx),
 
                     Time = 240f,
 
@@ -93,8 +110,8 @@ namespace Jazz2.Actors.Weapons
                     MaterialOffset = new Rect(
                         (((float)(currentFrame % currentAnimation.Base.FrameConfiguration.X) / currentAnimation.Base.FrameConfiguration.X) + ((float)dx / texture.ContentWidth) + 0.5f) * texture.UVRatio.X,
                         (((float)(currentFrame / currentAnimation.Base.FrameConfiguration.X) / currentAnimation.Base.FrameConfiguration.Y) + ((float)dy / texture.ContentHeight) + 0.5f) * texture.UVRatio.Y,
-                        (currentSize * texture.UVRatio.X / texture.ContentWidth),
-                        (currentSize * texture.UVRatio.Y / texture.ContentHeight)
+                        (currentSizeX * texture.UVRatio.X / texture.ContentWidth),
+                        (currentSizeY * texture.UVRatio.Y / texture.ContentHeight)
                     )
                 });
             }

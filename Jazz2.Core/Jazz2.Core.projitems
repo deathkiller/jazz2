@@ -83,7 +83,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Player.Weapons.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\PlayerCorpse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\Pole.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\SavePoint.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Checkpoint.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\SignEol.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\AmmoBarrel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\AmmoCrate.cs" />
@@ -101,6 +101,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\PowerUpMorphMonitor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\PushBox.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\SolidObjectBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\SpikeBall.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\TriggerCrate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Spring.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoBase.cs" />
@@ -329,7 +330,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)ExtensionMethods.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\ActorApi.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\ContentResolver.Async.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\Multiplayer\LevelHandler.Network.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\Multiplayer\NetworkHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Multiplayer\ServerDiscovery.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\Structs\Episode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\BitmapFont.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Components\ActorRenderer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Components\CameraController.cs" />
@@ -381,6 +385,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\Structs\Layers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Structs\Resources.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Structs\WeaponType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Storage\Dummy\DummyPreferencesBackend.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Storage\IPreferencesBackend.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Storage\Preferences.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Misc\Updater.cs" />
   </ItemGroup>
@@ -391,8 +398,5 @@
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Duality\EmbeddedResources\SharpAlpha.frag" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Duality\EmbeddedResources\SmoothAnim.frag" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Duality\EmbeddedResources\SmoothAnim.vert" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Misc\" />
   </ItemGroup>
 </Project>
