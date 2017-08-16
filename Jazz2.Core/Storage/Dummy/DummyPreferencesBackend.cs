@@ -18,9 +18,9 @@ namespace Jazz2.Storage.Dummy
         void IDualityBackend.Init() { }
         void IDualityBackend.Shutdown() { }
 
-        T IPreferencesBackend.Get<T>(string key)
+        T IPreferencesBackend.Get<T>(string key, T defaultValue)
         {
-            return default(T);
+            return defaultValue;
         }
 
         void IPreferencesBackend.Set<T>(string key, T value)

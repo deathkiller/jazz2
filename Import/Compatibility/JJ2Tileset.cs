@@ -8,7 +8,7 @@ namespace Jazz2.Compatibility
 {
     public class JJ2Tileset // .j2t
     {
-        private class Jazz2TilesetTile
+        private class TilesetTileSection
         {
             public bool opaque;
             public uint imageDataOffset;
@@ -21,7 +21,7 @@ namespace Jazz2.Compatibility
         private string name;
         private JJ2Version version;
         private Color[] palette;
-        private Jazz2TilesetTile[] tiles;
+        private TilesetTileSection[] tiles;
         private int tileCount;
 
         public string Name => name;
@@ -104,12 +104,12 @@ namespace Jazz2.Compatibility
             tileCount = block.ReadInt32();
 
             int maxTiles = MaxSupportedTiles;
-            tiles = new Jazz2TilesetTile[maxTiles];
+            tiles = new TilesetTileSection[maxTiles];
 
             for (int i = 0; i < maxTiles; ++i) {
                 bool opaque = block.ReadBool();
 
-                Jazz2TilesetTile tile = new Jazz2TilesetTile();
+                TilesetTileSection tile = new TilesetTileSection();
                 tile.opaque = opaque;
                 tiles[i] = tile;
             }

@@ -85,8 +85,8 @@ namespace Jazz2.Game.UI.Menu
                             api.DrawStringShadow(device, ref charOffset, episodes[i].Name, center.X, topItem,
                                 Alignment.Center, null, size, 0.7f, 1.1f, 1.1f, charSpacing: 0.9f);
                         } else {
-                            api.DrawString(device, ref charOffset, episodes[i].Name, center.X, topItem,
-                                Alignment.Center, new ColorRgba(0.48f, 0.48f), size);
+                            api.DrawStringShadow(device, ref charOffset, episodes[i].Name, center.X, topItem,
+                                Alignment.Center, new ColorRgba(0.48f, 0.5f), size, charSpacing: 0.9f);
                         }
                     } else {
                         if (episodes[i].IsAvailable) {

@@ -1,5 +1,6 @@
 ﻿using Duality;
 using Duality.Drawing;
+using Jazz2.Storage;
 using static Jazz2.Settings;
 
 namespace Jazz2.Game.UI.Menu.S
@@ -63,7 +64,11 @@ namespace Jazz2.Game.UI.Menu.S
 
 #if __ANDROID__
             Android.GLView.allowVibrations = ((ChoiceControl)controls[1]).SelectedIndex == 1;
+
+            Preferences.Set("Vibrations", Android.GLView.allowVibrations);
 #endif
+
+            Preferences.Commit();
         }
     }
 }

@@ -3,6 +3,7 @@ using Duality;
 using Duality.Drawing;
 using Duality.Input;
 using Duality.Resources;
+using Jazz2.Storage;
 
 namespace Jazz2.Android
 {
@@ -78,6 +79,7 @@ namespace Jazz2.Android
             };
 
             showVirtualButtons = true;
+            allowVibrations = Preferences.Get("Vibrations", true);
         }
 
         public override bool OnTouchEvent(MotionEvent e)

@@ -59,17 +59,20 @@
         "Shoot": {
             "Path": "Lori/shoot.png",
             "FrameRate": 8,
-            "States": [ 16 ]
+            "States": [ 16 ],
+            "Flags": 1
         },
         "CrouchShoot": {
             "Path": "Lori/crouch_shoot.png",
             "FrameRate": 8,
-            "States": [ 48 ]
+            "States": [ 48 ],
+            "Flags": 1
         },
         "LookupShoot": {
             "Path": "Lori/shoot_ver.png",
             "FrameRate": 8,
-            "States": [ 80 ]
+            "States": [ 80 ],
+            "Flags": 1
         },
         "Hurt": {
             "Path": "Lori/hurt.png",
@@ -114,11 +117,13 @@
         },
         "HookShoot": {
             "Path": "Lori/vine_shoot.png",
-            "States": [ 28, 29, 30, 31 ]
+            "States": [ 28, 29, 30, 31 ],
+            "Flags": 1
         },
         "HookLookupShoot": {
             "Path": "Lori/vine_shoot_up.png",
-            "States": [ 92 ]
+            "States": [ 92 ],
+            "Flags": 1
         },
         "RunToIdle": {
             "Path": "Lori/run_stop.png",

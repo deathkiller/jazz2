@@ -14,7 +14,7 @@ namespace Jazz2.Compatibility
 {
     public class JJ2Anims // .j2a
     {
-        private class J2AnimFrame
+        private class AnimFrameSection
         {
             public Pair<ushort, ushort> size;
             public Pair<short, short> coldspot;
@@ -27,11 +27,11 @@ namespace Jazz2.Compatibility
             public bool drawTransparent;
         }
 
-        private class J2Anim
+        private class AnimSection
         {
             public ushort frameCnt;
             public ushort fps;
-            public List<J2AnimFrame> frames;
+            public List<AnimFrameSection> frames;
             public int set;
             public ushort anim;
             public Pair<short, short> adjustedSize;
@@ -40,7 +40,7 @@ namespace Jazz2.Compatibility
             public Pair<short, short> frameConfiguration;
         }
 
-        private class J2Sample
+        private class SampleSection
         {
             public ushort id;
             public int set;
@@ -52,8 +52,8 @@ namespace Jazz2.Compatibility
 
         public static void Convert(string path, string targetPath, bool isPlus)
         {
-            List<J2Anim> anims = new List<J2Anim>();
-            List<J2Sample> samples = new List<J2Sample>();
+            List<AnimSection> anims = new List<AnimSection>();
+            List<SampleSection> samples = new List<SampleSection>();
 
             using (Stream s = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
             using (BinaryReader r = new BinaryReader(s)) {
@@ -115,17 +115,17 @@ namespace Jazz2.Compatibility
                             continue;
                         }
 
-                        List<J2Anim> setAnims = new List<J2Anim>();
+                        List<AnimSection> setAnims = new List<AnimSection>();
 
                         for (ushort j = 0; j < animCount; ++j) {
-                            J2Anim anim = new J2Anim();
+                            AnimSection anim = new AnimSection();
                             anim.set = i;
                             anim.anim = j;
                             anim.frameCnt = infoBlock.ReadUInt16();
                             anim.fps = infoBlock.ReadUInt16();
                             anim.normalizedHotspot = Pair.Create((short)0, (short)0);
                             anim.adjustedSize = Pair.Create((short)0, (short)0);
-                            anim.frames = new List<J2AnimFrame>();
+                            anim.frames = new List<AnimFrameSection>();
 
                             // Skip the rest, seems to be 0x00000000 for all headers
                             infoBlock.DiscardBytes(4);
@@ -147,7 +147,7 @@ namespace Jazz2.Compatibility
                             Pair<short, short> lastGunspot = Pair.Create((short)0, (short)0);
                             Pair<short, short> lastHotspot = Pair.Create((short)0, (short)0);
 
-                            J2Anim currentAnim = setAnims[0];
+                            AnimSection currentAnim = setAnims[0];
                             ushort currentAnimIdx = 0;
                             ushort currentFrame = 0;
                             for (ushort j = 0; j < frameCount; j++) {
@@ -156,7 +156,7 @@ namespace Jazz2.Compatibility
                                     currentFrame = 0;
                                 }
 
-                                J2AnimFrame frame = new J2AnimFrame();
+                                AnimFrameSection frame = new AnimFrameSection();
                                 frame.size = Pair.Create(frameDataBlock.ReadUInt16(), frameDataBlock.ReadUInt16());
                                 frame.coldspot = Pair.Create(frameDataBlock.ReadInt16(), frameDataBlock.ReadInt16());
                                 frame.hotspot = Pair.Create(frameDataBlock.ReadInt16(), frameDataBlock.ReadInt16());
@@ -214,7 +214,7 @@ namespace Jazz2.Compatibility
 
                             // Read the image data for each animation frame
                             for (ushort j = 0; j < setAnims.Count; j++) {
-                                J2Anim anim = setAnims[j];
+                                AnimSection anim = setAnims[j];
 
                                 if (anim.frameCnt < anim.frames.Count) {
                                     Console.WriteLine("[" + i + ":" + j + "] Frame count doesn't match! Expected " + anim.frameCnt + " frames but read " + anim.frames.Count);
@@ -229,7 +229,7 @@ namespace Jazz2.Compatibility
                                     imageDataBlock.SeekTo(dpos - 2);
                                     ushort height2 = imageDataBlock.ReadUInt16();
 
-                                    J2AnimFrame frameData = anim.frames[frame];
+                                    AnimFrameSection frameData = anim.frames[frame];
                                     frameData.drawTransparent = (width2 & 0x8000) > 0;
 
                                     ushort pxRead = 0;
@@ -305,7 +305,7 @@ namespace Jazz2.Compatibility
                         }
 
                         for (ushort j = 0; j < sndCount; ++j) {
-                            J2Sample sample = new J2Sample();
+                            SampleSection sample = new SampleSection();
                             sample.id = (ushort)(cumulativeSndIndex + j);
                             sample.idInSet = j;
                             sample.set = i;
@@ -411,7 +411,7 @@ namespace Jazz2.Compatibility
                     // Process the extracted data next
                     Parallel.ForEach(Partitioner.Create(0, anims.Count), range => {
                         for (int i = range.Item1; i < range.Item2; i++) {
-                            J2Anim currentAnim = anims[i];
+                            AnimSection currentAnim = anims[i];
 
                             AnimSetMapping.Data data = animMapping.Get(currentAnim.set, currentAnim.anim);
                             if (data.Category == AnimSetMapping.Discard) {
@@ -450,7 +450,7 @@ namespace Jazz2.Compatibility
                             bool applyToasterPowerUpFix = (data.Category == "Object" && data.Name == "powerup_upgrade_toaster");
 
                             for (int j = 0; j < currentAnim.frames.Count; j++) {
-                                J2AnimFrame frame = currentAnim.frames[j];
+                                AnimFrameSection frame = currentAnim.frames[j];
                                 int offsetX = currentAnim.normalizedHotspot.First + frame.hotspot.First;
                                 int offsetY = currentAnim.normalizedHotspot.Second + frame.hotspot.Second;
 
@@ -605,7 +605,7 @@ namespace Jazz2.Compatibility
 
                     Parallel.ForEach(Partitioner.Create(0, samples.Count), range => {
                         for (int i = range.Item1; i < range.Item2; i++) {
-                            J2Sample sample = samples[i];
+                            SampleSection sample = samples[i];
 
                             AnimSetMapping.Data data = sampleMapping.Get(sample.set, sample.idInSet);
                             if (data.Category == AnimSetMapping.Discard) {

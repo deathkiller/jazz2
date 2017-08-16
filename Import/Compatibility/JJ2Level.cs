@@ -16,58 +16,58 @@ namespace Jazz2.Compatibility
 {
     public class JJ2Level // .j2l
     {
-        private struct Jazz2Layer
+        private struct LayerSection
         {
-            public uint flags;                  // all except Parallax Stars supported
-            public byte type;                   // ignored
-            public bool used;                   // supported
-            public int width;                   // supported
-            public int internalWidth;           // supported
-            public int height;                  // supported
-            public int depth;                   // supported
-            public byte detailLevel;            // ignored
-            public double waveX;                // ignored
-            public double waveY;                // ignored
-            public double speedX;               // supported
-            public double speedY;               // supported
-            public double autoSpeedX;           // supported
-            public double autoSpeedY;           // supported
-            public byte texturedType;           // supported
-            public byte texturedParams1;        // supported
-            public byte texturedParams2;        // supported
-            public byte texturedParams3;        // supported
-            public List<List<ushort>> tiles;
+            public uint Flags;              // All except Parallax Stars supported
+            public byte Type;               // Ignored
+            public bool Used;
+            public int Width;
+            public int InternalWidth;
+            public int Height;
+            public int Depth;
+            public byte DetailLevel;        // Ignored
+            public double WaveX;            // Ignored
+            public double WaveY;            // Ignored
+            public double SpeedX;
+            public double SpeedY;
+            public double AutoSpeedX;
+            public double AutoSpeedY;
+            public byte TexturedBackgroundType;
+            public byte TexturedParams1;
+            public byte TexturedParams2;
+            public byte TexturedParams3;
+            public List<List<ushort>> Tiles;
         }
 
-        private struct Jazz2TileEvent
+        private struct TileEventSection
         {
-            public JJ2Event eventType;          // subset of events supported
-            public byte difficulty;             // supported
-            public bool illuminate;             // not yet supported
-            public uint tileParams;             // supported to some degree
+            public JJ2Event EventType;
+            public byte Difficulty;
+            public bool Illuminate;
+            public uint TileParams;         // Partially supported
         }
 
-        private struct Jazz2TileProperty
+        private struct TilePropertySection
         {
-            public Jazz2TileEvent eventType;    // supported
-            public bool flipped;                // supported
-            public byte type;                   // translucent: supported, caption: ignored
+            public TileEventSection Event;
+            public bool Flipped;
+            public byte Type;               // Partially supported (Translucent: supported, Caption: ignored)
         }
 
-        private struct Jazz2AniTile
+        private struct AnimatedTileSection
         {
-            public ushort delay;
-            public ushort delayJitter;
-            public ushort reverseDelay;
-            public bool isReverse;
-            public byte speed;
-            public byte frameCount;
-            public ushort[] frames; // 64
+            public ushort Delay;
+            public ushort DelayJitter;
+            public ushort ReverseDelay;
+            public bool IsReverse;
+            public byte Speed;
+            public byte FrameCount;
+            public ushort[] Frames;         // Size: 64
         }
 
-        private struct Jazz2DictionaryEntry
+        private struct DictionaryEntry
         {
-            public ushort[] tiles; // 4
+            public ushort[] Tiles;          // Size: 4
         }
 
         public struct LevelToken
@@ -82,10 +82,10 @@ namespace Jazz2.Compatibility
         private string tileset, music;
         private string nextLevel, bonusLevel, secretLevel;
 
-        private RawList<Jazz2Layer> layers;
-        private RawList<Jazz2TileProperty> staticTiles;
-        private RawList<Jazz2AniTile> animatedTiles;
-        private RawList<Jazz2TileEvent> events;
+        private RawList<LayerSection> layers;
+        private RawList<TilePropertySection> staticTiles;
+        private RawList<AnimatedTileSection> animatedTiles;
+        private RawList<TileEventSection> events;
 
         private RawList<string> textEventStrings;
         private HashSet<int> levelTokenTextIDs;
@@ -224,138 +224,142 @@ namespace Jazz2.Compatibility
         private void LoadStaticTileData(JJ2Block block, bool strictParser)
         {
             int tileCount = MaxSupportedTiles;
-            staticTiles = new RawList<Jazz2TileProperty>(tileCount);
+            staticTiles = new RawList<TilePropertySection>(tileCount);
 
             for (int i = 0; i < tileCount; ++i) {
-                Jazz2TileProperty tileProperties = new Jazz2TileProperty();
                 int tileEvent = block.ReadInt32();
-                tileProperties.eventType.eventType = (JJ2Event)(byte)(tileEvent & 0x000000FF);
-                tileProperties.eventType.difficulty = (byte)((tileEvent & 0x0000C000) >> 14);
-                tileProperties.eventType.illuminate = ((tileEvent & 0x00002000) >> 13 == 1);
-                tileProperties.eventType.tileParams = (uint)(((tileEvent >> 12) & 0x000FFFF0) | ((tileEvent >> 8) & 0x0000000F));
 
+                TilePropertySection tileProperties;
+                tileProperties.Event.EventType = (JJ2Event)(byte)(tileEvent & 0x000000FF);
+                tileProperties.Event.Difficulty = (byte)((tileEvent & 0x0000C000) >> 14);
+                tileProperties.Event.Illuminate = ((tileEvent & 0x00002000) >> 13 == 1);
+                tileProperties.Event.TileParams = (uint)(((tileEvent >> 12) & 0x000FFFF0) | ((tileEvent >> 8) & 0x0000000F));
+                tileProperties.Flipped = false;
+                tileProperties.Type = 0;
                 staticTiles.Add(tileProperties);
             }
             for (int i = 0; i < tileCount; ++i) {
-                staticTiles.Data[i].flipped = block.ReadBool();
+                staticTiles.Data[i].Flipped = block.ReadBool();
             }
 
             for (int i = 0; i < tileCount; ++i) {
-                staticTiles.Data[i].type = block.ReadByte();
+                staticTiles.Data[i].Type = block.ReadByte();
             }
         }
 
         private void LoadAnimatedTiles(JJ2Block block, bool strictParser)
         {
-            animatedTiles = new RawList<Jazz2AniTile>(/*maxSupportedAnims*/animCount);
+            animatedTiles = new RawList<AnimatedTileSection>(/*maxSupportedAnims*/animCount);
 
             for (int i = 0; i < /*maxSupportedAnims*/animCount; i++) {
-                Jazz2AniTile animatedTile;
-                animatedTile.delay = block.ReadUInt16();
-                animatedTile.delayJitter = block.ReadUInt16();
-                animatedTile.reverseDelay = block.ReadUInt16();
-                animatedTile.isReverse = block.ReadBool();
-                animatedTile.speed = block.ReadByte(); // 0-70
-                animatedTile.frameCount = block.ReadByte();
+                AnimatedTileSection animatedTile;
+                animatedTile.Delay = block.ReadUInt16();
+                animatedTile.DelayJitter = block.ReadUInt16();
+                animatedTile.ReverseDelay = block.ReadUInt16();
+                animatedTile.IsReverse = block.ReadBool();
+                animatedTile.Speed = block.ReadByte(); // 0-70
+                animatedTile.FrameCount = block.ReadByte();
 
-                animatedTile.frames = new ushort[64];
+                animatedTile.Frames = new ushort[64];
                 for (int j = 0; j < 64; j++) {
-                    animatedTile.frames[j] = block.ReadUInt16();
+                    animatedTile.Frames[j] = block.ReadUInt16();
                 }
+
                 animatedTiles.Add(animatedTile);
             }
         }
 
         private void LoadLayerMetadata(JJ2Block block, bool strictParser)
         {
-            layers = new RawList<Jazz2Layer>(JJ2LayerCount);
+            layers = new RawList<LayerSection>(JJ2LayerCount);
 
             for (int i = 0; i < JJ2LayerCount; ++i) {
-                layers.Add(new Jazz2Layer());
+                layers.Add(new LayerSection());
             }
 
-            Jazz2Layer[] data = layers.Data;
+            LayerSection[] data = layers.Data;
             for (int i = 0; i < JJ2LayerCount; ++i) {
-                data[i].flags = block.ReadUInt32();
-            }
-
-            for (int i = 0; i < JJ2LayerCount; ++i) {
-                data[i].type = block.ReadByte();
+                data[i].Flags = block.ReadUInt32();
             }
 
             for (int i = 0; i < JJ2LayerCount; ++i) {
-                data[i].used = block.ReadBool();
+                data[i].Type = block.ReadByte();
             }
 
             for (int i = 0; i < JJ2LayerCount; ++i) {
-                data[i].width = block.ReadInt32();
+                data[i].Used = block.ReadBool();
+            }
+
+            for (int i = 0; i < JJ2LayerCount; ++i) {
+                data[i].Width = block.ReadInt32();
             }
 
             // This is related to how data is presented in the file; the above is a WYSIWYG version, solely shown on the UI
             for (int i = 0; i < JJ2LayerCount; ++i) {
-                data[i].internalWidth = block.ReadInt32();
+                data[i].InternalWidth = block.ReadInt32();
             }
 
             for (int i = 0; i < JJ2LayerCount; ++i) {
-                data[i].height = block.ReadInt32();
+                data[i].Height = block.ReadInt32();
             }
 
             for (int i = 0; i < JJ2LayerCount; ++i) {
-                data[i].depth = block.ReadInt32();
+                data[i].Depth = block.ReadInt32();
             }
 
             for (int i = 0; i < JJ2LayerCount; ++i) {
-                data[i].detailLevel = block.ReadByte();
+                data[i].DetailLevel = block.ReadByte();
             }
 
             for (int i = 0; i < JJ2LayerCount; ++i) {
-                data[i].waveX = block.ReadFloat();
+                data[i].WaveX = block.ReadFloat();
             }
 
             for (int i = 0; i < JJ2LayerCount; ++i) {
-                data[i].waveY = block.ReadFloat();
+                data[i].WaveY = block.ReadFloat();
             }
 
             for (int i = 0; i < JJ2LayerCount; ++i) {
-                data[i].speedX = block.ReadFloat();
+                data[i].SpeedX = block.ReadFloat();
             }
 
             for (int i = 0; i < JJ2LayerCount; ++i) {
-                data[i].speedY = block.ReadFloat();
+                data[i].SpeedY = block.ReadFloat();
             }
 
             for (int i = 0; i < JJ2LayerCount; ++i) {
-                data[i].autoSpeedX = block.ReadFloat();
+                data[i].AutoSpeedX = block.ReadFloat();
             }
 
             for (int i = 0; i < JJ2LayerCount; ++i) {
-                data[i].autoSpeedY = block.ReadFloat();
+                data[i].AutoSpeedY = block.ReadFloat();
             }
 
             for (int i = 0; i < JJ2LayerCount; ++i) {
-                data[i].texturedType = block.ReadByte();
+                data[i].TexturedBackgroundType = block.ReadByte();
             }
 
             for (int i = 0; i < JJ2LayerCount; ++i) {
-                data[i].texturedParams1 = block.ReadByte();
-                data[i].texturedParams2 = block.ReadByte();
-                data[i].texturedParams3 = block.ReadByte();
+                data[i].TexturedParams1 = block.ReadByte();
+                data[i].TexturedParams2 = block.ReadByte();
+                data[i].TexturedParams3 = block.ReadByte();
             }
         }
 
         private void LoadEvents(JJ2Block block, bool strictParser)
         {
-            events = new RawList<Jazz2TileEvent>();
+            events = new RawList<TileEventSection>();
 
             try {
-                for (int i = 0; i < layers[3].height; ++i) {
-                    for (int j = 0; j < layers[3].width; ++j) {
-                        Jazz2TileEvent tileEvent;
+                for (int i = 0; i < layers[3].Height; ++i) {
+                    for (int j = 0; j < layers[3].Width; ++j) {
                         uint eventData = block.ReadUInt32();
-                        tileEvent.eventType = (JJ2Event)(byte)(eventData & 0x000000FF);
-                        tileEvent.difficulty = (byte)((eventData & 0x00000300) >> 8);
-                        tileEvent.illuminate = ((eventData & 0x00000400) >> 10 == 1);
-                        tileEvent.tileParams = ((eventData & 0xFFFFF000) >> 12);
+
+                        TileEventSection tileEvent;
+                        tileEvent.EventType = (JJ2Event)(byte)(eventData & 0x000000FF);
+                        tileEvent.Difficulty = (byte)((eventData & 0x00000300) >> 8);
+                        tileEvent.Illuminate = ((eventData & 0x00000400) >> 10 == 1);
+                        tileEvent.TileParams = ((eventData & 0xFFFFF000) >> 12);
                         events.Add(tileEvent);
                     }
                 }
@@ -364,16 +368,16 @@ namespace Jazz2.Compatibility
             }
 
             if (events.Count > 0) {
-                ref Jazz2TileEvent lastTileEvent = ref events.Data[events.Count - 1];
-                if (lastTileEvent.eventType == JJ2Event.JJ2_EMPTY_255 /*MCE Event*/) {
+                ref TileEventSection lastTileEvent = ref events.Data[events.Count - 1];
+                if (lastTileEvent.EventType == JJ2Event.JJ2_EMPTY_255 /*MCE Event*/) {
                     hasPit = true;
                 }
 
                 for (int i = 0; i < events.Count; i++) {
-                    if (events[i].eventType == JJ2Event.JJ2_CTF_BASE) {
+                    if (events[i].EventType == JJ2Event.JJ2_CTF_BASE) {
                         hasCTF = true;
-                    } else if (events[i].eventType == JJ2Event.JJ2_WARP_ORIGIN) {
-                        if (((events[i].tileParams >> 16) & 1) == 1) {
+                    } else if (events[i].EventType == JJ2Event.JJ2_WARP_ORIGIN) {
+                        if (((events[i].TileParams >> 16) & 1) == 1) {
                             hasLaps = true;
                         }
                     }
@@ -383,39 +387,39 @@ namespace Jazz2.Compatibility
 
         private void LoadLayers(JJ2Block dictBlock, int dictLength, JJ2Block layoutBlock, bool strictParser)
         {
-            List<Jazz2DictionaryEntry> dictionary = new List<Jazz2DictionaryEntry>();
+            List<DictionaryEntry> dictionary = new List<DictionaryEntry>();
             for (int i = 0; i < dictLength; ++i) {
-                Jazz2DictionaryEntry entry;
-                entry.tiles = new ushort[4];
+                DictionaryEntry entry;
+                entry.Tiles = new ushort[4];
                 for (int j = 0; j < 4; ++j) {
-                    entry.tiles[j] = dictBlock.ReadUInt16();
+                    entry.Tiles[j] = dictBlock.ReadUInt16();
                 }
                 dictionary.Add(entry);
             }
 
             for (int i = 0; i < layers.Count; ++i) {
-                layers.Data[i].tiles = new List<List<ushort>>();
-                if (layers[i].used) {
-                    for (int y = 0; y < layers[i].height; ++y) {
+                layers.Data[i].Tiles = new List<List<ushort>>();
+                if (layers[i].Used) {
+                    for (int y = 0; y < layers[i].Height; ++y) {
                         List<ushort> currentRow = new List<ushort>();
-                        for (int x = 0; x < layers[i].internalWidth; x += 4) {
+                        for (int x = 0; x < layers[i].InternalWidth; x += 4) {
                             ushort s_dict = layoutBlock.ReadUInt16();
                             for (int j = 0; j < 4; j++) {
-                                if (x + j >= layers[i].width) {
+                                if (x + j >= layers[i].Width) {
                                     break;
                                 }
-                                currentRow.Add(dictionary[s_dict].tiles[j]);
+                                currentRow.Add(dictionary[s_dict].Tiles[j]);
                             }
                         }
-                        layers[i].tiles.Add(currentRow);
+                        layers[i].Tiles.Add(currentRow);
                     }
                 } else {
-                    for (int y = 0; y < layers[i].height; ++y) {
+                    for (int y = 0; y < layers[i].Height; ++y) {
                         List<ushort> currentRow = new List<ushort>();
-                        for (int x = 0; x < layers[i].width; ++x) {
+                        for (int x = 0; x < layers[i].Width; ++x) {
                             currentRow.Add(0);
                         }
-                        layers[i].tiles.Add(currentRow);
+                        layers[i].Tiles.Add(currentRow);
                     }
                 }
             }
@@ -432,7 +436,7 @@ namespace Jazz2.Compatibility
                 }
             }
 
-            WriteEvents(Path.Combine(path, "Events.layer"), layers[3].width, layers[3].height);
+            WriteEvents(Path.Combine(path, "Events.layer"), layers[3].Width, layers[3].Height);
 
             WriteAnimatedTiles(Path.Combine(path, "Animated.tiles"));
 
@@ -577,12 +581,12 @@ namespace Jazz2.Compatibility
 
                 w.WriteLine("    \"Layers\": {");
 
-                if (layers[7].used) {
+                if (layers[7].Used) {
                     WriteResFileLayerSection(w, "Sky", layers[7], true);
                 }
 
                 for (int i = 0; i < 7; i++) {
-                    if (i != 3 && layers[i].used) {
+                    if (i != 3 && layers[i].Used) {
                         w.WriteLine(",");
                         WriteResFileLayerSection(w, (i + 1).ToString(CultureInfo.InvariantCulture), layers[i], false);
                     }
@@ -594,30 +598,30 @@ namespace Jazz2.Compatibility
             }
         }
 
-        private void WriteResFileLayerSection(StreamWriter w, string sectionName, Jazz2Layer layer, bool addBackgroundFields)
+        private void WriteResFileLayerSection(StreamWriter w, string sectionName, LayerSection layer, bool addBackgroundFields)
         {
             w.WriteLine("        \"" + sectionName + "\": {");
-            w.WriteLine("            \"XSpeed\": " + layer.speedX.ToString(CultureInfo.InvariantCulture) + ",");
-            w.WriteLine("            \"YSpeed\": " + layer.speedY.ToString(CultureInfo.InvariantCulture) + ",");
+            w.WriteLine("            \"XSpeed\": " + layer.SpeedX.ToString(CultureInfo.InvariantCulture) + ",");
+            w.WriteLine("            \"YSpeed\": " + layer.SpeedY.ToString(CultureInfo.InvariantCulture) + ",");
 
-            if (layer.autoSpeedX != 0 || layer.autoSpeedY != 0) {
-                w.WriteLine("            \"XAutoSpeed\": " + layer.autoSpeedX.ToString(CultureInfo.InvariantCulture) + ",");
-                w.WriteLine("            \"YAutoSpeed\": " + layer.autoSpeedY.ToString(CultureInfo.InvariantCulture) + ",");
+            if (layer.AutoSpeedX != 0 || layer.AutoSpeedY != 0) {
+                w.WriteLine("            \"XAutoSpeed\": " + layer.AutoSpeedX.ToString(CultureInfo.InvariantCulture) + ",");
+                w.WriteLine("            \"YAutoSpeed\": " + layer.AutoSpeedY.ToString(CultureInfo.InvariantCulture) + ",");
             }
 
-            w.WriteLine("            \"XRepeat\": " + ((layer.flags & 0x00000001) > 0 ? "true" : "false") + ",");
-            w.WriteLine("            \"YRepeat\": " + ((layer.flags & 0x00000002) > 0 ? "true" : "false") + ",");
-            w.WriteLine("            \"Depth\": " + layer.depth.ToString(CultureInfo.InvariantCulture) + ",");
-            w.Write("            \"InherentOffset\": " + ((layer.flags & 0x00000004) > 0 ? "true" : "false"));
+            w.WriteLine("            \"XRepeat\": " + ((layer.Flags & 0x00000001) > 0 ? "true" : "false") + ",");
+            w.WriteLine("            \"YRepeat\": " + ((layer.Flags & 0x00000002) > 0 ? "true" : "false") + ",");
+            w.WriteLine("            \"Depth\": " + layer.Depth.ToString(CultureInfo.InvariantCulture) + ",");
+            w.Write("            \"InherentOffset\": " + ((layer.Flags & 0x00000004) > 0 ? "true" : "false"));
 
             if (addBackgroundFields) {
                 w.WriteLine(",");
 
-                w.WriteLine("            \"BackgroundStyle\": " + ((layer.flags & 0x00000008) > 0 ? (layer.texturedType + 1) : 0).ToString(CultureInfo.InvariantCulture) + ",");
-                w.WriteLine("            \"BackgroundColor\": [ " + layer.texturedParams1.ToString(CultureInfo.InvariantCulture) + ", " +
-                                                                    layer.texturedParams2.ToString(CultureInfo.InvariantCulture) + ", " +
-                                                                    layer.texturedParams3.ToString(CultureInfo.InvariantCulture) + " ],");
-                w.WriteLine("            \"ParallaxStarsEnabled\": " + ((layer.flags & 0x00000010) > 0 ? "true" : "false"));
+                w.WriteLine("            \"BackgroundStyle\": " + ((layer.Flags & 0x00000008) > 0 ? (layer.TexturedBackgroundType + 1) : 0).ToString(CultureInfo.InvariantCulture) + ",");
+                w.WriteLine("            \"BackgroundColor\": [ " + layer.TexturedParams1.ToString(CultureInfo.InvariantCulture) + ", " +
+                                                                    layer.TexturedParams2.ToString(CultureInfo.InvariantCulture) + ", " +
+                                                                    layer.TexturedParams3.ToString(CultureInfo.InvariantCulture) + " ],");
+                w.WriteLine("            \"ParallaxStarsEnabled\": " + ((layer.Flags & 0x00000010) > 0 ? "true" : "false"));
             } else {
                 w.WriteLine();
             }
@@ -625,9 +629,9 @@ namespace Jazz2.Compatibility
             w.Write("        }");
         }
 
-        private void WriteLayer(string filename, Jazz2Layer layer)
+        private void WriteLayer(string filename, LayerSection layer)
         {
-            if (!layer.used) {
+            if (!layer.Used) {
                 return;
             }
 
@@ -638,12 +642,12 @@ namespace Jazz2.Compatibility
                 ushort maxTiles = MaxSupportedTiles;
                 ushort lastTilesetTileIndex = (ushort)(maxTiles - animCount);
 
-                w.Write(layer.width);
-                w.Write(layer.height);
+                w.Write(layer.Width);
+                w.Write(layer.Height);
 
-                for (int y = 0; y < layer.height; ++y) {
-                    for (int x = 0; x < layer.width; ++x) {
-                        ushort tileIdx = layer.tiles[y][x];
+                for (int y = 0; y < layer.Height; ++y) {
+                    for (int x = 0; x < layer.Width; ++x) {
+                        ushort tileIdx = layer.Tiles[y][x];
 
                         if ((tileIdx & ~(maxTiles | (maxTiles - 1))) != 0) {
                             // Fix of bug in updated Psych2.j2l
@@ -667,7 +671,7 @@ namespace Jazz2.Compatibility
 
                         bool legacyTranslucent = false;
                         if (!animated && tileIdx < lastTilesetTileIndex) {
-                            legacyTranslucent = ((staticTiles[tileIdx].type & 0x01) != 0);
+                            legacyTranslucent = ((staticTiles[tileIdx].Type & 0x01) != 0);
                         }
 
                         byte tileFlags = 0;
@@ -699,22 +703,22 @@ namespace Jazz2.Compatibility
 
                 for (int y = 0; y < height; y++) {
                     for (int x = 0; x < width; x++) {
-                        Jazz2TileEvent tileEvent = events[x + y * width];
+                        TileEventSection tileEvent = events[x + y * width];
 
                         int flags = 0;
-                        if (tileEvent.illuminate) flags |= 0x04; // Illuminated
-                        if (tileEvent.difficulty != 2 /*DIFFICULTY_HARD*/) flags |= 0x10; // Difficulty: Easy
-                        if (tileEvent.difficulty == 0 /*DIFFICULTY_ALL*/) flags |= 0x20; // Difficulty: Normal
-                        if (tileEvent.difficulty != 1 /*DIFFICULTY_EASY*/) flags |= 0x40; // Difficulty: Hard
-                        if (tileEvent.difficulty == 3 /*DIFFICULTY_MULTIPLAYER*/) flags |= 0x80; // Multiplayer Only
+                        if (tileEvent.Illuminate) flags |= 0x04; // Illuminated
+                        if (tileEvent.Difficulty != 2 /*DIFFICULTY_HARD*/) flags |= 0x10; // Difficulty: Easy
+                        if (tileEvent.Difficulty == 0 /*DIFFICULTY_ALL*/) flags |= 0x20; // Difficulty: Normal
+                        if (tileEvent.Difficulty != 1 /*DIFFICULTY_EASY*/) flags |= 0x40; // Difficulty: Hard
+                        if (tileEvent.Difficulty == 3 /*DIFFICULTY_MULTIPLAYER*/) flags |= 0x80; // Multiplayer Only
 
                         // ToDo: Flag 0x08 not used
 
                         JJ2Event eventType;
                         int generatorDelay;
                         byte generatorFlags;
-                        if (tileEvent.eventType == JJ2Event.JJ2_MODIFIER_GENERATOR) {
-                            ushort[] eventParams = ConvertParamInt(tileEvent.tileParams,
+                        if (tileEvent.EventType == JJ2Event.JJ2_MODIFIER_GENERATOR) {
+                            ushort[] eventParams = ConvertParamInt(tileEvent.TileParams,
                                 Pair.Create(JJ2EventParamType.UInt, 8),  // Event
                                 Pair.Create(JJ2EventParamType.UInt, 8),  // Delay
                                 Pair.Create(JJ2EventParamType.Bool, 1)); // Initial Delay
@@ -723,12 +727,12 @@ namespace Jazz2.Compatibility
                             generatorDelay = eventParams[1];
                             generatorFlags = (byte)eventParams[2];
                         } else {
-                            eventType = tileEvent.eventType;
+                            eventType = tileEvent.EventType;
                             generatorDelay = -1;
                             generatorFlags = 0;
                         }
 
-                        ConversionResult converted = EventConverter.Convert(this, eventType, tileEvent.tileParams);
+                        ConversionResult converted = EventConverter.Convert(this, eventType, tileEvent.TileParams);
 
                         if (eventType != JJ2Event.JJ2_EMPTY && converted.eventType == EventType.Empty) {
                             int count;
@@ -781,28 +785,28 @@ namespace Jazz2.Compatibility
             using (BinaryWriter w = new BinaryWriter(ds)) {
                 w.Write(animatedTiles.Count);
 
-                foreach (Jazz2AniTile tile in animatedTiles) {
+                foreach (AnimatedTileSection tile in animatedTiles) {
                     //if (tile.frameCount <= 0) {
                     //    continue;
                     //}
 
-                    w.Write((ushort)tile.frameCount);
+                    w.Write((ushort)tile.FrameCount);
 
-                    for (int i = 0; i < tile.frameCount; i++) {
+                    for (int i = 0; i < tile.FrameCount; i++) {
                         // Max. tiles is either 0x0400 or 0x1000 and doubles as a mask to separate flipped tiles.
                         // In J2L, each flipped tile had a separate entry in the tile list, probably to make
                         // the dictionary concept easier to handle.
                         bool flipX = false, flipY = false;
-                        ushort tileIdx = tile.frames[i];
+                        ushort tileIdx = tile.Frames[i];
                         if ((tileIdx & maxTiles) > 0) {
                             flipX = true;
                             tileIdx -= maxTiles;
                         }
 
                         if (tileIdx >= lastTilesetTileIndex) {
-                            Console.WriteLine("[" + levelToken + "] Level has animated tile in animated tile (" + (tileIdx - lastTilesetTileIndex) + " -> " + animatedTiles[tileIdx - lastTilesetTileIndex].frames[0] + "). Applying quick redirection!");
+                            Console.WriteLine("[" + levelToken + "] Level has animated tile in animated tile (" + (tileIdx - lastTilesetTileIndex) + " -> " + animatedTiles[tileIdx - lastTilesetTileIndex].Frames[0] + "). Applying quick redirection!");
 
-                            tileIdx = animatedTiles[tileIdx - lastTilesetTileIndex].frames[0];
+                            tileIdx = animatedTiles[tileIdx - lastTilesetTileIndex].Frames[0];
                         }
 
                         byte tileFlags = 0;
@@ -810,19 +814,19 @@ namespace Jazz2.Compatibility
                             tileFlags |= 0x01;
                         if (flipY)
                             tileFlags |= 0x02;
-                        if ((staticTiles[tile.frames[i]].type & 0x01) != 0)
+                        if ((staticTiles[tile.Frames[i]].Type & 0x01) != 0)
                             tileFlags |= 0x80;
 
                         w.Write(tileIdx);
                         w.Write(tileFlags);
                     }
 
-                    byte reverse = (byte)(tile.isReverse ? 1 : 0);
-                    w.Write(tile.speed);
-                    w.Write(tile.delay);
-                    w.Write(tile.delayJitter);
+                    byte reverse = (byte)(tile.IsReverse ? 1 : 0);
+                    w.Write(tile.Speed);
+                    w.Write(tile.Delay);
+                    w.Write(tile.DelayJitter);
                     w.Write(reverse);
-                    w.Write(tile.reverseDelay);
+                    w.Write(tile.ReverseDelay);
                 }
             }
         }

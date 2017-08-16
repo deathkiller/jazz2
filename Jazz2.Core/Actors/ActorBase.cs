@@ -251,12 +251,12 @@ namespace Jazz2.Actors
                 }
 
                 // Also try to move horizontally as far as possible.
-                float maxDiff = MathF.Abs(effectiveSpeedX);
-                float xDiff = maxDiff;
+                float xDiff = MathF.Abs(effectiveSpeedX);
+                float maxXDiff = -xDiff;
                 if (!success) {
                     int sign = (effectiveSpeedX > 0f ? 1 : -1);
-                    for (; xDiff >= -maxDiff; xDiff -= CollisionCheckStep) {
-                        if (MoveInstantly(new Vector2(xDiff * sign, 0.0f), MoveType.Relative)) {
+                    for (; xDiff >= maxXDiff; xDiff -= CollisionCheckStep) {
+                        if (MoveInstantly(new Vector2(xDiff * sign, 0f), MoveType.Relative)) {
                             break;
                         }
                     }

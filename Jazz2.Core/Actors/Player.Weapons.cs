@@ -66,6 +66,11 @@ namespace Jazz2.Actors
                 return;
             }
 
+            // Rewind the animation if it should be played only once
+            if (currentAnimation.OnlyOnce) {
+                renderer.AnimTime = 0f;
+            }
+
             switch (currentWeapon) {
                 case WeaponType.Blaster:
                     FireWeaponBlaster();

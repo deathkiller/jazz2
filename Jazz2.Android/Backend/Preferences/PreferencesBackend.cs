@@ -112,13 +112,13 @@ namespace Jazz2.Backend.Android
             }
         }
 
-        T IPreferencesBackend.Get<T>(string key)
+        T IPreferencesBackend.Get<T>(string key, T defaultValue)
         {
             object value;
             if (data.TryGetValue(key, out value)) {
                 return (T)value;
             } else {
-                return default(T);
+                return defaultValue;
             }
         }
 

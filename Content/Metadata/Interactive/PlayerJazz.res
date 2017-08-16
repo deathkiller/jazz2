@@ -57,15 +57,18 @@
         },
         "Shoot": {
             "Path": "Jazz/shoot.png",
-            "States": [ 16 ]
+            "States": [ 16 ],
+            "Flags": 1
         },
         "CrouchShoot": {
             "Path": "Jazz/crouch_shoot.png",
-            "States": [ 48 ]
+            "States": [ 48 ],
+            "Flags": 1
         },
         "LookupShoot": {
             "Path": "Jazz/shoot_ver.png",
-            "States": [ 80 ]
+            "States": [ 80 ],
+            "Flags": 1
         },
         "Hurt": {
             "Path": "Jazz/hurt.png",
@@ -109,11 +112,13 @@
         },
         "HookShoot": {
             "Path": "Jazz/vine_shoot.png",
-            "States": [ 28, 29, 30, 31 ]
+            "States": [ 28, 29, 30, 31 ],
+            "Flags": 1
         },
         "HookLookupShoot": {
             "Path": "Jazz/vine_shoot_up.png",
-            "States": [ 92 ]
+            "States": [ 92 ],
+            "Flags": 1
         },
         "RunToIdle": {
             "Path": "Jazz/run_stop.png",

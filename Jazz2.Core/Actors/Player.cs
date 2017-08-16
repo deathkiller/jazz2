@@ -28,10 +28,10 @@ namespace Jazz2.Actors
             Sidekick
         }
 
-        private const float MAX_DASHING_SPEED = 9f;
-        private const float MAX_RUNNING_SPEED = 4f;
-        private const float ACCELERATION = 0.2f;
-        private const float DECELERATION = 0.22f;
+        private const float MaxDashingSpeed = 9f;
+        private const float MaxRunningSpeed = 4f;
+        private const float Acceleration = 0.2f;
+        private const float Deceleration = 0.22f;
 
         private bool isActivelyPushing;
         private bool controllable = true;
@@ -200,12 +200,13 @@ namespace Jazz2.Actors
         {
             float timeMult = Time.TimeMult;
             Vector3 lastPos = Transform.Pos;
+            float lastSpeedX = speedX;
             float lastForceX = externalForceX;
 
             base.OnUpdate();
 
             FollowCarryingPlatform();
-            UpdateSpeedBasedAnimation(timeMult, lastPos.X, lastForceX);
+            UpdateSpeedBasedAnimation(timeMult, lastPos.X, lastSpeedX, lastForceX);
 
             PushSolidObjects(timeMult);
             CheckSuspendedStatus(lastPos);
@@ -304,16 +305,16 @@ namespace Jazz2.Actors
 
                 bool isDashPressed = DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C);
                 if (suspendType == SuspendType.None && isDashPressed) {
-                    speedX = MathF.Clamp(speedX + ACCELERATION * timeMult * (isFacingLeft ? -1 : 1), -MAX_DASHING_SPEED, MAX_DASHING_SPEED);
+                    speedX = MathF.Clamp(speedX + Acceleration * timeMult * (isFacingLeft ? -1 : 1), -MaxDashingSpeed, MaxDashingSpeed);
                 } else if (suspendType != SuspendType.Hook && !(wasFirePressed && suspendType == SuspendType.Vine)) {
-                    speedX = MathF.Clamp(speedX + ACCELERATION * timeMult * (isFacingLeft ? -1 : 1), -MAX_RUNNING_SPEED, MAX_RUNNING_SPEED);
+                    speedX = MathF.Clamp(speedX + Acceleration * timeMult * (isFacingLeft ? -1 : 1), -MaxRunningSpeed, MaxRunningSpeed);
                 }
 
                 if (canJump) {
                     wasUpPressed = wasDownPressed = false;
                 }
             } else {
-                speedX = MathF.Max((MathF.Abs(speedX) - DECELERATION * timeMult), 0) * (speedX < 0 ? -1 : 1);
+                speedX = MathF.Max((MathF.Abs(speedX) - Deceleration * timeMult), 0) * (speedX < 0 ? -1 : 1);
                 isActivelyPushing = false;
             }
 
@@ -331,9 +332,9 @@ namespace Jazz2.Actors
                         mult = (isDownPressed ? -1f : 1f);
                     }
 
-                    speedY = MathF.Clamp(speedY - ACCELERATION * timeMult * mult, -MAX_RUNNING_SPEED, MAX_RUNNING_SPEED);
+                    speedY = MathF.Clamp(speedY - Acceleration * timeMult * mult, -MaxRunningSpeed, MaxRunningSpeed);
                 } else {
-                    speedY = MathF.Max((MathF.Abs(speedY) - DECELERATION * timeMult), 0) * (speedY < 0 ? -1 : 1);
+                    speedY = MathF.Max((MathF.Abs(speedY) - Deceleration * timeMult), 0) * (speedY < 0 ? -1 : 1);
                 }
             } else {
                 // Look-up
@@ -605,11 +606,19 @@ namespace Jazz2.Actors
             Vector3 pos = Transform.Pos;
             if (api.EventMap.IsHurting(pos.X, pos.Y + 24)) {
                 TakeDamage(speedX * 0.25f);
-            } else if (!canJump && !inWater && !isAirboard) {
-                PlaySound("Land", 0.8f);
+            } else if (!inWater && !isAirboard) {
+                if (!canJump) {
+                    PlaySound("Land", 0.8f);
 
-                if (MathF.Rnd.NextFloat() < 0.6f) {
-                    Explosion.Create(api, pos + new Vector3(0f, 20f, 0f), Explosion.TinyDark);
+                    if (MathF.Rnd.NextFloat() < 0.6f) {
+                        Explosion.Create(api, pos + new Vector3(0f, 20f, 0f), Explosion.TinyDark);
+                    }
+                }
+            } else {
+                // Prevent stucking with water/airboard
+                canJump = false;
+                if (speedY > 0f) {
+                    speedY = 0f;
                 }
             }
 
@@ -630,12 +639,16 @@ namespace Jazz2.Actors
 
         protected override void OnHitWallHook()
         {
+            // Reset speed and show Push animation
+            speedX = 0f;
+            pushFramesLeft = 2f;
+
             Vector3 pos = Transform.Pos;
             if (api.EventMap.IsHurting(pos.X + (speedX > 0f ? 1f : -1f) * 16f, pos.Y)) {
                 TakeDamage(speedX * 0.25f);
             } else {
 
-                if (isActivelyPushing && !canJump && speedY >= -1f && externalForceY <= 0f) {
+                if (isActivelyPushing && !canJump && speedY >= -1f && externalForceY <= 0f && copterFramesLeft <= 0f) {
                     // Character supports ledge climbing
                     if (FindAnimationCandidates(AnimState.TransitionLedgeClimb).Count > 0) {
                         const int maxTolerance = 6;
@@ -645,10 +658,12 @@ namespace Jazz2.Actors
                         Hitbox hitbox2 = currentHitbox + new Vector2(x, -42f + 2f);             // Wall below the empty space
                         Hitbox hitbox3 = currentHitbox + new Vector2(x, -42f + 2f + 24f);       // Wall between the player and the wall above (vertically)
                         Hitbox hitbox4 = currentHitbox + new Vector2(x,  20f);                  // Wall below the player
+                        Hitbox hitbox5 = new Hitbox(currentHitbox.Left + 2, hitbox1.Top, currentHitbox.Right - 2, currentHitbox.Bottom); // Player can't climb through walls
                         if ( api.IsPositionEmpty(this, ref hitbox1, false) &&
                             !api.IsPositionEmpty(this, ref hitbox2, false) &&
                             !api.IsPositionEmpty(this, ref hitbox3, false) &&
-                            !api.IsPositionEmpty(this, ref hitbox4, false)) {
+                            !api.IsPositionEmpty(this, ref hitbox4, false) &&
+                             api.IsPositionEmpty(this, ref hitbox5, false)) {
 
                             // Move the player upwards, if it is in tolerance, so the animation will look better
                             for (int y = 0; y >= -maxTolerance; y -= 2) {
@@ -774,7 +789,7 @@ namespace Jazz2.Actors
             return false;
         }
 
-        private void UpdateSpeedBasedAnimation(float timeMult, float lastX, float lastForceX)
+        private void UpdateSpeedBasedAnimation(float timeMult, float lastX, float lastSpeedX, float lastForceX)
         {
             if (controllable) {
                 float posX = Transform.Pos.X;
@@ -787,13 +802,13 @@ namespace Jazz2.Actors
                     newState = AnimState.Airboard;
                 } else if (isLifting) {
                     newState = AnimState.Lift;
-                } else if (canJump && isActivelyPushing && (pushFramesLeft > 0f || (carryingObject == null && MathF.Abs((posX - lastX) - (speedX * timeMult)) > 0.1f && MathF.Abs(/*externalForceX*/lastForceX) < float.Epsilon && (isFacingLeft ^ (speedX > 0))))) {
+                } else if (canJump && isActivelyPushing && pushFramesLeft > 0f) {
                     newState = AnimState.Push;
                 } else {
                     // Only certain ones don't need to be preserved from earlier state, others should be set as expected
                     AnimState composite = unchecked(currentAnimationState & (AnimState)0xFFF8BFE0);
                     if (isActivelyPushing) {
-                        if (MathF.Abs(speedX) > MAX_RUNNING_SPEED) {
+                        if (MathF.Abs(speedX) > MaxRunningSpeed) {
                             composite |= AnimState.Dash;
                         } else if (MathF.Abs(speedX) > 2f) {
                             composite |= AnimState.Run;
@@ -1535,6 +1550,14 @@ namespace Jazz2.Actors
         public void TakeDamage(float pushForce)
         {
             if (!isInvulnerable && !levelExiting) {
+                // Cancel active climbing
+                if (currentTransitionState == AnimState.TransitionLedgeClimb) {
+                    currentTransitionCancellable = true;
+                    CancelTransition();
+
+                    MoveInstantly(new Vector2(isFacingLeft ? 9f : -9f, 0f), MoveType.Relative, true);
+                }
+
                 DecreaseHealth(1, null);
 
                 internalForceY = 0f;

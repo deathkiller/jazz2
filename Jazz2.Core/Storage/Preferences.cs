@@ -6,11 +6,11 @@ namespace Jazz2.Storage
     {
         private static IPreferencesBackend prefBack;
 
-        public static T Get<T>(string key)
+        public static T Get<T>(string key, T defaultValue = default(T))
         {
             if (prefBack == null) DualityApp.InitBackend(out prefBack);
 
-            return prefBack.Get<T>(key);
+            return prefBack.Get<T>(key, defaultValue);
         }
 
         public static void Set<T>(string key, T value)

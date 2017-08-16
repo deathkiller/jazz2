@@ -56,15 +56,18 @@
         },
         "Shoot": {
             "Path": "Spaz/shoot.png",
-            "States": [ 16 ]
+            "States": [ 16 ],
+            "Flags": 1
         },
         "CrouchShoot": {
             "Path": "Spaz/crouch_shoot.png",
-            "States": [ 48 ]
+            "States": [ 48 ],
+            "Flags": 1
         },
         "LookupShoot": {
             "Path": "Spaz/shoot_ver.png",
-            "States": [ 80 ]
+            "States": [ 80 ],
+            "Flags": 1
         },
         "Hurt": {
             "Path": "Spaz/hurt.png",
@@ -107,11 +110,13 @@
         },
         "HookShoot": {
             "Path": "Spaz/vine_shoot.png",
-            "States": [ 28, 29, 30, 31 ]
+            "States": [ 28, 29, 30, 31 ],
+            "Flags": 1
         },
         "HookLookupShoot": {
             "Path": "Spaz/vine_shoot_up.png",
-            "States": [ 92 ]
+            "States": [ 92 ],
+            "Flags": 1
         },
         "RunToIdle": {
             "Path": "Spaz/run_stop.png",
