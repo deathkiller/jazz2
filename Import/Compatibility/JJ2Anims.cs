@@ -16,38 +16,38 @@ namespace Jazz2.Compatibility
     {
         private class AnimFrameSection
         {
-            public Pair<ushort, ushort> size;
-            public Pair<short, short> coldspot;
-            public Pair<short, short> hotspot;
-            public Pair<short, short> gunspot;
-            public byte[] imageData;
-            public BitArray maskData;
-            public int imageAddr;
-            public int maskAddr;
-            public bool drawTransparent;
+            public Pair<ushort, ushort> Size;
+            public Pair<short, short> Coldspot;
+            public Pair<short, short> Hotspot;
+            public Pair<short, short> Gunspot;
+            public byte[] ImageData;
+            public BitArray MaskData;
+            public int ImageAddr;
+            public int MaskAddr;
+            public bool DrawTransparent;
         }
 
         private class AnimSection
         {
-            public ushort frameCnt;
-            public ushort fps;
-            public List<AnimFrameSection> frames;
-            public int set;
-            public ushort anim;
-            public Pair<short, short> adjustedSize;
-            public Pair<short, short> largestOffset;
-            public Pair<short, short> normalizedHotspot;
-            public Pair<short, short> frameConfiguration;
+            public ushort FrameCount;
+            public ushort FrameRate;
+            public List<AnimFrameSection> Frames;
+            public int Set;
+            public ushort Anim;
+            public Pair<short, short> AdjustedSize;
+            public Pair<short, short> LargestOffset;
+            public Pair<short, short> NormalizedHotspot;
+            public Pair<short, short> FrameConfiguration;
         }
 
         private class SampleSection
         {
-            public ushort id;
-            public int set;
-            public ushort idInSet;
-            public uint sampleRate;
-            public byte[] soundData;
-            public ushort multiplier;
+            public ushort Id;
+            public int Set;
+            public ushort IdInSet;
+            public uint SampleRate;
+            public byte[] Data;
+            public ushort Multiplier;
         }
 
         public static void Convert(string path, string targetPath, bool isPlus)
@@ -119,13 +119,13 @@ namespace Jazz2.Compatibility
 
                         for (ushort j = 0; j < animCount; ++j) {
                             AnimSection anim = new AnimSection();
-                            anim.set = i;
-                            anim.anim = j;
-                            anim.frameCnt = infoBlock.ReadUInt16();
-                            anim.fps = infoBlock.ReadUInt16();
-                            anim.normalizedHotspot = Pair.Create((short)0, (short)0);
-                            anim.adjustedSize = Pair.Create((short)0, (short)0);
-                            anim.frames = new List<AnimFrameSection>();
+                            anim.Set = i;
+                            anim.Anim = j;
+                            anim.FrameCount = infoBlock.ReadUInt16();
+                            anim.FrameRate = infoBlock.ReadUInt16();
+                            anim.NormalizedHotspot = Pair.Create((short)0, (short)0);
+                            anim.AdjustedSize = Pair.Create((short)0, (short)0);
+                            anim.Frames = new List<AnimFrameSection>(anim.FrameCount);
 
                             // Skip the rest, seems to be 0x00000000 for all headers
                             infoBlock.DiscardBytes(4);
@@ -151,53 +151,53 @@ namespace Jazz2.Compatibility
                             ushort currentAnimIdx = 0;
                             ushort currentFrame = 0;
                             for (ushort j = 0; j < frameCount; j++) {
-                                if (currentFrame >= currentAnim.frameCnt) {
+                                if (currentFrame >= currentAnim.FrameCount) {
                                     currentAnim = setAnims[++currentAnimIdx];
                                     currentFrame = 0;
                                 }
 
                                 AnimFrameSection frame = new AnimFrameSection();
-                                frame.size = Pair.Create(frameDataBlock.ReadUInt16(), frameDataBlock.ReadUInt16());
-                                frame.coldspot = Pair.Create(frameDataBlock.ReadInt16(), frameDataBlock.ReadInt16());
-                                frame.hotspot = Pair.Create(frameDataBlock.ReadInt16(), frameDataBlock.ReadInt16());
-                                frame.gunspot = Pair.Create(frameDataBlock.ReadInt16(), frameDataBlock.ReadInt16());
+                                frame.Size = Pair.Create(frameDataBlock.ReadUInt16(), frameDataBlock.ReadUInt16());
+                                frame.Coldspot = Pair.Create(frameDataBlock.ReadInt16(), frameDataBlock.ReadInt16());
+                                frame.Hotspot = Pair.Create(frameDataBlock.ReadInt16(), frameDataBlock.ReadInt16());
+                                frame.Gunspot = Pair.Create(frameDataBlock.ReadInt16(), frameDataBlock.ReadInt16());
 
-                                frame.imageAddr = frameDataBlock.ReadInt32();
-                                frame.maskAddr = frameDataBlock.ReadInt32();
+                                frame.ImageAddr = frameDataBlock.ReadInt32();
+                                frame.MaskAddr = frameDataBlock.ReadInt32();
 
                                 // Adjust normalized position
                                 // In the output images, we want to make the hotspot and image size constant.
-                                currentAnim.normalizedHotspot = Pair.Create((short)Math.Max(-frame.hotspot.First, currentAnim.normalizedHotspot.First), (short)Math.Max(-frame.hotspot.Second, currentAnim.normalizedHotspot.Second));
-                                currentAnim.largestOffset = Pair.Create((short)Math.Max(frame.size.First + frame.hotspot.First, currentAnim.largestOffset.First), (short)Math.Max(frame.size.Second + frame.hotspot.Second, currentAnim.largestOffset.Second));
-                                currentAnim.adjustedSize = Pair.Create((short)Math.Max(
-                                    currentAnim.normalizedHotspot.First + currentAnim.largestOffset.First,
-                                    currentAnim.adjustedSize.First
+                                currentAnim.NormalizedHotspot = Pair.Create((short)Math.Max(-frame.Hotspot.First, currentAnim.NormalizedHotspot.First), (short)Math.Max(-frame.Hotspot.Second, currentAnim.NormalizedHotspot.Second));
+                                currentAnim.LargestOffset = Pair.Create((short)Math.Max(frame.Size.First + frame.Hotspot.First, currentAnim.LargestOffset.First), (short)Math.Max(frame.Size.Second + frame.Hotspot.Second, currentAnim.LargestOffset.Second));
+                                currentAnim.AdjustedSize = Pair.Create((short)Math.Max(
+                                    currentAnim.NormalizedHotspot.First + currentAnim.LargestOffset.First,
+                                    currentAnim.AdjustedSize.First
                                 ), (short)Math.Max(
-                                    currentAnim.normalizedHotspot.Second + currentAnim.largestOffset.Second,
-                                    currentAnim.adjustedSize.Second
+                                    currentAnim.NormalizedHotspot.Second + currentAnim.LargestOffset.Second,
+                                    currentAnim.AdjustedSize.Second
                                 ));
 
-                                currentAnim.frames.Add(frame);
+                                currentAnim.Frames.Add(frame);
 
 #if DEBUG
                                 if (currentFrame > 0) {
                                     Pair<short, short> diffOld, diffNew;
 
-                                    if (frame.coldspot.First != 0 && frame.coldspot.Second != 0) {
-                                        diffNew = Pair.Create((short)(frame.coldspot.First - frame.hotspot.First), (short)(frame.coldspot.Second - frame.hotspot.Second));
+                                    if (frame.Coldspot.First != 0 && frame.Coldspot.Second != 0) {
+                                        diffNew = Pair.Create((short)(frame.Coldspot.First - frame.Hotspot.First), (short)(frame.Coldspot.Second - frame.Hotspot.Second));
                                         diffOld = Pair.Create((short)(lastColdspot.First - lastHotspot.First), (short)(lastColdspot.Second - lastHotspot.Second));
                                         if (diffNew != diffOld) {
-                                            Console.WriteLine("[" + currentAnim.set + ":" + currentAnim.anim + "] Animation coldspots don't agree!");
+                                            Console.WriteLine("[" + currentAnim.Set + ":" + currentAnim.Anim + "] Animation coldspots don't agree!");
                                             Console.WriteLine("    F" + (currentFrame - 1) + ": " + diffOld.First + "," + diffOld.Second + ", "
                                                 + "F" + currentFrame + ": " + diffNew.First + "," + diffNew.Second);
                                         }
                                     }
 
-                                    if (frame.gunspot.First != 0 && frame.gunspot.Second != 0) {
-                                        diffNew = Pair.Create((short)(frame.gunspot.First - frame.hotspot.First), (short)(frame.gunspot.Second - frame.hotspot.Second));
+                                    if (frame.Gunspot.First != 0 && frame.Gunspot.Second != 0) {
+                                        diffNew = Pair.Create((short)(frame.Gunspot.First - frame.Hotspot.First), (short)(frame.Gunspot.Second - frame.Hotspot.Second));
                                         diffOld = Pair.Create((short)(lastGunspot.First - lastHotspot.First), (short)(lastGunspot.Second - lastHotspot.Second));
                                         if (diffNew != diffOld) {
-                                            Console.WriteLine("[" + currentAnim.set + ":" + currentAnim.anim + "] Animation gunspots don't agree!");
+                                            Console.WriteLine("[" + currentAnim.Set + ":" + currentAnim.Anim + "] Animation gunspots don't agree!");
                                             Console.WriteLine("    F" + (currentFrame - 1) + ": " + diffOld.First + "," + diffOld.Second + ", "
                                                 + "F" + currentFrame + ": " + diffNew.First + "," + diffNew.Second);
                                         }
@@ -205,9 +205,9 @@ namespace Jazz2.Compatibility
                                 }
 #endif
 
-                                lastColdspot = frame.coldspot;
-                                lastGunspot = frame.gunspot;
-                                lastHotspot = frame.hotspot;
+                                lastColdspot = frame.Coldspot;
+                                lastGunspot = frame.Gunspot;
+                                lastHotspot = frame.Hotspot;
 
                                 currentFrame++;
                             }
@@ -216,24 +216,24 @@ namespace Jazz2.Compatibility
                             for (ushort j = 0; j < setAnims.Count; j++) {
                                 AnimSection anim = setAnims[j];
 
-                                if (anim.frameCnt < anim.frames.Count) {
-                                    Console.WriteLine("[" + i + ":" + j + "] Frame count doesn't match! Expected " + anim.frameCnt + " frames but read " + anim.frames.Count);
+                                if (anim.FrameCount < anim.Frames.Count) {
+                                    Console.WriteLine("[" + i + ":" + j + "] Frame count doesn't match! Expected " + anim.FrameCount + " frames but read " + anim.Frames.Count);
                                     throw new InvalidOperationException();
                                 }
 
-                                for (ushort frame = 0; frame < anim.frameCnt; ++frame) {
-                                    int dpos = (int)(anim.frames[frame].imageAddr + 4);
+                                for (ushort frame = 0; frame < anim.FrameCount; ++frame) {
+                                    int dpos = (int)(anim.Frames[frame].ImageAddr + 4);
 
                                     imageDataBlock.SeekTo(dpos - 4);
                                     ushort width2 = imageDataBlock.ReadUInt16();
                                     imageDataBlock.SeekTo(dpos - 2);
                                     ushort height2 = imageDataBlock.ReadUInt16();
 
-                                    AnimFrameSection frameData = anim.frames[frame];
-                                    frameData.drawTransparent = (width2 & 0x8000) > 0;
+                                    AnimFrameSection frameData = anim.Frames[frame];
+                                    frameData.DrawTransparent = (width2 & 0x8000) > 0;
 
                                     ushort pxRead = 0;
-                                    ushort pxTotal = (ushort)(frameData.size.First * frameData.size.Second);
+                                    ushort pxTotal = (ushort)(frameData.Size.First * frameData.Size.Second);
                                     bool lastOpEmpty = true;
 
                                     List<byte> imageData = new List<byte>(pxTotal);
@@ -258,8 +258,8 @@ namespace Jazz2.Compatibility
                                             dpos++;
                                         } else if (op == 0x80) {
                                             // Skip until the end of the line
-                                            ushort linePxLeft = (ushort)(frameData.size.First - pxRead % frameData.size.First);
-                                            if (pxRead % anim.frames[frame].size.First == 0 && !lastOpEmpty) {
+                                            ushort linePxLeft = (ushort)(frameData.Size.First - pxRead % frameData.Size.First);
+                                            if (pxRead % anim.Frames[frame].Size.First == 0 && !lastOpEmpty) {
                                                 linePxLeft = 0;
                                             }
 
@@ -281,10 +281,10 @@ namespace Jazz2.Compatibility
                                         lastOpEmpty = (op == 0x80);
                                     }
 
-                                    frameData.imageData = imageData.ToArray();
+                                    frameData.ImageData = imageData.ToArray();
 
-                                    frameData.maskData = new BitArray(pxTotal, false);
-                                    dpos = frameData.maskAddr;
+                                    frameData.MaskData = new BitArray(pxTotal, false);
+                                    dpos = frameData.MaskAddr;
                                     pxRead = 0;
 
                                     // No mask
@@ -296,7 +296,7 @@ namespace Jazz2.Compatibility
                                         imageDataBlock.SeekTo(dpos);
                                         byte b = imageDataBlock.ReadByte();
                                         for (byte bit = 0; bit < 8 && (pxRead + bit) < pxTotal; ++bit) {
-                                            frameData.maskData[pxRead + bit] = ((b & (1 << (7 - bit))) != 0);
+                                            frameData.MaskData[pxRead + bit] = ((b & (1 << (7 - bit))) != 0);
                                         }
                                         pxRead += 8;
                                     }
@@ -306,9 +306,9 @@ namespace Jazz2.Compatibility
 
                         for (ushort j = 0; j < sndCount; ++j) {
                             SampleSection sample = new SampleSection();
-                            sample.id = (ushort)(cumulativeSndIndex + j);
-                            sample.idInSet = j;
-                            sample.set = i;
+                            sample.Id = (ushort)(cumulativeSndIndex + j);
+                            sample.IdInSet = j;
+                            sample.Set = i;
 
                             int totalSize = sampleDataBlock.ReadInt32();
                             uint magicRIFF = sampleDataBlock.ReadUInt32();
@@ -333,10 +333,10 @@ namespace Jazz2.Compatibility
                                 // for which 1.24 reads as 24-bit but that might just be a mistake.
                                 sampleDataBlock.DiscardBytes(2);
 
-                                sample.multiplier = 0;
+                                sample.Multiplier = 0;
                             } else {
                                 // for 1.24. 1.20 has "20 40" instead in s0s0 which makes no sense
-                                sample.multiplier = sampleDataBlock.ReadUInt16();
+                                sample.Multiplier = sampleDataBlock.ReadUInt16();
                             }
                             // Unknown. s0s0 1.20: 00 80, 1.24: 80 00
                             sampleDataBlock.DiscardBytes(2);
@@ -345,10 +345,10 @@ namespace Jazz2.Compatibility
                             // Padding #2, all zeroes in both
                             sampleDataBlock.DiscardBytes(8);
 
-                            sample.sampleRate = sampleDataBlock.ReadUInt32();
+                            sample.SampleRate = sampleDataBlock.ReadUInt32();
                             int actualDataSize = chunkSize - 76 + (isASFF ? 12 : 0);
 
-                            sample.soundData = sampleDataBlock.ReadRawBytes(actualDataSize);
+                            sample.Data = sampleDataBlock.ReadRawBytes(actualDataSize);
                             // Padding #3
                             sampleDataBlock.DiscardBytes(4);
 
@@ -356,9 +356,9 @@ namespace Jazz2.Compatibility
                                 throw new InvalidOperationException("Sample has invalid header");
                             }
 
-                            if (sample.soundData.Length < actualDataSize) {
+                            if (sample.Data.Length < actualDataSize) {
                                 Console.WriteLine("[" + i + ":" + j + "] Sample was shorter than expected! (Expected "
-                                    + actualDataSize + " bytes, only read " + sample.soundData.Length + ")");
+                                    + actualDataSize + " bytes, only read " + sample.Data.Length + ")");
                             }
 
                             if (totalSize > chunkSize + 12) {
@@ -413,56 +413,56 @@ namespace Jazz2.Compatibility
                         for (int i = range.Item1; i < range.Item2; i++) {
                             AnimSection currentAnim = anims[i];
 
-                            AnimSetMapping.Data data = animMapping.Get(currentAnim.set, currentAnim.anim);
+                            AnimSetMapping.Data data = animMapping.Get(currentAnim.Set, currentAnim.Anim);
                             if (data.Category == AnimSetMapping.Discard) {
                                 continue;
                             }
 
                             data.Palette = data.Palette ?? JJ2DefaultPalette.Sprite;
 
-                            Pair<short, short> size = Pair.Create((short)(currentAnim.adjustedSize.First + data.AddBorder * 2), (short)(currentAnim.adjustedSize.Second + data.AddBorder * 2));
+                            Pair<short, short> size = Pair.Create((short)(currentAnim.AdjustedSize.First + data.AddBorder * 2), (short)(currentAnim.AdjustedSize.Second + data.AddBorder * 2));
 
                             // Determine the frame configuration to use.
                             // Each asset must fit into a 4096 by 4096 texture,
                             // as that is the smallest texture size we have decided to support.
-                            currentAnim.frameConfiguration = Pair.Create((short)currentAnim.frameCnt, (short)1);
-                            if (currentAnim.frameCnt > 1) {
+                            currentAnim.FrameConfiguration = Pair.Create((short)currentAnim.FrameCount, (short)1);
+                            if (currentAnim.FrameCount > 1) {
                                 short second = (short)Math.Max(1,
-                                    (int)Math.Ceiling(Math.Sqrt(currentAnim.frameCnt * size.First /
+                                    (int)Math.Ceiling(Math.Sqrt(currentAnim.FrameCount * size.First /
                                                                 size.Second)));
                                 short first = (short)Math.Max(1,
-                                    (int)Math.Ceiling(currentAnim.frameCnt * 1.0 / second));
+                                    (int)Math.Ceiling(currentAnim.FrameCount * 1.0 / second));
 
                                 // Do a bit of optimization, as the above algorithm ends occasionally with some extra space
                                 // (it is careful with not underestimating the required space)
-                                while (first * (second - 1) >= currentAnim.frameCnt) {
+                                while (first * (second - 1) >= currentAnim.FrameCount) {
                                     second--;
                                 }
 
-                                currentAnim.frameConfiguration = Pair.Create(first, second);
+                                currentAnim.FrameConfiguration = Pair.Create(first, second);
                             }
 
-                            Bitmap img = new Bitmap(size.First * currentAnim.frameConfiguration.First,
-                                size.Second * currentAnim.frameConfiguration.Second,
+                            Bitmap img = new Bitmap(size.First * currentAnim.FrameConfiguration.First,
+                                size.Second * currentAnim.FrameConfiguration.Second,
                                 PixelFormat.Format32bppArgb);
 
                             // ToDo: Hardcoded name
                             bool applyToasterPowerUpFix = (data.Category == "Object" && data.Name == "powerup_upgrade_toaster");
 
-                            for (int j = 0; j < currentAnim.frames.Count; j++) {
-                                AnimFrameSection frame = currentAnim.frames[j];
-                                int offsetX = currentAnim.normalizedHotspot.First + frame.hotspot.First;
-                                int offsetY = currentAnim.normalizedHotspot.Second + frame.hotspot.Second;
+                            for (int j = 0; j < currentAnim.Frames.Count; j++) {
+                                AnimFrameSection frame = currentAnim.Frames[j];
+                                int offsetX = currentAnim.NormalizedHotspot.First + frame.Hotspot.First;
+                                int offsetY = currentAnim.NormalizedHotspot.Second + frame.Hotspot.Second;
 
-                                for (ushort y = 0; y < frame.size.Second; y++) {
-                                    for (ushort x = 0; x < frame.size.First; x++) {
+                                for (ushort y = 0; y < frame.Size.Second; y++) {
+                                    for (ushort x = 0; x < frame.Size.First; x++) {
                                         int targetX =
-                                            (j % currentAnim.frameConfiguration.First) * size.First +
+                                            (j % currentAnim.FrameConfiguration.First) * size.First +
                                             offsetX + x + data.AddBorder;
                                         int targetY =
-                                            (j / currentAnim.frameConfiguration.First) * size.Second +
+                                            (j / currentAnim.FrameConfiguration.First) * size.Second +
                                             offsetY + y + data.AddBorder;
-                                        byte colorIdx = frame.imageData[frame.size.First * y + x];
+                                        byte colorIdx = frame.ImageData[frame.Size.First * y + x];
 
                                         // Apply palette fixes
                                         if (applyToasterPowerUpFix) {
@@ -474,7 +474,7 @@ namespace Jazz2.Compatibility
                                         Color color = data.Palette[colorIdx];
 
                                         // Apply transparency
-                                        if (frame.drawTransparent) {
+                                        if (frame.DrawTransparent) {
                                             color = Color.FromArgb(Math.Min(/*127*/140, (int)color.A), color);
                                         }
 
@@ -485,7 +485,7 @@ namespace Jazz2.Compatibility
 
                             string filename;
                             if (string.IsNullOrEmpty(data.Name)) {
-                                filename = "s" + currentAnim.set + "_a" + currentAnim.anim + ".png";
+                                filename = "s" + currentAnim.Set + "_a" + currentAnim.Anim + ".png";
                                 if (version == JJ2Version.PlusExtension) {
                                     filename = "plus_" + filename;
                                 }
@@ -500,7 +500,7 @@ namespace Jazz2.Compatibility
 
                             if (!string.IsNullOrEmpty(data.Name) && !data.SkipNormalMap) {
                                 using (Bitmap normalMap = NormalMapGenerator.FromSprite(img,
-                                        new Point(currentAnim.frameConfiguration.First, currentAnim.frameConfiguration.Second),
+                                        new Point(currentAnim.FrameConfiguration.First, currentAnim.FrameConfiguration.Second),
                                         data.Palette == JJ2DefaultPalette.ByIndex)) {
 
                                     normalMap.Save(filename.Replace(".png", ".n.png"), ImageFormat.Png);
@@ -513,8 +513,8 @@ namespace Jazz2.Compatibility
                                 w.WriteLine("    \"Version\": {");
                                 w.WriteLine("        \"Target\": \"Jazz² Resurrection\",");
                                 w.WriteLine("        \"SourceLocation\": \"" +
-                                            currentAnim.set.ToString(CultureInfo.InvariantCulture) + ":" +
-                                            currentAnim.anim.ToString(CultureInfo.InvariantCulture) + "\",");
+                                            currentAnim.Set.ToString(CultureInfo.InvariantCulture) + ":" +
+                                            currentAnim.Anim.ToString(CultureInfo.InvariantCulture) + "\",");
 
                                 string sourceVersion;
                                 switch (version) {
@@ -553,43 +553,43 @@ namespace Jazz2.Compatibility
                                             size.First.ToString(CultureInfo.InvariantCulture) + ", " +
                                             size.Second.ToString(CultureInfo.InvariantCulture) + " ],");
                                 w.WriteLine("    \"FrameConfiguration\": [ " +
-                                            currentAnim.frameConfiguration.First.ToString(CultureInfo.InvariantCulture) +
+                                            currentAnim.FrameConfiguration.First.ToString(CultureInfo.InvariantCulture) +
                                             ", " +
-                                            currentAnim.frameConfiguration.Second.ToString(CultureInfo.InvariantCulture) +
+                                            currentAnim.FrameConfiguration.Second.ToString(CultureInfo.InvariantCulture) +
                                             " ],");
                                 w.WriteLine("    \"FrameCount\": " +
-                                            currentAnim.frameCnt.ToString(CultureInfo.InvariantCulture) + ",");
-                                w.Write("    \"FrameRate\": " + currentAnim.fps.ToString(CultureInfo.InvariantCulture));
+                                            currentAnim.FrameCount.ToString(CultureInfo.InvariantCulture) + ",");
+                                w.Write("    \"FrameRate\": " + currentAnim.FrameRate.ToString(CultureInfo.InvariantCulture));
 
-                                if (currentAnim.normalizedHotspot.First != 0 || currentAnim.normalizedHotspot.Second != 0) {
+                                if (currentAnim.NormalizedHotspot.First != 0 || currentAnim.NormalizedHotspot.Second != 0) {
                                     w.WriteLine(",");
                                     w.Write("    \"Hotspot\": [ " +
-                                            (currentAnim.normalizedHotspot.First + data.AddBorder).ToString(CultureInfo.InvariantCulture) +
+                                            (currentAnim.NormalizedHotspot.First + data.AddBorder).ToString(CultureInfo.InvariantCulture) +
                                             ", " +
-                                            (currentAnim.normalizedHotspot.Second + data.AddBorder).ToString(CultureInfo.InvariantCulture) +
+                                            (currentAnim.NormalizedHotspot.Second + data.AddBorder).ToString(CultureInfo.InvariantCulture) +
                                             " ]");
                                 }
 
-                                if (currentAnim.frames[0].coldspot.First != 0 ||
-                                    currentAnim.frames[0].coldspot.Second != 0) {
+                                if (currentAnim.Frames[0].Coldspot.First != 0 ||
+                                    currentAnim.Frames[0].Coldspot.Second != 0) {
                                     w.WriteLine(",");
                                     w.Write("    \"Coldspot\": [ " +
-                                            ((currentAnim.normalizedHotspot.First + currentAnim.frames[0].hotspot.First) -
-                                             currentAnim.frames[0].coldspot.First + data.AddBorder).ToString(CultureInfo.InvariantCulture) +
+                                            ((currentAnim.NormalizedHotspot.First + currentAnim.Frames[0].Hotspot.First) -
+                                             currentAnim.Frames[0].Coldspot.First + data.AddBorder).ToString(CultureInfo.InvariantCulture) +
                                             ", " +
-                                            ((currentAnim.normalizedHotspot.Second + currentAnim.frames[0].hotspot.Second) -
-                                             currentAnim.frames[0].coldspot.Second + data.AddBorder).ToString(CultureInfo.InvariantCulture) +
+                                            ((currentAnim.NormalizedHotspot.Second + currentAnim.Frames[0].Hotspot.Second) -
+                                             currentAnim.Frames[0].Coldspot.Second + data.AddBorder).ToString(CultureInfo.InvariantCulture) +
                                             " ]");
                                 }
 
-                                if (currentAnim.frames[0].gunspot.First != 0 || currentAnim.frames[0].gunspot.Second != 0) {
+                                if (currentAnim.Frames[0].Gunspot.First != 0 || currentAnim.Frames[0].Gunspot.Second != 0) {
                                     w.WriteLine(",");
                                     w.Write("    \"Gunspot\": [ " +
-                                            ((currentAnim.normalizedHotspot.First + currentAnim.frames[0].hotspot.First) -
-                                             currentAnim.frames[0].gunspot.First + data.AddBorder).ToString(CultureInfo.InvariantCulture) +
+                                            ((currentAnim.NormalizedHotspot.First + currentAnim.Frames[0].Hotspot.First) -
+                                             currentAnim.Frames[0].Gunspot.First + data.AddBorder).ToString(CultureInfo.InvariantCulture) +
                                             ", " +
-                                            ((currentAnim.normalizedHotspot.Second + currentAnim.frames[0].hotspot.Second) -
-                                             currentAnim.frames[0].gunspot.Second + data.AddBorder).ToString(CultureInfo.InvariantCulture) +
+                                            ((currentAnim.NormalizedHotspot.Second + currentAnim.Frames[0].Hotspot.Second) -
+                                             currentAnim.Frames[0].Gunspot.Second + data.AddBorder).ToString(CultureInfo.InvariantCulture) +
                                             " ]");
                                 }
 
@@ -607,14 +607,14 @@ namespace Jazz2.Compatibility
                         for (int i = range.Item1; i < range.Item2; i++) {
                             SampleSection sample = samples[i];
 
-                            AnimSetMapping.Data data = sampleMapping.Get(sample.set, sample.idInSet);
+                            AnimSetMapping.Data data = sampleMapping.Get(sample.Set, sample.IdInSet);
                             if (data.Category == AnimSetMapping.Discard) {
                                 continue;
                             }
 
                             string filename;
                             if (string.IsNullOrEmpty(data.Name)) {
-                                filename = "s" + sample.set + "_s" + sample.idInSet + ".wav";
+                                filename = "s" + sample.Set + "_s" + sample.IdInSet + ".wav";
                                 if (version == JJ2Version.PlusExtension) {
                                     filename = "plus_" + filename;
                                 }
@@ -633,12 +633,12 @@ namespace Jazz2.Compatibility
                                 // by the read header data. It is not clear if they actually are or if the header data is just
                                 // read incorrectly, though - one would think the data would need to be reshaped between 24 and 8
                                 // but it works just fine as is.
-                                int multiplier = (sample.multiplier / 4) % 2 + 1;
+                                int multiplier = (sample.Multiplier / 4) % 2 + 1;
 
                                 // Create PCM wave file
                                 // Main header
                                 w.Write(new[] {(byte)'R', (byte)'I', (byte)'F', (byte)'F'});
-                                w.Write((uint)(sample.soundData.Length + 36));
+                                w.Write((uint)(sample.Data.Length + 36));
                                 w.Write(new[] {(byte)'W', (byte)'A', (byte)'V', (byte)'E'});
 
                                 // Format header
@@ -646,15 +646,15 @@ namespace Jazz2.Compatibility
                                 w.Write((uint)16); // header remainder length
                                 w.Write((ushort)1); // format = PCM
                                 w.Write((ushort)1); // channels
-                                w.Write((uint)sample.sampleRate); // sample rate
-                                w.Write((uint)(sample.sampleRate * multiplier)); // byte rate
+                                w.Write((uint)sample.SampleRate); // sample rate
+                                w.Write((uint)(sample.SampleRate * multiplier)); // byte rate
                                 w.Write((uint)(multiplier * 0x00080001));
 
                                 // Payload
                                 w.Write(new[] {(byte)'d', (byte)'a', (byte)'t', (byte)'a'});
-                                w.Write((uint)sample.soundData.Length); // payload length
-                                for (int k = 0; k < sample.soundData.Length; k++) {
-                                    w.Write((byte)((multiplier << 7) ^ sample.soundData[k]));
+                                w.Write((uint)sample.Data.Length); // payload length
+                                for (int k = 0; k < sample.Data.Length; k++) {
+                                    w.Write((byte)((multiplier << 7) ^ sample.Data[k]));
                                 }
                             }
                         }

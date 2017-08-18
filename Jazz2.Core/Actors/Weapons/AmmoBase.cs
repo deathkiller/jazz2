@@ -46,8 +46,13 @@ namespace Jazz2.Actors.Weapons
         protected void CheckCollisions()
         {
             foreach (ActorBase collision in api.FindCollisionActors(this)) {
-                collision.HandleCollision(this);
                 this.HandleCollision(collision);
+                collision.HandleCollision(this);
+
+                if (health <= 0) {
+                    // Bullet was destroyed by the target, skip other collisions
+                    return;
+                }
             }
 
             TileMap tiles = api.TileMap;

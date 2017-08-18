@@ -10,12 +10,13 @@ namespace Jazz2.Compatibility
     {
         private class TilesetTileSection
         {
-            public bool opaque;
-            public uint imageDataOffset;
-            public uint alphaDataOffset;
-            public uint maskDataOffset;
-            public Bitmap image;
-            public Bitmap mask;
+            public bool Opaque;
+            public uint ImageDataOffset;
+            public uint AlphaDataOffset;
+            public uint MaskDataOffset;
+
+            public Bitmap Image;
+            public Bitmap Mask;
         }
 
         private string name;
@@ -110,7 +111,7 @@ namespace Jazz2.Compatibility
                 bool opaque = block.ReadBool();
 
                 TilesetTileSection tile = new TilesetTileSection();
-                tile.opaque = opaque;
+                tile.Opaque = opaque;
                 tiles[i] = tile;
             }
 
@@ -118,21 +119,21 @@ namespace Jazz2.Compatibility
             block.DiscardBytes(maxTiles);
 
             for (int i = 0; i < maxTiles; ++i) {
-                tiles[i].imageDataOffset = block.ReadUInt32();
+                tiles[i].ImageDataOffset = block.ReadUInt32();
             }
 
             // block of unknown values, skip
             block.DiscardBytes(4 * maxTiles);
 
             for (int i = 0; i < maxTiles; ++i) {
-                tiles[i].alphaDataOffset = block.ReadUInt32();
+                tiles[i].AlphaDataOffset = block.ReadUInt32();
             }
 
             // block of unknown values, skip
             block.DiscardBytes(4 * maxTiles);
 
             for (int i = 0; i < maxTiles; ++i) {
-                tiles[i].maskDataOffset = block.ReadUInt32();
+                tiles[i].MaskDataOffset = block.ReadUInt32();
             }
 
             // we don't care about the flipped masks, those are generated on runtime
@@ -144,10 +145,10 @@ namespace Jazz2.Compatibility
             const int BlockSize = 32;
 
             for (int i = 0; i < tiles.Length; i++) {
-                tiles[i].image = new Bitmap(BlockSize, BlockSize);
+                tiles[i].Image = new Bitmap(BlockSize, BlockSize);
 
-                byte[] imageData = imageBlock.ReadRawBytes(BlockSize * BlockSize, tiles[i].imageDataOffset);
-                byte[] alphaMaskData = alphaBlock.ReadRawBytes(128, tiles[i].alphaDataOffset);
+                byte[] imageData = imageBlock.ReadRawBytes(BlockSize * BlockSize, tiles[i].ImageDataOffset);
+                byte[] alphaMaskData = alphaBlock.ReadRawBytes(128, tiles[i].AlphaDataOffset);
                 for (int j = 0; j < (BlockSize * BlockSize); j++) {
                     byte idx = imageData[j];
                     Color color;
@@ -157,7 +158,7 @@ namespace Jazz2.Compatibility
                         color = palette[idx];
                     }
 
-                    tiles[i].image.SetPixel(j % 32, j / 32, color);
+                    tiles[i].Image.SetPixel(j % 32, j / 32, color);
                 }
             }
         }
@@ -167,17 +168,17 @@ namespace Jazz2.Compatibility
             const int BlockSize = 32;
 
             for (int i = 0; i < tiles.Length; i++) {
-                tiles[i].mask = new Bitmap(BlockSize, BlockSize);
+                tiles[i].Mask = new Bitmap(BlockSize, BlockSize);
 
-                byte[] maskData = block.ReadRawBytes(128, tiles[i].maskDataOffset);
+                byte[] maskData = block.ReadRawBytes(128, tiles[i].MaskDataOffset);
                 for (int j = 0; j < 128; j++) {
                     byte idx = maskData[j];
                     for (int k = 0; k < 8; k++) {
                         int pixelIdx = 8 * j + k;
                         if (((idx >> k) & 0x01) == 0) {
-                            tiles[i].mask.SetPixel(pixelIdx % 32, pixelIdx / 32, Color.Transparent);
+                            tiles[i].Mask.SetPixel(pixelIdx % 32, pixelIdx / 32, Color.Transparent);
                         } else {
-                            tiles[i].mask.SetPixel(pixelIdx % 32, pixelIdx / 32, Color.Black);
+                            tiles[i].Mask.SetPixel(pixelIdx % 32, pixelIdx / 32, Color.Black);
                         }
                     }
                 }
@@ -201,8 +202,8 @@ namespace Jazz2.Compatibility
 
                 int maxTiles = MaxSupportedTiles;
                 for (int i = 0; i < maxTiles; i++) {
-                    tilesTextureG.DrawImage(tiles[i].image, (i % TilesPerRow) * TileSize, (i / TilesPerRow) * TileSize);
-                    masksTextureG.DrawImage(tiles[i].mask, (i % TilesPerRow) * TileSize, (i / TilesPerRow) * TileSize);
+                    tilesTextureG.DrawImage(tiles[i].Image, (i % TilesPerRow) * TileSize, (i / TilesPerRow) * TileSize);
+                    masksTextureG.DrawImage(tiles[i].Mask, (i % TilesPerRow) * TileSize, (i / TilesPerRow) * TileSize);
                 }
             }
 

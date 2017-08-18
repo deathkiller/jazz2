@@ -13,11 +13,14 @@ namespace Jazz2.Actors
         private ushort type;
         private ushort orientation;
         private float strength;
-        //private bool keepXSpeed, keepYSpeed;
+        private bool keepSpeedX, keepSpeedY;
         //private ushort delay;
         //private bool frozen;
 
         private float cooldown;
+
+        public bool KeepSpeedX => keepSpeedX;
+        public bool KeepSpeedY => keepSpeedY;
 
         public override void OnAttach(ActorInstantiationDetails details)
         {
@@ -27,8 +30,8 @@ namespace Jazz2.Actors
 
             type = details.Params[0];
             orientation = details.Params[1];
-            //keepXSpeed = (details.Params[2] != 0);
-            //keepYSpeed = (details.Params[3] != 0);
+            keepSpeedX = (details.Params[2] != 0);
+            keepSpeedY = (details.Params[3] != 0);
             //delay = details.Params[4];
             //frozen = (details.Params[5] != 0);
 
@@ -122,15 +125,15 @@ namespace Jazz2.Actors
             Vector3 pos = Transform.Pos;
             switch (orientation) {
                 case 1: // Right
-                    currentHitbox = new Hitbox(pos.X - 8, pos.Y - 15, pos.X, pos.Y + 15);
+                    currentHitbox = new Hitbox(pos.X - 8, pos.Y - /*15*/10, pos.X, pos.Y + /*15*/10);
                     break;
                 case 3: // Left
-                    currentHitbox = new Hitbox(pos.X, pos.Y - 15, pos.X + 8, pos.Y + 15);
+                    currentHitbox = new Hitbox(pos.X, pos.Y - /*15*/10, pos.X + 8, pos.Y + /*15*/10);
                     break;
                 default:
                 case 0: // Bottom
                 case 2: // Top
-                    currentHitbox = new Hitbox(pos.X - /*15*/12, pos.Y, pos.X + /*15*/12, pos.Y + 8);
+                    currentHitbox = new Hitbox(pos.X - /*15*/10, pos.Y, pos.X + /*15*/10, pos.Y + 8);
                     break;
             }
         }

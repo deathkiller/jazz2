@@ -58,6 +58,8 @@ namespace Jazz2.Actors.Enemies
                 return;
             }
 
+            canJump = false;
+
             bool found = false;
             Vector3 pos = Transform.Pos;
             Vector3 targetPos = new Vector3(float.MaxValue, float.MaxValue, pos.Z);

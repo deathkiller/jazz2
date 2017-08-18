@@ -179,7 +179,7 @@ namespace Jazz2.Actors.Bosses
 
         protected override bool OnPerish(ActorBase collider)
         {
-            api.TileMap.CreateParticleDebris(currentAnimation, Transform.Pos, renderer.CurrentFrame, isFacingLeft);
+            CreateDeathDebris(collider);
             api.PlayCommonSound(this, "Splat");
 
             api.BroadcastLevelText(endText);

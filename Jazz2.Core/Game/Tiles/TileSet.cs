@@ -54,7 +54,7 @@ namespace Jazz2.Game.Tiles
         {
             Dictionary<string, ContentRef<Texture>> textures = new Dictionary<string, ContentRef<Texture>>();
             textures.Add("mainTex", new Texture(new Pixmap(texture)));
-            textures.Add("normalTex", new Texture(new Pixmap(normal ?? new PixelData(4, 4, new ColorRgba(0.5f, 0.5f, 1f, 0f)))));
+            textures.Add("normalTex", normal == null ? ContentResolver.Current.DefaultNormalMap : new Texture(new Pixmap(normal)));
 
             Material material = new Material(ContentResolver.Current.RequestShader("BasicNormal"), ColorRgba.White, textures);
             material.SetUniform("normalMultiplier", 1f, 1f);

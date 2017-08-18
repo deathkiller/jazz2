@@ -26,7 +26,7 @@
             );
 
             vec4 texColor = texture2D(mainTex, texturePos);
-            float horizonOpacity = clamp(pow(distance, 0.8) - 0.2, 0.0, 1.0);
+            float horizonOpacity = clamp(pow(distance, 1.8) - 0.4, 0.0, 1.0);
 
             gl_FragData[0] = mix(texColor, horizonColor, horizonOpacity);
             gl_FragData[1] = vec4(0.5, 0.5, 1.0, 1.0);

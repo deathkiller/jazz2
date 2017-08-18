@@ -33,6 +33,8 @@ namespace Jazz2.Actors.Enemies
                 return;
             }
 
+            canJump = false;
+
             Vector3 pos = Transform.Pos;
             Vector3 targetPos;
 

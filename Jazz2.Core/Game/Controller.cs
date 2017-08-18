@@ -59,7 +59,7 @@ namespace Jazz2.Game
             if (string.IsNullOrEmpty(carryOver.LevelName)) {
                 // Next level not specified, so show main menu
                 ShowMainMenu();
-            } else if (carryOver.LevelName == "endepis") {
+            } else if (carryOver.LevelName == ":end") {
                 // End of episode
 
                 if (!string.IsNullOrEmpty(carryOver.LastEpisodeName) && carryOver.LastEpisodeName != "unknown") {
@@ -93,10 +93,10 @@ namespace Jazz2.Game
                         carryOver.LevelName = nextEpisode.FirstLevel;
 
                         // Start new level
-                        LevelHandler levelManager = new LevelHandler(this, carryOver);
+                        LevelHandler handler = new LevelHandler(this, carryOver);
 
                         Scene.Current.DisposeLater();
-                        Scene.SwitchTo(levelManager);
+                        Scene.SwitchTo(handler);
                     } else {
                         // Next episode not found...
                         ShowMainMenu();
@@ -105,7 +105,7 @@ namespace Jazz2.Game
                     // Shouldn't happen...
                     ShowMainMenu();
                 }
-            } else if (carryOver.LevelName == "ending") {
+            } else if (carryOver.LevelName == ":credits") {
                 // End of game
 
                 if (!string.IsNullOrEmpty(carryOver.LastEpisodeName) && carryOver.LastEpisodeName != "unknown") {
@@ -118,10 +118,10 @@ namespace Jazz2.Game
                 // ToDo: Show credits
                 ShowMainMenu();
             } else {
-                LevelHandler levelManager = new LevelHandler(this, carryOver);
+                LevelHandler handler = new LevelHandler(this, carryOver);
 
                 Scene.Current.DisposeLater();
-                Scene.SwitchTo(levelManager);
+                Scene.SwitchTo(handler);
             }
 
             ContentResolver.Current.ReleaseUnreferencedResources();

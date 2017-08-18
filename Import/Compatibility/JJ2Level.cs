@@ -601,18 +601,28 @@ namespace Jazz2.Compatibility
         private void WriteResFileLayerSection(StreamWriter w, string sectionName, LayerSection layer, bool addBackgroundFields)
         {
             w.WriteLine("        \"" + sectionName + "\": {");
-            w.WriteLine("            \"XSpeed\": " + layer.SpeedX.ToString(CultureInfo.InvariantCulture) + ",");
-            w.WriteLine("            \"YSpeed\": " + layer.SpeedY.ToString(CultureInfo.InvariantCulture) + ",");
+
+            if (layer.SpeedX != 0 || layer.SpeedY != 0) {
+                w.WriteLine("            \"XSpeed\": " + layer.SpeedX.ToString(CultureInfo.InvariantCulture) + ",");
+                w.WriteLine("            \"YSpeed\": " + layer.SpeedY.ToString(CultureInfo.InvariantCulture) + ",");
+            }
 
             if (layer.AutoSpeedX != 0 || layer.AutoSpeedY != 0) {
                 w.WriteLine("            \"XAutoSpeed\": " + layer.AutoSpeedX.ToString(CultureInfo.InvariantCulture) + ",");
                 w.WriteLine("            \"YAutoSpeed\": " + layer.AutoSpeedY.ToString(CultureInfo.InvariantCulture) + ",");
             }
 
-            w.WriteLine("            \"XRepeat\": " + ((layer.Flags & 0x00000001) > 0 ? "true" : "false") + ",");
-            w.WriteLine("            \"YRepeat\": " + ((layer.Flags & 0x00000002) > 0 ? "true" : "false") + ",");
+            bool xRepeat = (layer.Flags & 0x00000001) != 0;
+            bool yRepeat = (layer.Flags & 0x00000002) != 0;
+            bool inherentOffset = (layer.Flags & 0x00000004) != 0;
+
+            if (xRepeat || yRepeat) {
+                w.WriteLine("            \"XRepeat\": " + (xRepeat ? "true" : "false") + ",");
+                w.WriteLine("            \"YRepeat\": " + (yRepeat ? "true" : "false") + ",");
+            }
+
             w.WriteLine("            \"Depth\": " + layer.Depth.ToString(CultureInfo.InvariantCulture) + ",");
-            w.Write("            \"InherentOffset\": " + ((layer.Flags & 0x00000004) > 0 ? "true" : "false"));
+            w.Write("            \"InherentOffset\": " + (inherentOffset ? "true" : "false"));
 
             if (addBackgroundFields) {
                 w.WriteLine(",");

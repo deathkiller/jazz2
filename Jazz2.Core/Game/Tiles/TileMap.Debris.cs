@@ -114,7 +114,7 @@ namespace Jazz2.Game.Tiles
             }
         }
 
-        public void CreateParticleDebris(GraphicResource res, Vector3 pos, int currentFrame, bool isFacingLeft)
+        public void CreateParticleDebris(GraphicResource res, Vector3 pos, Vector2 force, int currentFrame, bool isFacingLeft)
         {
             const int debrisSize = 3;
 
@@ -130,8 +130,8 @@ namespace Jazz2.Game.Tiles
                     debrisList.Add(new DestructibleDebris {
                         Pos = new Vector3(x + (isFacingLeft ? res.Base.FrameDimensions.X - fx : fx), y + fy, pos.Z),
                         Size = new Vector2(currentSize /** (isFacingLeft ? -1f : 1f)*/, currentSize),
-                        Speed = new Vector2(((fx - res.Base.FrameDimensions.X / 2) + MathF.Rnd.NextFloat(-2f, 2f)) * (isFacingLeft ? -1f : 1f) * MathF.Rnd.NextFloat(2f, 8f) / res.Base.FrameDimensions.X,
-                            -1f * MathF.Rnd.NextFloat(2.2f, 4f)),
+                        Speed = new Vector2(force.X + ((fx - res.Base.FrameDimensions.X / 2) + MathF.Rnd.NextFloat(-2f, 2f)) * (isFacingLeft ? -1f : 1f) * MathF.Rnd.NextFloat(2f, 8f) / res.Base.FrameDimensions.X,
+                            force.Y - 1f * MathF.Rnd.NextFloat(2.2f, 4f)),
                         Acceleration = new Vector2(0f, 0.2f),
 
                         Scale = 1f,

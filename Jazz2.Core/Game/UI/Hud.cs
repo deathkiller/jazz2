@@ -88,8 +88,8 @@ namespace Jazz2.Game.UI
                     currentPlayer = "CharacterJazz";
                 }
 
-                DrawMaterial(c, currentPlayer, 36, size.Y + 1.6f, Alignment.BottomRight, new ColorRgba(0f, 0.4f));
-                DrawMaterial(c, currentPlayer, 36, size.Y, Alignment.BottomRight, ColorRgba.White);
+                DrawMaterial(c, currentPlayer, -1, 36, size.Y + 1.6f, Alignment.BottomRight, new ColorRgba(0f, 0.4f));
+                DrawMaterial(c, currentPlayer, -1, 36, size.Y, Alignment.BottomRight, ColorRgba.White);
 
                 string healthString = new string('|', owner.Health);
 
@@ -102,7 +102,7 @@ namespace Jazz2.Game.UI
                         null, 0.7f, charSpacing: 1.1f);
 
                     fontSmall.DrawString(device, ref charOffsetShadow, "x" + owner.Lives.ToString(CultureInfo.InvariantCulture), 36 - 4, size.Y + 1f,
-                        Alignment.BottomLeft, new ColorRgba(0f, 0.3f));
+                        Alignment.BottomLeft, new ColorRgba(0f, 0.32f));
                     fontSmall.DrawString(device, ref charOffset, "x" + owner.Lives.ToString(CultureInfo.InvariantCulture), 36 - 4, size.Y,
                         Alignment.BottomLeft, ColorRgba.TransparentBlack);
                 } else {
@@ -124,8 +124,8 @@ namespace Jazz2.Game.UI
                         y -= MathF.Round((20 - res.Base.FrameDimensions.Y) * 0.5f);
                     }
 
-                    DrawMaterial(c, currentWeaponString, size.X - 40, y + 1.6f, Alignment.BottomRight, new ColorRgba(0f, 0.4f));
-                    DrawMaterial(c, currentWeaponString, size.X - 40, y, Alignment.BottomRight, ColorRgba.White);
+                    DrawMaterial(c, currentWeaponString, -1, size.X - 40, y + 1.6f, Alignment.BottomRight, new ColorRgba(0f, 0.4f));
+                    DrawMaterial(c, currentWeaponString, -1, size.X - 40, y, Alignment.BottomRight, ColorRgba.White);
                 }
                 
                 string ammoCount;
@@ -135,7 +135,7 @@ namespace Jazz2.Game.UI
                     ammoCount = "x" + owner.WeaponAmmo[(int)currentWeapon].ToString(CultureInfo.InvariantCulture);
                 }
                 fontSmall.DrawString(device, ref charOffsetShadow, ammoCount, size.X - 40, size.Y + 1f, Alignment.BottomLeft,
-                    new ColorRgba(0f, 0.3f), charSpacing: 0.96f);
+                    new ColorRgba(0f, 0.32f), charSpacing: 0.96f);
                 fontSmall.DrawString(device, ref charOffset, ammoCount, size.X - 40, size.Y, Alignment.BottomLeft,
                     ColorRgba.TransparentBlack, charSpacing: 0.96f);
             }
@@ -230,10 +230,10 @@ namespace Jazz2.Game.UI
                     alpha = 1f;
                 }
 
-                DrawMaterial(c, "PickupCoin", size.X * 0.5f, size.Y * 0.92f + 2.5f + offset, Alignment.Right,
-                    new ColorRgba(0f, 0.2f * alpha), 0.8f);
-                DrawMaterial(c, "PickupCoin", size.X * 0.5f, size.Y * 0.92f + offset, Alignment.Right,
-                    new ColorRgba(1f, alpha * alpha), 0.8f);
+                DrawMaterial(c, "PickupCoin", -1, size.X * 0.5f, size.Y * 0.92f + 2.5f + offset, Alignment.Right,
+                    new ColorRgba(0f, 0.2f * alpha), 0.8f, 0.8f);
+                DrawMaterial(c, "PickupCoin", -1, size.X * 0.5f, size.Y * 0.92f + offset, Alignment.Right,
+                    new ColorRgba(1f, alpha * alpha), 0.8f, 0.8f);
 
                 int charOffsetShadow = charOffset;
                 fontSmall.DrawString(device, ref charOffsetShadow, text, size.X * 0.5f, size.Y * 0.92f + 2.5f + offset,
@@ -273,10 +273,10 @@ namespace Jazz2.Game.UI
                     alpha = 1f;
                 }
 
-                DrawMaterial(c, "PickupGem", size.X * 0.5f, size.Y * 0.92f + 2.5f + offset, Alignment.Right,
-                    new ColorRgba(0f, 0.4f * alpha), 0.8f);
-                DrawMaterial(c, "PickupGem", size.X * 0.5f, size.Y * 0.92f + offset, Alignment.Right,
-                    new ColorRgba(210, 110, 145, (byte)(190 * alpha)), 0.8f);
+                DrawMaterial(c, "PickupGem", -1, size.X * 0.5f, size.Y * 0.92f + 2.5f + offset, Alignment.Right,
+                    new ColorRgba(0f, 0.4f * alpha), 0.8f, 0.8f);
+                DrawMaterial(c, "PickupGem", -1, size.X * 0.5f, size.Y * 0.92f + offset, Alignment.Right,
+                    new ColorRgba(210, 110, 145, (byte)(190 * alpha)), 0.8f, 0.8f);
 
                 int charOffsetShadow = charOffset;
                 fontSmall.DrawString(device, ref charOffsetShadow, text, size.X * 0.5f, size.Y * 0.92f + 2.5f + offset,
@@ -350,48 +350,11 @@ namespace Jazz2.Game.UI
 #endif
         }
 
-        private void DrawMaterial(Canvas c, string id, float x, float y, Alignment alignment, ColorRgba color,
-            float scale = 1f)
-        {
-            GraphicResource res;
-            if (!graphics.TryGetValue(id, out res)) {
-                return;
-            }
-
-            // ToDo: HUD Animations are slowed down to 0.86f, adjust this in Metadata files
-            int curAnimFrame = (int)(Time.GameTimer.TotalSeconds * 0.86f * res.FrameCount / res.FrameDuration) % res.FrameCount;
-
-            Vector2 originPos = new Vector2(x, y);
-            alignment.ApplyTo(ref originPos, new Vector2(res.Base.FrameDimensions.X * scale, res.Base.FrameDimensions.Y * scale));
-
-            c.State.SetMaterial(res.Material);
-            c.State.ColorTint = color;
-            c.State.TextureCoordinateRect = res.Material.Res.MainTexture.Res.LookupAtlas(curAnimFrame);
-
-            c.FillRect(originPos.X, originPos.Y, res.Base.FrameDimensions.X * scale, res.Base.FrameDimensions.Y * scale);
-        }
-
         public void DrawMaterial(Canvas c, string name, int frame, float x, float y, Alignment alignment, ColorRgba color, float scaleX = 1f, float scaleY = 1f)
         {
             GraphicResource res;
             if (graphics.TryGetValue(name, out res)) {
-                Texture texture = res.Material.Res.MainTexture.Res;
-
-                if (frame < 0) {
-                    frame = (int)(Time.GameTimer.TotalSeconds * 0.86f * res.FrameCount / res.FrameDuration) % res.FrameCount;
-                }
-
-                Rect uv = texture.LookupAtlas(frame);
-                float w = texture.InternalWidth * scaleX * uv.W;
-                float h = texture.InternalHeight * scaleY * uv.H;
-
-                Vector2 originPos = new Vector2(x, y);
-                alignment.ApplyTo(ref originPos, new Vector2(w, h));
-
-                c.State.SetMaterial(res.Material);
-                c.State.ColorTint = color;
-                c.State.TextureCoordinateRect = uv;
-                c.FillRect((int)originPos.X, (int)originPos.Y, w, h);
+                res.Draw(c, frame, x, y, alignment, color, scaleX, scaleY);
             }
         }
 

@@ -25,6 +25,8 @@ namespace Jazz2.Game.UI.Menu.I
         {
             animation = 0f;
             base.OnShow(root);
+
+            api.PlaySound("MenuSelect", 0.4f);
         }
 
         public override void OnPaint(IDrawDevice device, Canvas c)

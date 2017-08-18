@@ -82,7 +82,7 @@ namespace Jazz2.Game
         private JsonParser jsonParser;
         private IImageCodec imageCodec;
 
-        private ContentRef<Texture> defaultNormal;
+        private ContentRef<Texture> defaultNormalMap;
 
         private Dictionary<string, Metadata> cachedMetadata;
         private Dictionary<string, GenericGraphicResource> cachedGraphics;
@@ -91,12 +91,14 @@ namespace Jazz2.Game
 
         private ContentRef<DrawTechnique> basicNormal;
 
+        public ContentRef<Texture> DefaultNormalMap => defaultNormalMap;
+
         private ContentResolver()
         {
             jsonParser = new JsonParser();
             imageCodec = ImageCodec.GetRead(ImageCodec.FormatPng);
 
-            defaultNormal = new Texture(new Pixmap(new PixelData(2, 2, new ColorRgba(0.5f, 0.5f, 1f))), TextureSizeMode.Default, TextureMagFilter.Nearest, TextureMinFilter.Nearest);
+            defaultNormalMap = new Texture(new Pixmap(new PixelData(2, 2, new ColorRgba(0.5f, 0.5f, 1f))), TextureSizeMode.Default, TextureMagFilter.Nearest, TextureMinFilter.Nearest);
 
             cachedMetadata = new Dictionary<string, Metadata>();
             cachedGraphics = new Dictionary<string, GenericGraphicResource>();
@@ -364,7 +366,7 @@ namespace Jazz2.Game
                     if (FileOp.Exists(filenameNormal)) {
                         asyncFinalize.TextureNormalMap = new Pixmap(imageCodec.Read(FileOp.Open(filenameNormal, FileAccessMode.Read)));
                     } else {
-                        resource.TextureNormal = defaultNormal;
+                        resource.TextureNormal = defaultNormalMap;
                     }
 
                     asyncFinalize.TextureWrap = json.TextureWrap;
@@ -392,7 +394,7 @@ namespace Jazz2.Game
                         resource.TextureNormal = new Texture(new Pixmap(pixelData), TextureSizeMode.NonPowerOfTwo,
                             magFilter, minFilter, json.TextureWrap, json.TextureWrap);
                     } else {
-                        resource.TextureNormal = defaultNormal;
+                        resource.TextureNormal = defaultNormalMap;
                     }
                 }
 

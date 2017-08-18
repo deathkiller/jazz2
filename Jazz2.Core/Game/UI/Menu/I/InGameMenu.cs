@@ -138,14 +138,15 @@ namespace Jazz2.Game.UI.Menu.I
         {
             GraphicResource res;
             if (metadata.Graphics.TryGetValue(name, out res)) {
-                Texture texture = res.Material.Res.MainTexture.Res;
+                res.Draw(c, x, y, alignment, color, scaleX, scaleY);
+            }
+        }
 
-                Vector2 originPos = new Vector2(x, y);
-                alignment.ApplyTo(ref originPos, new Vector2(texture.InternalWidth * scaleX, texture.InternalHeight * scaleY));
-
-                c.State.SetMaterial(res.Material);
-                c.State.ColorTint = color;
-                c.FillRect((int)originPos.X, (int)originPos.Y, texture.InternalWidth * scaleX, texture.InternalHeight * scaleY);
+        public void DrawMaterial(Canvas c, string name, float x, float y, Alignment alignment, ColorRgba color, float scaleX, float scaleY, Rect texRect)
+        {
+            GraphicResource res;
+            if (metadata.Graphics.TryGetValue(name, out res)) {
+                res.Draw(c, x, y, alignment, color, scaleX, scaleY, texRect);
             }
         }
 
@@ -153,23 +154,7 @@ namespace Jazz2.Game.UI.Menu.I
         {
             GraphicResource res;
             if (metadata.Graphics.TryGetValue(name, out res)) {
-                Texture texture = res.Material.Res.MainTexture.Res;
-
-                if (frame < 0) {
-                    frame = (int)(Time.GameTimer.TotalSeconds * 0.86f * res.FrameCount / res.FrameDuration) % res.FrameCount;
-                }
-
-                Rect uv = texture.LookupAtlas(frame);
-                float w = texture.InternalWidth * scaleX * uv.W;
-                float h = texture.InternalHeight * scaleY * uv.H;
-
-                Vector2 originPos = new Vector2(x, y);
-                alignment.ApplyTo(ref originPos, new Vector2(w, h));
-
-                c.State.SetMaterial(res.Material);
-                c.State.ColorTint = color;
-                c.State.TextureCoordinateRect = uv;
-                c.FillRect((int)originPos.X, (int)originPos.Y, w, h);
+                res.Draw(c, frame, x, y, alignment, color, scaleX, scaleY);
             }
         }
 

@@ -756,7 +756,7 @@ namespace Jazz2.Actors
             TileMap tilemap = api.TileMap;
             if (tilemap != null) {
                 tilemap.CreateParticleDebris(currentTransitionState != AnimState.Idle ? currentTransition : currentAnimation,
-                    Transform.Pos, renderer.CurrentFrame, isFacingLeft);
+                    Transform.Pos, Vector2.Zero, renderer.CurrentFrame, isFacingLeft);
             }
         }
 

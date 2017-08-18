@@ -69,7 +69,7 @@ namespace Jazz2.Game.Tiles
             Vector2 tileSize = new Vector2(tileset.TileSize, tileset.TileSize);
 
             // Update offsets for moving layers
-            if (Math.Abs(layer.AutoSpeedX) > float.Epsilon) {
+            if (MathF.Abs(layer.AutoSpeedX) > 0) {
                 layer.OffsetX += layer.AutoSpeedX * Time.TimeMult;
                 if (layer.RepeatX) {
                     if (layer.AutoSpeedX > 0) {
@@ -83,7 +83,7 @@ namespace Jazz2.Game.Tiles
                     }
                 }
             }
-            if (Math.Abs(layer.AutoSpeedY) > float.Epsilon) {
+            if (MathF.Abs(layer.AutoSpeedY) > 0) {
                 layer.OffsetY += layer.AutoSpeedY * Time.TimeMult;
                 if (layer.RepeatY) {
                     if (layer.AutoSpeedY > 0) {
@@ -99,72 +99,68 @@ namespace Jazz2.Game.Tiles
             }
 
             // Get current layer offsets and speeds
-            float lox = layer.OffsetX;
-            float loy = layer.OffsetY - (layer.UseInherentOffset ? (viewSize.Y - 200) / 2 : 0);
+            float loX = layer.OffsetX;
+            float loY = layer.OffsetY - (layer.UseInherentOffset ? (viewSize.Y - 200) / 2 : 0);
 
             // Find out coordinates for a tile from outside the boundaries from topleft corner of the screen 
             float x1 = viewCenter.X - 70 - (viewSize.X * 0.5f);
             float y1 = viewCenter.Y - 70 - (viewSize.Y * 0.5f);
 
-            // Figure out the floating point offset from the calculated coordinates and the actual tile
-            // corner coordinates
-            float x_t = TranslateCoordinate(x1, layer.SpeedX, lox, false, viewSize.Y, viewSize.X);
-            float y_t = TranslateCoordinate(y1, layer.SpeedY, loy, true, viewSize.Y, viewSize.X);
-
-            float rem_x = x_t % 32f;
-            float rem_y = y_t % 32f;
-
-            // Determine the actual drawing location on screen
-            float xinter = x_t / 32f;
-            float yinter = y_t / 32f;
-
-            // Calculate the index (on the layer map) of the first tile that needs to be drawn to the
-            // position determined earlier
-            int tile_x, tile_y, tile_absx, tile_absy;
-
-            // Get the actual tile coords on the layer layout
-            if (xinter > 0) {
-                tile_absx = (int)Math.Floor(xinter);
-                tile_x = tile_absx % tileCount.X;
-            } else {
-                tile_absx = (int)Math.Ceiling(xinter);
-                tile_x = tile_absx % tileCount.X;
-                while (tile_x < 0) {
-                    tile_x += tileCount.X;
-                }
-            }
-
-            if (yinter > 0) {
-                tile_absy = (int)Math.Floor(yinter);
-                tile_y = tile_absy % tileCount.Y;
-
-            } else {
-                tile_absy = (int)Math.Ceiling(yinter);
-                tile_y = tile_absy % tileCount.Y;
-                while (tile_y < 0) {
-                    tile_y += tileCount.Y;
-                }
-            }
-
-            // Save the tile Y at the left border so that we can roll back to it at the start of
-            // every row iteration
-            int tile_ys = tile_y;
-
-            // update x1 and y1 with the remainder so that we start at the tile boundary
-            // minus 1 because indices are updated in the beginning of the loops
-            x1 -= rem_x - 32f;
-            y1 -= rem_y - 32f;
-
-            // Calculate the last coordinates we want to draw to
-            float x3 = x1 + 100 + viewSize.X;
-            float y3 = y1 + 100 + viewSize.Y;
-
             if (layer.BackgroundStyle != BackgroundStyle.Plain && tileCount.Y == 8 && tileCount.X == 8) {
-                const float perspectiveSpeed = 0.4f;
+                const float PerspectiveSpeedX = 0.4f;
+                const float PerspectiveSpeedY = 0.16f;
                 RenderTexturedBackground(device, ref layer, layerIndex,
-                    ((x1 + rem_x) * perspectiveSpeed + lox),
-                    ((y1 + rem_y) * perspectiveSpeed + loy));
+                    (x1 * PerspectiveSpeedX + loX),
+                    (y1 * PerspectiveSpeedY + loY));
             } else {
+                // Figure out the floating point offset from the calculated coordinates and the actual tile
+                // corner coordinates
+                float xt = TranslateCoordinate(x1, layer.SpeedX, loX, false, viewSize.Y, viewSize.X);
+                float yt = TranslateCoordinate(y1, layer.SpeedY, loY, true, viewSize.Y, viewSize.X);
+
+                float remX = xt % 32f;
+                float remY = yt % 32f;
+
+                // Calculate the index (on the layer map) of the first tile that needs to be drawn to the
+                // position determined earlier
+                int tileX, tileY, tileAbsX, tileAbsY;
+
+                // Get the actual tile coords on the layer layout
+                if (xt > 0) {
+                    tileAbsX = (int)Math.Floor(xt / 32f);
+                    tileX = tileAbsX % tileCount.X;
+                } else {
+                    tileAbsX = (int)Math.Ceiling(xt / 32f);
+                    tileX = tileAbsX % tileCount.X;
+                    while (tileX < 0) {
+                        tileX += tileCount.X;
+                    }
+                }
+
+                if (yt > 0) {
+                    tileAbsY = (int)Math.Floor(yt / 32f);
+                    tileY = tileAbsY % tileCount.Y;
+                } else {
+                    tileAbsY = (int)Math.Ceiling(yt / 32f);
+                    tileY = tileAbsY % tileCount.Y;
+                    while (tileY < 0) {
+                        tileY += tileCount.Y;
+                    }
+                }
+
+                // update x1 and y1 with the remainder so that we start at the tile boundary
+                // minus 1 because indices are updated in the beginning of the loops
+                x1 -= remX - 32f;
+                y1 -= remY - 32f;
+
+                // Save the tile Y at the left border so that we can roll back to it at the start of
+                // every row iteration
+                int tileYs = tileY;
+
+                // Calculate the last coordinates we want to draw to
+                float x3 = x1 + 100 + viewSize.X;
+                float y3 = y1 + 100 + viewSize.Y;
+
                 Material material = tileset.Material.Res;
                 Texture texture = material.MainTexture.Res;
                 ColorRgba mainColor = ColorRgba.White;
@@ -185,25 +181,25 @@ namespace Jazz2.Game.Tiles
 
                 int tile_xo = -1;
                 for (float x2 = x1; x2 < x3; x2 += 32) {
-                    tile_x = (tile_x + 1) % tileCount.X;
+                    tileX = (tileX + 1) % tileCount.X;
                     tile_xo++;
                     if (!layer.RepeatX) {
                         // If the current tile isn't in the first iteration of the layer horizontally, don't draw this column
-                        if (tile_absx + tile_xo + 1 < 0 || tile_absx + tile_xo + 1 >= tileCount.X) {
+                        if (tileAbsX + tile_xo + 1 < 0 || tileAbsX + tile_xo + 1 >= tileCount.X) {
                             continue;
                         }
                     }
-                    tile_y = tile_ys;
+                    tileY = tileYs;
                     int tile_yo = -1;
                     for (float y2 = y1; y2 < y3; y2 += 32) {
-                        tile_y = (tile_y + 1) % tileCount.Y;
+                        tileY = (tileY + 1) % tileCount.Y;
                         tile_yo++;
 
-                        LayerTile tile = layer.Layout[tile_x + tile_y * layer.LayoutWidth];
+                        LayerTile tile = layer.Layout[tileX + tileY * layer.LayoutWidth];
 
                         if (!layer.RepeatY) {
                             // If the current tile isn't in the first iteration of the layer vertically, don't draw it
-                            if (tile_absy + tile_yo + 1 < 0 || tile_absy + tile_yo + 1 >= tileCount.Y) {
+                            if (tileAbsY + tile_yo + 1 < 0 || tileAbsY + tile_yo + 1 >= tileCount.Y) {
                                 continue;
                             }
                         }

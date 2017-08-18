@@ -6,6 +6,7 @@ using Jazz2.Actors.Weapons;
 using Jazz2.Game;
 using Jazz2.Game.Events;
 using Jazz2.Game.Structs;
+using Jazz2.Game.Tiles;
 using static Jazz2.Game.Tiles.TileMap;
 
 namespace Jazz2.Actors.Enemies
@@ -133,6 +134,11 @@ namespace Jazz2.Actors.Enemies
 
         protected void CreateDeathDebris(ActorBase collider)
         {
+            TileMap tilemap = api.TileMap;
+            if (tilemap == null) {
+                return;
+            }
+
             if (collider is AmmoToaster) {
                 const int debrisSizeX = 5;
                 const int debrisSizeY = 3;
@@ -178,7 +184,18 @@ namespace Jazz2.Actors.Enemies
                     }
                 }
             } else {
-                CreateParticleDebris();
+                Vector2 force;
+                switch (lastHitDir) {
+                    case LastHitDirection.Left: force = new Vector2(-1f, 0f); break;
+                    case LastHitDirection.Right: force = new Vector2(1f, 0f); break;
+                    case LastHitDirection.Up: force = new Vector2(0f, -1f); break;
+                    case LastHitDirection.Down: force = new Vector2(0f, 1f); break;
+
+                    default: force = Vector2.Zero; break;
+                }
+
+                tilemap.CreateParticleDebris(currentTransitionState != AnimState.Idle ? currentTransition : currentAnimation,
+                    Transform.Pos, force, renderer.CurrentFrame, isFacingLeft);
             }
         }
 
@@ -190,13 +207,13 @@ namespace Jazz2.Actors.Enemies
             if (!isInvulnerable) {
                 switch (other) {
                     case AmmoBase collision: {
-                        DecreaseHealth(collision.Strength, collision);
                         Vector3 ammoSpeed = collision.Speed;
-                        if (MathF.Abs(ammoSpeed.X) > float.Epsilon) {
+                        if (MathF.Abs(ammoSpeed.X) > 0.2f) {
                             lastHitDir = (ammoSpeed.X > 0 ? LastHitDirection.Right : LastHitDirection.Left);
                         } else {
                             lastHitDir = (ammoSpeed.Y > 0 ? LastHitDirection.Down : LastHitDirection.Up);
                         }
+                        DecreaseHealth(collision.Strength, collision);
                         break;
                     }
                     case AmmoTNT collision: {

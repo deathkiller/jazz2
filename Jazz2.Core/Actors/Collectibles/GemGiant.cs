@@ -46,6 +46,13 @@ namespace Jazz2.Actors.Collectibles
                     DecreaseHealth(int.MaxValue, collision);
                     break;
                 }
+
+                case Player collision: {
+                    if (collision.CanBreakSolidObjects) {
+                        DecreaseHealth(int.MaxValue, collision);
+                    }
+                    break;
+                }
             }
         }
     }

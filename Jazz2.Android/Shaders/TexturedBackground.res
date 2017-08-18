@@ -32,7 +32,7 @@
             );
 
             vec4 texColor = texture(mainTex, texturePos);
-            float horizonOpacity = clamp(pow(distance, 0.8) - 0.2, 0.0, 1.0);
+            float horizonOpacity = clamp(pow(distance, 1.8) - 0.4, 0.0, 1.0);
 
             vFragColor[0] = mix(texColor, horizonColor, horizonOpacity);
             vFragColor[1] = vec4(0.5, 0.5, 1.0, 1.0);

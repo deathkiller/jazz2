@@ -31,6 +31,8 @@ namespace Jazz2.Actors.Enemies
         {
             base.OnUpdate();
 
+            canJump = false;
+
             Vector3 pos = Transform.Pos;
             Vector3 targetPos;
 

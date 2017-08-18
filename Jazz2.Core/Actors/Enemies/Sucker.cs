@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Duality;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Enemies
@@ -46,7 +46,7 @@ namespace Jazz2.Actors.Enemies
                 return;
             }
 
-            if (currentTransitionState == AnimState.Idle && Math.Abs(speedY) < float.Epsilon && Math.Abs(speedX) > float.Epsilon && !CanMoveToPosition(speedX, 0)) {
+            if (currentTransitionState == AnimState.Idle && MathF.Abs(speedY) < 0 && MathF.Abs(speedX) > 0 && !CanMoveToPosition(speedX, 0)) {
                 isFacingLeft = !isFacingLeft;
                 speedX *= -1;
             }

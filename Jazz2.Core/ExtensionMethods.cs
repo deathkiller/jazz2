@@ -1,7 +1,13 @@
-﻿namespace Jazz2
+﻿using Duality;
+using Duality.Drawing;
+using Duality.Resources;
+using Jazz2.Game.Structs;
+
+namespace Jazz2
 {
     public static class ExtensionMethods
     {
+        // Strings
         public static unsafe string SubstringByOffset(this string input, char delimiter, int offset)
         {
             if (string.IsNullOrEmpty(input)) {
@@ -28,6 +34,59 @@
                     return (start > 0 ? new string(ptr, start, input.Length - start) : null);
                 }
             }
+        }
+
+        // GraphicResources
+        public static void Draw(this GraphicResource res, Canvas c, float x, float y, Alignment alignment, ColorRgba color, float scaleX = 1f, float scaleY = 1f)
+        {
+            Texture texture = res.Material.Res.MainTexture.Res;
+
+            Vector2 originPos = new Vector2(x, y);
+            alignment.ApplyTo(ref originPos, new Vector2(texture.InternalWidth * scaleX, texture.InternalHeight * scaleY));
+
+            c.State.SetMaterial(res.Material);
+            c.State.ColorTint = color;
+            c.FillRect((int)originPos.X, (int)originPos.Y, texture.InternalWidth * scaleX, texture.InternalHeight * scaleY);
+        }
+
+        public static void Draw(this GraphicResource res, Canvas c, float x, float y, Alignment alignment, ColorRgba color, float scaleX, float scaleY, Rect texRect)
+        {
+            Texture texture = res.Material.Res.MainTexture.Res;
+
+            Vector2 originPos = new Vector2(x, y);
+            alignment.ApplyTo(ref originPos, new Vector2(texture.InternalWidth * scaleX, texture.InternalHeight * scaleY));
+
+            c.State.SetMaterial(res.Material);
+            c.State.ColorTint = color;
+
+            Rect tempRect = c.State.TextureCoordinateRect;
+            c.State.TextureCoordinateRect = texRect;
+
+            c.FillRect((int)originPos.X, (int)originPos.Y, texture.InternalWidth * scaleX, texture.InternalHeight * scaleY);
+
+            c.State.TextureCoordinateRect = tempRect;
+        }
+
+        public static void Draw(this GraphicResource res, Canvas c, int frame, float x, float y, Alignment alignment, ColorRgba color, float scaleX = 1f, float scaleY = 1f)
+        {
+            Texture texture = res.Material.Res.MainTexture.Res;
+
+            if (frame < 0) {
+                // ToDo: HUD Animations are slowed down to 0.86f, adjust this in Metadata files
+                frame = (int)(Time.GameTimer.TotalSeconds * 0.86f * res.FrameCount / res.FrameDuration) % res.FrameCount;
+            }
+
+            Rect uv = texture.LookupAtlas(frame);
+            float w = texture.InternalWidth * scaleX * uv.W;
+            float h = texture.InternalHeight * scaleY * uv.H;
+
+            Vector2 originPos = new Vector2(x, y);
+            alignment.ApplyTo(ref originPos, new Vector2(w, h));
+
+            c.State.SetMaterial(res.Material);
+            c.State.ColorTint = color;
+            c.State.TextureCoordinateRect = uv;
+            c.FillRect((int)originPos.X, (int)originPos.Y, w, h);
         }
     }
 }

@@ -332,7 +332,11 @@ namespace Import
                 ["haunted3"] = Tuple.Create("secretf", "06"),
                 ["town1"] = Tuple.Create("secretf", "07"),
                 ["town2"] = Tuple.Create("secretf", "08"),
-                ["town3"] = Tuple.Create("secretf", "09")
+                ["town3"] = Tuple.Create("secretf", "09"),
+
+                // Special names
+                ["endepis"] = Tuple.Create((string)null, ":end"),
+                ["ending"] = Tuple.Create((string)null, ":credits")
             };
 
             Func<string, JJ2Level.LevelToken> levelTokenConversion = levelToken => {
@@ -348,7 +352,7 @@ namespace Import
                     }
                     return new JJ2Level.LevelToken {
                         Episode = knownLevel.Item1,
-                        Level = knownLevel.Item2 + "_" + levelToken
+                        Level = (knownLevel.Item2[0] == ':' ? knownLevel.Item2 : (knownLevel.Item2 + "_" + levelToken))
                     };
                 }
                 return new JJ2Level.LevelToken {
@@ -374,15 +378,15 @@ namespace Import
             // Previous/Next Episode mapping
             Func<JJ2Episode, Tuple<string, string>> episodePrevNext = episode => {
                 if (episode.Token == "prince") {
-                    return Tuple.Create("", "rescue");
+                    return Tuple.Create((string)null, "rescue");
                 } else if (episode.Token == "rescue") {
                     return Tuple.Create("prince", "flash");
                 } else if (episode.Token == "flash") {
                     return Tuple.Create("rescue", "monk");
                 } else if (episode.Token == "monk") {
-                    return Tuple.Create("flash", "");
+                    return Tuple.Create("flash", (string)null);
                 } else {
-                    return Tuple.Create("", "");
+                    return Tuple.Create((string)null, (string)null);
                 }
             };
 

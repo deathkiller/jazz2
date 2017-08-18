@@ -203,12 +203,13 @@ namespace Jazz2.Actors
             float lastSpeedX = speedX;
             float lastForceX = externalForceX;
 
+            PushSolidObjects(timeMult);
+
             base.OnUpdate();
 
             FollowCarryingPlatform();
             UpdateSpeedBasedAnimation(timeMult, lastPos.X, lastSpeedX, lastForceX);
-
-            PushSolidObjects(timeMult);
+            
             CheckSuspendedStatus(lastPos);
             CheckDestructibleTiles(timeMult);
             CheckEndOfSpecialMoves(timeMult);
@@ -653,7 +654,7 @@ namespace Jazz2.Actors
                     if (FindAnimationCandidates(AnimState.TransitionLedgeClimb).Count > 0) {
                         const int maxTolerance = 6;
 
-                        float x = (isFacingLeft ? -10f : 10f);
+                        float x = (isFacingLeft ? -8f : 8f);
                         Hitbox hitbox1 = currentHitbox + new Vector2(x, -42f - maxTolerance);   // Empty space to climb to
                         Hitbox hitbox2 = currentHitbox + new Vector2(x, -42f + 2f);             // Wall below the empty space
                         Hitbox hitbox3 = currentHitbox + new Vector2(x, -42f + 2f + 24f);       // Wall between the player and the wall above (vertically)
@@ -680,10 +681,10 @@ namespace Jazz2.Actors
 
                             speedX = externalForceX = externalForceY = 0f;
                             speedY = -1.36f;
-                            copterFramesLeft = 0f;
+                            pushFramesLeft = fireFramesLeft = copterFramesLeft = 0f;
 
                             // Stick the player to wall
-                            MoveInstantly(new Vector2(isFacingLeft ? -9f : 9f, 0f), MoveType.Relative, true);
+                            MoveInstantly(new Vector2(isFacingLeft ? -6f : 6f, 0f), MoveType.Relative, true);
 
                             SetAnimation(AnimState.Idle);
                             SetTransition(AnimState.TransitionLedgeClimb, false, delegate {
@@ -691,6 +692,7 @@ namespace Jazz2.Actors
                                 canJump = true;
                                 controllable = true;
                                 collisionFlags |= CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset;
+                                pushFramesLeft = fireFramesLeft = copterFramesLeft = 0f;
 
                                 // Move it far from the ledge
                                 MoveInstantly(new Vector2(isFacingLeft ? -4f : 4f, 0f), MoveType.Relative);
@@ -718,7 +720,8 @@ namespace Jazz2.Actors
             // to the hotspot, though; otherwise getting stuck at walls happens all the time.
             Vector3 pos = Transform.Pos;
 
-            currentHitbox = new Hitbox(pos.X - 14f, pos.Y + 8f - 12f, pos.X + 14f, pos.Y + 8f + 12f);
+            //currentHitbox = new Hitbox(pos.X - 14f, pos.Y + 8f - 12f, pos.X + 14f, pos.Y + 8f + 12f);
+            currentHitbox = new Hitbox(pos.X - 11f, pos.Y + 8f - 12f, pos.X + 11f, pos.Y + 8f + 12f);
         }
 
         public override bool OnTileDeactivate(int x, int y, int tileDistance)
@@ -1076,13 +1079,13 @@ namespace Jazz2.Actors
                         PlaySound("HookAttach");
                     }
 
-                    speedY = 0;
-                    externalForceY = 0;
+                    speedY = externalForceY = 0f;
                     isFreefall = false;
                     isSpring = false;
+                    copterFramesLeft = 0f;
 
-                    if (newSuspendState == SuspendType.Hook) {
-                        speedX = 0;
+                    if (newSuspendState == SuspendType.Hook || wasFirePressed) {
+                        speedX = externalForceX = 0f;
                     }
 
                     // Move downwards until we're on the standard height
@@ -1437,12 +1440,23 @@ namespace Jazz2.Actors
                             if (MathF.Abs(force.X) > float.Epsilon) {
                                 speedX = (4 + MathF.Abs(force.X)) * sign;
                                 externalForceX = force.X;
+
+                                if (!spring.KeepSpeedY) {
+                                    speedY = 0f;
+                                    externalForceY = 0f;
+                                }
+
                                 SetPlayerTransition(AnimState.Dash | AnimState.Jump, true, true, SpecialMoveType.None);
                                 // ToDo: ...
                                 controllableTimeout = 20f;
                             } else if (MathF.Abs(force.Y) > float.Epsilon) {
                                 speedY = (4 + MathF.Abs(force.Y)) * sign;
                                 externalForceY = -force.Y;
+
+                                if (!spring.KeepSpeedX) {
+                                    speedX = 0f;
+                                    externalForceX = 0f;
+                                }
 
                                 if (sign > 0) {
                                     //controllable = false;
@@ -1555,7 +1569,7 @@ namespace Jazz2.Actors
                     currentTransitionCancellable = true;
                     CancelTransition();
 
-                    MoveInstantly(new Vector2(isFacingLeft ? 9f : -9f, 0f), MoveType.Relative, true);
+                    MoveInstantly(new Vector2(isFacingLeft ? 6f : -6f, 0f), MoveType.Relative, true);
                 }
 
                 DecreaseHealth(1, null);
