@@ -700,7 +700,7 @@ namespace Jazz2.Actors
 
                             // Prepare the player for animation
                             controllable = false;
-                            collisionFlags &= ~(CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset);
+                            collisionFlags &= ~(CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithSolidObjects);
 
                             speedX = externalForceX = externalForceY = 0f;
                             speedY = -1.36f;
@@ -714,7 +714,7 @@ namespace Jazz2.Actors
                                 // Reset the player to normal state
                                 canJump = true;
                                 controllable = true;
-                                collisionFlags |= CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset;
+                                collisionFlags |= CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithSolidObjects;
                                 pushFramesLeft = fireFramesLeft = copterFramesLeft = 0f;
 
                                 speedY = 0f;
