@@ -1,6 +1,7 @@
 {
     "BlendMode": "Add",
 
+    "Vertex": "#inherit MinimalC1P3T4",
     "Fragment": "
         #version 300 es 
         precision highp float;
@@ -17,11 +18,11 @@
         out vec4 vFragColor;
 
         void main() {
-            vec2 center = gl_TexCoord[0].xy;
-            float radiusNear = gl_TexCoord[0].z;
-            float radiusFar = gl_TexCoord[0].w;
-            float intensity = gl_Color.r;
-            float brightness = gl_Color.g;
+            vec2 center = vTexcoord0.xy;
+            float radiusNear = vTexcoord0.z;
+            float radiusFar = vTexcoord0.w;
+            float intensity = vCornerColor.r;
+            float brightness = vCornerColor.g;
 
             float dist = distance(vec2(gl_FragCoord), center);
             if (dist > radiusFar) {
@@ -38,7 +39,7 @@
             // Diffuse lighting
             float diffuseFactor = 1.0 - max(dot(normal, normalize(lightDir)), 0.0);
 
-            float noise = 0.3 + 0.7 * texture(noiseTex, vTexcoord0.st * vec2(0.3) + vec2(GameTime * 1.5, GameTime)).r;
+            float noise = 0.3 + 0.7 * texture(noiseTex, (gl_FragCoord.xy / ViewSize.xx) + vec2(GameTime * 1.5, GameTime)).r;
 
             float strength = noise * diffuseFactor * clamp(1.0 - ((dist - radiusNear) / (radiusFar - radiusNear)), 0.0, 1.0);
             vFragColor = vec4(strength * intensity, strength * brightness, 0.0, 1.0);

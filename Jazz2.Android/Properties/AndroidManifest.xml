@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="Jazz2.Android" android:versionCode="6" android:versionName="0.4.6" android:installLocation="auto">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="Jazz2.Android" android:versionCode="7" android:versionName="0.4.7" android:installLocation="auto">
 	<uses-permission android:name="android.permission.VIBRATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-	<application android:allowBackup="true" android:isGame="true" android:label="@string/ApplicationName" android:supportsRtl="true" android:theme="@style/AppTheme"></application>
+	<application android:allowBackup="true" android:isGame="true" android:label="@string/ApplicationName" android:supportsRtl="true" android:theme="@style/AppTheme" android:icon="@mipmap/ic_launcher"></application>
 	<uses-sdk android:minSdkVersion="18" />
 </manifest>

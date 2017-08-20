@@ -98,7 +98,7 @@
         },
         "HookMove": {
             "Path": "Jazz/vine_walk.png",
-            "States": [ 14, 15 ]
+            "States": [ 13, 14, 15 ]
         },
         "Copter": {
             "Path": "Jazz/copter.png",

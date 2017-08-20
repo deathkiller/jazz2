@@ -1,6 +1,7 @@
 {
     "BlendMode": "Add",
 
+    "Vertex": "#inherit MinimalC1P3T4",
     "Fragment": "
         #version 300 es 
         precision mediump float;
