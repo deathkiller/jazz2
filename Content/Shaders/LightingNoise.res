@@ -2,21 +2,19 @@
     "BlendMode": "Add",
 
     "Fragment": "
-        uniform vec2 center;
-        uniform float intensity;
-        uniform float brightness;
-        uniform float radiusNear;
-        uniform float radiusFar;
-
         uniform vec2 ViewSize;
         uniform float GameTime;
 
-        //uniform vec2 normalMult;
         uniform sampler2D normalBuffer;
-
         uniform sampler2D noiseTex;
 
         void main() {
+            vec2 center = gl_TexCoord[0].xy;
+            float radiusNear = gl_TexCoord[0].z;
+            float radiusFar = gl_TexCoord[0].w;
+            float intensity = gl_Color.r;
+            float brightness = gl_Color.g;
+            
             float dist = distance(vec2(gl_FragCoord), center);
             if (dist > radiusFar) {
                 gl_FragColor = vec4(0, 0, 0, 0);
@@ -32,7 +30,7 @@
             // Diffuse lighting
             float diffuseFactor = 1.0 - max(dot(normal, normalize(lightDir)), 0.0);
 
-            float noise = 0.3 + 0.7 * texture2D(noiseTex, gl_TexCoord[0].st * vec2(0.3) + vec2(GameTime * 5.0, GameTime * 3.0)).r;
+            float noise = 0.3 + 0.7 * texture2D(noiseTex, (gl_FragCoord.st / ViewSize.xx) * vec2(1.0) + vec2(GameTime * 5.0, GameTime * 3.0)).r;
 
             float strength = noise * diffuseFactor * clamp(1.0 - ((dist - radiusNear) / (radiusFar - radiusNear)), 0.0, 1.0);
             gl_FragColor = vec4(strength * intensity, strength * brightness, 0.0, 1.0);

@@ -330,6 +330,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ExtensionMethods.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\ActorApi.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\ContentResolver.Async.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\ContentResolver.Palettes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Multiplayer\LevelHandler.Network.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Multiplayer\NetworkHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Multiplayer\ServerDiscovery.cs" />
@@ -390,6 +391,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Storage\Preferences.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Misc\Updater.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VertexPool.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Duality\EmbeddedResources\Minimal.frag" />

@@ -8,10 +8,15 @@
             "Path": "Jazz/idle.png",
             "States": [ 0 ]
         },
-        "Run": {
+        "Walk": {
             "Path": "Jazz/run.png",
             "FrameRate": 8,
-            "States": [ 1, 2, 17, 18 ]
+            "States": [ 1, 17 ]
+        },
+        "Run": {
+            "Path": "Jazz/dash_start.png",
+            "FrameRate": 12,
+            "States": [ 2, 18 ]
         },
         "Jump": {
             "Path": "Jazz/jump.png",
@@ -348,6 +353,9 @@
         },
         "Pole": {
             "Paths": [ "Birdy/fly_1.wav", "Birdy/fly_2.wav" ]
+        },
+        "Ledge": {
+            "Paths": [ "Jazz/ledge.wav" ]
         },
         "BonusWarpNotEnoughCoins": {
             "Paths": [ "Object/BonusNotEnoughCoins.wav" ]

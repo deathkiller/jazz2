@@ -61,7 +61,7 @@ namespace Jazz2.Game.UI
             fontSmall = new BitmapFont("UI/font_small", 17, 18, 15, 32, 256, -2, canvasBuffer);
 
             // ToDo: Pass palette from LevelHandler to adjust HUD colors
-            Metadata m = ContentResolver.Current.RequestMetadata("UI/HUD", null);
+            Metadata m = ContentResolver.Current.RequestMetadata("UI/HUD");
             graphics = m.Graphics;
         }
 
@@ -273,10 +273,11 @@ namespace Jazz2.Game.UI
                     alpha = 1f;
                 }
 
+                float animAlpha = alpha * alpha;
                 DrawMaterial(c, "PickupGem", -1, size.X * 0.5f, size.Y * 0.92f + 2.5f + offset, Alignment.Right,
-                    new ColorRgba(0f, 0.4f * alpha), 0.8f, 0.8f);
+                    new ColorRgba(0f, 0.4f * animAlpha), 0.8f, 0.8f);
                 DrawMaterial(c, "PickupGem", -1, size.X * 0.5f, size.Y * 0.92f + offset, Alignment.Right,
-                    new ColorRgba(210, 110, 145, (byte)(190 * alpha)), 0.8f, 0.8f);
+                    new ColorRgba(1f, animAlpha), 0.8f, 0.8f);
 
                 int charOffsetShadow = charOffset;
                 fontSmall.DrawString(device, ref charOffsetShadow, text, size.X * 0.5f, size.Y * 0.92f + 2.5f + offset,
@@ -323,11 +324,27 @@ namespace Jazz2.Game.UI
             const int x = 4, y = 4;
 
             if (enableDebug) {
+                // Palette debugging
+                ContentRef<Texture> paletteTexture = ContentResolver.Current.Palette;
+                if (paletteTexture.IsExplicitNull) {
+                    debugString.AppendLine("- Palette not initialized!");
+                } else {
+                    // Show palette in upper right corner
+                    Vector2 originPos = new Vector2(device.TargetSize.X, 0f);
+                    Alignment.TopRight.ApplyTo(ref originPos, new Vector2(paletteTexture.Res.InternalWidth, paletteTexture.Res.InternalHeight));
+
+                    c.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, ColorRgba.White, paletteTexture));
+                    c.State.ColorTint = ColorRgba.White;
+                    c.FillRect((int)originPos.X, (int)originPos.Y, paletteTexture.Res.InternalWidth, paletteTexture.Res.InternalHeight);
+                }
+
+                // Render debug strings
                 int charOffset = 0;
                 fontSmall.DrawString(device, ref charOffset, debugString.ToString(),
                     x, y, Alignment.TopLeft, ColorRgba.TransparentBlack,
                     0.65f, charSpacing: 0.9f, lineSpacing: 0.9f);
 
+                // Render debug rectangles
                 c.State.SetMaterial(new BatchInfo {
                     Technique = DrawTechnique.Alpha,
                     MainColor = new ColorRgba(1f, 0.8f)
@@ -338,7 +355,6 @@ namespace Jazz2.Game.UI
                     Rect rect = debugRects[i];
                     c.DrawRect(rect.X + offset.X, rect.Y + offset.Y, rect.W, rect.H);
                 }
-                
             }
 
             debugString.Clear();

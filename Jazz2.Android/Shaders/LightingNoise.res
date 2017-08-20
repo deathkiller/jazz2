@@ -5,37 +5,36 @@
         #version 300 es 
         precision highp float;
 
-        uniform vec2 center;
-        uniform float intensity;
-        uniform float brightness;
-        uniform float radiusNear;
-        uniform float radiusFar;
-
         uniform vec2 ViewSize;
         uniform float GameTime;
 
-        //uniform vec2 normalMult;
         uniform sampler2D normalBuffer;
         uniform sampler2D noiseTex;
 
-        in vec2 vTexcoord0;
+        in vec4 vTexcoord0;
         in vec4 vCornerColor;
 
         out vec4 vFragColor;
 
         void main() {
+            vec2 center = gl_TexCoord[0].xy;
+            float radiusNear = gl_TexCoord[0].z;
+            float radiusFar = gl_TexCoord[0].w;
+            float intensity = gl_Color.r;
+            float brightness = gl_Color.g;
+
             float dist = distance(vec2(gl_FragCoord), center);
             if (dist > radiusFar) {
                 vFragColor = vec4(0, 0, 0, 0);
                 return;
             }
-            
+
             vec4 clrNormal = texture(normalBuffer, vec2(gl_FragCoord) / ViewSize);
             vec3 normal = normalize(clrNormal.xyz - vec3(0.5, 0.5, 0.5));
             normal.z = -normal.z;
-            
+
             vec3 lightDir = vec3((center.x - gl_FragCoord.x), (center.y - gl_FragCoord.y), 0.0);
-            
+
             // Diffuse lighting
             float diffuseFactor = 1.0 - max(dot(normal, normalize(lightDir)), 0.0);
 

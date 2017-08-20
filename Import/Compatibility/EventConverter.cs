@@ -503,7 +503,7 @@ namespace Jazz2.Compatibility
                 }
 
                 return new ConversionResult {
-                    eventType = EventType.AreaEOL,
+                    eventType = EventType.AreaEndOfLevel,
                     eventParams = new ushort[] { (ushort)(eventParams[0] == 1 ? 4 : 1), eventParams[1], eventParams[2], eventParams[3], 0 }
                 };
             });
@@ -520,7 +520,7 @@ namespace Jazz2.Compatibility
                 }
 
                 return new ConversionResult {
-                    eventType = EventType.AreaEOL,
+                    eventType = EventType.AreaEndOfLevel,
                     eventParams = new ushort[] { 2, eventParams[1], eventParams[2], eventParams[3], 0 }
                 };
             });
@@ -536,7 +536,7 @@ namespace Jazz2.Compatibility
                 }
 
                 return new ConversionResult {
-                    eventType = EventType.AreaEOL,
+                    eventType = EventType.AreaEndOfLevel,
                     eventParams = new ushort[] { 3, 0, eventParams[1], eventParams[2], eventParams[0] }
                 };
             });
@@ -551,7 +551,7 @@ namespace Jazz2.Compatibility
                 };
             });
 
-            convert.Add(JJ2Event.JJ2_BONUS_SIGN, ConstantParamList(EventType.AreaEOL, 3, 0, 0, 0, 0));
+            convert.Add(JJ2Event.JJ2_BONUS_SIGN, ConstantParamList(EventType.AreaEndOfLevel, 3, 0, 0, 0, 0));
 
             convert.Add(JJ2Event.JJ2_AREA_TEXT, (level, jj2Params) => {
                 ushort[] eventParams = ConvertParamInt(jj2Params,

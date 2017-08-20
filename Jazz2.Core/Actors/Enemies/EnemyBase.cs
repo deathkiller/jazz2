@@ -203,7 +203,6 @@ namespace Jazz2.Actors.Enemies
         {
             base.HandleCollision(other);
 
-            // ToDo: Use actor type specifying function instead when available
             if (!isInvulnerable) {
                 switch (other) {
                     case AmmoBase collision: {

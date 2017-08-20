@@ -39,10 +39,18 @@ namespace Jazz2.Actors.Environment
 
             if (light.Intensity > 0f) {
                 light.Intensity -= Time.TimeMult * 0.01f;
+
+                if (light.Intensity < 0f) {
+                    light.Intensity = 0f;
+                }
             }
 
             if (light.Brightness > 0f) {
                 light.Brightness -= Time.TimeMult * 0.02f;
+
+                if (light.Brightness < 0f) {
+                    light.Brightness = 0f;
+                }
             }
         }
 

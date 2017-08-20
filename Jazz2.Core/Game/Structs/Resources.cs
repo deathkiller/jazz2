@@ -48,7 +48,7 @@ namespace Jazz2.Game.Structs
         public int FrameOffset;
         public bool OnlyOnce;
 
-        public static GraphicResource From(GenericGraphicResource resBase, ContentRef<DrawTechnique> drawTechnique, ColorRgba color)
+        public static GraphicResource From(GenericGraphicResource resBase, ContentRef<DrawTechnique> drawTechnique, ColorRgba color, bool isIndexed, ContentRef<Texture> paletteTexture)
         {
             GraphicResource res = new GraphicResource();
             res.FrameDuration = resBase.FrameDuration;
@@ -61,12 +61,16 @@ namespace Jazz2.Game.Structs
                 textures.Add("normalTex", resBase.TextureNormal);
             }
 
+            if (isIndexed) {
+                textures.Add("paletteTex", paletteTexture);
+            }
+
             res.Material = new Material(drawTechnique, color, textures);
 
             return res;
         }
 
-        public static GraphicResource From(GenericGraphicResource resBase, string shader, ColorRgba color)
+        public static GraphicResource From(GenericGraphicResource resBase, string shader, ColorRgba color, bool isIndexed)
         {
             GraphicResource res = new GraphicResource();
             res.FrameDuration = resBase.FrameDuration;
@@ -75,7 +79,8 @@ namespace Jazz2.Game.Structs
 
             res.AsyncFinalize = new GraphicResourceAsyncFinalize {
                 Shader = shader,
-                Color = color
+                Color = color,
+                BindPaletteToMaterial = isIndexed
             };
 
             return res;
@@ -91,12 +96,6 @@ namespace Jazz2.Game.Structs
         public ContentRef<Sound> Sound;
     }
 
-    public class MetadataAsyncRequest
-    {
-        //public Metadata Metadata;
-        public ColorRgba[] Palette;
-    }
-
     public class GenericGraphicResourceAsyncFinalize
     {
         public Pixmap TextureMap;
@@ -109,5 +108,6 @@ namespace Jazz2.Game.Structs
     {
         public string Shader;
         public ColorRgba Color;
+        public bool BindPaletteToMaterial;
     }
 }

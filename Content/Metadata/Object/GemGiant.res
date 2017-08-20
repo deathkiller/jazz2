@@ -7,8 +7,8 @@
         "Idle": {
             "Path": "Object/GemSuper.png",
             "States": [ 0 ],
-            "Shader": "Colorize",
-            "ShaderColor": [ 210, 110, 145, 160 ]
+            "Flags": 2,
+            "ShaderColor": [ 1, 128, 255, 190 ]
         }
     },
 

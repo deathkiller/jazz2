@@ -10,9 +10,10 @@ namespace Jazz2.Actors.Bosses
     {
         private const int StateTransition = -1;
         private const int StateWaiting = 0;
-        private const int StateRunning1 = 1;
-        private const int StateRunning2 = 2;
-        private const int StatePreparingToRun = 3;
+        private const int StateCopter = 1;
+        private const int StateRunning1 = 2;
+        private const int StateRunning2 = 3;
+        private const int StatePreparingToRun = 4;
 
         private int state = StateWaiting;
         private float stateTime;
@@ -26,14 +27,25 @@ namespace Jazz2.Actors.Bosses
 
             RequestMetadata("Boss/Robot");
             SetAnimation(AnimState.Idle);
+
+            renderer.Active = false;
+
+            isFacingLeft = true;
         }
 
         public void Activate()
         {
-            // Reset health after deactivating
-            SetHealthByDifficulty(100);
+            renderer.Active = true;
+            state = StateCopter;
 
-            FollowNearestPlayer(StateRunning1, MathF.Rnd.NextFloat(20, 40));
+            MoveInstantly(new Vector2(0f, -300f), MoveType.Relative);
+
+            SetAnimation((AnimState)1073741828);
+        }
+
+        public void Deactivate()
+        {
+            base.OnTileDeactivate(0, 0, -1);
         }
 
         protected override void OnUpdate()
@@ -45,6 +57,19 @@ namespace Jazz2.Actors.Bosses
             }
 
             switch (state) {
+                case StateCopter: {
+                    if (canJump) {
+                        speedY = 0f;
+
+                        state = StateTransition;
+                        SetTransition((AnimState)1073741829, false, delegate {
+                            FollowNearestPlayer(StateRunning1, MathF.Rnd.NextFloat(20, 40));
+                        });
+                    } else {
+                        speedY -= 0.27f * Time.TimeMult;
+                    }
+                    break;
+                }
                 case StateRunning1: {
                     if (stateTime <= 0f) {
                         FollowNearestPlayer(

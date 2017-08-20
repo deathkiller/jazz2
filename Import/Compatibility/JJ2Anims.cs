@@ -418,7 +418,7 @@ namespace Jazz2.Compatibility
                                 continue;
                             }
 
-                            data.Palette = data.Palette ?? JJ2DefaultPalette.Sprite;
+                            data.Palette = data.Palette ?? (data.KeepIndexed ? JJ2DefaultPalette.ByIndex : JJ2DefaultPalette.Sprite);
 
                             Pair<short, short> size = Pair.Create((short)(currentAnim.AdjustedSize.First + data.AddBorder * 2), (short)(currentAnim.AdjustedSize.Second + data.AddBorder * 2));
 
@@ -501,7 +501,7 @@ namespace Jazz2.Compatibility
                             if (!string.IsNullOrEmpty(data.Name) && !data.SkipNormalMap) {
                                 using (Bitmap normalMap = NormalMapGenerator.FromSprite(img,
                                         new Point(currentAnim.FrameConfiguration.First, currentAnim.FrameConfiguration.Second),
-                                        data.Palette == JJ2DefaultPalette.ByIndex)) {
+                                        !data.KeepIndexed && data.Palette == JJ2DefaultPalette.ByIndex)) {
 
                                     normalMap.Save(filename.Replace(".png", ".n.png"), ImageFormat.Png);
                                 }
@@ -541,11 +541,13 @@ namespace Jazz2.Compatibility
                                 w.WriteLine("        \"SourceVersion\": \"" + sourceVersion + "\"");
                                 w.WriteLine("    },");
 
-                                int flags = 0;
-                                if (data.Palette == JJ2DefaultPalette.ByIndex)
-                                    flags |= 1;
+                                int flags = 0x00;
+                                if (!data.KeepIndexed && data.Palette == JJ2DefaultPalette.ByIndex)
+                                    flags |= 0x01;
+                                if (!data.KeepIndexed) // Use Linear Sampling if the palette is applied in preprocessing phase
+                                    flags |= 0x02;
 
-                                if (flags != 0) {
+                                if (flags != 0x00) {
                                     w.WriteLine("    \"Flags\": " + flags + ",");
                                 }
 

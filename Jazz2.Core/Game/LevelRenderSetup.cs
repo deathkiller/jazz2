@@ -18,7 +18,7 @@ namespace Jazz2.Game
         private static readonly int PyramidSize = 3;
 
         private readonly LevelHandler levelHandler;
-        private readonly ContentRef<DrawTechnique> lightingShader, lightingNoiseShader;
+        private readonly ContentRef<Material> lightingMaterial, lightingNoiseMaterial;
         private readonly ContentRef<DrawTechnique> combineSceneShader, combineSceneWaterShader;
 
         private readonly ContentRef<DrawTechnique> downsampleShader;
@@ -32,6 +32,8 @@ namespace Jazz2.Game
         private readonly RenderTarget[] targetPingPongA = new RenderTarget[PyramidSize];
         private readonly RenderTarget[] targetPingPongB = new RenderTarget[PyramidSize];
 
+        private readonly VertexPool<VertexC1P3T4A1> lightPool = new VertexPool<VertexC1P3T4A1>(4);
+
         private readonly ContentRef<Texture> noiseTexture;
 
         public Texture FunalTexture
@@ -44,8 +46,8 @@ namespace Jazz2.Game
             this.levelHandler = levelHandler;
 
             // Shaders
-            lightingShader = ContentResolver.Current.RequestShader("Lighting");
-            lightingNoiseShader = ContentResolver.Current.RequestShader("LightingNoise");
+            ContentRef<DrawTechnique> lightingShader = ContentResolver.Current.RequestShader("Lighting");
+            ContentRef<DrawTechnique> lightingNoiseShader = ContentResolver.Current.RequestShader("LightingNoise");
 
             downsampleShader = ContentResolver.Current.RequestShader("Downsample");
             blurShader = ContentResolver.Current.RequestShader("Blur");
@@ -78,8 +80,16 @@ namespace Jazz2.Game
             finalTexture = new Texture(null, TextureSizeMode.NonPowerOfTwo, TextureMagFilter.Nearest, TextureMinFilter.Nearest);
             finalTarget = new RenderTarget(AAQuality.Off, false, finalTexture);
 
-            //
-            noiseTexture = ContentResolver.Current.RequestGraphicResource("_custom/noise.png", null).Texture;
+            // Noise texture
+            noiseTexture = ContentResolver.Current.RequestGraphicResource("_custom/noise.png").Texture;
+
+            // Materials
+            lightingMaterial = new Material(lightingShader, ColorRgba.White);
+            lightingMaterial.Res.SetTexture("normalBuffer", normalTexture);
+
+            lightingNoiseMaterial = new Material(lightingNoiseShader, ColorRgba.White);
+            lightingNoiseMaterial.Res.SetTexture("normalBuffer", normalTexture);
+            lightingNoiseMaterial.Res.SetTexture("noiseTex", noiseTexture);
 
             // Render steps
             AddRenderStep(RenderStepPosition.Last, new RenderStep {
@@ -200,36 +210,16 @@ namespace Jazz2.Game
             float ambientLight = levelHandler.AmbientLightCurrent;
             float viewWaterLevel = (levelHandler.WaterLevel - viewOffset.Y);
 
-            // Removed optimization because of bright lights
-            /*if (ambientLight >= 1f) {
-                if (viewWaterLevel < viewSize.Y) {
-                    // Render with water, skip lighting phase
-                    BatchInfo material = new BatchInfo(combineSceneWaterShader, ColorRgba.White);
-                    material.SetTexture("mainTex", mainTexture);
-                    material.SetTexture("lightTex", Texture.White);
-                    material.SetTexture("displacementTex", noiseTexture);
-
-                    material.SetUniform("ambientLight", 1f);
-                    material.SetUniform("waterLevel", viewWaterLevel / viewSize.Y);
-
-                    Blit(drawDevice, material, finalTarget);
-                } else {
-                    // Full light, skip lighting phase
-                    BatchInfo material = new BatchInfo(DrawTechnique.Solid, ColorRgba.White);
-                    material.MainTexture = mainTexture;
-                    Blit(drawDevice, material, finalTarget);
-                }
-                return;
-            }*/
-
             // Blit ambient light color
             {
                 BatchInfo material = new BatchInfo(DrawTechnique.Solid, new ColorRgba(ambientLight, 0, 0));
                 Blit(drawDevice, material, lightingTarget);
             }
 
-            // Render lights
-            VertexC1P3T2[] vertices = new VertexC1P3T2[4];
+            // Render lights (target was set in previous step)
+            lightPool.Reclaim();
+
+            drawDevice.PrepareForDrawcalls();
 
             foreach (GameObject actor in levelHandler.ActiveObjects) {
                 LightEmitter light = actor.GetComponent<LightEmitter>();
@@ -241,40 +231,15 @@ namespace Jazz2.Game
                         pos.X + light.RadiusFar > viewOffset.X &&
                         pos.Y + light.RadiusFar > viewOffset.Y) {
 
-                        BatchInfo material;
-
-                        switch (light.Type) {
-                            default:
-                            case LightType.Solid:
-                                material = new BatchInfo(lightingShader, ColorRgba.White);
-                                break;
-
-                            case LightType.WithNoise:
-                                material = new BatchInfo(lightingNoiseShader, ColorRgba.White);
-                                material.SetTexture("noiseTex", noiseTexture);
-                                break;
-
-                            //case LightType.Unstable:
-                            //    material = new BatchInfo(lightingUnstableShader, ColorRgba.White);
-                            //    material.SetTexture("noiseTex", noiseTexture);
-                            //    break;
-                        }
-
                         pos.X -= viewOffset.X;
                         pos.Y -= viewOffset.Y;
-
-                        material.SetUniform("center", pos.X, pos.Y);
-                        material.SetUniform("intensity", light.Intensity);
-                        material.SetUniform("brightness", light.Brightness);
-                        material.SetUniform("radiusNear", light.RadiusNear);
-                        material.SetUniform("radiusFar", light.RadiusFar);
-
-                        material.SetTexture("normalBuffer", normalTexture);
 
                         float left = pos.X - light.RadiusFar;
                         float top = pos.Y - light.RadiusFar;
                         float right = pos.X + light.RadiusFar;
                         float bottom = pos.Y + light.RadiusFar;
+
+                        VertexC1P3T4A1[] vertices = lightPool.Get();
 
                         vertices[0].Pos.X = left;
                         vertices[0].Pos.Y = top;
@@ -296,44 +261,31 @@ namespace Jazz2.Game
                         vertices[3].TexCoord.X = 1f;
                         vertices[3].TexCoord.Y = 0f;
 
-                        drawDevice.PrepareForDrawcalls();
-                        drawDevice.AddVertices(material, VertexMode.Quads, vertices);
-                        drawDevice.Render();
+                        vertices[0].TexCoord.X = vertices[1].TexCoord.X = vertices[2].TexCoord.X = vertices[3].TexCoord.X = pos.X;
+                        vertices[0].TexCoord.Y = vertices[1].TexCoord.Y = vertices[2].TexCoord.Y = vertices[3].TexCoord.Y = pos.Y;
+                        vertices[0].TexCoord.Z = vertices[1].TexCoord.Z = vertices[2].TexCoord.Z = vertices[3].TexCoord.Z = light.RadiusNear;
+                        vertices[0].TexCoord.W = vertices[1].TexCoord.W = vertices[2].TexCoord.W = vertices[3].TexCoord.W = light.RadiusFar;
+
+                        vertices[0].Color.R = vertices[1].Color.R = vertices[2].Color.R = vertices[3].Color.R = (byte)(light.Intensity * 255);
+                        vertices[0].Color.G = vertices[1].Color.G = vertices[2].Color.G = vertices[3].Color.G = (byte)(light.Brightness * 255);
+
+                        switch (light.Type) {
+                            default:
+                            case LightType.Solid:
+                                drawDevice.AddVertices(lightingMaterial, VertexMode.Quads, vertices);
+                                break;
+
+                            case LightType.WithNoise:
+                                drawDevice.AddVertices(lightingNoiseMaterial, VertexMode.Quads, vertices);
+                                break;
+                        }
                     }
                 }
             }
 
-/*#if __ANDROID__
-            // Blit it into screen
-            if (viewWaterLevel < viewSize.Y) {
-                // Render lighting with water
-                BatchInfo material = new BatchInfo(combineSceneWaterShader, ColorRgba.White);
-                material.SetTexture("mainTex", mainTexture);
-                material.SetTexture("lightTex", lightingTexture);
-                material.SetTexture("displacementTex", noiseTexture);
+            drawDevice.Render();
 
-                material.SetTexture("blurHalfTex", mainTexture);
-                material.SetTexture("blurQuarterTex", mainTexture);
-
-                material.SetUniform("ambientLight", ambientLight);
-                material.SetUniform("waterLevel", viewWaterLevel / viewSize.Y);
-
-                Blit(drawDevice, material, finalTarget);
-            } else {
-                // Render lighting without water
-                BatchInfo material = new BatchInfo(combineSceneShader, ColorRgba.White);
-                material.SetTexture("mainTex", mainTexture);
-                material.SetTexture("lightTex", lightingTexture);
-
-                material.SetTexture("blurHalfTex", mainTexture);
-                material.SetTexture("blurQuarterTex", mainTexture);
-
-                material.SetUniform("ambientLight", ambientLight);
-
-                //Blit(drawDevice, material, viewportRect);
-                Blit(drawDevice, material, finalTarget);
-            }
-#else*/
+            // Resize Blur targets
             SetupTargets((Point2)drawDevice.TargetSize);
 
             // Blit it into screen

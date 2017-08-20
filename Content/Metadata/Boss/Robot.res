@@ -25,6 +25,14 @@
             "Path": "Robot/attack_end.png",
             "States": [ 1073741826 ]
         },
+        "Copter": {
+            "Path": "Robot/copter.png",
+            "States": [ 1073741828 ]
+        },
+        "CopterEnd": {
+            "Path": "Robot/copter_end.png",
+            "States": [ 1073741829 ]
+        },
         
         "SpikeBall": {
             "Path": "Robot/spike_ball.png",

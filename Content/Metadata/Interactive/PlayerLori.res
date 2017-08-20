@@ -9,10 +9,15 @@
             "FrameRate": 6,
             "States": [ 0 ]
         },
-        "Run": {
+        "Walk": {
             "Path": "Lori/run.png",
             "FrameRate": 8,
-            "States": [ 1, 2, 17, 18 ]
+            "States": [ 1, 17 ]
+        },
+        "Run": {
+            "Path": "Lori/dash_start.png",
+            "FrameRate": 12,
+            "States": [ 2, 18 ]
         },
         "Jump": {
             "Path": "Lori/jump.png",
@@ -343,6 +348,9 @@
         },
         "Pole": {
             "Paths": [ "Birdy/fly_1.wav", "Birdy/fly_2.wav" ]
+        },
+        "Ledge": {
+
         },
         "Sidekick": {
 

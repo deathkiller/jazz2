@@ -16,21 +16,19 @@ namespace Jazz2.Game
 
     partial class ContentResolver
     {
-        private Dictionary<string, MetadataAsyncRequest> metadataAsyncRequests;
+        private HashSet<string> metadataAsyncRequests;
 
         private Thread asyncThread;
         private AutoResetEvent asyncThreadEvent;
 
 
-        public Metadata RequestMetadataAsync(string path, ColorRgba[] palette)
+        public Metadata RequestMetadataAsync(string path)
         {
             Metadata metadata;
             if (!cachedMetadata.TryGetValue(path, out metadata)) {
                 lock (metadataAsyncRequests) {
-                    if (!metadataAsyncRequests.ContainsKey(path)) {
-                        metadataAsyncRequests.Add(path, new MetadataAsyncRequest {
-                            Palette = palette
-                        });
+                    if (!metadataAsyncRequests.Contains(path)) {
+                        metadataAsyncRequests.Add(path);
 
                         asyncThreadEvent.Set();
                     }
@@ -55,14 +53,13 @@ namespace Jazz2.Game
                     GenericGraphicResource resBase = res.Base;
                     if (resBase.AsyncFinalize != null) {
                         TextureMagFilter magFilter; TextureMinFilter minFilter;
-                        // Linear Sampling is forced for now
-                        //if (resBase.AsyncFinalize.LinearSampling) {
+                        if (resBase.AsyncFinalize.LinearSampling) {
                             magFilter = TextureMagFilter.Linear;
                             minFilter = TextureMinFilter.LinearMipmapLinear;
-                        //} else {
-                        //    magFilter = TextureMagFilter.Nearest;
-                        //    minFilter = TextureMinFilter.Nearest;
-                        //}
+                        } else {
+                            magFilter = TextureMagFilter.Nearest;
+                            minFilter = TextureMinFilter.Nearest;
+                        }
 
                         resBase.Texture = new Texture(resBase.AsyncFinalize.TextureMap, TextureSizeMode.NonPowerOfTwo,
                             magFilter, minFilter, resBase.AsyncFinalize.TextureWrap, resBase.AsyncFinalize.TextureWrap);
@@ -83,9 +80,13 @@ namespace Jazz2.Game
                             textures.Add("normalTex", resBase.TextureNormal);
                         }
 
+                        if (res.AsyncFinalize.BindPaletteToMaterial) {
+                            textures.Add("paletteTex", paletteTexture);
+                        }
+
                         ContentRef<DrawTechnique> drawTechnique;
                         if (res.AsyncFinalize.Shader == null) {
-                            drawTechnique = basicNormal;
+                            drawTechnique = (res.AsyncFinalize.BindPaletteToMaterial ? paletteNormal : basicNormal);
                         } else {
                             drawTechnique = RequestShader(res.AsyncFinalize.Shader);
                         }
@@ -100,7 +101,7 @@ namespace Jazz2.Game
 
         private void AllowAsyncLoading()
         {
-            metadataAsyncRequests = new Dictionary<string, MetadataAsyncRequest>();
+            metadataAsyncRequests = new HashSet<string>();
 
             asyncThreadEvent = new AutoResetEvent(false);
 
@@ -126,21 +127,21 @@ namespace Jazz2.Game
                 asyncThreadEvent.WaitOne();
 
                 while (true) {
-                    KeyValuePair<string, MetadataAsyncRequest> metadataAsync;
+                    string path;
                     lock (metadataAsyncRequests) {
-                        metadataAsync = metadataAsyncRequests.FirstOrDefault();
+                        path = metadataAsyncRequests.FirstOrDefault();
                     }
 
-                    if (metadataAsync.Key == null) {
+                    if (path == null) {
                         break;
                     }
 
-                    Metadata metadata = RequestMetadataInner(metadataAsync.Key, metadataAsync.Value.Palette, true);
+                    Metadata metadata = RequestMetadataInner(path, true);
 
                     lock (metadataAsyncRequests) {
-                        cachedMetadata[metadataAsync.Key] = metadata;
+                        cachedMetadata[path] = metadata;
 
-                        metadataAsyncRequests.Remove(metadataAsync.Key);
+                        metadataAsyncRequests.Remove(path);
                     }
                 }
             }

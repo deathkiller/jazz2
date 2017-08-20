@@ -8,9 +8,13 @@
             "Path": "Spaz/idle.png",
             "States": [ 0 ]
         },
-        "Run": {
+        "Walk": {
             "Path": "Spaz/run.png",
-            "States": [ 1, 2, 17, 18 ]
+            "States": [ 1, 17 ]
+        },
+        "Run": {
+            "Path": "Spaz/dash_start.png",
+            "States": [ 2, 18 ]
         },
         "Jump": {
             "Path": "Spaz/jump.png",
@@ -346,6 +350,9 @@
         },
         "Pole": {
             "Paths": [ "Birdy/fly_1.wav", "Birdy/fly_2.wav" ]
+        },
+        "Ledge": {
+            "Paths": [ "Spaz/ledge.wav" ]
         },
         "DoubleJump": {
             "Paths": [ "Common/char_double_jump.wav" ]

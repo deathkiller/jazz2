@@ -1,5 +1,6 @@
 ﻿using Duality;
 using Jazz2.Game.Structs;
+using static Duality.Component;
 
 namespace Jazz2.Actors.Bosses
 {
@@ -38,6 +39,14 @@ namespace Jazz2.Actors.Bosses
                     maxHealth = activeRobot.MaxHealth;
                     break;
                 }
+            }
+        }
+
+        protected override void OnDeactivated(ShutdownContext context)
+        {
+            if (activeRobot != null) {
+                activeRobot.Deactivate();
+                activeRobot = null;
             }
         }
 

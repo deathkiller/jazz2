@@ -5,7 +5,7 @@ using Duality.Drawing;
 using Duality.Resources;
 using Jazz2.Game.UI;
 
-namespace Jazz2.Game
+namespace Jazz2.Game.Components
 {
     public class ActorRenderer : SpriteRenderer, ICmpUpdatable
     {
@@ -34,7 +34,7 @@ namespace Jazz2.Game
         private float animDuration = 5.0f;
         private LoopMode animLoopMode = LoopMode.Loop;
         private float animTime;
-        private bool animPaused;
+        private bool animPaused, animHidden;
 
         private int curAnimFrame, nextAnimFrame;
         private float curAnimFrameFade;
@@ -113,6 +113,12 @@ namespace Jazz2.Game
         {
             get { return animLoopMode; }
             set { animLoopMode = value; }
+        }
+
+        public bool AnimHidden
+        {
+            get { return animHidden; }
+            set { animHidden = value; }
         }
 
         /// <summary>
@@ -352,6 +358,10 @@ namespace Jazz2.Game
 
         public override void Draw(IDrawDevice device)
         {
+            if (animHidden) {
+                return;
+            }
+
             Texture mainTex = RetrieveMainTex();
             ColorRgba mainClr = RetrieveMainColor();
             DrawTechnique tech = RetrieveDrawTechnique();

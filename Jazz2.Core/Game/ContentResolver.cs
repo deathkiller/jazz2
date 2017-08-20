@@ -89,7 +89,7 @@ namespace Jazz2.Game
         private Dictionary<string, ContentRef<DrawTechnique>> cachedShaders;
         //private Dictionary<string, ContentRef<Sound>> cachedSounds;
 
-        private ContentRef<DrawTechnique> basicNormal;
+        private ContentRef<DrawTechnique> basicNormal, paletteNormal;
 
         public ContentRef<Texture> DefaultNormalMap => defaultNormalMap;
 
@@ -106,6 +106,7 @@ namespace Jazz2.Game
             //cachedSounds = new Dictionary<string, ContentRef<Sound>>();
 
             basicNormal = RequestShader("BasicNormal");
+            paletteNormal = RequestShader("PaletteNormal");
 
             AllowAsyncLoading();
         }
@@ -160,9 +161,9 @@ namespace Jazz2.Game
             GC.WaitForPendingFinalizers();
         }
 
-        public Metadata RequestMetadata(string path, ColorRgba[] palette)
+        public Metadata RequestMetadata(string path)
         {
-            Metadata metadata = RequestMetadataInner(path, palette, false);
+            Metadata metadata = RequestMetadataInner(path, false);
 
             if (metadata.AsyncFinalizingRequired) {
                 metadata.AsyncFinalizingRequired = false;
@@ -172,7 +173,7 @@ namespace Jazz2.Game
             return metadata;
         }
 
-        public Metadata RequestMetadataInner(string path, ColorRgba[] palette, bool async)
+        public Metadata RequestMetadataInner(string path, bool async)
         {
             Metadata metadata;
             if (!cachedMetadata.TryGetValue(path, out metadata)) {
@@ -201,28 +202,31 @@ namespace Jazz2.Game
 #if !THROW_ON_MISSING_RESOURCES
                         try {
 #endif
+
+                            bool isIndexed = (g.Value.Flags & 0x02) != 0x00;
+
                             ColorRgba color;
                             if (g.Value.ShaderColors == null || g.Value.ShaderColors.Count < 4) {
-                                color = ColorRgba.White;
+                                color = (isIndexed ? new ColorRgba(0, 255) : ColorRgba.White);
                             } else {
                                 color = new ColorRgba((byte)g.Value.ShaderColors[0], (byte)g.Value.ShaderColors[1], (byte)g.Value.ShaderColors[2], (byte)g.Value.ShaderColors[3]);
                             }
 
-                            GenericGraphicResource resBase = RequestGraphicResource(g.Value.Path, palette, async);
+                            GenericGraphicResource resBase = RequestGraphicResource(g.Value.Path, async);
 
                             // Create copy of generic resource
                             GraphicResource res;
                             if (async) {
-                                res = GraphicResource.From(resBase, g.Value.Shader, color);
+                                res = GraphicResource.From(resBase, g.Value.Shader, color, isIndexed);
                             } else {
                                 ContentRef<DrawTechnique> drawTechnique;
                                 if (g.Value.Shader == null) {
-                                    drawTechnique = basicNormal;
+                                    drawTechnique = (isIndexed ? paletteNormal : basicNormal);
                                 } else {
                                     drawTechnique = RequestShader(g.Value.Shader);
                                 }
 
-                                res = GraphicResource.From(resBase, drawTechnique, color);
+                                res = GraphicResource.From(resBase, drawTechnique, color, isIndexed, paletteTexture);
                             }
 
                             res.FrameOffset = g.Value.FrameOffset;
@@ -237,7 +241,7 @@ namespace Jazz2.Game
                                 res.FrameDuration = (1f / raw3) * 5; // ToDo: I don't know...
                             }
 
-                            res.OnlyOnce = (g.Value.Flags & 0x01) != 0;
+                            res.OnlyOnce = (g.Value.Flags & 0x01) != 0x00;
 
                             if (g.Value.States != null) {
                                 res.State = new HashSet<AnimState>();
@@ -296,7 +300,7 @@ namespace Jazz2.Game
                 // Request children
                 if (json.Preload != null) {
                     for (int i = 0; i < json.Preload.Count; i++) {
-                        RequestMetadataInner(json.Preload[i], palette, async);
+                        RequestMetadataInner(json.Preload[i], async);
                     }
                 }
             }
@@ -305,7 +309,7 @@ namespace Jazz2.Game
             return metadata;
         }
 
-        public GenericGraphicResource RequestGraphicResource(string path, ColorRgba[] palette, bool async = false)
+        public GenericGraphicResource RequestGraphicResource(string path, bool async = false)
         {
             GenericGraphicResource resource;
             if (!cachedGraphics.TryGetValue(path, out resource)) {
@@ -321,7 +325,7 @@ namespace Jazz2.Game
                 resource = new GenericGraphicResource {
                     FrameDimensions = new Point2(json.FrameSize[0], json.FrameSize[1]),
                     FrameConfiguration = new Point2(json.FrameConfiguration[0], json.FrameConfiguration[1]),
-                    FrameDuration = (1f / json.FrameRate) * 5, // ToDo: I don't know...
+                    FrameDuration = (1f / json.FrameRate) * 5,
                     FrameCount = json.FrameCount
                 };
 
@@ -342,7 +346,9 @@ namespace Jazz2.Game
 
                 PixelData pixelData = imageCodec.Read(FileOp.Open(pathAbsolute, FileAccessMode.Read));
                 // Use external palette
-                if ((json.Flags & 0x01) != 0x00 && palette != null) {
+                if ((json.Flags & 0x01) != 0x00) {
+                    ColorRgba[] palette = paletteTexture.Res.BasePixmap.Res.PixelData[0].Data;
+
                     ColorRgba[] data = pixelData.Data;
                     Parallel.ForEach(Partitioner.Create(0, data.Length), range => {
                         for (int i = range.Item1; i < range.Item2; i++) {
@@ -375,14 +381,13 @@ namespace Jazz2.Game
                     resource.AsyncFinalize = asyncFinalize;
                 } else {
                     TextureMagFilter magFilter; TextureMinFilter minFilter;
-                    // Linear Sampling is forced for now
-                    //if (linearSampling) {
+                    if (linearSampling) {
                         magFilter = TextureMagFilter.Linear;
                         minFilter = TextureMinFilter.LinearMipmapLinear;
-                    //} else {
-                    //    magFilter = TextureMagFilter.Nearest;
-                    //    minFilter = TextureMinFilter.Nearest;
-                    //}
+                    } else {
+                        magFilter = TextureMagFilter.Nearest;
+                        minFilter = TextureMinFilter.Nearest;
+                    }
 
                     resource.Texture = new Texture(map, TextureSizeMode.NonPowerOfTwo,
                         magFilter, minFilter, json.TextureWrap, json.TextureWrap);

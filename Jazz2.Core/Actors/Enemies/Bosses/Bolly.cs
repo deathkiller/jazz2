@@ -148,6 +148,8 @@ namespace Jazz2.Actors.Bosses
                 RefreshFlipMode();
 
                 Transform.RelativePos = new Vector3(0f, 0f, -2f);
+
+                OnUpdateHitbox();
             }
 
             public override void HandleCollision(ActorBase other)

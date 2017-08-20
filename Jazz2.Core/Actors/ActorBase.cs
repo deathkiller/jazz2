@@ -9,6 +9,7 @@ using Duality.Drawing;
 using Jazz2.Actors.Lighting;
 using Jazz2.Actors.Weapons;
 using Jazz2.Game;
+using Jazz2.Game.Components;
 using Jazz2.Game.Events;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;

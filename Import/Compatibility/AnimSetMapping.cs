@@ -14,6 +14,7 @@ namespace Jazz2.Compatibility
             public Color[] Palette;
             public bool SkipNormalMap;
             public int AddBorder;
+            public bool KeepIndexed;
         }
 
         public const string Discard = ":discard";
@@ -490,7 +491,7 @@ namespace Jazz2.Compatibility
                     mapping.Add("Platform", "carrotus_fruit");
                     mapping.Add("Platform", "carrotus_fruit_chain");
                     mapping.NextSet();
-                    //mapping.Add("Pickup", "gem_gemring", JJ2DefaultPalette.Gem);
+                    //mapping.Add("Pickup", "gem_gemring", keepIndexed: true);
                     mapping.DiscardItems(1);
                     mapping.NextSet(); // set 50 (1.24) / set 49 (1.23)
                     mapping.Add("Unimplemented", "boxing_glove_stiff");
@@ -822,7 +823,7 @@ namespace Jazz2.Compatibility
                 mapping.Add("Pickup", "food_chocolate");
                 mapping.Add("Pickup", "food_cola");
                 mapping.Add("Pickup", "carrot");
-                mapping.Add("Pickup", "Gem", JJ2DefaultPalette.Gem, addBorder: 1);
+                mapping.Add("Pickup", "Gem", keepIndexed: true, addBorder: 1);
                 mapping.Add("Pickup", "food_cucumber");
                 mapping.Add("Pickup", "food_cupcake");
                 mapping.Add("Pickup", "food_donut");
@@ -834,9 +835,9 @@ namespace Jazz2.Compatibility
                 mapping.Add("Object", "powerup_shield_fire");
                 mapping.Add("Pickup", "food_fries");
                 mapping.Add("Pickup", "fast_feet");
-                mapping.Add("Object", "GemSuper", JJ2DefaultPalette.Gem);
+                mapping.Add("Object", "GemSuper", keepIndexed: true);
 
-                //mapping.Add("Pickup", "Gem2", JJ2DefaultPalette.Gem);
+                //mapping.Add("Pickup", "Gem2", keepIndexed: true);
                 mapping.DiscardItems(1);
 
                 mapping.Add("Pickup", "airboard");
@@ -1991,27 +1992,29 @@ namespace Jazz2.Compatibility
             }
         }
 
-        private void Add(JJ2Version appliesTo, string category, string name, Color[] palette = null, bool skipNormalMap = false, int addBorder = 0) {
+        private void Add(JJ2Version appliesTo, string category, string name, Color[] palette = null, bool skipNormalMap = false, int addBorder = 0, bool keepIndexed = false) {
             if ((version & appliesTo) != 0) {
                 data.Add(Pair.Create(currentSet, currentItem), new Data {
                     Category = category,
                     Name = name,
                     Palette = palette,
                     SkipNormalMap = skipNormalMap,
-                    AddBorder = addBorder
+                    AddBorder = addBorder,
+                    KeepIndexed = keepIndexed
                 });
                 currentItem++;
             }
         }
 
-        private void Add(string category, string name, Color[] palette = null, bool skipNormalMap = false, int addBorder = 0)
+        private void Add(string category, string name, Color[] palette = null, bool skipNormalMap = false, int addBorder = 0, bool keepIndexed = false)
         {
             data.Add(Pair.Create(currentSet, currentItem), new Data {
                 Category = category,
                 Name = name,
                 Palette = palette,
                 SkipNormalMap = skipNormalMap,
-                AddBorder = addBorder
+                AddBorder = addBorder,
+                KeepIndexed = keepIndexed
             });
             currentItem++;
         }

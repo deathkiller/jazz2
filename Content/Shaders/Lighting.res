@@ -2,18 +2,17 @@
     "BlendMode": "Add",
 
     "Fragment": "
-        uniform vec2 center;
-        uniform float intensity;
-        uniform float brightness;
-        uniform float radiusNear;
-        uniform float radiusFar;
-
         uniform vec2 ViewSize;
 
-        //uniform vec2 normalMult;
         uniform sampler2D normalBuffer;
 
         void main() {
+            vec2 center = gl_TexCoord[0].xy;
+            float radiusNear = gl_TexCoord[0].z;
+            float radiusFar = gl_TexCoord[0].w;
+            float intensity = gl_Color.r;
+            float brightness = gl_Color.g;
+
             float dist = distance(vec2(gl_FragCoord), center);
             if (dist > radiusFar) {
                 gl_FragColor = vec4(0, 0, 0, 0);

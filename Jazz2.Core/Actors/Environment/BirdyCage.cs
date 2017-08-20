@@ -1,9 +1,8 @@
-﻿using Jazz2.Actors.Solid;
-using Jazz2.Game.Structs;
+﻿using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Environment
 {
-    public class BirdyCage : SolidObjectBase //ActorBase
+    public class BirdyCage : ActorBase
     {
         private bool activated;
 
@@ -25,9 +24,7 @@ namespace Jazz2.Actors.Environment
             
             SetAnimation(activated ? AnimState.Activated : AnimState.Idle);
 
-            //collisionFlags &= ~CollisionFlags.ApplyGravitation;
-
-            collisionFlags |= CollisionFlags.SkipPerPixelCollisions | CollisionFlags.IsSolidObject | CollisionFlags.CollideWithSolidObjects;
+            collisionFlags |= CollisionFlags.CollideWithSolidObjects;
         }
 
         // ToDo: Implement this

@@ -6,23 +6,23 @@
     "Animations": {
         "GemRed": {
             "Path": "Pickup/Gem.png",
-            "Shader": "Colorize",
-            "ShaderColor": [ 210, 110, 145, 190 ]
+            "Flags": 2,
+            "ShaderColor": [ 1, 128, 255, 190 ]
         },
         "GemGreen": {
             "Path": "Pickup/Gem.png",
-            "Shader": "Colorize",
-            "ShaderColor": [ 110, 200, 140, 190 ]
+            "Flags": 2,
+            "ShaderColor": [ 1, 0, 255, 190 ]
         },
         "GemBlue": {
             "Path": "Pickup/Gem.png",
-            "Shader": "Colorize",
-            "ShaderColor": [ 110, 145, 220, 190 ]
+            "Flags": 2,
+            "ShaderColor": [ 2, 128, 255, 190 ]
         },
         "GemPurple": {
             "Path": "Pickup/Gem.png",
-            "Shader": "Colorize",
-            "ShaderColor": [ 145, 105, 205, 190 ]
+            "Flags": 2,
+            "ShaderColor": [ 2, 0, 255, 190 ]
         },
 
         "CoinGold": {

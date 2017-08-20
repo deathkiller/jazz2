@@ -42,7 +42,6 @@ namespace Jazz2.Game
         private readonly GameObject camera;
 
         private TileMap tileMap;
-        private ColorRgba[] tileMapPalette;
 
         private List<Player> players = new List<Player>();
         private List<ActorBase> actors = new List<ActorBase>();
@@ -201,7 +200,7 @@ namespace Jazz2.Game
             targetPlayer.AttachToHud(rootObject.AddComponent<Hud>());
 
             // Common sounds
-            commonResources = ContentResolver.Current.RequestMetadata("Common/Scenery", tileMapPalette);
+            commonResources = ContentResolver.Current.RequestMetadata("Common/Scenery");
         }
 
         protected override void OnDisposing(bool manually)
@@ -306,7 +305,9 @@ namespace Jazz2.Game
                     PathOp.Combine(tilesetPath, "normal.png"),
                     (config.Description.Flags & LevelFlags.HasPit) != 0);
 
-                tileMapPalette = TileSet.LoadPalette(PathOp.Combine(tilesetPath, ".palette"));
+                ColorRgba[] tileMapPalette = TileSet.LoadPalette(PathOp.Combine(tilesetPath, ".palette"));
+
+                ContentResolver.Current.ApplyBasePalette(tileMapPalette);
 
                 // Read all layers
                 config.Layers.Add("Sprite", new LevelConfigJson.LayerSection {
@@ -612,12 +613,12 @@ namespace Jazz2.Game
 
         public Metadata RequestMetadata(string path)
         {
-            return ContentResolver.Current.RequestMetadata(path, tileMapPalette);
+            return ContentResolver.Current.RequestMetadata(path);
         }
 
         public Metadata RequestMetadataAsync(string path)
         {
-            return ContentResolver.Current.RequestMetadataAsync(path, tileMapPalette);
+            return ContentResolver.Current.RequestMetadataAsync(path);
         }
 
         public void PlayCommonSound(string name, ActorBase target, float gain = 1f)

@@ -56,7 +56,7 @@ namespace Jazz2.Game.UI.Menu.I
             fontSmall = new BitmapFont("UI/font_small", 17, 18, 15, 32, 256, -2, canvasBuffer);
             fontMedium = new BitmapFont("UI/font_medium", 29, 31, 15, 32, 256, -1, canvasBuffer);
 
-            metadata = ContentResolver.Current.RequestMetadata("UI/MainMenu", null);
+            metadata = ContentResolver.Current.RequestMetadata("UI/MainMenu");
 
             // Get game screen
             Camera cameraLevel = levelHandler.FindComponent<Camera>();

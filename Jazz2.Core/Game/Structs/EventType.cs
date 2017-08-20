@@ -38,7 +38,7 @@
         AreaFloatUp = 0x0146,
         AreaHForce = 0x0401,
         AreaText = 0x014A,
-        AreaEOL = 0x0108,
+        AreaEndOfLevel = 0x0108,
         AreaCallback = 0x0109,
         AreaActivateBoss = 0x010A,
         AreaFlyOff = 0x010B,
