@@ -110,8 +110,9 @@ namespace Duality.Audio
 
 		public SoundDevice()
 		{
-			//DualityApp.AppDataChanged += this.DualityApp_AppDataChanged;
-		}
+            //DualityApp.AppDataChanged += this.DualityApp_AppDataChanged;
+            UpdateWorldSettings();
+        }
 		~SoundDevice()
 		{
 			this.Dispose(false);
@@ -219,13 +220,22 @@ namespace Duality.Audio
 			    this.ListenerAngle * AudioUnit.AngleToPhysical,
                 this.mute);
 		}
-		
-		/// <summary>
-		/// Plays a sound.
-		/// </summary>
-		/// <param name="snd">The Sound to play.</param>
-		/// <returns>A new SoundInstance representing the currentply playing sound.</returns>
-		public SoundInstance PlaySound(ContentRef<Sound> snd)
+        private void UpdateWorldSettings()
+		{
+            const float speedOfSound = 360.0f;
+            const float soundDopplerFactor = 1.0f;
+
+            DualityApp.AudioBackend.UpdateWorldSettings(
+                speedOfSound,           // Already in meters per second / audio units
+                soundDopplerFactor);
+		}
+
+        /// <summary>
+        /// Plays a sound.
+        /// </summary>
+        /// <param name="snd">The Sound to play.</param>
+        /// <returns>A new SoundInstance representing the currentply playing sound.</returns>
+        public SoundInstance PlaySound(ContentRef<Sound> snd)
 		{
 			SoundInstance inst = new SoundInstance(snd);
 			this.sounds.Add(inst);
@@ -287,11 +297,9 @@ namespace Duality.Audio
 			}
 		}
 
-		private void DualityApp_AppDataChanged(object sender, EventArgs e)
-		{
-            /*DualityApp.AudioBackend.UpdateWorldSettings(
-				DualityApp.AppData.SpeedOfSound, // Already in meters per second / audio units
-				DualityApp.AppData.SoundDopplerFactor);*/
-        }
+		//private void DualityApp_AppDataChanged(object sender, EventArgs e)
+		//{
+        //    UpdateWorldSettings();
+        //}
     }
 }

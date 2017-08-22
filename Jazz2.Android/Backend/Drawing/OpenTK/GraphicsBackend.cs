@@ -528,7 +528,7 @@ namespace Duality.Backend.Android.OpenTK
 
                 // Transfer uniform data from material to actual shader
                 //if (material.Uniforms != null) {
-                for (int i = 0; i < varInfo.Length; i++) {
+                    for (int i = 0; i < varInfo.Length; i++) {
                         if (locations[i] == -1) continue;
 
                         float[] data;

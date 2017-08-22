@@ -34,22 +34,23 @@ namespace Jazz2.Backend
                 return;
             }
 
-            using (Stream s = FileOp.Open(path, FileAccessMode.Read))
-            using (BinaryReader r = new BinaryReader(s)) {
-                ushort n = r.ReadUInt16();
+            try {
+                using (Stream s = FileOp.Open(path, FileAccessMode.Read))
+                using (BinaryReader r = new BinaryReader(s)) {
+                    ushort n = r.ReadUInt16();
 
-                for (ushort i = 0; i < n; i++) {
-                    string key = r.ReadString();
-                    byte type = r.ReadByte();
+                    for (ushort i = 0; i < n; i++) {
+                        string key = r.ReadString();
+                        byte type = r.ReadByte();
 
-                    switch (type) {
-                        case 0: data[key] = r.ReadString(); break; // String
-                        case 1: data[key] = r.ReadBoolean(); break; // Bool
-                        case 2: data[key] = r.ReadByte(); break; // Byte
-                        case 3: data[key] = r.ReadInt32(); break; // Int
-                        case 4: data[key] = r.ReadInt64(); break; // Long
+                        switch (type) {
+                            case 0: data[key] = r.ReadString(); break; // String
+                            case 1: data[key] = r.ReadBoolean(); break; // Bool
+                            case 2: data[key] = r.ReadByte(); break; // Byte
+                            case 3: data[key] = r.ReadInt32(); break; // Int
+                            case 4: data[key] = r.ReadInt64(); break; // Long
 
-                        case 10: { // String Array
+                            case 10: { // String Array
                                 byte count = r.ReadByte();
                                 string[] values = new string[count];
                                 for (int j = 0; j < count; j++) {
@@ -58,7 +59,7 @@ namespace Jazz2.Backend
                                 data[key] = values;
                                 break;
                             }
-                        case 11: { // Bool Array
+                            case 11: { // Bool Array
                                 byte count = r.ReadByte();
                                 bool[] values = new bool[count];
                                 for (int j = 0; j < count; j++) {
@@ -67,7 +68,7 @@ namespace Jazz2.Backend
                                 data[key] = values;
                                 break;
                             }
-                        case 12: { // Byte Array
+                            case 12: { // Byte Array
                                 byte count = r.ReadByte();
                                 byte[] values = new byte[count];
                                 for (int j = 0; j < count; j++) {
@@ -76,7 +77,7 @@ namespace Jazz2.Backend
                                 data[key] = values;
                                 break;
                             }
-                        case 13: { // Int Array
+                            case 13: { // Int Array
                                 byte count = r.ReadByte();
                                 int[] values = new int[count];
                                 for (int j = 0; j < count; j++) {
@@ -85,7 +86,7 @@ namespace Jazz2.Backend
                                 data[key] = values;
                                 break;
                             }
-                        case 14: { // Long Array
+                            case 14: { // Long Array
                                 byte count = r.ReadByte();
                                 long[] values = new long[count];
                                 for (int j = 0; j < count; j++) {
@@ -94,8 +95,11 @@ namespace Jazz2.Backend
                                 data[key] = values;
                                 break;
                             }
+                        }
                     }
                 }
+            } catch (Exception ex) {
+                Console.WriteLine("Can't load preferences: " + ex);
             }
         }
 
@@ -133,41 +137,42 @@ namespace Jazz2.Backend
 
             string path = PathOp.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location) + ".settings";
 
-            using (Stream s = FileOp.Create(path))
-            using (BinaryWriter w = new BinaryWriter(s)) {
-                w.Write((ushort)data.Count);
+            try {
+                using (Stream s = FileOp.Create(path))
+                using (BinaryWriter w = new BinaryWriter(s)) {
+                    w.Write((ushort)data.Count);
 
-                foreach (var pair in data) {
-                    w.Write(pair.Key);
+                    foreach (var pair in data) {
+                        w.Write(pair.Key);
 
-                    switch (pair.Value) {
-                        case string value: {
+                        switch (pair.Value) {
+                            case string value: {
                                 w.Write((byte)0);
                                 w.Write(value);
                                 break;
                             }
-                        case bool value: {
+                            case bool value: {
                                 w.Write((byte)1);
                                 w.Write(value);
                                 break;
                             }
-                        case byte value: {
+                            case byte value: {
                                 w.Write((byte)2);
                                 w.Write(value);
                                 break;
                             }
-                        case int value: {
+                            case int value: {
                                 w.Write((byte)3);
                                 w.Write(value);
                                 break;
                             }
-                        case long value: {
+                            case long value: {
                                 w.Write((byte)4);
                                 w.Write(value);
                                 break;
                             }
 
-                        case string[] value: {
+                            case string[] value: {
                                 w.Write((byte)10);
                                 w.Write((byte)value.Length);
                                 for (int j = 0; j < value.Length; j++) {
@@ -175,7 +180,7 @@ namespace Jazz2.Backend
                                 }
                                 break;
                             }
-                        case bool[] value: {
+                            case bool[] value: {
                                 w.Write((byte)11);
                                 w.Write((byte)value.Length);
                                 for (int j = 0; j < value.Length; j++) {
@@ -183,7 +188,7 @@ namespace Jazz2.Backend
                                 }
                                 break;
                             }
-                        case byte[] value: {
+                            case byte[] value: {
                                 w.Write((byte)12);
                                 w.Write((byte)value.Length);
                                 for (int j = 0; j < value.Length; j++) {
@@ -191,7 +196,7 @@ namespace Jazz2.Backend
                                 }
                                 break;
                             }
-                        case int[] value: {
+                            case int[] value: {
                                 w.Write((byte)13);
                                 w.Write((byte)value.Length);
                                 for (int j = 0; j < value.Length; j++) {
@@ -199,7 +204,7 @@ namespace Jazz2.Backend
                                 }
                                 break;
                             }
-                        case long[] value: {
+                            case long[] value: {
                                 w.Write((byte)14);
                                 w.Write((byte)value.Length);
                                 for (int j = 0; j < value.Length; j++) {
@@ -208,11 +213,14 @@ namespace Jazz2.Backend
                                 break;
                             }
 
-                        default:
-                            Console.WriteLine("Unknown preference type: " + pair.Value.GetType().FullName);
-                            break;
+                            default:
+                                Console.WriteLine("Unknown preference type: " + pair.Value.GetType().FullName);
+                                break;
+                        }
                     }
                 }
+            } catch (Exception ex) {
+                Console.WriteLine("Can't save preferences: " + ex);
             }
         }
 
