@@ -13,7 +13,7 @@ namespace Jazz2.Compatibility
         private string episodeToken, episodeName, firstLevel;
         private bool isRegistered;
 
-        private Bitmap image, titleLight, titleDark;
+        //private Bitmap image, titleLight, titleDark;
 
         public int Position => position;
         public string Token => episodeToken;
@@ -27,7 +27,6 @@ namespace Jazz2.Compatibility
                 JJ2Episode episode = new JJ2Episode();
 
                 episode.episodeToken = Path.GetFileNameWithoutExtension(path).ToLower(CultureInfo.InvariantCulture);
-
 
                 // ToDo: Implement JJ2+ extended data
                 // the condition of unlocking (currently only defined for 0 meaning "always unlocked"
@@ -63,7 +62,8 @@ namespace Jazz2.Compatibility
                     }
                 }
 
-                int width = r.ReadInt32();
+                // ToDo: Episode images are not supported yet
+                /*int width = r.ReadInt32();
                 int height = r.ReadInt32();
                 int unknown2 = r.ReadInt32();
                 int unknown3 = r.ReadInt32();
@@ -77,26 +77,26 @@ namespace Jazz2.Compatibility
                     int imagePackedSize = r.ReadInt32();
                     int imageUnpackedSize = width * height;
                     JJ2Block imageBlock = new JJ2Block(s, imagePackedSize, imageUnpackedSize);
-                    episode.image = ConvertToRgbaBitmap(width, height, imageBlock);
+                    episode.image = ConvertIndicesToRgbaBitmap(width, height, imageBlock);
                 }
                 {
                     int titleLightPackedSize = r.ReadInt32();
                     int titleLightUnpackedSize = titleWidth * titleHeight;
                     JJ2Block titleLightBlock = new JJ2Block(s, titleLightPackedSize, titleLightUnpackedSize);
-                    episode.titleLight = ConvertToRgbaBitmap(titleWidth, titleHeight, titleLightBlock);
+                    episode.titleLight = ConvertIndicesToRgbaBitmap(titleWidth, titleHeight, titleLightBlock);
                 }
                 {
                     int titleDarkPackedSize = r.ReadInt32();
                     int titleDarkUnpackedSize = titleWidth * titleHeight;
                     JJ2Block titleDarkBlock = new JJ2Block(s, titleDarkPackedSize, titleDarkUnpackedSize);
-                    episode.titleDark = ConvertToRgbaBitmap(titleWidth, titleHeight, titleDarkBlock);
-                }
+                    episode.titleDark = ConvertIndicesToRgbaBitmap(titleWidth, titleHeight, titleDarkBlock);
+                }*/
 
                 return episode;
             }
         }
 
-        private static Bitmap ConvertToRgbaBitmap(int width, int height, JJ2Block block)
+        private static Bitmap ConvertIndicesToRgbaBitmap(int width, int height, JJ2Block block)
         {
             byte[] data = block.AsByteArray();
 
@@ -160,8 +160,7 @@ namespace Jazz2.Compatibility
                 w.Write("}");
             }
 
-            // Images are not used yet
-
+            // ToDo: Episode images are not supported yet
             //if (image != null) {
             //    image.Save(Path.Combine(path, "image.png"), ImageFormat.Png);
             //}

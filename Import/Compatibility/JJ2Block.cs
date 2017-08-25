@@ -123,6 +123,7 @@ namespace Jazz2.Compatibility
                 }
             }
 
+            // Use Windows-1252 (English & Western languages) encoding
             return Encoding.GetEncoding(1252).GetString(raw, 0, length);
         }
     }

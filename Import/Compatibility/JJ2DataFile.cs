@@ -50,7 +50,7 @@ namespace Jazz2.Compatibility
                     // End of file list
                 }
 
-                // ToDo: Extract files
+                // ToDo: Extract files, but it's not needed for now...
 
                 return j2d;
             }

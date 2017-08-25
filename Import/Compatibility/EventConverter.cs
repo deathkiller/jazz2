@@ -1134,10 +1134,10 @@ namespace Jazz2.Compatibility
                 };
             });
 
-            convert.Add(JJ2Event.JJ2_SHIELD_FIRE, ConstantParamList(EventType.PowerUpShield, 0));
-            convert.Add(JJ2Event.JJ2_SHIELD_WATER, ConstantParamList(EventType.PowerUpShield, 1));
-            convert.Add(JJ2Event.JJ2_SHIELD_LASER, ConstantParamList(EventType.PowerUpShield, 2));
+            convert.Add(JJ2Event.JJ2_SHIELD_FIRE, ConstantParamList(EventType.PowerUpShield, 1));
+            convert.Add(JJ2Event.JJ2_SHIELD_WATER, ConstantParamList(EventType.PowerUpShield, 2));
             convert.Add(JJ2Event.JJ2_SHIELD_LIGHTNING, ConstantParamList(EventType.PowerUpShield, 3));
+            convert.Add(JJ2Event.JJ2_SHIELD_LASER, ConstantParamList(EventType.PowerUpShield, 4));
             convert.Add(JJ2Event.JJ2_STOPWATCH, NoParamList(EventType.Stopwatch));
         }
 

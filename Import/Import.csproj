@@ -56,7 +56,10 @@
     <Compile Include="Compatibility\JJ2Tileset.cs" />
     <Compile Include="Compatibility\JJ2Version.cs" />
     <Compile Include="App.cs" />
-    <Compile Include="DemoDownloader.cs" />
+    <Compile Include="ConsoleImage.cs" />
+    <Compile Include="Downloaders\DemoDownloader.cs" />
+    <Compile Include="Downloaders\JJ2PlusDownloader.cs" />
+    <Compile Include="Log.cs" />
     <Compile Include="Migrations\MetadataV1ToV2.cs" />
     <Compile Include="NormalMapGenerator.cs" />
     <Compile Include="Pair.cs" />
@@ -74,6 +77,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="ConsoleImage.udl" />
     <None Include="Icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

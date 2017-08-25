@@ -8,8 +8,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Import.Downloaders;
 using Jazz2.Compatibility;
-using Jazz2.Migrations;
 using static Jazz2.Game.ContentResolver;
 using static Jazz2.Game.LevelHandler;
 
@@ -17,28 +17,20 @@ namespace Import
 {
     internal class App
     {
-        private enum LogType
-        {
-            Debug,
-            Info,
-            Warning,
-            Error
-        }
-
-        private static readonly object sync = new object();
-
         private static void Main(string[] args)
         {
             Utils.TryEnableUnicode();
 
+            int cursorTop = Console.CursorTop;
+
             Console.Title = Jazz2.App.AssemblyTitle;
 
+            if (!Utils.IsOutputRedirected) {
+                ConsoleImage.RenderFromManifestResource("ConsoleImage.udl");
+            }
+
             if (args.Length < 1) {
-                ShowHelp();
-
-                DemoDownloader.Start();
-                Console.ReadLine();
-
+                OnShowHelp(cursorTop);
                 return;
             }
 
@@ -51,9 +43,9 @@ namespace Import
             bool processTilesets = true;
             bool all = false;
             bool noWait = false;
-            bool migrate = false;
-            bool clean = false;
             bool check = false;
+            bool keep = false;
+            bool verbose = false;
             for (int i = 0; i < args.Length; i++) {
                 switch (args[i]) {
                     case "/skip-anims": processAnims = false; break;
@@ -64,16 +56,18 @@ namespace Import
 
                     case "/all": all = true; break;
                     case "/no-wait": noWait = true; break;
+                    case "/verbose": verbose = true; break;
 
-                    case "/migrate": migrate = true; break;
-                    case "/clean": clean = true; break;
                     case "/check": check = true; break;
+                    case "/keep": keep = true; break;
 
                     default:
+#if DEBUG
                         if (File.Exists(args[i]) && Path.GetExtension(args[i]) == ".png") {
-                            AdaptImageToPalette(args[i]);
+                            AdaptImageToPalette(args[i], args);
                             return;
                         }
+#endif
 
                         if (!Directory.Exists(args[i]) && File.Exists(args[i])) {
                             args[i] = Path.GetDirectoryName(args[i]);
@@ -87,11 +81,12 @@ namespace Import
 
             if (sourcePath == null) {
                 if (processAnims || processLevels || processMusic || processTilesets) {
-                    WriteLog(LogType.Error, "You must specify path to Jazz Jackrabbit™ 2 game.");
+                    Log.Write(LogType.Error, "You must specify path to Jazz Jackrabbit™ 2 game.");
                     return;
                 }
             } else {
-                WriteLog(LogType.Info, "Game path: " + sourcePath);
+                Log.Write(LogType.Info, "Importing path \"" + sourcePath + "\"...");
+                Log.PushIndent();
             }
 
             if (processAnims) {
@@ -112,176 +107,173 @@ namespace Import
                 all = true;
             }
             if (processMusic) {
-                ConvertJJ2Music(sourcePath, targetPath, all ? null : usedMusic);
+                ConvertJJ2Music(sourcePath, targetPath, all ? null : usedMusic, verbose);
             }
             if (processTilesets) {
-                ConvertJJ2Tilesets(sourcePath, targetPath, all ? null : usedTilesets);
-            }
-            if (clean) {
-                Clean(targetPath);
-            }
-            if (check || (processAnims && processLevels && processMusic && processTilesets)) {
-                CheckFiles(targetPath);
+                ConvertJJ2Tilesets(sourcePath, targetPath, all ? null : usedTilesets, verbose);
             }
 
-            bool isAnyMissing = false;
-            if (!Directory.Exists(Path.Combine(targetPath, "Content", "Metadata"))) {
-                WriteLog(LogType.Error, "Directory \"Metadata\" is missing!");
-                isAnyMissing = true;
-            } else if (migrate) {
-                MigrateMetadata(Path.Combine(targetPath, "Content", "Metadata"));
+            if (sourcePath != null) {
+                Log.PopIndent();
             }
 
-            if (!Directory.Exists(Path.Combine(targetPath, "Content", "Shaders"))) {
-                WriteLog(LogType.Error, "Directory \"Shaders\" is missing!");
-                isAnyMissing = true;
-            }
-            if (isAnyMissing) {
-                WriteLog(LogType.Error, "It should be distributed with Jazz² Resurrection.");
-            }
-
-            if (!noWait) {
-                WriteLog(LogType.Info, "Done! (Press any key to exit)");
-                Console.ReadLine();
-            }
+            OnPostImport(targetPath, verbose, !noWait, keep, check || (processAnims && processLevels && processMusic && processTilesets));
         }
 
-        private static void WriteLog(LogType type, string text)
+        private static void OnShowHelp(int cursorTop)
         {
-            if (string.IsNullOrEmpty(text)) {
-                return;
-            }
-
-            ConsoleColor color, color2;
-            switch (type) {
-                case LogType.Debug:
-#if DEBUG
-                    color = ConsoleColor.Green;
-                    color2 = ConsoleColor.DarkGreen;
-                    break;
-#else
-                    return;
-#endif
-                case LogType.Info:
-                    color = ConsoleColor.White;
-                    color2 = ConsoleColor.Gray;
-                    break;
-                case LogType.Warning:
-                    color = ConsoleColor.Yellow;
-                    color2 = ConsoleColor.DarkYellow;
-                    break;
-                case LogType.Error:
-                    color = ConsoleColor.Red;
-                    color2 = ConsoleColor.DarkRed;
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
-            }
-
-            lock (sync) {
-                Console.ForegroundColor = color;
-                Console.Write(" │  ");
-                Console.ForegroundColor = color2;
-                Console.WriteLine(text);
-                Console.ResetColor();
-            }
-        }
-
-        private static void ShowHelp()
-        {
-            string appName = Path.GetFileName(Assembly.GetEntryAssembly().Location);
-            string appVersion = " v" + Jazz2.App.AssemblyVersion;
+            string exeName = Path.GetFileName(Assembly.GetEntryAssembly().Location);
 
             int width = Console.BufferWidth;
 
+            // Show version number in the right corner
+            if (!Utils.IsOutputRedirected) {
+                string appVersion = "v" + Jazz2.App.AssemblyVersion;
+
+                int currentCursorTop = Console.CursorTop;
+                Console.SetCursorPosition(width - appVersion.Length - 2, cursorTop + 1);
+                Console.WriteLine(appVersion);
+                Console.CursorTop = currentCursorTop;
+            }
+
+            // Show help
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("  Run this application with following parameters:");
+
+            Console.ForegroundColor = ConsoleColor.Gray;
             Console.Write(new string('_', width));
             Console.BackgroundColor = ConsoleColor.DarkYellow;
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write(new string(' ', width));
-            Console.Write(("  " + Jazz2.App.AssemblyTitle).PadRight(width - appVersion.Length - 2) + appVersion + "  ");
+            Console.Write(("  ." + Path.DirectorySeparatorChar + exeName + " \"Path to Jazz Jackrabbit 2\"").PadRight(width));
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.Write(new string('_', width));
             Console.ResetColor();
 
             Console.WriteLine();
-            Console.WriteLine("  Run this application with following parameters:");
-
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.Write(new string('_', width));
-            Console.BackgroundColor = ConsoleColor.DarkCyan;
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write(new string(' ', width));
-            Console.Write(("  " + appName + " \"Path to Jazz Jackrabbit 2\"").PadRight(width));
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write(new string('_', width));
-            Console.ResetColor();
-
-            Console.WriteLine();
-            Console.WriteLine("  Application will automatically import all animations, sounds, music,");
+            Console.WriteLine("  The application will automatically import all animations, sounds, music,");
             Console.WriteLine("  tilesets, levels and episodes. It could take several minutes.");
-            Console.WriteLine("  Christmas Chronicles, The Secret Files, Holiday Hare '98 and JJ2+ extension");
-            Console.WriteLine("  is supported. Specific version could be required according to included");
-            Console.WriteLine("  Metadata files.");
-            Console.WriteLine();
-            Console.WriteLine("  To remove unused files afterwards, use following command:");
-
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.Write(new string('_', width));
-            Console.BackgroundColor = ConsoleColor.DarkCyan;
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write(new string(' ', width));
-            Console.Write(("  " + appName + " /clean /skip-all").PadRight(width));
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write(new string('_', width));
-            Console.ResetColor();
+            Console.WriteLine("  Holiday Hare '98, Christmas Chronicles and The Secret Files is supported.");
 
             Console.WriteLine();
             Console.WriteLine("  There are several other options:");
             Console.WriteLine();
-            Console.WriteLine("   /skip-anims     Don't convert animations and sounds (*.j2a files).");
-            Console.WriteLine("   /skip-levels    Don't convert level files (*.j2l files).");
-            Console.WriteLine("   /skip-music     Don't convert music files (*.j2b files).");
-            Console.WriteLine("   /skip-tilesets  Don't convert tileset files (*.j2t files).");
-            Console.WriteLine("   /skip-all       Don't convert anything.");
+            //Console.WriteLine("   /skip-anims     Don't convert animations and sounds (*.j2a files).");
+            //Console.WriteLine("   /skip-levels    Don't convert level files (*.j2l files).");
+            //Console.WriteLine("   /skip-music     Don't convert music files (*.j2b files).");
+            //Console.WriteLine("   /skip-tilesets  Don't convert tileset files (*.j2t files).");
+            //Console.WriteLine("   /skip-all       Don't convert anything.");
+            Console.WriteLine("   /skip-anims | /skip-levels | /skip-music | /skip-tilesets | /skip-all");
+            Console.WriteLine();
             Console.WriteLine("   /all            Convert all (even unused) music and tileset files.");
             Console.WriteLine("                   Otherwise only files referenced in levels will be converted.");
-            Console.WriteLine("   /no-wait        Don't show (Press any key to exit) message when it's done.");
-            Console.WriteLine("   /migrate        Migrate metadata files to newer version.");
-            Console.WriteLine("   /clean          Remove unused music, tilesets, animations and sounds.");
+            Console.WriteLine("   /keep           Keep unused music, tilesets, animations and sounds.");
             Console.WriteLine("   /check          Check that all needed assets are present.");
+            //Console.WriteLine("   /no-wait        Don't show (Press any key to exit) message when it's done.");
+
+            // Show "Shareware Demo" notice
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("  If you don't have any suitable version, Shareware Demo can be automatically");
+            Console.WriteLine("  imported, but functionality will be slightly degraded.");
+            Console.ResetColor();
+            Console.WriteLine();
+            Console.WriteLine("  Press Enter to download and import Shareware Demo now. Otherwise, press");
+            Console.WriteLine("  CTRL+C or close the window.");
+
+            Console.ReadLine();
+
+            string targetPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+
+            if (File.Exists(Path.Combine(targetPath, "Content", "Animations", "Jazz", "Idle.png"))) {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("  It seems that there is already other version imported. It's not");
+                Console.WriteLine("  recommended to import Shareware Demo over full version of the game.");
+                Console.ResetColor();
+                Console.WriteLine();
+                Console.WriteLine("  Press Enter to continue. Otherwise, press CTRL+C or close the window.");
+
+                Console.ReadLine();
+            }
+
+            // Clear console window and show logo
+            if (!Utils.IsOutputRedirected) {
+                Console.Clear();
+                ConsoleImage.RenderFromManifestResource("ConsoleImage.udl");
+            }
+
+            // Download and import...
+            DemoDownloader.Run(targetPath);
+
+            OnPostImport(targetPath, false, true, false, false);
+        }
+
+        private static void OnPostImport(string targetPath, bool verbose, bool wait, bool keep, bool check)
+        {
+            if (!keep) {
+                Clean(targetPath, verbose);
+            }
+            if (check) {
+                CheckMissingFiles(targetPath);
+            }
+
+            bool isAnyMissing = false;
+            if (!Directory.Exists(Path.Combine(targetPath, "Content", "Metadata"))) {
+                Log.Write(LogType.Error, "Directory \"Metadata\" is missing!");
+                isAnyMissing = true;
+            }
+
+            if (!Directory.Exists(Path.Combine(targetPath, "Content", "Shaders"))) {
+                Log.Write(LogType.Error, "Directory \"Shaders\" is missing!");
+                isAnyMissing = true;
+            }
+            if (isAnyMissing) {
+                Log.Write(LogType.Error, "It should be distributed with Jazz² Resurrection.");
+            }
+
+            if (wait) {
+                Log.Write(LogType.Info, "Done! (Press any key to exit)");
+                Console.ReadLine();
+            }
         }
 
         public static void ConvertJJ2Anims(string sourcePath, string targetPath)
         {
-            WriteLog(LogType.Info, "Importing assets...");
+            Log.Write(LogType.Info, "Importing assets...");
+            Log.PushIndent();
 
-            targetPath = Path.Combine(targetPath, "Content", "Animations");
-            Directory.CreateDirectory(targetPath);
+            string animationsPath = Path.Combine(targetPath, "Content", "Animations");
+            Directory.CreateDirectory(animationsPath);
 
             string animsPath = Path.Combine(sourcePath, "Anims.j2a");
-            if (FileResolveCaseInsensitive(ref animsPath)) {
-                JJ2Anims.Convert(animsPath, targetPath, false);
+            if (Utils.FileResolveCaseInsensitive(ref animsPath)) {
+                JJ2Anims.Convert(animsPath, animationsPath, false);
             } else {
                 // Try to convert Shareware Demo
                 animsPath = Path.Combine(sourcePath, "AnimsSw.j2a");
-                if (FileResolveCaseInsensitive(ref animsPath)) {
-                    JJ2Anims.Convert(animsPath, targetPath, false);
+                if (Utils.FileResolveCaseInsensitive(ref animsPath)) {
+                    JJ2Anims.Convert(animsPath, animationsPath, false);
                 }
             }
 
             string plusPath = Path.Combine(sourcePath, "Plus.j2a");
-            if (FileResolveCaseInsensitive(ref plusPath)) {
-                JJ2Anims.Convert(plusPath, targetPath, true);
+            if (Utils.FileResolveCaseInsensitive(ref plusPath)) {
+                JJ2Anims.Convert(plusPath, animationsPath, true);
+            } else {
+                JJ2PlusDownloader.Run(targetPath);
             }
+
+            Log.PopIndent();
         }
 
         public static void ConvertJJ2Levels(string sourcePath, string targetPath, HashSet<string> usedTilesets, HashSet<string> usedMusic)
         {
-            WriteLog(LogType.Info, "Importing levels...");
+            Log.Write(LogType.Info, "Importing episodes...");
+            Log.PushIndent();
 
             string xmasEpisodePath = Path.Combine(sourcePath, "xmas99.j2e");
-            string xmasEpisodeToken = (FileResolveCaseInsensitive(ref xmasEpisodePath) ? "xmas99" : "xmas98");
+            string xmasEpisodeToken = (Utils.FileResolveCaseInsensitive(ref xmasEpisodePath) ? "xmas99" : "xmas98");
 
             Dictionary<string, Tuple<string, string>> knownLevels = new Dictionary<string, Tuple<string, string>> {
                 ["castle1"] = Tuple.Create("prince", "01"),
@@ -405,17 +397,20 @@ namespace Import
                     Directory.CreateDirectory(output);
                     e.Convert(output, levelTokenConversion, episodeNameConversion, episodePrevNext);
 
-                    WriteLog(LogType.Debug, "Converted episode \"" + e.Token + "\" (" + e.Name + ")");
+                    Log.Write(LogType.Info, "Episode \"" + e.Token + "\" (" + e.Name + ") converted.");
                 } catch (Exception ex) {
-                    WriteLog(LogType.Error, "Episode \"" + Path.GetFileName(file) + "\" is not supported!");
-                    Console.WriteLine(ex.ToString());
+                    Log.Write(LogType.Error, "Episode \"" + Path.GetFileName(file) + "\" not supported! " + ex);
                 }
             });
+
+            Log.PopIndent();
+            Log.Write(LogType.Info, "Importing levels...");
+            Log.PushIndent();
 
             Parallel.ForEach(Directory.EnumerateFiles(sourcePath, "*.j2l"), file => {
                 try {
                     string asPath = Path.ChangeExtension(file, ".j2as");
-                    bool isPlusEnhanced = FileResolveCaseInsensitive(ref asPath);
+                    bool isPlusEnhanced = Utils.FileResolveCaseInsensitive(ref asPath);
 
                     JJ2Level l = JJ2Level.Open(file, false);
                     string levelToken = l.CurrentLevelToken.ToLower().Replace(" ", "_").Replace("\"", "").Replace("'", "");
@@ -432,16 +427,16 @@ namespace Import
                         targetPathInner = Path.Combine(targetPathInner, "unknown", levelToken);
                     }
 
-                    string versionString;
+                    string versionPart;
                     switch (l.Version) {
                         case JJ2Version.BaseGame:
-                            versionString = "Base";
+                            versionPart = "";
                             break;
                         case JJ2Version.TSF:
-                            versionString = "TSF";
+                            versionPart = " [TSF]";
                             break;
                         default:
-                            versionString = "Unknown";
+                            versionPart = " [Unknown]";
                             break;
                     }
 
@@ -449,9 +444,9 @@ namespace Import
                     l.Convert(targetPathInner, levelTokenConversion);
 
                     if (l.UnsupportedEvents.Count > 0) {
-                        WriteLog(LogType.Warning, "Converted level \"" + levelToken + "\" [" + versionString + (isPlusEnhanced ? "+" : "") + "] with " + l.UnsupportedEvents.Sum(i => i.Value) + " warnings");
+                        Log.Write(LogType.Warning, "Level \"" + levelToken + "\"" + versionPart + " converted" + (isPlusEnhanced ? " without AngelScript" : "") + " with " + l.UnsupportedEvents.Sum(i => i.Value) + " warnings.");
                     } else {
-                        WriteLog(LogType.Debug, "Converted level \"" + levelToken + "\" [" + versionString + (isPlusEnhanced ? "+" : "") + "]");
+                        Log.Write(LogType.Info, "Level \"" + levelToken + "\"" + versionPart + " converted" + (isPlusEnhanced ? " without AngelScript" : "") + ".");
                     }
 
                     if (!string.IsNullOrEmpty(l.Music)) {
@@ -469,22 +464,28 @@ namespace Import
                         }
                     }
                 } catch (Exception ex) {
-                    WriteLog(LogType.Error, "Level \"" + Path.GetFileName(file) + "\" is not supported!");
-                    Console.WriteLine(ex.ToString());
+                    Log.Write(LogType.Error, "Level \"" + Path.GetFileName(file) + "\" not supported! " + ex);
                 }
             });
 
-            WriteLog(LogType.Info, "Summary of unsupported events:");
+            Log.Write(LogType.Verbose, "Summary of unsupported events:");
+            Log.PushIndent();
+
             foreach (var e in unsupportedEvents.OrderByDescending(i => i.Value)) {
-                WriteLog(LogType.Info, "  " + e.Key.ToString().PadRight(32, ' ') + e.Value.ToString().PadLeft(4, ' '));
+                Log.Write(LogType.Verbose, " " + e.Key.ToString().PadRight(32, ' ') + e.Value.ToString().PadLeft(4, ' '));
             }
+
+            Log.PopIndent();
+
+            Log.PopIndent();
         }
 
-        public static void ConvertJJ2Music(string sourcePath, string targetPath, HashSet<string> usedMusic)
+        public static void ConvertJJ2Music(string sourcePath, string targetPath, HashSet<string> usedMusic, bool verbose)
         {
-            WriteLog(LogType.Info, "Importing music...");
+            Log.Write(LogType.Info, "Importing music...");
+            Log.PushIndent();
 
-            string[] exts = {".j2b", ".xm", ".it", ".s3m"};
+            string[] exts = { ".j2b", ".xm", ".it", ".s3m" };
 
             Directory.CreateDirectory(Path.Combine(targetPath, "Content", "Music"));
 
@@ -492,31 +493,40 @@ namespace Import
                 foreach (string file in Directory.EnumerateFiles(sourcePath, "*" + exts[i], SearchOption.TopDirectoryOnly)) {
                     string token = Path.GetFileNameWithoutExtension(file).ToLowerInvariant();
                     if (usedMusic != null && !usedMusic.Contains(token)) {
-                        WriteLog(LogType.Warning, "File \"" + Path.GetFileName(file) + "\" not used! Skipped.");
+                        if (verbose) {
+                            Log.Write(LogType.Info, "File \"" + Path.GetFileName(file) + "\" not used! Skipped.");
+                        }
                         continue;
                     }
 
                     string targetFile = Path.Combine(targetPath, "Content", "Music", Path.GetFileName(file).ToLowerInvariant());
                     if (File.Exists(targetFile)) {
-                        WriteLog(LogType.Debug, "File \"" + Path.GetFileName(file) + "\" already exists! Skipped.");
+                        if (verbose) {
+                            Log.Write(LogType.Verbose, "File \"" + Path.GetFileName(file) + "\" already exists! Skipped.");
+                        }
                         continue;
                     }
 
                     File.Copy(file, targetFile);
                 }
             }
+
+            Log.PopIndent();
         }
 
-        public static void ConvertJJ2Tilesets(string sourcePath, string targetPath, HashSet<string> usedTilesets)
+        public static void ConvertJJ2Tilesets(string sourcePath, string targetPath, HashSet<string> usedTilesets, bool verbose)
         {
-            WriteLog(LogType.Info, "Importing tilesets...");
+            Log.Write(LogType.Info, "Importing tilesets...");
+            Log.PushIndent();
 
             Directory.CreateDirectory(Path.Combine(targetPath, "Content", "Tilesets"));
 
             Parallel.ForEach(Directory.EnumerateFiles(sourcePath, "*.j2t"), file => {
                 string token = Path.GetFileNameWithoutExtension(file).ToLowerInvariant();
                 if (usedTilesets != null && !usedTilesets.Contains(token)) {
-                    WriteLog(LogType.Warning, "File \"" + Path.GetFileName(file) + "\" not used! Skipped.");
+                    if (verbose) {
+                        Log.Write(LogType.Info, "File \"" + Path.GetFileName(file) + "\" not used! Skipped.");
+                    }
                     return;
                 }
 
@@ -526,34 +536,15 @@ namespace Import
                     Directory.CreateDirectory(output);
                     t.Convert(output);
                 } catch (Exception ex) {
-                    WriteLog(LogType.Error, "Tileset \"" + Path.GetFileName(file) + "\" is not supported!");
+                    Log.Write(LogType.Error, "Tileset \"" + Path.GetFileName(file) + "\" not supported!");
                     Console.WriteLine(ex.ToString());
                 }
             });
+
+            Log.PopIndent();
         }
 
-        private static void MigrateMetadata(string targetPath)
-        {
-            WriteLog(LogType.Info, "Migrating metadata...");
-
-            Parallel.ForEach(Directory.EnumerateDirectories(targetPath), directory => {
-                foreach (string file in Directory.EnumerateFiles(directory, "*.res")) {
-                    try {
-                        bool result = MetadataV1ToV2.Convert(file);
-                        if (result) {
-                            WriteLog(LogType.Info, "Metadata \"" + Path.GetFileName(file) + "\" was migrated to v2!");
-                        } else {
-                            WriteLog(LogType.Debug, "Metadata \"" + Path.GetFileName(file) + "\" is already up to date!");
-                        }
-                    } catch (Exception ex) {
-                        WriteLog(LogType.Error, "Metadata \"" + Path.GetFileName(file) + "\" is not supported!");
-                        Console.WriteLine(ex.ToString());
-                    }
-                }
-            });
-        }
-
-        private static void Clean(string targetPath)
+        private static void Clean(string targetPath, bool verbose)
         {
             JsonParser jsonParser = new JsonParser();
 
@@ -563,7 +554,10 @@ namespace Import
 
             // Clean music and tilesets
             if (Directory.Exists(Path.Combine(targetPath, "Content", "Episodes"))) {
-                WriteLog(LogType.Info, "Cleaning \"Music\" and \"Tileset\" directories...");
+                Log.Write(LogType.Info, "Cleaning \"Music\" and \"Tileset\" directories...");
+                Log.PushIndent();
+
+                int removedCount = 0;
 
                 // Paths in the set have to be lower-case
                 usedMusic.Add("boss1");
@@ -595,9 +589,12 @@ namespace Import
                         if (!usedMusic.Contains(Path.GetFileNameWithoutExtension(file).ToLowerInvariant())) {
                             try {
                                 File.Delete(file);
-                                WriteLog(LogType.Debug, "Music \"" + Path.GetFileName(file) + "\" removed...");
+                                if (verbose) {
+                                    Log.Write(LogType.Verbose, "Music \"" + Path.GetFileName(file) + "\" removed.");
+                                }
+                                removedCount++;
                             } catch {
-                                WriteLog(LogType.Warning, "Music \"" + Path.GetFileName(file) + "\" could not be removed...");
+                                Log.Write(LogType.Warning, "Music \"" + Path.GetFileName(file) + "\" cannot be removed.");
                             }
 
                         }
@@ -610,19 +607,30 @@ namespace Import
                         if (!usedTilesets.Contains(Path.GetFileName(directory).ToLowerInvariant())) {
                             try {
                                 Directory.Delete(directory, true);
-                                WriteLog(LogType.Debug, "Tileset \"" + Path.GetFileName(directory) + "\" removed...");
+                                if (verbose) {
+                                    Log.Write(LogType.Verbose, "Tileset \"" + Path.GetFileName(directory) + "\" removed.");
+                                }
+                                removedCount++;
                             } catch {
-                                WriteLog(LogType.Warning, "Tileset \"" + Path.GetFileName(directory) + "\" could not be removed...");
+                                Log.Write(LogType.Warning, "Tileset \"" + Path.GetFileName(directory) + "\" cannot be removed.");
                             }
 
                         }
                     }
                 }
+
+                if (!verbose) {
+                    Log.Write(LogType.Info, "Removed " + removedCount + " files.");
+                }
+                Log.PopIndent();
             }
 
             // Clean animations and sounds
             if (Directory.Exists(Path.Combine(targetPath, "Content", "Metadata"))) {
-                WriteLog(LogType.Info, "Cleaning \"Animations\" directory...");
+                Log.Write(LogType.Info, "Cleaning \"Animations\" directory...");
+                Log.PushIndent();
+
+                int removedCount = 0;
 
                 // Paths in the set have to be lower-case
                 usedAnimations.Add("_custom/noise.png");
@@ -665,11 +673,15 @@ namespace Import
                     foreach (string animation in Directory.EnumerateFiles(prefix, "*", SearchOption.AllDirectories)) {
                         string animationFile = animation.Substring(prefix.Length + 1).ToLowerInvariant().Replace('\\', '/').Replace(".png.res", ".png").Replace(".n.png", ".png").Replace(".png.config", ".png");
                         if (!usedAnimations.Contains(animationFile)) {
+                            string pathWithoutPrefix = animation.Substring(prefix.Length);
                             try {
                                 File.Delete(animation);
-                                WriteLog(LogType.Debug, "Animation \"" + Path.GetFileName(animation) + "\" removed...");
+                                if (verbose) {
+                                    Log.Write(LogType.Verbose, "Animation \"" + pathWithoutPrefix + "\" removed.");
+                                }
+                                removedCount++;
                             } catch {
-                                WriteLog(LogType.Warning, "Animation \"" + Path.GetFileName(animation) + "\" could not be removed...");
+                                Log.Write(LogType.Warning, "Animation \"" + pathWithoutPrefix + "\" cannot be removed.");
                             }
                         }
                     }
@@ -677,28 +689,38 @@ namespace Import
                     foreach (string directory in Directory.EnumerateDirectories(Path.Combine(targetPath, "Content", "Animations"))) {
                         bool hasFiles = Directory.EnumerateFileSystemEntries(directory, "*", SearchOption.AllDirectories).Any();
                         if (!hasFiles) {
+                            string pathWithoutPrefix = directory.Substring(prefix.Length);
                             try {
                                 Directory.Delete(directory);
-                                WriteLog(LogType.Debug, "Empty directory \"" + Path.GetFileName(directory) + "\" removed...");
+                                if (verbose) {
+                                    Log.Write(LogType.Verbose, "Empty directory \"" + pathWithoutPrefix + "\" removed.");
+                                }
+                                removedCount++;
                             } catch {
-                                WriteLog(LogType.Warning, "Empty directory \"" + Path.GetFileName(directory) + "\" could not be removed...");
+                                Log.Write(LogType.Warning, "Empty directory \"" + pathWithoutPrefix + "\" cannot be removed.");
                             }
                         }
                     }
                 }
+
+                if (!verbose) {
+                    Log.Write(LogType.Info, "Removed " + removedCount + " files.");
+                }
+                Log.PopIndent();
             }
         }
 
-        private static void CheckFiles(string targetPath)
+        private static void CheckMissingFiles(string targetPath)
         {
             JsonParser jsonParser = new JsonParser();
 
             // Check music and tilesets
-            WriteLog(LogType.Info, "Checking \"Music\" and \"Tileset\" directories for missing files...");
+            Log.Write(LogType.Info, "Checking \"Music\" and \"Tileset\" directories for missing files...");
+            Log.PushIndent();
 
             foreach (string unreferenced in new[] { "boss1.j2b", "boss2.j2b", "bonus2.j2b", "bonus3.j2b", "menu.j2b" }) {
-                if (!FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Music", unreferenced))) {
-                    WriteLog(LogType.Warning, "\"" + Path.Combine("Music", unreferenced) + "\" is missing!");
+                if (!Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Music", unreferenced))) {
+                    Log.Write(LogType.Warning, "\"" + Path.Combine("Music", unreferenced) + "\" is missing!");
                 }
             }
 
@@ -710,18 +732,19 @@ namespace Import
                             LevelConfigJson json = jsonParser.Parse<LevelConfigJson>(s);
 
                             if (!string.IsNullOrEmpty(json.Description.DefaultMusic)) {
-                                if (!FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Music", json.Description.DefaultMusic))) {
-                                    WriteLog(LogType.Warning, "\"" + Path.Combine("Music", json.Description.DefaultMusic) + "\" is missing!");
+                                if (!Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Music", json.Description.DefaultMusic))) {
+                                    Log.Write(LogType.Warning, "\"" + Path.Combine("Music", json.Description.DefaultMusic) + "\" is missing!");
                                 }
                             }
 
                             if (!string.IsNullOrEmpty(json.Description.DefaultTileset)) {
                                 if (!Directory.Exists(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset)) ||
-                                    !FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "tiles.png")) ||
-                                    !FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "mask.png")) ||
-                                    !FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "normal.png")) ||
-                                    !FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, ".palette"))) {
-                                    WriteLog(LogType.Warning, "\"" + Path.Combine("Tilesets", json.Description.DefaultTileset) + "\" is missing!");
+                                    !Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "tiles.png")) ||
+                                    !Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "mask.png")) ||
+                                    !Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "normal.png")) ||
+                                    !Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, ".palette"))) {
+
+                                    Log.Write(LogType.Warning, "\"" + Path.Combine("Tilesets", json.Description.DefaultTileset) + "\" is missing!");
                                 }
                             }
                         }
@@ -729,12 +752,15 @@ namespace Import
                 }
             }
 
+            Log.PopIndent();
+
             // Check animations and sounds
-            WriteLog(LogType.Info, "Checking \"Animations\" directory for missing files...");
+            Log.Write(LogType.Info, "Checking \"Animations\" directory for missing files...");
+            Log.PushIndent();
 
             foreach (string unreferenced in new[] { "_custom/noise.png", "UI/font_medium.png", "UI/font_medium.png.res", "UI/font_medium.png.config", "UI/font_small.png", "UI/font_small.png.res", "UI/font_small.png.config" }) {
-                if (!FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Animations", unreferenced))) {
-                    WriteLog(LogType.Warning, "\"" + Path.Combine("Animations", unreferenced.Replace('/', Path.DirectorySeparatorChar)) + "\" is missing!");
+                if (!Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Animations", unreferenced))) {
+                    Log.Write(LogType.Warning, "\"" + Path.Combine("Animations", unreferenced.Replace('/', Path.DirectorySeparatorChar)) + "\" is missing!");
                 }
             }
 
@@ -746,7 +772,7 @@ namespace Import
                             try {
                                 json = jsonParser.Parse<MetadataJson>(s);
                             } catch (Exception ex) {
-                                WriteLog(LogType.Error, "\"" + Path.GetFileName(Path.GetDirectoryName(path)) + Path.DirectorySeparatorChar + Path.GetFileName(path) + "\" is corrupted! " + ex.Message);
+                                Log.Write(LogType.Error, "\"" + Path.GetFileName(Path.GetDirectoryName(path)) + Path.DirectorySeparatorChar + Path.GetFileName(path) + "\" is corrupted! " + ex.Message);
                                 continue;
                             }
 
@@ -755,11 +781,11 @@ namespace Import
                                     if (animation.Value == null || animation.Value.Path == null) {
                                         continue;
                                     }
-                                    if (!FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Animations", animation.Value.Path))) {
-                                        WriteLog(LogType.Warning, "\"" + Path.Combine("Animations", animation.Value.Path.Replace('/', Path.DirectorySeparatorChar)) + "\" is missing!");
+                                    if (!Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Animations", animation.Value.Path))) {
+                                        Log.Write(LogType.Warning, "\"" + Path.Combine("Animations", animation.Value.Path.Replace('/', Path.DirectorySeparatorChar)) + "\" is missing!");
                                     }
-                                    if (!FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Animations", animation.Value.Path + ".res"))) {
-                                        WriteLog(LogType.Warning, "\"" + Path.Combine("Animations", animation.Value.Path.Replace('/', Path.DirectorySeparatorChar)) + ".res" + "\" is missing!");
+                                    if (!Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Animations", animation.Value.Path + ".res"))) {
+                                        Log.Write(LogType.Warning, "\"" + Path.Combine("Animations", animation.Value.Path.Replace('/', Path.DirectorySeparatorChar)) + ".res" + "\" is missing!");
                                     }
                                 }
                             }
@@ -773,8 +799,8 @@ namespace Import
                                         if (soundPath == null) {
                                             continue;
                                         }
-                                        if (!FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Animations", soundPath))) {
-                                            WriteLog(LogType.Warning, "\"" + Path.Combine("Animations", soundPath.Replace('/', Path.DirectorySeparatorChar)) + "\" is missing!");
+                                        if (!Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Animations", soundPath))) {
+                                            Log.Write(LogType.Warning, "\"" + Path.Combine("Animations", soundPath.Replace('/', Path.DirectorySeparatorChar)) + "\" is missing!");
                                         }
                                     }
                                 }
@@ -783,11 +809,45 @@ namespace Import
                     }
                 }
             }
+
+            Log.PopIndent();
         }
 
-        private static void AdaptImageToPalette(string path)
+        // :: Debug-only methods ::
+#if DEBUG
+        private static void MigrateMetadata(string targetPath)
         {
-            WriteLog(LogType.Info, "Adapting image to \"Sprite\" palette...");
+            Log.Write(LogType.Info, "Migrating metadata...");
+            Log.PushIndent();
+
+            Parallel.ForEach(Directory.EnumerateDirectories(targetPath), directory => {
+                foreach (string file in Directory.EnumerateFiles(directory, "*.res")) {
+                    try {
+                        bool result = Jazz2.Migrations.MetadataV1ToV2.Convert(file);
+                        if (result) {
+                            Log.Write(LogType.Info, "Metadata \"" + Path.GetFileName(file) + "\" was migrated to v2!");
+                        } else {
+                            Log.Write(LogType.Verbose, "Metadata \"" + Path.GetFileName(file) + "\" is already up to date!");
+                        }
+                    } catch (Exception ex) {
+                        Log.Write(LogType.Error, "Metadata \"" + Path.GetFileName(file) + "\" is not supported! " + ex);
+                    }
+                }
+            });
+
+            Log.PopIndent();
+        }
+
+        private static void AdaptImageToPalette(string path, string[] args)
+        {
+            int noise = 0;
+            for (int i = 0; i < args.Length; i++) {
+                if (args[i].StartsWith("/noise:")) {
+                    int.TryParse(args[i].Substring(7), out noise);
+                }
+            }
+
+            Log.Write(LogType.Info, $"Adapting image to \"Sprite\" palette with {noise}% noise...");
 
             Random r = new Random();
             int diffMax = 0, diffTotal = 0;
@@ -811,10 +871,11 @@ namespace Import
                                 }
                             }
 
-                            if (r.Next(100) < 10 && Math.Abs(color.A - secondMatch.A) < 20) {
+                            if (r.Next(100) < noise && Math.Abs(color.A - secondMatch.A) < 20) {
                                 bestMatch = secondMatch;
                             }
 
+                            bestMatch = Color.FromArgb(color.A, bestMatch);
                             b.SetPixel(x, y, bestMatch);
 
                             diffMax = Math.Max(diffMax, bestMatchDiff);
@@ -826,81 +887,10 @@ namespace Import
                 }
             }
 
-            WriteLog(LogType.Info, "Image adapted! - Max. diff: " + diffMax + " - Total diff: " + diffTotal);
+            Log.Write(LogType.Info, "Image adapted!   |   Max. diff: " + diffMax + "   |   Total diff: " + diffTotal);
 
             Console.ReadLine();
         }
-
-        private static bool FileExistsCaseSensitive(string path)
-        {
-            path = path.Replace('/', Path.DirectorySeparatorChar);
-
-            if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
-                // Check case-sensitive on Windows
-                if (File.Exists(path)) {
-                    string directory = Path.GetDirectoryName(path);
-                    string fileName = Path.GetFileName(path);
-                    string found = Directory.EnumerateFiles(directory, fileName).First();
-                    if (found == null || found == path) {
-
-                        directory = directory.TrimEnd(Path.DirectorySeparatorChar);
-
-                        while (true) {
-                            int index = directory.LastIndexOf(Path.DirectorySeparatorChar);
-                            if (index >= 0) {
-                                string directoryName = directory.Substring(index + 1);
-                                string parent = directory.Substring(0, index);
-
-                                bool isDrive = (parent.Length == 2 && char.IsLetter(parent[0]) && parent[1] == ':');
-                                if (isDrive) {
-                                    // Parent directory is probably drive specifier (C:)
-                                    // Append backslash...
-                                    parent += Path.DirectorySeparatorChar;
-                                }
-
-                                found = Directory.EnumerateDirectories(parent, directoryName).First();
-                                if (found != null && found != directory) {
-                                    return false;
-                                }
-
-                                if (isDrive) {
-                                    // Parent directory is probably drive specifier (C:)
-                                    // Check is done...
-                                    break;
-                                }
-
-                                directory = parent;
-                            } else {
-                                // No directory separator found
-                                break;
-                            }
-                        }
-
-                        return true;
-                    }
-                }
-
-                return false;
-            } else {
-                return File.Exists(path);
-            }
-        }
-
-        public static bool FileResolveCaseInsensitive(ref string path)
-        {
-            if (File.Exists(path)) {
-                return true;
-            }
-
-            string directory = Path.GetDirectoryName(path);
-            string fileName = Path.GetFileName(path);
-            string found = Directory.EnumerateFiles(directory).FirstOrDefault(current => string.Compare(Path.GetFileName(current), fileName, true) == 0);
-            if (found == null) {
-                return false;
-            } else {
-                path = found;
-                return true;
-            }
-        }
+#endif
     }
 }
