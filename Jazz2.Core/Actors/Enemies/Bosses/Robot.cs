@@ -35,6 +35,8 @@ namespace Jazz2.Actors.Bosses
 
         public void Activate()
         {
+            SetHealthByDifficulty(100);
+
             renderer.Active = true;
             state = StateCopter;
 

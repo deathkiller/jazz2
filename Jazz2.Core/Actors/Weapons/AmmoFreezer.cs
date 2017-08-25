@@ -50,10 +50,11 @@ namespace Jazz2.Actors.Weapons
             if ((upgrades & 0x1) != 0) {
                 timeLeft = 38;
                 state |= (AnimState)1;
-                PlaySound("Fire");
+                PlaySound("FireUpgraded");
             } else {
                 timeLeft = 44;
-                PlaySound("FireUpgraded");
+                
+                PlaySound("Fire");
             }
 
             Transform.Angle = angle;

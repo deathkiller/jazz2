@@ -66,7 +66,7 @@ namespace Jazz2.Actors.Solid
             Transform.Pos = GetPhasePosition(false, length, out scale);
             OnUpdateHitbox();
 
-            canHurtPlayer = MathF.Abs(1f - scale) < 0.1f;
+            canHurtPlayer = MathF.Abs(1f - scale) < 0.06f;
 
             Transform.Scale = scale;
 
@@ -104,7 +104,7 @@ namespace Jazz2.Actors.Solid
                 // Blinn-Wyvill approximation to the raised inverted cosine,
                 // easing curve with slower ends and faster middle part
                 float i = (effectivePhase / BaseCycleFrames * 2);
-                effectivePhase = ((4f / 9f) * MathF.Pow(i, 6) - (17f / 9f) * MathF.Pow(i, 4) + (22f / 9f) * MathF.Pow(i, 2)) * BaseCycleFrames / 2;
+                effectivePhase = (1 + ((4f / 9f) * MathF.Pow(i, 6) - (17f / 9f) * MathF.Pow(i, 4) + (22f / 9f) * MathF.Pow(i, 2))) * BaseCycleFrames / 2;
             }
 
             float multiX = MathF.Cos(effectivePhase / BaseCycleFrames * MathF.TwoPi);

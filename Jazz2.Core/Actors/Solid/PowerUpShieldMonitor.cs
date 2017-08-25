@@ -5,13 +5,13 @@ namespace Jazz2.Actors.Solid
 {
     public class PowerUpShieldMonitor : SolidObjectBase
     {
-        private ushort shieldType;
+        private Player.ShieldType shieldType;
 
         public override void OnAttach(ActorInstantiationDetails details)
         {
             base.OnAttach(details);
 
-            shieldType = details.Params[0];
+            shieldType = (Player.ShieldType)details.Params[0];
 
             Movable = true;
 
@@ -20,10 +20,10 @@ namespace Jazz2.Actors.Solid
             RequestMetadata("Object/PowerUpMonitor");
 
             switch (shieldType) {
-                case 0: SetAnimation("ShieldFire"); break;
-                case 1: SetAnimation("ShieldWater"); break;
-                case 2: SetAnimation("ShieldLaser"); break;
-                case 3: SetAnimation("ShieldLightning"); break;
+                case Player.ShieldType.Fire: SetAnimation("ShieldFire"); break;
+                case Player.ShieldType.Water: SetAnimation("ShieldWater"); break;
+                case Player.ShieldType.Laser: SetAnimation("ShieldLaser"); break;
+                case Player.ShieldType.Lightning: SetAnimation("ShieldLightning"); break;
 
                 default: SetAnimation("Empty"); break;
             }
@@ -69,7 +69,7 @@ namespace Jazz2.Actors.Solid
 
         public void DestroyAndApplyToPlayer(Player player)
         {
-            // ToDo
+            player.SetShield(shieldType, 30f);
 
             DecreaseHealth(int.MaxValue, player);
             PlaySound("Break");

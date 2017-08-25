@@ -148,14 +148,14 @@ namespace Jazz2.Actors
 
             SetTransition(currentAnimationState | (AnimState)0x200, false);
             switch (orientation) {
-                case 0:
+                case 0: // Bottom
                     PlaySound("Vertical");
                     return new Vector2(0, -strength);
-                case 2:
+                case 2: // Top
                     PlaySound("VerticalReversed");
                     return new Vector2(0, strength);
-                case 1:
-                case 3:
+                case 1: // Right
+                case 3: // Left
                     PlaySound("Horizontal");
                     return new Vector2(strength * (orientation == 1 ? 1 : -1), 0);
                 default:

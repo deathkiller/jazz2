@@ -13,7 +13,7 @@
 
         protected override void Collect(Player player)
         {
-            // ToDo
+            player.IncreaseTime(10f);
 
             base.Collect(player);
         }

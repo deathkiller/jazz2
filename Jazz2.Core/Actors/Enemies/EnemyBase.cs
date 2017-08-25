@@ -186,10 +186,10 @@ namespace Jazz2.Actors.Enemies
             } else {
                 Vector2 force;
                 switch (lastHitDir) {
-                    case LastHitDirection.Left: force = new Vector2(-1f, 0f); break;
-                    case LastHitDirection.Right: force = new Vector2(1f, 0f); break;
-                    case LastHitDirection.Up: force = new Vector2(0f, -1f); break;
-                    case LastHitDirection.Down: force = new Vector2(0f, 1f); break;
+                    case LastHitDirection.Left: force = new Vector2(-1.4f, 0f); break;
+                    case LastHitDirection.Right: force = new Vector2(1.4f, 0f); break;
+                    case LastHitDirection.Up: force = new Vector2(0f, -1.4f); break;
+                    case LastHitDirection.Down: force = new Vector2(0f, 1.4f); break;
 
                     default: force = Vector2.Zero; break;
                 }

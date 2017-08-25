@@ -72,7 +72,7 @@ namespace Jazz2.Game
             const int GemColorCount = 4;
             const int Expansion = 32;
 
-            int[] PaletteStops = new int[] {
+            int[] PaletteStops = {
                 55, 52, 48, 15, 15,
                 87, 84, 80, 15, 15,
                 39, 36, 32, 15, 15,

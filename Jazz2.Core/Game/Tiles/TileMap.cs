@@ -380,7 +380,7 @@ namespace Jazz2.Game.Tiles
             }
 
             for (int ty = ry - 4; ty < ry + 4; ty++) {
-                if (ty < 0 || ty >= 32) {
+                if (ty < 0 || ty > 31) {
                     continue;
                 }
 
