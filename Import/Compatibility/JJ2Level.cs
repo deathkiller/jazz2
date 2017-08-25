@@ -507,10 +507,14 @@ namespace Jazz2.Compatibility
                     tileset = tileset.Substring(0, tileset.Length - 4);
                 }
                 w.WriteLine("        \"DefaultTileset\": \"" + tileset.ToLowerInvariant() + "\",");
-                if (!music.Contains('.')) {
-                    music = music + ".j2b";
+
+                if (!string.IsNullOrWhiteSpace(music)) {
+                    if (!music.Contains('.')) {
+                        music = music + ".j2b";
+                    }
+                    w.WriteLine("        \"DefaultMusic\": \"" + music.ToLowerInvariant() + "\",");
                 }
-                w.WriteLine("        \"DefaultMusic\": \"" + music.ToLowerInvariant() + "\",");
+
                 w.Write("        \"DefaultLight\": " + (lightingStart * 100 / 64).ToString(CultureInfo.InvariantCulture));
 
                 LevelHandler.LevelFlags flags = 0;

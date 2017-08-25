@@ -165,7 +165,7 @@ namespace Jazz2.Compatibility
                                         currentFrame = 0;
                                     }
 
-                                    ref AnimFrameSection frame = ref currentAnim.Frames[j];
+                                    ref AnimFrameSection frame = ref currentAnim.Frames[currentFrame];
 
                                     frame.SizeX = frameDataBlock.ReadInt16();
                                     frame.SizeY = frameDataBlock.ReadInt16();
@@ -209,8 +209,7 @@ namespace Jazz2.Compatibility
                                             if (diffPrevX != diffNextX || diffPrevY != diffNextY) {
                                                 Log.Write(LogType.Warning, "Animation " + currentAnim.Anim + " coldspots in set " + currentAnim.Set + " are different!");
                                                 Log.PushIndent();
-                                                Log.Write(LogType.Warning, "Frame #" + (currentFrame - 1) + ": " + diffPrevX + "," + diffPrevY);
-                                                Log.Write(LogType.Warning, "Frame #" + currentFrame + ": " + diffNextX + "," + diffNextY);
+                                                Log.Write(LogType.Warning, "Frame #" + (currentFrame - 1) + ": " + diffPrevX + "," + diffPrevY + "  |  " + "Frame #" + currentFrame + ": " + diffNextX + "," + diffNextY);
                                                 Log.PopIndent();
                                             }
                                         }
@@ -224,8 +223,7 @@ namespace Jazz2.Compatibility
                                             if (diffPrevX != diffNextX || diffPrevY != diffNextY) {
                                                 Log.Write(LogType.Warning, "Animation " + currentAnim.Anim + " gunspots in set " + currentAnim.Set + " are different!");
                                                 Log.PushIndent();
-                                                Log.Write(LogType.Warning, "Frame #" + (currentFrame - 1) + ": " + diffPrevX + "," + diffPrevY);
-                                                Log.Write(LogType.Warning, "Frame #" + currentFrame + ": " + diffNextX + "," + diffNextY);
+                                                Log.Write(LogType.Warning, "Frame #" + (currentFrame - 1) + ": " + diffPrevX + "," + diffPrevY + "  |  " + "Frame #" + currentFrame + ": " + diffNextX + "," + diffNextY);
                                                 Log.PopIndent();
                                             }
                                         }
@@ -258,7 +256,7 @@ namespace Jazz2.Compatibility
                                         imageDataBlock.SeekTo(dpos - 2);
                                         ushort height2 = imageDataBlock.ReadUInt16();
 
-                                        AnimFrameSection frameData = anim.Frames[frame];
+                                        ref AnimFrameSection frameData = ref anim.Frames[frame];
                                         frameData.DrawTransparent = (width2 & 0x8000) > 0;
 
                                         int pxRead = 0;
