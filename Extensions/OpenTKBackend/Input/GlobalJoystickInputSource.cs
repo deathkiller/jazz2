@@ -126,11 +126,11 @@ namespace Duality.Backend.DefaultOpenTK
 
                 if (joystick.IsAvailable) {
                     inputManager.AddSource(joystick);
-                    /*Log.Core.Write(
+                    Console.WriteLine(
                         "Detected new Joystick Input: \"{0}\" at index {1}" + Environment.NewLine +
                         "Capabilities: {2} axes, {3} buttons, {4} hats",
                         joystick.Description, deviceIndex,
-                        joystick.AxisCount, joystick.ButtonCount, joystick.HatCount);*/
+                        joystick.AxisCount, joystick.ButtonCount, joystick.HatCount);
                 } else if (deviceIndex >= MinDeviceCheckCount)
                     break;
             }

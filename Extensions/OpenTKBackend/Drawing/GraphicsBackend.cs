@@ -468,8 +468,6 @@ namespace Duality.Backend.DefaultOpenTK
                 this.SetupMaterial(renderBatch.Material, lastBatchRendered == null ? null : lastBatchRendered.Material);
 
             GL.DrawArrays(GetOpenTKVertexMode(renderBatch.VertexMode), vertexOffset, renderBatch.VertexCount);
-
-            //lastBatchRendered = renderBatch;
         }
         private void FinishRenderBatch(IDrawBatch renderBatch)
         {

@@ -63,23 +63,19 @@
   <ItemGroup>
     <Compile Include="App.cs" />
     <Compile Include="Backend\Drawing\BitmapImageCodec.cs" />
+    <Compile Include="InnerView.Input.cs" />
     <Compile Include="Backend\Preferences\PreferencesBackend.cs" />
     <Compile Include="Backend\Sound\AudioBackend.cs" />
     <Compile Include="Backend\Sound\NativeAudioBuffer.cs" />
     <Compile Include="Backend\Sound\NativeAudioSource.cs" />
     <Compile Include="CrashHandlerActivity.cs" />
-    <Compile Include="GLView.Touch.cs">
-      <SubType>Code</SubType>
-      <DependentUpon>GLView.cs</DependentUpon>
-    </Compile>
     <Compile Include="Game\UI\Hud.Touch.cs" />
     <Compile Include="Game\UI\Menu\I\InGameMenu.Touch.cs" />
-    <Compile Include="MainActivity.cs" />
-    <Compile Include="GLView.cs" />
+    <Compile Include="DualityActivity.cs" />
+    <Compile Include="InnerView.cs" />
     <Compile Include="Backend\Drawing\OpenTK\ExtMethodsColorDataElementType.cs" />
     <Compile Include="Backend\Drawing\OpenTK\ExtMethodsColorDataLayout.cs" />
     <Compile Include="Backend\Drawing\OpenTK\GraphicsBackend.cs" />
-    <Compile Include="Backend\Drawing\OpenTK\GraphicsModeComparer.cs" />
     <Compile Include="Backend\Drawing\OpenTK\NativeRenderTarget.cs" />
     <Compile Include="Backend\Drawing\OpenTK\NativeShaderPart.cs" />
     <Compile Include="Backend\Drawing\OpenTK\NativeShaderProgram.cs" />

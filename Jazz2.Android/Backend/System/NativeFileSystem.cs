@@ -30,6 +30,7 @@ namespace Duality.Backend.Android
                     break;
                 }
 
+                // ToDo: Remove this in future versions
                 path = Path.Combine(storages[i].Path, "Download", packageName);
                 if (Directory.Exists(path)) {
                     RootPath = path;

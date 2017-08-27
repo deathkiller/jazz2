@@ -137,7 +137,7 @@ namespace Jazz2.Game.UI.Menu
                 animation = Math.Min(animation + Time.TimeMult * 0.016f, 1f);
             }
 
-            if (DualityApp.Keyboard.KeyHit(Key.Enter)) {
+            if (ControlScheme.MenuActionHit(PlayerActions.Fire)) {
                 if (selectedIndex == 2) {
                     api.PlaySound("MenuSelect", 0.5f);
                     LevelInitialization carryOver = new LevelInitialization(
@@ -167,7 +167,7 @@ namespace Jazz2.Game.UI.Menu
 
                     api.SwitchToLevel(carryOver);
                 }
-            } else if (DualityApp.Keyboard.KeyHit(Key.Left)) {
+            } else if (ControlScheme.MenuActionHit(PlayerActions.Left)) {
                 if (selectedIndex == 0) {
                     if (selectedPlayerType > 0) {
                         selectedPlayerType--;
@@ -179,7 +179,7 @@ namespace Jazz2.Game.UI.Menu
                         selectedDifficulty--;
                     }
                 }
-            } else if (DualityApp.Keyboard.KeyHit(Key.Right)) {
+            } else if (ControlScheme.MenuActionHit(PlayerActions.Right)) {
                 if (selectedIndex == 0) {
                     if (selectedPlayerType < availableCharacters - 1) {
                         selectedPlayerType++;
@@ -191,7 +191,7 @@ namespace Jazz2.Game.UI.Menu
                         selectedDifficulty++;
                     }
                 }
-            } else if (DualityApp.Keyboard.KeyHit(Key.Up)) {
+            } else if (ControlScheme.MenuActionHit(PlayerActions.Up)) {
                 api.PlaySound("MenuSelect", 0.4f);
                 animation = 0f;
                 if (selectedIndex > 0) {
@@ -199,7 +199,7 @@ namespace Jazz2.Game.UI.Menu
                 } else {
                     selectedIndex = items.Length - 1;
                 }
-            } else if (DualityApp.Keyboard.KeyHit(Key.Down)) {
+            } else if (ControlScheme.MenuActionHit(PlayerActions.Down)) {
                 api.PlaySound("MenuSelect", 0.4f);
                 animation = 0f;
                 if (selectedIndex < items.Length - 1) {

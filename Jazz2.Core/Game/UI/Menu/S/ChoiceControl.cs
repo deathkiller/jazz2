@@ -92,13 +92,13 @@ namespace Jazz2.Game.UI.Menu.S
 
         public override void OnUpdate()
         {
-            if (DualityApp.Keyboard.KeyHit(Key.Left)) {
+            if (ControlScheme.MenuActionHit(PlayerActions.Left)) {
                 if (selectedIndex > 0) {
                     selectedIndex--;
                 } else if (allowWrap) {
                     selectedIndex = choices.Length - 1;
                 }
-            } else if (DualityApp.Keyboard.KeyHit(Key.Right)) {
+            } else if (ControlScheme.MenuActionHit(PlayerActions.Right)) {
                 if (selectedIndex < choices.Length - 1) {
                     selectedIndex++;
                 } else if (allowWrap) {

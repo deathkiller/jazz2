@@ -1,10 +1,9 @@
-﻿
-using Android.App;
+﻿using Android.App;
 using Android.Content.Res;
 using Duality;
+using Duality.Android;
 using Duality.Drawing;
 using Duality.Resources;
-using Jazz2.Android;
 
 namespace Jazz2.Game.UI.Menu.I
 {
@@ -28,12 +27,12 @@ namespace Jazz2.Game.UI.Menu.I
             c.State.ColorTint = ColorRgba.White;
             c.DrawLine(0, y, size.X, y);
 
-            if (!GLView.showVirtualButtons || GLView.virtualButtons == null) {
+            if (!InnerView.showVirtualButtons || InnerView.virtualButtons == null) {
                 return;
             }
 
-            for (int i = 0; i < GLView.virtualButtons.Length; i++) {
-                GLView.VirtualButton button = GLView.virtualButtons[i];
+            for (int i = 0; i < InnerView.virtualButtons.Length; i++) {
+                InnerView.VirtualButton button = InnerView.virtualButtons[i];
                 if (button.Material.IsAvailable) {
                     c.State.SetMaterial(button.Material);
                     c.FillOval(button.Left * size.X, button.Top * size.Y, button.Width * size.X, button.Height * size.Y);

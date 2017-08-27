@@ -15,11 +15,11 @@ namespace Jazz2.Game.UI.Menu.S
                 // 3xBRZ shader is not available in OpenGL ES 3.0 version
 #if __ANDROID__
                 new ChoiceControl(api, "Resize Mode", (int)Resize, "None", "HQ2x"),
-                new ChoiceControl(api, "Vibrations", Android.GLView.allowVibrations ? 1 : 0, "Disable", "Enable"),
+                new ChoiceControl(api, "Vibrations", Duality.Android.InnerView.allowVibrations ? 1 : 0, "Disable", "Enable"),
 #else
                 new ChoiceControl(api, "Resize Mode", (int)Resize, "None", "HQ2x", "3xBRZ"),
 #endif
-                //new LinkControl(api, "Controls", () => {}),
+                new LinkControl(api, "Controls", OnControlsPressed)
             };
         }
 
@@ -51,10 +51,6 @@ namespace Jazz2.Game.UI.Menu.S
                 api.DrawString(device, ref charOffset, fs.RootPath,
                     180f + 10f + 98f, center.Y + 100f, Alignment.Left, new ColorRgba(0.46f, 0.5f), 0.8f, charSpacing: 0.85f);
             }
-#else
-            api.DrawString(device, ref charOffset,
-                "Controls\nArrows = Move\nV = Jump\nSpace = Fire\nC = Run\nX = Switch Weapon",
-                center.X, center.Y + 60f, Alignment.Top, ColorRgba.TransparentBlack, 0.82f, charSpacing: 0.9f);
 #endif
         }
 
@@ -63,12 +59,17 @@ namespace Jazz2.Game.UI.Menu.S
             Resize = (ResizeMode)((ChoiceControl)controls[0]).SelectedIndex;
 
 #if __ANDROID__
-            Android.GLView.allowVibrations = ((ChoiceControl)controls[1]).SelectedIndex == 1;
+            Duality.Android.InnerView.allowVibrations = ((ChoiceControl)controls[1]).SelectedIndex == 1;
 
-            Preferences.Set("Vibrations", Android.GLView.allowVibrations);
+            Preferences.Set("Vibrations", Duality.Android.InnerView.allowVibrations);
 #endif
 
             Preferences.Commit();
+        }
+
+        private void OnControlsPressed()
+        {
+            api.SwitchToSection(new ControlsSection());
         }
     }
 }

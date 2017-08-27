@@ -2,27 +2,23 @@
 using Android.App;
 using Android.Content;
 using Android.OS;
-using Duality;
 using Duality.Backend;
 using Jazz2.Game;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Platform.Android;
-using Debug = System.Diagnostics.Debug;
 using INativeWindow = Duality.Backend.INativeWindow;
-using NativeWindow = Duality.Backend.Android.OpenTK.NativeWindow;
-using Vector2 = Duality.Vector2;
 
-namespace Jazz2.Android
+namespace Duality.Android
 {
-    public partial class GLView : AndroidGameView
+    public partial class InnerView : AndroidGameView
     {
         private Controller controller;
         private int viewportWidth, viewportHeight;
 
         private readonly Vibrator vibrator;
 
-        public GLView(Context context) : base(context)
+        public InnerView(Context context) : base(context)
         {
             vibrator = (Vibrator)context.GetSystemService(Context.VibratorService);
         }
@@ -34,6 +30,7 @@ namespace Jazz2.Android
             viewportWidth = Width;
             viewportHeight = Height;
 
+            // ToDo: Create Android-specific AssemblyLoader
             DualityApp.Init(DualityApp.ExecutionContext.Game, /*new DefaultAssemblyLoader()*/null, null);
 
             DualityApp.WindowSize = new Point2(viewportWidth, viewportHeight);
@@ -41,15 +38,10 @@ namespace Jazz2.Android
                 ScreenMode = ScreenMode.Window
             });
 
-            if (window is NativeWindow) {
-                // Backend was initialized successfully
-                (window as NativeWindow).BindContext(Context);
-            }
-
             FocusableInTouchMode = true;
             RequestFocus();
 
-            InitInput();
+            InitializeInput();
 
             controller = new Controller(window);
             controller.ShowMainMenu();
@@ -71,27 +63,27 @@ namespace Jazz2.Android
 
             // The default GraphicsMode that is set consists of (16, 16, 0, 0, 2, false)
             try {
-                Debug.WriteLine("GLView :: Loading with default settings");
+                Console.WriteLine("GLView is loading with default settings");
 
                 base.CreateFrameBuffer();
                 return;
             } catch (Exception ex) {
-                Debug.WriteLine("GLView :: CreateFrameBuffer() threw an exception: " + ex);
+                Console.WriteLine("GLView.CreateFrameBuffer() threw an exception: " + ex);
             }
 
             // This is a graphics setting that sets everything to the lowest mode possible so
             // the device returns a reliable graphics setting.
             try {
-                Debug.WriteLine("GLView :: Loading with custom Android settings (low mode)");
+                Console.WriteLine("GLView is loading with custom Android settings (low-quality mode)");
                 GraphicsMode = new AndroidGraphicsMode(0, 0, 0, 0, 0, false);
 
                 base.CreateFrameBuffer();
                 return;
             } catch (Exception ex) {
-                Debug.WriteLine("GLView :: CreateFrameBuffer() threw an exception: " + ex);
+                Console.WriteLine("GLView.CreateFrameBuffer() threw an exception: " + ex);
             }
 
-            throw new BackendException("Cannot initialize OpenGL ES 3.0 FrameBuffer");
+            throw new BackendException("Cannot initialize OpenGL ES 3.0 device");
         }
 
         protected override void OnResize(EventArgs e)
@@ -125,11 +117,7 @@ namespace Jazz2.Android
         {
             //base.OnRenderFrame(e);
 
-            //try {
-                DualityApp.Render(null, new Rect(viewportWidth, viewportHeight), new Vector2(viewportWidth, viewportHeight));
-            //} catch (Exception ex) {
-            //    Console.WriteLine(ex.ToString());
-            //}
+            DualityApp.Render(null, new Rect(viewportWidth, viewportHeight), new Vector2(viewportWidth, viewportHeight));
 
             SwapBuffers();
         }

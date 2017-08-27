@@ -34,7 +34,7 @@ namespace Jazz2.Backend.Android
 
             string base64 = sharedPrefs.GetString("Root", null);
             if (string.IsNullOrEmpty(base64)) {
-                //
+                // No preferences found
                 return;
             }
 
@@ -231,7 +231,7 @@ namespace Jazz2.Backend.Android
 
                     editor.Commit();
                 } else {
-                    Console.WriteLine("Can't get memory buffer for preferences.");
+                    Console.WriteLine("Can't get memory buffer to save preferences.");
                 }
             }
         }

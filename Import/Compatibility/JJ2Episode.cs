@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using Duality;
 
 namespace Jazz2.Compatibility
 {
@@ -14,6 +16,7 @@ namespace Jazz2.Compatibility
         private bool isRegistered;
 
         //private Bitmap image, titleLight, titleDark;
+        private Bitmap titleLight;
 
         public int Position => position;
         public string Token => episodeToken;
@@ -63,7 +66,7 @@ namespace Jazz2.Compatibility
                 }
 
                 // ToDo: Episode images are not supported yet
-                /*int width = r.ReadInt32();
+                int width = r.ReadInt32();
                 int height = r.ReadInt32();
                 int unknown2 = r.ReadInt32();
                 int unknown3 = r.ReadInt32();
@@ -77,41 +80,23 @@ namespace Jazz2.Compatibility
                     int imagePackedSize = r.ReadInt32();
                     int imageUnpackedSize = width * height;
                     JJ2Block imageBlock = new JJ2Block(s, imagePackedSize, imageUnpackedSize);
-                    episode.image = ConvertIndicesToRgbaBitmap(width, height, imageBlock);
+                    //episode.image = ConvertIndicesToRgbaBitmap(width, height, imageBlock, false);
                 }
                 {
                     int titleLightPackedSize = r.ReadInt32();
                     int titleLightUnpackedSize = titleWidth * titleHeight;
                     JJ2Block titleLightBlock = new JJ2Block(s, titleLightPackedSize, titleLightUnpackedSize);
-                    episode.titleLight = ConvertIndicesToRgbaBitmap(titleWidth, titleHeight, titleLightBlock);
+                    episode.titleLight = ConvertIndicesToRgbaBitmap(titleWidth, titleHeight, titleLightBlock, true);
                 }
-                {
-                    int titleDarkPackedSize = r.ReadInt32();
-                    int titleDarkUnpackedSize = titleWidth * titleHeight;
-                    JJ2Block titleDarkBlock = new JJ2Block(s, titleDarkPackedSize, titleDarkUnpackedSize);
-                    episode.titleDark = ConvertIndicesToRgbaBitmap(titleWidth, titleHeight, titleDarkBlock);
-                }*/
+                //{
+                //    int titleDarkPackedSize = r.ReadInt32();
+                //    int titleDarkUnpackedSize = titleWidth * titleHeight;
+                //    JJ2Block titleDarkBlock = new JJ2Block(s, titleDarkPackedSize, titleDarkUnpackedSize);
+                //    episode.titleDark = ConvertIndicesToRgbaBitmap(titleWidth, titleHeight, titleDarkBlock, true);
+                //}
 
                 return episode;
             }
-        }
-
-        private static Bitmap ConvertIndicesToRgbaBitmap(int width, int height, JJ2Block block)
-        {
-            byte[] data = block.AsByteArray();
-
-            Bitmap result = new Bitmap(width, height, PixelFormat.Format32bppArgb);
-
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    int index = data[y * width + x];
-                    // Use menu palette here
-                    Color color = JJ2DefaultPalette.Menu[index];
-                    result.SetPixel(x, y, color);
-                }
-            }
-
-            return result;
         }
 
         public void Convert(string path, Func<string, JJ2Level.LevelToken> levelTokenConversion = null, Func<JJ2Episode, string> episodeNameConversion = null, Func<JJ2Episode, Tuple<string, string>> episodePrevNext = null)
@@ -172,6 +157,137 @@ namespace Jazz2.Compatibility
             //if (titleDark != null) {
             //    titleDark.Save(Path.Combine(path, "titleDark.png"), ImageFormat.Png);
             //}
+
+            if (titleLight != null) {
+                // Resize the original image
+                const float ratio = 120f / 220f;
+                int width = MathF.RoundToInt(titleLight.Width * ratio);
+                int height = MathF.RoundToInt(titleLight.Height * ratio);
+                Bitmap title = new Bitmap(width, height);
+                using (Graphics g = Graphics.FromImage(title)) {
+                    g.CompositingQuality = CompositingQuality.HighQuality;
+                    g.InterpolationMode = InterpolationMode.High;
+                    g.SmoothingMode = SmoothingMode.HighQuality;
+
+                    g.DrawImage(titleLight, new Rectangle(0, 0, width, height));
+                }
+
+                // Align image to center
+                int left = 0, right = 0;
+                for (int x = 0; x < width; x++) {
+                    for (int y = 0; y < height; y++) {
+                        Color color = title.GetPixel(x, y);
+                        if (color.A > 0) {
+                            left = x;
+                            break;
+                        }
+                    }
+                }
+
+                for (int x = width - 1; x >= 0; x--) {
+                    for (int y = 0; y < height; y++) {
+                        Color color = title.GetPixel(x, y);
+                        if (color.A > 0) {
+                            right = x;
+                            break;
+                        }
+                    }
+                }
+
+                int align = ((width - right - 1) - left) / 2;
+
+                // Shadow
+                Bitmap shadow = new Bitmap(width, height);
+
+                for (int x = 0; x < width; x++) {
+                    for (int y = 0; y < height; y++) {
+                        Color color = title.GetPixel(x, y);
+                        if (color.A > 0) {
+                            color = Color.FromArgb(color.A, 0, 20, 30);
+                        }
+                        shadow.SetPixel(x, y, color);
+                    }
+                }
+
+                // Compose final image
+                Bitmap output = new Bitmap(width, height);
+
+                using (Graphics g = Graphics.FromImage(output)) {
+                    DrawImageEx(g, shadow, new RectangleF(align, -0.4f, width, height), 100, false);
+                    DrawImageEx(g, shadow, new RectangleF(align, 1.2f, width, height), 200, false);
+
+                    g.DrawImage(title, new Rectangle(align, 0, width, height));
+                }
+
+                output.Save(Path.Combine(path, ".png"), ImageFormat.Png);
+            }
+        }
+
+        private static Bitmap ConvertIndicesToRgbaBitmap(int width, int height, JJ2Block block, bool removeShadow)
+        {
+            byte[] data = block.AsByteArray();
+
+            Bitmap result = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    int index = data[y * width + x];
+                    // Use menu palette here
+                    Color color;
+                    if (removeShadow && (index == 63 || index == 143)) {
+                        color = Color.FromArgb(0, 0, 0, 0);
+                    } else {
+                        color = JJ2DefaultPalette.Menu[index];
+                    }
+
+                    result.SetPixel(x, y, color);
+                }
+            }
+
+            return result;
+        }
+
+        public static void DrawImageEx(Graphics g, Image i, RectangleF r, byte alpha, bool grayscaled)
+        {
+            if (alpha == 0)
+                return;
+
+            PixelOffsetMode oldPOM = g.PixelOffsetMode;
+            g.PixelOffsetMode = PixelOffsetMode.Half;
+
+            PointF ulCorner = new PointF(r.Left, r.Top);
+            PointF urCorner = new PointF(r.Right, r.Top);
+            PointF llCorner = new PointF(r.Left, r.Bottom);
+            PointF[] destPoints = { ulCorner, urCorner, llCorner };
+
+            if (alpha == 0xff && !grayscaled) {
+                g.DrawImage(i, destPoints, new RectangleF(0, 0, i.Width, i.Height), GraphicsUnit.Pixel);
+                return;
+            }
+
+            ColorMatrix colorMatrix;
+            if (grayscaled) {
+                colorMatrix = new ColorMatrix(new[] {
+                    new float[] {0.299f, 0.299f, 0.299f, 0, 0},
+                    new float[] {0.587f, 0.587f, 0.587f, 0, 0},
+                    new float[] {0.114f, 0.114f, 0.114f, 0, 0},
+                    new float[] {0, 0, 0, alpha / 255f, 0},
+                    new float[] {0, 0, 0, 0, 1}
+                });
+            } else {
+                colorMatrix = new ColorMatrix(new[] {
+                    new float[] {1, 0, 0, 0, 0},
+                    new float[] {0, 1, 0, 0, 0},
+                    new float[] {0, 0, 1, 0, 0},
+                    new float[] {0, 0, 0, alpha / 255f, 0},
+                    new float[] {0, 0, 0, 0, 1}
+                });
+            }
+            using (ImageAttributes imageAttributes = new ImageAttributes()) {
+                imageAttributes.SetColorMatrix(colorMatrix);
+                g.DrawImage(i, destPoints, new RectangleF(0, 0, i.Width, i.Height), GraphicsUnit.Pixel, imageAttributes);
+            }
+            g.PixelOffsetMode = oldPOM;
         }
     }
 }

@@ -151,7 +151,8 @@ namespace Duality.Backend.Android.OpenTK
             if (targets.Count == 0) return;
             if (targets.All(i => i == null)) return;
 
-            int highestAALevel = MathF.RoundToInt(MathF.Log(MathF.Max(MaxRenderTargetSamples, 1.0f), 2.0f));
+            // ToDo: AA is disabled for now
+            /*int highestAALevel = MathF.RoundToInt(MathF.Log(MathF.Max(MaxRenderTargetSamples, 1.0f), 2.0f));
             int targetAALevel = highestAALevel;
             switch (multisample) {
                 case AAQuality.High: targetAALevel = highestAALevel; break;
@@ -163,7 +164,9 @@ namespace Duality.Backend.Android.OpenTK
             GraphicsMode sampleMode =
                 GraphicsBackend.ActiveInstance.AvailableGraphicsModes.LastOrDefault(m => m.Samples <= targetSampleCount) ??
                 GraphicsBackend.ActiveInstance.AvailableGraphicsModes.Last();
-            this.samples = sampleMode.Samples;
+            this.samples = sampleMode.Samples;*/
+            this.samples = 0;
+
             this.depthBuffer = depthBuffer;
 
             // Synchronize target information

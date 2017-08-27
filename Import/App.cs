@@ -444,9 +444,9 @@ namespace Import
                     l.Convert(targetPathInner, levelTokenConversion);
 
                     if (l.UnsupportedEvents.Count > 0) {
-                        Log.Write(LogType.Warning, "Level \"" + levelToken + "\"" + versionPart + " converted" + (isPlusEnhanced ? " without AngelScript" : "") + " with " + l.UnsupportedEvents.Sum(i => i.Value) + " warnings.");
+                        Log.Write(LogType.Warning, "Level \"" + levelToken + "\"" + versionPart + " converted" + (isPlusEnhanced ? " without .j2as" : "") + " with " + l.UnsupportedEvents.Sum(i => i.Value) + " warnings.");
                     } else {
-                        Log.Write(LogType.Info, "Level \"" + levelToken + "\"" + versionPart + " converted" + (isPlusEnhanced ? " without AngelScript" : "") + ".");
+                        Log.Write(LogType.Info, "Level \"" + levelToken + "\"" + versionPart + " converted" + (isPlusEnhanced ? " without .j2as" : "") + ".");
                     }
 
                     if (!string.IsNullOrEmpty(l.Music)) {

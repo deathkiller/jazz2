@@ -10,7 +10,5 @@
 
         public string PreviousEpisode { get; set; }
         public string NextEpisode { get; set; }
-
-        public bool IsAvailable;
     }
 }

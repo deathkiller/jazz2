@@ -28,11 +28,8 @@ namespace Duality.Backend.Android.OpenTK
 
         private IDrawDevice currentDevice;
         private RenderStats renderStats;
-        private HashSet<GraphicsMode> availGraphicsModes;
-        private GraphicsMode defaultGraphicsMode;
         private uint primaryVBO;
         private Point2 externalBackbufferSize = Point2.Zero;
-        private bool contextCapsRetrieved;
 
         private List<IDrawBatch> renderBatchesSharingVBO = new List<IDrawBatch>();
 
@@ -40,14 +37,6 @@ namespace Duality.Backend.Android.OpenTK
         private float[] modelViewData = new float[16];
         private float[] projectionData = new float[16];
 
-        public GraphicsMode DefaultGraphicsMode
-        {
-            get { return this.defaultGraphicsMode; }
-        }
-        public IEnumerable<GraphicsMode> AvailableGraphicsModes
-        {
-            get { return this.availGraphicsModes; }
-        }
         public IEnumerable<ScreenResolution> AvailableScreenResolutions
         {
             get
@@ -69,7 +58,7 @@ namespace Duality.Backend.Android.OpenTK
         }
         string IDualityBackend.Name
         {
-            get { return "OpenGL ES (Android)"; }
+            get { return "OpenGL ES 3.0"; }
         }
         int IDualityBackend.Priority
         {
@@ -78,9 +67,6 @@ namespace Duality.Backend.Android.OpenTK
 
         bool IDualityBackend.CheckAvailable()
         {
-            // Since this is the default backend, it will always try to work.
-            //return true;
-
             string versionString;
             try {
                 versionString = GL.GetString(StringName.Version);
@@ -89,7 +75,7 @@ namespace Duality.Backend.Android.OpenTK
                 return false;
             }
 
-            // Parse the OpenGL version string in order to determine if it's sufficient
+            // Parse the OpenGL ES version string in order to determine if it's sufficient
             if (versionString != null) {
                 string[] token = versionString.Split(' ');
                 for (int i = 0; i < token.Length; i++) {
@@ -107,8 +93,6 @@ namespace Duality.Backend.Android.OpenTK
         {
             GraphicsBackend.LogOpenGLSpecs();
 
-            // Determine available and default graphics modes
-            this.QueryGraphicsModes();
             activeInstance = this;
         }
         void IDualityBackend.Shutdown()
@@ -128,7 +112,9 @@ namespace Duality.Backend.Android.OpenTK
         void IGraphicsBackend.BeginRendering(IDrawDevice device, RenderOptions options, RenderStats stats)
         {
             DebugCheckOpenGLErrors();
-            this.CheckContextCaps();
+
+            // ToDo: AA is disabled for now
+            //this.CheckContextCaps();
 
             this.currentDevice = device;
             this.renderStats = stats;
@@ -183,6 +169,7 @@ namespace Duality.Backend.Android.OpenTK
                 }
             }
 
+            // Convert matrices to float arrays
             GetArrayMatrix(ref modelView, ref modelViewData);
             GetArrayMatrix(ref projection, ref projectionData);
         }
@@ -207,6 +194,7 @@ namespace Duality.Backend.Android.OpenTK
                                             currentBatch.VertexMode == nextBatch.VertexMode))) {
                     int vertexOffset = 0;
 
+                    // OpenGL ES 3.0 doesn't support Quad rendering, transform all Quads to Triangles
                     quadTransformNeeded = (currentBatch.VertexMode == VertexMode.Quads);
 
                     this.renderBatchesSharingVBO[0].UploadVertices(this, this.renderBatchesSharingVBO);
@@ -219,6 +207,7 @@ namespace Duality.Backend.Android.OpenTK
                         this.RenderBatch(batch, vertexOffset, lastBatchRendered);
                         this.FinishRenderBatch(batch);
 
+                        // OpenGL ES 3.0 doesn't support Quad rendering, transform all Quads to Triangles
                         vertexOffset += (batch.VertexMode == VertexMode.Quads
                             ? (batch.VertexCount / 4) * 6
                             : batch.VertexCount);
@@ -251,6 +240,7 @@ namespace Duality.Backend.Android.OpenTK
 
         void IVertexUploader.UploadBatchVertices<T>(VertexDeclaration declaration, T[] vertices, int vertexOffset, int vertexCount)
         {
+            // OpenGL ES 3.0 doesn't support Quad rendering, transform all Quads to Triangles
             if (quadTransformNeeded) {
                 int transformedVertexCount = (vertexCount / 4) * 6;
 
@@ -345,31 +335,8 @@ namespace Duality.Backend.Android.OpenTK
             NativeRenderTarget.Bind(lastRt);
         }
 
-        private void QueryGraphicsModes()
-        {
-            int[] aaLevels = { 0, 2, 4, 6, 8, 16 };
-            this.availGraphicsModes = new HashSet<GraphicsMode>(new GraphicsModeComparer());
-            foreach (int samplecount in aaLevels) {
-                GraphicsMode mode = new GraphicsMode(32, 24, 0, samplecount, new ColorFormat(0), 2, false);
-                if (!this.availGraphicsModes.Contains(mode)) this.availGraphicsModes.Add(mode);
-            }
-            /*int highestAALevel = MathF.RoundToInt(MathF.Log(MathF.Max(this.availGraphicsModes.Max(m => m.Samples), 1.0f), 2.0f));
-            int targetAALevel = highestAALevel;
-            if (DualityApp.AppData.MultisampleBackBuffer) {
-                switch (DualityApp.UserData.AntialiasingQuality) {
-                    case AAQuality.High: targetAALevel = highestAALevel; break;
-                    case AAQuality.Medium: targetAALevel = highestAALevel / 2; break;
-                    case AAQuality.Low: targetAALevel = highestAALevel / 4; break;
-                    case AAQuality.Off: targetAALevel = 0; break;
-                }
-            } else {
-                targetAALevel = 0;
-            }
-            int targetSampleCount = MathF.RoundToInt(MathF.Pow(2.0f, targetAALevel));*/
-            int targetSampleCount = 1;
-            this.defaultGraphicsMode = this.availGraphicsModes.LastOrDefault(m => m.Samples <= targetSampleCount) ?? this.availGraphicsModes.Last();
-        }
-        private void CheckContextCaps()
+        // ToDo: AA is disabled for now
+        /*private void CheckContextCaps()
         {
             if (this.contextCapsRetrieved) return;
             this.contextCapsRetrieved = true;
@@ -380,8 +347,13 @@ namespace Duality.Backend.Android.OpenTK
             NativeRenderTarget oldTarget = NativeRenderTarget.BoundRT;
             NativeRenderTarget.Bind(null);
 
-            int targetSamples = this.defaultGraphicsMode.Samples;
-            int actualSamples;
+            int targetSamples, actualSamples;
+            DualityActivity activity = DualityActivity.Current;
+            if (activity != null) {
+                targetSamples = activity.InnerView.GraphicsMode.Samples;
+            } else {
+                targetSamples = 0;
+            }
 
             // Retrieve how many MSAA samples are actually available, despite what 
             // was offered and requested vis graphics mode.
@@ -390,7 +362,7 @@ namespace Duality.Backend.Android.OpenTK
             if (CheckOpenGLErrors()) actualSamples = targetSamples;
 
             NativeRenderTarget.Bind(oldTarget);
-        }
+        }*/
 
         private void PrepareRenderBatch(IDrawBatch renderBatch)
         {
@@ -458,8 +430,6 @@ namespace Duality.Backend.Android.OpenTK
 
             int vertexCount = (renderBatch.VertexMode == VertexMode.Quads ? (renderBatch.VertexCount / 4) * 6 : renderBatch.VertexCount);
             GL.DrawArrays(GetOpenTKVertexMode(renderBatch.VertexMode), vertexOffset, vertexCount);
-
-            //lastBatchRendered = renderBatch;
         }
         private void FinishRenderBatch(IDrawBatch renderBatch)
         {

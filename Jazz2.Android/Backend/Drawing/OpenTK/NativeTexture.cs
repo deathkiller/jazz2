@@ -162,19 +162,22 @@ namespace Duality.Backend.Android.OpenTK
 
         void INativeTexture.GetData<T>(T[] target, ColorDataLayout dataLayout, ColorDataElementType dataElementType)
         {
+            // ToDo: Add similar code for OpenGL ES
+            throw new NotSupportedException();
+
             // Removed thread guards because of performance
             //DefaultOpenTKBackendPlugin.GuardSingleThreadState();
-
-            int lastTexId;
-            GL.GetInteger(GetPName.TextureBinding2D, out lastTexId);
-            GL.BindTexture(TextureTarget.Texture2D, this.handle);
-
-            // ToDo: Add similar code for OpenGL ES
+            //
+            //int lastTexId;
+            //GL.GetInteger(GetPName.TextureBinding2D, out lastTexId);
+            //GL.BindTexture(TextureTarget.Texture2D, this.handle);
+            //
+            //
             //OpenTK.Graphics.OpenGL.GL.GetTexImage(TextureTarget.Texture2D, 0,
             //    dataLayout.ToOpenTK(), dataElementType.ToOpenTK(),
             //    target);
-
-            GL.BindTexture(TextureTarget.Texture2D, lastTexId);
+            //
+            //GL.BindTexture(TextureTarget.Texture2D, lastTexId);
         }
 
         void IDisposable.Dispose()

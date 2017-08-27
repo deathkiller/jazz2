@@ -116,6 +116,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoThunderbolt.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoTNT.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoToaster.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ControlScheme.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Disposable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Duality\Audio\Enums\AudioDataElementType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Duality\Audio\Enums\AudioDataLayout.cs" />
@@ -364,6 +365,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\MainMenuSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\MultiplayerServerSelectSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\ChoiceControl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\ControlsSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\SettingsSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\LinkControl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\MenuControlBase.cs" />

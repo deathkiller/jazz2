@@ -1,50 +1,44 @@
 ﻿using System;
-using Android.App;
-using Android.Content;
 using Android.Views;
+using Duality.Android;
 
 namespace Duality.Backend.Android.OpenTK
 {
     public class NativeWindow : INativeWindow
     {
-        private WeakReference<Activity> weakContext;
         private ScreenMode screenMode;
 
         public NativeWindow(WindowOptions options)
         {
-            screenMode = options.ScreenMode;
+            ((INativeWindow)this).ScreenMode = options.ScreenMode;
         }
 
         void IDisposable.Dispose()
         {
-            weakContext = null;
         }
 
         void INativeWindow.Run()
         {
+            // DualityActivity runs automatically
         }
 
         string INativeWindow.Title
         {
             get
             {
-                Activity context;
-                weakContext.TryGetTarget(out context);
-                if (context == null) {
+                DualityActivity activity = DualityActivity.Current;
+                if (activity != null) {
+                    return activity.Title;
+                } else {
                     return null;
                 }
-
-                return context.Title;
             }
             set
             {
-                Activity context;
-                weakContext.TryGetTarget(out context);
-                if (context == null) {
-                    return;
+                DualityActivity activity = DualityActivity.Current;
+                if (activity != null) {
+                    activity.Title = value;
                 }
-
-                context.Title = value;
             }
         }
 
@@ -53,40 +47,23 @@ namespace Duality.Backend.Android.OpenTK
             get { return screenMode; }
             set
             {
+                // Android supports only Immersive flag
                 value &= (ScreenMode.Immersive);
                 if (screenMode == value) {
                     return;
                 }
 
-                Activity context;
-                weakContext.TryGetTarget(out context);
-                if (context == null) {
-                    return;
+                DualityActivity activity = DualityActivity.Current;
+                if (activity != null) {
+                    if ((value & ScreenMode.Immersive) != 0) {
+                        activity.Window.ClearFlags(WindowManagerFlags.Fullscreen);
+                    } else {
+                        activity.Window.AddFlags(WindowManagerFlags.Fullscreen);
+                    }
+
+                    screenMode = value;
                 }
-
-                if ((value & ScreenMode.Immersive) != 0) {
-                    context.Window.ClearFlags(WindowManagerFlags.Fullscreen);
-                } else {
-                    context.Window.AddFlags(WindowManagerFlags.Fullscreen);
-                }
-
-                screenMode = value;
             }
-        }
-
-        public void BindContext(Context context)
-        {
-            if (weakContext != null) {
-                throw new InvalidOperationException("Already bound to different context");
-            }
-
-            weakContext = new WeakReference<Activity>(context as Activity);
-
-            // Refresh ScreenMode after bind
-            ScreenMode oldScreenMode = screenMode;
-            screenMode = ScreenMode.Window;
-
-            ((INativeWindow)this).ScreenMode = oldScreenMode;
         }
     }
 }

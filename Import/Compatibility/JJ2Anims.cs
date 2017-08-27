@@ -623,8 +623,7 @@ namespace Jazz2.Compatibility
                             " ]");
                 }
 
-                if (currentAnim.Frames[0].ColdspotX != 0 ||
-                    currentAnim.Frames[0].ColdspotY != 0) {
+                if (currentAnim.Frames[0].ColdspotX != 0 || currentAnim.Frames[0].ColdspotY != 0) {
                     w.WriteLine(",");
                     w.Write("    \"Coldspot\": [ " +
                             ((currentAnim.NormalizedHotspotX + currentAnim.Frames[0].HotspotX) -
@@ -642,7 +641,7 @@ namespace Jazz2.Compatibility
                              currentAnim.Frames[0].GunspotX + data.AddBorder).ToString(CultureInfo.InvariantCulture) +
                             ", " +
                             ((currentAnim.NormalizedHotspotY + currentAnim.Frames[0].HotspotY) -
-                             currentAnim.Frames[0].GunspotX + data.AddBorder).ToString(CultureInfo.InvariantCulture) +
+                             currentAnim.Frames[0].GunspotY + data.AddBorder).ToString(CultureInfo.InvariantCulture) +
                             " ]");
                 }
 

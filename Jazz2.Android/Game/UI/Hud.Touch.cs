@@ -1,6 +1,6 @@
 ﻿using Duality;
+using Duality.Android;
 using Duality.Drawing;
-using Jazz2.Android;
 
 namespace Jazz2.Game.UI
 {
@@ -8,14 +8,14 @@ namespace Jazz2.Game.UI
     {
         partial void DrawTouch(IDrawDevice device, Canvas c, Vector2 size)
         {
-            if (!GLView.showVirtualButtons || GLView.virtualButtons == null) {
+            if (!InnerView.showVirtualButtons || InnerView.virtualButtons == null) {
                 return;
             }
 
             c.State.ColorTint = ColorRgba.White;
 
-            for (int i = 0; i < GLView.virtualButtons.Length; i++) {
-                GLView.VirtualButton button = GLView.virtualButtons[i];
+            for (int i = 0; i < InnerView.virtualButtons.Length; i++) {
+                InnerView.VirtualButton button = InnerView.virtualButtons[i];
                 if (button.Material.IsAvailable) {
                     c.State.SetMaterial(button.Material);
                     c.FillOval(button.Left * size.X, button.Top * size.Y, button.Width * size.X, button.Height * size.Y);

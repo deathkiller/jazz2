@@ -62,13 +62,13 @@ namespace Jazz2.Game.UI.Menu.I
                 animation = Math.Min(animation + Time.TimeMult * 0.016f, 1f);
             }
 
-            if (DualityApp.Keyboard.KeyHit(Key.Enter)) {
+            if (ControlScheme.MenuActionHit(PlayerActions.Fire)) {
                 api.PlaySound("MenuSelect", 0.5f);
                 items[selectedIndex].Item2();
             } else if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
                 api.PlaySound("MenuSelect", 0.5f);
                 api.SwitchToCurrentGame();
-            } else if (DualityApp.Keyboard.KeyHit(Key.Up)) {
+            } else if (ControlScheme.MenuActionHit(PlayerActions.Up)) {
                 api.PlaySound("MenuSelect", 0.4f);
                 animation = 0f;
                 if (selectedIndex > 0) {
@@ -76,7 +76,7 @@ namespace Jazz2.Game.UI.Menu.I
                 } else {
                     selectedIndex = items.Count - 1;
                 }
-            } else if (DualityApp.Keyboard.KeyHit(Key.Down)) {
+            } else if (ControlScheme.MenuActionHit(PlayerActions.Down)) {
                 api.PlaySound("MenuSelect", 0.4f);
                 animation = 0f;
                 if (selectedIndex < items.Count - 1) {

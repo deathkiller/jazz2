@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Duality.Input;
 
@@ -121,9 +122,9 @@ namespace Duality.Backend.DefaultOpenTK
 
                 if (gamepad.IsAvailable) {
                     inputManager.AddSource(gamepad);
-                    /*Log.Core.Write(
+                    Console.WriteLine(
                         "Detected new Gamepad Input: \"{0}\" at index {1}",
-                        gamepad.Description, deviceIndex);*/
+                        gamepad.Description, deviceIndex);
                 } else if (deviceIndex >= MinDeviceCheckCount)
                     break;
             }

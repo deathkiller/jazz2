@@ -158,7 +158,7 @@ namespace Jazz2.Game
                     player.OnAttach(new ActorInstantiationDetails {
                         Api = api,
                         Pos = new Vector3(spawnPosition, PlayerZ),
-                        Params = new[] { (ushort)data.PlayerCarryOvers[i].Type }
+                        Params = new[] { (ushort)data.PlayerCarryOvers[i].Type, (ushort)i }
                     });
                     AddPlayer(player);
 

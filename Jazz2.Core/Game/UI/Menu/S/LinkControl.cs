@@ -55,7 +55,7 @@ namespace Jazz2.Game.UI.Menu.S
 
         public override void OnUpdate()
         {
-            if (DualityApp.Keyboard.KeyHit(Key.Enter)) {
+            if (ControlScheme.MenuActionHit(PlayerActions.Fire)) {
                 action();
             }
         }

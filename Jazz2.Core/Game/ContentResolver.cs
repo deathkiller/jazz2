@@ -343,8 +343,11 @@ namespace Jazz2.Game
                     resource.HasGunspot = true;
                 }
 
+                PixelData pixelData;
+                using (Stream s = FileOp.Open(pathAbsolute, FileAccessMode.Read)) {
+                    pixelData = imageCodec.Read(s);
+                }
 
-                PixelData pixelData = imageCodec.Read(FileOp.Open(pathAbsolute, FileAccessMode.Read));
                 // Use external palette
                 if ((json.Flags & 0x01) != 0x00) {
                     ColorRgba[] palette = paletteTexture.Res.BasePixmap.Res.PixelData[0].Data;

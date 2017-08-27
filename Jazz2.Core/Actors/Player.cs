@@ -33,13 +33,11 @@ namespace Jazz2.Actors
         private const float Acceleration = 0.2f;
         private const float Deceleration = 0.22f;
 
+        private int index;
         private bool isActivelyPushing, wasActivelyPushing;
         private bool controllable = true;
 
-        private bool wasUpPressed;
-        private bool wasDownPressed;
-        private bool wasJumpPressed;
-        private bool wasFirePressed;
+        private bool wasUpPressed, wasDownPressed, wasJumpPressed, wasFirePressed;
 
         private float controllableTimeout;
 
@@ -82,6 +80,7 @@ namespace Jazz2.Actors
             base.OnAttach(details);
 
             playerType = playerTypeOriginal = (PlayerType)details.Params[0];
+            index = details.Params[1];
 
             switch (playerType) {
                 case PlayerType.Jazz:
@@ -309,13 +308,13 @@ namespace Jazz2.Actors
             // Move
             if (keepRunningTime <= 0f) {
                 bool isRightPressed;
-                if (!isLifting && controllable && ((isRightPressed = DualityApp.Keyboard.KeyPressed(Duality.Input.Key.Right)) ^ DualityApp.Keyboard.KeyPressed(Duality.Input.Key.Left))) {
+                if (!isLifting && controllable && ((isRightPressed = ControlScheme.PlayerActionPressed(index, PlayerActions.Right)) ^ ControlScheme.PlayerActionPressed(index, PlayerActions.Left))) {
                     SetAnimation(currentAnimationState & ~(AnimState.Lookup | AnimState.Crouch));
 
                     isFacingLeft = !isRightPressed;
                     isActivelyPushing = wasActivelyPushing = true;
 
-                    bool isDashPressed = DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C);
+                    bool isDashPressed = ControlScheme.PlayerActionPressed(index, PlayerActions.Run);
                     if (suspendType == SuspendType.None && isDashPressed) {
                         speedX = MathF.Clamp(speedX + Acceleration * timeMult * (isFacingLeft ? -1 : 1), -MaxDashingSpeed, MaxDashingSpeed);
                     } else if (suspendType != SuspendType.Hook && !(wasFirePressed && suspendType == SuspendType.Vine)) {
@@ -330,7 +329,7 @@ namespace Jazz2.Actors
                     isActivelyPushing = false;
 
                     float absSpeedX = MathF.Abs(speedX);
-                    if (absSpeedX > 1f) {
+                    if (absSpeedX > 4f) {
                         isFacingLeft = (speedX < 0f);
                     } else if (absSpeedX < 0.001f) {
                         wasActivelyPushing = false;
@@ -355,7 +354,7 @@ namespace Jazz2.Actors
 
             if (inWater || isAirboard) {
                 bool isDownPressed;
-                if (((isDownPressed = DualityApp.Keyboard.KeyPressed(Duality.Input.Key.Down)) ^ DualityApp.Keyboard.KeyPressed(Duality.Input.Key.Up))) {
+                if (((isDownPressed = ControlScheme.PlayerActionPressed(index, PlayerActions.Down)) ^ ControlScheme.PlayerActionPressed(index, PlayerActions.Up))) {
                     float mult;
                     if (isAirboard) {
                         mult = (isDownPressed ? -1f : 0.2f);
@@ -369,7 +368,7 @@ namespace Jazz2.Actors
                 }
             } else {
                 // Look-up
-                if (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.Up)) {
+                if (ControlScheme.PlayerActionPressed(index, PlayerActions.Up)) {
                     if (!wasUpPressed) {
                         if ((canJump || suspendType != SuspendType.None) && !isLifting && Math.Abs(speedX) < float.Epsilon) {
                             wasUpPressed = true;
@@ -384,7 +383,7 @@ namespace Jazz2.Actors
                 }
 
                 // Crouch
-                if (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.Down)) {
+                if (ControlScheme.PlayerActionPressed(index, PlayerActions.Down)) {
                     if (suspendType != SuspendType.None) {
                         wasDownPressed = true;
 
@@ -426,7 +425,7 @@ namespace Jazz2.Actors
                 }
 
                 // Jump
-                if (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.V)) {
+                if (ControlScheme.PlayerActionPressed(index, PlayerActions.Jump)) {
                     if (!wasJumpPressed) {
                         wasJumpPressed = true;
 
@@ -531,7 +530,7 @@ namespace Jazz2.Actors
                             MoveInstantly(new Vector2(0f, -8f), MoveType.RelativeTime, true);
                             canJump = true;
                         }
-                        if (canJump && currentSpecialMove == SpecialMoveType.None && !DualityApp.Keyboard.KeyPressed(Duality.Input.Key.Down)) {
+                        if (canJump && currentSpecialMove == SpecialMoveType.None && !ControlScheme.PlayerActionPressed(index, PlayerActions.Down)) {
                             canJump = false;
                             isFreefall = false;
                             SetAnimation(currentAnimationState & (~AnimState.Lookup & ~AnimState.Crouch));
@@ -559,7 +558,7 @@ namespace Jazz2.Actors
             }
 
             // Fire
-            if (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.Space)) {
+            if (ControlScheme.PlayerActionPressed(index, PlayerActions.Fire)) {
                 if (!isLifting && (currentAnimationState & AnimState.Push) == 0 && pushFramesLeft <= 0f) {
                     if (weaponAmmo[(int)currentWeapon] != 0) {
                         if (currentTransitionState == AnimState.Spring) {
@@ -585,8 +584,7 @@ namespace Jazz2.Actors
                 weaponCooldown = 0f;
             }
 
-            // ToDo: Debug keys only
-            if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.X)) {
+            if (ControlScheme.PlayerActionHit(index, PlayerActions.SwitchWeapon)) {
                 // Find next available weapon
                 do {
                     currentWeapon = (WeaponType)((int)(currentWeapon + 1) % (int)WeaponType.Count);
@@ -595,6 +593,7 @@ namespace Jazz2.Actors
                 attachedHud?.ChangeCurrentWeapon(currentWeapon, weaponUpgrades[(int)currentWeapon]);
             }
 
+            // ToDo: Debug keys only
 #if DEBUG
             if (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.T)) {
                 WarpToPosition(new Vector2(Transform.Pos.X, Transform.Pos.Y - (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f)), false);
@@ -727,7 +726,7 @@ namespace Jazz2.Actors
                                 MoveInstantly(new Vector2(isFacingLeft ? -4f : 4f, 0f), MoveType.Relative);
 
                                 // Move the player upwards, so it will not be stuck in the wall
-                                for (int y = -2; y > -14; y -= 2) {
+                                for (int y = -2; y > -24; y -= 2) {
                                     if (MoveInstantly(new Vector2(0f, y), MoveType.Relative)) {
                                         break;
                                     }
@@ -1491,8 +1490,9 @@ namespace Jazz2.Actors
                             if (MathF.Abs(force.X) > 0f) {
                                 removeSpecialMove = true;
                                 copterFramesLeft = 0f;
-                                speedX = force.X;
-                                externalForceX = force.X * 0.2f;
+                                //speedX = force.X;
+                                speedX = (1 + MathF.Abs(force.X)) * sign;
+                                externalForceX = force.X * 0.6f;
 
                                 wasActivelyPushing = false;
 

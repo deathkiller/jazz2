@@ -266,7 +266,7 @@ namespace Jazz2.Compatibility
         };
 
         public static readonly Color[] Menu = {
-            Color.FromArgb(0, 150, 150, 150), // 0
+            Color.FromArgb(0, 0, 0, 0), // 0
             Color.FromArgb(255, 0, 0, 1), // 1
             Color.FromArgb(255, 0, 1, 0), // 2
             Color.FromArgb(255, 1, 0, 0), // 3

@@ -1,13 +1,12 @@
 ﻿using Android.Views;
-using Duality;
 using Duality.Drawing;
 using Duality.Input;
 using Duality.Resources;
 using Jazz2.Storage;
 
-namespace Jazz2.Android
+namespace Duality.Android
 {
-    partial class GLView
+    partial class InnerView
     {
         public class VirtualButton
         {
@@ -28,15 +27,17 @@ namespace Jazz2.Android
 
         private bool[] pressedButtons;
 
-        private void InitInput()
+        private void InitializeInput()
         {
-            if (virtualButtons != null)
+            if (virtualButtons != null) {
+                // It's already initialized...
                 return;
+            }
 
             pressedButtons = new bool[(int)Key.Last + 1];
 
             DualityApp.Keyboard.Source = new KeyboardInputSource(this);
-            DualityApp.Gamepads.AddSource(new GamepadInputSource(this));
+            //DualityApp.Gamepads.AddSource(new GamepadInputSource(this));
 
             const float dpadLeft = 0.02f;
             const float dpadTop = 0.58f;
@@ -322,7 +323,7 @@ namespace Jazz2.Android
 
         private class KeyboardInputSource : IKeyboardInputSource
         {
-            private readonly GLView owner;
+            private readonly InnerView owner;
 
             public bool this[Key key] => owner.pressedButtons[(int)key];
 
@@ -332,7 +333,7 @@ namespace Jazz2.Android
 
             public bool IsAvailable => true;
 
-            public KeyboardInputSource(GLView owner)
+            public KeyboardInputSource(InnerView owner)
             {
                 this.owner = owner;
             }
@@ -343,9 +344,10 @@ namespace Jazz2.Android
             }
         }
 
-        private class GamepadInputSource : IGamepadInputSource
+        // ToDo: Implement this properly
+        /*private class GamepadInputSource : IGamepadInputSource
         {
-            private readonly GLView owner;
+            private readonly InnerView owner;
 
             public bool this[GamepadButton button] => false;
 
@@ -355,7 +357,7 @@ namespace Jazz2.Android
 
             public bool IsAvailable => true;
 
-            public GamepadInputSource(GLView owner)
+            public GamepadInputSource(InnerView owner)
             {
                 this.owner = owner;
             }
@@ -370,6 +372,6 @@ namespace Jazz2.Android
             {
                 // Nothing to do...
             }
-        }
+        }*/
     }
 }
