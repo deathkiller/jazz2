@@ -254,6 +254,8 @@ namespace Import
                 animsPath = Path.Combine(sourcePath, "AnimsSw.j2a");
                 if (Utils.FileResolveCaseInsensitive(ref animsPath)) {
                     JJ2Anims.Convert(animsPath, animationsPath, false);
+                } else {
+                    Log.Write(LogType.Warning, "No suitable file with assets found!");
                 }
             }
 
@@ -262,6 +264,25 @@ namespace Import
                 JJ2Anims.Convert(plusPath, animationsPath, true);
             } else {
                 JJ2PlusDownloader.Run(targetPath);
+            }
+
+            string defaultPalettePath = Path.Combine(animationsPath, ".palette");
+            if (!File.Exists(defaultPalettePath)) {
+                Log.Write(LogType.Info, "Recreating default palette...");
+
+                using (FileStream s = File.Open(defaultPalettePath, FileMode.Create, FileAccess.Write))
+                using (BinaryWriter w = new BinaryWriter(s)) {
+                    Color[] palette = JJ2DefaultPalette.Sprite;
+
+                    w.Write((ushort)palette.Length);
+                    w.Write((int)0); // Empty color
+                    for (int i = 1; i < palette.Length; i++) {
+                        w.Write((byte)palette[i].R);
+                        w.Write((byte)palette[i].G);
+                        w.Write((byte)palette[i].B);
+                        w.Write((byte)palette[i].A);
+                    }
+                }
             }
 
             Log.PopIndent();
@@ -633,6 +654,7 @@ namespace Import
                 int removedCount = 0;
 
                 // Paths in the set have to be lower-case
+                usedAnimations.Add(".palette");
                 usedAnimations.Add("_custom/noise.png");
                 usedAnimations.Add("ui/font_small.png");
                 usedAnimations.Add("ui/font_medium.png");
@@ -758,7 +780,7 @@ namespace Import
             Log.Write(LogType.Info, "Checking \"Animations\" directory for missing files...");
             Log.PushIndent();
 
-            foreach (string unreferenced in new[] { "_custom/noise.png", "UI/font_medium.png", "UI/font_medium.png.res", "UI/font_medium.png.config", "UI/font_small.png", "UI/font_small.png.res", "UI/font_small.png.config" }) {
+            foreach (string unreferenced in new[] { ".palette", "_custom/noise.png", "UI/font_medium.png", "UI/font_medium.png.res", "UI/font_medium.png.config", "UI/font_small.png", "UI/font_small.png.res", "UI/font_small.png.config" }) {
                 if (!Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Animations", unreferenced))) {
                     Log.Write(LogType.Warning, "\"" + Path.Combine("Animations", unreferenced.Replace('/', Path.DirectorySeparatorChar)) + "\" is missing!");
                 }
@@ -839,6 +861,54 @@ namespace Import
         }
 
         private static void AdaptImageToPalette(string path, string[] args)
+        {
+            int noise = 0;
+            for (int i = 0; i < args.Length; i++) {
+                if (args[i].StartsWith("/noise:")) {
+                    int.TryParse(args[i].Substring(7), out noise);
+                }
+            }
+
+            Log.Write(LogType.Info, $"Adapting image to \"Sprite\" palette with {noise}% noise...");
+
+            Random r = new Random();
+            int diffMax = 0, diffTotal = 0;
+
+            using (FileStream s = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+                using (Bitmap b = new Bitmap(s)) {
+                    for (int x = 0; x < b.Width; x++) {
+                        for (int y = 0; y < b.Height; y++) {
+                            Color color = b.GetPixel(x, y);
+
+                            int bestMatchIndex = 0;
+                            int bestMatchDiff = int.MaxValue;
+                            for (int i = 0; i < JJ2DefaultPalette.Sprite.Length; i++) {
+                                Color current = JJ2DefaultPalette.Sprite[i];
+                                int currentDiff = Math.Abs(color.R - current.R) + Math.Abs(color.G - current.G) + Math.Abs(color.B - current.B) + Math.Abs(color.A - current.A);
+                                if (currentDiff < bestMatchDiff) {
+                                    bestMatchIndex = i;
+                                    bestMatchDiff = currentDiff;
+                                }
+                            }
+
+                            Color bestMatch = Color.FromArgb(color.A, bestMatchIndex, bestMatchIndex, bestMatchIndex);
+                            b.SetPixel(x, y, bestMatch);
+
+                            diffMax = Math.Max(diffMax, bestMatchDiff);
+                            diffTotal += bestMatchDiff;
+                        }
+                    }
+
+                    b.Save(Path.ChangeExtension(path, ".new" + Path.GetExtension(path)), ImageFormat.Png);
+                }
+            }
+
+            Log.Write(LogType.Info, "Image adapted!   |   Max. diff: " + diffMax + "   |   Total diff: " + diffTotal);
+
+            Console.ReadLine();
+        }
+
+        private static void AdaptImageToPalette2(string path, string[] args)
         {
             int noise = 0;
             for (int i = 0; i < args.Length; i++) {

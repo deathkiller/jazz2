@@ -38,7 +38,7 @@ namespace Jazz2.Game
         private readonly Controller root;
         private readonly ActorApi api;
 
-        private readonly GameObject rootObject;
+        protected readonly GameObject rootObject;
         private readonly GameObject camera;
 
         private TileMap tileMap;
@@ -180,7 +180,7 @@ namespace Jazz2.Game
                 targetPlayer.OnAttach(new ActorInstantiationDetails {
                     Api = api,
                     Pos = targetPlayerPosition,
-                    Params = new[] { (ushort)PlayerType.Jazz }
+                    Params = new[] { (ushort)PlayerType.Jazz, (ushort)0 }
                 });
                 AddPlayer(targetPlayer);
             }

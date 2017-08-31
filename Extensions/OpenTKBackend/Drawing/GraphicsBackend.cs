@@ -247,10 +247,10 @@ namespace Duality.Backend.DefaultOpenTK
 
             DebugCheckOpenGLErrors();
         }
-        void IVertexUploader.UploadBatchVertices<T>(VertexDeclaration declaration, T[] vertices, int vertexOffset, int vertexCount)
+        void IVertexUploader.UploadBatchVertices(VertexDeclaration declaration, IntPtr vertices, int vertexCount)
         {
             GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(declaration.Size * vertexCount), IntPtr.Zero, BufferUsageHint.StreamDraw);
-            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(declaration.Size * vertexCount), ref vertices[vertexOffset], BufferUsageHint.StreamDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(declaration.Size * vertexCount), vertices, BufferUsageHint.StreamDraw);
         }
 
         INativeTexture IGraphicsBackend.CreateTexture()

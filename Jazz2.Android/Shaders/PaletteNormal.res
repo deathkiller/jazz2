@@ -18,7 +18,7 @@
         void main() {
             vec4 index = texture(mainTex, vTexcoord0);
             vec4 color = texture(paletteTex, vec2(index.r + vCornerColor.g /*PaletteShift*/, vCornerColor.r /*PaletteIndex*/));
-            vFragColor[0] = vec4(color.rgb, color.a * index.a * vCornerColor.a);
+            vFragColor[0] = vec4(color.rgb * vCornerColor.b /*Intensity*/, color.a * index.a * vCornerColor.a);
 
             vec4 normal = texture(normalTex, vTexcoord0);
             normal.xy = (normal.xy - vec2(0.5)) * normalMultiplier + vec2(0.5);

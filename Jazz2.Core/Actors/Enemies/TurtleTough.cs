@@ -7,6 +7,8 @@ namespace Jazz2.Actors.Enemies
     {
         private const float DefaultSpeed = 1f;
 
+        private bool stuck;
+
         public override void OnAttach(ActorInstantiationDetails details)
         {
             base.OnAttach(details);
@@ -38,9 +40,16 @@ namespace Jazz2.Actors.Enemies
                 return;
             }
 
-            if (!CanMoveToPosition(speedX, 0)) {
-                isFacingLeft = !(isFacingLeft);
-                speedX = (isFacingLeft ? -1 : 1) * DefaultSpeed;
+            if (!CanMoveToPosition(speedX * 4, 0)) {
+                if (stuck && canJump) {
+                    MoveInstantly(new Vector2(0f, -2f), MoveType.Relative, true);
+                } else {
+                    isFacingLeft = !(isFacingLeft);
+                    speedX = (isFacingLeft ? -1 : 1) * DefaultSpeed;
+                    stuck = true;
+                }
+            } else {
+                stuck = false;
             }
         }
 

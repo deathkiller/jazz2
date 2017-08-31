@@ -210,6 +210,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Duality\Drawing\VertexData\VertexC1P3.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Duality\Drawing\VertexData\VertexC1P3T2.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Duality\Drawing\VertexData\VertexC1P3T4A1.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Duality\Drawing\VertexData\VertexSegment.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Duality\Drawing\VertexFormatDefinition\VertexDeclaration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Duality\Drawing\VertexFormatDefinition\VertexElement.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Duality\Drawing\VertexFormatDefinition\VertexElementAttribute.cs" />
@@ -333,8 +334,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\ActorApi.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\ContentResolver.Async.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\ContentResolver.Palettes.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\Multiplayer\LevelHandler.Network.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\Multiplayer\NetworkLevelHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Multiplayer\NetworkHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\Multiplayer\Player.Multiplayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\Multiplayer\RemotePlayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Multiplayer\ServerDiscovery.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Structs\Episode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\BitmapFont.cs" />

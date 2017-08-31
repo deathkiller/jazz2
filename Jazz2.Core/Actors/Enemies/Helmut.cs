@@ -9,6 +9,7 @@ namespace Jazz2.Actors.Enemies
 
         private bool idling;
         private double stateTime;
+        private bool stuck;
 
         public override void OnAttach(ActorInstantiationDetails details)
         {
@@ -58,9 +59,16 @@ namespace Jazz2.Actors.Enemies
 
                     stateTime = MathF.Rnd.NextFloat(70f, 190f);
                 } else {
-                    if (!CanMoveToPosition(speedX, 0)) {
-                        isFacingLeft = !(isFacingLeft);
-                        speedX = (isFacingLeft ? -1 : 1) * DefaultSpeed;
+                    if (!CanMoveToPosition(speedX * 4, 0)) {
+                        if (stuck && canJump) {
+                            MoveInstantly(new Vector2(0f, -2f), MoveType.Relative, true);
+                        } else {
+                            isFacingLeft = !(isFacingLeft);
+                            speedX = (isFacingLeft ? -1 : 1) * DefaultSpeed;
+                            stuck = true;
+                        }
+                    } else {
+                        stuck = false;
                     }
                 }
             }

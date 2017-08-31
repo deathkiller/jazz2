@@ -3,8 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Runtime.CompilerServices;
+using System.Reflection;
 using System.Threading;
+using Jazz2.NetworkPackets;
 using Lidgren.Network;
 
 namespace Jazz2.Game.Multiplayer
@@ -14,9 +15,11 @@ namespace Jazz2.Game.Multiplayer
         private NetClient client;
         private Thread threadUpdate;
 
+        private Dictionary<byte, Action<NetIncomingMessage>> callbacks;
+
         public NetworkHandler(string appId)
         {
-            //callbacks = new Dictionary<byte, Action<NetIncomingMessage>>(32);
+            callbacks = new Dictionary<byte, Action<NetIncomingMessage>>();
 
             NetPeerConfiguration config = new NetPeerConfiguration(appId);
 #if DEBUG
@@ -45,12 +48,18 @@ namespace Jazz2.Game.Multiplayer
 
         public void Connect(IPEndPoint host)
         {
-            client.Connect(host);
+            NetOutgoingMessage message = client.CreateMessage(3);
+            Version v = Assembly.GetEntryAssembly().GetName().Version;
+            message.Write((byte)v.Major);
+            message.Write((byte)v.Minor);
+            message.Write((byte)v.Build);
+
+            client.Connect(host, message);
         }
 
         public void Close()
         {
-            if (server == null) {
+            if (client == null) {
                 return;
             }
 
@@ -83,29 +92,21 @@ namespace Jazz2.Game.Multiplayer
                                 break;
 
                             case NetIncomingMessageType.Data: {
-#if DEBUG
+#if DEBUG__
                                 Console.ForegroundColor = ConsoleColor.Cyan;
                                 Console.Write("    R ");
                                 Console.ForegroundColor = ConsoleColor.Gray;
                                 Console.WriteLine("[" + msg.SenderEndPoint + "] " + msg.LengthBytes + " bytes");
 #endif
 
-                                MessageReceivedEventArgs args = new MessageReceivedEventArgs(msg, false);
-                                MessageReceived?.Invoke(args);
+                                byte type = msg.ReadByte();
 
-                                break;
-                            }
-
-                            case NetIncomingMessageType.UnconnectedData: {
-#if DEBUG
-                                Console.ForegroundColor = ConsoleColor.Cyan;
-                                Console.Write("    R ");
-                                Console.ForegroundColor = ConsoleColor.Gray;
-                                Console.WriteLine("Unconnected [" + msg.SenderEndPoint + "] " + msg.LengthBytes + " bytes");
-#endif
-
-                                MessageReceivedEventArgs args = new MessageReceivedEventArgs(msg, true);
-                                MessageReceived?.Invoke(args);
+                                Action<NetIncomingMessage> callback;
+                                if (callbacks.TryGetValue(type, out callback)) {
+                                    callback(msg);
+                                } else {
+                                    Console.WriteLine("        - Unknown packet type!");
+                                }
 
                                 break;
                             }
@@ -138,13 +139,63 @@ namespace Jazz2.Game.Multiplayer
 #endif
                         }
 
-                        server.Recycle(msg);
+                        client.Recycle(msg);
                     }
                 }
             } catch (ThreadAbortException) {
                 // Client is stopped
             }
         }
+
+        #region Messages
+
+        public bool Send<T>(T packet, int capacity, NetDeliveryMethod method, int channel) where T : struct, IClientPacket
+        {
+            NetOutgoingMessage msg = client.CreateMessage(capacity);
+            msg.Write((byte)packet.Type);
+            packet.Write(msg);
+            NetSendResult result = client.SendMessage(msg, method, channel);
+
+#if DEBUG__
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("Debug: ");
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine("Send<" + typeof(T).Name + ">  " + msg.LengthBytes + " bytes");
+#endif
+            return (result == NetSendResult.Sent || result == NetSendResult.Queued);
+        }
+        #endregion
+
+        #region Callbacks
+        public void RegisterCallback<T>(PacketCallback<T> callback) where T : struct, IServerPacket
+        {
+            byte type = (new T().Type);
+            callbacks[type] = (msg) => ProcessCallback(msg, callback);
+        }
+
+        public void RemoveCallback<T>() where T : struct, IServerPacket
+        {
+            byte type = (new T().Type);
+            callbacks.Remove(type);
+        }
+
+        private void ClearCallbacks()
+        {
+            callbacks.Clear();
+        }
+
+        private static void ProcessCallback<T>(NetIncomingMessage msg, PacketCallback<T> callback) where T : struct, IServerPacket
+        {
+            T packet = default(T);
+#if DEBUG__
+            Console.WriteLine("        - Packet<" + typeof(T).Name + ">");
+#endif
+
+            packet.SenderConnection = msg.SenderConnection;
+            packet.Read(msg);
+            callback(ref packet);
+        }
+        #endregion
     }
 }
 

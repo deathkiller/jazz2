@@ -6,6 +6,7 @@ namespace Jazz2.Actors.Enemies
     public class Sucker : EnemyBase
     {
         private int cycle;
+        private bool stuck;
 
         public override void OnAttach(ActorInstantiationDetails details)
         {
@@ -46,9 +47,18 @@ namespace Jazz2.Actors.Enemies
                 return;
             }
 
-            if (currentTransitionState == AnimState.Idle && MathF.Abs(speedY) < 0 && MathF.Abs(speedX) > 0 && !CanMoveToPosition(speedX, 0)) {
-                isFacingLeft = !isFacingLeft;
-                speedX *= -1;
+            if (currentTransitionState == AnimState.Idle && MathF.Abs(speedX) > 0) {
+                if (!CanMoveToPosition(speedX * 4, 0)) {
+                    if (stuck && canJump) {
+                        MoveInstantly(new Vector2(0f, -2f), MoveType.Relative, true);
+                    } else {
+                        isFacingLeft = !isFacingLeft;
+                        speedX *= -1;
+                        stuck = true;
+                    }
+                } else {
+                    stuck = false;
+                }
             }
 
             if (currentTransitionState == AnimState.Idle && frozenTimeLeft <= 0) {

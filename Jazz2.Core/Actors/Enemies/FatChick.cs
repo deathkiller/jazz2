@@ -10,6 +10,8 @@ namespace Jazz2.Actors.Enemies
     {
         private const float DefaultSpeed = 0.9f;
 
+        private bool stuck;
+
         public override void OnAttach(ActorInstantiationDetails details)
         {
             base.OnAttach(details);
@@ -55,9 +57,16 @@ namespace Jazz2.Actors.Enemies
                 }
             }
 
-            if (Math.Abs(speedX) > float.Epsilon && !CanMoveToPosition(speedX, 0)) {
-                isFacingLeft = !isFacingLeft;
-                speedX = (isFacingLeft ? -1f : 1f) * DefaultSpeed;
+            if (!CanMoveToPosition(speedX * 4, 0)) {
+                if (stuck && canJump) {
+                    MoveInstantly(new Vector2(0f, -2f), MoveType.Relative, true);
+                } else {
+                    isFacingLeft = !isFacingLeft;
+                    speedX = (isFacingLeft ? -1f : 1f) * DefaultSpeed;
+                    stuck = true;
+                }
+            } else {
+                stuck = false;
             }
 
             if (!isAttacking && api.GetCollidingPlayers(currentHitbox + new Vector2(speedX * 28, 0)).Any()) {

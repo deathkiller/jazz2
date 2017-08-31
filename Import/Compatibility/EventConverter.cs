@@ -365,7 +365,7 @@ namespace Jazz2.Compatibility
                     Pair.Create(JJ2EventParamType.UInt, 1),  // Trig Sample
                     Pair.Create(JJ2EventParamType.Bool, 1),  // BecomeNoclip (JJ2+)
                     Pair.Create(JJ2EventParamType.Bool, 1),  // Noclip Only (JJ2+)
-                    Pair.Create(JJ2EventParamType.UInt, 3)); // Wait Time
+                    Pair.Create(JJ2EventParamType.UInt, 3)); // Wait Time (JJ2+)
 
                 return new ConversionResult {
                     eventType = EventType.ModifierTube,
@@ -1224,15 +1224,16 @@ namespace Jazz2.Compatibility
         {
             return (level, jj2Params) => {
                 ushort[] eventParams = ConvertParamInt(jj2Params,
-                    Pair.Create(JJ2EventParamType.Bool, 1), // Orientation
-                    Pair.Create(JJ2EventParamType.Bool, 1), // Keep X Speed
+                    Pair.Create(JJ2EventParamType.Bool, 1), // Orientation (vertical only)
+                    Pair.Create(JJ2EventParamType.Bool, 1), // Keep X Speed (vertical only)
                     Pair.Create(JJ2EventParamType.Bool, 1), // Keep Y Speed
-                    Pair.Create(JJ2EventParamType.UInt, 4)  // Delay
+                    Pair.Create(JJ2EventParamType.UInt, 4), // Delay
+                    Pair.Create(JJ2EventParamType.Bool, 1)  // Reverse (horzontal only, JJ2+)
                 );
 
                 return new ConversionResult {
                     eventType = EventType.Spring,
-                    eventParams = new ushort[] { type, (ushort)(horizontal ? 5 : eventParams[0] * 2), eventParams[1], eventParams[2], eventParams[3], (ushort)(frozen ? 1 : 0), 0, 0 }
+                    eventParams = new ushort[] { type, (ushort)(horizontal ? (eventParams[4] != 0 ? 5 : 4) : eventParams[0] * 2), eventParams[1], eventParams[2], eventParams[3], (ushort)(frozen ? 1 : 0), 0, 0 }
                 };
             };
         }

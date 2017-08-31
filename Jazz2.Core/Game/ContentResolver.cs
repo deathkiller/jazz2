@@ -356,7 +356,7 @@ namespace Jazz2.Game
                     Parallel.ForEach(Partitioner.Create(0, data.Length), range => {
                         for (int i = range.Item1; i < range.Item2; i++) {
                             int colorIdx = data[i].R;
-                            data[i] = palette[colorIdx];
+                            data[i] = palette[colorIdx].WithAlpha(palette[colorIdx].A * data[i].A / (255f * 255f));
 
                             // ToDo: Pinball sprites have strange palette (1-3 indices down), CandionV looks bad, other levels look different
                         }

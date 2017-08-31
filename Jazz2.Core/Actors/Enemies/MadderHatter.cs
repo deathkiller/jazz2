@@ -9,6 +9,7 @@ namespace Jazz2.Actors.Enemies
         private const float DefaultSpeed = 0.7f;
 
         private float attackTime;
+        private bool stuck;
 
         public override void OnAttach(ActorInstantiationDetails details)
         {
@@ -75,9 +76,16 @@ namespace Jazz2.Actors.Enemies
                     attackTime -= Time.TimeMult;
                 }
 
-                if (!CanMoveToPosition(speedX, 0)) {
-                    isFacingLeft ^= true;
-                    speedX = (isFacingLeft ? -1f : 1f) * DefaultSpeed;
+                if (!CanMoveToPosition(speedX * 4, 0)) {
+                    if (stuck && canJump) {
+                        MoveInstantly(new Vector2(0f, -2f), MoveType.Relative, true);
+                    } else {
+                        isFacingLeft ^= true;
+                        speedX = (isFacingLeft ? -1f : 1f) * DefaultSpeed;
+                        stuck = true;
+                    }
+                } else {
+                    stuck = false;
                 }
             }
         }

@@ -7,6 +7,7 @@ using Duality.Drawing;
 using Duality.IO;
 using Duality.Resources;
 using Jazz2.Game.Structs;
+using Jazz2.Game.Tiles;
 
 namespace Jazz2.Game.UI.Menu
 {
@@ -54,6 +55,10 @@ namespace Jazz2.Game.UI.Menu
             canvasBuffer = new CanvasBuffer();
 
             // Load resources
+            ColorRgba[] defaultPalette = TileSet.LoadPalette(PathOp.Combine("Content", "Animations", ".palette"));
+
+            ContentResolver.Current.ApplyBasePalette(defaultPalette);
+
             fontSmall = new BitmapFont("UI/font_small", 17, 18, 15, 32, 256, -2, canvasBuffer);
             fontMedium = new BitmapFont("UI/font_medium", 29, 31, 15, 32, 256, -1, canvasBuffer);
 

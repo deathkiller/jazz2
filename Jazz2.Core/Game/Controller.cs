@@ -44,6 +44,13 @@ namespace Jazz2.Game
 
         public void ShowMainMenu()
         {
+#if MULTIPLAYER
+            if (network != null) {
+                network.Close();
+                network = null;
+            }
+#endif
+
             ContentResolver.Current.ResetReferenceFlag();
 
             Scene.Current.DisposeLater();
@@ -128,9 +135,60 @@ namespace Jazz2.Game
         }
 
 #if MULTIPLAYER
+        private Multiplayer.NetworkHandler network;
+
         public void ConnectToServer(System.Net.IPEndPoint endPoint)
         {
             // ToDo
+            const string token = "J²";
+
+            if (network != null) {
+                network.Close();
+            }
+
+            network = new Multiplayer.NetworkHandler(token);
+            network.RegisterCallback<NetworkPackets.Server.LoadLevel>(OnLoadLevel);
+            network.Connect(endPoint);
+        }
+
+        private void OnLoadLevel(ref NetworkPackets.Server.LoadLevel p)
+        {
+            string levelName = p.LevelName;
+            int playerIndex = p.AssignedPlayerIndex;
+
+            DispatchToMainThread(delegate {
+                Multiplayer.NetworkLevelHandler handler = new Multiplayer.NetworkLevelHandler(this, network,
+                    new LevelInitialization("unknown", levelName, GameDifficulty.Default, Actors.PlayerType.Jazz),
+                    playerIndex);
+
+                Scene.Current.DisposeLater();
+                Scene.SwitchTo(handler);
+
+                network.Send(new NetworkPackets.Client.LevelReady {
+                    Index = playerIndex
+                }, 2, Lidgren.Network.NetDeliveryMethod.ReliableSequenced, NetworkPackets.NetworkChannels.Main);
+            });
+        }
+
+
+        public void DispatchToMainThread(System.Action action)
+        {
+            DualityApp.DisposeLater(new ActionDisposable(action));
+        }
+
+        private class ActionDisposable : System.IDisposable
+        {
+            private System.Action action;
+
+            public ActionDisposable(System.Action action)
+            {
+                this.action = action;
+            }
+
+            void System.IDisposable.Dispose()
+            {
+                System.Threading.Interlocked.Exchange(ref action, null)();
+            }
         }
 #endif
 

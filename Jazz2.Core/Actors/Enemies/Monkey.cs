@@ -10,6 +10,7 @@ namespace Jazz2.Actors.Enemies
         private float DefaultSpeed = 1.6f;
 
         private bool isWalking;
+        private bool stuck;
 
         public override void OnAttach(ActorInstantiationDetails details)
         {
@@ -40,9 +41,19 @@ namespace Jazz2.Actors.Enemies
                 return;
             }
 
-            if (MathF.Abs(speedX) > float.Epsilon && !CanMoveToPosition(speedX, 0)) {
-                isFacingLeft ^= true;
-                speedX = (isFacingLeft ? -1f : 1f) * DefaultSpeed;
+            if (MathF.Abs(speedX) > 0) {
+                if (!CanMoveToPosition(speedX * 4, 0)) {
+                    if (stuck && canJump) {
+                        MoveInstantly(new Vector2(0f, -2f), MoveType.Relative, true);
+                    } else {
+                        isFacingLeft ^= true;
+                        speedX = (isFacingLeft ? -1f : 1f) * DefaultSpeed;
+                        stuck = true;
+                    }
+                } else {
+                    stuck = false;
+                }
+
             }
         }
 

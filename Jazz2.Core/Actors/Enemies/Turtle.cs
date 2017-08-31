@@ -50,7 +50,7 @@ namespace Jazz2.Actors.Enemies
                 return;
             }
 
-            if (MathF.Abs(speedX) > float.Epsilon && !CanMoveToPosition(speedX, 0)) {
+            if (MathF.Abs(speedX) > float.Epsilon && !CanMoveToPosition(speedX * 4, 0)) {
                 SetTransition(AnimState.TransitionWithdraw, false, delegate {
                     HandleTurn(true);
                 });

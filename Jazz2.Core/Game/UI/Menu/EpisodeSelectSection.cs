@@ -124,8 +124,19 @@ namespace Jazz2.Game.UI.Menu
                                     Alignment.Center, null, size, charSpacing: 0.9f);
                             }
                         } else {
-                            api.DrawStringShadow(device, ref charOffset, episodes[i].Episode.Name, center.X, topItem,
-                                Alignment.Center, new ColorRgba(0.48f, 0.5f), size, charSpacing: 0.9f);
+                            api.DrawString(device, ref charOffset, episodes[i].Episode.Name, center.X, topItem,
+                                Alignment.Center, new ColorRgba(0.4f, MathF.Max(0.3f, 0.4f - animation * 0.4f)), MathF.Max(0.7f, 0.9f - animation * 0.6f));
+
+                            Episode previousEpisode = episodes.Find(entry => entry.Episode.Token == episodes[i].Episode.PreviousEpisode).Episode;
+                            string info;
+                            if (previousEpisode == null) {
+                                info = "Episode is locked!";
+                            } else {
+                                info = "You must complete \"" + previousEpisode.Name + "\" first!";
+                            }
+
+                            api.DrawStringShadow(device, ref charOffset, info, center.X, topItem,
+                                Alignment.Center, new ColorRgba(0.66f, 0.42f, 0.32f, MathF.Min(0.5f, 0.2f + 2f * animation)), 0.8f * size, charSpacing: 0.9f);
                         }
                     } else {
                         if (episodes[i].IsAvailable) {

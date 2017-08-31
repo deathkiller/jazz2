@@ -40,13 +40,11 @@ namespace Jazz2.Actors
             Vector3 pos = Transform.Pos;
 
             Vector2 tileCorner = new Vector2((int)(pos.X / 32) * 32, (int)(pos.Y / 32) * 32);
-            if (orientation == 5) {
+            if (orientation > 3) {
                 // JJ2 horizontal springs held no data about which way they were facing.
                 // For compatibility, the level converter sets their orientation to 5, which is interpreted here.
-                //Hitbox hitbox = new Hitbox(pos.X + 16, pos.Y - 5, pos.X + 20, pos.Y + 5);
-                //orientation = (ushort)(api.Tilemap.IsTileEmpty(ref hitbox, false) ? 1 : 3);
-                Hitbox hitbox = new Hitbox(pos.X - /*20*/22, pos.Y - 5, pos.X - /*16*/6, pos.Y + 5);
-                orientation = (ushort)(api.TileMap.IsTileEmpty(ref hitbox, false) ? 3 : 1);
+                Hitbox hitbox = new Hitbox(pos.X + 6, pos.Y - 5, pos.X + 22, pos.Y + 5);
+                orientation = (ushort)(api.TileMap.IsTileEmpty(ref hitbox, false) != (orientation == 5) ? 1 : 3);
             }
 
             int orientationBit = 0;

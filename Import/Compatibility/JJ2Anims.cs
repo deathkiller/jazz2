@@ -455,7 +455,7 @@ namespace Jazz2.Compatibility
                             continue;
                         }
 
-                        data.Palette = data.Palette ?? (data.KeepIndexed ? JJ2DefaultPalette.ByIndex : JJ2DefaultPalette.Sprite);
+                        data.Palette = data.Palette ?? JJ2DefaultPalette.ByIndex;
 
                         int sizeX = (currentAnim.AdjustedSizeX + data.AddBorder * 2);
                         int sizeY = (currentAnim.AdjustedSizeY + data.AddBorder * 2);
@@ -542,7 +542,7 @@ namespace Jazz2.Compatibility
                         if (!string.IsNullOrEmpty(data.Name) && !data.SkipNormalMap) {
                             using (Bitmap normalMap = NormalMapGenerator.FromSprite(img,
                                     new Point(currentAnim.FrameConfigurationX, currentAnim.FrameConfigurationY),
-                                    !data.KeepIndexed && data.Palette == JJ2DefaultPalette.ByIndex)) {
+                                    !data.AllowRealtimePalette && data.Palette == JJ2DefaultPalette.ByIndex)) {
 
                                 normalMap.Save(filename.Replace(".png", ".n.png"), ImageFormat.Png);
                             }
@@ -593,9 +593,9 @@ namespace Jazz2.Compatibility
                 w.WriteLine("    },");
 
                 int flags = 0x00;
-                if (!data.KeepIndexed && data.Palette == JJ2DefaultPalette.ByIndex)
+                if (!data.AllowRealtimePalette && data.Palette == JJ2DefaultPalette.ByIndex)
                     flags |= 0x01;
-                if (!data.KeepIndexed) // Use Linear Sampling, if the palette is applied in preprocessing phase
+                if (!data.AllowRealtimePalette) // Use Linear Sampling, only if the palette is applied in pre-processing stage
                     flags |= 0x02;
 
                 if (flags != 0x00) {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Duality.Drawing
 {
@@ -22,6 +23,6 @@ namespace Duality.Drawing
 
 	public interface IVertexUploader
 	{
-		void UploadBatchVertices<T>(VertexDeclaration declaration, T[] vertices, int vertexOffset, int vertexCount) where T : struct, IVertexData;
+		void UploadBatchVertices(VertexDeclaration declaration, IntPtr vertices, int vertexCount);
 	}
 }

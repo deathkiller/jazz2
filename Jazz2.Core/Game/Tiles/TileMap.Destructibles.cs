@@ -84,7 +84,7 @@ namespace Jazz2.Game.Tiles
             for (int tx = x1; tx <= x2; tx++) {
                 for (int ty = y1; ty <= y2; ty++) {
                     ref LayerTile tile = ref levelLayout[sprLayerIndex].Layout[tx + ty * levelWidth];
-                    if (tile.DestructType == TileDestructType.Speed && tile.ExtraData + /*3*/5 <= speed) {
+                    if (tile.DestructType == TileDestructType.Speed && /*tile.ExtraData +*/ 5 <= speed) {
                         int amount = 1;
                         if (AdvanceDestructibleTileAnimation(ref tile, tx, ty, ref amount, "SceneryDestruct")) {
                             hit++;

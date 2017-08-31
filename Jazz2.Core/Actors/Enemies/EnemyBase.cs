@@ -67,9 +67,8 @@ namespace Jazz2.Actors.Enemies
 
             EventMap events = api.EventMap;
 
-            Hitbox h1 = currentHitbox + new Vector2(x, y - 10);
-            Hitbox h2 = currentHitbox + new Vector2(x, y + 2);
-            //Hitbox h3 = currentHitbox + new Vector2(x + sign * (currentHitbox.Right - currentHitbox.Left) / 2, y + 32);
+            Hitbox h1 = currentHitbox + new Vector2(x, y - 3);
+            Hitbox h2 = currentHitbox + new Vector2(x, y + 3);
             Hitbox h3 = currentHitbox + new Vector2(x + sign * (currentHitbox.Right - currentHitbox.Left) / 2, y + 12);
 
             ushort[] p = null;
@@ -139,6 +138,8 @@ namespace Jazz2.Actors.Enemies
                 return;
             }
 
+            Vector3 pos = Transform.Pos;
+
             if (collider is AmmoToaster) {
                 const int debrisSizeX = 5;
                 const int debrisSizeY = 3;
@@ -146,8 +147,6 @@ namespace Jazz2.Actors.Enemies
                 GraphicResource res = currentTransitionState != AnimState.Idle ? currentTransition : currentAnimation;
                 Material material = res.Material.Res;
                 Texture texture = material.MainTexture.Res;
-
-                Vector3 pos = Transform.Pos;
 
                 float x = pos.X - res.Base.Hotspot.X;
                 float y = pos.Y - res.Base.Hotspot.Y;
@@ -180,6 +179,44 @@ namespace Jazz2.Actors.Enemies
                              ),
 
                             CollisionAction = DebrisCollisionAction.Bounce
+                        });
+                    }
+                }
+            } else if (pos.Y > api.WaterLevel) {
+                const int debrisSize = 3;
+
+                GraphicResource res = currentTransitionState != AnimState.Idle ? currentTransition : currentAnimation;
+                Material material = res.Material.Res;
+                Texture texture = material.MainTexture.Res;
+
+                float x = pos.X - res.Base.Hotspot.X;
+                float y = pos.Y - res.Base.Hotspot.Y;
+
+                for (int fx = 0; fx < res.Base.FrameDimensions.X; fx += debrisSize + 1) {
+                    for (int fy = 0; fy < res.Base.FrameDimensions.Y; fy += debrisSize + 1) {
+                        float currentSize = debrisSize * MathF.Rnd.NextFloat(0.2f, 1.1f);
+                        api.TileMap.CreateDebris(new DestructibleDebris {
+                            Pos = new Vector3(x + (isFacingLeft ? res.Base.FrameDimensions.X - fx : fx), y + fy, pos.Z),
+                            Size = new Vector2(currentSize /** (isFacingLeft ? -1f : 1f)*/, currentSize),
+                            Speed = new Vector2(((fx - res.Base.FrameDimensions.X / 2) + MathF.Rnd.NextFloat(-2f, 2f)) * (isFacingLeft ? -1f : 1f) * MathF.Rnd.NextFloat(1f, 3f) / res.Base.FrameDimensions.X,
+                                 ((fy - res.Base.FrameDimensions.Y / 2) + MathF.Rnd.NextFloat(-2f, 2f)) * (isFacingLeft ? -1f : 1f) * MathF.Rnd.NextFloat(1f, 3f) / res.Base.FrameDimensions.Y),
+                            Acceleration = new Vector2(0f, 0f),
+
+                            Scale = 1f,
+                            Alpha = 1f,
+                            AlphaSpeed = -0.004f,
+
+                            Time = 340f,
+
+                            Material = material,
+                            MaterialOffset = new Rect(
+                                 (((float)(renderer.CurrentFrame % res.Base.FrameConfiguration.X) / res.Base.FrameConfiguration.X) + ((float)fx / texture.ContentWidth)) * texture.UVRatio.X,
+                                 (((float)(renderer.CurrentFrame / res.Base.FrameConfiguration.X) / res.Base.FrameConfiguration.Y) + ((float)fy / texture.ContentHeight)) * texture.UVRatio.Y,
+                                 (currentSize * texture.UVRatio.X / texture.ContentWidth),
+                                 (currentSize * texture.UVRatio.Y / texture.ContentHeight)
+                             ),
+
+                            CollisionAction = DebrisCollisionAction.Disappear
                         });
                     }
                 }

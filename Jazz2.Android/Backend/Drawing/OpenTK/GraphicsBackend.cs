@@ -6,18 +6,12 @@ using System.Runtime.InteropServices;
 using Duality.Drawing;
 using Duality.Resources;
 using OpenTK;
-using OpenTK.Graphics;
 using OpenTK.Graphics.ES30;
 
 namespace Duality.Backend.Android.OpenTK
 {
     public class GraphicsBackend : IGraphicsBackend, IVertexUploader
     {
-        private class QuadTransformCache<T>
-        {
-            public static T[] Vertices;
-        }
-
         private static readonly Version MinOpenGLVersion = new Version(3, 0);
 
         private static GraphicsBackend activeInstance;
@@ -34,6 +28,7 @@ namespace Duality.Backend.Android.OpenTK
         private List<IDrawBatch> renderBatchesSharingVBO = new List<IDrawBatch>();
 
         private bool quadTransformNeeded;
+        private byte[] quadTransformCache;
         private float[] modelViewData = new float[16];
         private float[] projectionData = new float[16];
 
@@ -238,43 +233,40 @@ namespace Duality.Backend.Android.OpenTK
             DebugCheckOpenGLErrors();
         }
 
-        void IVertexUploader.UploadBatchVertices<T>(VertexDeclaration declaration, T[] vertices, int vertexOffset, int vertexCount)
+        unsafe void IVertexUploader.UploadBatchVertices(VertexDeclaration declaration, IntPtr vertices, int vertexCount)
         {
             // OpenGL ES 3.0 doesn't support Quad rendering, transform all Quads to Triangles
             if (quadTransformNeeded) {
-                int transformedVertexCount = (vertexCount / 4) * 6;
+                int size = declaration.Size;
+                int transformedVertexSize = (vertexCount / 4) * 6 * size;
 
-                T[] transformedVertices;
-                if (QuadTransformCache<T>.Vertices == null ||
-                    QuadTransformCache<T>.Vertices.Length < transformedVertexCount) {
-                    QuadTransformCache<T>.Vertices = transformedVertices = new T[transformedVertexCount];
-                } else {
-                    transformedVertices = QuadTransformCache<T>.Vertices;
+                if (quadTransformCache == null || quadTransformCache.Length < transformedVertexSize) {
+                    quadTransformCache = new byte[transformedVertexSize];
                 }
 
-                for (var i = 0; i < vertexCount; i += 4) {
-                    int srcIndex = vertexOffset + i;
-                    int destIndex = (i / 4) * 6;
-                    transformedVertices[destIndex] = vertices[srcIndex];
-                    transformedVertices[destIndex + 1] = vertices[srcIndex + 1];
-                    transformedVertices[destIndex + 2] = vertices[srcIndex + 2];
+                fixed (byte* dst = quadTransformCache) {
+                    byte* src = (byte*)vertices;
+                    for (var i = 0; i < vertexCount; i += 4) {
+                        int srcIndex = i * declaration.Size;
+                        int dstIndex = (i / 4) * 6 * declaration.Size;
+                        //quadTransformCache[dstIndex] = src[srcIndex];
+                        //quadTransformCache[dstIndex + 1] = src[srcIndex + 1];
+                        //quadTransformCache[dstIndex + 2] = src[srcIndex + 2];
+                        Buffer.MemoryCopy(src + srcIndex, dst + dstIndex, 3 * size, 3 * size);
 
-                    transformedVertices[destIndex + 3] = vertices[srcIndex];
-                    transformedVertices[destIndex + 4] = vertices[srcIndex + 2];
-                    transformedVertices[destIndex + 5] = vertices[srcIndex + 3];
+                        //quadTransformCache[dstIndex + 3] = src[srcIndex];
+                        //quadTransformCache[dstIndex + 4] = src[srcIndex + 2];
+                        //quadTransformCache[dstIndex + 5] = src[srcIndex + 3];
+                        Buffer.MemoryCopy(src + srcIndex, dst + dstIndex + 3 * size, 1 * size, 1 * size);
+                        Buffer.MemoryCopy(src + srcIndex + 2 * size, dst + dstIndex + 4 * size, 2 * size, 2 * size);
+                    }
+
+                    GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)transformedVertexSize, IntPtr.Zero, BufferUsage.StreamDraw);
+                    GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)transformedVertexSize, (IntPtr)dst, BufferUsage.StreamDraw);
                 }
-
-                GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(declaration.Size * transformedVertexCount), IntPtr.Zero, BufferUsage.StreamDraw);
-                GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(declaration.Size * transformedVertexCount), transformedVertices, BufferUsage.StreamDraw);
             } else {
                 GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(declaration.Size * vertexCount), IntPtr.Zero, BufferUsage.StreamDraw);
-
-                GCHandle gcHandle = GCHandle.Alloc(vertices, GCHandleType.Pinned);
-                try {
-                    GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(declaration.Size * vertexCount), gcHandle.AddrOfPinnedObject() + (declaration.Size * vertexOffset), BufferUsage.StreamDraw);
-                } finally {
-                    gcHandle.Free();
-                }
+                GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(declaration.Size * vertexCount), vertices, BufferUsage.StreamDraw);
             }
         }
 

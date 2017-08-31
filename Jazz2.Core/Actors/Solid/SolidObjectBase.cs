@@ -15,7 +15,7 @@ namespace Jazz2.Actors.Solid
         public bool Push(bool left)
         {
             if (Movable) {
-                return MoveInstantly(new Vector2(left ? -0.7f : 0.7f, 0f), MoveType.RelativeTime);
+                return MoveInstantly(new Vector2(left ? -0.5f : 0.5f, 0f), MoveType.RelativeTime);
             } else {
                 return false;
             }

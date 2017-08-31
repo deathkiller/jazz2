@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using System.Collections.Concurrent;
+using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using Duality;
 using Duality.Drawing;
 using Duality.IO;
@@ -36,8 +38,19 @@ namespace Jazz2.Game.UI
 
             IImageCodec imageCodec = ImageCodec.GetRead(ImageCodec.FormatPng);
             using (Stream s = FileOp.Open(png, FileAccessMode.Read)) {
-                PixelData pd = imageCodec.Read(s);
-                Texture texture = new Texture(new Pixmap(pd), TextureSizeMode.NonPowerOfTwo, TextureMagFilter.Linear, TextureMinFilter.Linear);
+                PixelData pixelData = imageCodec.Read(s);
+
+                ColorRgba[] palette = ContentResolver.Current.Palette.Res.BasePixmap.Res.PixelData[0].Data;
+
+                ColorRgba[] data = pixelData.Data;
+                Parallel.ForEach(Partitioner.Create(0, data.Length), range => {
+                    for (int i = range.Item1; i < range.Item2; i++) {
+                        int colorIdx = data[i].R;
+                        data[i] = palette[colorIdx].WithAlpha(palette[colorIdx].A * data[i].A / (255f * 255f));
+                    }
+                });
+
+                Texture texture = new Texture(new Pixmap(pixelData), TextureSizeMode.NonPowerOfTwo, TextureMagFilter.Linear, TextureMinFilter.Linear);
 
                 materialPlain = new Material(DrawTechnique.Alpha, ColorRgba.White, texture);
                 materialColor = new Material(ContentResolver.Current.RequestShader("Colorize"), ColorRgba.White, texture);

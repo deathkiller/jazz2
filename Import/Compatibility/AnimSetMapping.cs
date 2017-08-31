@@ -14,7 +14,7 @@ namespace Jazz2.Compatibility
             public Color[] Palette;
             public bool SkipNormalMap;
             public int AddBorder;
-            public bool KeepIndexed;
+            public bool AllowRealtimePalette;
         }
 
         public const string Discard = ":discard";
@@ -823,7 +823,7 @@ namespace Jazz2.Compatibility
                 mapping.Add("Pickup", "food_chocolate");
                 mapping.Add("Pickup", "food_cola");
                 mapping.Add("Pickup", "carrot");
-                mapping.Add("Pickup", "Gem", keepIndexed: true, addBorder: 1);
+                mapping.Add("Pickup", "Gem", allowRealtimePalette: true, addBorder: 1);
                 mapping.Add("Pickup", "food_cucumber");
                 mapping.Add("Pickup", "food_cupcake");
                 mapping.Add("Pickup", "food_donut");
@@ -835,7 +835,7 @@ namespace Jazz2.Compatibility
                 mapping.Add("Object", "powerup_shield_fire");
                 mapping.Add("Pickup", "food_fries");
                 mapping.Add("Pickup", "fast_feet");
-                mapping.Add("Object", "GemSuper", keepIndexed: true);
+                mapping.Add("Object", "GemSuper", allowRealtimePalette: true);
 
                 //mapping.Add("Pickup", "Gem2", keepIndexed: true);
                 mapping.DiscardItems(1);
@@ -1992,7 +1992,7 @@ namespace Jazz2.Compatibility
             }
         }
 
-        private void Add(JJ2Version appliesTo, string category, string name, Color[] palette = null, bool skipNormalMap = false, int addBorder = 0, bool keepIndexed = false) {
+        private void Add(JJ2Version appliesTo, string category, string name, Color[] palette = null, bool skipNormalMap = false, int addBorder = 0, bool allowRealtimePalette = false) {
             if ((version & appliesTo) != 0) {
                 data.Add(Pair.Create(currentSet, currentItem), new Data {
                     Category = category,
@@ -2000,13 +2000,13 @@ namespace Jazz2.Compatibility
                     Palette = palette,
                     SkipNormalMap = skipNormalMap,
                     AddBorder = addBorder,
-                    KeepIndexed = keepIndexed
+                    AllowRealtimePalette = allowRealtimePalette
                 });
                 currentItem++;
             }
         }
 
-        private void Add(string category, string name, Color[] palette = null, bool skipNormalMap = false, int addBorder = 0, bool keepIndexed = false)
+        private void Add(string category, string name, Color[] palette = null, bool skipNormalMap = false, int addBorder = 0, bool allowRealtimePalette = false)
         {
             data.Add(Pair.Create(currentSet, currentItem), new Data {
                 Category = category,
@@ -2014,7 +2014,7 @@ namespace Jazz2.Compatibility
                 Palette = palette,
                 SkipNormalMap = skipNormalMap,
                 AddBorder = addBorder,
-                KeepIndexed = keepIndexed
+                AllowRealtimePalette = allowRealtimePalette
             });
             currentItem++;
         }
