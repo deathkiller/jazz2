@@ -67,5 +67,7 @@
   </ItemGroup>
   <Import Project="..\Shared\NetworkPackets\NetworkPackets.projitems" Label="Shared" />
   <Import Project="..\Jazz2.Core\Jazz2.Core.projitems" Label="Shared" />
+  <Import Project="..\Shared\Duality\Duality.projitems" Label="Shared" />
+  <Import Project="..\Shared\Primitives\Primitives.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

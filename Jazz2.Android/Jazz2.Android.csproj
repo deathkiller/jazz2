@@ -123,6 +123,8 @@
     <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher.png" />
   </ItemGroup>
   <Import Project="..\Jazz2.Core\Jazz2.Core.projitems" Label="Shared" />
+  <Import Project="..\Shared\Duality\Duality.projitems" Label="Shared" />
+  <Import Project="..\Shared\Primitives\Primitives.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
      Other similar extension points exist, see Microsoft.Common.targets.

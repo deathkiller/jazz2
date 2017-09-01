@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>2dad5df0-99d5-4837-af78-cf189db386a2</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Primitives</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Drawing\ColorFormat\ColorHsva.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Drawing\ColorFormat\ColorRgba.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Drawing\ColorFormat\IColorData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Math\Alignment.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Math\MathF.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Math\Matrix3.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Math\Matrix4.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Math\Point2.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Math\Quaternion.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Math\Rect.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Math\Vector2.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Math\Vector3.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Math\Vector4.cs" />
+  </ItemGroup>
+</Project>

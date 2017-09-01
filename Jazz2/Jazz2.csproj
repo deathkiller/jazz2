@@ -58,7 +58,6 @@
   <ItemGroup>
     <None Include="Icon.ico" />
   </ItemGroup>
-
   <Choose>
     <When Condition="$(DefineConstants.Contains('MULTIPLAYER'))">
       <ItemGroup>
@@ -70,7 +69,8 @@
     </When>
   </Choose>
   <Import Project="..\Shared\NetworkPackets\NetworkPackets.projitems" Label="Shared" Condition="$(DefineConstants.Contains('MULTIPLAYER'))" />
-
   <Import Project="..\Jazz2.Core\Jazz2.Core.projitems" Label="Shared" />
+  <Import Project="..\Shared\Duality\Duality.projitems" Label="Shared" />
+  <Import Project="..\Shared\Primitives\Primitives.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

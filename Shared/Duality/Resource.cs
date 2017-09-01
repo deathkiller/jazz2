@@ -462,9 +462,18 @@ namespace Duality
                 }
             });
 #else
-            // ToDo: Embedded resources, hardcoded namespace
-            string embeddedNameBase = "Jazz2.Duality.EmbeddedResources.";
+            //string embeddedNameBase = "Duality.EmbeddedResources.";
             Assembly embeddingAssembly = typeof(Resource).GetTypeInfo().Assembly;
+
+            string embeddedNameBase = null;
+            string[] resourceNames = embeddingAssembly.GetManifestResourceNames();
+            for (int i = 0; i < resourceNames.Length; i++) {
+                int index = resourceNames[i].IndexOf(".EmbeddedResources.");
+                if (index != -1 && resourceNames[i].EndsWith(embeddedNameExt)) {
+                    embeddedNameBase = resourceNames[i].Substring(0, index + 19);
+                    break;
+                }
+            }
 
             InitDefaultContent<T>(name => {
                 using (Stream stream = embeddingAssembly.GetManifestResourceStream(embeddedNameBase + name + embeddedNameExt)) {
