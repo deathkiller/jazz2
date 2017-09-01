@@ -18,6 +18,7 @@ namespace Jazz2.Server
         public int ConnectionsCount => server.ConnectionsCount;
 
         public event Action<ClientConnectedEventArgs> ClientConnected;
+        public event Action<ClientStatusChangedEventArgs> ClientStatusChanged;
         public event Action<MessageReceivedEventArgs> MessageReceived;
         public event Action<DiscoveryRequestEventArgs> DiscoveryRequest;
 
@@ -36,6 +37,11 @@ namespace Jazz2.Server
             config.EnableMessageType(NetIncomingMessageType.DiscoveryRequest);
             config.EnableMessageType(NetIncomingMessageType.NatIntroductionSuccess);
             config.EnableUPnP = true;
+
+            //config.SimulatedMinimumLatency = 0.02f;
+            //config.SimulatedMinimumLatency = 0.8f;
+            //config.SimulatedRandomLatency = 0.06f;
+            //config.SimulatedDuplicatesChance = 0.2f;
 
 #if DEBUG
             config.EnableMessageType(NetIncomingMessageType.DebugMessage);
@@ -142,7 +148,7 @@ namespace Jazz2.Server
                     while (server.ReadMessage(out msg)) {
 
                         switch (msg.MessageType) {
-                            case NetIncomingMessageType.StatusChanged:
+                            case NetIncomingMessageType.StatusChanged: {
                                 NetConnectionStatus status = (NetConnectionStatus)msg.ReadByte();
 #if DEBUG
                                 Console.ForegroundColor = ConsoleColor.DarkCyan;
@@ -150,11 +156,13 @@ namespace Jazz2.Server
                                 Console.ForegroundColor = ConsoleColor.Gray;
                                 Console.WriteLine("[" + msg.SenderEndPoint + "] " + status);
 #endif
-                                
+                                ClientStatusChangedEventArgs args = new ClientStatusChangedEventArgs(msg.SenderConnection, status);
+                                ClientStatusChanged?.Invoke(args);
                                 break;
+                            }
 
                             case NetIncomingMessageType.Data: {
-#if DEBUG
+#if DEBUG__
                                 Console.ForegroundColor = ConsoleColor.Cyan;
                                 Console.Write("    R ");
                                 Console.ForegroundColor = ConsoleColor.Gray;

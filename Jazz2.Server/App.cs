@@ -1,10 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
+using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Threading;
+using Duality;
+using Jazz2.Game.Structs;
+using Jazz2.NetworkPackets;
+using Jazz2.NetworkPackets.Client;
+using Jazz2.NetworkPackets.Server;
 using Lidgren.Network;
+
+namespace Jazz2
+{
+    public static class App
+    {
+        public static string AssemblyTitle
+        {
+            get
+            {
+                object[] attributes = Assembly.GetEntryAssembly().GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
+                if (attributes.Length > 0) {
+                    AssemblyTitleAttribute titleAttribute = (AssemblyTitleAttribute)attributes[0];
+                    if (!string.IsNullOrEmpty(titleAttribute.Title)) {
+                        return titleAttribute.Title;
+                    }
+                }
+                return Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location);
+            }
+        }
+
+        public static string AssemblyVersion
+        {
+            get
+            {
+                Version v = Assembly.GetEntryAssembly().GetName().Version;
+                return v.Major.ToString(CultureInfo.InvariantCulture) + "." + v.Minor.ToString(CultureInfo.InvariantCulture) + (v.Build != 0 ? "." + v.Build.ToString(CultureInfo.InvariantCulture) : "");
+            }
+        }
+    }
+}
 
 namespace Jazz2.Server
 {
@@ -22,7 +59,16 @@ namespace Jazz2.Server
 
         private class Player
         {
+            public int Index;
 
+            public Vector3 Pos;
+            public Vector3 Speed;
+
+            public AnimState AnimState;
+            public float AnimTime;
+            public bool IsFacingLeft;
+
+            public bool IsReady;
         }
 
         private const string token = "J²";
@@ -44,8 +90,18 @@ namespace Jazz2.Server
         private static double lastRegisteredToMaster;
         private static int lastGameLoadMs;
 
+        private static string currentLevel = "battle1";
+        private static int lastPlayerIndex;
+
         private static void Main(string[] args)
         {
+#if DEBUG
+            if (Console.BufferWidth < 120) {
+                Console.BufferWidth = 120;
+                Console.WindowWidth = 120;
+            }
+#endif
+
             bool isMasterServer = TryRemoveArg(ref args, "/master");
 
             if (!TryRemoveArg(ref args, "/port:", out port)) {
@@ -85,13 +141,18 @@ namespace Jazz2.Server
                 callbacks = new Dictionary<byte, Action<NetIncomingMessage, bool>>();
                 players = new Dictionary<NetConnection, Player>();
 
+
                 server = new ServerConnection(token, port, maxPlayers);
                 server.MessageReceived += OnMessageReceived;
                 server.DiscoveryRequest += OnDiscoveryRequest;
                 server.ClientConnected += OnClientConnected;
+                server.ClientStatusChanged += OnClientStatusChanged;
 
                 // ToDo: Renew it periodically
                 RegisterToMasterServer();
+
+                RegisterCallback<LevelReady>(OnLevelReady);
+                RegisterCallback<UpdateSelf>(OnUpdateSelf);
             }
 
             // Create game loop (~60fps)
@@ -127,6 +188,7 @@ namespace Jazz2.Server
             if (isMasterServer) {
                 server.MessageReceived -= OnMasterMessageReceived;
             } else {
+                server.ClientStatusChanged -= OnClientStatusChanged;
                 server.ClientConnected -= OnClientConnected;
                 server.MessageReceived -= OnMessageReceived;
                 server.DiscoveryRequest -= OnDiscoveryRequest;
@@ -150,10 +212,34 @@ namespace Jazz2.Server
 
                 // ToDo: Update components
 
+                foreach (var player in players) {
+                    if (!player.Value.IsReady) {
+                        continue;
+                    }
+
+                    foreach (var to in players) {
+                        if (player.Value == to.Value || !to.Value.IsReady) {
+                            continue;
+                        }
+
+                        Send(new UpdateRemotePlayer {
+                            Index = player.Value.Index,
+
+                            Pos = player.Value.Pos,
+                            Speed = player.Value.Speed,
+
+                            AnimState = player.Value.AnimState,
+                            AnimTime = player.Value.AnimTime,
+                            IsFacingLeft = player.Value.IsFacingLeft
+                        }, 2 + 2 * 3 * 4, to.Key, NetDeliveryMethod.UnreliableSequenced, NetworkChannels.PlayerUpdate + to.Value.Index);
+                    }
+                }
+
+
                 sw.Stop();
 
                 lastGameLoadMs = (int)sw.ElapsedMilliseconds;
-                int sleepMs = 1000 / 60 - lastGameLoadMs;
+                int sleepMs = 1000 / 30 - lastGameLoadMs;
                 if (sleepMs > 0) {
                     Thread.Sleep(sleepMs);
                 }
@@ -229,6 +315,11 @@ namespace Jazz2.Server
             //    return;
             //}
 
+            if (args.Message.LengthBytes < 3) {
+                Console.WriteLine("        - " + "Corrupted OnClientConnected message!");
+                return;
+            }
+
             byte major = args.Message.ReadByte();
             byte minor = args.Message.ReadByte();
             byte build = args.Message.ReadByte();
@@ -242,6 +333,35 @@ namespace Jazz2.Server
             players[args.Message.SenderConnection] = new Player {
 
             };
+        }
+
+        private static void OnClientStatusChanged(ClientStatusChangedEventArgs args)
+        {
+            if (args.Status == NetConnectionStatus.Connected) {
+                lastPlayerIndex++;
+
+                players[args.SenderConnection].Index = lastPlayerIndex;
+
+                Send(new LoadLevel {
+                    LevelName = currentLevel,
+                    AssignedPlayerIndex = lastPlayerIndex
+                }, 64, args.SenderConnection, NetDeliveryMethod.ReliableSequenced, NetworkChannels.Main);
+            } else if (args.Status == NetConnectionStatus.Disconnected) {
+                int index = players[args.SenderConnection].Index;
+
+                players.Remove(args.SenderConnection);
+
+                foreach (var to in players) {
+                    if (to.Key == args.SenderConnection) {
+                        continue;
+                    }
+
+                    Send(new DestroyRemotePlayer {
+                        Index = index,
+                        Reason = 1 // ToDo
+                    }, 3, to.Key, NetDeliveryMethod.ReliableSequenced, NetworkChannels.PlayerGeneral);
+                }
+            }
         }
 
         private static void OnMessageReceived(MessageReceivedEventArgs args)
@@ -397,13 +517,13 @@ namespace Jazz2.Server
         {
             T packet = default(T);
             if (isUnconnected && !packet.SupportsUnconnected) {
-#if DEBUG
+#if DEBUG__
                 Console.WriteLine("        - Packet<" + typeof(T).Name + "> not allowed for unconnected clients!");
 #endif
                 return;
             }
 
-#if DEBUG
+#if DEBUG__
             Console.WriteLine("        - Packet<" + typeof(T).Name + ">");
 #endif
 
@@ -414,14 +534,14 @@ namespace Jazz2.Server
         #endregion
 
         #region Messages
-        public static bool Send<T>(T packet, int capacity, NetConnection recipient, NetDeliveryMethod method) where T : struct, IServerPacket
+        public static bool Send<T>(T packet, int capacity, NetConnection recipient, NetDeliveryMethod method, int channel) where T : struct, IServerPacket
         {
             NetOutgoingMessage msg = server.CreateMessage(capacity);
             msg.Write((byte)packet.Type);
             packet.Write(msg);
-            NetSendResult result = server.Send(msg, recipient, method);
+            NetSendResult result = server.Send(msg, recipient, method, channel);
 
-#if DEBUG
+#if DEBUG__
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.Write("Debug: ");
             Console.ForegroundColor = ConsoleColor.Gray;
@@ -430,20 +550,20 @@ namespace Jazz2.Server
             return (result == NetSendResult.Sent || result == NetSendResult.Queued);
         }
 
-        public static bool Send<T>(T packet, int capacity, List<NetConnection> recipients, NetDeliveryMethod method) where T : struct, IServerPacket
+        public static bool Send<T>(T packet, int capacity, List<NetConnection> recipients, NetDeliveryMethod method, int channel) where T : struct, IServerPacket
         {
             NetOutgoingMessage msg = server.CreateMessage(capacity);
             msg.Write((byte)packet.Type);
             packet.Write(msg);
 
             if (recipients.Count > 0) {
-#if DEBUG
+#if DEBUG__
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.Write("Debug: ");
                 Console.ForegroundColor = ConsoleColor.Gray;
                 Console.WriteLine("Send<" + typeof(T).Name + ">  " + msg.LengthBytes + " bytes, " + recipients.Count + " recipients");
 #endif
-                server.Send(msg, recipients, method, 0);
+                server.Send(msg, recipients, method, channel);
                 return true;
             } else {
                 return false;
@@ -484,5 +604,59 @@ namespace Jazz2.Server
             }
         }
         #endregion
+
+        private static void OnLevelReady(ref LevelReady p)
+        {
+            Player player;
+            if (players.TryGetValue(p.SenderConnection, out player)) {
+                if (player.Index != p.Index) {
+                    throw new InvalidOperationException();
+                }
+
+                player.IsReady = true;
+
+                foreach (var to in players) {
+                    if (to.Key == p.SenderConnection || !to.Value.IsReady) {
+                        continue;
+                    }
+
+                    Send(new CreateRemotePlayer {
+                        Index = player.Index,
+                        Type = Actors.PlayerType.Spaz,
+                        Pos = Vector3.Zero
+                    }, 2 + 1 + 3 * 4, to.Key, NetDeliveryMethod.ReliableSequenced, NetworkChannels.PlayerGeneral);
+                }
+
+                foreach (var other in players) {
+                    if (other.Key == p.SenderConnection || !other.Value.IsReady) {
+                        continue;
+                    }
+
+                    Send(new CreateRemotePlayer {
+                        Index = other.Value.Index,
+                        Type = Actors.PlayerType.Spaz,
+                        Pos = other.Value.Pos
+                    }, 2 + 1 + 3 * 4, p.SenderConnection, NetDeliveryMethod.ReliableSequenced, NetworkChannels.PlayerGeneral);
+                }
+
+            }
+        }
+
+        private static void OnUpdateSelf(ref UpdateSelf p)
+        {
+            Player player;
+            if (players.TryGetValue(p.SenderConnection, out player)) {
+                if (player.Index != p.Index) {
+                    throw new InvalidOperationException();
+                }
+
+                player.Pos = p.Pos;
+                player.Speed = p.Speed;
+
+                player.AnimState = p.AnimState;
+                player.AnimTime = p.AnimTime;
+                player.IsFacingLeft = p.IsFacingLeft;
+            }
+        }
     }
 }

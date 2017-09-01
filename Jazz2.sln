@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.26730.8
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jazz2", "Jazz2\Jazz2.csproj", "{7CC64746-8BA3-49ED-AFFC-AE4308AC1FA4}"
 EndProject
@@ -26,11 +26,19 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lidgren.Network", "Extensio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jazz2.Server", "Jazz2.Server\Jazz2.Server.csproj", "{1BBE20FE-4DE1-4DC0-A56E-822F48617B27}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{551F2C0E-647C-4DE2-BB1C-DF57AB0F2663}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "NetworkPackets", "Shared\NetworkPackets\NetworkPackets.shproj", "{64F6BE65-220B-4DE3-82AF-80E24D45CC67}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Jazz2.Core\Jazz2.Core.projitems*{07ebf55e-8758-4305-b77e-c45fdea843ec}*SharedItemsImports = 13
+		Jazz2.Core\Jazz2.Core.projitems*{1bbe20fe-4de1-4dc0-a56e-822f48617b27}*SharedItemsImports = 4
+		Shared\NetworkPackets\NetworkPackets.projitems*{1bbe20fe-4de1-4dc0-a56e-822f48617b27}*SharedItemsImports = 4
+		Shared\NetworkPackets\NetworkPackets.projitems*{64f6be65-220b-4de3-82af-80e24d45cc67}*SharedItemsImports = 13
 		Jazz2.Core\Jazz2.Core.projitems*{74e972a2-711f-4a9f-8d0b-aaef2f02dd48}*SharedItemsImports = 4
 		Jazz2.Core\Jazz2.Core.projitems*{7cc64746-8ba3-49ed-affc-ae4308ac1fa4}*SharedItemsImports = 4
+		Shared\NetworkPackets\NetworkPackets.projitems*{7cc64746-8ba3-49ed-affc-ae4308ac1fa4}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,5 +79,9 @@ Global
 		{742EEB7B-19D1-41B1-8870-02300CC9281F} = {B73F0AF4-8283-4019-B9E5-85A57B12489F}
 		{2CC35924-68BF-4099-A809-AD2C3B219FF6} = {43EA5404-3A29-444C-A43E-7B48D289FC44}
 		{49BA1C69-6104-41AC-A5D8-B54FA9F696E8} = {43EA5404-3A29-444C-A43E-7B48D289FC44}
+		{64F6BE65-220B-4DE3-82AF-80E24D45CC67} = {551F2C0E-647C-4DE2-BB1C-DF57AB0F2663}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {68CDB158-C20C-4E20-9FFD-828478D43E3D}
 	EndGlobalSection
 EndGlobal

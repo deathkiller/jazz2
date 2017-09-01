@@ -1,6 +1,6 @@
 ﻿using Lidgren.Network;
 
-namespace Jazz2.Server
+namespace Jazz2.NetworkPackets
 {
     public delegate void PacketCallback<T>(ref T p);
 
