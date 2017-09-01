@@ -200,6 +200,15 @@ namespace Jazz2.Game.UI.Menu.S
             if (ControlScheme.MenuActionHit(PlayerActions.Fire)) {
                 api.PlaySound("MenuSelect", 0.5f);
                 waitForInput = true;
+            } else if (DualityApp.Keyboard.KeyHit(Key.Delete)) {
+                api.PlaySound("MenuSelect", 0.5f);
+
+                ref Mapping mapping = ref ControlScheme.GetCurrentMapping(0, (PlayerActions)selectedIndex);
+                switch (selectedColumn) {
+                    case 0: mapping.Key1 = Key.Unknown; break;
+                    case 1: mapping.Key2 = Key.Unknown; break;
+                    case 2:mapping.GamepadIndex = -1; break;
+                }
             } else if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
                 api.PlaySound("MenuSelect", 0.5f);
                 api.LeaveSection(this);

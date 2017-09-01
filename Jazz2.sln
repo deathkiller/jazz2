@@ -17,16 +17,14 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Jazz2.Core", "Jazz2.Core\Ja
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{B73F0AF4-8283-4019-B9E5-85A57B12489F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{83CAB5E7-226B-46BE-8066-3C7EA02B4725}"
-	ProjectSection(SolutionItems) = preProject
-		README.md = README.md
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lidgren.Network", "Extensions\Lidgren.Network\Lidgren.Network.csproj", "{49BA1C69-6104-41AC-A5D8-B54FA9F696E8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jazz2.Server", "Jazz2.Server\Jazz2.Server.csproj", "{1BBE20FE-4DE1-4DC0-A56E-822F48617B27}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{551F2C0E-647C-4DE2-BB1C-DF57AB0F2663}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "NetworkPackets", "Shared\NetworkPackets\NetworkPackets.shproj", "{64F6BE65-220B-4DE3-82AF-80E24D45CC67}"
 EndProject

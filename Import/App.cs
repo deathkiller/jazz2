@@ -347,9 +347,50 @@ namespace Import
                 ["town2"] = Tuple.Create("secretf", "08"),
                 ["town3"] = Tuple.Create("secretf", "09"),
 
+                // Resurrection of Evil
+                ["roe"] = Tuple.Create("roe", "01"),
+                ["roe00"] = Tuple.Create("roe", "02"),
+                ["roe01"] = Tuple.Create("roe", "03"),
+                ["roe02"] = Tuple.Create("roe", "04"),
+                ["roe03"] = Tuple.Create("roe", "05"),
+                ["roe03a"] = Tuple.Create("roe", "05"),
+                ["roe04"] = Tuple.Create("roe", "06"),
+                ["roe05"] = Tuple.Create("roe", "07"),
+                ["roe06"] = Tuple.Create("roe", "08"),
+                ["roe07"] = Tuple.Create("roe", "09"),
+                ["roe08"] = Tuple.Create("roe", "10"),
+                ["roe08a"] = Tuple.Create("roe", "10"),
+                ["roe09"] = Tuple.Create("roe", "11"),
+                ["roe10"] = Tuple.Create("roe", "12"),
+
+                ["roe_2"] = Tuple.Create("roe2", "01"),
+                ["roe11"] = Tuple.Create("roe2", "02"),
+                ["roe12"] = Tuple.Create("roe2", "03"),
+                ["roe12a"] = Tuple.Create("roe2", "03"),
+                ["roe13"] = Tuple.Create("roe2", "04"),
+                ["roe14"] = Tuple.Create("roe2", "05"),
+                ["roe14a"] = Tuple.Create("roe2", "05"),
+                ["roe14b"] = Tuple.Create("roe2", "05"),
+                ["roe15"] = Tuple.Create("roe2", "06"),
+                ["roe15a"] = Tuple.Create("roe2", "06"),
+                ["roe16"] = Tuple.Create("roe2", "07"),
+                ["roe17"] = Tuple.Create("roe2", "08"),
+                ["roe18"] = Tuple.Create("roe2", "09"),
+                ["roe19"] = Tuple.Create("roe2", "10"),
+                ["roe20"] = Tuple.Create("roe2", "11"),
+                ["roe21"] = Tuple.Create("roe2", "12"),
+                ["roe22"] = Tuple.Create("roe2", "13"),
+                ["roe23"] = Tuple.Create("roe2", "14"),
+                ["roe24"] = Tuple.Create("roe2", "15"),
+
                 // Special names
                 ["endepis"] = Tuple.Create((string)null, ":end"),
                 ["ending"] = Tuple.Create((string)null, ":credits")
+            };
+
+            Dictionary<string, Tuple<string, string>> customEpisodes = new Dictionary<string, Tuple<string, string>> {
+                ["roe"] = Tuple.Create("Resurrection of Evil", "01_roe"),
+                ["roe2"] = Tuple.Create("Resurrection of Evil 2", "01_roe_2"),
             };
 
             Func<string, JJ2Level.LevelToken> levelTokenConversion = levelToken => {
@@ -497,6 +538,16 @@ namespace Import
             }
 
             Log.PopIndent();
+
+            foreach (var episode in customEpisodes) {
+                string output = Path.Combine(targetPath, "Content", "Episodes", episode.Key);
+                if (Directory.Exists(output)) {
+                    JJ2Episode e = new JJ2Episode(episode.Key, episode.Value.Item1, episode.Value.Item2, 100);
+                    e.Convert(output, levelTokenConversion, episodeNameConversion, episodePrevNext);
+
+                    Log.Write(LogType.Info, "Custom episode \"" + e.Token + "\" (" + e.Name + ") created.");
+                }
+            }
 
             Log.PopIndent();
         }

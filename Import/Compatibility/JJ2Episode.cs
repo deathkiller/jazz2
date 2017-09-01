@@ -99,6 +99,18 @@ namespace Jazz2.Compatibility
             }
         }
 
+        private JJ2Episode()
+        {
+        }
+
+        public JJ2Episode(string episodeToken, string episodeName, string firstLevel, int position)
+        {
+            this.episodeToken = episodeToken;
+            this.episodeName = episodeName;
+            this.firstLevel = firstLevel;
+            this.position = position;
+        }
+
         public void Convert(string path, Func<string, JJ2Level.LevelToken> levelTokenConversion = null, Func<JJ2Episode, string> episodeNameConversion = null, Func<JJ2Episode, Tuple<string, string>> episodePrevNext = null)
         {
             using (Stream s = File.Create(Path.Combine(path, ".res")))

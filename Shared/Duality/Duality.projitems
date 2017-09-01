@@ -97,11 +97,14 @@
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\ImageCodec.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\PixelData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\ScreenResolution.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\IVertexBatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\IVertexData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\VertexBatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\VertexBatchStore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\VertexC1P3.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\VertexC1P3T2.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\VertexC1P3T4A1.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\VertexSegment.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\VertexSlice.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexFormatDefinition\VertexDeclaration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexFormatDefinition\VertexElement.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexFormatDefinition\VertexElementAttribute.cs" />
@@ -203,6 +206,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utility\Math\Range.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\Math\TargetResize.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\ObjectCreator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utility\PinnedArrayHandle.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\RawList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\ReflectionHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\RefreshMode.cs" />
