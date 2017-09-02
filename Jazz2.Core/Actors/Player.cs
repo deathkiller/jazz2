@@ -1141,7 +1141,7 @@ namespace Jazz2.Actors
                     collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
                     if (speedY > 0 && newSuspendState == SuspendType.Vine) {
-                        PlaySound("HookAttach");
+                        PlaySound("HookAttach", 0.8f).Pitch = 1.2f;
                     }
 
                     speedY = externalForceY = 0f;
@@ -1625,9 +1625,20 @@ namespace Jazz2.Actors
 
         private void EndDamagingMove()
         {
-            currentSpecialMove = SpecialMoveType.None;
             collisionFlags |= CollisionFlags.ApplyGravitation;
-            SetAnimation(currentAnimationState & ~(AnimState.Uppercut /*| AnimState.Sidekick*/ | AnimState.Buttstomp));
+            SetAnimation(currentAnimationState & ~(AnimState.Uppercut | AnimState.Buttstomp));
+
+            if (currentSpecialMove == SpecialMoveType.Uppercut) {
+                SetTransition(AnimState.TransitionUppercutEnd, false, delegate {
+                    controllable = true;
+                });
+
+                if (externalForceY > 0f) {
+                    externalForceY = 0f;
+                }
+            }
+
+            currentSpecialMove = SpecialMoveType.None;
         }
 
         private bool SetPlayerTransition(AnimState state, bool cancellable, bool removeControl, SpecialMoveType specialMove, Action callback = null)
@@ -1783,7 +1794,7 @@ namespace Jazz2.Actors
                 NextPoleStage(horizontal, positive, 2, lastSpeed);
             });
 
-            PlaySound("Pole");
+            PlaySound("Pole", 0.8f).Pitch = 0.6f;
         }
 
         private void NextPoleStage(bool horizontal, bool positive, int stagesLeft, float lastSpeed)
@@ -1794,7 +1805,7 @@ namespace Jazz2.Actors
                     NextPoleStage(horizontal, positive, stagesLeft - 1, lastSpeed);
                 });
 
-                PlaySound("Pole");
+                PlaySound("Pole").Pitch = 0.6f;
             } else {
                 int sign = (positive ? 1 : -1);
                 if (horizontal) {
@@ -1815,8 +1826,8 @@ namespace Jazz2.Actors
                 } else {
                     MoveInstantly(new Vector2(0, sign * 16), MoveType.Relative, true);
 
-                    speedY = 5 * sign + lastSpeed * 0.2f;
-                    externalForceY = (-1.7f * sign);
+                    speedY = 3 * sign + lastSpeed * 1.2f;
+                    externalForceY = (-1f * sign);
                 }
 
                 collisionFlags |= CollisionFlags.ApplyGravitation;
@@ -1824,8 +1835,9 @@ namespace Jazz2.Actors
                 wasActivelyPushing = false;
 
                 controllableTimeout = 4f;
+                lastPoleTime = 26f;
 
-                lastPoleTime = 40f;
+                PlaySound("HookAttach", 0.8f).Pitch = 1.2f;
             }
         }
 

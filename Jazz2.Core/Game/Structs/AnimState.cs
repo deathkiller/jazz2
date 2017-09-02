@@ -61,7 +61,7 @@ namespace Jazz2.Game.Structs
         TransitionWithdrawEnd = 0x40000012,
         TransitionWarpIn = 0x40000013,
         TransitionWarpOut = 0x40000014,
-        //TransitionSpring = 0x40000015,
+        //0x40000015
         TransitionEndOfLevel = 0x40000016,
 
         TransitionWarpInFreefall = 0x40000017,
