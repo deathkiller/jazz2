@@ -25,6 +25,10 @@ namespace Duality.Backend.Android.OpenTK
         private RawList<uint> perVertexTypeVBO = new RawList<uint>();
         private Point2 externalBackbufferSize = Point2.Zero;
 
+        private RawList<uint> perBatchEBO = new RawList<uint>();
+        private int lastUsedEBO;
+        private short[] indicesCache;
+
         private float[] modelViewData = new float[16];
         private float[] projectionData = new float[16];
 
@@ -120,6 +124,7 @@ namespace Duality.Backend.Android.OpenTK
                     // Filter out unused vertex types
                     IVertexBatch vertexBatch = vertexData.Batches[typeIndex];
                     if (vertexBatch == null) continue;
+                    if (vertexBatch.Count == 0) continue;
 
                     // Generate a VBO for this vertex type if it didn't exist yet
                     if (this.perVertexTypeVBO[typeIndex] == 0) {
@@ -187,9 +192,12 @@ namespace Duality.Backend.Android.OpenTK
             // Convert matrices to float arrays
             GetArrayMatrix(ref modelView, ref modelViewData);
             GetArrayMatrix(ref projection, ref projectionData);
+
+            // All EBOs can be used again
+            lastUsedEBO = 0;
         }
 
-        void IGraphicsBackend.Render(IReadOnlyList<DrawBatch> batches)
+        unsafe void IGraphicsBackend.Render(IReadOnlyList<DrawBatch> batches)
         {
             DrawBatch lastRendered = null;
             int drawCalls = 0;
@@ -219,15 +227,69 @@ namespace Duality.Backend.Android.OpenTK
                         lastRendered != null ? lastRendered.Material : null);
                 }
 
-                // ToDo: Expand Quads to Triangles using IndexBuffer
-                // Draw the current batch
-                VertexDrawRange[] rangeData = batch.VertexRanges.Data;
-                int rangeCount = batch.VertexRanges.Count;
-                for (int r = 0; r < rangeCount; r++) {
-                    GL.DrawArrays(
+                if (batch.VertexMode == VertexMode.Quads) {
+                    VertexDrawRange[] rangeData = batch.VertexRanges.Data;
+                    int rangeCount = batch.VertexRanges.Count;
+
+                    // Compute number of all vertices in batch and resize static cache if necessary
+                    int numberOfVertices = 0;
+                    for (int r = 0; r < rangeCount; r++) {
+                        numberOfVertices += rangeData[r].Count;
+                    }
+
+                    int numberOfIndices = (numberOfVertices / 4) * 6;
+                    if (indicesCache == null || indicesCache.Length < numberOfIndices) {
+                        indicesCache = new short[numberOfIndices];
+                    }
+
+                    // Expand every 1 Quad (4 vertices) to 2 Triangles (2x3 vertices) using IndexBuffer
+                    int destIndex = 0;
+                    for (int r = 0; r < rangeCount; r++) {
+                        int srcIndex = rangeData[r].Index;
+                        int count = rangeData[r].Count;
+
+                        for (int offset = 0; offset < count; offset += 4, destIndex += 6) {
+                            indicesCache[destIndex] = (short)(srcIndex + offset);
+                            indicesCache[destIndex + 1] = (short)(srcIndex + offset + 1);
+                            indicesCache[destIndex + 2] = (short)(srcIndex + offset + 2);
+                            indicesCache[destIndex + 3] = (short)(srcIndex + offset);
+                            indicesCache[destIndex + 4] = (short)(srcIndex + offset + 2);
+                            indicesCache[destIndex + 5] = (short)(srcIndex + offset + 3);
+                        }
+                    }
+
+                    // Find/allocate unused EBO and copy indices to it
+                    uint buffer;
+                    if (perBatchEBO.Count <= lastUsedEBO) {
+                        GL.GenBuffers(1, out buffer);
+                        perBatchEBO.Add(buffer);
+                    } else {
+                        buffer = perBatchEBO[lastUsedEBO++];
+                    }
+
+                    int bufferSize = numberOfIndices * sizeof(short);
+                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, buffer);
+                    GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)bufferSize, IntPtr.Zero, BufferUsage.StreamDraw);
+                    fixed (short* ptr = indicesCache) {
+                        GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)bufferSize, (IntPtr)ptr, BufferUsage.StreamDraw);
+                    }
+
+                    // Draw the current batch using indices
+                    GL.DrawElements(
                         GetOpenTKVertexMode(batch.VertexMode),
-                        rangeData[r].Index,
-                        rangeData[r].Count);
+                        numberOfIndices,
+                        DrawElementsType.UnsignedShort,
+                        IntPtr.Zero);
+                } else {
+                    // Draw the current batch
+                    VertexDrawRange[] rangeData = batch.VertexRanges.Data;
+                    int rangeCount = batch.VertexRanges.Count;
+                    for (int r = 0; r < rangeCount; r++) {
+                        GL.DrawArrays(
+                            GetOpenTKVertexMode(batch.VertexMode),
+                            rangeData[r].Index,
+                            rangeData[r].Count);
+                    }
                 }
 
                 drawCalls++;
@@ -253,44 +315,6 @@ namespace Duality.Backend.Android.OpenTK
 
             DebugCheckOpenGLErrors();
         }
-
-        // ToDo: Remove
-        /*unsafe void IVertexUploader.UploadBatchVertices(VertexDeclaration declaration, IntPtr vertices, int vertexCount)
-        {
-            // OpenGL ES 3.0 doesn't support Quad rendering, transform all Quads to Triangles
-            if (quadTransformNeeded) {
-                int size = declaration.Size;
-                int transformedVertexSize = (vertexCount / 4) * 6 * size;
-
-                if (quadTransformCache == null || quadTransformCache.Length < transformedVertexSize) {
-                    quadTransformCache = new byte[transformedVertexSize];
-                }
-
-                fixed (byte* dst = quadTransformCache) {
-                    byte* src = (byte*)vertices;
-                    for (var i = 0; i < vertexCount; i += 4) {
-                        int srcIndex = i * declaration.Size;
-                        int dstIndex = (i / 4) * 6 * declaration.Size;
-                        //quadTransformCache[dstIndex] = src[srcIndex];
-                        //quadTransformCache[dstIndex + 1] = src[srcIndex + 1];
-                        //quadTransformCache[dstIndex + 2] = src[srcIndex + 2];
-                        Buffer.MemoryCopy(src + srcIndex, dst + dstIndex, 3 * size, 3 * size);
-
-                        //quadTransformCache[dstIndex + 3] = src[srcIndex];
-                        //quadTransformCache[dstIndex + 4] = src[srcIndex + 2];
-                        //quadTransformCache[dstIndex + 5] = src[srcIndex + 3];
-                        Buffer.MemoryCopy(src + srcIndex, dst + dstIndex + 3 * size, 1 * size, 1 * size);
-                        Buffer.MemoryCopy(src + srcIndex + 2 * size, dst + dstIndex + 4 * size, 2 * size, 2 * size);
-                    }
-
-                    GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)transformedVertexSize, IntPtr.Zero, BufferUsage.StreamDraw);
-                    GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)transformedVertexSize, (IntPtr)dst, BufferUsage.StreamDraw);
-                }
-            } else {
-                GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(declaration.Size * vertexCount), IntPtr.Zero, BufferUsage.StreamDraw);
-                GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(declaration.Size * vertexCount), vertices, BufferUsage.StreamDraw);
-            }
-        }*/
 
         INativeTexture IGraphicsBackend.CreateTexture()
         {
@@ -436,16 +460,6 @@ namespace Duality.Backend.Android.OpenTK
                     elements[elementIndex].Offset);
             }
         }
-        // ToDo: Remove
-        /*private void RenderBatch(IDrawBatch renderBatch, int vertexOffset, IDrawBatch lastBatchRendered)
-        {
-            if (lastBatchRendered == null || lastBatchRendered.Material != renderBatch.Material)
-                this.SetupMaterial(renderBatch.Material, lastBatchRendered == null ? null : lastBatchRendered.Material);
-
-            int vertexCount = (renderBatch.VertexMode == VertexMode.Quads ? (renderBatch.VertexCount / 4) * 6 : renderBatch.VertexCount);
-            GL.DrawArrays(GetOpenTKVertexMode(renderBatch.VertexMode), vertexOffset, vertexCount);
-        }
-        */
 
         private void SetupMaterial(BatchInfo material, BatchInfo lastMaterial)
         {

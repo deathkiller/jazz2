@@ -135,9 +135,10 @@ namespace Duality.Backend.DefaultOpenTK
 					// Filter out unused vertex types
 					IVertexBatch vertexBatch = vertexData.Batches[typeIndex];
 					if (vertexBatch == null) continue;
+                    if (vertexBatch.Count == 0) continue;
 
-					// Generate a VBO for this vertex type if it didn't exist yet
-					if (this.perVertexTypeVBO[typeIndex] == 0)
+                    // Generate a VBO for this vertex type if it didn't exist yet
+                    if (this.perVertexTypeVBO[typeIndex] == 0)
 					{
 						GL.GenBuffers(1, out this.perVertexTypeVBO.Data[typeIndex]);
 					}
