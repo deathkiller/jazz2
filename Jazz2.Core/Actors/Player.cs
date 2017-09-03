@@ -434,7 +434,7 @@ namespace Jazz2.Actors
                             SetPlayerTransition(AnimState.TransitionButtstompStart, true, false, SpecialMoveType.Buttstomp, delegate {
                                 speedY = 9;
                                 SetAnimation(AnimState.Buttstomp);
-                                PlaySound("Buttstomp").Pitch = 0.8f;
+                                PlaySound("Buttstomp", 1f, 0.8f);
                                 PlaySound("Buttstomp2");
                             });
                         }
@@ -1141,7 +1141,7 @@ namespace Jazz2.Actors
                     collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
                     if (speedY > 0 && newSuspendState == SuspendType.Vine) {
-                        PlaySound("HookAttach", 0.8f).Pitch = 1.2f;
+                        PlaySound("HookAttach", 0.8f, 1.2f);
                     }
 
                     speedY = externalForceY = 0f;
@@ -1794,7 +1794,7 @@ namespace Jazz2.Actors
                 NextPoleStage(horizontal, positive, 2, lastSpeed);
             });
 
-            PlaySound("Pole", 0.8f).Pitch = 0.6f;
+            PlaySound("Pole", 0.8f, 0.6f);
         }
 
         private void NextPoleStage(bool horizontal, bool positive, int stagesLeft, float lastSpeed)
@@ -1805,7 +1805,7 @@ namespace Jazz2.Actors
                     NextPoleStage(horizontal, positive, stagesLeft - 1, lastSpeed);
                 });
 
-                PlaySound("Pole").Pitch = 0.6f;
+                PlaySound("Pole", 1f, 0.6f);
             } else {
                 int sign = (positive ? 1 : -1);
                 if (horizontal) {
@@ -1837,7 +1837,7 @@ namespace Jazz2.Actors
                 controllableTimeout = 4f;
                 lastPoleTime = 26f;
 
-                PlaySound("HookAttach", 0.8f).Pitch = 1.2f;
+                PlaySound("HookAttach", 0.8f, 1.2f);
             }
         }
 

@@ -50,10 +50,10 @@ namespace Jazz2.Actors.Weapons
             if ((upgrades & 0x1) != 0) {
                 timeLeft = 130;
                 state |= (AnimState)1;
-                PlaySound("FireUpgraded").Pitch = 0.5f;
+                PlaySound("FireUpgraded", 1f, 0.5f);
             } else {
                 timeLeft = 90;
-                PlaySound("Fire").Pitch = 0.5f;
+                PlaySound("Fire", 1f, 0.5f);
             }
 
             SetAnimation(state);

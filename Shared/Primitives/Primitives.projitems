@@ -6,7 +6,7 @@
     <SharedGUID>2dad5df0-99d5-4837-af78-cf189db386a2</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>Primitives</Import_RootNamespace>
+    <Import_RootNamespace>Duality</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\ColorFormat\ColorHsva.cs" />

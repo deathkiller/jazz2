@@ -733,17 +733,18 @@ namespace Jazz2.Actors
             availableSounds = metadata.Sounds;
         }
 
-        protected SoundInstance PlaySound(string name, float gain = 1f)
+        protected SoundInstance PlaySound(string name, float gain = 1f, float pitch = 1f)
         {
             SoundResource resource;
             if (availableSounds.TryGetValue(name, out resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, this);
                 // ToDo: Hardcoded volume
                 instance.Volume = gain * Settings.SfxVolume;
+                instance.Pitch = pitch;
 
                 if (Transform.Pos.Y >= api.WaterLevel) {
                     instance.Lowpass = 0.2f;
-                    instance.Pitch = 0.7f;
+                    instance.Pitch *= 0.7f;
                 }
 
                 return instance;

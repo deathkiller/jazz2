@@ -55,8 +55,7 @@ namespace Jazz2.Actors
 
             attachedHud?.ShowGems(gems);
 
-            SoundInstance sound = PlaySound("PickupGem");
-            sound.Pitch = MathF.Min(0.7f + gemsPitch * 0.05f, 1.3f);
+            PlaySound("PickupGem", 1f, MathF.Min(0.7f + gemsPitch * 0.05f, 1.3f));
 
             gemsTimer = 120f;
             gemsPitch++;

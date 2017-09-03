@@ -108,10 +108,14 @@ namespace Jazz2.Game
             asyncThread = new Thread(OnAsyncThread);
             asyncThread.IsBackground = true;
             asyncThread.Start();
+
+            DualityApp.Terminating += OnDualityAppTerminating;
         }
 
-        private void CleanupAsyncLoading()
+        private void OnDualityAppTerminating(object sender, EventArgs e)
         {
+            DualityApp.Terminating -= OnDualityAppTerminating;
+
             asyncThread = null;
 
             lock (metadataAsyncRequests) {

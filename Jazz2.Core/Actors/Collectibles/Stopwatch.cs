@@ -13,9 +13,9 @@
 
         protected override void Collect(Player player)
         {
-            player.IncreaseTime(10f);
-
-            base.Collect(player);
+            if (player.IncreaseTime(10f)) {
+                base.Collect(player);
+            }
         }
     }
 }

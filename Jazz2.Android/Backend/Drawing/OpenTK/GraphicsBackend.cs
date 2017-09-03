@@ -10,7 +10,7 @@ using OpenTK.Graphics.ES30;
 
 namespace Duality.Backend.Android.OpenTK
 {
-    public class GraphicsBackend : IGraphicsBackend, IVertexUploader
+    public class GraphicsBackend : IGraphicsBackend
     {
         private static readonly Version MinOpenGLVersion = new Version(3, 0);
 
@@ -22,13 +22,9 @@ namespace Duality.Backend.Android.OpenTK
 
         private IDrawDevice currentDevice;
         private RenderStats renderStats;
-        private uint primaryVBO;
+        private RawList<uint> perVertexTypeVBO = new RawList<uint>();
         private Point2 externalBackbufferSize = Point2.Zero;
 
-        private List<IDrawBatch> renderBatchesSharingVBO = new List<IDrawBatch>();
-
-        private bool quadTransformNeeded;
-        private byte[] quadTransformCache;
         private float[] modelViewData = new float[16];
         private float[] projectionData = new float[16];
 
@@ -95,16 +91,19 @@ namespace Duality.Backend.Android.OpenTK
             if (activeInstance == this)
                 activeInstance = null;
 
-            if (DualityApp.ExecContext != DualityApp.ExecutionContext.Terminated &&
-                this.primaryVBO != 0) {
-                // Removed thread guards because of performance
+            if (DualityApp.ExecContext != DualityApp.ExecutionContext.Terminated) {
                 //DefaultOpenTKBackendPlugin.GuardSingleThreadState();
-                GL.DeleteBuffers(1, ref this.primaryVBO);
-                this.primaryVBO = 0;
+                for (int i = 0; i < this.perVertexTypeVBO.Count; i++) {
+                    uint handle = this.perVertexTypeVBO[i];
+                    if (handle != 0) {
+                        GL.DeleteBuffers(1, ref handle);
+                    }
+                }
+                this.perVertexTypeVBO.Clear();
             }
         }
 
-        void IGraphicsBackend.BeginRendering(IDrawDevice device, RenderOptions options, RenderStats stats)
+        void IGraphicsBackend.BeginRendering(IDrawDevice device, VertexBatchStore vertexData, RenderOptions options, RenderStats stats)
         {
             DebugCheckOpenGLErrors();
 
@@ -114,11 +113,32 @@ namespace Duality.Backend.Android.OpenTK
             this.currentDevice = device;
             this.renderStats = stats;
 
+            // Upload all vertex data that we'll need during rendering
+            if (vertexData != null) {
+                this.perVertexTypeVBO.Count = Math.Max(this.perVertexTypeVBO.Count, vertexData.Batches.Count);
+                for (int typeIndex = 0; typeIndex < vertexData.Batches.Count; typeIndex++) {
+                    // Filter out unused vertex types
+                    IVertexBatch vertexBatch = vertexData.Batches[typeIndex];
+                    if (vertexBatch == null) continue;
+
+                    // Generate a VBO for this vertex type if it didn't exist yet
+                    if (this.perVertexTypeVBO[typeIndex] == 0) {
+                        GL.GenBuffers(1, out this.perVertexTypeVBO.Data[typeIndex]);
+                    }
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, this.perVertexTypeVBO[typeIndex]);
+
+                    // Upload all data of this vertex type as a single block
+                    int vertexDataLength = vertexBatch.Declaration.Size * vertexBatch.Count;
+                    using (PinnedArrayHandle pinned = vertexBatch.Lock()) {
+                        GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)vertexDataLength, IntPtr.Zero, BufferUsage.StreamDraw);
+                        GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)vertexDataLength, pinned.Address, BufferUsage.StreamDraw);
+                    }
+                }
+            }
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+
             // Prepare the target surface for rendering
             NativeRenderTarget.Bind(options.Target as NativeRenderTarget);
-
-            if (this.primaryVBO == 0) GL.GenBuffers(1, out this.primaryVBO);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, this.primaryVBO);
 
             // Determine the available size on the active rendering surface
             //Point2 availableSize;
@@ -169,55 +189,56 @@ namespace Duality.Backend.Android.OpenTK
             GetArrayMatrix(ref projection, ref projectionData);
         }
 
-        void IGraphicsBackend.Render(IReadOnlyList<IDrawBatch> batches)
+        void IGraphicsBackend.Render(IReadOnlyList<DrawBatch> batches)
         {
-            IDrawBatch lastBatchRendered = null;
-            IDrawBatch lastBatch = null;
+            DrawBatch lastRendered = null;
             int drawCalls = 0;
 
-            this.renderBatchesSharingVBO.Clear();
             for (int i = 0; i < batches.Count; i++) {
-                IDrawBatch currentBatch = batches[i];
-                IDrawBatch nextBatch = (i < batches.Count - 1) ? batches[i + 1] : null;
+                DrawBatch batch = batches[i];
+                VertexDeclaration vertexType = batch.VertexType;
 
-                if (lastBatch == null || (lastBatch.SameVertexType(currentBatch) && lastBatch.VertexMode == currentBatch.VertexMode)) {
-                    this.renderBatchesSharingVBO.Add(currentBatch);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, this.perVertexTypeVBO[vertexType.TypeIndex]);
+
+                bool first = (i == 0);
+                bool sameMaterial =
+                    lastRendered != null &&
+                    lastRendered.Material == batch.Material;
+
+                // Setup vertex bindings. Note that the setup differs based on the 
+                // materials shader, so material changes can be vertex binding changes.
+                if (lastRendered != null) {
+                    this.FinishVertexFormat(lastRendered.Material, lastRendered.VertexType);
+                }
+                this.SetupVertexFormat(batch.Material, vertexType);
+
+                // Setup material when changed.
+                if (!sameMaterial) {
+                    this.SetupMaterial(
+                        batch.Material,
+                        lastRendered != null ? lastRendered.Material : null);
                 }
 
-                if (this.renderBatchesSharingVBO.Count > 0 &&
-                    (nextBatch == null || !(currentBatch.SameVertexType(nextBatch) &&
-                                            currentBatch.VertexMode == nextBatch.VertexMode))) {
-                    int vertexOffset = 0;
-
-                    // OpenGL ES 3.0 doesn't support Quad rendering, transform all Quads to Triangles
-                    quadTransformNeeded = (currentBatch.VertexMode == VertexMode.Quads);
-
-                    this.renderBatchesSharingVBO[0].UploadVertices(this, this.renderBatchesSharingVBO);
-                    drawCalls++;
-
-                    foreach (IDrawBatch batch in this.renderBatchesSharingVBO) {
-                        drawCalls++;
-
-                        this.PrepareRenderBatch(batch);
-                        this.RenderBatch(batch, vertexOffset, lastBatchRendered);
-                        this.FinishRenderBatch(batch);
-
-                        // OpenGL ES 3.0 doesn't support Quad rendering, transform all Quads to Triangles
-                        vertexOffset += (batch.VertexMode == VertexMode.Quads
-                            ? (batch.VertexCount / 4) * 6
-                            : batch.VertexCount);
-                        lastBatchRendered = batch;
-                    }
-
-                    this.renderBatchesSharingVBO.Clear();
-                    lastBatch = null;
-                } else {
-                    lastBatch = currentBatch;
+                // ToDo: Expand Quads to Triangles using IndexBuffer
+                // Draw the current batch
+                VertexDrawRange[] rangeData = batch.VertexRanges.Data;
+                int rangeCount = batch.VertexRanges.Count;
+                for (int r = 0; r < rangeCount; r++) {
+                    GL.DrawArrays(
+                        GetOpenTKVertexMode(batch.VertexMode),
+                        rangeData[r].Index,
+                        rangeData[r].Count);
                 }
+
+                drawCalls++;
+                lastRendered = batch;
             }
 
-            if (lastBatchRendered != null) {
-                this.FinishMaterial(lastBatchRendered.Material);
+            // Cleanup after rendering
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            if (lastRendered != null) {
+                this.FinishMaterial(lastRendered.Material);
+                this.FinishVertexFormat(lastRendered.Material, lastRendered.VertexType);
             }
 
             if (this.renderStats != null) {
@@ -233,7 +254,8 @@ namespace Duality.Backend.Android.OpenTK
             DebugCheckOpenGLErrors();
         }
 
-        unsafe void IVertexUploader.UploadBatchVertices(VertexDeclaration declaration, IntPtr vertices, int vertexCount)
+        // ToDo: Remove
+        /*unsafe void IVertexUploader.UploadBatchVertices(VertexDeclaration declaration, IntPtr vertices, int vertexCount)
         {
             // OpenGL ES 3.0 doesn't support Quad rendering, transform all Quads to Triangles
             if (quadTransformNeeded) {
@@ -268,7 +290,7 @@ namespace Duality.Backend.Android.OpenTK
                 GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(declaration.Size * vertexCount), IntPtr.Zero, BufferUsage.StreamDraw);
                 GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(declaration.Size * vertexCount), vertices, BufferUsage.StreamDraw);
             }
-        }
+        }*/
 
         INativeTexture IGraphicsBackend.CreateTexture()
         {
@@ -356,15 +378,14 @@ namespace Duality.Backend.Android.OpenTK
             NativeRenderTarget.Bind(oldTarget);
         }*/
 
-        private void PrepareRenderBatch(IDrawBatch renderBatch)
+        private void SetupVertexFormat(BatchInfo material, VertexDeclaration vertexDeclaration)
         {
-            DrawTechnique technique = renderBatch.Material.Technique.Res ?? DrawTechnique.Solid.Res;
+            DrawTechnique technique = material.Technique.Res ?? DrawTechnique.Solid.Res;
             NativeShaderProgram program = (technique.Shader.Res != null ? technique.Shader.Res : ShaderProgram.Minimal.Res).Native as NativeShaderProgram;
             if (program == null) {
                 return;
             }
 
-            VertexDeclaration vertexDeclaration = renderBatch.VertexDeclaration;
             VertexElement[] elements = vertexDeclaration.Elements;
             ShaderFieldInfo[] varInfo = program.Fields;
             int[] locations = program.FieldLocations;
@@ -415,7 +436,8 @@ namespace Duality.Backend.Android.OpenTK
                     elements[elementIndex].Offset);
             }
         }
-        private void RenderBatch(IDrawBatch renderBatch, int vertexOffset, IDrawBatch lastBatchRendered)
+        // ToDo: Remove
+        /*private void RenderBatch(IDrawBatch renderBatch, int vertexOffset, IDrawBatch lastBatchRendered)
         {
             if (lastBatchRendered == null || lastBatchRendered.Material != renderBatch.Material)
                 this.SetupMaterial(renderBatch.Material, lastBatchRendered == null ? null : lastBatchRendered.Material);
@@ -423,25 +445,7 @@ namespace Duality.Backend.Android.OpenTK
             int vertexCount = (renderBatch.VertexMode == VertexMode.Quads ? (renderBatch.VertexCount / 4) * 6 : renderBatch.VertexCount);
             GL.DrawArrays(GetOpenTKVertexMode(renderBatch.VertexMode), vertexOffset, vertexCount);
         }
-        private void FinishRenderBatch(IDrawBatch renderBatch)
-        {
-            DrawTechnique technique = renderBatch.Material.Technique.Res ?? DrawTechnique.Solid.Res;
-            NativeShaderProgram program = (technique.Shader.Res != null ? technique.Shader.Res : ShaderProgram.Minimal.Res).Native as NativeShaderProgram;
-            if (program == null) {
-                return;
-            }
-
-            //VertexDeclaration vertexDeclaration = renderBatch.VertexDeclaration;
-            //VertexElement[] elements = vertexDeclaration.Elements;
-            ShaderFieldInfo[] varInfo = program.Fields;
-            int[] locations = program.FieldLocations;
-
-            for (int varIndex = 0; varIndex < varInfo.Length; varIndex++) {
-                if (locations[varIndex] == -1) continue;
-
-                GL.DisableVertexAttribArray(locations[varIndex]);
-            }
-        }
+        */
 
         private void SetupMaterial(BatchInfo material, BatchInfo lastMaterial)
         {
@@ -569,6 +573,25 @@ namespace Duality.Backend.Android.OpenTK
                     GL.Disable(EnableCap.SampleAlphaToCoverage);
                     GL.BlendFunc(BlendingFactorSrc.OneMinusDstColor, BlendingFactorDest.OneMinusSrcColor);
                     break;
+            }
+        }
+        private void FinishVertexFormat(BatchInfo material, VertexDeclaration vertexDeclaration)
+        {
+            DrawTechnique technique = material.Technique.Res ?? DrawTechnique.Solid.Res;
+            NativeShaderProgram program = (technique.Shader.Res != null ? technique.Shader.Res : ShaderProgram.Minimal.Res).Native as NativeShaderProgram;
+            if (program == null) {
+                return;
+            }
+
+            //VertexDeclaration vertexDeclaration = renderBatch.VertexDeclaration;
+            //VertexElement[] elements = vertexDeclaration.Elements;
+            ShaderFieldInfo[] varInfo = program.Fields;
+            int[] locations = program.FieldLocations;
+
+            for (int varIndex = 0; varIndex < varInfo.Length; varIndex++) {
+                if (locations[varIndex] == -1) continue;
+
+                GL.DisableVertexAttribArray(locations[varIndex]);
             }
         }
         private void FinishMaterial(BatchInfo material)

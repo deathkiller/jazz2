@@ -75,6 +75,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\Canvas.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\CanvasBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\CanvasState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Drawing\DrawBatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\DrawDevice.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\Enums\BlendMode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\Enums\ClearFlag.cs" />
@@ -91,7 +92,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\Enums\TextureWrapMode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\Enums\VertexMode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\Enums\VisibilityFlag.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Drawing\IDrawBatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\IDrawDevice.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\IImageCodec.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\ImageCodec.cs" />
@@ -104,6 +104,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\VertexC1P3.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\VertexC1P3T2.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\VertexC1P3T4A1.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\VertexDrawRange.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\VertexSlice.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexFormatDefinition\VertexDeclaration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexFormatDefinition\VertexElement.cs" />

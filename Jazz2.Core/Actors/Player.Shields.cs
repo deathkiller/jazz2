@@ -53,13 +53,16 @@ namespace Jazz2.Actors
             }
         }
 
-        public void IncreaseTime(float secs)
+        public bool IncreaseTime(float secs)
         {
             if (shieldTime <= 0f) {
-                return;
+                return false;
             }
 
             shieldTime += secs * Time.FramesPerSecond;
+            PlaySound("PickupGem");
+
+            return true;
         }
 
         private class ShieldComponent : ActorBase
