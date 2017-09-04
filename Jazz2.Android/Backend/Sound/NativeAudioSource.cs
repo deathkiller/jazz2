@@ -66,9 +66,10 @@ namespace Duality.Backend.Android
 
             this.strStopReq = StopRequest.None;
 
+            // All samples are available now (buffer is completed)
             NativeAudioBuffer newBuffer = buffer as NativeAudioBuffer;
-            AvailableBuffers = new[] {newBuffer};
-            QueuedBuffersPos = new[] {0};
+            AvailableBuffers = new[] { newBuffer };
+            QueuedBuffersPos = new[] { 0 };
             QueuedBuffers.Enqueue(0);
 
             AudioBackend.ActiveInstance.EnqueueForStreaming(this);
@@ -199,10 +200,12 @@ namespace Duality.Backend.Android
 
         private void PerformStreamingBegin()
         {
+            const int preloadBufferCount = 2;
+
             // Generate streaming buffers
-            AvailableBuffers = new NativeAudioBuffer[3];
-            QueuedBuffersPos = new int[3];
-            for (int i = 0; i < AvailableBuffers.Length; i++) {
+            AvailableBuffers = new NativeAudioBuffer[preloadBufferCount];
+            QueuedBuffersPos = new int[preloadBufferCount];
+            for (int i = 0; i < preloadBufferCount; i++) {
                 AvailableBuffers[i] = DualityApp.AudioBackend.CreateBuffer() as NativeAudioBuffer;
             }
 
@@ -210,12 +213,12 @@ namespace Duality.Backend.Android
             streamProvider.OpenStream();
 
             // Initially, completely fill all buffers
-            for (int i = 0; i < AvailableBuffers.Length; i++) {
+            for (int i = 0; i < preloadBufferCount; i++) {
                 bool eof = !streamProvider.ReadStream(AvailableBuffers[i]);
                 if (!eof) {
                     QueuedBuffers.Enqueue(i);
                 } else {
-                    break;
+                    QueuedBuffersPos[i] = UnqueuedBuffer;
                 }
             }
         }
@@ -227,7 +230,7 @@ namespace Duality.Backend.Android
                 for (int i = 0; i < AvailableBuffers.Length; i++) {
                     NativeAudioBuffer buffer = AvailableBuffers[i];
                     if (QueuedBuffersPos[i] == UnqueuedBuffer) {
-                        // Buffer is played to the end - rewind it to the start and use it...
+                        // Buffer was played to the end - rewind it to the start and use it
                         buffer.Length = 0;
                         QueuedBuffersPos[i] = 0;
                         unqueuedBufferIndex = i;
@@ -236,6 +239,7 @@ namespace Duality.Backend.Android
                 }
 
                 if (unqueuedBufferIndex == UnqueuedBuffer) {
+                    // No free buffer found, we are done for now...
                     break;
                 }
 

@@ -132,13 +132,16 @@ namespace Duality.Backend.Android
             watch.Restart();
 
             while (!streamWorkerEnd) {
-                // Process even number of samples
-                int samplesNeeded = ((CalculateSamplesNeeded() * 2) / 12) & ~1;
+                // Process even number of samples (both channels of interleaved stereo)
+                // Fill only small part of the main buffer to lower the latency
+                // Latency is already quite high on Android
+                int samplesPlayed = masterTrack.PlaybackHeadPosition * 2;
+                int samplesNeeded = ((samplesPlayed + bufferSizeSamples - samplesWritten) / 12) & ~1;
 
                 for (int j = 0; j < streamWorkerQueue.Count; j++) {
                     NativeAudioSource source = streamWorkerQueue[j];
 
-                    // Transfer samples to buffer
+                    // Mix samples into the main buffer
                     int bufferPos = 0;
                     while (bufferPos < samplesNeeded && source.QueuedBuffers.Count > 0) {
                         int bufferIndex = source.QueuedBuffers.Peek();
@@ -150,15 +153,14 @@ namespace Duality.Backend.Android
                         if (!mute) {
                             //if (MathF.Abs(1f - source.LastState.Pitch) < 0.01f) {
                             for (int i = 0; i < samplesInBuffer; i += 2) {
-                                short sampleLeft = (short)(sourceBuffer.InternalBuffer[playbackPos + i] * source.VolumeLeft);
-                                short sampleRight = (short)(sourceBuffer.InternalBuffer[playbackPos + i + 1] * source.VolumeRight);
+                                int sampleLeft = buffer[bufferPos] + (short)(sourceBuffer.InternalBuffer[playbackPos + i] * source.VolumeLeft);
+                                int sampleRight = buffer[bufferPos + 1] + (short)(sourceBuffer.InternalBuffer[playbackPos + i + 1] * source.VolumeRight);
 
                                 // Fast check to prevent clipping
-                                // ToDo: Do this better somehow...
-                                if (MathF.Abs(buffer[bufferPos] + sampleLeft) < short.MaxValue &&
-                                    MathF.Abs(buffer[bufferPos + 1] + sampleRight) < short.MaxValue) {
-                                    buffer[bufferPos] += sampleLeft;
-                                    buffer[bufferPos + 1] += sampleRight;
+                                if (MathF.Abs(sampleLeft) < short.MaxValue &&
+                                    MathF.Abs(sampleRight) < short.MaxValue) {
+                                    buffer[bufferPos] = (short)sampleLeft;
+                                    buffer[bufferPos + 1] = (short)sampleRight;
                                 }
 
                                 bufferPos += 2;
@@ -210,11 +212,11 @@ namespace Duality.Backend.Android
                     } else {
                         if (source.QueuedBuffers.Count == 0) {
                             if (source.LastState.Looped) {
-                                // Enqueue sample again
+                                // Enqueue sample again if looping is turned on
                                 source.QueuedBuffers.Enqueue(0);
                                 source.QueuedBuffersPos[0] = 0;
                             } else {
-                                // End of sample, remove from queue
+                                // End of sample array, remove from queue
                                 streamWorkerQueue.RemoveAtFast(j);
                                 j--;
                             }
@@ -222,11 +224,11 @@ namespace Duality.Backend.Android
                     }
                 }
 
-                // Write buffer to Master Audio Track
+                // Write used part of the main buffer to Android's Audio Track
                 masterTrack.Write(buffer, 0, samplesNeeded);
-                samplesWritten += samplesNeeded >> 1;
+                samplesWritten += samplesNeeded;
 
-                // Erase buffer for next batch
+                // Erase buffer to be ready for next batch
                 for (int i = 0; i < samplesNeeded; i++) {
                     buffer[i] = 0;
                 }
@@ -239,13 +241,6 @@ namespace Duality.Backend.Android
                 }
                 watch.Restart();
             }
-        }
-
-        private int CalculateSamplesNeeded()
-        {
-            int playing = masterTrack.PlaybackHeadPosition;
-            int maxSamples = (bufferSizeSamples / 2); // / Channel count
-            return (playing + maxSamples - samplesWritten);
         }
     }
 }

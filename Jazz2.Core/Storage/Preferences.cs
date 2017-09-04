@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System;
+using Duality;
 
 namespace Jazz2.Storage
 {
@@ -8,14 +9,14 @@ namespace Jazz2.Storage
 
         public static T Get<T>(string key, T defaultValue = default(T))
         {
-            if (prefBack == null) DualityApp.InitBackend(out prefBack);
+            if (prefBack == null) Initialize();
 
             return prefBack.Get<T>(key, defaultValue);
         }
 
         public static void Set<T>(string key, T value)
         {
-            if (prefBack == null) DualityApp.InitBackend(out prefBack);
+            if (prefBack == null) Initialize();
 
             prefBack.Set<T>(key, value);
         }
@@ -25,6 +26,20 @@ namespace Jazz2.Storage
             if (prefBack == null) return;
 
             prefBack.Commit();
+        }
+
+        private static void Initialize()
+        {
+            DualityApp.InitBackend(out prefBack);
+
+            DualityApp.Terminating += OnDualityAppTerminating;
+        }
+
+        private static void OnDualityAppTerminating(object sender, EventArgs e)
+        {
+            DualityApp.Terminating -= OnDualityAppTerminating;
+
+            DualityApp.ShutdownBackend(ref prefBack);
         }
     }
 }

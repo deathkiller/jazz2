@@ -105,7 +105,7 @@ namespace Jazz2.Backend
 
         void IDualityBackend.Shutdown()
         {
-
+            ((IPreferencesBackend)this).Commit();
         }
 
         T IPreferencesBackend.Get<T>(string key, T defaultValue)

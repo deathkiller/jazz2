@@ -41,7 +41,7 @@ namespace Jazz2.Game.UI.Menu.S
 #if __ANDROID__
             var fs = (DualityApp.SystemBackend.FileSystem as Duality.Backend.Android.NativeFileSystem);
             if (fs != null) {
-                api.DrawMaterial(c, "MenuSettingsStorage", 180f, center.Y + 100f - 3f, Alignment.Right, ColorRgba.White);
+                api.DrawMaterial(c, "MenuSettingsStorage", 180f, center.Y + 140f - 3f, Alignment.Right, ColorRgba.White);
 
                 int charOffset = 0;
                 api.DrawStringShadow(device, ref charOffset, "Content Path:",

@@ -107,6 +107,8 @@ namespace Jazz2.Backend.Android
         void IDualityBackend.Shutdown()
         {
             if (sharedPrefs != null) {
+                ((IPreferencesBackend)this).Commit();
+
                 sharedPrefs.Dispose();
                 sharedPrefs = null;
             }

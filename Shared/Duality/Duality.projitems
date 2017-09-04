@@ -209,6 +209,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utility\ObjectCreator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\PinnedArrayHandle.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\RawList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utility\RawListPool.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\ReflectionHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\RefreshMode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\ScreenMode.cs" />

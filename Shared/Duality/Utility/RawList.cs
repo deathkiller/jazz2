@@ -1,23 +1,22 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Duality
 {
-	/// <summary>
-	/// Encapsulates an Array and provides methods for dynamically modifying it similar to a List{T}, but allows
-	/// accessing its raw internal data at the same time. This can be useful for situations wherer raw data access
-	/// may significantly improve performance, but dynamic sizes are still required.
-	/// </summary>
-	/// <remarks>
-	/// Use this class with caution and consideration. In almost all cases, either a List{T} or a regular Array should be preferred.
-	/// You should only use this class when you know how to use it.
-	/// </remarks>
-	/// <typeparam name="T"></typeparam>
-	[DebuggerTypeProxy(typeof(RawList<>.DebuggerTypeProxy))]
+    /// <summary>
+    /// Encapsulates an Array and provides methods for dynamically modifying it similar to a List{T}, but allows
+    /// accessing its raw internal data at the same time. This can be useful for situations wherer raw data access
+    /// may significantly improve performance, but dynamic sizes are still required.
+    /// </summary>
+    /// <remarks>
+    /// Use this class with caution and consideration. In almost all cases, either a List{T} or a regular Array should be preferred.
+    /// You should only use this class when you know how to use it.
+    /// </remarks>
+    /// <typeparam name="T"></typeparam>
+    [DebuggerTypeProxy(typeof(RawList<>.DebuggerTypeProxy))]
 	[DebuggerDisplay("Count = {Count}, Capacity = {Capacity}")]
 	public class RawList<T> : IList<T>, IList, IReadOnlyList<T>
 	{
@@ -243,6 +242,10 @@ namespace Duality
 			this.RemoveRange(index, 1);
 		}
 
+        /// <summary>
+		/// Removes the element at the specified index fast, but can alter sequence of items.
+		/// </summary>
+		/// <param name="index"></param>
         public void RemoveAtFast(int index)
         {
             if (index >= this.count) throw new ArgumentOutOfRangeException(nameof(index));
@@ -258,22 +261,28 @@ namespace Duality
         }
 
         /// <summary>
-		/// Removes a range of elements at the specified index.
-		/// </summary>
-		/// <param name="index"></param>
-		/// <param name="count"></param>
-		public void RemoveRange(int index, int count)
+        /// Removes a range of elements at the specified index.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="count"></param>
+        public void RemoveRange(int index, int count)
 		{
 			if (index + count >= this.count)
 			{
 				this.count -= count;
-				Array.Clear(this.data, this.count, count);
+				if (ReflectionHelper.IsReferenceOrContainsReferences<T>())
+				{
+					Array.Clear(this.data, this.count, count);
+				}
 			}
 			else
 			{
 				this.MoveInternal(index + count, this.count - (index + count), -count, false);
 				this.count -= count;
-				Array.Clear(this.data, this.count, count);
+				if (ReflectionHelper.IsReferenceOrContainsReferences<T>())
+				{
+					Array.Clear(this.data, this.count, count);
+				}
 			}
 		}
 		/// <summary>
@@ -314,7 +323,10 @@ namespace Duality
 			{
 				int removedCount = this.count - count;
 				this.count -= removedCount;
-				Array.Clear(this.data, this.count, removedCount);
+				if (ReflectionHelper.IsReferenceOrContainsReferences<T>())
+				{
+					Array.Clear(this.data, this.count, removedCount);
+				}
 				return removedCount;
 			}
 
@@ -325,7 +337,10 @@ namespace Duality
 		/// </summary>
 		public void Clear()
 		{
-			Array.Clear(this.data, 0, this.count);
+			if (ReflectionHelper.IsReferenceOrContainsReferences<T>())
+			{
+				Array.Clear(this.data, 0, this.count);
+			}
 			this.count = 0;
 		}
 

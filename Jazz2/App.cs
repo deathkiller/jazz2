@@ -55,6 +55,9 @@ namespace Jazz2
             }
 
             DualityApp.Terminate();
+
+            // ToDo: Linux-specific workaround
+            Environment.Exit(0);
         }
     }
 }

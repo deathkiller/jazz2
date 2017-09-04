@@ -27,7 +27,7 @@ namespace Duality.Backend.Android.OpenTK
 
         private RawList<uint> perBatchEBO = new RawList<uint>();
         private int lastUsedEBO;
-        private short[] indicesCache;
+        private short[] indexCache;
 
         private float[] modelViewData = new float[16];
         private float[] projectionData = new float[16];
@@ -104,6 +104,14 @@ namespace Duality.Backend.Android.OpenTK
                     }
                 }
                 this.perVertexTypeVBO.Clear();
+
+                for (int i = 0; i < this.perBatchEBO.Count; i++) {
+                    uint handle = this.perBatchEBO[i];
+                    if (handle != 0) {
+                        GL.DeleteBuffers(1, ref handle);
+                    }
+                }
+                this.perBatchEBO.Clear();
             }
         }
 
@@ -238,8 +246,8 @@ namespace Duality.Backend.Android.OpenTK
                     }
 
                     int numberOfIndices = (numberOfVertices / 4) * 6;
-                    if (indicesCache == null || indicesCache.Length < numberOfIndices) {
-                        indicesCache = new short[numberOfIndices];
+                    if (indexCache == null || indexCache.Length < numberOfIndices) {
+                        indexCache = new short[numberOfIndices];
                     }
 
                     // Expand every 1 Quad (4 vertices) to 2 Triangles (2x3 vertices) using IndexBuffer
@@ -249,28 +257,28 @@ namespace Duality.Backend.Android.OpenTK
                         int count = rangeData[r].Count;
 
                         for (int offset = 0; offset < count; offset += 4, destIndex += 6) {
-                            indicesCache[destIndex] = (short)(srcIndex + offset);
-                            indicesCache[destIndex + 1] = (short)(srcIndex + offset + 1);
-                            indicesCache[destIndex + 2] = (short)(srcIndex + offset + 2);
-                            indicesCache[destIndex + 3] = (short)(srcIndex + offset);
-                            indicesCache[destIndex + 4] = (short)(srcIndex + offset + 2);
-                            indicesCache[destIndex + 5] = (short)(srcIndex + offset + 3);
+                            indexCache[destIndex] = (short)(srcIndex + offset);
+                            indexCache[destIndex + 1] = (short)(srcIndex + offset + 1);
+                            indexCache[destIndex + 2] = (short)(srcIndex + offset + 2);
+                            indexCache[destIndex + 3] = (short)(srcIndex + offset);
+                            indexCache[destIndex + 4] = (short)(srcIndex + offset + 2);
+                            indexCache[destIndex + 5] = (short)(srcIndex + offset + 3);
                         }
                     }
 
                     // Find/allocate unused EBO and copy indices to it
-                    uint buffer;
-                    if (perBatchEBO.Count <= lastUsedEBO) {
-                        GL.GenBuffers(1, out buffer);
-                        perBatchEBO.Add(buffer);
+                    uint handle;
+                    if (lastUsedEBO < perBatchEBO.Count) {
+                        handle = perBatchEBO[lastUsedEBO++];
                     } else {
-                        buffer = perBatchEBO[lastUsedEBO++];
+                        GL.GenBuffers(1, out handle);
+                        perBatchEBO.Add(handle);
                     }
 
                     int bufferSize = numberOfIndices * sizeof(short);
-                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, buffer);
+                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, handle);
                     GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)bufferSize, IntPtr.Zero, BufferUsage.StreamDraw);
-                    fixed (short* ptr = indicesCache) {
+                    fixed (short* ptr = indexCache) {
                         GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)bufferSize, (IntPtr)ptr, BufferUsage.StreamDraw);
                     }
 
