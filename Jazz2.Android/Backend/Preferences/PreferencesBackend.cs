@@ -133,6 +133,13 @@ namespace Jazz2.Backend.Android
             dirty = true;
         }
 
+        void IPreferencesBackend.Remove(string key)
+        {
+            data.Remove(key);
+
+            dirty = true;
+        }
+
         void IPreferencesBackend.Commit()
         {
             if (!dirty) {

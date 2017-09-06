@@ -209,9 +209,8 @@ namespace Jazz2.Actors
             // Objects should override this if they need to.
         }
 
-        protected void TryStandardMovement()
+        protected void TryStandardMovement(float timeMult)
         {
-            float timeMult = Time.TimeMult;
             float gravity = ((collisionFlags & CollisionFlags.ApplyGravitation) != 0 ? api.Gravity : 0);
 
             speedX = MathF.Clamp(speedX, -16f, 16f);
@@ -443,7 +442,9 @@ namespace Jazz2.Actors
 
         protected virtual void OnUpdate()
         {
-            TryStandardMovement();
+            float timeMult = Time.TimeMult;
+
+            TryStandardMovement(timeMult);
             OnUpdateHitbox();
 
             RefreshFlipMode();
@@ -452,7 +453,7 @@ namespace Jazz2.Actors
                 if (frozenTimeLeft <= 0f) {
                     renderer.AnimPaused = false;
                 } else {
-                    frozenTimeLeft -= Time.TimeMult;
+                    frozenTimeLeft -= timeMult;
                 }
             }
         }

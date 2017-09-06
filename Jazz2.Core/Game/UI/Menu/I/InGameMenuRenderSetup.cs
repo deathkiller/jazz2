@@ -32,10 +32,10 @@ namespace Jazz2.Game.UI.Menu.I
                     break;
             }
 
+            // Textures
             finalTexture = new Texture(null, TextureSizeMode.NonPowerOfTwo, TextureMagFilter.Nearest, TextureMinFilter.Nearest);
 
             finalTarget = new RenderTarget(AAQuality.Off, false, finalTexture);
-
             
             // Render steps
             AddRenderStep(RenderStepPosition.Last, new RenderStep {
@@ -47,7 +47,7 @@ namespace Jazz2.Game.UI.Menu.I
             });
 
             AddRenderStep(RenderStepPosition.Last, new RenderStep {
-                Id = "Final",
+                Id = "Resize",
 
                 MatrixMode = RenderMatrix.ScreenSpace,
                 VisibilityMask = VisibilityFlag.None
@@ -64,6 +64,7 @@ namespace Jazz2.Game.UI.Menu.I
 
         protected override void OnRenderPointOfView(Scene scene, DrawDevice drawDevice, Rect viewportRect, Vector2 imageSize)
         {
+            // Check if resolution changed
             if (lastImageSize != imageSize) {
                 lastImageSize = imageSize;
 
@@ -92,41 +93,18 @@ namespace Jazz2.Game.UI.Menu.I
 
         protected override void OnRenderSingleStep(RenderStep step, Scene scene, DrawDevice drawDevice)
         {
-            if (step.Id == "Final") {
-                ProcessFinalStep(drawDevice);
+            if (step.Id == "Resize") {
+                ProcessResizeStep(drawDevice);
             } else {
                 base.OnRenderSingleStep(step, scene, drawDevice);
             }
         }
 
-        private void ProcessFinalStep(DrawDevice drawDevice)
+        private void ProcessResizeStep(DrawDevice drawDevice)
         {
             BatchInfo material = new BatchInfo(resizeShader, ColorRgba.White, finalTexture);
             material.SetUniform("mainTexSize", (float)finalTexture.ContentWidth, (float)finalTexture.ContentHeight);
-            Blit(drawDevice, material, drawDevice.ViewportRect);
-            
-        }
-
-        private static void Blit(DrawDevice device, BatchInfo source, RenderTarget target)
-        {
-            device.Target = target;
-            device.TargetSize = target.Size;
-            device.ViewportRect = new Rect(target.Size);
-
-            device.PrepareForDrawcalls();
-            device.AddFullscreenQuad(source, TargetResize.Stretch);
-            device.Render();
-        }
-
-        private static void Blit(DrawDevice device, BatchInfo source, Rect screenRect)
-        {
-            device.Target = null;
-            device.TargetSize = screenRect.Size;
-            device.ViewportRect = screenRect;
-
-            device.PrepareForDrawcalls();
-            device.AddFullscreenQuad(source, TargetResize.Stretch);
-            device.Render();
+            this.Blit(drawDevice, material, drawDevice.ViewportRect);
         }
     }
 }

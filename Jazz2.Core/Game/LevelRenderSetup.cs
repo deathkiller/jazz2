@@ -150,6 +150,7 @@ namespace Jazz2.Game
 
         protected override void OnRenderPointOfView(Scene scene, DrawDevice drawDevice, Rect viewportRect, Vector2 imageSize)
         {
+            // Check if resolution changed
             if (lastImageSize != imageSize) {
                 lastImageSize = imageSize;
 
@@ -193,7 +194,7 @@ namespace Jazz2.Game
         {
             BatchInfo material = new BatchInfo(resizeShader, ColorRgba.White, finalTexture);
             material.SetUniform("mainTexSize", (float)finalTexture.ContentWidth, (float)finalTexture.ContentHeight);
-            Blit(drawDevice, material, drawDevice.ViewportRect);
+            this.Blit(drawDevice, material, drawDevice.ViewportRect);
         }
 
         private void ProcessCombineSceneStep(DrawDevice drawDevice)
@@ -213,7 +214,7 @@ namespace Jazz2.Game
             // Blit ambient light color
             {
                 BatchInfo material = new BatchInfo(DrawTechnique.Solid, new ColorRgba(ambientLight, 0, 0));
-                Blit(drawDevice, material, lightingTarget);
+                this.Blit(drawDevice, material, lightingTarget);
             }
 
             // Render lights (target was set in previous step)
@@ -224,49 +225,45 @@ namespace Jazz2.Game
             foreach (GameObject actor in levelHandler.ActiveObjects) {
                 LightEmitter light = actor.GetComponent<LightEmitter>();
                 if (light != null) {
+                    // World-space to screen-space position transformation
                     Vector3 pos = actor.Transform.Pos;
+                    pos.X -= viewOffset.X;
+                    pos.Y -= viewOffset.Y;
 
-                    if (pos.X - light.RadiusFar < viewOffset.X + viewSize.X &&
-                        pos.Y - light.RadiusFar < viewOffset.Y + viewSize.Y &&
-                        pos.X + light.RadiusFar > viewOffset.X &&
-                        pos.Y + light.RadiusFar > viewOffset.Y) {
+                    float left = pos.X - light.RadiusFar;
+                    float top = pos.Y - light.RadiusFar;
+                    float right = pos.X + light.RadiusFar;
+                    float bottom = pos.Y + light.RadiusFar;
 
-                        pos.X -= viewOffset.X;
-                        pos.Y -= viewOffset.Y;
-
-                        float left = pos.X - light.RadiusFar;
-                        float top = pos.Y - light.RadiusFar;
-                        float right = pos.X + light.RadiusFar;
-                        float bottom = pos.Y + light.RadiusFar;
+                    if (left   < viewSize.X &&
+                        top    < viewSize.Y &&
+                        right  > 0 &&
+                        bottom > 0) {
 
                         VertexC1P3T4A1[] vertices = lightPool.Get();
 
                         vertices[0].Pos.X = left;
                         vertices[0].Pos.Y = top;
-                        vertices[0].TexCoord.X = 0f;
-                        vertices[0].TexCoord.Y = 0f;
 
                         vertices[1].Pos.X = left;
                         vertices[1].Pos.Y = bottom;
-                        vertices[1].TexCoord.X = 0f;
-                        vertices[1].TexCoord.Y = 1f;
 
                         vertices[2].Pos.X = right;
                         vertices[2].Pos.Y = bottom;
-                        vertices[2].TexCoord.X = 1f;
-                        vertices[2].TexCoord.Y = 1f;
 
                         vertices[3].Pos.X = right;
                         vertices[3].Pos.Y = top;
-                        vertices[3].TexCoord.X = 1f;
-                        vertices[3].TexCoord.Y = 0f;
 
+                        // Use TexCoord X & Y for screen-space Light position
                         vertices[0].TexCoord.X = vertices[1].TexCoord.X = vertices[2].TexCoord.X = vertices[3].TexCoord.X = pos.X;
                         vertices[0].TexCoord.Y = vertices[1].TexCoord.Y = vertices[2].TexCoord.Y = vertices[3].TexCoord.Y = pos.Y;
+                        // Use TexCoord Z & W for Light radius
                         vertices[0].TexCoord.Z = vertices[1].TexCoord.Z = vertices[2].TexCoord.Z = vertices[3].TexCoord.Z = light.RadiusNear;
                         vertices[0].TexCoord.W = vertices[1].TexCoord.W = vertices[2].TexCoord.W = vertices[3].TexCoord.W = light.RadiusFar;
 
+                        // Use Red channel for Light intensity
                         vertices[0].Color.R = vertices[1].Color.R = vertices[2].Color.R = vertices[3].Color.R = (byte)(light.Intensity * 255);
+                        // Use Green channel for Light brightness
                         vertices[0].Color.G = vertices[1].Color.G = vertices[2].Color.G = vertices[3].Color.G = (byte)(light.Brightness * 255);
 
                         switch (light.Type) {
@@ -292,19 +289,17 @@ namespace Jazz2.Game
             {
                 BatchInfo material = new BatchInfo(DrawTechnique.Solid, ColorRgba.White);
                 material.MainTexture = mainTexture;
-                Blit(drawDevice, material, targetPingPongA[0]);
+                this.Blit(drawDevice, material, targetPingPongA[0]);
             }
 
             // Downsample to lowest target
-            for (int i = 1; i < this.targetPingPongA.Length; i++) {
+            for (int i = 1; i < targetPingPongA.Length; i++) {
                 BatchInfo material = new BatchInfo(downsampleShader, ColorRgba.White);
 
                 material.MainTexture = targetPingPongA[i - 1].Targets[0];
-
-                // ToDo: Using uniform instead of textureSize function
                 material.SetUniform("pixelOffset", 1f / material.MainTexture.Res.ContentWidth, 1f / material.MainTexture.Res.ContentHeight);
 
-                Blit(drawDevice, material, targetPingPongA[i]);
+                this.Blit(drawDevice, material, targetPingPongA[i]);
             }
 
             // Blur all targets, separating horizontal and vertical blur
@@ -313,19 +308,15 @@ namespace Jazz2.Game
 
                 material.MainTexture = targetPingPongA[i].Targets[0];
                 material.SetUniform("blurDirection", 1.0f, 0.0f);
-
-                // ToDo: Using uniform instead of textureSize function
                 material.SetUniform("pixelOffset", 1f / material.MainTexture.Res.ContentWidth, 1f / material.MainTexture.Res.ContentHeight);
 
-                Blit(drawDevice, material, targetPingPongB[i]);
+                this.Blit(drawDevice, material, targetPingPongB[i]);
 
                 material.MainTexture = targetPingPongB[i].Targets[0];
                 material.SetUniform("blurDirection", 0.0f, 1.0f);
-
-                // ToDo: Using uniform instead of textureSize function
                 material.SetUniform("pixelOffset", 1f / material.MainTexture.Res.ContentWidth, 1f / material.MainTexture.Res.ContentHeight);
 
-                Blit(drawDevice, material, targetPingPongA[i]);
+                this.Blit(drawDevice, material, targetPingPongA[i]);
             }
 
             // Blit it into screen
@@ -334,7 +325,7 @@ namespace Jazz2.Game
                 BatchInfo material = new BatchInfo(combineSceneWaterShader, ColorRgba.White);
                 material.SetTexture("mainTex", mainTexture);
                 material.SetTexture("lightTex", lightingTexture);
-                material.SetTexture("displacementTex", noiseTexture);
+                material.SetTexture("displacementTex", noiseTexture); // Underwater displacement
 
                 material.SetTexture("blurHalfTex", targetPingPongA[1].Targets[0]);
                 material.SetTexture("blurQuarterTex", targetPingPongA[2].Targets[0]);
@@ -342,45 +333,20 @@ namespace Jazz2.Game
                 material.SetUniform("ambientLight", ambientLight);
                 material.SetUniform("waterLevel", viewWaterLevel / viewSize.Y);
 
-                Blit(drawDevice, material, finalTarget);
+                this.Blit(drawDevice, material, finalTarget);
             } else {
                 // Render lighting without water
                 BatchInfo material = new BatchInfo(combineSceneShader, ColorRgba.White);
                 material.SetTexture("mainTex", mainTexture);
                 material.SetTexture("lightTex", lightingTexture);
 
-                //material.SetTexture("blurFullTex", this.targetPingPongA[0].Targets[0]);
                 material.SetTexture("blurHalfTex", targetPingPongA[1].Targets[0]);
                 material.SetTexture("blurQuarterTex", targetPingPongA[2].Targets[0]);
 
                 material.SetUniform("ambientLight", ambientLight);
 
-                //Blit(drawDevice, material, viewportRect);
-                Blit(drawDevice, material, finalTarget);
+                this.Blit(drawDevice, material, finalTarget);
             }
-//#endif
-        }
-
-        private static void Blit(DrawDevice device, BatchInfo source, RenderTarget target)
-        {
-            device.Target = target;
-            device.TargetSize = target.Size;
-            device.ViewportRect = new Rect(target.Size);
-
-            device.PrepareForDrawcalls();
-            device.AddFullscreenQuad(source, TargetResize.Stretch);
-            device.Render();
-        }
-
-        private static void Blit(DrawDevice device, BatchInfo source, Rect screenRect)
-        {
-            device.Target = null;
-            device.TargetSize = screenRect.Size;
-            device.ViewportRect = screenRect;
-
-            device.PrepareForDrawcalls();
-            device.AddFullscreenQuad(source, TargetResize.Stretch);
-            device.Render();
         }
 
         private void SetupTargets(Point2 size)

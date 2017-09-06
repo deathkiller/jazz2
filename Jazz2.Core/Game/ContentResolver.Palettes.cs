@@ -30,7 +30,7 @@ namespace Jazz2.Game
 
                 RecreateGemPalettes();
 
-                // First 3 rows are reserved
+                // First 3 rows are reserved (base palette + 2 gem palettes)
                 lastPaletteRow = 2;
             } else {
                 // Palette Texture already exists, update first (base) row

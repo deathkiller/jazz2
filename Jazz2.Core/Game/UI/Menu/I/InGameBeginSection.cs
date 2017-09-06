@@ -17,7 +17,7 @@ namespace Jazz2.Game.UI.Menu.I
         {
             items = new List<Tuple<string, Action>> {
                 Tuple.Create<string, Action>("Resume", OnPlayStoryPressed),
-                Tuple.Create<string, Action>("Exit to menu", OnExitPressed),
+                Tuple.Create<string, Action>("Save & Exit", OnExitPressed),
             };
         }
 

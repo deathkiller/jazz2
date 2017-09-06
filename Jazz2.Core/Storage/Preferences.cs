@@ -21,6 +21,13 @@ namespace Jazz2.Storage
             prefBack.Set<T>(key, value);
         }
 
+        public static void Remove(string key)
+        {
+            if (prefBack == null) Initialize();
+
+            prefBack.Remove(key);
+        }
+
         public static void Commit()
         {
             if (prefBack == null) return;

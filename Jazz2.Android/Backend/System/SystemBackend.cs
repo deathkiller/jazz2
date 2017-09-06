@@ -14,7 +14,7 @@ namespace Duality.Backend.Android
         }
         string IDualityBackend.Name
         {
-            get { return "Android System Backend"; }
+            get { return "Android"; }
         }
         int IDualityBackend.Priority
         {

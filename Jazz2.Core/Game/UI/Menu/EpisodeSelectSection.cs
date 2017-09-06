@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using Duality;
@@ -7,6 +6,7 @@ using Duality.Drawing;
 using Duality.Input;
 using Duality.IO;
 using Duality.Resources;
+using Jazz2.Actors;
 using Jazz2.Game.Structs;
 using Jazz2.Storage;
 
@@ -17,14 +17,19 @@ namespace Jazz2.Game.UI.Menu
         private struct EpisodeEntry
         {
             public Episode Episode;
+
             public bool IsAvailable;
+            public bool CanContinue;
             public ContentRef<Material> Logo;
         }
 
-        private List<EpisodeEntry> episodes = new List<EpisodeEntry>();
+        private RawList<EpisodeEntry> episodes = new RawList<EpisodeEntry>();
 
         private int selectedIndex;
-        private float animation;
+        private float selectAnimation;
+
+        private bool expanded;
+        private float expandedAnimation;
 
         public EpisodeSelectSection()
         {
@@ -47,11 +52,13 @@ namespace Jazz2.Game.UI.Menu
                     EpisodeEntry entry;
                     entry.Episode = json;
                     if (json.PreviousEpisode != null) {
-                        int time = Preferences.Get<int>("EpisodeTime_" + json.PreviousEpisode);
+                        int time = Preferences.Get<int>("EpisodeEnd_Time_" + json.PreviousEpisode);
                         entry.IsAvailable = (time > 0);
                     } else {
                         entry.IsAvailable = true;
                     }
+
+                    entry.CanContinue = Preferences.Get<byte[]>("EpisodeContinue_Misc_" + entry.Episode.Token) != null;
 
                     string logoPath = PathOp.Combine(episode, ".png");
                     if (FileOp.Exists(logoPath)) {
@@ -77,7 +84,7 @@ namespace Jazz2.Game.UI.Menu
 
         public override void OnShow(MainMenu root)
         {
-            animation = 0f;
+            selectAnimation = 0f;
             base.OnShow(root);
         }
 
@@ -88,6 +95,9 @@ namespace Jazz2.Game.UI.Menu
             const float topLine = 131f;
             float bottomLine = device.TargetSize.Y - 42;
             api.DrawMaterial(c, "MenuDim", center.X, (topLine + bottomLine) * 0.5f, Alignment.Center, ColorRgba.White, 55f, (bottomLine - topLine) * 0.063f, new Rect(0f, 0.3f, 1f, 0.4f));
+
+            api.DrawMaterial(c, "MenuLine", 0, center.X, topLine, Alignment.Center, ColorRgba.White, 1.6f);
+            api.DrawMaterial(c, "MenuLine", 1, center.X, bottomLine, Alignment.Center, ColorRgba.White, 1.6f);
 
             int charOffset = 0;
             api.DrawStringShadow(device, ref charOffset, "Select Episode", center.X, 110f,
@@ -103,12 +113,12 @@ namespace Jazz2.Game.UI.Menu
 
                 for (int i = 0; i < episodes.Count; i++) {
                     if (selectedIndex == i) {
-                        float size = 0.5f + Ease.OutElastic(animation) * 0.5f;
+                        float size = 0.5f + Ease.OutElastic(selectAnimation) * 0.5f + (1f - expandedAnimation) * 0.2f;
 
                         if (episodes[i].IsAvailable) {
                             if (episodes[i].Logo.IsAvailable) {
                                 api.DrawString(device, ref charOffset, episodes[i].Episode.Name, center.X, topItem,
-                                    Alignment.Center, new ColorRgba(0.46f, 0.5f * MathF.Max(0f, 1f - animation * 2f)), 0.9f - animation * 0.5f);
+                                    Alignment.Center, new ColorRgba(0.44f, 0.5f * MathF.Max(0f, 1f - selectAnimation * 2f)), 0.9f - selectAnimation * 0.5f);
 
                                 ContentRef<Material> logo = episodes[i].Logo;
                                 Texture texture = logo.Res.MainTexture.Res;
@@ -117,17 +127,36 @@ namespace Jazz2.Game.UI.Menu
                                 Alignment.Center.ApplyTo(ref originPos, new Vector2(texture.InternalWidth * size, texture.InternalHeight * size));
 
                                 c.State.SetMaterial(logo);
-                                c.State.ColorTint = ColorRgba.White;
+                                c.State.ColorTint = ColorRgba.White.WithAlpha(1f - expandedAnimation * 0.5f);
                                 c.FillRect(originPos.X, originPos.Y, texture.InternalWidth * size, texture.InternalHeight * size);
                             } else {
                                 api.DrawStringShadow(device, ref charOffset, episodes[i].Episode.Name, center.X, topItem,
                                     Alignment.Center, null, size, charSpacing: 0.9f);
                             }
+
+                            if (episodes[i].CanContinue) {
+                                float moveX = expandedAnimation * -26f;
+
+                                api.DrawString(device, ref charOffset, ">", center.X + 80f + moveX, topItem,
+                                    Alignment.Right, new ColorRgba(0.5f, 0.5f * MathF.Min(1f, 0.4f + selectAnimation)), 1f, charSpacing: 0.9f);
+
+                                if (expanded) {
+                                    api.DrawStringShadow(device, ref charOffset, "Restart episode", center.X + 90f + moveX, topItem,
+                                        Alignment.Left, new ColorRgba(0.48f, 0.40f, 0.22f, 0.5f * MathF.Min(1f, 0.4f + expandedAnimation)), 0.8f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.8f);
+                                }
+                            }
                         } else {
                             api.DrawString(device, ref charOffset, episodes[i].Episode.Name, center.X, topItem,
-                                Alignment.Center, new ColorRgba(0.4f, MathF.Max(0.3f, 0.4f - animation * 0.4f)), MathF.Max(0.7f, 0.9f - animation * 0.6f));
+                                Alignment.Center, new ColorRgba(0.4f, MathF.Max(0.3f, 0.4f - selectAnimation * 0.4f)), MathF.Max(0.7f, 0.9f - selectAnimation * 0.6f));
 
-                            Episode previousEpisode = episodes.Find(entry => entry.Episode.Token == episodes[i].Episode.PreviousEpisode).Episode;
+                            int index = episodes.IndexOfFirst(entry => entry.Episode.Token == episodes[i].Episode.PreviousEpisode);
+                            Episode previousEpisode;
+                            if (index == -1) {
+                                previousEpisode = null;
+                            } else {
+                                previousEpisode = episodes[index].Episode;
+                            }
+
                             string info;
                             if (previousEpisode == null) {
                                 info = "Episode is locked!";
@@ -136,7 +165,7 @@ namespace Jazz2.Game.UI.Menu
                             }
 
                             api.DrawStringShadow(device, ref charOffset, info, center.X, topItem,
-                                Alignment.Center, new ColorRgba(0.66f, 0.42f, 0.32f, MathF.Min(0.5f, 0.2f + 2f * animation)), 0.8f * size, charSpacing: 0.9f);
+                                Alignment.Center, new ColorRgba(0.66f, 0.42f, 0.32f, MathF.Min(0.5f, 0.2f + 2f * selectAnimation)), 0.7f * size, charSpacing: 0.9f);
                         }
                     } else {
                         if (episodes[i].IsAvailable) {
@@ -151,28 +180,84 @@ namespace Jazz2.Game.UI.Menu
                     topItem += itemSpacing;
                 }
             } else {
-                api.DrawStringShadow(device, ref charOffset, "Episodes not found!", center.X, center.Y, Alignment.Center,
+                api.DrawStringShadow(device, ref charOffset, "No episode found!", center.X, center.Y, Alignment.Center,
                     new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f), 0.9f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
             }
-
-            api.DrawMaterial(c, "MenuLine", 0, center.X, topLine, Alignment.Center, ColorRgba.White, 1.6f);
-            api.DrawMaterial(c, "MenuLine", 1, center.X, bottomLine, Alignment.Center, ColorRgba.White, 1.6f);
         }
 
         public override void OnUpdate()
         {
-            if (animation < 1f) {
-                animation = Math.Min(animation + Time.TimeMult * 0.016f, 1f);
+            if (selectAnimation < 1f) {
+                selectAnimation = Math.Min(selectAnimation + Time.TimeMult * 0.016f, 1f);
+            }
+
+            if (expanded && expandedAnimation < 1f) {
+                expandedAnimation = Math.Min(expandedAnimation + Time.TimeMult * 0.06f, 1f);
             }
 
             if (ControlScheme.MenuActionHit(PlayerActions.Fire)) {
                 if (episodes[selectedIndex].IsAvailable) {
                     api.PlaySound("MenuSelect", 0.5f);
-                    api.SwitchToSection(new StartGameOptionsSection(
-                        episodes[selectedIndex].Episode.Token,
-                        episodes[selectedIndex].Episode.FirstLevel,
-                        episodes[selectedIndex].Episode.PreviousEpisode
-                    ));
+                    if (episodes[selectedIndex].CanContinue) {
+                        if (expanded) {
+                            // Restart episode
+                            // Clear continue data
+                            string episodeName = episodes[selectedIndex].Episode.Token;
+                            Preferences.Remove("EpisodeContinue_Misc_" + episodeName);
+                            Preferences.Remove("EpisodeContinue_Level_" + episodeName);
+                            Preferences.Remove("EpisodeContinue_Ammo_" + episodeName);
+                            Preferences.Remove("EpisodeContinue_Upgrades_" + episodeName);
+
+                            Preferences.Commit();
+
+                            episodes.Data[selectedIndex].CanContinue = false;
+                            expanded = false;
+                            expandedAnimation = 0f;
+
+                            api.SwitchToSection(new StartGameOptionsSection(
+                                episodes[selectedIndex].Episode.Token,
+                                episodes[selectedIndex].Episode.FirstLevel,
+                                episodes[selectedIndex].Episode.PreviousEpisode
+                            ));
+                        } else {
+                            string episodeName = episodes[selectedIndex].Episode.Token;
+                            string levelName = Preferences.Get<string>("EpisodeContinue_Level_" + episodeName);
+
+                            // Lives, Difficulty and PlayerType is saved in Misc array [Jazz2.Core/Game/Controller.cs: ~146]
+                            byte[] misc = Preferences.Get<byte[]>("EpisodeContinue_Misc_" + episodeName);
+
+                            LevelInitialization carryOver = new LevelInitialization(
+                                episodeName,
+                                levelName,
+                                (GameDifficulty)misc[1],
+                                (PlayerType)misc[2]
+                            );
+
+                            ref PlayerCarryOver player = ref carryOver.PlayerCarryOvers[0];
+
+                            int[] ammo = Preferences.Get<int[]>("EpisodeContinue_Ammo_" + episodeName);
+                            byte[] upgrades = Preferences.Get<byte[]>("EpisodeContinue_Upgrades_" + episodeName);
+
+                            if (misc[0] > 0) {
+                                player.Lives = misc[0];
+                            }
+                            if (ammo != null) {
+                                player.Ammo = ammo;
+                            }
+                            if (upgrades != null) {
+                                player.WeaponUpgrades = upgrades;
+                            }
+
+                            api.SwitchToLevel(carryOver);
+                        }
+                    } else {
+                        // Start the episode from the first level
+                        api.SwitchToSection(new StartGameOptionsSection(
+                            episodes[selectedIndex].Episode.Token,
+                            episodes[selectedIndex].Episode.FirstLevel,
+                            episodes[selectedIndex].Episode.PreviousEpisode
+                        ));
+                    }
                 }
             } else if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
                 api.PlaySound("MenuSelect", 0.5f);
@@ -182,7 +267,11 @@ namespace Jazz2.Game.UI.Menu
             if (episodes.Count > 1) {
                 if (ControlScheme.MenuActionHit(PlayerActions.Up)) {
                     api.PlaySound("MenuSelect", 0.4f);
-                    animation = 0f;
+                    selectAnimation = 0f;
+
+                    expanded = false;
+                    expandedAnimation = 0f;
+
                     if (selectedIndex > 0) {
                         selectedIndex--;
                     } else {
@@ -190,11 +279,22 @@ namespace Jazz2.Game.UI.Menu
                     }
                 } else if (ControlScheme.MenuActionHit(PlayerActions.Down)) {
                     api.PlaySound("MenuSelect", 0.4f);
-                    animation = 0f;
+                    selectAnimation = 0f;
+
+                    expanded = false;
+                    expandedAnimation = 0f;
+
                     if (selectedIndex < episodes.Count - 1) {
                         selectedIndex++;
                     } else {
                         selectedIndex = 0;
+                    }
+                } else if (ControlScheme.MenuActionHit(PlayerActions.Left)) {
+                    expanded = false;
+                    expandedAnimation = 0f;
+                } else if (ControlScheme.MenuActionHit(PlayerActions.Right)) {
+                    if (episodes[selectedIndex].CanContinue) {
+                        expanded = true;
                     }
                 }
             }

@@ -21,6 +21,7 @@ namespace Jazz2.Actors.Bosses
         private int lastHealth;
         private bool queuedBackstep;
         private float brickStartRangeX;
+        private InvisibleBlock block;
 
         private float stepSize;
 
@@ -50,11 +51,30 @@ namespace Jazz2.Actors.Bosses
 
             RequestMetadata("Boss/Queen");
             SetAnimation(AnimState.Idle);
+
+            // Invisible block above the queen
+            block = new InvisibleBlock();
+            block.OnAttach(new ActorInstantiationDetails {
+                Api = api
+            });
+            api.AddActor(block);
+        }
+
+        protected override void OnDeactivated(Component.ShutdownContext context)
+        {
+            if (block != null) {
+                api.RemoveActor(block);
+                block = null;
+            }
+
+            base.OnDeactivated(context);
         }
 
         protected override void OnUpdate()
         {
             base.OnUpdate();
+
+            block.UpdateBlock(Transform.Pos);
 
             if (!canJump && state != StateDead) {
                 // It can only die by collision with spring in the air
@@ -278,6 +298,44 @@ namespace Jazz2.Actors.Bosses
                 } else {
                     time -= Time.TimeMult;
                 }
+            }
+
+            protected override bool OnPerish(ActorBase collider)
+            {
+                if (collider != null) {
+                    CreateDeathDebris(collider);
+                }
+
+                return base.OnPerish(collider);
+            }
+        }
+
+        private class InvisibleBlock : ActorBase
+        {
+            public override void OnAttach(ActorInstantiationDetails details)
+            {
+                base.OnAttach(details);
+
+                collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.IsSolidObject | CollisionFlags.SkipPerPixelCollisions;
+
+                health = int.MaxValue;
+
+                RequestMetadata("Boss/Queen");
+                SetAnimation(AnimState.Idle);
+
+                renderer.Active = false;
+            }
+
+            protected override void OnUpdate()
+            {
+                // Nothing to do...
+            }
+
+            public void UpdateBlock(Vector3 pos)
+            {
+                Transform.Pos = new Vector3(pos.X, pos.Y - 32, pos.Z);
+
+                OnUpdateHitbox();
             }
         }
     }

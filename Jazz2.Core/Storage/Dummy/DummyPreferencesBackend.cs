@@ -27,6 +27,10 @@ namespace Jazz2.Storage.Dummy
         {
         }
 
+        void IPreferencesBackend.Remove(string key)
+        {
+        }
+
         void IPreferencesBackend.Commit()
         {
         }

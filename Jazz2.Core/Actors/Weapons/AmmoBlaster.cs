@@ -60,7 +60,7 @@ namespace Jazz2.Actors.Weapons
         {
             OnUpdateHitbox();
             CheckCollisions();
-            TryStandardMovement();
+            TryStandardMovement(Time.TimeMult);
 
             base.OnUpdate();
 

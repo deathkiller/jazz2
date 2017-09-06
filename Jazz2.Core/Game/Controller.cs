@@ -68,26 +68,36 @@ namespace Jazz2.Game
                 ShowMainMenu();
             } else if (carryOver.LevelName == ":end") {
                 // End of episode
-
+                
                 if (!string.IsNullOrEmpty(carryOver.LastEpisodeName) && carryOver.LastEpisodeName != "unknown") {
                     // ToDo: Implement time
-                    Preferences.Set("EpisodeTime_" + carryOver.LastEpisodeName, (int)1);
+                    Preferences.Set("EpisodeEnd_Time_" + carryOver.LastEpisodeName, (int)1);
 
                     if (carryOver.PlayerCarryOvers.Length == 1) {
                         // Save CarryOvers only in SinglePlayer mode
                         ref PlayerCarryOver player = ref carryOver.PlayerCarryOvers[0];
 
-                        Preferences.Set("EpisodeLives_" + carryOver.LastEpisodeName, (byte)player.Lives);
-                        Preferences.Set("EpisodeAmmo_" + carryOver.LastEpisodeName, player.Ammo);
+                        Preferences.Set("EpisodeEnd_Lives_" + carryOver.LastEpisodeName, (byte)player.Lives);
+                        if (player.Ammo != null) {
+                            Preferences.Set("EpisodeEnd_Ammo_" + carryOver.LastEpisodeName, player.Ammo);
+                        }
 
                         // Save WeaponUpgrades only if at least one of them is upgraded
-                        for (int i = 0; i < player.WeaponUpgrades.Length; i++) {
-                            if (player.WeaponUpgrades[i] != 0) {
-                                Preferences.Set("EpisodeUpgrades_" + carryOver.LastEpisodeName, player.WeaponUpgrades);
-                                break;
+                        if (player.WeaponUpgrades != null) {
+                            for (int i = 0; i < player.WeaponUpgrades.Length; i++) {
+                                if (player.WeaponUpgrades[i] != 0) {
+                                    Preferences.Set("EpisodeEnd_Upgrades_" + carryOver.LastEpisodeName, player.WeaponUpgrades);
+                                    break;
+                                }
                             }
                         }
                     }
+
+                    // Remove existing continue data
+                    Preferences.Remove("EpisodeContinue_Misc_" + carryOver.LastEpisodeName);
+                    Preferences.Remove("EpisodeContinue_Level_" + carryOver.LastEpisodeName);
+                    Preferences.Remove("EpisodeContinue_Ammo_" + carryOver.LastEpisodeName);
+                    Preferences.Remove("EpisodeContinue_Upgrades_" + carryOver.LastEpisodeName);
 
                     Preferences.Commit();
 
@@ -115,9 +125,15 @@ namespace Jazz2.Game
             } else if (carryOver.LevelName == ":credits") {
                 // End of game
 
-                if (!string.IsNullOrEmpty(carryOver.LastEpisodeName) && carryOver.LastEpisodeName != "unknown") {
+                if (!string.IsNullOrEmpty(carryOver.LastEpisodeName) && carryOver.LastEpisodeName != "unknown" && carryOver.PlayerCarryOvers.Length == 1) {
                     // ToDo: Implement time
-                    Preferences.Set("EpisodeTime_" + carryOver.LastEpisodeName, (int)1);
+                    Preferences.Set("EpisodeEnd_Time_" + carryOver.LastEpisodeName, (int)1);
+
+                    // Remove existing continue data
+                    Preferences.Remove("EpisodeContinue_Misc_" + carryOver.LastEpisodeName);
+                    Preferences.Remove("EpisodeContinue_Level_" + carryOver.LastEpisodeName);
+                    Preferences.Remove("EpisodeContinue_Ammo_" + carryOver.LastEpisodeName);
+                    Preferences.Remove("EpisodeContinue_Upgrades_" + carryOver.LastEpisodeName);
 
                     Preferences.Commit();
                 }
@@ -125,6 +141,32 @@ namespace Jazz2.Game
                 // ToDo: Show credits
                 ShowMainMenu();
             } else {
+                if (!string.IsNullOrEmpty(carryOver.EpisodeName) && carryOver.EpisodeName != "unknown") {
+                    Episode nextEpisode = GetEpisode(carryOver.EpisodeName);
+                    if (nextEpisode.FirstLevel != carryOver.LevelName) {
+                        // Save continue data, if it's not the first level of the episode
+                        ref PlayerCarryOver player = ref carryOver.PlayerCarryOvers[0];
+
+                        Preferences.Set("EpisodeContinue_Misc_" + carryOver.EpisodeName, new byte[] { (byte)player.Lives, (byte)carryOver.Difficulty, (byte)player.Type });
+                        Preferences.Set("EpisodeContinue_Level_" + carryOver.EpisodeName, carryOver.LevelName);
+                        if (player.Ammo != null) {
+                            Preferences.Set("EpisodeContinue_Ammo_" + carryOver.EpisodeName, player.Ammo);
+                        }
+
+                        // Save WeaponUpgrades only if at least one of them is upgraded
+                        if (player.WeaponUpgrades != null) {
+                            for (int i = 0; i < player.WeaponUpgrades.Length; i++) {
+                                if (player.WeaponUpgrades[i] != 0) {
+                                    Preferences.Set("EpisodeContinue_Upgrades_" + carryOver.EpisodeName, player.WeaponUpgrades);
+                                    break;
+                                }
+                            }
+                        }
+
+                        Preferences.Commit();
+                    }
+                }
+
                 LevelHandler handler = new LevelHandler(this, carryOver);
 
                 Scene.Current.DisposeLater();
@@ -199,7 +241,7 @@ namespace Jazz2.Game
             string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Episodes", name, ".res");
             if (FileOp.Exists(pathAbsolute)) {
                 Episode json;
-                using (Stream s = DualityApp.SystemBackend.FileSystem.OpenFile(pathAbsolute, FileAccessMode.Read)) {
+                using (Stream s = FileOp.Open(pathAbsolute, FileAccessMode.Read)) {
                     json = jsonParser.Parse<Episode>(s);
                 }
 

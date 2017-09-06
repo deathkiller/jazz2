@@ -213,7 +213,27 @@ namespace Jazz2.Actors
 
             PushSolidObjects(timeMult);
 
-            base.OnUpdate();
+            //base.OnUpdate();
+            {
+                if (timeMult > 1.25f) {
+                    TryStandardMovement(1f);
+                    TryStandardMovement(timeMult - 1f);
+                } else {
+                    TryStandardMovement(timeMult);
+                }
+
+                OnUpdateHitbox();
+
+                RefreshFlipMode();
+
+                if (renderer != null && renderer.AnimPaused) {
+                    if (frozenTimeLeft <= 0f) {
+                        renderer.AnimPaused = false;
+                    } else {
+                        frozenTimeLeft -= timeMult;
+                    }
+                }
+            }
 
             FollowCarryingPlatform();
             UpdateSpeedBasedAnimation(timeMult, lastPos.X, lastSpeedX, lastForceX);

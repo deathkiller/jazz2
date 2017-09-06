@@ -127,6 +127,13 @@ namespace Jazz2.Backend
             dirty = true;
         }
 
+        void IPreferencesBackend.Remove(string key)
+        {
+            data.Remove(key);
+
+            dirty = true;
+        }
+
         void IPreferencesBackend.Commit()
         {
             if (!dirty) {

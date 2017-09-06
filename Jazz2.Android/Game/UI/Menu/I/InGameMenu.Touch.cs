@@ -1,35 +1,22 @@
-﻿using Android.App;
-using Android.Content.Res;
-using Duality;
+﻿using Duality;
 using Duality.Android;
 using Duality.Drawing;
-using Duality.Resources;
 
 namespace Jazz2.Game.UI.Menu.I
 {
     partial class InGameMenu
     {
-        private int statusBarHeight;
-
         partial void InitTouch()
         {
-            Resources res = Application.Context.Resources;
-            int resId = res.GetIdentifier("status_bar_height", "dimen", "android");
-            if (resId > 0) {
-                statusBarHeight = res.GetDimensionPixelSize(resId);
-            }
         }
 
         partial void DrawTouch(IDrawDevice device, Canvas c, Vector2 size)
         {
-            int y = (statusBarHeight * (int)size.Y / DualityApp.WindowSize.Y);
-            c.State.SetMaterial(new Material(DrawTechnique.Alpha, new ColorRgba(0.4f, 0.5f)));
-            c.State.ColorTint = ColorRgba.White;
-            c.DrawLine(0, y, size.X, y);
-
             if (!InnerView.showVirtualButtons || InnerView.virtualButtons == null) {
                 return;
             }
+
+            c.State.ColorTint = ColorRgba.White;
 
             for (int i = 0; i < InnerView.virtualButtons.Length; i++) {
                 InnerView.VirtualButton button = InnerView.virtualButtons[i];

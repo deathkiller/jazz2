@@ -36,6 +36,30 @@ namespace Jazz2
             }
         }
 
+        // RenderSetups
+        public static void Blit(this RenderSetup renderSetup, DrawDevice device, BatchInfo source, RenderTarget target)
+        {
+            device.Target = target;
+            device.TargetSize = target.Size;
+            device.ViewportRect = new Rect(target.Size);
+
+            device.PrepareForDrawcalls();
+            device.AddFullscreenQuad(source, TargetResize.Stretch);
+            device.Render();
+        }
+
+
+        public static void Blit(this RenderSetup renderSetup, DrawDevice device, BatchInfo source, Rect screenRect)
+        {
+            device.Target = null;
+            device.TargetSize = screenRect.Size;
+            device.ViewportRect = screenRect;
+
+            device.PrepareForDrawcalls();
+            device.AddFullscreenQuad(source, TargetResize.Stretch);
+            device.Render();
+        }
+
         // GraphicResources
         public static void Draw(this GraphicResource res, Canvas c, float x, float y, Alignment alignment, ColorRgba color, float scaleX = 1f, float scaleY = 1f)
         {
