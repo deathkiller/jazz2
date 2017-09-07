@@ -213,8 +213,7 @@ namespace Jazz2.Compatibility
             Color.FromArgb(255, 0, 11, 43), // 205
             Color.FromArgb(255, 0, 7, 35), // 206
             Color.FromArgb(255, 0, 7, 27), // 207
-            // Colors from here on are suspicious. Not sure if they are used anywhere with the set colors,
-            // but they _are_ used with the diamond graphics, which they don't match with.
+
             Color.FromArgb(255, 120, 226, 220), // 208
             Color.FromArgb(255, 82, 205, 193), // 209
             Color.FromArgb(255, 98, 100, 112), // 210

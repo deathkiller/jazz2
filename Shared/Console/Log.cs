@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Import
+namespace Jazz2
 {
     public enum LogType
     {
@@ -63,7 +63,7 @@ namespace Import
 
                 // Dot
                 SetBrightConsoleColor(type, highlight);
-                Console.Write(new string(' ', indent * 2) + (Utils.SupportsUnicode ? " · " : " ˙ "));
+                Console.Write(new string(' ', indent * 2) + (ConsoleUtils.SupportsUnicode ? " · " : " ˙ "));
 
                 // Dark beginning
                 if (beginGreyLength != 0) {

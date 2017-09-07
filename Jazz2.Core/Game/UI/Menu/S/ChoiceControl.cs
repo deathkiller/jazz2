@@ -65,8 +65,10 @@ namespace Jazz2.Game.UI.Menu.S
                 offset = 50f;
                 spacing = 100f;
             } else {
-                offset = 100f;
-                spacing = 300f / choices.Length;
+                //offset = 100f;
+                //spacing = 300f / choices.Length;
+                spacing = 320f / (choices.Length + 1);
+                offset = 120 - spacing * 0.5f;
             }
 
             for (int i = 0; i < choices.Length; i++) {

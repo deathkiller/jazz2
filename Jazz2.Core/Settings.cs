@@ -6,7 +6,8 @@
         {
             None,
             HQ2x,
-            xBRZ
+            xBRZ,
+            CRT
         }
 
 #if __ANDROID__

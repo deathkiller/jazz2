@@ -34,6 +34,9 @@ namespace Jazz2.Game.UI.Menu
                 case Settings.ResizeMode.xBRZ:
                     resizeShader = ContentResolver.Current.RequestShader("Resize3xBRZ");
                     break;
+                case Settings.ResizeMode.CRT:
+                    resizeShader = ContentResolver.Current.RequestShader("ResizeCRT");
+                    break;
             }
 
             // Textures
@@ -82,6 +85,9 @@ namespace Jazz2.Game.UI.Menu
                         break;
                     case Settings.ResizeMode.xBRZ:
                         resizeShader = ContentResolver.Current.RequestShader("Resize3xBRZ");
+                        break;
+                    case Settings.ResizeMode.CRT:
+                        resizeShader = ContentResolver.Current.RequestShader("ResizeCRT");
                         break;
                 }
             }

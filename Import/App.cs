@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Import.Downloaders;
+using Jazz2;
 using Jazz2.Compatibility;
 using static Jazz2.Game.ContentResolver;
 using static Jazz2.Game.LevelHandler;
@@ -19,13 +20,13 @@ namespace Import
     {
         private static void Main(string[] args)
         {
-            Utils.TryEnableUnicode();
+            ConsoleUtils.TryEnableUnicode();
 
             int cursorTop = Console.CursorTop;
 
             Console.Title = Jazz2.App.AssemblyTitle;
 
-            if (!Utils.IsOutputRedirected) {
+            if (!ConsoleUtils.IsOutputRedirected) {
                 ConsoleImage.RenderFromManifestResource("ConsoleImage.udl");
             }
 
@@ -127,7 +128,7 @@ namespace Import
             int width = Console.BufferWidth;
 
             // Show version number in the right corner
-            if (!Utils.IsOutputRedirected) {
+            if (!ConsoleUtils.IsOutputRedirected) {
                 string appVersion = "v" + Jazz2.App.AssemblyVersion;
 
                 int currentCursorTop = Console.CursorTop;
@@ -178,6 +179,7 @@ namespace Import
             Console.WriteLine("  If you don't have any suitable version, Shareware Demo can be automatically");
             Console.WriteLine("  imported, but functionality will be slightly degraded.");
             Console.ResetColor();
+
             Console.WriteLine();
             Console.WriteLine("  Press Enter to download and import Shareware Demo now. Otherwise, press");
             Console.WriteLine("  CTRL+C or close the window.");
@@ -198,7 +200,7 @@ namespace Import
             }
 
             // Clear console window and show logo
-            if (!Utils.IsOutputRedirected) {
+            if (!ConsoleUtils.IsOutputRedirected) {
                 Console.Clear();
                 ConsoleImage.RenderFromManifestResource("ConsoleImage.udl");
             }
@@ -444,7 +446,7 @@ namespace Import
                 }
             };
 
-            Dictionary<EventConverter.JJ2Event, int> unsupportedEvents = new Dictionary<EventConverter.JJ2Event, int>();
+            Dictionary<EventConverter.JJ2Event, int> unsupportedEventsStats = new Dictionary<EventConverter.JJ2Event, int>();
 
             Directory.CreateDirectory(Path.Combine(targetPath, "Content", "Episodes"));
 
@@ -518,11 +520,11 @@ namespace Import
                         usedTilesets.Add(l.Tileset.ToLowerInvariant());
                     }
 
-                    lock (unsupportedEvents) {
+                    lock (unsupportedEventsStats) {
                         foreach (var e in l.UnsupportedEvents) {
                             int count;
-                            unsupportedEvents.TryGetValue(e.Key, out count);
-                            unsupportedEvents[e.Key] = (count + e.Value);
+                            unsupportedEventsStats.TryGetValue(e.Key, out count);
+                            unsupportedEventsStats[e.Key] = (count + e.Value);
                         }
                     }
                 } catch (Exception ex) {
@@ -533,7 +535,7 @@ namespace Import
             Log.Write(LogType.Verbose, "Summary of unsupported events:");
             Log.PushIndent();
 
-            foreach (var e in unsupportedEvents.OrderByDescending(i => i.Value)) {
+            foreach (var e in unsupportedEventsStats.OrderByDescending(i => i.Value)) {
                 Log.Write(LogType.Verbose, " " + e.Key.ToString().PadRight(32, ' ') + e.Value.ToString().PadLeft(4, ' '));
             }
 
@@ -933,7 +935,8 @@ namespace Import
 
                             int bestMatchIndex = 0;
                             int bestMatchDiff = int.MaxValue;
-                            for (int i = 0; i < JJ2DefaultPalette.Sprite.Length; i++) {
+                            // Use only common part of palette
+                            for (int i = 0; i < /*JJ2DefaultPalette.Sprite.Length*/208; i++) {
                                 Color current = JJ2DefaultPalette.Sprite[i];
                                 int currentDiff = Math.Abs(color.R - current.R) + Math.Abs(color.G - current.G) + Math.Abs(color.B - current.B) + Math.Abs(color.A - current.A);
                                 if (currentDiff < bestMatchDiff) {
@@ -982,7 +985,8 @@ namespace Import
                             Color bestMatch = Color.Transparent;
                             Color secondMatch = Color.Transparent;
                             int bestMatchDiff = int.MaxValue;
-                            for (int i = 0; i < JJ2DefaultPalette.Sprite.Length; i++) {
+                            // Use only common part of palette
+                            for (int i = 0; i < /*JJ2DefaultPalette.Sprite.Length*/208; i++) {
                                 Color current = JJ2DefaultPalette.Sprite[i];
                                 int currentDiff = Math.Abs(color.R - current.R) + Math.Abs(color.G - current.G) + Math.Abs(color.B - current.B) + Math.Abs(color.A - current.A);
                                 if (currentDiff < bestMatchDiff) {

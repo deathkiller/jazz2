@@ -2,7 +2,7 @@
 using System.IO;
 using System.Reflection;
 
-namespace Import
+namespace Jazz2
 {
     public class ConsoleImage
     {

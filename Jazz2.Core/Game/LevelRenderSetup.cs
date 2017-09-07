@@ -66,6 +66,9 @@ namespace Jazz2.Game
                 case Settings.ResizeMode.xBRZ:
                     resizeShader = ContentResolver.Current.RequestShader("Resize3xBRZ");
                     break;
+                case Settings.ResizeMode.CRT:
+                    resizeShader = ContentResolver.Current.RequestShader("ResizeCRT");
+                    break;
             }
 
             // Main texture

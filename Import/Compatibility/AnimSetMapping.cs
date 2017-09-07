@@ -83,9 +83,9 @@ namespace Jazz2.Compatibility
                 mapping.Add("Common", "explosion_pepper");
 
                 //mapping.Add("Unknown", "bullet_maybe_electro");
-                mapping.Add("Weapon", "bullet_maybe_electro", JJ2DefaultPalette.ByIndex);
+                mapping.Add("Weapon", "bullet_maybe_electro");
                 //mapping.Add("Unknown", "bullet_maybe_electro_trail");
-                mapping.Add("Weapon", "bullet_maybe_electro_trail", JJ2DefaultPalette.ByIndex);
+                mapping.Add("Weapon", "bullet_maybe_electro_trail");
 
                 mapping.Add("Unknown", "flame_red");
                 mapping.Add("Weapon", "bullet_shield_fireball");
@@ -283,7 +283,7 @@ namespace Jazz2.Compatibility
                     mapping.NextSet();
                     mapping.Add("Unimplemented", "butterfly");
                     mapping.NextSet();
-                    mapping.Add("Pole", "Carrotus", /*JJ2DefaultPalette.CARROTUS_POLE_PALETTE*/ JJ2DefaultPalette.ByIndex);
+                    mapping.Add("Pole", "Carrotus");
                     mapping.NextSet();
                     mapping.Add("Cheshire", "platform_appear");
                     mapping.Add("Cheshire", "platform_vanish");
@@ -394,7 +394,7 @@ namespace Jazz2.Compatibility
                 }
 
                 mapping.NextSet();
-                mapping.Add("Pole", "Diamondus", /*JJ2DefaultPalette.DIAMONDUS_POLE_PALETTE*/ JJ2DefaultPalette.ByIndex);
+                mapping.Add("Pole", "Diamondus");
 
                 if (isFull) {
                     mapping.NextSet();
@@ -643,7 +643,7 @@ namespace Jazz2.Compatibility
 
                 if (isFull) {
                     mapping.NextSet(2);
-                    mapping.Add("Pole", "Jungle", /*JJ2DefaultPalette.JUNGLE_POLE_PALETTE*/ JJ2DefaultPalette.ByIndex);
+                    mapping.Add("Pole", "Jungle");
                 }
 
                 mapping.NextSet();
@@ -902,12 +902,12 @@ namespace Jazz2.Compatibility
 
                 if (isFull) {
                     mapping.NextSet();
-                    mapping.Add("Pinball", "Bumper500", /*JJ2DefaultPalette.PINBALL_PALETTE*/ JJ2DefaultPalette.ByIndex);
-                    mapping.Add("Pinball", "Bumper500Hit", /*JJ2DefaultPalette.PINBALL_PALETTE*/ JJ2DefaultPalette.ByIndex);
-                    mapping.Add("Pinball", "BumperCarrot", /*JJ2DefaultPalette.PINBALL_PALETTE*/ JJ2DefaultPalette.ByIndex);
-                    mapping.Add("Pinball", "BumperCarrotHit", /*JJ2DefaultPalette.PINBALL_PALETTE*/ JJ2DefaultPalette.ByIndex);
+                    mapping.Add("Pinball", "Bumper500");
+                    mapping.Add("Pinball", "Bumper500Hit");
+                    mapping.Add("Pinball", "BumperCarrot");
+                    mapping.Add("Pinball", "BumperCarrotHit");
 
-                    mapping.Add("Pinball", "PaddleLeft", JJ2DefaultPalette.ByIndex, addBorder: 1);
+                    mapping.Add("Pinball", "PaddleLeft", addBorder: 1);
                     //mapping.Add("Pinball", "PaddleRight", JJ2DefaultPalette.ByIndex);
                     mapping.DiscardItems(1);
 
@@ -916,7 +916,7 @@ namespace Jazz2.Compatibility
                     mapping.Add("Platform", "lab_chain");
 
                     mapping.NextSet();
-                    mapping.Add("Pole", "Psych", /*JJ2DefaultPalette.PSYCH_POLE_PALETTE*/ JJ2DefaultPalette.ByIndex);
+                    mapping.Add("Pole", "Psych");
 
                     mapping.NextSet();
                     mapping.Add("Queen", "scream");
@@ -978,7 +978,7 @@ namespace Jazz2.Compatibility
                 }
 
                 mapping.NextSet();
-                mapping.Add("Pole", "DiamondusTree", /*JJ2DefaultPalette.DIAMONDUS_POLE_PALETTE*/ JJ2DefaultPalette.ByIndex);
+                mapping.Add("Pole", "DiamondusTree");
 
                 if (isFull) {
                     mapping.NextSet();

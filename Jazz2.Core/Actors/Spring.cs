@@ -43,7 +43,7 @@ namespace Jazz2.Actors
             if (orientation > 3) {
                 // JJ2 horizontal springs held no data about which way they were facing.
                 // For compatibility, the level converter sets their orientation to 5, which is interpreted here.
-                Hitbox hitbox = new Hitbox(pos.X + 6, pos.Y - 5, pos.X + 22, pos.Y + 5);
+                Hitbox hitbox = new Hitbox(pos.X + 6, pos.Y - 2, pos.X + 22, pos.Y + 2);
                 orientation = (ushort)(api.TileMap.IsTileEmpty(ref hitbox, false) != (orientation == 5) ? 1 : 3);
             }
 

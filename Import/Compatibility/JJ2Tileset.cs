@@ -32,21 +32,21 @@ namespace Jazz2.Compatibility
         public static JJ2Tileset Open(string path, bool strictParser)
         {
             using (Stream s = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+                // Skip copyright notice
                 s.Seek(180, SeekOrigin.Current);
 
                 JJ2Tileset tileset = new JJ2Tileset();
 
                 JJ2Block headerBlock = new JJ2Block(s, 262 - 180);
 
-                // Read the next four bytes; should spell out "LEVL"
-                uint id = headerBlock.ReadUInt32();
-                if (id != 0x454C4954) {
-                    throw new InvalidOperationException("Invalid magic number");
+                uint magic = headerBlock.ReadUInt32();
+                if (magic != 0x454C4954 /*TILE*/) {
+                    throw new InvalidOperationException("Invalid magic string");
                 }
 
-                uint hash = headerBlock.ReadUInt32();
-                if (hash != 0xAFBEADDE) {
-                    throw new InvalidOperationException("Invalid magic number");
+                uint signature = headerBlock.ReadUInt32();
+                if (signature != 0xAFBEADDE) {
+                    throw new InvalidOperationException("Invalid signature");
                 }
 
                 tileset.name = headerBlock.ReadString(32, true);
@@ -66,16 +66,14 @@ namespace Jazz2.Compatibility
 
                 // Read the lengths, uncompress the blocks and bail if any block could not be uncompressed
                 // This could look better without all the copy-paste, but meh.
-                int infoBlockPackedSize, imageBlockPackedSize, alphaBlockPackedSize, maskBlockPackedSize,
-                        infoBlockUnpackedSize, imageBlockUnpackedSize, alphaBlockUnpackedSize, maskBlockUnpackedSize;
-                infoBlockPackedSize = headerBlock.ReadInt32();
-                infoBlockUnpackedSize = headerBlock.ReadInt32();
-                imageBlockPackedSize = headerBlock.ReadInt32();
-                imageBlockUnpackedSize = headerBlock.ReadInt32();
-                alphaBlockPackedSize = headerBlock.ReadInt32();
-                alphaBlockUnpackedSize = headerBlock.ReadInt32();
-                maskBlockPackedSize = headerBlock.ReadInt32();
-                maskBlockUnpackedSize = headerBlock.ReadInt32();
+                int infoBlockPackedSize = headerBlock.ReadInt32();
+                int infoBlockUnpackedSize = headerBlock.ReadInt32();
+                int imageBlockPackedSize = headerBlock.ReadInt32();
+                int imageBlockUnpackedSize = headerBlock.ReadInt32();
+                int alphaBlockPackedSize = headerBlock.ReadInt32();
+                int alphaBlockUnpackedSize = headerBlock.ReadInt32();
+                int maskBlockPackedSize = headerBlock.ReadInt32();
+                int maskBlockUnpackedSize = headerBlock.ReadInt32();
 
                 JJ2Block infoBlock = new JJ2Block(s, infoBlockPackedSize, infoBlockUnpackedSize);
                 JJ2Block imageBlock = new JJ2Block(s, imageBlockPackedSize, imageBlockUnpackedSize);
@@ -111,28 +109,28 @@ namespace Jazz2.Compatibility
                 tiles[i].Opaque = block.ReadBool();
             }
 
-            // block of unknown values, skip
+            // Block of unknown values, skip
             block.DiscardBytes(maxTiles);
 
             for (int i = 0; i < maxTiles; ++i) {
                 tiles[i].ImageDataOffset = block.ReadUInt32();
             }
 
-            // block of unknown values, skip
+            // Block of unknown values, skip
             block.DiscardBytes(4 * maxTiles);
 
             for (int i = 0; i < maxTiles; ++i) {
                 tiles[i].AlphaDataOffset = block.ReadUInt32();
             }
 
-            // block of unknown values, skip
+            // Block of unknown values, skip
             block.DiscardBytes(4 * maxTiles);
 
             for (int i = 0; i < maxTiles; ++i) {
                 tiles[i].MaskDataOffset = block.ReadUInt32();
             }
 
-            // we don't care about the flipped masks, those are generated on runtime
+            // We don't care about the flipped masks, those are generated on runtime
             block.DiscardBytes(4 * maxTiles);
         }
 

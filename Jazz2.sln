@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.8
+VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jazz2", "Jazz2\Jazz2.csproj", "{7CC64746-8BA3-49ED-AFFC-AE4308AC1FA4}"
 EndProject
@@ -32,15 +32,15 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Duality", "Shared\Duality\D
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Primitives", "Shared\Primitives\Primitives.shproj", "{2DAD5DF0-99D5-4837-AF78-CF189DB386A2}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Console", "Shared\Console\Console.shproj", "{ADC9A0C0-6830-49B6-858B-30395699EE30}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Jazz2.Core\Jazz2.Core.projitems*{07ebf55e-8758-4305-b77e-c45fdea843ec}*SharedItemsImports = 13
-		Jazz2.Core\Jazz2.Core.projitems*{1bbe20fe-4de1-4dc0-a56e-822f48617b27}*SharedItemsImports = 4
-		Shared\Duality\Duality.projitems*{1bbe20fe-4de1-4dc0-a56e-822f48617b27}*SharedItemsImports = 4
-		Shared\NetworkPackets\NetworkPackets.projitems*{1bbe20fe-4de1-4dc0-a56e-822f48617b27}*SharedItemsImports = 4
-		Shared\Primitives\Primitives.projitems*{1bbe20fe-4de1-4dc0-a56e-822f48617b27}*SharedItemsImports = 4
+		Shared\Console\Console.projitems*{1bbe20fe-4de1-4dc0-a56e-822f48617b27}*SharedItemsImports = 4
 		Shared\Primitives\Primitives.projitems*{2dad5df0-99d5-4837-af78-cf189db386a2}*SharedItemsImports = 13
 		Shared\NetworkPackets\NetworkPackets.projitems*{64f6be65-220b-4de3-82af-80e24d45cc67}*SharedItemsImports = 13
+		Shared\Console\Console.projitems*{742eeb7b-19d1-41b1-8870-02300cc9281f}*SharedItemsImports = 4
 		Jazz2.Core\Jazz2.Core.projitems*{74e972a2-711f-4a9f-8d0b-aaef2f02dd48}*SharedItemsImports = 4
 		Shared\Duality\Duality.projitems*{74e972a2-711f-4a9f-8d0b-aaef2f02dd48}*SharedItemsImports = 4
 		Shared\Primitives\Primitives.projitems*{74e972a2-711f-4a9f-8d0b-aaef2f02dd48}*SharedItemsImports = 4
@@ -49,6 +49,7 @@ Global
 		Shared\NetworkPackets\NetworkPackets.projitems*{7cc64746-8ba3-49ed-affc-ae4308ac1fa4}*SharedItemsImports = 4
 		Shared\Primitives\Primitives.projitems*{7cc64746-8ba3-49ed-affc-ae4308ac1fa4}*SharedItemsImports = 4
 		Shared\Duality\Duality.projitems*{89366ac3-b408-492b-8ef5-714cdfe4feff}*SharedItemsImports = 13
+		Shared\Console\Console.projitems*{adc9a0c0-6830-49b6-858b-30395699ee30}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -92,6 +93,7 @@ Global
 		{64F6BE65-220B-4DE3-82AF-80E24D45CC67} = {551F2C0E-647C-4DE2-BB1C-DF57AB0F2663}
 		{89366AC3-B408-492B-8EF5-714CDFE4FEFF} = {551F2C0E-647C-4DE2-BB1C-DF57AB0F2663}
 		{2DAD5DF0-99D5-4837-AF78-CF189DB386A2} = {551F2C0E-647C-4DE2-BB1C-DF57AB0F2663}
+		{ADC9A0C0-6830-49B6-858B-30395699EE30} = {551F2C0E-647C-4DE2-BB1C-DF57AB0F2663}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {68CDB158-C20C-4E20-9FFD-828478D43E3D}

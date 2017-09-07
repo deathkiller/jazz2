@@ -61,13 +61,14 @@
       <Project>{49ba1c69-6104-41ac-a5d8-b54fa9f696e8}</Project>
       <Name>Lidgren.Network</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Jazz2\Jazz2.csproj">
+      <Project>{7cc64746-8ba3-49ed-affc-ae4308ac1fa4}</Project>
+      <Name>Jazz2</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Icon.ico" />
   </ItemGroup>
-  <Import Project="..\Shared\NetworkPackets\NetworkPackets.projitems" Label="Shared" />
-  <Import Project="..\Jazz2.Core\Jazz2.Core.projitems" Label="Shared" />
-  <Import Project="..\Shared\Duality\Duality.projitems" Label="Shared" />
-  <Import Project="..\Shared\Primitives\Primitives.projitems" Label="Shared" />
+  <Import Project="..\Shared\Console\Console.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

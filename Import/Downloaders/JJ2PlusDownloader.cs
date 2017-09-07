@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Threading;
+using Jazz2;
 using Jazz2.Compatibility;
 
 namespace Import.Downloaders
@@ -41,7 +42,7 @@ namespace Import.Downloaders
 
                 ZipFile.ExtractToDirectory(zipFile, tempDir);
 
-                // ToDo: Extract plus_install.exe somehow...
+                // ToDo: Extract plus_install.exe somehow to download latest version
 
                 string plusPath = Path.Combine(tempDir, "Plus.j2a");
                 if (Utils.FileResolveCaseInsensitive(ref plusPath)) {

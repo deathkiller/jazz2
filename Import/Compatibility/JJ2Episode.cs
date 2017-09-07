@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using Duality;
+using Import;
 
 namespace Jazz2.Compatibility
 {
@@ -15,7 +16,6 @@ namespace Jazz2.Compatibility
         private string episodeToken, episodeName, firstLevel;
         private bool isRegistered;
 
-        //private Bitmap image, titleLight, titleDark;
         private Bitmap titleLight;
 
         public int Position => position;
@@ -157,82 +157,76 @@ namespace Jazz2.Compatibility
                 w.Write("}");
             }
 
-            // ToDo: Episode images are not supported yet
-            //if (image != null) {
-            //    image.Save(Path.Combine(path, "image.png"), ImageFormat.Png);
-            //}
-
-            //if (titleLight != null) {
-            //    titleLight.Save(Path.Combine(path, "Title.png"), ImageFormat.Png);
-            //}
-
-            //if (titleDark != null) {
-            //    titleDark.Save(Path.Combine(path, "titleDark.png"), ImageFormat.Png);
-            //}
-
             if (titleLight != null) {
-                // Resize the original image
-                const float ratio = 120f / 220f;
-                int width = MathF.RoundToInt(titleLight.Width * ratio);
-                int height = MathF.RoundToInt(titleLight.Height * ratio);
-                Bitmap title = new Bitmap(width, height);
-                using (Graphics g = Graphics.FromImage(title)) {
-                    g.CompositingQuality = CompositingQuality.HighQuality;
-                    g.InterpolationMode = InterpolationMode.High;
-                    g.SmoothingMode = SmoothingMode.HighQuality;
-
-                    g.DrawImage(titleLight, new Rectangle(0, 0, width, height));
+                using (Bitmap output = ConvertEpisodeLogo(titleLight)) {
+                    output.Save(Path.Combine(path, ".png"), ImageFormat.Png);
                 }
-
-                // Align image to center
-                int left = 0, right = 0;
-                for (int x = 0; x < width; x++) {
-                    for (int y = 0; y < height; y++) {
-                        Color color = title.GetPixel(x, y);
-                        if (color.A > 0) {
-                            left = x;
-                            break;
-                        }
-                    }
-                }
-
-                for (int x = width - 1; x >= 0; x--) {
-                    for (int y = 0; y < height; y++) {
-                        Color color = title.GetPixel(x, y);
-                        if (color.A > 0) {
-                            right = x;
-                            break;
-                        }
-                    }
-                }
-
-                int align = ((width - right - 1) - left) / 2;
-
-                // Shadow
-                Bitmap shadow = new Bitmap(width, height);
-
-                for (int x = 0; x < width; x++) {
-                    for (int y = 0; y < height; y++) {
-                        Color color = title.GetPixel(x, y);
-                        if (color.A > 0) {
-                            color = Color.FromArgb(color.A, 0, 20, 30);
-                        }
-                        shadow.SetPixel(x, y, color);
-                    }
-                }
-
-                // Compose final image
-                Bitmap output = new Bitmap(width, height);
-
-                using (Graphics g = Graphics.FromImage(output)) {
-                    DrawImageEx(g, shadow, new RectangleF(align, -0.4f, width, height), 100, false);
-                    DrawImageEx(g, shadow, new RectangleF(align, 1.2f, width, height), 200, false);
-
-                    g.DrawImage(title, new Rectangle(align, 0, width, height));
-                }
-
-                output.Save(Path.Combine(path, ".png"), ImageFormat.Png);
             }
+        }
+
+        private Bitmap ConvertEpisodeLogo(Bitmap logo)
+        {
+            // Resize the original image
+            const float ratio = 120f / 220f;
+            int width = MathF.RoundToInt(logo.Width * ratio);
+            int height = MathF.RoundToInt(logo.Height * ratio);
+            Bitmap title = new Bitmap(width, height);
+            using (Graphics g = Graphics.FromImage(title)) {
+                g.CompositingQuality = CompositingQuality.HighQuality;
+                g.InterpolationMode = InterpolationMode.High;
+                g.SmoothingMode = SmoothingMode.HighQuality;
+
+                g.DrawImage(logo, new Rectangle(0, 0, width, height));
+            }
+
+            // Align image to center
+            int left = 0, right = 0;
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    Color color = title.GetPixel(x, y);
+                    if (color.A > 0) {
+                        left = x;
+                        break;
+                    }
+                }
+            }
+
+            for (int x = width - 1; x >= 0; x--) {
+                for (int y = 0; y < height; y++) {
+                    Color color = title.GetPixel(x, y);
+                    if (color.A > 0) {
+                        right = x;
+                        break;
+                    }
+                }
+            }
+
+            int alignX = ((width - right - 1) - left) / 2;
+
+            // Shadow
+            Bitmap shadow = new Bitmap(width, height);
+
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    Color color = title.GetPixel(x, y);
+                    if (color.A > 0) {
+                        color = Color.FromArgb(color.A, 0, 20, 30);
+                    }
+                    shadow.SetPixel(x, y, color);
+                }
+            }
+
+            // Compose final image
+            Bitmap output = new Bitmap(width, height);
+
+            using (Graphics g = Graphics.FromImage(output)) {
+                g.DrawImageEx(shadow, new RectangleF(alignX, -0.4f, width, height), 100, false);
+                g.DrawImageEx(shadow, new RectangleF(alignX, 1.2f, width, height), 200, false);
+
+                g.DrawImage(title, new Rectangle(alignX, 0, width, height));
+            }
+
+            return output;
         }
 
         private static Bitmap ConvertIndicesToRgbaBitmap(int width, int height, JJ2Block block, bool removeShadow)
@@ -257,49 +251,6 @@ namespace Jazz2.Compatibility
             }
 
             return result;
-        }
-
-        public static void DrawImageEx(Graphics g, Image i, RectangleF r, byte alpha, bool grayscaled)
-        {
-            if (alpha == 0)
-                return;
-
-            PixelOffsetMode oldPOM = g.PixelOffsetMode;
-            g.PixelOffsetMode = PixelOffsetMode.Half;
-
-            PointF ulCorner = new PointF(r.Left, r.Top);
-            PointF urCorner = new PointF(r.Right, r.Top);
-            PointF llCorner = new PointF(r.Left, r.Bottom);
-            PointF[] destPoints = { ulCorner, urCorner, llCorner };
-
-            if (alpha == 0xff && !grayscaled) {
-                g.DrawImage(i, destPoints, new RectangleF(0, 0, i.Width, i.Height), GraphicsUnit.Pixel);
-                return;
-            }
-
-            ColorMatrix colorMatrix;
-            if (grayscaled) {
-                colorMatrix = new ColorMatrix(new[] {
-                    new float[] {0.299f, 0.299f, 0.299f, 0, 0},
-                    new float[] {0.587f, 0.587f, 0.587f, 0, 0},
-                    new float[] {0.114f, 0.114f, 0.114f, 0, 0},
-                    new float[] {0, 0, 0, alpha / 255f, 0},
-                    new float[] {0, 0, 0, 0, 1}
-                });
-            } else {
-                colorMatrix = new ColorMatrix(new[] {
-                    new float[] {1, 0, 0, 0, 0},
-                    new float[] {0, 1, 0, 0, 0},
-                    new float[] {0, 0, 1, 0, 0},
-                    new float[] {0, 0, 0, alpha / 255f, 0},
-                    new float[] {0, 0, 0, 0, 1}
-                });
-            }
-            using (ImageAttributes imageAttributes = new ImageAttributes()) {
-                imageAttributes.SetColorMatrix(colorMatrix);
-                g.DrawImage(i, destPoints, new RectangleF(0, 0, i.Width, i.Height), GraphicsUnit.Pixel, imageAttributes);
-            }
-            g.PixelOffsetMode = oldPOM;
         }
     }
 }

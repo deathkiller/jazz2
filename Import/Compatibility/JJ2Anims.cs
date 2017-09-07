@@ -67,12 +67,14 @@ namespace Jazz2.Compatibility
 
                 bool seemsLikeCC = false;
 
-                uint magicALIB = r.ReadUInt32();
-                uint magicBABE = r.ReadUInt32();
+                uint magic = r.ReadUInt32();
+                if (magic != 0x42494C41 /*ALIB*/) {
+                    throw new InvalidOperationException("Invalid magic string");
+                }
 
-                // Magic headers
-                if (magicALIB != 0x42494C41 || magicBABE != 0x00BEBA00) {
-                    throw new InvalidOperationException("Invalid magic number");
+                uint signature = r.ReadUInt32();
+                if (signature != 0x00BEBA00) {
+                    throw new InvalidOperationException("Invalid signature");
                 }
 
                 uint headerLen = r.ReadUInt32();

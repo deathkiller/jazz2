@@ -9,7 +9,7 @@ namespace Jazz2.Actors.Collectibles
         protected bool untouched;
         protected int scoreValue;
 
-        private float phase;
+        private float phase, timeLeft;
         private float startingY;
 
         public override void OnAttach(ActorInstantiationDetails details)
@@ -25,11 +25,14 @@ namespace Jazz2.Actors.Collectibles
 
             if ((flags & (ActorInstantiationFlags.IsCreatedFromEventMap | ActorInstantiationFlags.IsFromGenerator)) != 0) {
                 untouched = true;
-                startingY = pos.Y;
                 collisionFlags &= ~CollisionFlags.ApplyGravitation;
+
+                startingY = pos.Y;
             } else {
                 untouched = false;
                 collisionFlags |= CollisionFlags.ApplyGravitation;
+
+                timeLeft = 90f * Time.FramesPerSecond;
             }
 
             RequestMetadata("Object/Collectible");
@@ -58,6 +61,14 @@ namespace Jazz2.Actors.Collectibles
                 Vector3 pos = Transform.Pos;
                 pos.Y = startingY + waveOffset;
                 Transform.Pos = pos;
+            } else if (timeLeft > 0f) {
+                timeLeft -= Time.TimeMult;
+
+                if (timeLeft <= 0f) {
+                    Explosion.Create(api, Transform.Pos, Explosion.Generator);
+
+                    DecreaseHealth(int.MaxValue);
+                }
             }
         }
 

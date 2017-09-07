@@ -11,14 +11,14 @@ namespace Jazz2.Compatibility
             using (BinaryReader r = new BinaryReader(s)) {
                 JJ2DataFile j2d = new JJ2DataFile();
 
-                uint id = r.ReadUInt32();
-                if (id != 0x42494C50) {
-                    throw new InvalidOperationException("Invalid magic number");
+                uint magic = r.ReadUInt32();
+                if (magic != 0x42494C50 /*PLIB*/) {
+                    throw new InvalidOperationException("Invalid magic string");
                 }
 
-                uint magic = r.ReadUInt32();
-                if (magic != 0xbebaadde) {
-                    throw new InvalidOperationException("Invalid magic number");
+                uint signature = r.ReadUInt32();
+                if (signature != 0xBEBAADDE) {
+                    throw new InvalidOperationException("Invalid signature");
                 }
 
                 uint version = r.ReadUInt32();
@@ -45,6 +45,10 @@ namespace Jazz2.Compatibility
                         int fileUnpackedSize = headerBlock.ReadInt32();
 
                         //Console.WriteLine(name + " | " + type.ToString("X") + " | " + fileUnpackedSize + " | " + offset);
+
+                        s.Position = offset;
+                        JJ2Block fileBlock = new JJ2Block(s, filePackedSize, fileUnpackedSize);
+                        byte[] data = fileBlock.AsByteArray();
                     }
                 } catch (EndOfStreamException) {
                     // End of file list

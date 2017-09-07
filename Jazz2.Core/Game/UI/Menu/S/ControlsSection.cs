@@ -136,20 +136,6 @@ namespace Jazz2.Game.UI.Menu.S
                 switch (selectedColumn) {
                     case 0: // Keyboard
                     case 1:
-                        if (DualityApp.Keyboard.KeyHit(Key.Delete)) {
-                            api.PlaySound("MenuSelect", 0.5f);
-                            waitForInput = false;
-
-                            ref Mapping mapping = ref ControlScheme.GetCurrentMapping(0, (PlayerActions)selectedIndex);
-
-                            if (selectedColumn == 0) {
-                                mapping.Key1 = Key.Unknown;
-                            } else {
-                                mapping.Key2 = Key.Unknown;
-                            }
-                            return;
-                        }
-
                         for (Key key = 0; key < Key.Last; key++) {
                             if (DualityApp.Keyboard.KeyHit(key)) {
                                 ref Mapping mapping = ref ControlScheme.GetCurrentMapping(0, (PlayerActions)selectedIndex);
@@ -168,16 +154,6 @@ namespace Jazz2.Game.UI.Menu.S
                         break;
 
                     case 2: // Gamepad
-                        if (DualityApp.Keyboard.KeyHit(Key.Delete)) {
-                            api.PlaySound("MenuSelect", 0.5f);
-                            waitForInput = false;
-
-                            ref Mapping mapping = ref ControlScheme.GetCurrentMapping(0, (PlayerActions)selectedIndex);
-
-                            mapping.GamepadIndex = -1;
-                            return;
-                        }
-
                         for (int i = 0; i < DualityApp.Gamepads.Count; i++) {
                             for (GamepadButton button = 0; button < GamepadButton.Last; button++) {
                                 if (DualityApp.Gamepads[i].ButtonHit(button)) {

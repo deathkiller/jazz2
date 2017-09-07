@@ -102,6 +102,10 @@ namespace Jazz2.Server
             }
 #endif
 
+            if (!ConsoleUtils.IsOutputRedirected) {
+                ConsoleImage.RenderFromManifestResource("ConsoleImage.udl");
+            }
+
             bool isMasterServer = TryRemoveArg(ref args, "/master");
 
             if (!TryRemoveArg(ref args, "/port:", out port)) {
@@ -125,18 +129,22 @@ namespace Jazz2.Server
             neededBuild = (byte)v.Build;
 
             if (isMasterServer) {
-                ReportProgress("Starting master server...", 0);
-                ReportProgress("Port: " + port);
+                Log.Write(LogType.Info, "Starting master server...");
+                Log.PushIndent();
+                Log.Write(LogType.Info, "Port: " + port);
 
                 registeredHosts = new Dictionary<IPEndPoint, ServerDescription>();
 
                 server = new ServerConnection(token, port, 0);
                 server.MessageReceived += OnMasterMessageReceived;
+
+                Log.PopIndent();
             } else {
-                ReportProgress("Starting server...", 0);
-                ReportProgress("Port: " + port);
-                ReportProgress("Server Name: " + name);
-                ReportProgress("Max. Players: " + maxPlayers);
+                Log.Write(LogType.Info, "Starting server...");
+                Log.PushIndent();
+                Log.Write(LogType.Info, "Port: " + port);
+                Log.Write(LogType.Info, "Server Name: " + name);
+                Log.Write(LogType.Info, "Max. Players: " + maxPlayers);
 
                 callbacks = new Dictionary<byte, Action<NetIncomingMessage, bool>>();
                 players = new Dictionary<NetConnection, Player>();
@@ -153,6 +161,8 @@ namespace Jazz2.Server
 
                 RegisterCallback<LevelReady>(OnLevelReady);
                 RegisterCallback<UpdateSelf>(OnUpdateSelf);
+
+                Log.PopIndent();
             }
 
             // Create game loop (~60fps)
@@ -160,7 +170,7 @@ namespace Jazz2.Server
             threadGame.IsBackground = true;
             threadGame.Start();
 
-            ReportProgress("Ready!", 100);
+            Log.Write(LogType.Info, "Ready!");
             Console.WriteLine();
 
             // Processing of console commands
@@ -173,7 +183,7 @@ namespace Jazz2.Server
                             goto Finalize;
 
                         default:
-                            Console.WriteLine("Unknown command: " + command);
+                            Log.Write(LogType.Warning, "Unknown command: " + command);
                             break;
 
                     }
@@ -183,7 +193,7 @@ namespace Jazz2.Server
         Finalize:
             // Shutdown
             Console.WriteLine();
-            ReportProgress("Closing...");
+            Log.Write(LogType.Info, "Closing...");
 
             if (isMasterServer) {
                 server.MessageReceived -= OnMasterMessageReceived;

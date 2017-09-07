@@ -19,7 +19,7 @@ namespace Jazz2.Actors.Solid
             SpikeBall = 7,
         }
 
-        private const float BaseCycleFrames = 800f;
+        private const float BaseCycleFrames = 550f;
 
         private PlatformType type;
         private float speed;
@@ -119,6 +119,7 @@ namespace Jazz2.Actors.Solid
         public Vector2 GetPhasePosition(bool next, int distance)
         {
             float effectivePhase = phase;
+
             if (next) {
                 effectivePhase -= speed * Time.TimeMult;
             }
@@ -133,6 +134,10 @@ namespace Jazz2.Actors.Solid
                 // easing curve with slower ends and faster middle part
                 float i = (effectivePhase / BaseCycleFrames * 2);
                 effectivePhase = ((4f / 9f) * MathF.Pow(i, 6) - (17f / 9f) * MathF.Pow(i, 4) + (22f / 9f) * MathF.Pow(i, 2)) * BaseCycleFrames / 2;
+            } else if (length > 4) {
+                int halfLength = length / 2;
+                float shift = MathF.Sqrt(1f - ((float)MathF.Abs(distance - halfLength) / halfLength)) * speed * 4f;
+                effectivePhase -= shift;
             }
 
             float multiX = MathF.Cos(effectivePhase / BaseCycleFrames * MathF.TwoPi);

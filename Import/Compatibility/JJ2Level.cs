@@ -114,6 +114,7 @@ namespace Jazz2.Compatibility
         public static JJ2Level Open(string path, bool strictParser)
         {
             using (Stream s = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+                // Skip copyright notice
                 s.Seek(180, SeekOrigin.Current);
 
                 JJ2Level level = new JJ2Level();
@@ -121,10 +122,9 @@ namespace Jazz2.Compatibility
 
                 JJ2Block headerBlock = new JJ2Block(s, 262 - 180);
 
-                // Read the next four bytes; should spell out "LEVL"
-                uint id = headerBlock.ReadUInt32();
-                if (id != 0x4C56454C) {
-                    throw new InvalidOperationException("Invalid magic number");
+                uint magic = headerBlock.ReadUInt32();
+                if (magic != 0x4C56454C /*LEVL*/) {
+                    throw new InvalidOperationException("Invalid magic string");
                 }
 
                 uint passwordHash = headerBlock.ReadUInt32();
