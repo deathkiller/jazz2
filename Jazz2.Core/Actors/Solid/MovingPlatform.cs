@@ -136,7 +136,7 @@ namespace Jazz2.Actors.Solid
                 effectivePhase = ((4f / 9f) * MathF.Pow(i, 6) - (17f / 9f) * MathF.Pow(i, 4) + (22f / 9f) * MathF.Pow(i, 2)) * BaseCycleFrames / 2;
             } else if (length > 4) {
                 int halfLength = length / 2;
-                float shift = MathF.Sqrt(1f - ((float)MathF.Abs(distance - halfLength) / halfLength)) * speed * 4f;
+                float shift = MathF.Sqrt(MathF.Max(0f, 1f - ((float)MathF.Abs(distance - halfLength) / halfLength))) * speed * 4f;
                 effectivePhase -= shift;
             }
 

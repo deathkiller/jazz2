@@ -3,7 +3,7 @@
         // Public Domain CRT Styled Scan-line Shader by Timothy Lottes
         // https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-lottes.cg
 
-        //Uncomment to reduce instructions with simpler linearization (fixes HD3000 Sandy Bridge IGP)
+        // Uncomment to reduce instructions with simpler linearization (fixes HD3000 Sandy Bridge IGP)
         //#define SIMPLE_LINEAR_GAMMA
 
         #define hardScan -6.0 /*-8.0*/
@@ -24,35 +24,33 @@
         uniform vec2 mainTexSize;
         uniform vec2 ViewSize;
 
-        // sRGB to Linear.
-        // Assuing using sRGB typed textures this should not be needed.
         #ifdef SIMPLE_LINEAR_GAMMA
-        float ToLinear1(float c) {
-            return c;
-        }
-        vec3 ToLinear(vec3 c) {
-            return c;
-        }
-        vec3 ToSrgb(vec3 c) {
-            return pow(c, 1.0 / 2.2);
-        }
+			float ToLinear1(float c) {
+				return c;
+			}
+			vec3 ToLinear(vec3 c) {
+				return c;
+			}
+			vec3 ToSrgb(vec3 c) {
+				return pow(c, 1.0 / 2.2);
+			}
         #else
-        float ToLinear1(float c) {
-            if (scaleInLinearGamma==0) return c;
-            return(c<=0.04045)?c/12.92:pow((c+0.055)/1.055,2.4);
-        }
-        vec3 ToLinear(vec3 c) {
-            if (scaleInLinearGamma==0) return c;
-            return vec3(ToLinear1(c.r),ToLinear1(c.g),ToLinear1(c.b));
-        }
-        float ToSrgb1(float c) {
-            if (scaleInLinearGamma==0) return c;
-            return(c<0.0031308?c*12.92:1.055*pow(c,0.41666)-0.055);
-        }
-        vec3 ToSrgb(vec3 c) {
-            if (scaleInLinearGamma==0) return c;
-            return vec3(ToSrgb1(c.r),ToSrgb1(c.g),ToSrgb1(c.b));
-        }
+			float ToLinear1(float c) {
+				if (scaleInLinearGamma==0) return c;
+				return(c<=0.04045)?c/12.92:pow((c+0.055)/1.055,2.4);
+			}
+			vec3 ToLinear(vec3 c) {
+				if (scaleInLinearGamma==0) return c;
+				return vec3(ToLinear1(c.r),ToLinear1(c.g),ToLinear1(c.b));
+			}
+			float ToSrgb1(float c) {
+				if (scaleInLinearGamma==0) return c;
+				return(c<0.0031308?c*12.92:1.055*pow(c,0.41666)-0.055);
+			}
+			vec3 ToSrgb(vec3 c) {
+				if (scaleInLinearGamma==0) return c;
+				return vec3(ToSrgb1(c.r),ToSrgb1(c.g),ToSrgb1(c.b));
+			}
         #endif
 
         // Nearest emulated sample given floating point position and texel offset.

@@ -23,6 +23,8 @@ namespace Jazz2.Android
 
         private static void OnUnhandledExceptionRaiser(object sender, RaiseThrowableEventArgs e)
         {
+            AndroidEnvironment.UnhandledExceptionRaiser -= OnUnhandledExceptionRaiser;
+
             try {
                 StringBuilder sb = new StringBuilder();
 
