@@ -186,6 +186,5 @@
     <Compile Include="$(MSBuildThisFileDirectory)Storage\Preferences.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Settings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Misc\Updater.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)VertexPool.cs" />
   </ItemGroup>
 </Project>

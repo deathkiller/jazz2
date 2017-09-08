@@ -32,7 +32,7 @@ namespace Jazz2.Game
         private readonly RenderTarget[] targetPingPongA = new RenderTarget[PyramidSize];
         private readonly RenderTarget[] targetPingPongB = new RenderTarget[PyramidSize];
 
-        private readonly VertexPool<VertexC1P3T4A1> lightPool = new VertexPool<VertexC1P3T4A1>(4);
+        private readonly VertexC1P3T4A1[] lightBuffer = new VertexC1P3T4A1[4];
 
         private readonly ContentRef<Texture> noiseTexture;
 
@@ -221,8 +221,6 @@ namespace Jazz2.Game
             }
 
             // Render lights (target was set in previous step)
-            lightPool.Reclaim();
-
             drawDevice.PrepareForDrawcalls();
 
             foreach (GameObject actor in levelHandler.ActiveObjects) {
@@ -243,40 +241,38 @@ namespace Jazz2.Game
                         right  > 0 &&
                         bottom > 0) {
 
-                        VertexC1P3T4A1[] vertices = lightPool.Get();
+                        lightBuffer[0].Pos.X = left;
+                        lightBuffer[0].Pos.Y = top;
 
-                        vertices[0].Pos.X = left;
-                        vertices[0].Pos.Y = top;
+                        lightBuffer[1].Pos.X = left;
+                        lightBuffer[1].Pos.Y = bottom;
 
-                        vertices[1].Pos.X = left;
-                        vertices[1].Pos.Y = bottom;
+                        lightBuffer[2].Pos.X = right;
+                        lightBuffer[2].Pos.Y = bottom;
 
-                        vertices[2].Pos.X = right;
-                        vertices[2].Pos.Y = bottom;
-
-                        vertices[3].Pos.X = right;
-                        vertices[3].Pos.Y = top;
+                        lightBuffer[3].Pos.X = right;
+                        lightBuffer[3].Pos.Y = top;
 
                         // Use TexCoord X & Y for screen-space Light position
-                        vertices[0].TexCoord.X = vertices[1].TexCoord.X = vertices[2].TexCoord.X = vertices[3].TexCoord.X = pos.X;
-                        vertices[0].TexCoord.Y = vertices[1].TexCoord.Y = vertices[2].TexCoord.Y = vertices[3].TexCoord.Y = pos.Y;
+                        lightBuffer[0].TexCoord.X = lightBuffer[1].TexCoord.X = lightBuffer[2].TexCoord.X = lightBuffer[3].TexCoord.X = pos.X;
+                        lightBuffer[0].TexCoord.Y = lightBuffer[1].TexCoord.Y = lightBuffer[2].TexCoord.Y = lightBuffer[3].TexCoord.Y = pos.Y;
                         // Use TexCoord Z & W for Light radius
-                        vertices[0].TexCoord.Z = vertices[1].TexCoord.Z = vertices[2].TexCoord.Z = vertices[3].TexCoord.Z = light.RadiusNear;
-                        vertices[0].TexCoord.W = vertices[1].TexCoord.W = vertices[2].TexCoord.W = vertices[3].TexCoord.W = light.RadiusFar;
+                        lightBuffer[0].TexCoord.Z = lightBuffer[1].TexCoord.Z = lightBuffer[2].TexCoord.Z = lightBuffer[3].TexCoord.Z = light.RadiusNear;
+                        lightBuffer[0].TexCoord.W = lightBuffer[1].TexCoord.W = lightBuffer[2].TexCoord.W = lightBuffer[3].TexCoord.W = light.RadiusFar;
 
                         // Use Red channel for Light intensity
-                        vertices[0].Color.R = vertices[1].Color.R = vertices[2].Color.R = vertices[3].Color.R = (byte)(light.Intensity * 255);
+                        lightBuffer[0].Color.R = lightBuffer[1].Color.R = lightBuffer[2].Color.R = lightBuffer[3].Color.R = (byte)(light.Intensity * 255);
                         // Use Green channel for Light brightness
-                        vertices[0].Color.G = vertices[1].Color.G = vertices[2].Color.G = vertices[3].Color.G = (byte)(light.Brightness * 255);
+                        lightBuffer[0].Color.G = lightBuffer[1].Color.G = lightBuffer[2].Color.G = lightBuffer[3].Color.G = (byte)(light.Brightness * 255);
 
                         switch (light.Type) {
                             default:
                             case LightType.Solid:
-                                drawDevice.AddVertices(lightingMaterial, VertexMode.Quads, vertices);
+                                drawDevice.AddVertices(lightingMaterial, VertexMode.Quads, lightBuffer);
                                 break;
 
                             case LightType.WithNoise:
-                                drawDevice.AddVertices(lightingNoiseMaterial, VertexMode.Quads, vertices);
+                                drawDevice.AddVertices(lightingNoiseMaterial, VertexMode.Quads, lightBuffer);
                                 break;
                         }
                     }
