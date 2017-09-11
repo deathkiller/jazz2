@@ -70,16 +70,18 @@ namespace Jazz2.Actors.Enemies
                 attackTime -= Time.TimeMult;
             }
 
-            if (!CanMoveToPosition(speedX * 4, 0)) {
-                if (stuck && canJump) {
-                    MoveInstantly(new Vector2(0f, -2f), MoveType.Relative, true);
+            if (canJump) {
+                if (!CanMoveToPosition(speedX * 4, 0)) {
+                    if (stuck) {
+                        MoveInstantly(new Vector2(0f, -2f), MoveType.Relative, true);
+                    } else {
+                        isFacingLeft ^= true;
+                        speedX = (isFacingLeft ? -1f : 1f) * (attackTime <= 0f ? 1f : attackSpeed);
+                        stuck = true;
+                    }
                 } else {
-                    isFacingLeft ^= true;
-                    speedX = (isFacingLeft ? -1f : 1f) * (attackTime <= 0f ? 1f : attackSpeed);
-                    stuck = true;
+                    stuck = false;
                 }
-            } else {
-                stuck = false;
             }
         }
 

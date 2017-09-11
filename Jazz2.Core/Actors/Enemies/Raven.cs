@@ -99,6 +99,11 @@ namespace Jazz2.Actors.Enemies
                 }
             }
 
+            // Can't fly into the water
+            if (foundPos.Y > api.WaterLevel - 8f) {
+                foundPos.Y = api.WaterLevel - 8f;
+            }
+
             Vector3 diff = (foundPos - lastPos);
             if (found && diff.Length <= 300f) {
                 SetAnimation(AnimState.TransitionAttack);

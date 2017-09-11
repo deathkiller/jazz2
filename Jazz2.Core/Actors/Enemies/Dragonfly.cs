@@ -77,6 +77,7 @@ namespace Jazz2.Actors.Enemies
 
                         if (noise != null) {
                             noise.FadeOut(1f);
+                            noise = null;
                         }
                     } else {
                         idleTime -= Time.TimeMult;
@@ -105,7 +106,8 @@ namespace Jazz2.Actors.Enemies
                     }
                 }
 
-                if (pos.Y + 12f > api.WaterLevel) {
+                // Can't fly into the water
+                if (pos.Y > api.WaterLevel - 12f) {
                     speedY = -0.4f;
                     state = StateIdle;
                 }
@@ -119,6 +121,11 @@ namespace Jazz2.Actors.Enemies
             base.OnHitWallHook();
 
             speedX = speedY = 0f;
+
+            if (noise != null) {
+                noise.FadeOut(0.4f);
+                noise = null;
+            }
         }
 
         protected override void OnHitFloorHook()
@@ -126,6 +133,11 @@ namespace Jazz2.Actors.Enemies
             base.OnHitFloorHook();
 
             speedX = speedY = 0f;
+
+            if (noise != null) {
+                noise.FadeOut(0.4f);
+                noise = null;
+            }
         }
 
         protected override void OnHitCeilingHook()
@@ -133,10 +145,20 @@ namespace Jazz2.Actors.Enemies
             base.OnHitCeilingHook();
 
             speedX = speedY = 0f;
+
+            if (noise != null) {
+                noise.FadeOut(0.4f);
+                noise = null;
+            }
         }
 
         protected override bool OnPerish(ActorBase collider)
         {
+            if (noise != null) {
+                noise.Stop();
+                noise = null;
+            }
+
             CreateDeathDebris(collider);
             api.PlayCommonSound(this, "Splat");
 

@@ -58,9 +58,9 @@ namespace Jazz2.Actors.Enemies
                     SetAnimation(AnimState.Idle);
 
                     stateTime = MathF.Rnd.NextFloat(70f, 190f);
-                } else {
+                } else if (canJump) {
                     if (!CanMoveToPosition(speedX * 4, 0)) {
-                        if (stuck && canJump) {
+                        if (stuck) {
                             MoveInstantly(new Vector2(0f, -2f), MoveType.Relative, true);
                         } else {
                             isFacingLeft = !(isFacingLeft);

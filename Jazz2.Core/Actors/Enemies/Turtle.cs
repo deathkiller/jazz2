@@ -50,14 +50,16 @@ namespace Jazz2.Actors.Enemies
                 return;
             }
 
-            if (MathF.Abs(speedX) > float.Epsilon && !CanMoveToPosition(speedX * 4, 0)) {
-                SetTransition(AnimState.TransitionWithdraw, false, delegate {
-                    HandleTurn(true);
-                });
-                isTurning = true;
-                canHurtPlayer = false;
-                speedX = 0;
-                PlaySound("Withdraw", 0.4f);
+            if (canJump) {
+                if (MathF.Abs(speedX) > float.Epsilon && !CanMoveToPosition(speedX * 4, 0)) {
+                    SetTransition(AnimState.TransitionWithdraw, false, delegate {
+                        HandleTurn(true);
+                    });
+                    isTurning = true;
+                    canHurtPlayer = false;
+                    speedX = 0;
+                    PlaySound("Withdraw", 0.4f);
+                }
             }
 
             if (!isTurning && !isWithdrawn && !isAttacking) {

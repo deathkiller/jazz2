@@ -57,16 +57,18 @@ namespace Jazz2.Actors.Enemies
                 }
             }
 
-            if (!CanMoveToPosition(speedX * 4, 0)) {
-                if (stuck && canJump) {
-                    MoveInstantly(new Vector2(0f, -2f), MoveType.Relative, true);
+            if (canJump) {
+                if (!CanMoveToPosition(speedX * 4, 0)) {
+                    if (stuck) {
+                        MoveInstantly(new Vector2(0f, -2f), MoveType.Relative, true);
+                    } else {
+                        isFacingLeft = !isFacingLeft;
+                        speedX = (isFacingLeft ? -1f : 1f) * DefaultSpeed;
+                        stuck = true;
+                    }
                 } else {
-                    isFacingLeft = !isFacingLeft;
-                    speedX = (isFacingLeft ? -1f : 1f) * DefaultSpeed;
-                    stuck = true;
+                    stuck = false;
                 }
-            } else {
-                stuck = false;
             }
 
             if (!isAttacking && api.GetCollidingPlayers(currentHitbox + new Vector2(speedX * 28, 0)).Any()) {

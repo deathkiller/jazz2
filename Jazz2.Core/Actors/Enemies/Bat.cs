@@ -69,6 +69,11 @@ namespace Jazz2.Actors.Enemies
 
         PLAYER_IS_CLOSE:
             if (attacking) {
+                // Can't fly into the water
+                if (targetPos.Y > api.WaterLevel - 20f) {
+                    targetPos.Y = api.WaterLevel - 20f;
+                }
+
                 Vector3 direction = (pos - targetPos);
                 direction.Normalize();
                 speedX = direction.X * DefaultSpeed;

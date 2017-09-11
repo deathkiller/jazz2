@@ -20,7 +20,6 @@ namespace Jazz2.Actors.Enemies
 
             ushort theme = details.Params[0];
             isFalling = details.Params[1] != 0;
-            
 
             SetHealthByDifficulty(isFalling ? 6 : 1);
             scoreValue = 100;
@@ -59,16 +58,18 @@ namespace Jazz2.Actors.Enemies
                 return;
             }
 
-            if (!CanMoveToPosition(speedX * 4, 0)) {
-                if (stuck && canJump) {
-                    MoveInstantly(new Vector2(0f, -2f), MoveType.Relative, true);
+            if (canJump) {
+                if (!CanMoveToPosition(speedX * 4, 0)) {
+                    if (stuck) {
+                        MoveInstantly(new Vector2(0f, -2f), MoveType.Relative, true);
+                    } else {
+                        isFacingLeft = !(isFacingLeft);
+                        speedX = (isFacingLeft ? -1 : 1) * DefaultSpeed;
+                        stuck = true;
+                    }
                 } else {
-                    isFacingLeft = !(isFacingLeft);
-                    speedX = (isFacingLeft ? -1 : 1) * DefaultSpeed;
-                    stuck = true;
+                    stuck = false;
                 }
-            } else {
-                stuck = false;
             }
 
             if ((MathF.Rnd.Next() & 0x3FF) == 1) {

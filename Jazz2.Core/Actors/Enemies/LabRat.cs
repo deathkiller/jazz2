@@ -60,7 +60,7 @@ namespace Jazz2.Actors.Enemies
             }
 
             if (!isAttacking) {
-                if (!CanMoveToPosition(speedX * 4, 0)) {
+                if (canJump && !CanMoveToPosition(speedX * 4, 0)) {
                     isFacingLeft = !(isFacingLeft);
                     speedX = (isFacingLeft ? -1f : 1f) * DefaultSpeed;
                 }
