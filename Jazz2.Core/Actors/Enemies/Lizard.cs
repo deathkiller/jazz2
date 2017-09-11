@@ -8,6 +8,7 @@ namespace Jazz2.Actors.Enemies
         private const float DefaultSpeed = 1f;
 
         private bool stuck;
+        private bool isFalling;
 
         public override void OnAttach(ActorInstantiationDetails details)
         {
@@ -17,10 +18,12 @@ namespace Jazz2.Actors.Enemies
             pos.Y -= 6f;
             Transform.Pos = pos;
 
-            SetHealthByDifficulty(1);
-            scoreValue = 100;
-
             ushort theme = details.Params[0];
+            isFalling = details.Params[1] != 0;
+            
+
+            SetHealthByDifficulty(isFalling ? 6 : 1);
+            scoreValue = 100;
 
             switch (theme) {
                 case 0:
@@ -35,7 +38,11 @@ namespace Jazz2.Actors.Enemies
 
             SetAnimation(AnimState.Walk);
 
-            isFacingLeft = MathF.Rnd.NextBool();
+            if (isFalling) {
+                isFacingLeft = details.Params[2] != 0;
+            } else {
+                isFacingLeft = MathF.Rnd.NextBool();
+            }
             speedX = (isFacingLeft ? -1 : 1) * DefaultSpeed;
         }
 
@@ -48,7 +55,7 @@ namespace Jazz2.Actors.Enemies
         {
             base.OnUpdate();
 
-            if (frozenTimeLeft > 0) {
+            if (frozenTimeLeft > 0 || isFalling) {
                 return;
             }
 
@@ -66,6 +73,16 @@ namespace Jazz2.Actors.Enemies
 
             if ((MathF.Rnd.Next() & 0x3FF) == 1) {
                 PlaySound("Noise", 0.4f);
+            }
+        }
+
+        protected override void OnHitFloorHook()
+        {
+            base.OnHitFloorHook();
+
+            if (isFalling) {
+                isFalling = false;
+                SetHealthByDifficulty(1);
             }
         }
 

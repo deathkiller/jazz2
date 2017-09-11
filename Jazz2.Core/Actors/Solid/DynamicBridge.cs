@@ -34,7 +34,7 @@ namespace Jazz2.Actors.Solid
         private float originalY;
         private DynamicBridgeType bridgeType;
         private int bridgeWidth;
-        private int heightFactor;
+        private float heightFactor;
         private List<Piece> bridgePieces;
 
         private Player lastPlayer;
@@ -50,17 +50,17 @@ namespace Jazz2.Actors.Solid
             }
 
             int toughness = details.Params[2];
-            heightFactor = (16 - toughness) * bridgeWidth;
+            heightFactor = MathF.Sqrt((16 - toughness) * bridgeWidth) * 4f;
 
             Vector3 pos = Transform.Pos;
-            originalY = pos.Y - /*8*/6;
+            originalY = pos.Y - 6;
 
             bridgePieces = new List<Piece>();
 
             int[] widthList = PieceWidths[(int)bridgeType];
 
             int widthCovered = widthList[0] / 2;
-            for (int i = 0; (widthCovered <= bridgeWidth * 16) || (i * 16 < bridgeWidth); i++) {
+            for (int i = 0; (widthCovered <= bridgeWidth * 16 + 6) || (i * 16 < bridgeWidth); i++) {
                 Piece piece = new Piece();
                 piece.OnAttach(new ActorInstantiationDetails {
                     Api = api,
@@ -140,7 +140,7 @@ namespace Jazz2.Actors.Solid
                     // Additionally, the drop is reduced based on the player position so that the
                     // bridge seems to bend somewhat realistically instead of snapping from one position
                     // to another.
-                    float drop = Math.Max(0, Math.Min(coords.Y - pos.Y + 32, (1f - MathF.Pow(Math.Abs(2f * lowest / length - 1f), 0.7f)) * heightFactor));
+                    float drop = Math.Max(0, Math.Min(coords.Y - pos.Y + 32, (1f - MathF.Pow(Math.Abs(2f * lowest / length - 1f), 0.8f)) * heightFactor));
 
                     pos.Y = Math.Min(originalY + drop, Math.Max(originalY, coords.Y));
 
@@ -154,11 +154,11 @@ namespace Jazz2.Actors.Solid
                         if (lowest > 0 && lowest < length) {
                             float dropPiece;
                             if (j <= lowest) {
-                                dropPiece = MathF.Pow(j / lowest, 0.7f) * drop;
+                                dropPiece = MathF.Pow(j / lowest, 0.6f) * drop;
 
                                 piece.Transform.Angle = dropPiece * 0.006f;
                             } else {
-                                dropPiece = MathF.Pow((length - 1 - j) / (length - 1 - lowest), 0.7f) * drop;
+                                dropPiece = MathF.Pow((length - 1 - j) / (length - 1 - lowest), 0.6f) * drop;
 
                                 piece.Transform.Angle = -dropPiece * 0.006f;
                             }
@@ -227,7 +227,7 @@ namespace Jazz2.Actors.Solid
 
             public override bool OnTileDeactivate(int x, int y, int tileDistance)
             {
-                // Removal of bridge pieces is handled by the bridge event
+                // Removal of bridge pieces is handled by the bridge
                 return false;
             }
 

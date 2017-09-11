@@ -733,46 +733,49 @@ namespace Jazz2.Actors
                             !api.IsPositionEmpty(this, ref hitbox4, false) &&
                              api.IsPositionEmpty(this, ref hitbox5, false)) {
 
-                            // Move the player upwards, if it is in tolerance, so the animation will look better
-                            for (int y = 0; y >= -maxTolerance; y -= 2) {
-                                Hitbox hitbox = currentHitbox + new Vector2(x, -42f + y);
-                                if (api.IsPositionEmpty(this, ref hitbox, false)) {
-                                    MoveInstantly(new Vector2(0f, y), MoveType.Relative, true);
-                                    break;
-                                }
-                            }
-
-                            // Prepare the player for animation
-                            controllable = false;
-                            collisionFlags &= ~(CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithSolidObjects);
-
-                            speedX = externalForceX = externalForceY = 0f;
-                            speedY = -1.36f;
-                            pushFramesLeft = fireFramesLeft = copterFramesLeft = 0f;
-
-                            // Stick the player to wall
-                            MoveInstantly(new Vector2(isFacingLeft ? -6f : 6f, 0f), MoveType.Relative, true);
-
-                            SetAnimation(AnimState.Idle);
-                            SetTransition(AnimState.TransitionLedgeClimb, false, delegate {
-                                // Reset the player to normal state
-                                canJump = true;
-                                controllable = true;
-                                collisionFlags |= CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithSolidObjects;
-                                pushFramesLeft = fireFramesLeft = copterFramesLeft = 0f;
-
-                                speedY = 0f;
-
-                                // Move it far from the ledge
-                                MoveInstantly(new Vector2(isFacingLeft ? -4f : 4f, 0f), MoveType.Relative);
-
-                                // Move the player upwards, so it will not be stuck in the wall
-                                for (int y = -2; y > -24; y -= 2) {
-                                    if (MoveInstantly(new Vector2(0f, y), MoveType.Relative)) {
+                            ushort[] wallParams = null;
+                            if (api.EventMap.GetEventByPosition(isFacingLeft ? hitbox2.Left : hitbox2.Right, hitbox2.Bottom, ref wallParams) != EventType.ModifierNoClimb) {
+                                // Move the player upwards, if it is in tolerance, so the animation will look better
+                                for (int y = 0; y >= -maxTolerance; y -= 2) {
+                                    Hitbox hitbox = currentHitbox + new Vector2(x, -42f + y);
+                                    if (api.IsPositionEmpty(this, ref hitbox, false)) {
+                                        MoveInstantly(new Vector2(0f, y), MoveType.Relative, true);
                                         break;
                                     }
                                 }
-                            });
+
+                                // Prepare the player for animation
+                                controllable = false;
+                                collisionFlags &= ~(CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithSolidObjects);
+
+                                speedX = externalForceX = externalForceY = 0f;
+                                speedY = -1.36f;
+                                pushFramesLeft = fireFramesLeft = copterFramesLeft = 0f;
+
+                                // Stick the player to wall
+                                MoveInstantly(new Vector2(isFacingLeft ? -6f : 6f, 0f), MoveType.Relative, true);
+
+                                SetAnimation(AnimState.Idle);
+                                SetTransition(AnimState.TransitionLedgeClimb, false, delegate {
+                                    // Reset the player to normal state
+                                    canJump = true;
+                                    controllable = true;
+                                    collisionFlags |= CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithSolidObjects;
+                                    pushFramesLeft = fireFramesLeft = copterFramesLeft = 0f;
+
+                                    speedY = 0f;
+
+                                    // Move it far from the ledge
+                                    MoveInstantly(new Vector2(isFacingLeft ? -4f : 4f, 0f), MoveType.Relative);
+
+                                    // Move the player upwards, so it will not be stuck in the wall
+                                    for (int y = -2; y > -24; y -= 2) {
+                                        if (MoveInstantly(new Vector2(0f, y), MoveType.Relative)) {
+                                            break;
+                                        }
+                                    }
+                                });
+                            }
                         }
                     }
                 }

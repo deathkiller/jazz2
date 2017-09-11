@@ -64,6 +64,9 @@ namespace Jazz2
         public static void Draw(this GraphicResource res, Canvas c, float x, float y, Alignment alignment, ColorRgba color, float scaleX = 1f, float scaleY = 1f)
         {
             Texture texture = res.Material.Res.MainTexture.Res;
+            if (texture == null) {
+                return;
+            }
 
             Vector2 originPos = new Vector2(x, y);
             alignment.ApplyTo(ref originPos, new Vector2(texture.InternalWidth * scaleX, texture.InternalHeight * scaleY));
@@ -76,6 +79,9 @@ namespace Jazz2
         public static void Draw(this GraphicResource res, Canvas c, float x, float y, Alignment alignment, ColorRgba color, float scaleX, float scaleY, Rect texRect)
         {
             Texture texture = res.Material.Res.MainTexture.Res;
+            if (texture == null) {
+                return;
+            }
 
             Vector2 originPos = new Vector2(x, y);
             alignment.ApplyTo(ref originPos, new Vector2(texture.InternalWidth * scaleX, texture.InternalHeight * scaleY));
@@ -94,6 +100,9 @@ namespace Jazz2
         public static void Draw(this GraphicResource res, Canvas c, int frame, float x, float y, Alignment alignment, ColorRgba color, float scaleX = 1f, float scaleY = 1f)
         {
             Texture texture = res.Material.Res.MainTexture.Res;
+            if (texture == null) {
+                return;
+            }
 
             if (frame < 0) {
                 // ToDo: HUD Animations are slowed down to 0.86f, adjust this in Metadata files

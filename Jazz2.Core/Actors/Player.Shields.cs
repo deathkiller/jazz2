@@ -14,13 +14,19 @@ namespace Jazz2.Actors
             Laser
         }
 
-        private ActorBase shieldComponent;
+        private ActorBase shieldComponent, shieldComponentFront;
         private float shieldTime;
 
         public void SetShield(ShieldType shieldType, float secs)
         {
             if (shieldComponent != null) {
                 ParentScene.RemoveObject(shieldComponent);
+                shieldComponent = null;
+            }
+
+            if (shieldComponentFront != null) {
+                ParentScene.RemoveObject(shieldComponentFront);
+                shieldComponentFront = null;
             }
 
             if (shieldType == ShieldType.None) {
@@ -32,15 +38,25 @@ namespace Jazz2.Actors
 
             switch (shieldType) {
                 case ShieldType.Fire:
-                    shieldComponent = new ShieldComponent();
+                    shieldComponent = new ShieldComponent(shieldType, false);
                     shieldComponent.OnAttach(new ActorInstantiationDetails {
                         Api = api
                     });
                     shieldComponent.Parent = this;
+
+                    shieldComponentFront = new ShieldComponent(shieldType, true);
+                    shieldComponentFront.OnAttach(new ActorInstantiationDetails {
+                        Api = api
+                    });
+                    shieldComponentFront.Parent = this;
                     break;
 
                 case ShieldType.Water:
-                    // ToDo
+                    shieldComponentFront = new ShieldComponent(shieldType, true);
+                    shieldComponentFront.OnAttach(new ActorInstantiationDetails {
+                        Api = api
+                    });
+                    shieldComponentFront.Parent = this;
                     break;
 
                 case ShieldType.Lightning:
@@ -67,21 +83,30 @@ namespace Jazz2.Actors
 
         private class ShieldComponent : ActorBase
         {
+            private ShieldType shieldType;
+            private bool front;
+
+            public ShieldComponent(ShieldType shieldType, bool front)
+            {
+                this.shieldType = shieldType;
+                this.front = front;
+            }
+
             public override void OnAttach(ActorInstantiationDetails details)
             {
                 base.OnAttach(details);
 
                 RequestMetadata("Interactive/Shields");
 
-                SetAnimation("Fire");
+                switch (shieldType) {
+                    case ShieldType.Fire: SetAnimation(front ? "FireFront": "Fire"); break;
+                    case ShieldType.Water: SetAnimation("Water"); break;
+                }
             }
 
             protected override void OnUpdate()
             {
-                //base.OnUpdate();
-
-                float z = (renderer.AnimTime / renderer.AnimDuration < 0.5f ? -2f : 2f);
-                Transform.RelativePos = new Vector3(0f, 0f, z);
+                Transform.RelativePos = new Vector3(0f, 0f, front ? -2f : 2f);
             }
         }
     }

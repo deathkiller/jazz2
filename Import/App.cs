@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Import.Downloaders;
@@ -65,7 +66,7 @@ namespace Import
                     default:
 #if DEBUG
                         if (File.Exists(args[i]) && Path.GetExtension(args[i]) == ".png") {
-                            AdaptImageToPalette(args[i], args);
+                            AdaptImageToDefaultPalette(args[i], args);
                             return;
                         }
 #endif
@@ -888,11 +889,139 @@ namespace Import
             Log.PopIndent();
         }
 
-        // :: Debug-only methods ::
+        // :: Dev-only methods ::
 #if DEBUG
+        private static readonly int[] UsableIndexRanges = {
+            0, 1,       // Transparent, Black
+         // 2, 9           Still black
+         // 10, 14         Random colors
+            15, 55,     // White, Green, Red, Blue, Orange, Pink
+         // 56, 57         Random colors
+            59, 95      // Another gradients, the last one is Magenta
+         // 96, 175        Tileset-specific gradients
+         // 176, 207       Usually gradient for textured background
+         // 208, 245       Another tileset-specific colors
+         // 246, 255       Black again
+        };
+
+        private static void AdaptImageToDefaultPalette(string path, string[] args)
+        {
+            int noise = 0;
+            bool apply = false;
+            Point frameConfiguration = default(Point);
+            for (int i = 0; i < args.Length; i++) {
+                if (args[i].StartsWith("/noise:")) {
+                    int.TryParse(args[i].Substring(7), out noise);
+                } else if (args[i] == "/apply") {
+                    apply = true;
+                } else if (args[i].StartsWith("/frames:")) {
+                    string[] parts = args[i].Substring(8).Split(',');
+
+                    int x, y;
+                    int.TryParse(parts[0], out x);
+                    int.TryParse(parts[1], out y);
+                    frameConfiguration.X = x;
+                    frameConfiguration.Y = y;
+                }
+            }
+
+            Log.Write(LogType.Info, $"Adapting image to default palette with {noise}% noise...");
+            Log.PushIndent();
+
+            Random r = new Random();
+            int diffMax = 0, diffSum = 0;
+            bool[] usedIndices = new bool[256];
+
+            using (FileStream s = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+                using (Bitmap b = new Bitmap(s)) {
+
+                    if (frameConfiguration.X == 0 || frameConfiguration.Y == 0) {
+                        Log.Write(LogType.Info, "Generating normal map (" + frameConfiguration.X + "x" + frameConfiguration.Y + " frames)...");
+
+                        using (Bitmap normalMap = NormalMapGenerator.FromSprite(b, frameConfiguration, false)) {
+                            normalMap.Save(Path.ChangeExtension(path, ".n.new" + Path.GetExtension(path)), ImageFormat.Png);
+                        }
+                    }
+
+                    for (int x = 0; x < b.Width; x++) {
+                        for (int y = 0; y < b.Height; y++) {
+                            Color color = b.GetPixel(x, y);
+
+                            int bestMatchIndex = 0;
+                            int bestMatchIndex2 = 0;
+                            int bestMatchDiff = int.MaxValue;
+                            // Use only usable indices from the default palette
+                            for (int p = 0; p < UsableIndexRanges.Length; p += 2) {
+                                for (int i = UsableIndexRanges[p]; i <= UsableIndexRanges[p + 1]; i++) {
+                                    Color current = JJ2DefaultPalette.Sprite[i];
+                                    int currentDiff = Math.Abs(color.R - current.R) + Math.Abs(color.G - current.G) + Math.Abs(color.B - current.B) + Math.Abs(color.A - current.A);
+                                    if (currentDiff < bestMatchDiff) {
+                                        bestMatchIndex2 = bestMatchIndex;
+                                        bestMatchIndex = i;
+                                        bestMatchDiff = currentDiff;
+                                    }
+                                }
+                            }
+
+                            if (r.Next(100) < noise && Math.Abs(color.A - JJ2DefaultPalette.Sprite[bestMatchIndex2].A) < 20) {
+                                bestMatchIndex = bestMatchIndex2;
+                            }
+
+                            usedIndices[bestMatchIndex] = true;
+
+                            Color bestMatch;
+                            if (apply) {
+                                bestMatch = Color.FromArgb(color.A, JJ2DefaultPalette.Sprite[bestMatchIndex]);
+                            } else {
+                                bestMatch = Color.FromArgb(color.A, bestMatchIndex, bestMatchIndex, bestMatchIndex);
+                            }
+
+                            b.SetPixel(x, y, bestMatch);
+
+                            diffMax = Math.Max(diffMax, bestMatchDiff);
+                            diffSum += bestMatchDiff;
+                        }
+                    }
+
+                    b.Save(Path.ChangeExtension(path, ".new" + Path.GetExtension(path)), ImageFormat.Png);
+                }
+            }
+
+            Log.Write(LogType.Verbose, "Max. difference:    " + diffMax.ToString("N0"));
+            Log.Write(LogType.Verbose, "Sum of differences: " + diffSum.ToString("N0"));
+
+            int numberOfIndices = usedIndices.Sum(index => index ? 1 : 0);
+            if (numberOfIndices > 15) {
+                Log.Write(LogType.Verbose, "Number of indices:  " + numberOfIndices);
+            } else {
+                bool isFirst = true;
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < usedIndices.Length; i++) {
+                    if (usedIndices[i]) {
+                        if (isFirst) {
+                            isFirst = false;
+                        } else {
+                            sb.Append(", ");
+                        }
+
+                        sb.Append(i);
+                    }
+                }
+
+                Log.Write(LogType.Verbose, "Indices: " + sb.ToString());
+            }
+
+            Log.Write(LogType.Info, "Done!");
+            Log.PopIndent();
+
+            if (!ConsoleUtils.IsOutputRedirected) {
+                Console.ReadLine();
+            }
+        }
+
         private static void MigrateMetadata(string targetPath)
         {
-            Log.Write(LogType.Info, "Migrating metadata...");
+            Log.Write(LogType.Info, "Migrating metadata to newer version...");
             Log.PushIndent();
 
             Parallel.ForEach(Directory.EnumerateDirectories(targetPath), directory => {
@@ -902,7 +1031,7 @@ namespace Import
                         if (result) {
                             Log.Write(LogType.Info, "Metadata \"" + Path.GetFileName(file) + "\" was migrated to v2!");
                         } else {
-                            Log.Write(LogType.Verbose, "Metadata \"" + Path.GetFileName(file) + "\" is already up to date!");
+                            //Log.Write(LogType.Verbose, "Metadata \"" + Path.GetFileName(file) + "\" is already up to date!");
                         }
                     } catch (Exception ex) {
                         Log.Write(LogType.Error, "Metadata \"" + Path.GetFileName(file) + "\" is not supported! " + ex);
@@ -911,110 +1040,6 @@ namespace Import
             });
 
             Log.PopIndent();
-        }
-
-        private static void AdaptImageToPalette(string path, string[] args)
-        {
-            int noise = 0;
-            for (int i = 0; i < args.Length; i++) {
-                if (args[i].StartsWith("/noise:")) {
-                    int.TryParse(args[i].Substring(7), out noise);
-                }
-            }
-
-            Log.Write(LogType.Info, $"Adapting image to \"Sprite\" palette with {noise}% noise...");
-
-            Random r = new Random();
-            int diffMax = 0, diffTotal = 0;
-
-            using (FileStream s = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-                using (Bitmap b = new Bitmap(s)) {
-                    for (int x = 0; x < b.Width; x++) {
-                        for (int y = 0; y < b.Height; y++) {
-                            Color color = b.GetPixel(x, y);
-
-                            int bestMatchIndex = 0;
-                            int bestMatchDiff = int.MaxValue;
-                            // Use only common part of palette
-                            for (int i = 0; i < /*JJ2DefaultPalette.Sprite.Length*/208; i++) {
-                                Color current = JJ2DefaultPalette.Sprite[i];
-                                int currentDiff = Math.Abs(color.R - current.R) + Math.Abs(color.G - current.G) + Math.Abs(color.B - current.B) + Math.Abs(color.A - current.A);
-                                if (currentDiff < bestMatchDiff) {
-                                    bestMatchIndex = i;
-                                    bestMatchDiff = currentDiff;
-                                }
-                            }
-
-                            Color bestMatch = Color.FromArgb(color.A, bestMatchIndex, bestMatchIndex, bestMatchIndex);
-                            b.SetPixel(x, y, bestMatch);
-
-                            diffMax = Math.Max(diffMax, bestMatchDiff);
-                            diffTotal += bestMatchDiff;
-                        }
-                    }
-
-                    b.Save(Path.ChangeExtension(path, ".new" + Path.GetExtension(path)), ImageFormat.Png);
-                }
-            }
-
-            Log.Write(LogType.Info, "Image adapted!   |   Max. diff: " + diffMax + "   |   Total diff: " + diffTotal);
-
-            Console.ReadLine();
-        }
-
-        private static void AdaptImageToPalette2(string path, string[] args)
-        {
-            int noise = 0;
-            for (int i = 0; i < args.Length; i++) {
-                if (args[i].StartsWith("/noise:")) {
-                    int.TryParse(args[i].Substring(7), out noise);
-                }
-            }
-
-            Log.Write(LogType.Info, $"Adapting image to \"Sprite\" palette with {noise}% noise...");
-
-            Random r = new Random();
-            int diffMax = 0, diffTotal = 0;
-
-            using (FileStream s = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-                using (Bitmap b = new Bitmap(s)) {
-                    for (int x = 0; x < b.Width; x++) {
-                        for (int y = 0; y < b.Height; y++) {
-                            Color color = b.GetPixel(x, y);
-
-                            Color bestMatch = Color.Transparent;
-                            Color secondMatch = Color.Transparent;
-                            int bestMatchDiff = int.MaxValue;
-                            // Use only common part of palette
-                            for (int i = 0; i < /*JJ2DefaultPalette.Sprite.Length*/208; i++) {
-                                Color current = JJ2DefaultPalette.Sprite[i];
-                                int currentDiff = Math.Abs(color.R - current.R) + Math.Abs(color.G - current.G) + Math.Abs(color.B - current.B) + Math.Abs(color.A - current.A);
-                                if (currentDiff < bestMatchDiff) {
-                                    secondMatch = bestMatch;
-                                    bestMatch = current;
-                                    bestMatchDiff = currentDiff;
-                                }
-                            }
-
-                            if (r.Next(100) < noise && Math.Abs(color.A - secondMatch.A) < 20) {
-                                bestMatch = secondMatch;
-                            }
-
-                            bestMatch = Color.FromArgb(color.A, bestMatch);
-                            b.SetPixel(x, y, bestMatch);
-
-                            diffMax = Math.Max(diffMax, bestMatchDiff);
-                            diffTotal += bestMatchDiff;
-                        }
-                    }
-
-                    b.Save(Path.ChangeExtension(path, ".new" + Path.GetExtension(path)), ImageFormat.Png);
-                }
-            }
-
-            Log.Write(LogType.Info, "Image adapted!   |   Max. diff: " + diffMax + "   |   Total diff: " + diffTotal);
-
-            Console.ReadLine();
         }
 #endif
     }

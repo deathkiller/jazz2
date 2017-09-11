@@ -32,6 +32,7 @@
         ModifierDeath = 0x0148,
         ModifierSetWater = 0x0149,
         ModifierLimitCameraView = 0x014B,
+        ModifierNoClimb = 0x014C,
 
         // Area
         AreaStopEnemy = 0x0143,

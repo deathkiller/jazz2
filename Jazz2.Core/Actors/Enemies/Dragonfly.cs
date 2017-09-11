@@ -1,12 +1,22 @@
 ﻿using System.Collections.Generic;
 using Duality;
+using Duality.Audio;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Enemies
 {
     public class Dragonfly : EnemyBase
     {
-        private const float DefaultSpeed = -3.2f;
+        private const int StateIdle = 0;
+        private const int StateAttacking = 1;
+        private const int StateBraking = 2;
+
+        private int state = StateIdle;
+        private float idleTime;
+        private float attackCooldown = 60f;
+        private Vector2 direction;
+
+        private SoundInstance noise;
 
         public override void OnAttach(ActorInstantiationDetails details)
         {
@@ -23,8 +33,6 @@ namespace Jazz2.Actors.Enemies
             isFacingLeft = MathF.Rnd.NextBool();
         }
 
-        // TODO: Do this better...
-
         protected override void OnUpdate()
         {
             base.OnUpdate();
@@ -36,24 +44,95 @@ namespace Jazz2.Actors.Enemies
             canJump = false;
 
             Vector3 pos = Transform.Pos;
-            Vector3 targetPos;
+            if (attackCooldown < 0f) {
+                attackCooldown = 40f;
 
-            List<Player> players = api.Players;
-            for (int i = 0; i < players.Count; i++) {
-                targetPos = players[i].Transform.Pos;
-                Vector3 direction = (pos - targetPos);
-                float length = direction.Length;
-                if (length < 180f) {
-                    if (length > 80f) {
+                Vector3 targetPos;
+
+                List<Player> players = api.Players;
+                for (int i = 0; i < players.Count; i++) {
+                    targetPos = players[i].Transform.Pos;
+                    direction = (targetPos.Xy - pos.Xy);
+                    float length = direction.Length;
+                    if (length < 320f && targetPos.Y < api.WaterLevel) {
                         direction.Normalize();
-                        speedX = direction.X * DefaultSpeed;
-                        speedY = direction.Y * DefaultSpeed;
-                    }
-                    return;
-                }
-            }
 
-            speedX = speedY = 0;
+                        speedX = speedY = 0f;
+                        isFacingLeft = (direction.X < 0f);
+                        state = StateAttacking;
+
+                        idleTime = MathF.Rnd.NextFloat(40f, 60f);
+                        attackCooldown = MathF.Rnd.NextFloat(130f, 200f);
+
+                        noise = PlaySound("Noise", 0.8f);
+                        break;
+                    }
+                }
+            } else {
+                float timeMult = Time.TimeMult;
+
+                if (state == StateAttacking) {
+                    if (idleTime < 0f) {
+                        state = StateBraking;
+
+                        if (noise != null) {
+                            noise.FadeOut(1f);
+                        }
+                    } else {
+                        idleTime -= Time.TimeMult;
+
+                        speedX += direction.X * 0.14f * timeMult;
+                        speedY += direction.Y * 0.14f * timeMult;
+                    }
+                } else if (state == StateBraking) {
+                    speedX *= 0.88f / timeMult;
+                    speedY *= 0.88f / timeMult;
+
+                    if (MathF.Abs(speedX) < 0.01f && MathF.Abs(speedY) < 0.01f) {
+                        state = StateIdle;
+                    }
+                } else {
+                    if (idleTime < 0f) {
+                        float x = MathF.Rnd.NextFloat(-0.4f, 0.4f);
+                        float y = MathF.Rnd.NextFloat(-2f, 2f);
+
+                        speedX = (speedX + x) * 0.2f;
+                        speedY = (speedY + y) * 0.2f;
+
+                        idleTime = 20f;
+                    } else {
+                        idleTime -= timeMult;
+                    }
+                }
+
+                if (pos.Y + 12f > api.WaterLevel) {
+                    speedY = -0.4f;
+                    state = StateIdle;
+                }
+
+                attackCooldown -= timeMult;
+            }
+        }
+
+        protected override void OnHitWallHook()
+        {
+            base.OnHitWallHook();
+
+            speedX = speedY = 0f;
+        }
+
+        protected override void OnHitFloorHook()
+        {
+            base.OnHitFloorHook();
+
+            speedX = speedY = 0f;
+        }
+
+        protected override void OnHitCeilingHook()
+        {
+            base.OnHitCeilingHook();
+
+            speedX = speedY = 0f;
         }
 
         protected override bool OnPerish(ActorBase collider)

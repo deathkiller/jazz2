@@ -36,7 +36,7 @@ namespace Jazz2.Actors.Enemies
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
             canHurtPlayer = false;
-            SetHealthByDifficulty(3);
+            SetHealthByDifficulty(1);
             scoreValue = 200;
 
             SetAnimation(AnimState.Idle);
@@ -112,8 +112,13 @@ namespace Jazz2.Actors.Enemies
 
         protected override bool OnPerish(ActorBase collider)
         {
-            CreateDeathDebris(collider);
-            api.PlayCommonSound(this, "Splat");
+            Lizard lizard = new Lizard();
+            lizard.OnAttach(new ActorInstantiationDetails {
+                Api = api,
+                Pos = Transform.Pos,
+                Params = new[] { theme, (ushort)1, (ushort)(isFacingLeft ? 1 : 0) }
+            });
+            api.AddActor(lizard);
 
             return base.OnPerish(collider);
         }

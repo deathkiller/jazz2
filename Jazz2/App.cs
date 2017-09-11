@@ -40,8 +40,6 @@ namespace Jazz2
         [STAThread]
         private static void Main(string[] args)
         {
-            // 3 Mar, 2017 - https://github.com/AdamsLair/duality/commit/7f4d38c982956d53ee3c72512fc20fd8d19278fe
-
             DualityApp.Init(DualityApp.ExecutionContext.Game, new DefaultAssemblyLoader(), args);
 
             using (INativeWindow window = DualityApp.OpenWindow(new WindowOptions {
