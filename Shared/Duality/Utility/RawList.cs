@@ -216,7 +216,7 @@ namespace Duality
 			this.count += count;
 		}
 		/// <summary>
-		/// Removes the first matchin item from the list.
+		/// Removes the first matching item from the list.
 		/// </summary>
 		/// <param name="item"></param>
 		/// <returns></returns>
@@ -286,7 +286,7 @@ namespace Duality
 			}
 		}
 		/// <summary>
-		/// Removes the first matchin item from the list.
+		/// Removes the first matching item from the list.
 		/// </summary>
 		/// <param name="predicate"></param>
 		/// <returns></returns>

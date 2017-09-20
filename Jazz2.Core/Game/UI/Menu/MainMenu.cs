@@ -287,16 +287,16 @@ namespace Jazz2.Game.UI.Menu
                 mainMenu.OnUpdate();
             }
 
-            float ICmpRenderer.BoundRadius => float.MaxValue;
+            void ICmpRenderer.GetCullingInfo(out CullingInfo info)
+            {
+                info.Position = Vector3.Zero;
+                info.Radius = float.MaxValue;
+                info.Visibility = VisibilityFlag.Group0 | VisibilityFlag.ScreenOverlay;
+            }
 
             void ICmpRenderer.Draw(IDrawDevice device)
             {
                 mainMenu.OnRender(device);
-            }
-
-            bool ICmpRenderer.IsVisible(IDrawDevice device)
-            {
-                return (device.VisibilityMask & VisibilityFlag.ScreenOverlay) != 0;
             }
         }
     }

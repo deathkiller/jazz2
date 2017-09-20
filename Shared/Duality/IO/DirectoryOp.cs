@@ -18,7 +18,7 @@ namespace Duality.IO
 		{
 			if (string.IsNullOrWhiteSpace(path)) return false;
 			PathOp.CheckInvalidPathChars(path);
-			return DualityApp.SystemBackend.FileSystem.DirectoryExists(path);
+            return PathOp.ResolveFileSystem(ref path).DirectoryExists(path);
 		}
 		/// <summary>
 		/// Creates a directory tree matching the specified directory path.
@@ -28,7 +28,7 @@ namespace Duality.IO
 		{
 			if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("The specified path is null or whitespace-only.");
 			PathOp.CheckInvalidPathChars(path);
-			DualityApp.SystemBackend.FileSystem.CreateDirectory(path);
+            PathOp.ResolveFileSystem(ref path).CreateDirectory(path);
 		}
 		/// <summary>
 		/// Deletes the directory that is referred to by the specified path.
@@ -38,7 +38,7 @@ namespace Duality.IO
 		{
 			if (string.IsNullOrWhiteSpace(path)) return;
 			PathOp.CheckInvalidPathChars(path);
-			DualityApp.SystemBackend.FileSystem.DeleteDirectory(path);
+            PathOp.ResolveFileSystem(ref path).DeleteDirectory(path);
 		}
 		/// <summary>
 		/// Enumerates all files that are located within the specified path.
@@ -50,7 +50,7 @@ namespace Duality.IO
 		{
 			if (string.IsNullOrWhiteSpace(path)) return Enumerable.Empty<string>();
 			PathOp.CheckInvalidPathChars(path);
-			return DualityApp.SystemBackend.FileSystem.GetFiles(path, recursive);
+            return PathOp.ResolveFileSystem(ref path).GetFiles(path, recursive);
 		}
 		/// <summary>
 		/// Enumerates all directories that are located within the specified path.
@@ -62,7 +62,7 @@ namespace Duality.IO
 		{
 			if (string.IsNullOrWhiteSpace(path)) return Enumerable.Empty<string>();
 			PathOp.CheckInvalidPathChars(path);
-			return DualityApp.SystemBackend.FileSystem.GetDirectories(path, recursive);
+            return PathOp.ResolveFileSystem(ref path).GetDirectories(path, recursive);
 		}
 	}
 }

@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.IO;
 
 namespace Duality.IO
 {
-	/// <summary>
-	/// A file system allows to perform read / write operations on a virtual or actual storage device.
-	/// All paths are expected to match <see cref="Duality.IO.PathOp">Duality's path format</see>.
-	/// </summary>
-	public interface IFileSystem
+    /// <summary>
+    /// A file system allows to perform read / write operations on a virtual or actual storage device.
+    /// All paths are expected to match <see cref="Duality.IO.PathOp">Duality's path format</see>.
+    /// </summary>
+    public interface IFileSystem
 	{
 		/// <summary>
 		/// Returns a rooted version of the specified path, which uniquely identifies the referenced file system entity.

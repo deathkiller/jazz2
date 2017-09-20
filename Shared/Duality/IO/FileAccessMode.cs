@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
 
 namespace Duality.IO
 {
-	[Flags]
+    [Flags]
 	public enum FileAccessMode
 	{
 		None      = 0x0,

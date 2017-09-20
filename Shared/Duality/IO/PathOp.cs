@@ -5,11 +5,11 @@ using System.Text.RegularExpressions;
 
 namespace Duality.IO
 {
-	/// <summary>
-	/// Defines static methods for performing common operations on path strings, such as combining them or extracting file extensions.
-	/// This class mirrors the functionality of <see cref="System.IO.Path"/> in a platform-agnostic way using Duality's path format.
-	/// </summary>
-	public static class PathOp
+    /// <summary>
+    /// Defines static methods for performing common operations on path strings, such as combining them or extracting file extensions.
+    /// This class mirrors the functionality of <see cref="System.IO.Path"/> in a platform-agnostic way using Duality's path format.
+    /// </summary>
+    public static partial class PathOp
 	{
 		public static readonly char DirectorySeparatorChar;
 		public static readonly char AltDirectorySeparatorChar;
@@ -137,7 +137,7 @@ namespace Duality.IO
 				path = GetDirectoryName(path);
 				if (path == baseDir) return true;
 				if (path.Length < baseDir.Length) return false;
-			} while (!String.IsNullOrEmpty(path));
+			} while (!string.IsNullOrEmpty(path));
 
 			return false;
 		}

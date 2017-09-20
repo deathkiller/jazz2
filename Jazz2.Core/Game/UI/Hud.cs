@@ -65,7 +65,12 @@ namespace Jazz2.Game.UI
             graphics = m.Graphics;
         }
 
-        float ICmpRenderer.BoundRadius => float.MaxValue;
+        void ICmpRenderer.GetCullingInfo(out CullingInfo info)
+        {
+            info.Position = Vector3.Zero;
+            info.Radius = float.MaxValue;
+            info.Visibility = VisibilityFlag.Group0 | VisibilityFlag.ScreenOverlay;
+        }
 
         void ICmpRenderer.Draw(IDrawDevice device)
         {
@@ -174,6 +179,10 @@ namespace Jazz2.Game.UI
             DrawGems(device, c, size, ref charOffset);
 
             DrawTouch(device, c, size);
+
+#if !DEBUG && __ANDROID__
+            fontSmall.DrawString(device, ref charOffset, Time.Fps.ToString(), 2, 2, Alignment.TopLeft, ColorRgba.TransparentBlack, 0.8f);
+#endif
         }
 
         private void DrawLevelText(IDrawDevice device, Vector2 size, ref int charOffset)
@@ -295,11 +304,6 @@ namespace Jazz2.Game.UI
         }
 
         partial void DrawTouch(IDrawDevice device, Canvas c, Vector2 size);
-
-        bool ICmpRenderer.IsVisible(IDrawDevice device)
-        {
-            return (device.VisibilityMask & VisibilityFlag.ScreenOverlay) != 0;
-        }
 
         [Conditional("DEBUG")]
         public static void ShowDebugText(string text)

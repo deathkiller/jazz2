@@ -69,7 +69,7 @@ namespace Duality.Components.Renderers
 
 		public override float BoundRadius
 		{
-			get { return this.rect.Transformed(this.gameobj.Transform.Scale, this.gameobj.Transform.Scale).BoundingRadius; }
+			get { return this.rect.BoundingRadius * this.gameobj.Transform.Scale; }
 		}
 		/// <summary>
 		/// [GET / SET] The rectangular area the sprite occupies. Relative to the <see cref="GameObject"/>.

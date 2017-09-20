@@ -247,20 +247,25 @@ namespace Duality.Resources
                 // Activate GameObjects
                 //DualityApp.EditorGuard(() =>
                 //{
-
-                // Create a list of components to activate
-                List<ICmpInitializable> initList = new List<ICmpInitializable>();
-                foreach (Component component in current.ResWeak.FindComponents<ICmpInitializable>()) {
-                    if (!component.Active) continue;
-                    initList.Add(component as ICmpInitializable);
-                }
-                // Activate all the listed components. Note that they may create or destroy
-                // objects, so it's important that we're iterating a copy of the scene objects
-                // here, and not the real thing.
-                for (int i = 0; i < initList.Count; i++) {
-                    initList[i].OnInit(Component.InitContext.Activate);
-                }
-
+                    // Create a list of components to activate
+                    List<ICmpInitializable> initList = new List<ICmpInitializable>();
+                    foreach (Component component in current.ResWeak.FindComponents<ICmpInitializable>()) {
+                        if (!component.Active) continue;
+                        initList.Add(component as ICmpInitializable);
+                    }
+                    // Activate all the listed components. Note that they may create or destroy
+                    // objects, so it's important that we're iterating a copy of the scene objects
+                    // here, and not the real thing.
+                    for (int i = 0; i < initList.Count; i++) {
+                        initList[i].OnInit(Component.InitContext.Activate);
+                    }
+                //});
+                
+                // Update object visibility / culling info, so a scheduled switch at the
+                // end of a frame will get up-to-date culling for rendering
+                //DualityApp.EditorGuard(() =>
+                //{
+                    current.ResWeak.VisibilityStrategy.Update();
                 //});
             }
             isSwitching = false;
@@ -1005,8 +1010,6 @@ namespace Duality.Resources
             List<ICmpInitializable> initList = this.FindComponents<ICmpInitializable>().ToList();
             for (int i = 0; i < initList.Count; i++)
                 initList[i].OnInit(Component.InitContext.Loaded);
-
-            this.visibilityStrategy.Update();
         }
         protected override void OnDisposing(bool manually)
         {

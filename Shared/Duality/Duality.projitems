@@ -75,6 +75,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\Canvas.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\CanvasBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\CanvasState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Drawing\CullingInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\DrawBatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\DrawDevice.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\Enums\BlendMode.cs" />
@@ -151,6 +152,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)IO\NamedDirectory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IO\PathEqualityComparer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IO\PathOp.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IO\PathOp.Virtual.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IO\Streams\ExtMethodsStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IO\Streams\NonClosingStreamWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IO\Streams\StreamWrapper.cs" />

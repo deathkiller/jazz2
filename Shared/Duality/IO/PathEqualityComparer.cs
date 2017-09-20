@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 
 namespace Duality.IO
 {
-	/// <summary>
-	/// Determines equality of path strings.
-	/// </summary>
-	/// <seealso cref="Duality.IO.PathOp"/>
-	public class PathEqualityComparer : IEqualityComparer<string>
+    /// <summary>
+    /// Determines equality of path strings.
+    /// </summary>
+    /// <seealso cref="Duality.IO.PathOp"/>
+    public class PathEqualityComparer : IEqualityComparer<string>
 	{
 		public bool Equals(string x, string y)
 		{

@@ -11,21 +11,11 @@ namespace Jazz2.Game.Tiles
     {
         private VertexC1P3T2[][] cachedVertices;
 
-        float ICmpRenderer.BoundRadius
+        void ICmpRenderer.GetCullingInfo(out CullingInfo info)
         {
-            get
-            {
-                return float.MaxValue;
-            }
-        }
-
-        bool ICmpRenderer.IsVisible(IDrawDevice device)
-        {
-            const VisibilityFlag visibilityGroup = VisibilityFlag.Group0;
-
-            if ((device.VisibilityMask & VisibilityFlag.ScreenOverlay) != (visibilityGroup & VisibilityFlag.ScreenOverlay)) return false;
-            if ((visibilityGroup & device.VisibilityMask & VisibilityFlag.AllGroups) == VisibilityFlag.None) return false;
-            return true;
+            info.Position = new Vector3(0f, 0f, 500f);
+            info.Radius = float.MaxValue;
+            info.Visibility = VisibilityFlag.Group0;
         }
 
         void ICmpRenderer.Draw(IDrawDevice device)
