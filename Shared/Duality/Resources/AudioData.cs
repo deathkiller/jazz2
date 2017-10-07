@@ -96,8 +96,16 @@ namespace Duality.Resources
         /// <param name="oggVorbisDataStream">A <see cref="System.IO.Stream"/> containing Ogg Vorbis data</param>
         public AudioData(Stream oggVorbisDataStream)
         {
-            this.data = new byte[oggVorbisDataStream.Length];
-            oggVorbisDataStream.Read(this.data, 0, (int)oggVorbisDataStream.Length);
+            if (oggVorbisDataStream.CanSeek) {
+                this.data = new byte[oggVorbisDataStream.Length];
+                oggVorbisDataStream.Read(this.data, 0, (int)oggVorbisDataStream.Length);
+            } else {
+                using (MemoryStream ms = new MemoryStream()) {
+                    oggVorbisDataStream.CopyTo(ms);
+                    this.data = ms.ToArray();
+                }
+            }
+
             this.SetupNativeBuffer();
         }
 

@@ -9,9 +9,11 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Duality.IO;
 using Import.Downloaders;
 using Jazz2;
 using Jazz2.Compatibility;
+using Jazz2.Storage.Content;
 using static Jazz2.Game.ContentResolver;
 using static Jazz2.Game.LevelHandler;
 
@@ -217,7 +219,10 @@ namespace Import
             if (!keep) {
                 Clean(targetPath, verbose);
             }
-            if (check) {
+
+            MergeToCompressedContent(targetPath, keep);
+            // ToDo
+            /*if (check) {
                 CheckMissingFiles(targetPath);
             }
 
@@ -233,7 +238,7 @@ namespace Import
             }
             if (isAnyMissing) {
                 Log.Write(LogType.Error, "It should be distributed with Jazz² Resurrection.");
-            }
+            }*/
 
             if (wait) {
                 Log.Write(LogType.Info, "Done! (Press any key to exit)");
@@ -701,42 +706,41 @@ namespace Import
             }
 
             // Clean animations and sounds
-            if (Directory.Exists(Path.Combine(targetPath, "Content", "Metadata"))) {
+            if (Directory.Exists(Path.Combine(targetPath, "Content", "Animations"))) {
                 Log.Write(LogType.Info, "Cleaning \"Animations\" directory...");
                 Log.PushIndent();
 
                 int removedCount = 0;
+                bool metadataExists = false;
 
-                // Paths in the set have to be lower-case
-                usedAnimations.Add(".palette");
-                usedAnimations.Add("_custom/noise.png");
-                usedAnimations.Add("ui/font_small.png");
-                usedAnimations.Add("ui/font_medium.png");
+                if (Directory.Exists(Path.Combine(targetPath, "Content", "Metadata"))) {
+                    metadataExists = true;
 
-                foreach (string metadata in Directory.EnumerateDirectories(Path.Combine(targetPath, "Content", "Metadata"))) {
-                    foreach (string path in Directory.EnumerateFiles(metadata, "*.res")) {
-                        using (Stream s = File.Open(path, FileMode.Open)) {
-                            MetadataJson json = jsonParser.Parse<MetadataJson>(s);
+                    foreach (string metadata in Directory.EnumerateDirectories(Path.Combine(targetPath, "Content", "Metadata"))) {
+                        foreach (string path in Directory.EnumerateFiles(metadata, "*.res")) {
+                            using (Stream s = File.Open(path, FileMode.Open)) {
+                                MetadataJson json = jsonParser.Parse<MetadataJson>(s);
 
-                            if (json.Animations != null) {
-                                foreach (var animation in json.Animations) {
-                                    if (animation.Value == null || animation.Value.Path == null) {
-                                        continue;
-                                    }
-                                    usedAnimations.Add(animation.Value.Path.ToLowerInvariant());
-                                }
-                            }
-
-                            if (json.Sounds != null) {
-                                foreach (var sound in json.Sounds) {
-                                    if (sound.Value == null || sound.Value.Paths == null) {
-                                        continue;
-                                    }
-                                    foreach (var soundPath in sound.Value.Paths) {
-                                        if (soundPath == null) {
+                                if (json.Animations != null) {
+                                    foreach (var animation in json.Animations) {
+                                        if (animation.Value == null || animation.Value.Path == null) {
                                             continue;
                                         }
-                                        usedAnimations.Add(soundPath.ToLowerInvariant());
+                                        usedAnimations.Add(animation.Value.Path.ToLowerInvariant());
+                                    }
+                                }
+
+                                if (json.Sounds != null) {
+                                    foreach (var sound in json.Sounds) {
+                                        if (sound.Value == null || sound.Value.Paths == null) {
+                                            continue;
+                                        }
+                                        foreach (var soundPath in sound.Value.Paths) {
+                                            if (soundPath == null) {
+                                                continue;
+                                            }
+                                            usedAnimations.Add(soundPath.ToLowerInvariant());
+                                        }
                                     }
                                 }
                             }
@@ -744,8 +748,57 @@ namespace Import
                     }
                 }
 
-                string prefix = Path.Combine(targetPath, "Content", "Animations");
-                if (Directory.Exists(prefix)) {
+                if (File.Exists(Path.Combine(targetPath, "Content", ".dz"))) {
+                    metadataExists = true;
+
+                    IFileSystem fs = new CompressedContent(Path.Combine(targetPath, "Content", ".dz"));
+
+                    foreach (string metadata in fs.GetDirectories("Metadata")) {
+                        foreach (string path in fs.GetFiles(metadata)) {
+                            if (!path.EndsWith(".res", StringComparison.OrdinalIgnoreCase)) {
+                                continue;
+                            }
+
+                            using (Stream s = fs.OpenFile(path, FileAccessMode.Read)) {
+                                MetadataJson json = jsonParser.Parse<MetadataJson>(s);
+
+                                if (json.Animations != null) {
+                                    foreach (var animation in json.Animations) {
+                                        if (animation.Value == null || animation.Value.Path == null) {
+                                            continue;
+                                        }
+                                        usedAnimations.Add(animation.Value.Path.ToLowerInvariant());
+                                    }
+                                }
+
+                                if (json.Sounds != null) {
+                                    foreach (var sound in json.Sounds) {
+                                        if (sound.Value == null || sound.Value.Paths == null) {
+                                            continue;
+                                        }
+                                        foreach (var soundPath in sound.Value.Paths) {
+                                            if (soundPath == null) {
+                                                continue;
+                                            }
+                                            usedAnimations.Add(soundPath.ToLowerInvariant());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (metadataExists) {
+
+                    // Default (unreferenced) assets - paths in the set have to be lower-case
+                    usedAnimations.Add(".palette");
+                    usedAnimations.Add("_custom/noise.png");
+                    usedAnimations.Add("ui/font_small.png");
+                    usedAnimations.Add("ui/font_medium.png");
+
+                    string prefix = Path.Combine(targetPath, "Content", "Animations");
+
                     foreach (string animation in Directory.EnumerateFiles(prefix, "*", SearchOption.AllDirectories)) {
                         string animationFile = animation.Substring(prefix.Length + 1).ToLowerInvariant().Replace('\\', '/').Replace(".png.res", ".png").Replace(".n.png", ".png").Replace(".png.config", ".png");
                         if (!usedAnimations.Contains(animationFile)) {
@@ -782,6 +835,7 @@ namespace Import
                 if (!verbose) {
                     Log.Write(LogType.Info, "Removed " + removedCount + " files.");
                 }
+
                 Log.PopIndent();
             }
         }
@@ -883,6 +937,84 @@ namespace Import
                             }
                         }
                     }
+                }
+            }
+
+            Log.PopIndent();
+        }
+
+        private static void MergeToCompressedContent(string targetPath, bool keep)
+        {
+            Log.Write(LogType.Info, "Compressing content into \".\\Content\\.dz\" file...");
+            Log.PushIndent();
+
+            string oldContent = Path.Combine(targetPath, "Content", ".dz");
+            string newContent = oldContent + ".new";
+
+            bool keepOld = false;
+
+            ContentTree tree;
+            if (File.Exists(oldContent)) {
+                try {
+                    tree = new CompressedContent(oldContent).Tree;
+                } catch {
+                    Log.Write(LogType.Warning, "\".\\Content\\.dz\" is corrupted and cannot be merged!");
+
+                    tree = new ContentTree();
+                    keepOld = true;
+                }
+            } else {
+                tree = new ContentTree();
+            }
+
+            Log.Write(LogType.Info, "Adding new content...");
+
+            if (Directory.Exists(Path.Combine(targetPath, "Content", "Animations"))) {
+                tree.GetContentFromDirectory(Path.Combine(targetPath, "Content", "Animations"));
+            }
+
+            if (Directory.Exists(Path.Combine(targetPath, "Content", "Metadata"))) {
+                tree.GetContentFromDirectory(Path.Combine(targetPath, "Content", "Metadata"));
+            }
+
+            if (Directory.Exists(Path.Combine(targetPath, "Content", "Shaders"))) {
+                tree.GetContentFromDirectory(Path.Combine(targetPath, "Content", "Shaders"));
+            }
+
+            Log.Write(LogType.Info, "Saving changes...");
+
+            tree.RemoveEmptyNodes();
+
+            CompressedContent.Create(newContent, tree, (name, flags) => {
+                if ((flags & CompressedContent.ResourceFlags.HasResource) != 0 && !name.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) {
+                    flags |= CompressedContent.ResourceFlags.Compressed;
+                }
+                return flags;
+            });
+
+            Log.Write(LogType.Info, "Removing unnecessary files...");
+
+            if (File.Exists(oldContent)) {
+                if (keepOld) {
+                    File.Move(oldContent, oldContent + ".old");
+                } else {
+                    File.Delete(oldContent);
+                }
+            }
+
+            File.Move(newContent, oldContent);
+
+            if (!keep) {
+                if (Directory.Exists(Path.Combine(targetPath, "Content", "Animations"))) {
+                    Directory.Delete(Path.Combine(targetPath, "Content", "Animations"), true);
+                }
+
+                if (Directory.Exists(Path.Combine(targetPath, "Content", "Metadata"))) {
+                    Directory.Delete(Path.Combine(targetPath, "Content", "Metadata"), true);
+                }
+
+                if (Directory.Exists(Path.Combine(targetPath, "Content", "Shaders"))) {
+                    Directory.Delete(Path.Combine(targetPath, "Content", "Shaders"), true);
                 }
             }
 

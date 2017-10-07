@@ -1,5 +1,6 @@
 ﻿#if MULTIPLAYER
 
+using Duality;
 using Jazz2.Actors;
 using Jazz2.Game.Structs;
 using Jazz2.NetworkPackets.Server;
@@ -38,7 +39,11 @@ namespace Jazz2.Game.Multiplayer
 
         public void UpdateFromServer(ref UpdateRemotePlayer p)
         {
-            Transform.Pos = p.Pos;
+            Vector3 pos = p.Pos;
+            pos.X += p.Speed.X * p.SenderConnection.AverageRoundtripTime * 0.5f;
+            pos.Y += p.Speed.Y * p.SenderConnection.AverageRoundtripTime * 0.5f;
+
+            Transform.Pos = pos;
 
             speedX = p.Speed.X;
             speedY = p.Speed.Y;

@@ -17,7 +17,7 @@ namespace Jazz2.Game.UI.Menu.S
                 new ChoiceControl(api, "Resize Mode", (int)Resize, "None", "HQ2x"),
                 new ChoiceControl(api, "Vibrations", Duality.Android.InnerView.allowVibrations ? 1 : 0, "Disable", "Enable"),
 #else
-                new ChoiceControl(api, "Resize Mode", (int)Resize, "None", "HQ2x", "3xBRZ", "CRT"),
+                new ChoiceControl(api, "Resize Mode", (int)Resize, "None", "HQ2x", "3xBRZ", "4xBRZ", "CRT"),
 #endif
                 new LinkControl(api, "Controls", OnControlsPressed)
             };

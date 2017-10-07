@@ -9,6 +9,7 @@ using Duality.Drawing;
 using Duality.IO;
 using Duality.Resources;
 using Jazz2.Game.Structs;
+using Jazz2.Storage.Content;
 
 namespace Jazz2.Game
 {
@@ -98,6 +99,11 @@ namespace Jazz2.Game
             jsonParser = new JsonParser();
             imageCodec = ImageCodec.GetRead(ImageCodec.FormatPng);
 
+#if !UNCOMPRESSED_CONTENT
+            string dz = PathOp.Combine(DualityApp.DataDirectory, ".dz");
+            PathOp.Mount(dz, new CompressedContent(dz));
+#endif
+
             defaultNormalMap = new Texture(new Pixmap(new PixelData(2, 2, new ColorRgba(0.5f, 0.5f, 1f))), TextureSizeMode.Default, TextureMagFilter.Nearest, TextureMinFilter.Nearest);
 
             cachedMetadata = new Dictionary<string, Metadata>();
@@ -177,10 +183,14 @@ namespace Jazz2.Game
         {
             Metadata metadata;
             if (!cachedMetadata.TryGetValue(path, out metadata)) {
+#if UNCOMPRESSED_CONTENT
                 string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Metadata", path + ".res");
+#else
+                string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, ".dz", "Metadata", path + ".res");
+#endif
 
                 MetadataJson json;
-                using (Stream s = DualityApp.SystemBackend.FileSystem.OpenFile(pathAbsolute, FileAccessMode.Read)) {
+                using (Stream s = FileOp.Open(pathAbsolute, FileAccessMode.Read)) {
                     lock (jsonParser) {
                         json = jsonParser.Parse<MetadataJson>(s);
                     }
@@ -275,8 +285,11 @@ namespace Jazz2.Game
                             IList<string> filenames = s.Value.Paths;
                             ContentRef<AudioData>[] data = new ContentRef<AudioData>[filenames.Count];
                             for (int i = 0; i < data.Length; i++) {
-
+#if UNCOMPRESSED_CONTENT
                                 data[i] = new AudioData(FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, "Animations", filenames[i]), FileAccessMode.Read));
+#else
+                                data[i] = new AudioData(FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, ".dz", "Animations", filenames[i]), FileAccessMode.Read));
+#endif
                             }
 
                             SoundResource resource = new SoundResource();
@@ -313,7 +326,11 @@ namespace Jazz2.Game
         {
             GenericGraphicResource resource;
             if (!cachedGraphics.TryGetValue(path, out resource)) {
+#if UNCOMPRESSED_CONTENT
                 string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Animations", path);
+#else
+                string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, ".dz", "Animations", path);
+#endif
 
                 SpriteJson json;
                 using (Stream s = FileOp.Open(pathAbsolute + ".res", FileAccessMode.Read)) {
@@ -430,7 +447,11 @@ namespace Jazz2.Game
 
             ContentRef<DrawTechnique> shader;
             if (!cachedShaders.TryGetValue(path, out shader)) {
+#if UNCOMPRESSED_CONTENT
                 string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Shaders", path + ".res");
+#else
+                string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, ".dz", "Shaders", path + ".res");
+#endif
 
                 ShaderJson json;
                 using (Stream s = FileOp.Open(pathAbsolute, FileAccessMode.Read)) {

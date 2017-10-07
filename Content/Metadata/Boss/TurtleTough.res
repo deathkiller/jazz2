@@ -38,10 +38,6 @@
             "Path": "TurtleToughBoss/mace.png",
             "States": [ 1073741827 ],
             "FrameRate": 15
-        },
-        
-        "Shell": {
-            "Path": "TurtleToughBoss/shell.png"
         }
     },
 

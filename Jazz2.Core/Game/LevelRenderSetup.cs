@@ -63,8 +63,11 @@ namespace Jazz2.Game
                 case Settings.ResizeMode.HQ2x:
                     resizeShader = ContentResolver.Current.RequestShader("ResizeHQ2x");
                     break;
-                case Settings.ResizeMode.xBRZ:
+                case Settings.ResizeMode.xBRZ3:
                     resizeShader = ContentResolver.Current.RequestShader("Resize3xBRZ");
+                    break;
+                case Settings.ResizeMode.xBRZ4:
+                    resizeShader = ContentResolver.Current.RequestShader("Resize4xBRZ");
                     break;
                 case Settings.ResizeMode.CRT:
                     resizeShader = ContentResolver.Current.RequestShader("ResizeCRT");

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -11,22 +10,17 @@ namespace Duality.IO
     /// </summary>
     public static partial class PathOp
 	{
-		public static readonly char DirectorySeparatorChar;
-		public static readonly char AltDirectorySeparatorChar;
-		public static readonly char VolumeSeparatorChar;
-		public static readonly char ExtensionSeparatorChar;
+		public const char DirectorySeparatorChar = '\\';
+        public const char AltDirectorySeparatorChar = '/';
+        public const char VolumeSeparatorChar = ':';
+        public const char ExtensionSeparatorChar = '.';
 
-		private static readonly char[] DirectorySeparatorChars;
+        private static readonly char[] DirectorySeparatorChars;
 		private static readonly char[] InvalidPathChars;
 		private static readonly char[] InvalidFileNameChars;
 
 		static PathOp()
 		{
-			AltDirectorySeparatorChar = '/';
-			DirectorySeparatorChar = '\\';
-			VolumeSeparatorChar = ':';
-			ExtensionSeparatorChar = '.';
-
 			DirectorySeparatorChars = new char[] { DirectorySeparatorChar, AltDirectorySeparatorChar };
 
 			char[] asciiBelow32 = new char[32];
@@ -85,8 +79,14 @@ namespace Duality.IO
 
 			CheckInvalidPathChars(path);
 
-			return DualityApp.SystemBackend.FileSystem.GetFullPath(path);
-		}
+            int index = IndexOfFileSystem(path);
+            if (index == -1) {
+                return DualityApp.SystemBackend.FileSystem.GetFullPath(path);
+            } else {
+                // ToDo
+                return path;
+            }
+        }
 		/// <summary>
 		/// Returns whether two paths are referring to the same file system entity.
 		/// Unlike most methods of <see cref="PathOp"/>, this method accesses the file system.

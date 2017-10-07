@@ -74,7 +74,9 @@ namespace Jazz2.Actors.Bosses
         {
             base.OnUpdate();
 
-            block.UpdateBlock(Transform.Pos);
+            if (block != null) {
+                block.UpdateBlock(Transform.Pos);
+            }
 
             if (!canJump && state != StateDead) {
                 // It can only die by collision with spring in the air

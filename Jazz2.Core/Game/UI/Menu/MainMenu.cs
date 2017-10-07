@@ -55,7 +55,11 @@ namespace Jazz2.Game.UI.Menu
             canvasBuffer = new CanvasBuffer();
 
             // Load resources
-            ColorRgba[] defaultPalette = TileSet.LoadPalette(PathOp.Combine("Content", "Animations", ".palette"));
+#if UNCOMPRESSED_CONTENT
+            ColorRgba[] defaultPalette = TileSet.LoadPalette(PathOp.Combine(DualityApp.DataDirectory, "Animations", ".palette"));
+#else
+            ColorRgba[] defaultPalette = TileSet.LoadPalette(PathOp.Combine(DualityApp.DataDirectory, ".dz", "Animations", ".palette"));
+#endif
 
             ContentResolver.Current.ApplyBasePalette(defaultPalette);
 

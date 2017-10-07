@@ -116,6 +116,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoThunderbolt.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoTNT.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoToaster.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Storage\Content\CompressedContent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ControlScheme.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Disposable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Ease.cs" />
@@ -181,6 +182,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\Structs\Layers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Structs\Resources.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Structs\WeaponType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Storage\Content\ContentTree.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Storage\Content\FileResourceSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Storage\Content\ResourceSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Storage\Dummy\DummyPreferencesBackend.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Storage\IPreferencesBackend.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Storage\Preferences.cs" />

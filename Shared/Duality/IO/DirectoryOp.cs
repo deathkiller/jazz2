@@ -50,7 +50,13 @@ namespace Duality.IO
 		{
 			if (string.IsNullOrWhiteSpace(path)) return Enumerable.Empty<string>();
 			PathOp.CheckInvalidPathChars(path);
-            return PathOp.ResolveFileSystem(ref path).GetFiles(path, recursive);
+
+            int index = PathOp.IndexOfFileSystem(path);
+            if (index == -1) {
+                return DualityApp.SystemBackend.FileSystem.GetFiles(path, recursive);
+            } else {
+                return PathOp.PrepareFileSystemForEnumerationUnsafe(index, false, path, recursive);
+            }
 		}
 		/// <summary>
 		/// Enumerates all directories that are located within the specified path.
@@ -62,7 +68,13 @@ namespace Duality.IO
 		{
 			if (string.IsNullOrWhiteSpace(path)) return Enumerable.Empty<string>();
 			PathOp.CheckInvalidPathChars(path);
-            return PathOp.ResolveFileSystem(ref path).GetDirectories(path, recursive);
-		}
+
+            int index = PathOp.IndexOfFileSystem(path);
+            if (index == -1) {
+                return DualityApp.SystemBackend.FileSystem.GetDirectories(path, recursive);
+            } else {
+                return PathOp.PrepareFileSystemForEnumerationUnsafe(index, true, path, recursive);
+            }
+        }
 	}
 }

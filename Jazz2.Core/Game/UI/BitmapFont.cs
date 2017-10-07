@@ -33,7 +33,11 @@ namespace Jazz2.Game.UI
         // ToDo: Move parameters to .config file, rework .config file format
         public BitmapFont(string path, int width, int height, int cols, int first, int last, int defaultSpacing, CanvasBuffer buffer = null)
         {
+#if UNCOMPRESSED_CONTENT
             string png = PathOp.Combine(DualityApp.DataDirectory, "Animations", path + ".png");
+#else
+            string png = PathOp.Combine(DualityApp.DataDirectory, ".dz", "Animations", path + ".png");
+#endif
             string config = png + ".config";
 
             IImageCodec imageCodec = ImageCodec.GetRead(ImageCodec.FormatPng);
@@ -57,7 +61,7 @@ namespace Jazz2.Game.UI
             }
 
             byte[] widthFromFileTable = new byte[256];
-            using (Stream s = DualityApp.SystemBackend.FileSystem.OpenFile(config, FileAccessMode.Read)) {
+            using (Stream s = FileOp.Open(config, FileAccessMode.Read)) {
                 s.Read(widthFromFileTable, 0, widthFromFileTable.Length);
             }
 

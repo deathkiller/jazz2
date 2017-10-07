@@ -1,4 +1,6 @@
-﻿using Duality;
+﻿using System.IO;
+using System.Text;
+using Duality;
 using Duality.Drawing;
 using Duality.Resources;
 using Jazz2.Game.Structs;
@@ -34,6 +36,28 @@ namespace Jazz2
                     return (start > 0 ? new string(ptr, start, input.Length - start) : null);
                 }
             }
+        }
+
+        // BinaryReader/Writer
+        public static string ReadAsciiString(this BinaryReader r)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            byte value;
+            while ((value = r.ReadByte()) != 0) {
+                sb.Append((char)value);
+            }
+
+            return sb.ToString();
+        }
+
+        public static void WriteAsciiString(this BinaryWriter w, string value)
+        {
+            if (!string.IsNullOrEmpty(value)) {
+                w.Write(Encoding.ASCII.GetBytes(value));
+            }
+
+            w.Write((byte)0);
         }
 
         // RenderSetups

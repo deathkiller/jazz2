@@ -8,6 +8,8 @@ namespace Jazz2.Actors.Enemies
 {
     public class TurtleShell : EnemyBase
     {
+        private float lastAngle;
+
         public TurtleShell()
         {
             // Empty constructor for spawning
@@ -27,12 +29,16 @@ namespace Jazz2.Actors.Enemies
 
             switch (theme) {
                 case 0:
-                default:
+                default: // Normal
                     RequestMetadata("Enemy/TurtleShell");
                     break;
 
                 case 1: // Xmas
                     RequestMetadata("Enemy/TurtleShellXmas");
+                    break;
+
+                case 2: // Tough (Boss)
+                    RequestMetadata("Boss/TurtleShellTough");
                     break;
             }
 
@@ -41,10 +47,7 @@ namespace Jazz2.Actors.Enemies
             canHurtPlayer = false;
             friction = api.Gravity * 0.05f;
             elasticity = 0.5f;
-            // ToDo: Test the actual number
             health = 8;
-
-            //collisionFlags |= CollisionFlags.CollideWithSolidObjects;
 
             PlaySound("Fly");
         }
@@ -56,14 +59,14 @@ namespace Jazz2.Actors.Enemies
 
         protected override void OnUpdate()
         {
-            speedX = MathF.Max(MathF.Abs(speedX) - friction, 0f) * (speedX >= 0f ? 1f : -1f);
+            speedX = MathF.Max(MathF.Abs(speedX) - friction, 0f) * (speedX < 0f ? -1f : 1f);
 
             double posYBefore = Transform.Pos.Y;
             base.OnUpdate();
 
             Vector3 pos = Transform.Pos;
             if (posYBefore - pos.Y > 0.5 && MathF.Abs(speedY) < 1) {
-                speedX = MathF.Max(MathF.Abs(speedX) - 10f * friction, 0f) * (speedX >= 0f ? 1f : -1f);
+                speedX = MathF.Max(MathF.Abs(speedX) - 10f * friction, 0f) * (speedX < 0f ? -1f : 1f);
             }
 
             foreach (ActorBase collision in api.FindCollisionActors(this)) {
@@ -72,7 +75,7 @@ namespace Jazz2.Actors.Enemies
                         if (speedY - collider.speedY > 1f && speedY > 0f) {
                             collider.DecreaseHealth(10, this);
                         } else if (MathF.Abs(speedX) > MathF.Abs(collider.speedX)) {
-                            // Handle this only in the faster of the two.
+                            // Handle this only in the faster of the two
                             pos.X = collider.Transform.Pos.X + (speedX >= 0 ? -1f : 1f) * (currentAnimation.Base.FrameDimensions.X + 1);
                             float totalSpeed = MathF.Abs(speedX) + MathF.Abs(collider.speedX);
 
@@ -106,6 +109,9 @@ namespace Jazz2.Actors.Enemies
                 tiles.CheckCollapseDestructible(ref currentHitbox);
                 tiles.CheckWeaponDestructible(ref currentHitbox, WeaponType.Blaster, 1);
             }
+
+            lastAngle = MathF.Lerp(lastAngle, speedX * 0.06f, Time.TimeMult * 0.2f);
+            Transform.Angle = lastAngle;
         }
 
         public override void HandleCollision(ActorBase other)

@@ -660,7 +660,11 @@ namespace Jazz2.Server
                     throw new InvalidOperationException();
                 }
 
-                player.Pos = p.Pos;
+                Vector3 pos = p.Pos;
+                pos.X += p.Speed.X * p.SenderConnection.AverageRoundtripTime * 0.5f;
+                pos.Y += p.Speed.Y * p.SenderConnection.AverageRoundtripTime * 0.5f;
+
+                player.Pos = pos;
                 player.Speed = p.Speed;
 
                 player.AnimState = p.AnimState;

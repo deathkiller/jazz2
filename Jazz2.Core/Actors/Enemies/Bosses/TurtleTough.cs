@@ -125,7 +125,14 @@ namespace Jazz2.Actors.Bosses
         protected override bool OnPerish(ActorBase collider)
         {
             CreateParticleDebris();
-            CreateSpriteDebris("Shell", 1);
+
+            TurtleShell shell = new TurtleShell(speedX * 1.1f, 1.1f);
+            shell.OnAttach(new ActorInstantiationDetails {
+                Api = api,
+                Pos = Transform.Pos,
+                Params = new[] { (ushort)2 }
+            });
+            api.AddActor(shell);
 
             api.PlayCommonSound(this, "Splat");
 

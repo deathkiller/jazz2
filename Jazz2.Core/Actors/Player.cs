@@ -1562,7 +1562,6 @@ namespace Jazz2.Actors
                                 }
 
                                 if (sign > 0) {
-                                    //controllable = false;
                                     removeSpecialMove = false;
                                     currentSpecialMove = SpecialMoveType.Buttstomp;
                                     SetAnimation(AnimState.Buttstomp);
@@ -1570,12 +1569,12 @@ namespace Jazz2.Actors
                                     removeSpecialMove = true;
                                     isSpring = true;
                                 }
+
+                                PlaySound("Spring");
                             } else {
                                 continue;
                             }
                             canJump = false;
-
-                            PlaySound("Spring");
                         }
                         continue;
                     }
@@ -1858,7 +1857,7 @@ namespace Jazz2.Actors
                 wasActivelyPushing = false;
 
                 controllableTimeout = 4f;
-                lastPoleTime = 26f;
+                lastPoleTime = 10f;
 
                 PlaySound("HookAttach", 0.8f, 1.2f);
             }
