@@ -24,17 +24,19 @@ namespace Jazz2.Game.UI.Menu.S
             base.OnShow(root);
         }
 
-        public override void OnPaint(IDrawDevice device, Canvas c)
+        public override void OnPaint(Canvas canvas)
         {
             if (controls == null) {
                 return;
             }
 
+            IDrawDevice device = canvas.DrawDevice;
+
             Vector2 center = device.TargetSize * 0.5f;
             center.Y *= 0.8f;
 
             for (int i = 0; i < controls.Length; i++) {
-                controls[i].OnDraw(device, c, ref center, selectedIndex == i);
+                controls[i].OnDraw(canvas, ref center, selectedIndex == i);
             }
         }
 

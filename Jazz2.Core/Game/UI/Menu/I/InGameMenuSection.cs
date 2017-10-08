@@ -18,6 +18,6 @@ namespace Jazz2.Game.UI.Menu.I
 
         public abstract void OnUpdate();
 
-        public abstract void OnPaint(IDrawDevice device, Canvas c);
+        public abstract void OnPaint(Canvas canvas);
     }
 }

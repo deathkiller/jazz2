@@ -167,6 +167,8 @@ namespace Jazz2.Actors.Bosses
                                     Pos = new Vector3(brickStartRangeX + MathF.Rnd.NextFloat(pos.X - brickStartRangeX - 50), pos.Y - 200f, pos.Z + 20f)
                                 });
                                 api.AddActor(brick);
+
+                                api.ShakeCameraView(20f);
                             });
                         });
                     }
@@ -270,7 +272,9 @@ namespace Jazz2.Actors.Bosses
             float timeMult = Time.TimeMult;
             Hitbox tileCollisionHitbox = currentHitbox + new Vector2((speedX + externalForceX) * 2f * timeMult, (speedY - externalForceY) * 2f * timeMult);
 
-            tiles.CheckWeaponDestructible(ref tileCollisionHitbox, WeaponType.Blaster, int.MaxValue);
+            if (tiles.CheckWeaponDestructible(ref tileCollisionHitbox, WeaponType.Blaster, int.MaxValue) > 0) {
+                api.ShakeCameraView(20f);
+            }
         }
 
         private class Brick : EnemyBase

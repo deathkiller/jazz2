@@ -611,6 +611,14 @@ namespace Jazz2.Game
             }
         }
 
+        public void ShakeCameraView(float duration)
+        {
+            CameraController controller = camera.GetComponent<CameraController>();
+            if (controller != null) {
+                controller.Shake(duration);
+            }
+        }
+
         public Metadata RequestMetadata(string path)
         {
             return ContentResolver.Current.RequestMetadata(path);

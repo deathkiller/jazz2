@@ -88,19 +88,21 @@ namespace Jazz2.Game.UI.Menu
             base.OnShow(root);
         }
 
-        public override void OnPaint(IDrawDevice device, Canvas c)
+        public override void OnPaint(Canvas canvas)
         {
+            IDrawDevice device = canvas.DrawDevice;
+
             Vector2 center = device.TargetSize * 0.5f;
 
             const float topLine = 131f;
             float bottomLine = device.TargetSize.Y - 42;
-            api.DrawMaterial(c, "MenuDim", center.X, (topLine + bottomLine) * 0.5f, Alignment.Center, ColorRgba.White, 55f, (bottomLine - topLine) * 0.063f, new Rect(0f, 0.3f, 1f, 0.4f));
+            api.DrawMaterial("MenuDim", center.X, (topLine + bottomLine) * 0.5f, Alignment.Center, ColorRgba.White, 55f, (bottomLine - topLine) * 0.063f, new Rect(0f, 0.3f, 1f, 0.4f));
 
-            api.DrawMaterial(c, "MenuLine", 0, center.X, topLine, Alignment.Center, ColorRgba.White, 1.6f);
-            api.DrawMaterial(c, "MenuLine", 1, center.X, bottomLine, Alignment.Center, ColorRgba.White, 1.6f);
+            api.DrawMaterial("MenuLine", 0, center.X, topLine, Alignment.Center, ColorRgba.White, 1.6f);
+            api.DrawMaterial("MenuLine", 1, center.X, bottomLine, Alignment.Center, ColorRgba.White, 1.6f);
 
             int charOffset = 0;
-            api.DrawStringShadow(device, ref charOffset, "Select Episode", center.X, 110f,
+            api.DrawStringShadow(ref charOffset, "Select Episode", center.X, 110f,
                 Alignment.Center, new ColorRgba(0.5f, 0.5f), 0.9f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
 
             if (episodes.Count > 0) {
@@ -117,7 +119,7 @@ namespace Jazz2.Game.UI.Menu
 
                         if (episodes[i].IsAvailable) {
                             if (episodes[i].Logo.IsAvailable) {
-                                api.DrawString(device, ref charOffset, episodes[i].Episode.Name, center.X, topItem,
+                                api.DrawString(ref charOffset, episodes[i].Episode.Name, center.X, topItem,
                                     Alignment.Center, new ColorRgba(0.44f, 0.5f * MathF.Max(0f, 1f - selectAnimation * 2f)), 0.9f - selectAnimation * 0.5f);
 
                                 ContentRef<Material> logo = episodes[i].Logo;
@@ -126,27 +128,27 @@ namespace Jazz2.Game.UI.Menu
                                 Vector2 originPos = new Vector2(center.X, topItem);
                                 Alignment.Center.ApplyTo(ref originPos, new Vector2(texture.InternalWidth * size, texture.InternalHeight * size));
 
-                                c.State.SetMaterial(logo);
-                                c.State.ColorTint = ColorRgba.White.WithAlpha(1f - expandedAnimation * 0.5f);
-                                c.FillRect(originPos.X, originPos.Y, texture.InternalWidth * size, texture.InternalHeight * size);
+                                canvas.State.SetMaterial(logo);
+                                canvas.State.ColorTint = ColorRgba.White.WithAlpha(1f - expandedAnimation * 0.5f);
+                                canvas.FillRect(originPos.X, originPos.Y, texture.InternalWidth * size, texture.InternalHeight * size);
                             } else {
-                                api.DrawStringShadow(device, ref charOffset, episodes[i].Episode.Name, center.X, topItem,
+                                api.DrawStringShadow(ref charOffset, episodes[i].Episode.Name, center.X, topItem,
                                     Alignment.Center, null, size, charSpacing: 0.9f);
                             }
 
                             if (episodes[i].CanContinue) {
                                 float moveX = expandedAnimation * -26f;
 
-                                api.DrawString(device, ref charOffset, ">", center.X + 80f + moveX, topItem,
+                                api.DrawString(ref charOffset, ">", center.X + 80f + moveX, topItem,
                                     Alignment.Right, new ColorRgba(0.5f, 0.5f * MathF.Min(1f, 0.4f + selectAnimation)), 1f, charSpacing: 0.9f);
 
                                 if (expanded) {
-                                    api.DrawStringShadow(device, ref charOffset, "Restart episode", center.X + 90f + moveX, topItem,
+                                    api.DrawStringShadow(ref charOffset, "Restart episode", center.X + 90f + moveX, topItem,
                                         Alignment.Left, new ColorRgba(0.48f, 0.40f, 0.22f, 0.5f * MathF.Min(1f, 0.4f + expandedAnimation)), 0.8f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.8f);
                                 }
                             }
                         } else {
-                            api.DrawString(device, ref charOffset, episodes[i].Episode.Name, center.X, topItem,
+                            api.DrawString(ref charOffset, episodes[i].Episode.Name, center.X, topItem,
                                 Alignment.Center, new ColorRgba(0.4f, MathF.Max(0.3f, 0.4f - selectAnimation * 0.4f)), MathF.Max(0.7f, 0.9f - selectAnimation * 0.6f));
 
                             int index = episodes.IndexOfFirst(entry => entry.Episode.Token == episodes[i].Episode.PreviousEpisode);
@@ -164,15 +166,15 @@ namespace Jazz2.Game.UI.Menu
                                 info = "You must complete \"" + previousEpisode.Name + "\" first!";
                             }
 
-                            api.DrawStringShadow(device, ref charOffset, info, center.X, topItem,
+                            api.DrawStringShadow(ref charOffset, info, center.X, topItem,
                                 Alignment.Center, new ColorRgba(0.66f, 0.42f, 0.32f, MathF.Min(0.5f, 0.2f + 2f * selectAnimation)), 0.7f * size, charSpacing: 0.9f);
                         }
                     } else {
                         if (episodes[i].IsAvailable) {
-                            api.DrawString(device, ref charOffset, episodes[i].Episode.Name, center.X, topItem,
+                            api.DrawString(ref charOffset, episodes[i].Episode.Name, center.X, topItem,
                                 Alignment.Center, ColorRgba.TransparentBlack, 0.9f);
                         } else {
-                            api.DrawString(device, ref charOffset, episodes[i].Episode.Name, center.X, topItem,
+                            api.DrawString(ref charOffset, episodes[i].Episode.Name, center.X, topItem,
                                 Alignment.Center, new ColorRgba(0.4f, 0.4f), 0.9f);
                         }
                     }
@@ -180,7 +182,7 @@ namespace Jazz2.Game.UI.Menu
                     topItem += itemSpacing;
                 }
             } else {
-                api.DrawStringShadow(device, ref charOffset, "No episode found!", center.X, center.Y, Alignment.Center,
+                api.DrawStringShadow(ref charOffset, "No episode found!", center.X, center.Y, Alignment.Center,
                     new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f), 0.9f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
             }
         }

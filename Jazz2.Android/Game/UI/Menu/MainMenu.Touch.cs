@@ -20,12 +20,12 @@ namespace Jazz2.Game.UI.Menu
             }
         }
 
-        partial void DrawTouch(IDrawDevice device, Canvas c, Vector2 size)
+        partial void DrawTouch(Vector2 size)
         {
             int y = (statusBarHeight * (int)size.Y / DualityApp.WindowSize.Y);
-            c.State.SetMaterial(new Material(DrawTechnique.Alpha, new ColorRgba(0.9f, 0.4f)));
-            c.State.ColorTint = ColorRgba.White;
-            c.DrawLine(0, y, size.X, y);
+            canvas.State.SetMaterial(new Material(DrawTechnique.Alpha, new ColorRgba(0.9f, 0.4f)));
+            canvas.State.ColorTint = ColorRgba.White;
+            canvas.DrawLine(0, y, size.X, y);
 
             if (!InnerView.showVirtualButtons || InnerView.virtualButtons == null) {
                 return;
@@ -34,9 +34,9 @@ namespace Jazz2.Game.UI.Menu
             for (int i = 0; i < InnerView.virtualButtons.Length; i++) {
                 InnerView.VirtualButton button = InnerView.virtualButtons[i];
                 if (button.Material.IsAvailable) {
-                    c.State.SetMaterial(button.Material);
-                    c.FillOval(button.Left * size.X, button.Top * size.Y, button.Width * size.X, button.Height * size.Y);
-                    c.DrawOval(button.Left * size.X, button.Top * size.Y, button.Width * size.X, button.Height * size.Y);
+                    canvas.State.SetMaterial(button.Material);
+                    canvas.FillOval(button.Left * size.X, button.Top * size.Y, button.Width * size.X, button.Height * size.Y);
+                    canvas.DrawOval(button.Left * size.X, button.Top * size.Y, button.Width * size.X, button.Height * size.Y);
                 }
             }
         }

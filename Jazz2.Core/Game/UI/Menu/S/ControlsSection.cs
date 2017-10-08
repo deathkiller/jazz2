@@ -25,23 +25,25 @@ namespace Jazz2.Game.UI.Menu.S
             base.OnShow(root);
         }
 
-        public override void OnPaint(IDrawDevice device, Canvas c)
+        public override void OnPaint(Canvas canvas)
         {
+            IDrawDevice device = canvas.DrawDevice;
+
             Vector2 center = device.TargetSize * 0.5f;
 
             const float topLine = 131f;
             float bottomLine = device.TargetSize.Y - 42;
-            api.DrawMaterial(c, "MenuDim", center.X, (topLine + bottomLine) * 0.5f, Alignment.Center, ColorRgba.White, 55f, (bottomLine - topLine) * 0.063f, new Rect(0f, 0.3f, 1f, 0.4f));
+            api.DrawMaterial("MenuDim", center.X, (topLine + bottomLine) * 0.5f, Alignment.Center, ColorRgba.White, 55f, (bottomLine - topLine) * 0.063f, new Rect(0f, 0.3f, 1f, 0.4f));
 
             int charOffset = 0;
-            api.DrawStringShadow(device, ref charOffset, "Controls for Player #1", center.X * 0.3f, 110f,
+            api.DrawStringShadow(ref charOffset, "Controls for Player #1", center.X * 0.3f, 110f,
                 Alignment.Left, new ColorRgba(0.5f, 0.5f), 0.9f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
 
-            api.DrawStringShadow(device, ref charOffset, "Key 1", center.X * (0.9f + 0 * 0.34f), 110f,
+            api.DrawStringShadow(ref charOffset, "Key 1", center.X * (0.9f + 0 * 0.34f), 110f,
                 Alignment.Center, new ColorRgba(0.46f, 0.5f), 0.8f, charSpacing: 0.88f);
-            api.DrawStringShadow(device, ref charOffset, "Key 2", center.X * (0.9f + 1 * 0.34f), 110f,
+            api.DrawStringShadow(ref charOffset, "Key 2", center.X * (0.9f + 1 * 0.34f), 110f,
                 Alignment.Center, new ColorRgba(0.46f, 0.5f), 0.8f, charSpacing: 0.88f);
-            api.DrawStringShadow(device, ref charOffset, "Gamepad", center.X * (0.9f + 2 * 0.34f), 110f,
+            api.DrawStringShadow(ref charOffset, "Gamepad", center.X * (0.9f + 2 * 0.34f), 110f,
                 Alignment.Center, new ColorRgba(0.46f, 0.5f), 0.8f, charSpacing: 0.88f);
 
             int n = (int)PlayerActions.Count;
@@ -69,7 +71,7 @@ namespace Jazz2.Game.UI.Menu.S
 
                 ref Mapping mapping = ref ControlScheme.GetCurrentMapping(0, (PlayerActions)i);
 
-                api.DrawString(device, ref charOffset, name, center.X * 0.3f, topItem,
+                api.DrawString(ref charOffset, name, center.X * 0.3f, topItem,
                     Alignment.Left, ColorRgba.TransparentBlack, 0.8f);
 
                 for (int j = 0; j < possibleButtons; j++) {
@@ -103,11 +105,11 @@ namespace Jazz2.Game.UI.Menu.S
                     if (selectedIndex == i && selectedColumn == j) {
                         float size = 0.5f + Ease.OutElastic(animation) * 0.5f;
 
-                        api.DrawStringShadow(device, ref charOffset, value, center.X * (0.9f + j * 0.34f), topItem,
+                        api.DrawStringShadow(ref charOffset, value, center.X * (0.9f + j * 0.34f), topItem,
                             Alignment.Center, waitForInput ? new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f) : new ColorRgba(0.48f, 0.5f), size, 0.7f, 1.1f, 1.1f, charSpacing: 0.9f);
 
                     } else {
-                        api.DrawString(device, ref charOffset, value, center.X * (0.9f + j * 0.34f), topItem,
+                        api.DrawString(ref charOffset, value, center.X * (0.9f + j * 0.34f), topItem,
                             Alignment.Center, ColorRgba.TransparentBlack, 0.8f);
                     }
                 }
@@ -116,8 +118,8 @@ namespace Jazz2.Game.UI.Menu.S
             }
 
 
-            api.DrawMaterial(c, "MenuLine", 0, center.X, topLine, Alignment.Center, ColorRgba.White, 1.6f);
-            api.DrawMaterial(c, "MenuLine", 1, center.X, bottomLine, Alignment.Center, ColorRgba.White, 1.6f);
+            api.DrawMaterial("MenuLine", 0, center.X, topLine, Alignment.Center, ColorRgba.White, 1.6f);
+            api.DrawMaterial("MenuLine", 1, center.X, bottomLine, Alignment.Center, ColorRgba.White, 1.6f);
         }
 
         public override void OnUpdate()

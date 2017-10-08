@@ -26,13 +26,15 @@ namespace Jazz2.Game.UI
         private Rect[] chars = new Rect[256];
         private int spacing, height;
 
-        private readonly CanvasBuffer buffer;
+        private readonly Canvas canvas;
 
         public int Height => height;
 
         // ToDo: Move parameters to .config file, rework .config file format
-        public BitmapFont(string path, int width, int height, int cols, int first, int last, int defaultSpacing, CanvasBuffer buffer = null)
+        public BitmapFont(Canvas canvas, string path, int width, int height, int cols, int first, int last, int defaultSpacing)
         {
+            this.canvas = canvas;
+
 #if UNCOMPRESSED_CONTENT
             string png = PathOp.Combine(DualityApp.DataDirectory, "Animations", path + ".png");
 #else
@@ -80,11 +82,9 @@ namespace Jazz2.Game.UI
                     break;
                 }
             }
-
-            this.buffer = buffer ?? new CanvasBuffer(true);
         }
 
-        public unsafe void DrawString(IDrawDevice device, ref int charOffset, string text, float x, float y, Alignment alignment, ColorRgba? color = null, float scale = 1f, float angleOffset = 0f, float varianceX = 4f, float varianceY = 4f, float speed = 4f, float charSpacing = 1f, float lineSpacing = 1f)
+        public unsafe void DrawString(ref int charOffset, string text, float x, float y, Alignment alignment, ColorRgba? color = null, float scale = 1f, float angleOffset = 0f, float varianceX = 4f, float varianceY = 4f, float speed = 4f, float charSpacing = 1f, float lineSpacing = 1f)
         {
             if (string.IsNullOrEmpty(text)) {
                 return;
@@ -147,7 +147,7 @@ namespace Jazz2.Game.UI
                 totalHeight += (height * scale * lineSpacing);
 
                 //VertexC1P3T2[] vertexData = new VertexC1P3T2[text.Length * 4];
-                VertexC1P3T2[] vertexData = buffer.RequestVertexArray(text.Length * 4);
+                VertexC1P3T2[] vertexData = canvas.RentVertices(text.Length * 4);
 
                 // Set default material
                 bool colorize, allowColorChange;
@@ -278,8 +278,8 @@ namespace Jazz2.Game.UI
                         vertexData[vertexBaseIndex + 3].TexCoord.Y = uvRect.Y;
                         vertexData[vertexBaseIndex + 3].Color = mainColor;
 
-                        if (MathF.RoundToInt(device.TargetSize.X) != (MathF.RoundToInt(device.TargetSize.X) / 2) * 2) {
-                            float align = 0.5f / device.TargetSize.X;
+                        if (MathF.RoundToInt(canvas.DrawDevice.TargetSize.X) != (MathF.RoundToInt(canvas.DrawDevice.TargetSize.X) / 2) * 2) {
+                            float align = 0.5f / canvas.DrawDevice.TargetSize.X;
 
                             vertexData[vertexBaseIndex + 0].Pos.X += align;
                             vertexData[vertexBaseIndex + 1].Pos.X += align;
@@ -287,8 +287,8 @@ namespace Jazz2.Game.UI
                             vertexData[vertexBaseIndex + 3].Pos.X += align;
                         }
 
-                        if (MathF.RoundToInt(device.TargetSize.Y) != (MathF.RoundToInt(device.TargetSize.Y) / 2) * 2) {
-                            float align = 0.5f * scale / device.TargetSize.Y;
+                        if (MathF.RoundToInt(canvas.DrawDevice.TargetSize.Y) != (MathF.RoundToInt(canvas.DrawDevice.TargetSize.Y) / 2) * 2) {
+                            float align = 0.5f * scale / canvas.DrawDevice.TargetSize.Y;
 
                             vertexData[vertexBaseIndex + 0].Pos.Y += align;
                             vertexData[vertexBaseIndex + 1].Pos.Y += align;
@@ -305,7 +305,7 @@ namespace Jazz2.Game.UI
                 charOffset++;
 
                 // Submit all the vertices as one draw batch
-                device.AddVertices(
+                canvas.DrawDevice.AddVertices(
                     material,
                     VertexMode.Quads,
                     vertexData,

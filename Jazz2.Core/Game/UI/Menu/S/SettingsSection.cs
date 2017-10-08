@@ -32,22 +32,24 @@ namespace Jazz2.Game.UI.Menu.S
             base.OnHide(isRemoved);
         }
 
-        public override void OnPaint(IDrawDevice device, Canvas c)
+        public override void OnPaint(Canvas canvas)
         {
-            base.OnPaint(device, c);
+            base.OnPaint(canvas);
+
+            IDrawDevice device = canvas.DrawDevice;
 
             Vector2 center = device.TargetSize * 0.5f;
 
 #if __ANDROID__
             var fs = (DualityApp.SystemBackend.FileSystem as Duality.Backend.Android.NativeFileSystem);
             if (fs != null) {
-                api.DrawMaterial(c, "MenuSettingsStorage", 180f, center.Y + 140f - 3f, Alignment.Right, ColorRgba.White);
+                api.DrawMaterial("MenuSettingsStorage", 180f, center.Y + 140f - 3f, Alignment.Right, ColorRgba.White);
 
                 int charOffset = 0;
-                api.DrawStringShadow(device, ref charOffset, "Content Path:",
+                api.DrawStringShadow(ref charOffset, "Content Path:",
                     180f + 10f, center.Y + 140f, Alignment.Left, new ColorRgba(0.68f, 0.46f, 0.42f, 0.5f), 0.8f, charSpacing: 0.9f);
 
-                api.DrawString(device, ref charOffset, fs.RootPath,
+                api.DrawString(ref charOffset, fs.RootPath,
                     180f + 10f + 98f, center.Y + 140f, Alignment.Left, new ColorRgba(0.46f, 0.5f), 0.8f, charSpacing: 0.85f);
             }
 #endif

@@ -54,8 +54,10 @@ namespace Jazz2.Game.UI.Menu
             discovery.Dispose();
         }
 
-        public override void OnPaint(IDrawDevice device, Canvas c)
+        public override void OnPaint(Canvas canvas)
         {
+            IDrawDevice device = canvas.DrawDevice;
+
             Vector2 center = device.TargetSize * 0.5f;
 
             const float topLine = 96f;

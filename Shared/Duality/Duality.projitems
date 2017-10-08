@@ -73,7 +73,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)CorePluginManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\BatchInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\Canvas.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Drawing\CanvasBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\CanvasState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\CullingInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\DrawBatch.cs" />

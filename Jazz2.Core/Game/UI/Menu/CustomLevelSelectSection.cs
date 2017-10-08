@@ -119,13 +119,15 @@ namespace Jazz2.Game.UI.Menu
             animation = 0f;
         }
 
-        public override void OnPaint(IDrawDevice device, Canvas c)
+        public override void OnPaint(Canvas canvas)
         {
+            IDrawDevice device = canvas.DrawDevice;
+
             Vector2 center = device.TargetSize * 0.5f;
 
             const float topLine = 96f;
             float bottomLine = device.TargetSize.Y - 42;
-            api.DrawMaterial(c, "MenuDim", center.X, (topLine + bottomLine) * 0.5f, Alignment.Center, ColorRgba.White, 55f, (bottomLine - topLine) * 0.063f, new Rect(0f, 0.3f, 1f, 0.4f));
+            api.DrawMaterial("MenuDim", center.X, (topLine + bottomLine) * 0.5f, Alignment.Center, ColorRgba.White, 55f, (bottomLine - topLine) * 0.063f, new Rect(0f, 0.3f, 1f, 0.4f));
 
             int charOffset = 0;
             if (levelList.Count > 0) {
@@ -159,27 +161,27 @@ namespace Jazz2.Game.UI.Menu
                         float size = 0.7f + easing * 0.1f;
 
                         // Column 2
-                        api.DrawStringShadow(device, ref charOffset, levelList[i].LevelName, column2, currentItem, Alignment.Left,
+                        api.DrawStringShadow(ref charOffset, levelList[i].LevelName, column2, currentItem, Alignment.Left,
                             new ColorRgba(0.48f, 0.5f), 0.8f, 0.4f, 1f, 1f, 8f, charSpacing: 0.88f);
 
                         // Column 1
-                        api.DrawStringShadow(device, ref charOffset, levelList[i].DisplayName, x, currentItem, Alignment.Left,
+                        api.DrawStringShadow(ref charOffset, levelList[i].DisplayName, x, currentItem, Alignment.Left,
                             null, size, 0.4f, 1f, 1f, 8f, charSpacing: 0.88f);
 
                         // Column 0
-                        api.DrawStringShadow(device, ref charOffset, levelList[i].Icon, column1 - 16f, currentItem, Alignment.Right,
+                        api.DrawStringShadow(ref charOffset, levelList[i].Icon, column1 - 16f, currentItem, Alignment.Right,
                             new ColorRgba(0.48f, 0.5f), size, 0.4f, 1f, 1f, 8f, charSpacing: 0.68f);
                     } else {
                         // Column 2
-                        api.DrawString(device, ref charOffset, levelList[i].LevelName, column2, currentItem, Alignment.Left,
+                        api.DrawString(ref charOffset, levelList[i].LevelName, column2, currentItem, Alignment.Left,
                             ColorRgba.TransparentBlack, 0.7f);
 
                         // Column 1
-                        api.DrawString(device, ref charOffset, levelList[i].DisplayName, column1, currentItem, Alignment.Left,
+                        api.DrawString(ref charOffset, levelList[i].DisplayName, column1, currentItem, Alignment.Left,
                             ColorRgba.TransparentBlack, 0.7f);
 
                         // Column 0
-                        api.DrawString(device, ref charOffset, levelList[i].Icon, column1 - 16f, currentItem, Alignment.Right,
+                        api.DrawString(ref charOffset, levelList[i].Icon, column1 - 16f, currentItem, Alignment.Right,
                             ColorRgba.TransparentBlack, 0.7f, charSpacing: 0.7f);
                     }
 
@@ -192,11 +194,11 @@ namespace Jazz2.Game.UI.Menu
                     float sy = ((float)xOffset / levelList.Count) * 18f * itemCount + topLine;
                     float sh = ((float)itemCount / levelList.Count) * 16f * itemCount;
 
-                    c.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0f, 0f, 0f, 0.28f)));
-                    c.FillRect(sx + 1f, sy + 1f, sw, sh);
+                    canvas.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0f, 0f, 0f, 0.28f)));
+                    canvas.FillRect(sx + 1f, sy + 1f, sw, sh);
 
-                    c.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0.8f, 0.8f, 0.8f, 0.5f)));
-                    c.FillRect(sx, sy, sw, sh);
+                    canvas.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0.8f, 0.8f, 0.8f, 0.5f)));
+                    canvas.FillRect(sx, sy, sw, sh);
                 }
 
                 // Loading
@@ -233,30 +235,30 @@ namespace Jazz2.Game.UI.Menu
                     const float r3 = r2 - 0.4f;
                     const float r4 = r3 - 0.4f;
 
-                    api.DrawMaterial(c, "MenuDim", loadingX + 50f, loadingY, Alignment.Center, new ColorRgba(1f, 0.7f * isLoadingAnimation), 40f, 10f);
+                    api.DrawMaterial("MenuDim", loadingX + 50f, loadingY, Alignment.Center, new ColorRgba(1f, 0.7f * isLoadingAnimation), 40f, 10f);
 
-                    c.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0f, 0.2f * isLoadingAnimation)));
-                    c.DrawCircleSegment(loadingX + 1.6f, loadingY + 1.6f, r1, startAngle, endAngle);
-                    c.DrawCircleSegment(loadingX + 1.6f, loadingY + 1.6f, r2, startAngle, endAngle);
-                    c.DrawCircleSegment(loadingX + 1.6f, loadingY + 1.6f, r3, startAngle, endAngle);
-                    c.DrawCircleSegment(loadingX + 1.6f, loadingY + 1.6f, r4, startAngle, endAngle);
+                    canvas.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0f, 0.2f * isLoadingAnimation)));
+                    canvas.DrawCircleSegment(loadingX + 1.6f, loadingY + 1.6f, r1, startAngle, endAngle);
+                    canvas.DrawCircleSegment(loadingX + 1.6f, loadingY + 1.6f, r2, startAngle, endAngle);
+                    canvas.DrawCircleSegment(loadingX + 1.6f, loadingY + 1.6f, r3, startAngle, endAngle);
+                    canvas.DrawCircleSegment(loadingX + 1.6f, loadingY + 1.6f, r4, startAngle, endAngle);
 
-                    c.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0.95f, 0.8f * isLoadingAnimation)));
-                    c.DrawCircleSegment(loadingX, loadingY, r1, startAngle, endAngle);
-                    c.DrawCircleSegment(loadingX, loadingY, r2, startAngle, endAngle);
-                    c.DrawCircleSegment(loadingX, loadingY, r3, startAngle, endAngle);
-                    c.DrawCircleSegment(loadingX, loadingY, r4, startAngle, endAngle);
+                    canvas.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0.95f, 0.8f * isLoadingAnimation)));
+                    canvas.DrawCircleSegment(loadingX, loadingY, r1, startAngle, endAngle);
+                    canvas.DrawCircleSegment(loadingX, loadingY, r2, startAngle, endAngle);
+                    canvas.DrawCircleSegment(loadingX, loadingY, r3, startAngle, endAngle);
+                    canvas.DrawCircleSegment(loadingX, loadingY, r4, startAngle, endAngle);
 
-                    api.DrawStringShadow(device, ref charOffset, "Loading...", loadingX + r1 + 10f, loadingY + 2f, Alignment.Left,
+                    api.DrawStringShadow(ref charOffset, "Loading...", loadingX + r1 + 10f, loadingY + 2f, Alignment.Left,
                         new ColorRgba(0.48f, 0.5f * isLoadingAnimation), 0.8f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
                 }
             } else {
-                api.DrawStringShadow(device, ref charOffset, "No custom level found!", center.X, center.Y, Alignment.Center,
+                api.DrawStringShadow(ref charOffset, "No custom level found!", center.X, center.Y, Alignment.Center,
                     new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f), 0.9f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
             }
 
-            api.DrawMaterial(c, "MenuLine", 0, center.X, topLine, Alignment.Center, ColorRgba.White, 1.6f);
-            api.DrawMaterial(c, "MenuLine", 1, center.X, bottomLine, Alignment.Center, ColorRgba.White, 1.6f);
+            api.DrawMaterial("MenuLine", 0, center.X, topLine, Alignment.Center, ColorRgba.White, 1.6f);
+            api.DrawMaterial("MenuLine", 1, center.X, bottomLine, Alignment.Center, ColorRgba.White, 1.6f);
         }
 
         public override void OnUpdate()

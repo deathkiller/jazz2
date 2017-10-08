@@ -40,6 +40,9 @@ namespace Jazz2
         [STAThread]
         private static void Main(string[] args)
         {
+            // Override working directory
+            Environment.CurrentDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+
             DualityApp.Init(DualityApp.ExecutionContext.Game, new DefaultAssemblyLoader(), args);
 
             using (INativeWindow window = DualityApp.OpenWindow(new WindowOptions {

@@ -18,7 +18,7 @@ namespace Jazz2.Game.UI.Menu
 
         private Stack<MainMenuSection> sectionStack;
 
-        private CanvasBuffer canvasBuffer;
+        private Canvas canvas;
         private BitmapFont fontSmall, fontMedium;
 
         private Metadata metadata;
@@ -52,7 +52,7 @@ namespace Jazz2.Game.UI.Menu
             cameraInner.RenderingSetup = new MainMenuRenderSetup();
             camera.Parent = rootObject;
 
-            canvasBuffer = new CanvasBuffer();
+            canvas = new Canvas();
 
             // Load resources
 #if UNCOMPRESSED_CONTENT
@@ -63,8 +63,8 @@ namespace Jazz2.Game.UI.Menu
 
             ContentResolver.Current.ApplyBasePalette(defaultPalette);
 
-            fontSmall = new BitmapFont("UI/font_small", 17, 18, 15, 32, 256, -2, canvasBuffer);
-            fontMedium = new BitmapFont("UI/font_medium", 29, 31, 15, 32, 256, -1, canvasBuffer);
+            fontSmall = new BitmapFont(canvas, "UI/font_small", 17, 18, 15, 32, 256, -2);
+            fontMedium = new BitmapFont(canvas, "UI/font_medium", 29, 31, 15, 32, 256, -1);
 
             metadata = ContentResolver.Current.RequestMetadata("UI/MainMenu");
 
@@ -143,46 +143,46 @@ namespace Jazz2.Game.UI.Menu
         }
 #endif
 
-        public void DrawString(IDrawDevice device, ref int charOffset, string text, float x,
+        public void DrawString(ref int charOffset, string text, float x,
             float y, Alignment align, ColorRgba? color, float scale = 1f, float angleOffset = 0f, float varianceX = 4f, float varianceY = 4f,
             float speed = 4f, float charSpacing = 1f, float lineSpacing = 1f)
         {
-            fontSmall.DrawString(device, ref charOffset, text, x, y, align,
+            fontSmall.DrawString(ref charOffset, text, x, y, align,
                 color, scale, angleOffset, varianceX, varianceY, speed, charSpacing, lineSpacing);
         }
 
-        public void DrawStringShadow(IDrawDevice device, ref int charOffset, string text, float x,
+        public void DrawStringShadow(ref int charOffset, string text, float x,
             float y, Alignment align, ColorRgba? color, float scale = 1f, float angleOffset = 0f, float varianceX = 4f, float varianceY = 4f,
             float speed = 4f, float charSpacing = 1f, float lineSpacing = 1f)
         {
             int charOffsetShadow = charOffset;
-            fontSmall.DrawString(device, ref charOffsetShadow, text, x, y + 2.8f * scale, align,
+            fontSmall.DrawString(ref charOffsetShadow, text, x, y + 2.8f * scale, align,
                 new ColorRgba(0f, 0.29f), scale, angleOffset, varianceX, varianceY, speed, charSpacing, lineSpacing);
-            fontSmall.DrawString(device, ref charOffset, text, x, y, align,
+            fontSmall.DrawString(ref charOffset, text, x, y, align,
                 color, scale, angleOffset, varianceX, varianceY, speed, charSpacing, lineSpacing);
         }
 
-        public void DrawMaterial(Canvas c, string name, float x, float y, Alignment alignment, ColorRgba color, float scaleX = 1f, float scaleY = 1f)
+        public void DrawMaterial(string name, float x, float y, Alignment alignment, ColorRgba color, float scaleX = 1f, float scaleY = 1f)
         {
             GraphicResource res;
             if (metadata.Graphics.TryGetValue(name, out res)) {
-                res.Draw(c, x, y, alignment, color, scaleX, scaleY);
+                res.Draw(canvas, x, y, alignment, color, scaleX, scaleY);
             }
         }
 
-        public void DrawMaterial(Canvas c, string name, float x, float y, Alignment alignment, ColorRgba color, float scaleX, float scaleY, Rect texRect)
+        public void DrawMaterial(string name, float x, float y, Alignment alignment, ColorRgba color, float scaleX, float scaleY, Rect texRect)
         {
             GraphicResource res;
             if (metadata.Graphics.TryGetValue(name, out res)) {
-                res.Draw(c, x, y, alignment, color, scaleX, scaleY, texRect);
+                res.Draw(canvas, x, y, alignment, color, scaleX, scaleY, texRect);
             }
         }
 
-        public void DrawMaterial(Canvas c, string name, int frame, float x, float y, Alignment alignment, ColorRgba color, float scaleX = 1f, float scaleY = 1f)
+        public void DrawMaterial(string name, int frame, float x, float y, Alignment alignment, ColorRgba color, float scaleX = 1f, float scaleY = 1f)
         {
             GraphicResource res;
             if (metadata.Graphics.TryGetValue(name, out res)) {
-                res.Draw(c, frame, x, y, alignment, color, scaleX, scaleY);
+                res.Draw(canvas, frame, x, y, alignment, color, scaleX, scaleY);
             }
         }
 
@@ -212,7 +212,7 @@ namespace Jazz2.Game.UI.Menu
         {
             Vector2 center = device.TargetSize * 0.5f;
 
-            Canvas c = new Canvas(device, canvasBuffer);
+            canvas.Begin(device);
 
             int charOffset = 0;
             int charOffsetShadow = 0;
@@ -220,48 +220,50 @@ namespace Jazz2.Game.UI.Menu
             RenderTexturedBackground(device);
 
             // Title
-            DrawMaterial(c, "MenuCarrot", -1, center.X - 76f, 64f + 2f, Alignment.Center, new ColorRgba(0f, 0.3f), 0.8f, 0.8f);
-            DrawMaterial(c, "MenuCarrot", -1, center.X - 76f, 64f, Alignment.Center, ColorRgba.White, 0.8f, 0.8f);
+            DrawMaterial("MenuCarrot", -1, center.X - 76f, 64f + 2f, Alignment.Center, new ColorRgba(0f, 0.3f), 0.8f, 0.8f);
+            DrawMaterial("MenuCarrot", -1, center.X - 76f, 64f, Alignment.Center, ColorRgba.White, 0.8f, 0.8f);
 
-            fontMedium.DrawString(device, ref charOffsetShadow, "Jazz", center.X - 63f, 70f + 2f, Alignment.Left,
+            fontMedium.DrawString(ref charOffsetShadow, "Jazz", center.X - 63f, 70f + 2f, Alignment.Left,
                 new ColorRgba(0f, 0.32f), 0.75f, 1.63f, 3f, 3f, 0f, 0.92f);
-            fontMedium.DrawString(device, ref charOffsetShadow, "2", center.X - 19f, 70f - 8f + 2f, Alignment.Left,
+            fontMedium.DrawString(ref charOffsetShadow, "2", center.X - 19f, 70f - 8f + 2f, Alignment.Left,
                 new ColorRgba(0f, 0.32f), 0.5f, 0f, 0f, 0f, 0f);
-            fontMedium.DrawString(device, ref charOffsetShadow, "Resurrection", center.X - 10f, 70f + 4f + 2.5f, Alignment.Left,
+            fontMedium.DrawString(ref charOffsetShadow, "Resurrection", center.X - 10f, 70f + 4f + 2.5f, Alignment.Left,
                 new ColorRgba(0f, 0.3f), 0.5f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
 
-            fontMedium.DrawString(device, ref charOffset, "Jazz", center.X - 63f, 70f, Alignment.Left,
+            fontMedium.DrawString(ref charOffset, "Jazz", center.X - 63f, 70f, Alignment.Left,
                 new ColorRgba(0.54f, 0.44f, 0.34f, 0.5f), 0.75f, 1.63f, 3f, 3f, 0f, 0.92f);
-            fontMedium.DrawString(device, ref charOffset, "2", center.X - 19f, 70f - 8f, Alignment.Left,
+            fontMedium.DrawString(ref charOffset, "2", center.X - 19f, 70f - 8f, Alignment.Left,
                 new ColorRgba(0.54f, 0.44f, 0.34f, 0.5f), 0.5f, 0f, 0f, 0f, 0f);
-            fontMedium.DrawString(device, ref charOffset, "Resurrection", center.X - 10f, 70f + 4f, Alignment.Left,
+            fontMedium.DrawString(ref charOffset, "Resurrection", center.X - 10f, 70f + 4f, Alignment.Left,
                 new ColorRgba(0.6f, 0.42f, 0.42f, 0.5f), 0.5f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
 
             // Version
             Vector2 bottomRight = device.TargetSize;
             bottomRight.X -= 24f;
             bottomRight.Y -= 10f;
-            DrawStringShadow(device, ref charOffset, "v" + App.AssemblyVersion, bottomRight.X, bottomRight.Y, Alignment.BottomRight,
+            DrawStringShadow(ref charOffset, "v" + App.AssemblyVersion, bottomRight.X, bottomRight.Y, Alignment.BottomRight,
                 ColorRgba.TransparentBlack, 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
 
             // Copyright
             Vector2 bottomLeft = bottomRight;
             bottomLeft.X = 24f;
-            DrawStringShadow(device, ref charOffset, "(c) 2016-2017  Dan R.", bottomLeft.X, bottomLeft.Y, Alignment.BottomLeft,
+            DrawStringShadow(ref charOffset, "(c) 2016-2017  Dan R.", bottomLeft.X, bottomLeft.Y, Alignment.BottomLeft,
                 ColorRgba.TransparentBlack, 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
 
             // New Version
             if (!string.IsNullOrEmpty(newVersion)) {
-                DrawStringShadow(device, ref charOffset, "New version available: " + newVersion, (bottomLeft.X + bottomRight.X) * 0.5f, bottomLeft.Y, Alignment.Bottom,
+                DrawStringShadow(ref charOffset, "New version available: " + newVersion, (bottomLeft.X + bottomRight.X) * 0.5f, bottomLeft.Y, Alignment.Bottom,
                     new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f), 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.9f);
             }
 
             // Current section
             if (sectionStack.Count > 0) {
-                sectionStack.Peek().OnPaint(device, c);
+                sectionStack.Peek().OnPaint(canvas);
             }
 
-            DrawTouch(device, c, device.TargetSize);
+            DrawTouch(device.TargetSize);
+
+            canvas.End();
         }
 
         private void OnCheckUpdates(bool newAvailable, string version)
@@ -275,7 +277,7 @@ namespace Jazz2.Game.UI.Menu
 
         partial void InitTouch();
 
-        partial void DrawTouch(IDrawDevice device, Canvas c, Vector2 size);
+        partial void DrawTouch(Vector2 size);
 
         private class LocalController : Component, ICmpUpdatable, ICmpRenderer
         {

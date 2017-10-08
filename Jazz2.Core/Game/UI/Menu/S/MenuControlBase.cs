@@ -15,7 +15,7 @@ namespace Jazz2.Game.UI.Menu.S
             this.api = api;
         }
 
-        public abstract void OnDraw(IDrawDevice device, Canvas c, ref Vector2 pos, bool focused);
+        public abstract void OnDraw(Canvas canvas, ref Vector2 pos, bool focused);
 
         public abstract void OnUpdate();
     }

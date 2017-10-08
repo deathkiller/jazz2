@@ -151,6 +151,14 @@ namespace Jazz2.Game
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+        public void ShakeCameraView(float duration)
+        {
+            levelHandler.ShakeCameraView(duration);
+        }
+
+#if NET45
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public Metadata RequestMetadata(string path)
         {
             return levelHandler.RequestMetadata(path);

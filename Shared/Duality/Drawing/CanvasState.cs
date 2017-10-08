@@ -6,15 +6,15 @@ namespace Duality.Drawing
     /// <summary>
     /// Describes the state of a <see cref="Canvas"/>.
     /// </summary>
-    public class CanvasState
+    public class CanvasState //: ICloneExplicit
 	{
 		private static readonly BatchInfo DefaultMaterial = new BatchInfo(DrawTechnique.Mask, ColorRgba.White);
 
 		private	BatchInfo			batchInfo;
 		private	ColorRgba			color;
 		//private	ContentRef<Font>	font;
-		private	float				zOffset;
-		private	bool		invariantTextScale;
+		private	float				depthOffset;
+		//private	bool		invariantTextScale;
 		private	float		transformAngle;
 		private	Vector2		transformScale;
 		private	Vector2		transformHandle;
@@ -41,24 +41,24 @@ namespace Duality.Drawing
 		/// </summary>
 		public bool IsDefaultMaterial
 		{
-			get { return this.batchInfo == DefaultMaterial; }
+			get { return this.batchInfo.Equals(DefaultMaterial); }
 		}
 		/// <summary>
 		/// [GET / SET] The <see cref="Duality.Resources.Font"/> to use for text rendering.
 		/// </summary>
-		/*public ContentRef<Font> TextFont
-		{
-			get { return this.font; }
-			set { this.font = value.IsAvailable ? value : Font.GenericMonospace10; }
-		}*/
+		//public ContentRef<Font> TextFont
+		//{
+		//	get { return this.font; }
+		//	set { this.font = value.IsAvailable ? value : Font.GenericMonospace10; }
+		//}
 		/// <summary>
 		/// [GET / SET] If true, text does not scale due to its position in space
 		/// </summary>
-		public bool TextInvariantScale
-		{
-			get { return this.invariantTextScale; }
-			set { this.invariantTextScale = value; }
-		}
+		//public bool TextInvariantScale
+		//{
+		//	get { return this.invariantTextScale; }
+		//	set { this.invariantTextScale = value; }
+		//}
 		/// <summary>
 		/// [GET / SET] The texture coordinate rect which is used for UV generation when drawing shapes.
 		/// </summary>
@@ -83,12 +83,12 @@ namespace Duality.Drawing
 			set { this.color = value; }
 		}
 		/// <summary>
-		/// [GET / SET] A Z-Offset value that is added to each emitted vertices Z coordinate after all projection calculations have been done.
+		/// [GET / SET] A depth / Z offset value that is added to each emitted vertices Z coordinate after all projection calculations have been done.
 		/// </summary>
-		public float ZOffset
+		public float DepthOffset
 		{
-			get { return this.zOffset; }
-			set { this.zOffset = value; }
+			get { return this.depthOffset; }
+			set { this.depthOffset = value; }
 		}
 		/// <summary>
 		/// [GET / SET] The angle by which all shapes are transformed locally.
@@ -138,30 +138,30 @@ namespace Duality.Drawing
 		{
 			other.CopyTo(this);
 		}
-			
-		/// <summary>
-		/// Copies all state data to the specified target.
-		/// </summary>
-		/// <param name="target"></param>
-		public void CopyTo(CanvasState target)
-		{
-			target.batchInfo			= this.batchInfo;
-			target.uvGenRect			= this.uvGenRect;
-			target.texBaseSize			= this.texBaseSize;
-			//target.font					= this.font;
-			target.color				= this.color;
-			target.invariantTextScale	= this.invariantTextScale;
-			target.zOffset				= this.zOffset;
-			target.transformAngle		= this.transformAngle;
-			target.transformHandle		= this.transformHandle;
-			target.transformScale		= this.transformScale;
-			target.UpdateTransform();
-		}
-		/// <summary>
-		/// Creates a clone of this State.
-		/// </summary>
-		/// <returns></returns>
-		public CanvasState Clone()
+
+        /// <summary>
+        /// Copies all state data to the specified target.
+        /// </summary>
+        /// <param name="target"></param>
+        public void CopyTo(CanvasState target)
+        {
+            target.batchInfo = this.batchInfo;
+            target.uvGenRect = this.uvGenRect;
+            target.texBaseSize = this.texBaseSize;
+            //target.font = this.font;
+            target.color = this.color;
+            //target.invariantTextScale = this.invariantTextScale;
+            target.depthOffset = this.depthOffset;
+            target.transformAngle = this.transformAngle;
+            target.transformHandle = this.transformHandle;
+            target.transformScale = this.transformScale;
+            target.UpdateTransform();
+        }
+        /// <summary>
+        /// Creates a clone of this State.
+        /// </summary>
+        /// <returns></returns>
+        public CanvasState Clone()
 		{
 			return new CanvasState(this);
 		}
@@ -170,16 +170,16 @@ namespace Duality.Drawing
 		/// </summary>
 		public void Reset()
 		{
-			this.batchInfo = DefaultMaterial;
-			this.uvGenRect = new Rect(1.0f, 1.0f);
-			this.texBaseSize = Vector2.Zero;
-			//this.font = Font.GenericMonospace10;
-			this.color = ColorRgba.White;
-			this.invariantTextScale = false;
-			this.zOffset = 0.0f;
-			this.transformAngle = 0.0f;
-			this.transformHandle = Vector2.Zero;
-			this.transformScale = Vector2.One;
+			this.batchInfo          = DefaultMaterial;
+			this.uvGenRect          = new Rect(1.0f, 1.0f);
+			this.texBaseSize        = Vector2.Zero;
+			//this.font               = Font.GenericMonospace10;
+			this.color              = ColorRgba.White;
+			//this.invariantTextScale = false;
+			this.depthOffset        = 0.0f;
+			this.transformAngle     = 0.0f;
+			this.transformHandle    = Vector2.Zero;
+			this.transformScale     = Vector2.One;
 			this.UpdateTransform();
 		}
 
@@ -207,23 +207,15 @@ namespace Duality.Drawing
 		/// <param name="material"></param>
 		public void SetMaterial(ContentRef<Material> material)
 		{
+			BatchInfo info;
 			if (material.IsExplicitNull)
-				this.batchInfo = DefaultMaterial;
+				info = DefaultMaterial;
 			else if (material.IsAvailable)
-				this.batchInfo = material.Res.InfoDirect;
+				info = material.Res.Info;
 			else
-				this.batchInfo = Resources.Material.SolidWhite.Res.InfoDirect;
+				info = Resources.Material.SolidWhite.Res.Info;
 
-			if (this.batchInfo.MainTexture.IsAvailable)
-			{
-				Texture tex = this.batchInfo.MainTexture.Res;
-				this.uvGenRect = new Rect(tex.UVRatio);
-				this.texBaseSize = tex.Size;
-			}
-			else
-			{
-				this.texBaseSize = Vector2.Zero;
-			}
+			this.SetMaterial(info);
 		}
 
 		private void UpdateTransform()
@@ -240,7 +232,7 @@ namespace Duality.Drawing
 				for (int i = 0; i < vertexCount; i++)
 				{
 					Vector3 pos = vertexData[i].Pos;
-					pos.Z += this.zOffset;
+					pos.Z += this.depthOffset;
 					vertexData[i].Pos = pos;
 				}
 			}
@@ -259,7 +251,7 @@ namespace Duality.Drawing
 					MathF.TransformDotVec(ref pos, ref this.curTX, ref this.curTY);
 					pos.X += shapeHandle.X;
 					pos.Y += shapeHandle.Y;
-					pos.Z += this.zOffset;
+					pos.Z += this.depthOffset;
 					vertexData[i].Pos = pos;
 				}
 			}
@@ -270,7 +262,7 @@ namespace Duality.Drawing
 			{
 				for (int i = 0; i < vertexData.Length; i++)
 				{
-					vertexData[i].Pos.Z += this.zOffset;
+					vertexData[i].Pos.Z += this.depthOffset;
 				}
 			}
 			else
@@ -286,9 +278,15 @@ namespace Duality.Drawing
 					MathF.TransformDotVec(ref vertexData[i].Pos, ref this.curTX, ref this.curTY);
 					vertexData[i].Pos.X += shapeHandle.X;
 					vertexData[i].Pos.Y += shapeHandle.Y;
-					vertexData[i].Pos.Z += this.zOffset;
+					vertexData[i].Pos.Z += this.depthOffset;
 				}
 			}
 		}
+
+		//void ICloneExplicit.SetupCloneTargets(object target, ICloneTargetSetup setup) {}
+		//void ICloneExplicit.CopyDataTo(object target, ICloneOperation operation)
+		//{
+		//	this.CopyTo(target as CanvasState);
+		//}
 	}
 }
