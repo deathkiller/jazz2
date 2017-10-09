@@ -23,5 +23,5 @@ void main() {
     texClr.a = pow(a, 1.0 / Gamma);
 
     // Compose result color
-    vFragColor = texClr * vCornerColor; 
+    vFragColor = vCornerColor * texClr; 
 }

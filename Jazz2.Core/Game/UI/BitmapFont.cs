@@ -58,8 +58,8 @@ namespace Jazz2.Game.UI
 
                 Texture texture = new Texture(new Pixmap(pixelData), TextureSizeMode.NonPowerOfTwo, TextureMagFilter.Linear, TextureMinFilter.Linear);
 
-                materialPlain = new Material(DrawTechnique.Alpha, ColorRgba.White, texture);
-                materialColor = new Material(ContentResolver.Current.RequestShader("Colorize"), ColorRgba.White, texture);
+                materialPlain = new Material(DrawTechnique.Alpha, texture);
+                materialColor = new Material(ContentResolver.Current.RequestShader("Colorize"), texture);
             }
 
             byte[] widthFromFileTable = new byte[256];

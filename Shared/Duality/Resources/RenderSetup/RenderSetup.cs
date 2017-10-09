@@ -4,7 +4,6 @@ using System.Linq;
 using Duality.Components;
 using Duality.Drawing;
 
-
 namespace Duality.Resources
 {
     [ExplicitResourceReference(typeof(RenderTarget), typeof(Texture), typeof(Material))]
@@ -18,18 +17,21 @@ namespace Duality.Resources
 		internal static void InitDefaultContent()
 		{
 			RenderSetup defaultSetup = new RenderSetup();
-			defaultSetup.Steps.Add(new RenderStep {
+			defaultSetup.Steps.Add(new RenderStep
+			{
 				Id = "World",
 				DefaultClearColor = true
 			});
-			defaultSetup.Steps.Add(new RenderStep {
+			defaultSetup.Steps.Add(new RenderStep
+			{
 				Id = "ScreenOverlay",
 				MatrixMode = RenderMatrix.ScreenSpace,
 				ClearFlags = ClearFlag.None,
 				VisibilityMask = VisibilityFlag.AllGroups | VisibilityFlag.ScreenOverlay
 			});
 
-			InitDefaultContent<RenderSetup>(new Dictionary<string,RenderSetup> {
+			InitDefaultContent<RenderSetup>(new Dictionary<string,RenderSetup>
+			{
 				{ "Default", defaultSetup },
 			});
 		}
@@ -39,8 +41,8 @@ namespace Duality.Resources
 		private List<RenderSetupTargetResize> autoResizeTargets = new List<RenderSetupTargetResize>();
 
 		private Dictionary<ContentRef<RenderTarget>,Point2> originalTargetSizes = new Dictionary<ContentRef<RenderTarget>,Point2>();
-        private RawList<ICmpRenderer> collectRendererBuffer = new RawList<ICmpRenderer>();
-        private List<Predicate<ICmpRenderer>> rendererFilter = new List<Predicate<ICmpRenderer>>();
+		private RawList<ICmpRenderer> collectRendererBuffer = new RawList<ICmpRenderer>();
+		private List<Predicate<ICmpRenderer>> rendererFilter = new List<Predicate<ICmpRenderer>>();
 		private EventHandler<CollectDrawcallEventArgs> eventCollectDrawcalls = null;
 
 
@@ -60,8 +62,8 @@ namespace Duality.Resources
 		public List<RenderStep> Steps
 		{
 			get { return this.steps; }
-			set
-			{
+			set 
+			{ 
 				if (value != null)
 					this.steps = value.Select(v => v ?? new RenderStep()).ToList();
 				else
@@ -78,6 +80,7 @@ namespace Duality.Resources
 			set { this.autoResizeTargets = value ?? new List<RenderSetupTargetResize>(); }
 		}
 
+		
 		/// <summary>
 		/// Adds an additional rendering step to <see cref="Steps"/>.
 		/// </summary>
@@ -122,7 +125,7 @@ namespace Duality.Resources
 		{
 			this.AddRenderStep(null, anchorPos, step);
 		}
-
+		
 		/// <summary>
 		/// Adds a temporary filter to remove certain renderers from the drawing queue entirely.
 		/// The list of active renderer filters is not serialized.
@@ -148,6 +151,10 @@ namespace Duality.Resources
 		/// all <see cref="Camera"/> objects contained within.
 		/// </summary>
 		/// <param name="scene">The <see cref="Scene"/> that should be rendered.</param>
+		/// <param name="target">
+		/// The <see cref="RenderTarget"/> which will be used for all rendering output. 
+		/// "null" means rendering directly to the output buffer of the game window / screen.
+		/// </param>
 		/// <param name="viewportRect">The viewport to render to, in pixel coordinates.</param>
 		/// <param name="imageSize">Target size of the rendered image before adjusting it to fit the specified viewport.</param>
 		public void RenderScene(Scene scene, ContentRef<RenderTarget> target, Rect viewportRect, Vector2 imageSize)
@@ -158,7 +165,7 @@ namespace Duality.Resources
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine("There was an error while {0} was rendering {1}: {2}", this, scene, e);
+			    Console.WriteLine("There was an error while {0} was rendering {1}: {2}", this, scene, /*LogFormat.Exception(*/e/*)*/);
 			}
 		}
 		/// <summary>
@@ -181,7 +188,7 @@ namespace Duality.Resources
 			}
 			catch (Exception e)
 			{
-			    Console.WriteLine("There was an error while {0} was rendering a point of view in {1}: {2}", this, scene, e);
+			    Console.WriteLine("There was an error while {0} was rendering a point of view in {1}: {2}", this, scene, /*LogFormat.Exception(*/e/*)*/);
 			}
 
 			// Reset matrices for projection calculations to their previous state
@@ -251,51 +258,50 @@ namespace Duality.Resources
 			// Rebind the render target
 			targetRes.SetupTarget();
 		}
-
-        /// <summary>
-        /// Performs the specified <see cref="RenderStep"/>. This method will do some basic, localized configuration on
-        /// the drawing device and then invoke <see cref="OnRenderSingleStep"/> for running the actual rendering operations.
-        /// </summary>
-        /// <param name="step"></param>
-        /// <param name="scene"></param>
-        /// <param name="drawDevice"></param>
-        /// <param name="viewportRect"></param>
-        /// <param name="imageSize"></param>
-        /// <param name="outputTargetRect"></param>
-        protected void RenderSingleStep(RenderStep step, Scene scene, DrawDevice drawDevice, Rect viewportRect, Vector2 imageSize)
+		
+		/// <summary>
+		/// Performs the specified <see cref="RenderStep"/>. This method will do some basic, localized configuration on
+		/// the drawing device and then invoke <see cref="OnRenderSingleStep"/> for running the actual rendering operations.
+		/// </summary>
+		/// <param name="step"></param>
+		/// <param name="scene"></param>
+		/// <param name="drawDevice"></param>
+		/// <param name="viewportRect"></param>
+		/// <param name="imageSize"></param>
+		/// <param name="outputTargetRect"></param>
+		protected void RenderSingleStep(RenderStep step, Scene scene, DrawDevice drawDevice, Rect viewportRect, Vector2 imageSize)
 		{
 			// Memorize old draw device settings to reset them later
 			VisibilityFlag oldDeviceMask = drawDevice.VisibilityMask;
 			ColorRgba oldDeviceClearColor = drawDevice.ClearColor;
 			ContentRef<RenderTarget> oldDeviceTarget = drawDevice.Target;
 
-            Rect localViewport;
-            Vector2 localTargetSize;
-            ContentRef < RenderTarget > renderTarget;
+			Rect localViewport;
+			Vector2 localTargetSize;
+			ContentRef<RenderTarget> renderTarget;
 
-            // If this step is using a custom render target, override image and viewport sizes
-            if (step.Output.IsAvailable)
-            {
-                renderTarget = step.Output;
-                localTargetSize = step.Output.Res.Size;
-                localViewport = new Rect(step.Output.Res.Size);
-            }
-            // Otherwise, use the provided parameter values
-            else
-            {
-                renderTarget = oldDeviceTarget;
-                localTargetSize = imageSize;
-                localViewport = viewportRect;
-            }
+			// If this step is using a custom render target, override image and viewport sizes
+			if (step.Output.IsAvailable)
+			{
+				renderTarget = step.Output;
+				localTargetSize = step.Output.Res.Size;
+				localViewport = new Rect(step.Output.Res.Size);
+			}
+			// Otherwise, use the provided parameter values
+			else
+			{
+				renderTarget = oldDeviceTarget;
+				localTargetSize = imageSize;
+				localViewport = viewportRect;
+			}
 
-            // Regardless of rendering targets, adjust the local render size and viewport 
-            // according to the rendering step target rect
-            localViewport.Pos += localViewport.Size * step.TargetRect.Pos;
+			// Regardless of rendering targets, adjust the local render size and viewport 
+			// according to the rendering step target rect
+			localViewport.Pos += localViewport.Size * step.TargetRect.Pos;
 			localViewport.Size *= step.TargetRect.Size;
 			localTargetSize *= step.TargetRect.Size;
 
 			// Set up the draw device with rendering step settings
-			drawDevice.VisibilityMask &= step.VisibilityMask;
 			drawDevice.RenderMode = step.MatrixMode;
 			drawDevice.Target = renderTarget;
 			drawDevice.TargetSize = localTargetSize;
@@ -304,13 +310,19 @@ namespace Duality.Resources
 			drawDevice.ClearColor = step.DefaultClearColor ? oldDeviceClearColor : step.ClearColor;
 			drawDevice.ClearDepth = step.ClearDepth;
 
+			// ScreenOverlay is a special flag that is set on a per-rendering-step basis
+			// and that shouldn't be affected by overall device settings. Keep it separate.
+			drawDevice.VisibilityMask = 
+				(drawDevice.VisibilityMask & step.VisibilityMask & ~VisibilityFlag.ScreenOverlay) | 
+				(step.VisibilityMask & VisibilityFlag.ScreenOverlay);
+
 			try
 			{
 				this.OnRenderSingleStep(step, scene, drawDevice);
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine("There was an error while {0} was processing rendering step '{1}': {2}", this, step.Id, e);
+			    Console.WriteLine("There was an error while {0} was processing rendering step '{1}': {2}", this, step.Id, /*LogFormat.Exception(*/e/*)*/);
 			}
 
 			// Restore old draw device state
@@ -338,31 +350,34 @@ namespace Duality.Resources
 
 				// Query renderers
 				IRendererVisibilityStrategy visibilityStrategy = scene.VisibilityStrategy;
-                if (visibilityStrategy == null) return;
+				if (visibilityStrategy == null) return;
 
-                //Profile.TimeQueryVisibleRenderers.BeginMeasure();
+				//Profile.TimeQueryVisibleRenderers.BeginMeasure();
 
-                if (this.collectRendererBuffer == null)
-                    this.collectRendererBuffer = new RawList<ICmpRenderer>();
-                this.collectRendererBuffer.Clear();
+				if (this.collectRendererBuffer == null)
+					this.collectRendererBuffer = new RawList<ICmpRenderer>();
+				this.collectRendererBuffer.Clear();
 
-                visibilityStrategy.QueryVisibleRenderers(drawDevice, this.collectRendererBuffer);
-                if (this.rendererFilter.Count > 0) {
-                    this.collectRendererBuffer.RemoveAll(r => {
-                        for (int i = 0; i < this.rendererFilter.Count; i++) {
-                            if (!this.rendererFilter[i](r)) return true;
-                        }
-                        return false;
-                    });
-                }
+				visibilityStrategy.QueryVisibleRenderers(drawDevice, this.collectRendererBuffer);
+				if (this.rendererFilter.Count > 0)
+				{
+					this.collectRendererBuffer.RemoveAll(r =>
+					{
+						for (int i = 0; i < this.rendererFilter.Count; i++)
+						{
+							if (!this.rendererFilter[i](r)) return true;
+						}
+						return false;
+					});
+				}
 
-                //Profile.TimeQueryVisibleRenderers.EndMeasure();
+				//Profile.TimeQueryVisibleRenderers.EndMeasure();
 
-                this.OnCollectRendererDrawcalls(drawDevice, this.collectRendererBuffer, visibilityStrategy.IsRendererQuerySorted);
-            }
+				this.OnCollectRendererDrawcalls(drawDevice, this.collectRendererBuffer, visibilityStrategy.IsRendererQuerySorted);
+			}
 			catch (Exception e)
 			{
-				Console.WriteLine("There was an error while {0} was collecting renderer drawcalls: {1}", this, e);
+			    Console.WriteLine("There was an error while {0} was collecting renderer drawcalls: {1}", this, /*LogFormat.Exception(*/e/*)*/);
 			}
 			//Profile.TimeCollectDrawcalls.EndMeasure();
 		}
@@ -380,7 +395,7 @@ namespace Duality.Resources
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine("There was an error while {0} was collecting external drawcalls: {1}", this, e);
+			    Console.WriteLine("There was an error while {0} was collecting external drawcalls: {1}", this, /*LogFormat.Exception(*/e/*)*/);
 			}
 			//Profile.TimeCollectDrawcalls.EndMeasure();
 		}
@@ -401,38 +416,49 @@ namespace Duality.Resources
 		/// all <see cref="Camera"/> objects contained within.
 		/// </summary>
 		/// <param name="scene">The <see cref="Scene"/> that should be rendered.</param>
+		/// <param name="target">
+		/// The <see cref="RenderTarget"/> which will be used for all rendering output. 
+		/// "null" means rendering directly to the output buffer of the game window / screen.
+		/// </param>
 		/// <param name="viewportRect">The viewport to render to, in pixel coordinates.</param>
 		/// <param name="imageSize">Target size of the rendered image before adjusting it to fit the specified viewport.</param>
 		protected virtual void OnRenderScene(Scene scene, ContentRef<RenderTarget> target, Rect viewportRect, Vector2 imageSize)
 		{
-            Camera[] activeSceneCameras = scene.FindComponents<Camera>()
-                .Where(c => c.Active)
-                .ToArray();
+			Camera[] activeSceneCameras = scene.FindComponents<Camera>()
+				.Where(c => c.Active)
+				.OrderByDescending(c => c.Priority)
+				.ToArray();
+			
+			foreach (Camera camera in activeSceneCameras)
+			{
+				Vector2 cameraImageSize = imageSize;
+				Rect cameraViewport = viewportRect;
+				bool isOutputCamera = false;
 
-            foreach (Camera camera in activeSceneCameras) {
-                Vector2 cameraImageSize = imageSize;
-                Rect cameraViewport = viewportRect;
-                bool isOutputCamera = false;
+				// Cameras with a custom render target will use its size to override image and viewport size
+				if (camera.Target.IsAvailable)
+				{
+					cameraImageSize = camera.Target.Res.Size;
+					cameraViewport = new Rect(camera.Target.Res.Size);
+				}
+				// Cameras without a custom render target will use the provided parameters
+				else
+				{
+					camera.Target = target;
+					isOutputCamera = true;
+				}
 
-                // Cameras with a custom render target will use its size to override image and viewport size
-                if (camera.Target.IsAvailable) {
-                    cameraImageSize = camera.Target.Res.Size;
-                    cameraViewport = new Rect(camera.Target.Res.Size);
-                }
-                // Cameras without a custom render target will use the provided parameters
-                else {
-                    camera.Target = target;
-                    isOutputCamera = true;
-                }
-
-                try {
-                    camera.Render(cameraViewport, cameraImageSize);
-                } finally {
-                    if (isOutputCamera)
-                        camera.Target = null;
-                }
-            }
-        }
+				try
+				{
+					camera.Render(cameraViewport, cameraImageSize);
+				}
+				finally
+				{
+					if (isOutputCamera)
+						camera.Target = null;
+				}
+			}
+		}
 		/// <summary>
 		/// Called to render a scene from the perspective of a single, pre-configured drawing device.
 		/// </summary>
@@ -479,8 +505,8 @@ namespace Duality.Resources
 		/// <param name="renderersSortedByType"></param>
 		protected virtual void OnCollectRendererDrawcalls(DrawDevice drawDevice, RawList<ICmpRenderer> visibleRenderers, bool renderersSortedByType)
 		{
-			//Type lastRendererType = null;
-			//Type rendererType = null;
+			Type lastRendererType = null;
+			Type rendererType = null;
 			//TimeCounter activeProfiler = null;
 			ICmpRenderer[] data = visibleRenderers.Data;
 			for (int i = 0; i < data.Length; i++)
@@ -488,7 +514,7 @@ namespace Duality.Resources
 				if (i >= visibleRenderers.Count) break;
 
 				// Manage profilers per Component type
-				/*if (renderersSortedByType)
+				if (renderersSortedByType)
 				{
 					rendererType = data[i].GetType();
 					if (rendererType != lastRendererType)
@@ -499,7 +525,7 @@ namespace Duality.Resources
 						//activeProfiler.BeginMeasure();
 						lastRendererType = rendererType;
 					}
-				}*/
+				}
 
 				// Collect Drawcalls from this Component
 				data[i].Draw(drawDevice);

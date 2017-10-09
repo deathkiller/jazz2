@@ -1,6 +1,7 @@
 ﻿
 using System.Collections.Generic;
 using Duality;
+using Duality.Drawing;
 using Jazz2.Actors.Enemies;
 using Jazz2.Game;
 using Jazz2.Game.Structs;
@@ -16,6 +17,7 @@ namespace Jazz2.Actors.Bosses
         private const int StateJumping = 1;
         private const int StateFalling = 2;
         private const int StateTornado = 3;
+        private const int StateDying = 4;
 
         private int state = StateWaiting;
         private float stateTime;
@@ -50,68 +52,73 @@ namespace Jazz2.Actors.Bosses
 
             switch (state) {
                 case StateJumping: {
-                        if (speedY > 0f) {
-                            state = StateFalling;
-                            SetAnimation(AnimState.Fall);
-                        }
-                        break;
+                    if (speedY > 0f) {
+                        state = StateFalling;
+                        SetAnimation(AnimState.Fall);
                     }
+                    break;
+                }
 
                 case StateFalling: {
-                        if (canJump) {
-                            speedY = 0f;
-                            speedX = 0f;
+                    if (canJump) {
+                        speedY = 0f;
+                        speedX = 0f;
 
-                            state = StateTransition;
-                            SetTransition(AnimState.TransitionFallToIdle, false, delegate {
-                                float rand = MathF.Rnd.NextFloat();
-                                bool spewFileball = (rand < 0.35f);
-                                bool tornado = (rand < 0.65f);
-                                if (spewFileball) {
-                                    PlaySound("Sneeze");
+                        state = StateTransition;
+                        SetTransition(AnimState.TransitionFallToIdle, false, delegate {
+                            float rand = MathF.Rnd.NextFloat();
+                            bool spewFileball = (rand < 0.35f);
+                            bool tornado = (rand < 0.65f);
+                            if (spewFileball) {
+                                PlaySound("Sneeze");
 
-                                    SetTransition(AnimState.Shoot, false, delegate {
-                                        Vector3 pos = Transform.Pos;
-                                        float x = (isFacingLeft ? -16f : 16f);
-                                        float y = -5f;
+                                SetTransition(AnimState.Shoot, false, delegate {
+                                    Vector3 pos = Transform.Pos;
+                                    float x = (isFacingLeft ? -16f : 16f);
+                                    float y = -5f;
 
-                                        BubbaFireball fireball = new BubbaFireball();
-                                        fireball.OnAttach(new ActorInstantiationDetails {
-                                            Api = api,
-                                            Pos = new Vector3(pos.X + x, pos.Y + y, pos.Z + 2f),
-                                            Params = new[] { (ushort)(isFacingLeft ? 1 : 0) }
-                                        });
-                                        api.AddActor(fireball);
-
-                                        SetTransition(AnimState.TransitionShootToIdle, false, delegate {
-                                            FollowNearestPlayer();
-                                        });
+                                    BubbaFireball fireball = new BubbaFireball();
+                                    fireball.OnAttach(new ActorInstantiationDetails {
+                                        Api = api,
+                                        Pos = new Vector3(pos.X + x, pos.Y + y, pos.Z + 2f),
+                                        Params = new[] { (ushort)(isFacingLeft ? 1 : 0) }
                                     });
-                                } else if (tornado) {
-                                    TornadoToNearestPlayer();
-                                } else {
-                                    FollowNearestPlayer();
-                                }
-                            });
-                            
-                        }
-                        break;
+                                    api.AddActor(fireball);
+
+                                    SetTransition(AnimState.TransitionShootToIdle, false, delegate {
+                                        FollowNearestPlayer();
+                                    });
+                                });
+                            } else if (tornado) {
+                                TornadoToNearestPlayer();
+                            } else {
+                                FollowNearestPlayer();
+                            }
+                        });
                     }
+                    break;
+                }
 
                 case StateTornado: {
-                        if (stateTime <= 0f) {
-                            state = StateTransition;
-                            SetTransition((AnimState)1073741832, false, delegate {
-                                collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation;
+                    if (stateTime <= 0f) {
+                        state = StateTransition;
+                        SetTransition((AnimState)1073741832, false, delegate {
+                            collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation;
 
-                                state = StateFalling;
+                            state = StateFalling;
 
-                                SetAnimation((AnimState)1073741833);
-                            });
-                        }
-
-                        break;
+                            SetAnimation((AnimState)1073741833);
+                        });
                     }
+
+                    break;
+                }
+
+                case StateDying: {
+                    float time = (renderer.AnimTime / renderer.AnimDuration);
+                    renderer.ColorTint = new ColorRgba(1f, 1f - (time * time * time * time));
+                    break;
+                }
             }
 
             stateTime -= Time.TimeMult;
@@ -132,10 +139,11 @@ namespace Jazz2.Actors.Bosses
 
             speedX = 0f;
             speedY = -2f;
+            internalForceY = 0f;
 
             collisionFlags = CollisionFlags.None;
 
-            state = StateTransition;
+            state = StateDying;
             SetTransition(AnimState.TransitionDeath, false, delegate {
                 base.OnPerish(collider);
             });

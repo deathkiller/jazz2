@@ -1,6 +1,5 @@
 ﻿using System.IO;
 
-
 namespace Duality.Resources
 {
     /// <summary>
@@ -13,11 +12,6 @@ namespace Duality.Resources
         /// and forwards a single texture coordinate and color to the fragment stage.
         /// </summary>
         public static ContentRef<VertexShader> Minimal { get; private set; }
-        /// <summary>
-        /// [GET] The SmoothAnim VertexShader. In addition to the <see cref="Minimal"/>
-        /// setup, it forwards the custom animBlend vertex attribute to the fragment stage.
-        /// </summary>
-        public static ContentRef<VertexShader> SmoothAnim { get; private set; }
 
         internal static void InitDefaultContent()
         {

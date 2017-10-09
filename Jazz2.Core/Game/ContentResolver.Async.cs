@@ -21,7 +21,6 @@ namespace Jazz2.Game
         private Thread asyncThread;
         private AutoResetEvent asyncThreadEvent;
 
-
         public Metadata RequestMetadataAsync(string path)
         {
             Metadata metadata;
@@ -72,18 +71,7 @@ namespace Jazz2.Game
                         resBase.AsyncFinalize = null;
                     }
 
-
                     if (res.AsyncFinalize != null) {
-                        Dictionary<string, ContentRef<Texture>> textures = new Dictionary<string, ContentRef<Texture>>();
-                        textures.Add("mainTex", resBase.Texture);
-                        if (resBase.TextureNormal != null) {
-                            textures.Add("normalTex", resBase.TextureNormal);
-                        }
-
-                        if (res.AsyncFinalize.BindPaletteToMaterial) {
-                            textures.Add("paletteTex", paletteTexture);
-                        }
-
                         ContentRef<DrawTechnique> drawTechnique;
                         if (res.AsyncFinalize.Shader == null) {
                             drawTechnique = (res.AsyncFinalize.BindPaletteToMaterial ? paletteNormal : basicNormal);
@@ -91,7 +79,18 @@ namespace Jazz2.Game
                             drawTechnique = RequestShader(res.AsyncFinalize.Shader);
                         }
 
-                        res.Material = new Material(drawTechnique, res.AsyncFinalize.Color, textures);
+                        Material material = new Material(drawTechnique, res.AsyncFinalize.Color);
+
+                        material.SetTexture("mainTex", resBase.Texture);
+                        if (resBase.TextureNormal != null) {
+                            material.SetTexture("normalTex", resBase.TextureNormal);
+                        }
+
+                        if (res.AsyncFinalize.BindPaletteToMaterial) {
+                            material.SetTexture("paletteTex", paletteTexture);
+                        }
+
+                        res.Material = material;
 
                         res.AsyncFinalize = null;
                     }

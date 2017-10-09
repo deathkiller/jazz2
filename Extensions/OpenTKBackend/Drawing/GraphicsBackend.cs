@@ -10,7 +10,6 @@ using OpenTK.Graphics.OpenGL;
 
 namespace Duality.Backend.DefaultOpenTK
 {
-    //[DontSerialize]
     public class GraphicsBackend : IGraphicsBackend
 	{
 		private static readonly Version MinOpenGLVersion = new Version(2, 1);
@@ -21,16 +20,20 @@ namespace Duality.Backend.DefaultOpenTK
 			get { return activeInstance; }
 		}
 
-		private IDrawDevice           currentDevice           = null;
-		private RenderStats           renderStats             = null;
-		private HashSet<GraphicsMode> availGraphicsModes      = null;
-		private GraphicsMode          defaultGraphicsMode     = null;
-		private RawList<uint>         perVertexTypeVBO        = new RawList<uint>();
-		private NativeWindow          activeWindow            = null;
-		private Point2                externalBackbufferSize  = Point2.Zero;
-		private bool                  useAlphaToCoverageBlend = false;
-		private bool                  msaaIsDriverDisabled    = false;
-		private bool                  contextCapsRetrieved    = false;
+		private IDrawDevice                  currentDevice           = null;
+		private RenderOptions                renderOptions           = null;
+		private RenderStats                  renderStats             = null;
+		private HashSet<GraphicsMode>        availGraphicsModes      = null;
+		private GraphicsMode                 defaultGraphicsMode     = null;
+		private RawList<uint>                perVertexTypeVBO        = new RawList<uint>();
+		private NativeWindow                 activeWindow            = null;
+		private Point2                       externalBackbufferSize  = Point2.Zero;
+		private bool                         useAlphaToCoverageBlend = false;
+		private bool                         msaaIsDriverDisabled    = false;
+		private bool                         contextCapsRetrieved    = false;
+		private HashSet<NativeShaderProgram> activeShaders           = new HashSet<NativeShaderProgram>();
+		private HashSet<string>              sharedShaderParameters  = new HashSet<string>();
+		private int                          sharedSamplerBindings   = 0;
 		
 
 		public GraphicsMode DefaultGraphicsMode
@@ -124,6 +127,7 @@ namespace Duality.Backend.DefaultOpenTK
 			this.CheckContextCaps();
 
 			this.currentDevice = device;
+			this.renderOptions = options;
 			this.renderStats = stats;
 
 			// Upload all vertex data that we'll need during rendering
@@ -135,10 +139,10 @@ namespace Duality.Backend.DefaultOpenTK
 					// Filter out unused vertex types
 					IVertexBatch vertexBatch = vertexData.Batches[typeIndex];
 					if (vertexBatch == null) continue;
-                    if (vertexBatch.Count == 0) continue;
+					if (vertexBatch.Count == 0) continue;
 
-                    // Generate a VBO for this vertex type if it didn't exist yet
-                    if (this.perVertexTypeVBO[typeIndex] == 0)
+					// Generate a VBO for this vertex type if it didn't exist yet
+					if (this.perVertexTypeVBO[typeIndex] == 0)
 					{
 						GL.GenBuffers(1, out this.perVertexTypeVBO.Data[typeIndex]);
 					}
@@ -235,9 +239,13 @@ namespace Duality.Backend.DefaultOpenTK
 		}
 		void IGraphicsBackend.Render(IReadOnlyList<DrawBatch> batches)
 		{
-			DrawBatch lastRendered = null;
-			int drawCalls = 0;
+			if (batches.Count == 0) return;
 
+			this.RetrieveActiveShaders(batches);
+			this.SetupSharedParameters(this.renderOptions.ShaderParameters);
+
+			int drawCalls = 0;
+			DrawBatch lastRendered = null;
 			for (int i = 0; i < batches.Count; i++)
 			{
 				DrawBatch batch = batches[i];
@@ -248,7 +256,7 @@ namespace Duality.Backend.DefaultOpenTK
 				bool first = (i == 0);
 				bool sameMaterial = 
 					lastRendered != null && 
-					lastRendered.Material == batch.Material;
+					lastRendered.Material.Equals(batch.Material);
 
 				// Setup vertex bindings. Note that the setup differs based on the 
 				// materials shader, so material changes can be vertex binding changes.
@@ -293,11 +301,16 @@ namespace Duality.Backend.DefaultOpenTK
 			{
 				this.renderStats.DrawCalls += drawCalls;
 			}
+
+			this.FinishSharedParameters();
 		}
 		void IGraphicsBackend.EndRendering()
 		{
 			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+
 			this.currentDevice = null;
+			this.renderOptions = null;
+			this.renderStats = null;
 
 			DebugCheckOpenGLErrors();
 		}
@@ -404,7 +417,7 @@ namespace Duality.Backend.DefaultOpenTK
 			if (this.contextCapsRetrieved) return;
 			this.contextCapsRetrieved = true;
 
-            Console.WriteLine("Determining OpenGL context capabilities...");
+		    Console.WriteLine("Determining OpenGL context capabilities...");
 			//Logs.Core.PushIndent();
 
 			// Make sure we're not on a render target, which may override
@@ -426,11 +439,11 @@ namespace Duality.Backend.DefaultOpenTK
 			// actually zero, assume MSAA is driver-disabled.
 			if (targetSamples != actualSamples)
 			{
-                Console.WriteLine("Requested {0} MSAA samples, but got {1} samples instead.", targetSamples, actualSamples);
+			    Console.WriteLine("Requested {0} MSAA samples, but got {1} samples instead.", targetSamples, actualSamples);
 				if (actualSamples == 0)
 				{
 					this.msaaIsDriverDisabled = true;
-                    Console.WriteLine("Assuming MSAA is unavailable. Duality will not use Alpha-to-Coverage masking techniques.");
+				    Console.WriteLine("Assuming MSAA is unavailable. Duality will not use Alpha-to-Coverage masking techniques.");
 				}
 			}
 
@@ -439,6 +452,73 @@ namespace Duality.Backend.DefaultOpenTK
 			//Logs.Core.PopIndent();
 		}
 
+		/// <summary>
+		/// Updates the internal list of active shaders based on the specified rendering batches.
+		/// </summary>
+		/// <param name="batches"></param>
+		private void RetrieveActiveShaders(IReadOnlyList<DrawBatch> batches)
+		{
+			this.activeShaders.Clear();
+			for (int i = 0; i < batches.Count; i++)
+			{
+				DrawBatch batch = batches[i];
+				BatchInfo material = batch.Material;
+				DrawTechnique tech = material.Technique.Res ?? DrawTechnique.Solid.Res;
+				ShaderProgram shader = tech.Shader.Res ?? ShaderProgram.Minimal.Res;
+				this.activeShaders.Add(shader.Native as NativeShaderProgram);
+			}
+		}
+		/// <summary>
+		/// Applies the specified parameter values to all currently active shaders.
+		/// </summary>
+		/// <param name="sharedParams"></param>
+		/// <seealso cref="RetrieveActiveShaders"/>
+		private void SetupSharedParameters(ShaderParameterCollection sharedParams)
+		{
+			this.sharedSamplerBindings = 0;
+			this.sharedShaderParameters.Clear();
+			if (sharedParams == null) return;
+
+			foreach (NativeShaderProgram shader in this.activeShaders)
+			{
+				NativeShaderProgram.Bind(shader);
+
+				ShaderFieldInfo[] varInfo = shader.Fields;
+				int[] locations = shader.FieldLocations;
+
+				// Setup shared sampler bindings
+				for (int i = 0; i < varInfo.Length; i++)
+				{
+					if (locations[i] == -1) continue;
+					if (varInfo[i].Type != ShaderFieldType.Sampler2D) continue;
+
+					ContentRef<Texture> texRef;
+					if (!sharedParams.TryGetInternal(varInfo[i].Name, out texRef)) continue;
+
+					NativeTexture.Bind(texRef, this.sharedSamplerBindings);
+					GL.Uniform1(locations[i], this.sharedSamplerBindings);
+
+					this.sharedSamplerBindings++;
+					this.sharedShaderParameters.Add(varInfo[i].Name);
+				}
+
+				// Setup shared uniform data
+				for (int i = 0; i < varInfo.Length; i++)
+				{
+					if (locations[i] == -1) continue;
+					if (varInfo[i].Type == ShaderFieldType.Sampler2D) continue;
+
+					float[] data;
+					if (!sharedParams.TryGetInternal(varInfo[i].Name, out data)) continue;
+		
+					NativeShaderProgram.SetUniform(ref varInfo[i], locations[i], data);
+
+					this.sharedShaderParameters.Add(varInfo[i].Name);
+				}
+			}
+
+			NativeShaderProgram.Bind(null);
+		}
 		private void SetupVertexFormat(BatchInfo material, VertexDeclaration vertexDeclaration)
 		{
 			DrawTechnique technique = material.Technique.Res ?? DrawTechnique.Solid.Res;
@@ -537,84 +617,46 @@ namespace Duality.Backend.DefaultOpenTK
 			DrawTechnique tech = material.Technique.Res ?? DrawTechnique.Solid.Res;
 			DrawTechnique lastTech = lastMaterial != null ? lastMaterial.Technique.Res : null;
 			
-			// Prepare Rendering
-			if (tech.NeedsPreparation)
-			{
-				material = new BatchInfo(material);
-				tech.PrepareRendering(this.currentDevice, material);
-			}
-			
 			// Setup BlendType
 			if (lastTech == null || tech.Blending != lastTech.Blending)
 				this.SetupBlendType(tech.Blending, this.currentDevice.DepthWrite);
 
 			// Bind Shader
-			NativeShaderProgram shader = (tech.Shader.Res != null ? tech.Shader.Res.Native : null) as NativeShaderProgram;
-			NativeShaderProgram.Bind(shader);
+			ShaderProgram shader = tech.Shader.Res ?? ShaderProgram.Minimal.Res;
+			NativeShaderProgram nativeShader = shader.Native as NativeShaderProgram;
+			NativeShaderProgram.Bind(nativeShader);
 
 			// Setup shader data
-			if (shader != null)
+			ShaderFieldInfo[] varInfo = nativeShader.Fields;
+			int[] locations = nativeShader.FieldLocations;
+
+			// Setup sampler bindings
+			int curSamplerIndex = this.sharedSamplerBindings;
+			for (int i = 0; i < varInfo.Length; i++)
 			{
-				ShaderFieldInfo[] varInfo = shader.Fields;
-				int[] locations = shader.FieldLocations;
-				int[] builtinIndices = shader.BuiltinVariableIndex;
+				if (locations[i] == -1) continue;
+				if (varInfo[i].Type != ShaderFieldType.Sampler2D) continue;
+				if (this.sharedShaderParameters.Contains(varInfo[i].Name)) continue;
 
-				// Setup sampler bindings automatically
-				int curSamplerIndex = 0;
-				if (material.Textures != null)
-				{
-					for (int i = 0; i < varInfo.Length; i++)
-					{
-						if (locations[i] == -1) continue;
-						if (varInfo[i].Type != ShaderFieldType.Sampler2D) continue;
+				ContentRef<Texture> texRef = material.GetInternalTexture(varInfo[i].Name);
+				NativeTexture.Bind(texRef, curSamplerIndex);
+				GL.Uniform1(locations[i], curSamplerIndex);
 
-						// Bind Texture
-						ContentRef<Texture> texRef = material.GetTexture(varInfo[i].Name);
-						NativeTexture.Bind(texRef, curSamplerIndex);
-						GL.Uniform1(locations[i], curSamplerIndex);
-
-						curSamplerIndex++;
-					}
-				}
-				NativeTexture.ResetBinding(curSamplerIndex);
-
-				// Transfer uniform data from material to actual shader
-				if (material.Uniforms != null)
-				{
-					for (int i = 0; i < varInfo.Length; i++)
-					{
-						if (locations[i] == -1) continue;
-						float[] data = material.GetUniform(varInfo[i].Name);
-						if (data == null) continue;
-
-						NativeShaderProgram.SetUniform(ref varInfo[i], locations[i], data);
-					}
-				}
-
-				// Specify builtin shader variables, if requested
-				float[] fieldValue = null;
-				for (int i = 0; i < builtinIndices.Length; i++)
-				{
-					if (BuiltinShaderFields.TryGetValue(this.currentDevice, builtinIndices[i], ref fieldValue))
-						NativeShaderProgram.SetUniform(ref varInfo[i], locations[i], fieldValue);
-				}
+				curSamplerIndex++;
 			}
-			// Setup fixed function data
-			else
+			NativeTexture.ResetBinding(curSamplerIndex);
+
+			// Setup uniform data
+			for (int i = 0; i < varInfo.Length; i++)
 			{
-				// Fixed function texture binding
-				if (material.Textures != null)
-				{
-					int samplerIndex = 0;
-					foreach (var pair in material.Textures)
-					{
-						NativeTexture.Bind(pair.Value, samplerIndex);
-						samplerIndex++;
-					}
-					NativeTexture.ResetBinding(samplerIndex);
-				}
-				else
-					NativeTexture.ResetBinding();
+				if (locations[i] == -1) continue;
+				if (varInfo[i].Type == ShaderFieldType.Sampler2D) continue;
+				if (this.sharedShaderParameters.Contains(varInfo[i].Name)) continue;
+
+				float[] data = material.GetInternalData(varInfo[i].Name);
+				if (data == null) continue;
+		
+				NativeShaderProgram.SetUniform(ref varInfo[i], locations[i], data);
 			}
 		}
 		private void SetupBlendType(BlendMode mode, bool depthWrite = true)
@@ -688,6 +730,14 @@ namespace Duality.Backend.DefaultOpenTK
 			}
 		}
 
+		private void FinishSharedParameters()
+		{
+			NativeTexture.ResetBinding();
+
+			this.sharedSamplerBindings = 0;
+			this.sharedShaderParameters.Clear();
+			this.activeShaders.Clear();
+		}
 		private void FinishVertexFormat(BatchInfo material, VertexDeclaration vertexDeclaration)
 		{
 			DrawTechnique technique = material.Technique.Res ?? DrawTechnique.Solid.Res;
@@ -745,10 +795,10 @@ namespace Duality.Backend.DefaultOpenTK
 		}
 		private void FinishMaterial(BatchInfo material)
 		{
-			DrawTechnique tech = material.Technique.Res;
+			//DrawTechnique tech = material.Technique.Res;
 			this.SetupBlendType(BlendMode.Reset);
-			NativeShaderProgram.Bind(null as NativeShaderProgram);
-			NativeTexture.ResetBinding();
+			NativeShaderProgram.Bind(null);
+			NativeTexture.ResetBinding(this.sharedSamplerBindings);
 		}
 		
 		private static PrimitiveType GetOpenTKVertexMode(VertexMode mode)
@@ -801,14 +851,14 @@ namespace Duality.Backend.DefaultOpenTK
 
 		public static void LogDisplayDevices()
 		{
-            Console.WriteLine("Available display devices:");
+		    Console.WriteLine("Available display devices:");
 			//Logs.Core.PushIndent();
 			foreach (DisplayIndex index in new[] { DisplayIndex.First, DisplayIndex.Second, DisplayIndex.Third, DisplayIndex.Fourth, DisplayIndex.Sixth } )
 			{
 				DisplayDevice display = DisplayDevice.GetDisplay(index);
 				if (display == null) continue;
 
-                Console.WriteLine(
+			    Console.WriteLine(
 					"{0,-6}: {1,4}x{2,4} at {3,3} Hz, {4,2} bpp, pos [{5,4},{6,4}]{7}",
 					index,
 					display.Width,
@@ -831,7 +881,7 @@ namespace Duality.Backend.DefaultOpenTK
 			{
 				CheckOpenGLErrors();
 				versionString = GL.GetString(StringName.Version);
-                Console.WriteLine(
+			    Console.WriteLine(
 					"OpenGL Version: {0}" + Environment.NewLine +
 					"Vendor: {1}" + Environment.NewLine +
 					"Renderer: {2}" + Environment.NewLine +
@@ -844,7 +894,7 @@ namespace Duality.Backend.DefaultOpenTK
 			}
 			catch (Exception e)
 			{
-                Console.WriteLine("Can't determine OpenGL specs, because an error occurred: {0}", /*LogFormat.Exception(*/e/*)*/);
+			    Console.WriteLine("Can't determine OpenGL specs, because an error occurred: {0}", /*LogFormat.Exception(*/e/*)*/);
 			}
 
 			// Parse the OpenGL version string in order to determine if it's sufficient
@@ -858,7 +908,7 @@ namespace Duality.Backend.DefaultOpenTK
 					{
 						if (version.Major < MinOpenGLVersion.Major || (version.Major == MinOpenGLVersion.Major && version.Minor < MinOpenGLVersion.Minor))
 						{
-                            Console.WriteLine(
+						    Console.WriteLine(
 								"The detected OpenGL version {0} appears to be lower than the required minimum. Version {1} or higher is required to run Duality applications.",
 								version,
 								MinOpenGLVersion);
@@ -885,7 +935,7 @@ namespace Duality.Backend.DefaultOpenTK
 			{
 				if (!silent)
 				{
-					Console.WriteLine(
+				    Console.WriteLine(
 						"Internal OpenGL error, code {0} at {1} in {2}, line {3}.", 
 						error,
 						callerInfoMember,

@@ -55,17 +55,18 @@ namespace Jazz2.Game.Structs
             res.FrameCount = resBase.FrameCount;
             res.Base = resBase;
 
-            Dictionary<string, ContentRef<Texture>> textures = new Dictionary<string, ContentRef<Texture>>();
-            textures.Add("mainTex", resBase.Texture);
+            Material material = new Material(drawTechnique, color);
+
+            material.SetTexture("mainTex", resBase.Texture);
             if (resBase.TextureNormal != null) {
-                textures.Add("normalTex", resBase.TextureNormal);
+                material.SetTexture("normalTex", resBase.TextureNormal);
             }
 
             if (isIndexed) {
-                textures.Add("paletteTex", paletteTexture);
+                material.SetTexture("paletteTex", paletteTexture);
             }
 
-            res.Material = new Material(drawTechnique, color, textures);
+            res.Material = material;
 
             return res;
         }

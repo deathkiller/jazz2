@@ -115,7 +115,7 @@ namespace Jazz2.Game
                 VisibilityMask = VisibilityFlag.None,
                 ClearFlags = ClearFlag.None,
 
-                Input = new BatchInfo(DrawTechnique.Solid, ColorRgba.White, mainTexture),
+                Input = new BatchInfo(DrawTechnique.Solid, mainTexture),
                 Output = finalTarget
             });
 
@@ -198,8 +198,8 @@ namespace Jazz2.Game
 
         private void ProcessResizeStep(DrawDevice drawDevice)
         {
-            BatchInfo material = new BatchInfo(resizeShader, ColorRgba.White, finalTexture);
-            material.SetUniform("mainTexSize", (float)finalTexture.ContentWidth, (float)finalTexture.ContentHeight);
+            BatchInfo material = new BatchInfo(resizeShader, finalTexture);
+            material.SetValue("mainTexSize", new Vector2(finalTexture.ContentWidth, finalTexture.ContentHeight));
             this.Blit(drawDevice, material, drawDevice.ViewportRect);
         }
 
@@ -299,7 +299,7 @@ namespace Jazz2.Game
                 BatchInfo material = new BatchInfo(downsampleShader, ColorRgba.White);
 
                 material.MainTexture = targetPingPongA[i - 1].Targets[0];
-                material.SetUniform("pixelOffset", 1f / material.MainTexture.Res.ContentWidth, 1f / material.MainTexture.Res.ContentHeight);
+                material.SetValue("pixelOffset", new Vector2(1f / material.MainTexture.Res.ContentWidth, 1f / material.MainTexture.Res.ContentHeight));
 
                 this.Blit(drawDevice, material, targetPingPongA[i]);
             }
@@ -309,14 +309,14 @@ namespace Jazz2.Game
                 BatchInfo material = new BatchInfo(blurShader, ColorRgba.White);
 
                 material.MainTexture = targetPingPongA[i].Targets[0];
-                material.SetUniform("blurDirection", 1.0f, 0.0f);
-                material.SetUniform("pixelOffset", 1f / material.MainTexture.Res.ContentWidth, 1f / material.MainTexture.Res.ContentHeight);
+                material.SetValue("blurDirection", new Vector2(1f, 0f));
+                material.SetValue("pixelOffset", new Vector2(1f / material.MainTexture.Res.ContentWidth, 1f / material.MainTexture.Res.ContentHeight));
 
                 this.Blit(drawDevice, material, targetPingPongB[i]);
 
                 material.MainTexture = targetPingPongB[i].Targets[0];
-                material.SetUniform("blurDirection", 0.0f, 1.0f);
-                material.SetUniform("pixelOffset", 1f / material.MainTexture.Res.ContentWidth, 1f / material.MainTexture.Res.ContentHeight);
+                material.SetValue("blurDirection", new Vector2(0f, 1f));
+                material.SetValue("pixelOffset", new Vector2(1f / material.MainTexture.Res.ContentWidth, 1f / material.MainTexture.Res.ContentHeight));
 
                 this.Blit(drawDevice, material, targetPingPongA[i]);
             }
@@ -332,8 +332,8 @@ namespace Jazz2.Game
                 material.SetTexture("blurHalfTex", targetPingPongA[1].Targets[0]);
                 material.SetTexture("blurQuarterTex", targetPingPongA[2].Targets[0]);
 
-                material.SetUniform("ambientLight", ambientLight);
-                material.SetUniform("waterLevel", viewWaterLevel / viewSize.Y);
+                material.SetValue("ambientLight", ambientLight);
+                material.SetValue("waterLevel", viewWaterLevel / viewSize.Y);
 
                 this.Blit(drawDevice, material, finalTarget);
             } else {
@@ -345,7 +345,7 @@ namespace Jazz2.Game
                 material.SetTexture("blurHalfTex", targetPingPongA[1].Targets[0]);
                 material.SetTexture("blurQuarterTex", targetPingPongA[2].Targets[0]);
 
-                material.SetUniform("ambientLight", ambientLight);
+                material.SetValue("ambientLight", ambientLight);
 
                 this.Blit(drawDevice, material, finalTarget);
             }

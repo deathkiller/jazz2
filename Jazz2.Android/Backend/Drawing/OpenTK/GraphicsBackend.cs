@@ -21,9 +21,13 @@ namespace Duality.Backend.Android.OpenTK
         }
 
         private IDrawDevice currentDevice;
+        private RenderOptions renderOptions;
         private RenderStats renderStats;
         private RawList<uint> perVertexTypeVBO = new RawList<uint>();
         private Point2 externalBackbufferSize = Point2.Zero;
+        private HashSet<NativeShaderProgram> activeShaders = new HashSet<NativeShaderProgram>();
+        private HashSet<string> sharedShaderParameters = new HashSet<string>();
+        private int sharedSamplerBindings = 0;
 
         private RawList<uint> perBatchEBO = new RawList<uint>();
         private int lastUsedEBO;
@@ -123,6 +127,7 @@ namespace Duality.Backend.Android.OpenTK
             //this.CheckContextCaps();
 
             this.currentDevice = device;
+            this.renderOptions = options;
             this.renderStats = stats;
 
             // Upload all vertex data that we'll need during rendering
@@ -207,9 +212,13 @@ namespace Duality.Backend.Android.OpenTK
 
         unsafe void IGraphicsBackend.Render(IReadOnlyList<DrawBatch> batches)
         {
-            DrawBatch lastRendered = null;
-            int drawCalls = 0;
+            if (batches.Count == 0) return;
 
+            this.RetrieveActiveShaders(batches);
+            this.SetupSharedParameters(this.renderOptions.ShaderParameters);
+
+            int drawCalls = 0;
+            DrawBatch lastRendered = null;
             for (int i = 0; i < batches.Count; i++) {
                 DrawBatch batch = batches[i];
                 VertexDeclaration vertexType = batch.VertexType;
@@ -219,7 +228,7 @@ namespace Duality.Backend.Android.OpenTK
                 bool first = (i == 0);
                 bool sameMaterial =
                     lastRendered != null &&
-                    lastRendered.Material == batch.Material;
+                    lastRendered.Material.Equals(batch.Material);
 
                 // Setup vertex bindings. Note that the setup differs based on the 
                 // materials shader, so material changes can be vertex binding changes.
@@ -314,13 +323,18 @@ namespace Duality.Backend.Android.OpenTK
             if (this.renderStats != null) {
                 this.renderStats.DrawCalls += drawCalls;
             }
+            
+            this.FinishSharedParameters();
         }
 
         void IGraphicsBackend.EndRendering()
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            
             this.currentDevice = null;
-
+            this.renderOptions = null;
+            this.renderStats = null;
+            
             DebugCheckOpenGLErrors();
         }
 
@@ -409,6 +423,74 @@ namespace Duality.Backend.Android.OpenTK
 
             NativeRenderTarget.Bind(oldTarget);
         }*/
+        
+        /// <summary>
+        /// Updates the internal list of active shaders based on the specified rendering batches.
+        /// </summary>
+        /// <param name="batches"></param>
+        private void RetrieveActiveShaders(IReadOnlyList<DrawBatch> batches)
+        {
+            this.activeShaders.Clear();
+            for (int i = 0; i < batches.Count; i++)
+            {
+                DrawBatch batch = batches[i];
+                BatchInfo material = batch.Material;
+                DrawTechnique tech = material.Technique.Res ?? DrawTechnique.Solid.Res;
+                ShaderProgram shader = tech.Shader.Res ?? ShaderProgram.Minimal.Res;
+                this.activeShaders.Add(shader.Native as NativeShaderProgram);
+            }
+        }
+        /// <summary>
+        /// Applies the specified parameter values to all currently active shaders.
+        /// </summary>
+        /// <param name="sharedParams"></param>
+        /// <seealso cref="RetrieveActiveShaders"/>
+        private void SetupSharedParameters(ShaderParameterCollection sharedParams)
+        {
+            this.sharedSamplerBindings = 0;
+            this.sharedShaderParameters.Clear();
+            if (sharedParams == null) return;
+
+            foreach (NativeShaderProgram shader in this.activeShaders)
+            {
+                NativeShaderProgram.Bind(shader);
+
+                ShaderFieldInfo[] varInfo = shader.Fields;
+                int[] locations = shader.FieldLocations;
+
+                // Setup shared sampler bindings
+                for (int i = 0; i < varInfo.Length; i++)
+                {
+                    if (locations[i] == -1) continue;
+                    if (varInfo[i].Type != ShaderFieldType.Sampler2D) continue;
+
+                    ContentRef<Texture> texRef;
+                    if (!sharedParams.TryGetInternal(varInfo[i].Name, out texRef)) continue;
+
+                    NativeTexture.Bind(texRef, this.sharedSamplerBindings);
+                    GL.Uniform1(locations[i], this.sharedSamplerBindings);
+
+                    this.sharedSamplerBindings++;
+                    this.sharedShaderParameters.Add(varInfo[i].Name);
+                }
+
+                // Setup shared uniform data
+                for (int i = 0; i < varInfo.Length; i++)
+                {
+                    if (locations[i] == -1) continue;
+                    if (varInfo[i].Type == ShaderFieldType.Sampler2D) continue;
+
+                    float[] data;
+                    if (!sharedParams.TryGetInternal(varInfo[i].Name, out data)) continue;
+        
+                    NativeShaderProgram.SetUniform(ref varInfo[i], locations[i], data);
+
+                    this.sharedShaderParameters.Add(varInfo[i].Name);
+                }
+            }
+
+            NativeShaderProgram.Bind(null);
+        }
 
         private void SetupVertexFormat(BatchInfo material, VertexDeclaration vertexDeclaration)
         {
@@ -475,72 +557,55 @@ namespace Duality.Backend.Android.OpenTK
             DrawTechnique tech = material.Technique.Res ?? DrawTechnique.Solid.Res;
             DrawTechnique lastTech = lastMaterial != null ? lastMaterial.Technique.Res : null;
 
-            // Prepare Rendering
-            if (tech.NeedsPreparation) {
-                material = new BatchInfo(material);
-                tech.PrepareRendering(this.currentDevice, material);
-            }
-
             // Setup BlendType
             if (lastTech == null || tech.Blending != lastTech.Blending) {
                 this.SetupBlendType(tech.Blending, this.currentDevice.DepthWrite);
             }
 
             // Bind Shader
-            NativeShaderProgram shader = (tech.Shader.Res != null ? tech.Shader.Res : ShaderProgram.Minimal.Res).Native as NativeShaderProgram;
-            NativeShaderProgram.Bind(shader);
+            ShaderProgram shader = tech.Shader.Res ?? ShaderProgram.Minimal.Res;
+            NativeShaderProgram nativeShader = shader.Native as NativeShaderProgram;
+            NativeShaderProgram.Bind(nativeShader);
 
             // Setup shader data
-            if (shader != null) {
-                ShaderFieldInfo[] varInfo = shader.Fields;
-                int[] locations = shader.FieldLocations;
-                int[] builtinIndices = shader.BuiltinVariableIndex;
+            ShaderFieldInfo[] varInfo = nativeShader.Fields;
+            int[] locations = nativeShader.FieldLocations;
 
-                // Setup sampler bindings automatically
-                int curSamplerIndex = 0;
-                if (material.Textures != null) {
-                    for (int i = 0; i < varInfo.Length; i++) {
-                        if (locations[i] == -1) continue;
-                        if (varInfo[i].Type != ShaderFieldType.Sampler2D) continue;
+            // Setup sampler bindings automatically
+            int curSamplerIndex = this.sharedSamplerBindings;
+            for (int i = 0; i < varInfo.Length; i++) {
+                if (locations[i] == -1) continue;
+                if (varInfo[i].Type != ShaderFieldType.Sampler2D) continue;
+                if (this.sharedShaderParameters.Contains(varInfo[i].Name)) continue;
 
-                        // Bind Texture
-                        ContentRef<Texture> texRef = material.GetTexture(varInfo[i].Name);
-                        NativeTexture.Bind(texRef, curSamplerIndex);
+                ContentRef<Texture> texRef = material.GetInternalTexture(varInfo[i].Name);
+                NativeTexture.Bind(texRef, curSamplerIndex);
 
-                        GL.Uniform1(locations[i], curSamplerIndex);
+                GL.Uniform1(locations[i], curSamplerIndex);
 
-                        curSamplerIndex++;
-                    }
+                curSamplerIndex++;
+            }
+            NativeTexture.ResetBinding(curSamplerIndex);
+
+            // Setup uniform data
+            for (int i = 0; i < varInfo.Length; i++) {
+                if (locations[i] == -1) continue;
+                if (varInfo[i].Type == ShaderFieldType.Sampler2D) continue;
+                if (this.sharedShaderParameters.Contains(varInfo[i].Name)) continue;
+
+                float[] data;
+                if (varInfo[i].Name == "ModelView") {
+                    data = modelViewData;
+                } else if (varInfo[i].Name == "Projection") {
+                    data = projectionData;
+                } else if (material.Uniforms != null) {
+                    data = material.GetInternalData(varInfo[i].Name);
+                    if (data == null) continue;
+                } else {
+                    continue;
                 }
-                NativeTexture.ResetBinding(curSamplerIndex);
 
-                // Transfer uniform data from material to actual shader
-                //if (material.Uniforms != null) {
-                    for (int i = 0; i < varInfo.Length; i++) {
-                        if (locations[i] == -1) continue;
-
-                        float[] data;
-                        if (varInfo[i].Name == "ModelView") {
-                            data = modelViewData;
-                        } else if (varInfo[i].Name == "Projection") {
-                            data = projectionData;
-                        } else if (material.Uniforms != null) {
-                            data = material.GetUniform(varInfo[i].Name);
-                            if (data == null) continue;
-                        } else {
-                            continue;
-                        }
-
-                        NativeShaderProgram.SetUniform(ref varInfo[i], locations[i], data);
-                    }
-                //}
-
-                // Specify builtin shader variables, if requested
-                float[] fieldValue = null;
-                for (int i = 0; i < builtinIndices.Length; i++) {
-                    if (BuiltinShaderFields.TryGetValue(this.currentDevice, builtinIndices[i], ref fieldValue))
-                        NativeShaderProgram.SetUniform(ref varInfo[i], locations[i], fieldValue);
-                }
+                NativeShaderProgram.SetUniform(ref varInfo[i], locations[i], data);
             }
         }
 
@@ -597,6 +662,15 @@ namespace Duality.Backend.Android.OpenTK
                     break;
             }
         }
+        
+        private void FinishSharedParameters()
+        {
+            NativeTexture.ResetBinding();
+
+            this.sharedSamplerBindings = 0;
+            this.sharedShaderParameters.Clear();
+            this.activeShaders.Clear();
+        }
         private void FinishVertexFormat(BatchInfo material, VertexDeclaration vertexDeclaration)
         {
             DrawTechnique technique = material.Technique.Res ?? DrawTechnique.Solid.Res;
@@ -620,8 +694,8 @@ namespace Duality.Backend.Android.OpenTK
         {
             //DrawTechnique tech = material.Technique.Res;
             this.SetupBlendType(BlendMode.Reset);
-            NativeShaderProgram.Bind(null as NativeShaderProgram);
-            NativeTexture.ResetBinding();
+            NativeShaderProgram.Bind(null);
+            NativeTexture.ResetBinding(this.sharedSamplerBindings);
         }
 
         private static BeginMode GetOpenTKVertexMode(VertexMode mode)

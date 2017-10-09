@@ -99,7 +99,7 @@ namespace Jazz2.Actors.Enemies
                 renderer.CustomMaterial = null;
             } else {
                 // Refresh temporary material
-                BatchInfo blinkMaterial = renderer.SharedMaterial.Res.Info;
+                BatchInfo blinkMaterial = new BatchInfo(renderer.SharedMaterial.Res.Info);
                 blinkMaterial.Technique = ContentResolver.Current.RequestShader("Colorize");
                 blinkMaterial.MainColor = new ColorRgba(1f, 0.5f);
                 renderer.CustomMaterial = blinkMaterial;
@@ -122,7 +122,7 @@ namespace Jazz2.Actors.Enemies
         {
             if (blinkingTimeout <= 0f) {
                 // Create temporary material
-                BatchInfo blinkMaterial = renderer.SharedMaterial.Res.Info;
+                BatchInfo blinkMaterial = new BatchInfo(renderer.SharedMaterial.Res.Info);
                 blinkMaterial.Technique = ContentResolver.Current.RequestShader("Colorize");
                 blinkMaterial.MainColor = new ColorRgba(1f, 0.5f);
                 renderer.CustomMaterial = blinkMaterial;

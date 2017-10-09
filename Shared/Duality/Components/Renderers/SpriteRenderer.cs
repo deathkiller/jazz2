@@ -306,12 +306,11 @@ namespace Duality.Components.Renderers
         public override void Draw(IDrawDevice device)
 		{
 			Texture mainTex = this.RetrieveMainTex();
-			ColorRgba mainClr = this.RetrieveMainColor();
 
             // ToDo: spriteIndex not used
             Rect uvRect;
             this.GetUVRect(mainTex, /*this.spriteIndex*/-1, out uvRect);
-            this.PrepareVertices(ref this.vertices, device, mainClr, uvRect);
+            this.PrepareVertices(ref this.vertices, device, this.colorTint, uvRect);
 			if (this.customMat != null)
 				device.AddVertices(this.customMat, VertexMode.Quads, this.vertices);
 			else

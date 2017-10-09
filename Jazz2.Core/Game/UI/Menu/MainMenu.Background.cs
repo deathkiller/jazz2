@@ -17,7 +17,7 @@ namespace Jazz2.Game.UI.Menu
         private ContentRef<DrawTechnique> texturedBackgroundShader;
         private VertexC1P3T2[] cachedVertices;
         private float backgroundX, backgroundY, backgroundPhase;
-        private float[] horizonColor;
+        private Vector4 horizonColor;
 
         private void PrerenderTexturedBackground()
         {
@@ -57,7 +57,7 @@ namespace Jazz2.Game.UI.Menu
                 LevelHandler.LevelConfigJson.LayerSection layer;
                 if (config.Layers.TryGetValue("Sky", out layer)) {
                     if (layer.BackgroundColor != null && layer.BackgroundColor.Count >= 3) {
-                        horizonColor = new float[] { layer.BackgroundColor[0] / 255f, layer.BackgroundColor[1] / 255f, layer.BackgroundColor[2] / 255f, 1f };
+                        horizonColor = new Vector4(layer.BackgroundColor[0] / 255f, layer.BackgroundColor[1] / 255f, layer.BackgroundColor[2] / 255f, 1f);
                     }
                 }
 
@@ -292,9 +292,9 @@ namespace Jazz2.Game.UI.Menu
             vertexData[0].Color = vertexData[1].Color = vertexData[2].Color = vertexData[3].Color = ColorRgba.White;
 
             // Setup custom pixel shader
-            BatchInfo material = new BatchInfo(texturedBackgroundShader, ColorRgba.White, cachedTexturedBackground);
-            material.SetUniform("horizonColor", horizonColor);
-            material.SetUniform("shift", backgroundX, backgroundY);
+            BatchInfo material = new BatchInfo(texturedBackgroundShader, cachedTexturedBackground);
+            material.SetValue("horizonColor", horizonColor);
+            material.SetValue("shift", new Vector2(backgroundX, backgroundY));
 
             device.AddVertices(material, VertexMode.Quads, vertexData);
         }

@@ -363,15 +363,14 @@ namespace Jazz2.Game.Components
             }
 
             Texture mainTex = RetrieveMainTex();
-            ColorRgba mainClr = RetrieveMainColor();
             DrawTechnique tech = RetrieveDrawTechnique();
 
             Rect uvRect, uvRectNext;
-            bool smoothShaderInput = tech != null && tech.PreferredVertexFormat == VertexC1P3T4A1.Declaration;
-            GetAnimData(mainTex/*, tech*/, smoothShaderInput, out uvRect, out uvRectNext);
+            bool smoothShaderInput = (tech != null && tech.PreferredVertexFormat == VertexC1P3T4A1.Declaration);
+            GetAnimData(mainTex, smoothShaderInput, out uvRect, out uvRectNext);
 
             if (!smoothShaderInput) {
-                PrepareVertices(ref vertices, device, mainClr, uvRect);
+                PrepareVertices(ref vertices, device, this.colorTint, uvRect);
                 if (customMat != null) {
                     device.AddVertices(customMat, VertexMode.Quads, vertices);
                 } else {
@@ -379,12 +378,12 @@ namespace Jazz2.Game.Components
                         device.AddVertices(sharedMat, VertexMode.Quads, vertices);
                     } else {
                         BatchInfo material = sharedMat.Res.Info;
-                        material.SetUniform("normalMultiplier", (flipMode & FlipMode.Horizontal) == 0 ? 1 : -1f, (flipMode & FlipMode.Vertical) == 0 ? 1 : -1f);
+                        material.SetValue("normalMultiplier", new Vector2((flipMode & FlipMode.Horizontal) == 0 ? 1 : -1f, (flipMode & FlipMode.Vertical) == 0 ? 1 : -1f));
                         device.AddVertices(material, VertexMode.Quads, vertices);
                     }
                 }
             } else {
-                PrepareVerticesSmooth(ref verticesSmooth, device, curAnimFrameFade, mainClr, uvRect, uvRectNext);
+                PrepareVerticesSmooth(ref verticesSmooth, device, curAnimFrameFade, this.colorTint, uvRect, uvRectNext);
                 if (customMat != null) {
                     device.AddVertices(customMat, VertexMode.Quads, verticesSmooth);
                 } else {
@@ -392,7 +391,7 @@ namespace Jazz2.Game.Components
                         device.AddVertices(sharedMat, VertexMode.Quads, verticesSmooth);
                     } else {
                         BatchInfo material = sharedMat.Res.Info;
-                        material.SetUniform("normalMultiplier", (flipMode & FlipMode.Horizontal) == 0 ? 1 : -1f, (flipMode & FlipMode.Vertical) == 0 ? 1 : -1f);
+                        material.SetValue("normalMultiplier", new Vector2((flipMode & FlipMode.Horizontal) == 0 ? 1 : -1f, (flipMode & FlipMode.Vertical) == 0 ? 1 : -1f));
                         device.AddVertices(material, VertexMode.Quads, verticesSmooth);
                     }
                 }

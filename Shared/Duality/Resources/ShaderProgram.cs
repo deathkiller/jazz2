@@ -43,7 +43,6 @@ namespace Duality.Resources
             {
                 { "Minimal", new ShaderProgram(VertexShader.Minimal, FragmentShader.Minimal) },
                 { "Picking", new ShaderProgram(VertexShader.Minimal, FragmentShader.Picking) },
-                { "SmoothAnim", new ShaderProgram(VertexShader.SmoothAnim, FragmentShader.SmoothAnim) },
                 { "SharpAlpha", new ShaderProgram(VertexShader.Minimal, FragmentShader.SharpAlpha) }
             });
         }

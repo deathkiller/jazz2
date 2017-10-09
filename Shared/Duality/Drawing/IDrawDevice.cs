@@ -1,5 +1,4 @@
-﻿using Duality.Drawing;
-using Duality.Resources;
+﻿using Duality.Resources;
 
 namespace Duality.Drawing
 {
@@ -49,8 +48,14 @@ namespace Duality.Drawing
 		/// [GET] The size of the image that is rendered by this device.
 		/// </summary>
 		Vector2 TargetSize { get; }
-		
-		
+		/// <summary>
+		/// [GET] Provides access to the drawing devices shared <see cref="ShaderParameterCollection"/>,
+		/// which allows to specify a parameter value globally across all materials rendered by this
+		/// <see cref="DrawDevice"/>.
+		/// </summary>
+		ShaderParameterCollection ShaderParameters { get; }
+
+
 		/// <summary>
 		/// Returns the scale factor of objects that are located at the specified (world space) z-Coordinate.
 		/// </summary>
@@ -142,10 +147,10 @@ namespace Duality.Drawing
 		public static void AddVertices<T>(this IDrawDevice device, ContentRef<Material> material, VertexMode vertexMode, params T[] vertices) where T : struct, IVertexData
 		{
 			device.AddVertices<T>(
-				material.IsAvailable ? material.Res.InfoDirect : Material.SolidWhite.Res.InfoDirect, 
+				material.IsAvailable ? material.Res.Info : Material.SolidWhite.Res.Info, 
 				vertexMode, 
 				vertices, 
-                0, 
+                0,
 				vertices.Length);
 		}
 		/// <summary>
@@ -166,7 +171,7 @@ namespace Duality.Drawing
 				material, 
 				vertexMode, 
 				vertices, 
-                0, 
+                0,
 				vertices.Length);
 		}
 		/// <summary>
@@ -185,11 +190,11 @@ namespace Duality.Drawing
 		public static void AddVertices<T>(this IDrawDevice device, ContentRef<Material> material, VertexMode vertexMode, T[] vertexBuffer, int vertexOffset, int vertexCount) where T : struct, IVertexData
 		{
 			device.AddVertices<T>(
-				material.IsAvailable ? material.Res.InfoDirect : Material.SolidWhite.Res.InfoDirect, 
+				material.IsAvailable ? material.Res.Info : Material.SolidWhite.Res.Info, 
 				vertexMode, 
-				vertexBuffer,
-                vertexOffset, 
-                vertexCount);
+				vertexBuffer, 
+                vertexOffset,
+				vertexCount);
 		}
 	}
 }

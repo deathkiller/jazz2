@@ -39,6 +39,9 @@
   <PropertyGroup>
     <StartupObject>Jazz2.App</StartupObject>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>App.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -56,6 +59,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.manifest" />
     <None Include="Icon.ico" />
   </ItemGroup>
   <Choose>

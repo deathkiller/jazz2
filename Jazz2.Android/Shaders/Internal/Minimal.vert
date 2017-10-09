@@ -3,6 +3,8 @@
 uniform mat4 ModelView;
 uniform mat4 Projection;
 
+uniform vec4 mainColor;
+
 in vec4 Color;
 in vec3 Position;
 in vec2 TexCoord;
@@ -14,5 +16,5 @@ void main() {
     gl_Position = Projection * (ModelView * vec4(Position, 1.0));
 
     vTexcoord0 = TexCoord;
-    vCornerColor = Color;
+    vCornerColor = Color * mainColor;
 }

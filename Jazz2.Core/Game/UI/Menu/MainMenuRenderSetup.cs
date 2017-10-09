@@ -136,8 +136,8 @@ namespace Jazz2.Game.UI.Menu
 
         private void ProcessResizeStep(DrawDevice drawDevice)
         {
-            BatchInfo material = new BatchInfo(resizeShader, ColorRgba.White, finalTexture);
-            material.SetUniform("mainTexSize", (float)finalTexture.ContentWidth, (float)finalTexture.ContentHeight);
+            BatchInfo material = new BatchInfo(resizeShader, finalTexture);
+            material.SetValue("mainTexSize", new Vector2(finalTexture.ContentWidth, finalTexture.ContentHeight));
             this.Blit(drawDevice, material, drawDevice.ViewportRect);
         }
     }

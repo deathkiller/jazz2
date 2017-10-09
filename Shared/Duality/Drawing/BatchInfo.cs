@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Duality.Resources;
 
 namespace Duality.Drawing
@@ -10,397 +8,268 @@ namespace Duality.Drawing
     /// </summary>
     /// <seealso cref="Material"/>
     public class BatchInfo : IEquatable<BatchInfo>
-    {
-        [Flags]
-        private enum DirtyFlag
-        {
-            None = 0x0,
+	{
+		private ContentRef<DrawTechnique> technique  = DrawTechnique.Mask;
+		private ShaderParameterCollection parameters = null;
 
-            Textures = 0x1,
-            Uniforms = 0x2,
+		/// <summary>
+		/// [GET / SET] The <see cref="Duality.Resources.DrawTechnique"/> that is used.
+		/// </summary>
+		public ContentRef<DrawTechnique> Technique
+		{
+			get { return this.technique; }
+			set { this.technique = value; }
+		}
+		/// <summary>
+		/// [GET / SET] The main texture of the material. This property is a shortcut for
+		/// a regular shader parameter as accessible via <see cref="GetTexture"/>.
+		/// </summary>
+		public ContentRef<Texture> MainTexture
+		{
+			get { return this.GetTexture(ShaderFieldInfo.DefaultNameMainTex); }
+			set { this.SetTexture(ShaderFieldInfo.DefaultNameMainTex, value); }
+		}
+		/// <summary>
+		/// [GET / SET] The main color of the material. This property is a shortcut for
+		/// a regular shader parameter as accessible via <see cref="GetValue"/>.
+		/// </summary>
+		public ColorRgba MainColor
+		{
+			get
+			{
+				Vector4 color = this.GetValue<Vector4>(ShaderFieldInfo.DefaultNameMainColor);
+				return new ColorRgba(color.X, color.Y, color.Z, color.W);
+			}
+			set
+			{
+				this.SetValue<Vector4>(ShaderFieldInfo.DefaultNameMainColor, new Vector4(
+					value.R / 255.0f, 
+					value.G / 255.0f, 
+					value.B / 255.0f, 
+					value.A / 255.0f));
+			}
+		}
 
-            All = Textures | Uniforms
-        }
+		/// <summary>
+		/// Creates a new, empty BatchInfo.
+		/// </summary>
+		public BatchInfo()
+		{
+			this.parameters = new ShaderParameterCollection();
+		}
+		/// <summary>
+		/// Creates a new BatchInfo based on an existing <see cref="Material"/>.
+		/// </summary>
+		/// <param name="source"></param>
+		public BatchInfo(Material source) : this(source.Info) {}
+		/// <summary>
+		/// Creates a new BatchInfo based on an existing BatchInfo. This is essentially a copy constructor.
+		/// </summary>
+		/// <param name="source"></param>
+		public BatchInfo(BatchInfo source)
+		{
+			this.technique = source.technique;
+			this.parameters = new ShaderParameterCollection(source.parameters);
+		}
+		/// <summary>
+		/// Creates a new color-only BatchInfo.
+		/// </summary>
+		/// <param name="technique">The <see cref="Duality.Resources.DrawTechnique"/> to use.</param>
+		/// <param name="mainColor">The <see cref="MainColor"/> to use.</param>
+		public BatchInfo(ContentRef<DrawTechnique> technique) : this()
+		{
+			this.technique = technique;
+		}
+		/// <summary>
+		/// Creates a new color-only BatchInfo.
+		/// </summary>
+		/// <param name="technique">The <see cref="Duality.Resources.DrawTechnique"/> to use.</param>
+		/// <param name="mainColor">The <see cref="MainColor"/> to use.</param>
+		public BatchInfo(ContentRef<DrawTechnique> technique, ColorRgba mainColor) : this(technique)
+		{
+			this.MainColor = mainColor;
+		}
+		/// <summary>
+		/// Creates a new single-texture BatchInfo.
+		/// </summary>
+		/// <param name="technique">The <see cref="Duality.Resources.DrawTechnique"/> to use.</param>
+		/// <param name="mainTex">The main <see cref="Duality.Resources.Texture"/> to use.</param>
+		public BatchInfo(ContentRef<DrawTechnique> technique, ContentRef<Texture> mainTex) : this(technique) 
+		{
+			this.MainTexture = mainTex;
+		}
+		
+		/// <summary>
+		/// Assigns an array of values to the specified variable. All values are copied and converted into
+		/// a shared internal format.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="name"></param>
+		/// <param name="value"></param>
+		/// <seealso cref="ShaderParameterCollection.Set"/>
+		public void SetArray<T>(string name, T[] value) where T : struct
+		{
+			this.parameters.Set(name, value);
+		}
+		/// <summary>
+		/// Assigns a blittable value to the specified variable. All values are copied and converted into
+		/// a shared internal format.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="name"></param>
+		/// <param name="value"></param>
+		/// <seealso cref="ShaderParameterCollection.Set"/>
+		public void SetValue<T>(string name, T value) where T : struct
+		{
+			this.parameters.Set(name, value);
+		}
+		/// <summary>
+		/// Assigns a texture to the specified variable.
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="value"></param>
+		/// <seealso cref="ShaderParameterCollection.Set"/>
+		public void SetTexture(string name, ContentRef<Texture> value)
+		{
+			this.parameters.Set(name, value);
+		}
 
-        private ContentRef<DrawTechnique> technique = DrawTechnique.Mask;
-        private ColorRgba mainColor = ColorRgba.White;
-        private Dictionary<string, ContentRef<Texture>> textures = null;
-        private Dictionary<string, float[]> uniforms = null;
-        private DirtyFlag dirtyFlag = DirtyFlag.None;
-        private int hashCode = 0;
+		/// <summary>
+		/// Retrieves a copy of the values that are assigned the specified variable. If the internally 
+		/// stored type does not match the specified type, it will be converted before returning.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="name"></param>
+		/// <returns></returns>
+		/// <seealso cref="ShaderParameterCollection.TryGet"/>
+		public T[] GetArray<T>(string name) where T : struct
+		{
+			// Retrieve the material parameter if available
+			T[] result;
+			if (this.parameters != null && this.parameters.TryGet(name, out result))
+				return result;
 
-        /// <summary>
-        /// [GET / SET] The <see cref="Duality.Resources.DrawTechnique"/> that is used.
-        /// </summary>
-        public ContentRef<DrawTechnique> Technique
-        {
-            get { return this.technique; }
-            set { this.technique = value; this.InvalidateHashCode(); }
-        }
-        /// <summary>
-        /// [GET / SET] The main color, typically used for coloring displayed vertices.
-        /// </summary>
-        public ColorRgba MainColor
-        {
-            get { return this.mainColor; }
-            set { this.mainColor = value; this.InvalidateHashCode(); }
-        }
-        /// <summary>
-        /// [GET / SET] The set of <see cref="Duality.Resources.Texture">Textures</see> to use.
-        /// </summary>
-        public IEnumerable<KeyValuePair<string, ContentRef<Texture>>> Textures
-        {
-            get { return this.textures; }
-            set
-            {
-                if (value == null)
-                    this.textures = null;
-                else {
-                    this.textures = new Dictionary<string, ContentRef<Texture>>();
-                    foreach (var pair in value) {
-                        if (pair.Key == null) continue;
-                        if (pair.Value == null) continue;
-                        this.textures.Add(pair.Key, pair.Value);
-                    }
-                }
-                this.InvalidateHashCode();
-                this.dirtyFlag &= ~DirtyFlag.Textures;
-            }
-        }
-        /// <summary>
-        /// [GET / SET] The main texture.
-        /// </summary>
-        public ContentRef<Texture> MainTexture
-        {
-            get
-            {
-                if (this.textures == null || this.textures.Count == 0) return null;
-                ContentRef<Texture> mainTexRef;
-                if (!this.textures.TryGetValue(ShaderFieldInfo.DefaultNameMainTex, out mainTexRef)) return null;
-                return mainTexRef;
-            }
-            set
-            {
-                if (this.textures == null)
-                    this.textures = new Dictionary<string, ContentRef<Texture>>();
-                else
-                    this.Detach(DirtyFlag.Textures);
-                this.textures[ShaderFieldInfo.DefaultNameMainTex] = value;
-                this.InvalidateHashCode();
-            }
-        }
-        /// <summary>
-        /// [GET / SET] The set of <see cref="Duality.Resources.ShaderFieldInfo">uniform values</see> to use.
-        /// </summary>
-        public IEnumerable<KeyValuePair<string, float[]>> Uniforms
-        {
-            get { return this.uniforms; }
-            set
-            {
-                if (value == null)
-                    this.uniforms = null;
-                else {
-                    this.uniforms = new Dictionary<string, float[]>();
-                    foreach (var pair in value) {
-                        if (pair.Key == null) continue;
-                        if (pair.Value == null) continue;
-                        this.uniforms.Add(pair.Key, pair.Value);
-                    }
-                }
-                this.InvalidateHashCode();
-                this.dirtyFlag &= ~DirtyFlag.Uniforms;
-            }
-        }
+			// Fall back to the used techniques default parameter value
+			DrawTechnique tech = this.technique.Res;
+			if (tech != null && tech.DefaultParameters.TryGet(name, out result))
+				return result;
 
-        /// <summary>
-        /// Creates a new, empty BatchInfo.
-        /// </summary>
-        public BatchInfo() { }
-        /// <summary>
-        /// Creates a new BatchInfo based on an existing <see cref="Material"/>.
-        /// </summary>
-        /// <param name="source"></param>
-        public BatchInfo(Material source) : this(source.InfoDirect) { }
-        /// <summary>
-        /// Creates a new BatchInfo based on an existing BatchInfo. This is essentially a copy constructor.
-        /// </summary>
-        /// <param name="source"></param>
-        public BatchInfo(BatchInfo source)
-        {
-            source.CopyTo(this);
-        }
-        /// <summary>
-        /// Creates a new single-texture BatchInfo.
-        /// </summary>
-        /// <param name="technique">The <see cref="Duality.Resources.DrawTechnique"/> to use.</param>
-        /// <param name="mainColor">The <see cref="MainColor"/> to use.</param>
-        /// <param name="mainTex">The main <see cref="Duality.Resources.Texture"/> to use.</param>
-        public BatchInfo(ContentRef<DrawTechnique> technique, ColorRgba mainColor, ContentRef<Texture> mainTex) : this(technique, mainColor, null, null)
-        {
-            this.textures = new Dictionary<string, ContentRef<Texture>>();
-            this.textures.Add(ShaderFieldInfo.DefaultNameMainTex, mainTex);
-            this.InvalidateHashCode();
-        }
-        /// <summary>
-        /// Creates a new complex BatchInfo.
-        /// </summary>
-        /// <param name="technique">The <see cref="Duality.Resources.DrawTechnique"/> to use.</param>
-        /// <param name="mainColor">The <see cref="MainColor"/> to use.</param>
-        /// <param name="textures">A set of <see cref="Duality.Resources.Texture">Textures</see> to use.</param>
-        /// <param name="uniforms">A set of <see cref="Duality.Resources.ShaderFieldInfo">uniform values</see> to use.</param>
-        public BatchInfo(ContentRef<DrawTechnique> technique, ColorRgba mainColor, IEnumerable<KeyValuePair<string, ContentRef<Texture>>> textures = null, IEnumerable<KeyValuePair<string, float[]>> uniforms = null)
-        {
-            this.technique = technique;
-            this.mainColor = mainColor;
-            this.Textures = textures;
-            this.Uniforms = uniforms;
-            this.InvalidateHashCode();
-        }
+			return null;
+		}
+		/// <summary>
+		/// Retrieves a blittable value from the specified variable. All values are copied and converted into
+		/// a shared internal format.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="name"></param>
+		/// <returns></returns>
+		/// <seealso cref="ShaderParameterCollection.TryGet"/>
+		public T GetValue<T>(string name) where T : struct
+		{
+			// Retrieve the material parameter if available
+			T result;
+			if (this.parameters != null && this.parameters.TryGet(name, out result))
+				return result;
 
-        /// <summary>
-        /// Copies this BatchInfo's data to a different one.
-        /// </summary>
-        /// <param name="info">The target BatchInfo to copy data to.</param>
-        public void CopyTo(BatchInfo info)
-        {
-            info.technique = this.technique;
-            info.mainColor = this.mainColor;
-            info.textures = this.textures;
-            info.uniforms = this.uniforms;
-            info.hashCode = this.hashCode;
-            info.dirtyFlag |= DirtyFlag.All;
-        }
-        /// <summary>
-        /// Assures that the current BatchInfo is not a temporarily shallow copy of an existing one.
-        /// </summary>
-        public void Detach()
-        {
-            this.Detach(DirtyFlag.All);
-        }
-        private void Detach(DirtyFlag clean)
-        {
-            if ((this.dirtyFlag & clean) == DirtyFlag.None) return;
+			// Fall back to the used techniques default parameter value
+			DrawTechnique tech = this.technique.Res;
+			if (tech != null && tech.DefaultParameters.TryGet(name, out result))
+				return result;
 
-            if ((clean & DirtyFlag.Textures) != DirtyFlag.None && this.textures != null) {
-                this.textures = new Dictionary<string, ContentRef<Texture>>(this.textures);
-            }
-            if ((clean & DirtyFlag.Uniforms) != DirtyFlag.None && this.uniforms != null) {
-                var oldUniforms = this.uniforms;
-                this.uniforms = new Dictionary<string, float[]>(oldUniforms);
-                foreach (var pair in oldUniforms) {
-                    this.uniforms[pair.Key] = (float[])pair.Value.Clone();
-                }
-            }
+			return default(T);
+		}
+		/// <summary>
+		/// Retrieves a texture from the specified variable.
+		/// </summary>
+		/// <param name="name"></param>
+		/// <returns></returns>
+		/// <seealso cref="ShaderParameterCollection.TryGet"/>
+		public ContentRef<Texture> GetTexture(string name)
+		{
+			// Retrieve the material parameter if available
+			ContentRef<Texture> result;
+			if (this.parameters != null && this.parameters.TryGet(name, out result))
+				return result;
 
-            this.dirtyFlag &= ~clean;
-        }
-        /// <summary>
-        /// Triggers content retrieval in all references Resources.
-        /// </summary>
-        public void MakeAvailable()
-        {
-            this.technique.MakeAvailable();
-            if (this.textures != null) {
-                foreach (var pair in this.textures.ToArray()) {
-                    ContentRef<Texture> texRef = pair.Value;
-                    texRef.MakeAvailable();
-                    this.textures[pair.Key] = texRef;
-                }
-            }
-            this.InvalidateHashCode();
-        }
+			// Fall back to the used techniques default parameter value
+			DrawTechnique tech = this.technique.Res;
+			if (tech != null && tech.DefaultParameters.TryGet(name, out result))
+				return result;
 
-        /// <summary>
-        /// Gets a texture by name. Returns a null reference if the name doesn't exist.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public ContentRef<Texture> GetTexture(string name)
-        {
-            if (this.textures == null) return null;
-            ContentRef<Texture> result;
-            if (!this.textures.TryGetValue(name, out result))
-                return null;
-            else
-                return result;
-        }
-        /// <summary>
-        /// Sets a texture.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="tex"></param>
-        public void SetTexture(string name, ContentRef<Texture> tex)
-        {
-            if (this.textures == null)
-                this.textures = new Dictionary<string, ContentRef<Texture>>();
-            else
-                this.Detach(DirtyFlag.Textures);
+			return null;
+		}
 
-            if (tex.IsExplicitNull)
-                this.textures.Remove(name);
-            else
-                this.textures[name] = tex;
+		/// <summary>
+		/// Retrieves the internal representation of the specified variables numeric value.
+		/// The returned array should be treated as read-only.
+		/// </summary>
+		/// <param name="name"></param>
+		/// <returns></returns>
+		public float[] GetInternalData(string name)
+		{
+			// Retrieve the material parameter if available
+			float[] result;
+			if (this.parameters != null && this.parameters.TryGetInternal(name, out result))
+				return result;
 
-            this.InvalidateHashCode();
-        }
-        /// <summary>
-        /// Gets a uniform by name. Returns a null reference if the name doesn't exist.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public float[] GetUniform(string name)
-        {
-            if (this.uniforms == null) return null;
-            float[] result;
-            if (!this.uniforms.TryGetValue(name, out result)) return null;
-            return result;
-        }
-        /// <summary>
-        /// Sets a uniform value
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="uniform"></param>
-        public void SetUniform(string name, params float[] uniform)
-        {
-            if (this.uniforms == null)
-                this.uniforms = new Dictionary<string, float[]>();
-            else
-                this.Detach(DirtyFlag.Uniforms);
+			// Fall back to the used techniques default parameter value
+			DrawTechnique tech = this.technique.Res;
+			if (tech != null && tech.DefaultParameters.TryGetInternal(name, out result))
+				return result;
 
-            if (uniform == null)
-                this.uniforms.Remove(name);
-            else
-                this.uniforms[name] = uniform;
+			return null;
+		}
+		/// <summary>
+		/// Retrieves the internal representation of the specified variables texture value.
+		/// The returned value should be treated as read-only.
+		/// </summary>
+		/// <param name="name"></param>
+		/// <returns></returns>
+		public ContentRef<Texture> GetInternalTexture(string name)
+		{
+			// Retrieve the material parameter if available
+			ContentRef<Texture> result;
+			if (this.parameters != null && this.parameters.TryGetInternal(name, out result))
+				return result;
 
-            this.InvalidateHashCode();
-        }
-        /// <summary>
-        /// Sets a uniform value
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="index"></param>
-        /// <param name="uniformVal"></param>
-        public void SetUniform(string name, int index, float uniformVal)
-        {
-            if (this.uniforms != null)
-                this.Detach(DirtyFlag.Uniforms);
+			// Fall back to the used techniques default parameter value
+			DrawTechnique tech = this.technique.Res;
+			if (tech != null && tech.DefaultParameters.TryGetInternal(name, out result))
+				return result;
 
-            float[] uniformArr = this.GetUniform(name);
-            if (uniformArr == null) {
-                uniformArr = new float[index + 1];
-                this.SetUniform(name, uniformArr);
-            }
-            if (uniformArr.Length <= index) {
-                Array.Resize(ref uniformArr, index + 1);
-                this.SetUniform(name, uniformArr);
-            }
-            uniformArr[index] = uniformVal;
+			return null;
+		}
 
-            this.InvalidateHashCode();
-        }
-
-        /// <summary>
-        /// Compares two BatchInfos for equality. If a <see cref="System.Object.ReferenceEquals"/> test
-        /// fails, their actual data is compared.
-        /// </summary>
-        /// <param name="first"></param>
-        /// <param name="second"></param>
-        /// <returns>True, if both BatchInfos can be considered equal, false if not.</returns>
-        public static bool operator ==(BatchInfo first, BatchInfo second)
-        {
-            if (object.ReferenceEquals(first, second)) return true;
-            if (object.ReferenceEquals(first, null)) return false;
-            if (object.ReferenceEquals(second, null)) return false;
-            if (first.GetHashCode() != second.GetHashCode()) return false;
-
-            if (first.mainColor != second.mainColor) return false;
-            if (first.technique.Res != second.technique.Res) return false;
-
-            if (first.textures != second.textures) {
-                if (first.textures == null || second.textures == null) return false;
-                if (first.textures.Count != second.textures.Count) return false;
-                foreach (var pair in first.textures) {
-                    if (second.textures[pair.Key].Res != pair.Value.Res) return false;
-                }
-            }
-
-            if (first.uniforms != second.uniforms) {
-                if (first.uniforms == null || second.uniforms == null) return false;
-                if (first.uniforms.Count != second.uniforms.Count) return false;
-                foreach (var pair in first.uniforms) {
-                    float[] firstArr = pair.Value;
-                    float[] secondArr = second.uniforms[pair.Key];
-                    if (firstArr.Length != secondArr.Length) return false;
-                    for (int i = 0; i < firstArr.Length; i++) {
-                        if (firstArr[i] != secondArr[i]) return false;
-                    }
-                }
-            }
-
-            return true;
-        }
-        /// <summary>
-        /// Compares two BatchInfos for inequality. If a <see cref="System.Object.ReferenceEquals"/> test
-        /// fails, their actual data is compared.
-        /// </summary>
-        /// <param name="first"></param>
-        /// <param name="second"></param>
-        /// <returns>True, if both BatchInfos can be considered unequal, false if not.</returns>
-        public static bool operator !=(BatchInfo first, BatchInfo second)
-        {
-            return !(first == second);
-        }
-
-        private void InvalidateHashCode()
-        {
-            this.hashCode = 0;
-        }
-        private void UpdateHashCode()
-        {
-            this.hashCode = 17;
-            unchecked {
-                this.hashCode = this.hashCode * 23 + this.mainColor.GetHashCode();
-                this.hashCode = this.hashCode * 23 + this.technique.GetHashCode();
-
-                if (this.textures != null && this.textures.Count > 0) {
-                    foreach (var pair in this.textures) {
-                        this.hashCode = this.hashCode * 23 + pair.Key.GetHashCode();
-                        this.hashCode = this.hashCode * 23 + pair.Value.GetHashCode();
-                    }
-                }
-
-                if (this.uniforms != null && this.uniforms.Count > 0) {
-                    foreach (var pair in this.uniforms) {
-                        this.hashCode = this.hashCode * 23 + pair.Key.GetHashCode();
-                        for (int i = 0; i < pair.Value.Length; i++) {
-                            this.hashCode = this.hashCode * 23 + pair.Value[i].GetHashCode();
-                        }
-                    }
-                }
-            }
-        }
-
-        public override string ToString()
-        {
-            ContentRef<Texture> inputTex = this.MainTexture;
-            return string.Format("{0}, {1}",
-                inputTex.FullName,
-                this.technique.FullName);
-        }
-        public override int GetHashCode()
-        {
-            if (this.hashCode == 0) this.UpdateHashCode();
-            return this.hashCode;
-        }
-        public override bool Equals(object obj)
-        {
-            if (obj is BatchInfo) return this == (obj as BatchInfo);
-
-            return base.Equals(obj);
-        }
-        public bool Equals(BatchInfo other)
-        {
-            return this == other;
-        }
-    }
+		public override string ToString()
+		{
+			return string.Format("{0}, #{1:X8} ({2})",
+				this.MainTexture.Name, 
+				this.MainColor.ToIntRgba(),
+				this.technique.Name);
+		}
+		public override int GetHashCode()
+		{
+			int hashCode = 17;
+			unchecked
+			{
+				hashCode = hashCode * 23 + this.technique.GetHashCode();
+				hashCode = hashCode * 23 + this.parameters.GetHashCode();
+			}
+			return hashCode;
+		}
+		public override bool Equals(object obj)
+		{
+			BatchInfo other = obj as BatchInfo;
+			if (other != null)
+				return this.Equals(other);
+			else
+				return false;
+		}
+		public bool Equals(BatchInfo other)
+		{
+			return
+				this.technique == other.technique &&
+				this.parameters.Equals(other.parameters);
+		}
+	}
 }

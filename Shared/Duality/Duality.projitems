@@ -97,6 +97,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\ImageCodec.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\PixelData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\ScreenResolution.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Drawing\ShaderParameterCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\IVertexBatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\IVertexData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\VertexBatch.cs" />
@@ -220,7 +221,5 @@
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)EmbeddedResources\Minimal.vert" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)EmbeddedResources\Picking.frag" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)EmbeddedResources\SharpAlpha.frag" />
-    <EmbeddedResource Include="$(MSBuildThisFileDirectory)EmbeddedResources\SmoothAnim.frag" />
-    <EmbeddedResource Include="$(MSBuildThisFileDirectory)EmbeddedResources\SmoothAnim.vert" />
   </ItemGroup>
 </Project>

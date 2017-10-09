@@ -10,5 +10,4 @@ out vec4 vFragColor;
 
 void main() {
     vFragColor = vCornerColor * texture(mainTex, vTexcoord0);
-    //vFragColor = texture(mainTex, vTexcoord0);
 }

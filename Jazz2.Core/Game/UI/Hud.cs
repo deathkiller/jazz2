@@ -339,7 +339,7 @@ namespace Jazz2.Game.UI
                     Vector2 originPos = new Vector2(canvas.DrawDevice.TargetSize.X, 0f);
                     Alignment.TopRight.ApplyTo(ref originPos, new Vector2(paletteTexture.Res.InternalWidth, paletteTexture.Res.InternalHeight));
 
-                    canvas.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, ColorRgba.White, paletteTexture));
+                    canvas.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, paletteTexture));
                     canvas.State.ColorTint = ColorRgba.White;
                     canvas.FillRect((int)originPos.X, (int)originPos.Y, paletteTexture.Res.InternalWidth, paletteTexture.Res.InternalHeight);
                 }

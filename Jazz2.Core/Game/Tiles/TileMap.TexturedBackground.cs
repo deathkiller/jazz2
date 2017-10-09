@@ -197,9 +197,9 @@ namespace Jazz2.Game.Tiles
             vertexData[0].Color = vertexData[1].Color = vertexData[2].Color = vertexData[3].Color = ColorRgba.White;
 
             // Setup custom pixel shader
-            BatchInfo material = new BatchInfo(texturedBackgroundShader, ColorRgba.White, cachedTexturedBackground);
-            material.SetUniform("horizonColor", layer.BackgroundColor.R / 255f, layer.BackgroundColor.G / 255f, layer.BackgroundColor.B / 255f, layer.BackgroundColor.A / 255f);
-            material.SetUniform("shift", x, y);
+            BatchInfo material = new BatchInfo(texturedBackgroundShader, cachedTexturedBackground);
+            material.SetValue("horizonColor", new Vector4(layer.BackgroundColor.R / 255f, layer.BackgroundColor.G / 255f, layer.BackgroundColor.B / 255f, layer.BackgroundColor.A / 255f));
+            material.SetValue("shift", new Vector2(x, y));
 
             device.AddVertices(material, VertexMode.Quads, vertexData);
         }

@@ -41,7 +41,6 @@ namespace Jazz2.Game
             }
 
             Transform transform = GameObj.Transform;
-            Camera camera = GameObj.GetComponent<Camera>();
 
             // The position to focus on
             Vector3 focusPos = targetObj.Transform.Pos;
@@ -67,8 +66,8 @@ namespace Jazz2.Game
 
                     transform.Angle = 0f;
                 } else {
-                    shakeOffset.X = MathF.Lerp(shakeOffset.X, MathF.Rnd.NextFloat(-0.06f, 0.06f) * halfView.X, 0.1f * timeMult);
-                    shakeOffset.Y = MathF.Lerp(shakeOffset.Y, MathF.Rnd.NextFloat(-0.06f, 0.06f) * halfView.Y, 0.1f * timeMult);
+                    shakeOffset.X = MathF.Lerp(shakeOffset.X, MathF.Rnd.NextFloat(-0.08f, 0.08f) * halfView.X, 0.1f * timeMult);
+                    shakeOffset.Y = MathF.Lerp(shakeOffset.Y, MathF.Rnd.NextFloat(-0.08f, 0.08f) * halfView.Y, 0.1f * timeMult);
                     shakeOffset.Z = MathF.Lerp(shakeOffset.Z, MathF.Rnd.NextFloat(-0.04f, 0.04f), 0.2f * timeMult);
 
                     transform.Angle = shakeOffset.Z;

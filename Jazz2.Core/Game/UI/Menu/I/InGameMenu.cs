@@ -62,7 +62,7 @@ namespace Jazz2.Game.UI.Menu.I
             Camera cameraLevel = levelHandler.FindComponent<Camera>();
             LevelRenderSetup renderSetup = cameraLevel.ActiveRenderSetup as LevelRenderSetup;
             if (renderSetup != null) {
-                finalMaterial = new Material(DrawTechnique.Solid, ColorRgba.White, renderSetup.FunalTexture);
+                finalMaterial = new Material(DrawTechnique.Solid, renderSetup.FunalTexture);
             }
 
             InitTouch();

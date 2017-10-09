@@ -52,12 +52,10 @@ namespace Jazz2.Game.Tiles
 
         public TileSet(PixelData texture, PixelData mask, PixelData normal)
         {
-            Dictionary<string, ContentRef<Texture>> textures = new Dictionary<string, ContentRef<Texture>>();
-            textures.Add("mainTex", new Texture(new Pixmap(texture)));
-            textures.Add("normalTex", normal == null ? ContentResolver.Current.DefaultNormalMap : new Texture(new Pixmap(normal)));
-
-            Material material = new Material(ContentResolver.Current.RequestShader("BasicNormal"), ColorRgba.White, textures);
-            material.SetUniform("normalMultiplier", 1f, 1f);
+            Material material = new Material(ContentResolver.Current.RequestShader("BasicNormal"));
+            material.SetTexture("mainTex", new Texture(new Pixmap(texture)));
+            material.SetTexture("normalTex", normal == null ? ContentResolver.Current.DefaultNormalMap : new Texture(new Pixmap(normal)));
+            material.SetValue("normalMultiplier", Vector2.One);
             Material = material;
 
             TileSize = DefaultTileSize;

@@ -30,7 +30,7 @@ namespace Jazz2.Game
                 public IList<int> States { get; set; }
 
                 public string Shader { get; set; }
-                public IList<int> ShaderColors { get; set; }
+                public IList<int> ShaderColor { get; set; }
             }
 
             public class SoundsSection
@@ -216,10 +216,10 @@ namespace Jazz2.Game
                             bool isIndexed = (g.Value.Flags & 0x02) != 0x00;
 
                             ColorRgba color;
-                            if (g.Value.ShaderColors == null || g.Value.ShaderColors.Count < 4) {
+                            if (g.Value.ShaderColor == null || g.Value.ShaderColor.Count < 4) {
                                 color = (isIndexed ? new ColorRgba(0, 255) : ColorRgba.White);
                             } else {
-                                color = new ColorRgba((byte)g.Value.ShaderColors[0], (byte)g.Value.ShaderColors[1], (byte)g.Value.ShaderColors[2], (byte)g.Value.ShaderColors[3]);
+                                color = new ColorRgba((byte)g.Value.ShaderColor[0], (byte)g.Value.ShaderColor[1], (byte)g.Value.ShaderColor[2], (byte)g.Value.ShaderColor[3]);
                             }
 
                             GenericGraphicResource resBase = RequestGraphicResource(g.Value.Path, async);
@@ -442,7 +442,6 @@ namespace Jazz2.Game
                 //case "Multiply": return DrawTechnique.Multiply;
                 case "SharpAlpha": return DrawTechnique.SharpAlpha;
                 case "Picking": return DrawTechnique.Picking;
-                case "SmoothAnim": return DrawTechnique.SmoothAnim_Alpha;
             }
 
             ContentRef<DrawTechnique> shader;

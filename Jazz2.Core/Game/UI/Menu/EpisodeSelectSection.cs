@@ -68,7 +68,7 @@ namespace Jazz2.Game.UI.Menu
                         }
 
                         Texture texture = new Texture(new Pixmap(pixelData), TextureSizeMode.NonPowerOfTwo);
-                        entry.Logo = new Material(DrawTechnique.Alpha, ColorRgba.White, texture);
+                        entry.Logo = new Material(DrawTechnique.Alpha, texture);
                     } else {
                         entry.Logo = null;
                     }

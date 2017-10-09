@@ -112,13 +112,20 @@ namespace Jazz2.Actors.Enemies
 
         protected override bool OnPerish(ActorBase collider)
         {
-            Lizard lizard = new Lizard();
-            lizard.OnAttach(new ActorInstantiationDetails {
-                Api = api,
-                Pos = Transform.Pos,
-                Params = new[] { theme, (ushort)1, (ushort)(isFacingLeft ? 1 : 0) }
-            });
-            api.AddActor(lizard);
+            if (collider is Player) {
+                CreateDeathDebris(collider);
+                api.PlayCommonSound(this, "Splat");
+
+                TryGenerateRandomDrop();
+            } else {
+                Lizard lizard = new Lizard();
+                lizard.OnAttach(new ActorInstantiationDetails {
+                    Api = api,
+                    Pos = Transform.Pos,
+                    Params = new[] { theme, (ushort)1, (ushort)(isFacingLeft ? 1 : 0) }
+                });
+                api.AddActor(lizard);
+            }
 
             return base.OnPerish(collider);
         }
