@@ -1,28 +1,28 @@
-﻿
-using Duality.Resources;
+﻿using Duality.Resources;
 
 namespace Duality.Drawing
 {
     /// <summary>
     /// Describes the state of a <see cref="Canvas"/>.
     /// </summary>
-    public class CanvasState //: ICloneExplicit
+    public class CanvasState
 	{
-		private static readonly BatchInfo DefaultMaterial = new BatchInfo(DrawTechnique.Mask, ColorRgba.White);
+		private static readonly BatchInfo DefaultMaterial = new BatchInfo(DrawTechnique.Mask);
 
-		private	BatchInfo			batchInfo;
-		private	ColorRgba			color;
-		//private	ContentRef<Font>	font;
-		private	float				depthOffset;
-		//private	bool		invariantTextScale;
-		private	float		transformAngle;
-		private	Vector2		transformScale;
-		private	Vector2		transformHandle;
-		private	Rect		uvGenRect;
-
-		private	Vector2		curTX;
-		private	Vector2		curTY;
-		private	Vector2		texBaseSize;
+		private Canvas           canvas;
+		private BatchInfo        batchInfo;
+		private ColorRgba        color;
+		//private ContentRef<Font> font;
+		private float            depthOffset;
+		//private bool             invariantTextScale;
+		private float            transformAngle;
+		private Vector2          transformScale;
+		private Vector2          transformHandle;
+		private Rect             uvGenRect;
+		
+		private Vector2          curTX;
+		private Vector2          curTY;
+		private Vector2          texBaseSize;
 
 
 		internal BatchInfo MaterialDirect
@@ -30,11 +30,11 @@ namespace Duality.Drawing
 			get { return this.batchInfo; }
 		}
 		/// <summary>
-		/// [GET] The material that is used for drawing.
+		/// [GET] Returns a copy of the material that is used for drawing.
 		/// </summary>
 		public BatchInfo Material
 		{
-			get { return new BatchInfo(this.batchInfo); }
+			get { return this.canvas.DrawDevice.RentMaterial(this.batchInfo); }
 		}
 		/// <summary>
 		/// [GET] Returns whether the currently active material is the default one.
@@ -130,38 +130,40 @@ namespace Duality.Drawing
 		}
 
 
-		public CanvasState() 
+		public CanvasState(Canvas canvas) 
 		{
+			this.canvas = canvas;
 			this.Reset();
 		}
 		public CanvasState(CanvasState other)
 		{
+			this.canvas = other.canvas;
 			other.CopyTo(this);
 		}
-
-        /// <summary>
-        /// Copies all state data to the specified target.
-        /// </summary>
-        /// <param name="target"></param>
-        public void CopyTo(CanvasState target)
-        {
-            target.batchInfo = this.batchInfo;
-            target.uvGenRect = this.uvGenRect;
-            target.texBaseSize = this.texBaseSize;
-            //target.font = this.font;
-            target.color = this.color;
-            //target.invariantTextScale = this.invariantTextScale;
-            target.depthOffset = this.depthOffset;
-            target.transformAngle = this.transformAngle;
-            target.transformHandle = this.transformHandle;
-            target.transformScale = this.transformScale;
-            target.UpdateTransform();
-        }
-        /// <summary>
-        /// Creates a clone of this State.
-        /// </summary>
-        /// <returns></returns>
-        public CanvasState Clone()
+			
+		/// <summary>
+		/// Copies all state data to the specified target.
+		/// </summary>
+		/// <param name="target"></param>
+		public void CopyTo(CanvasState target)
+		{
+			target.batchInfo          = this.batchInfo;
+			target.uvGenRect          = this.uvGenRect;
+			target.texBaseSize        = this.texBaseSize;
+			//target.font               = this.font;
+			target.color              = this.color;
+			//target.invariantTextScale = this.invariantTextScale;
+			target.depthOffset        = this.depthOffset;
+			target.transformAngle     = this.transformAngle;
+			target.transformHandle    = this.transformHandle;
+			target.transformScale     = this.transformScale;
+			target.UpdateTransform();
+		}
+		/// <summary>
+		/// Creates a clone of this State.
+		/// </summary>
+		/// <returns></returns>
+		public CanvasState Clone()
 		{
 			return new CanvasState(this);
 		}
@@ -184,7 +186,18 @@ namespace Duality.Drawing
 		}
 
 		/// <summary>
-		/// Sets the States drawing material.
+		/// Replaces the material that will be used for rendering with a a new one that
+		/// is configured to use the specified <see cref="DrawTechnique"/>.
+		/// </summary>
+		/// <param name="technique"></param>
+		public void SetMaterial(ContentRef<DrawTechnique> technique)
+		{
+			BatchInfo material = this.canvas.DrawDevice.RentMaterial();
+			material.Technique = technique;
+			this.SetMaterial(material);
+		}
+		/// <summary>
+		/// Replaces the material that will be used for rendering with the specified one.
 		/// </summary>
 		/// <param name="material"></param>
 		public void SetMaterial(BatchInfo material)
@@ -202,7 +215,7 @@ namespace Duality.Drawing
 			}
 		}
 		/// <summary>
-		/// Sets the States drawing material.
+		/// Replaces the material that will be used for rendering with the specified one.
 		/// </summary>
 		/// <param name="material"></param>
 		public void SetMaterial(ContentRef<Material> material)
@@ -282,11 +295,5 @@ namespace Duality.Drawing
 				}
 			}
 		}
-
-		//void ICloneExplicit.SetupCloneTargets(object target, ICloneTargetSetup setup) {}
-		//void ICloneExplicit.CopyDataTo(object target, ICloneOperation operation)
-		//{
-		//	this.CopyTo(target as CanvasState);
-		//}
 	}
 }

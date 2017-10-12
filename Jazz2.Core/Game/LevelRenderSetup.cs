@@ -36,7 +36,7 @@ namespace Jazz2.Game
 
         private readonly ContentRef<Texture> noiseTexture;
 
-        public Texture FunalTexture
+        public Texture FinalTexture
         {
             get { return finalTexture; }
         }
@@ -198,7 +198,9 @@ namespace Jazz2.Game
 
         private void ProcessResizeStep(DrawDevice drawDevice)
         {
-            BatchInfo material = new BatchInfo(resizeShader, finalTexture);
+            BatchInfo material = drawDevice.RentMaterial();
+            material.Technique = resizeShader;
+            material.MainTexture = finalTexture;
             material.SetValue("mainTexSize", new Vector2(finalTexture.ContentWidth, finalTexture.ContentHeight));
             this.Blit(drawDevice, material, drawDevice.ViewportRect);
         }
@@ -219,7 +221,9 @@ namespace Jazz2.Game
 
             // Blit ambient light color
             {
-                BatchInfo material = new BatchInfo(DrawTechnique.Solid, new ColorRgba(ambientLight, 0, 0));
+                BatchInfo material = drawDevice.RentMaterial();
+                material.Technique = DrawTechnique.Solid;
+                material.MainColor = new ColorRgba(ambientLight, 0, 0);
                 this.Blit(drawDevice, material, lightingTarget);
             }
 
@@ -289,15 +293,16 @@ namespace Jazz2.Game
 
             // Blit it into screen
             {
-                BatchInfo material = new BatchInfo(DrawTechnique.Solid, ColorRgba.White);
+                BatchInfo material = drawDevice.RentMaterial();
+                material.Technique = DrawTechnique.Solid;
                 material.MainTexture = mainTexture;
                 this.Blit(drawDevice, material, targetPingPongA[0]);
             }
 
             // Downsample to lowest target
             for (int i = 1; i < targetPingPongA.Length; i++) {
-                BatchInfo material = new BatchInfo(downsampleShader, ColorRgba.White);
-
+                BatchInfo material = drawDevice.RentMaterial();
+                material.Technique = downsampleShader;
                 material.MainTexture = targetPingPongA[i - 1].Targets[0];
                 material.SetValue("pixelOffset", new Vector2(1f / material.MainTexture.Res.ContentWidth, 1f / material.MainTexture.Res.ContentHeight));
 
@@ -306,8 +311,8 @@ namespace Jazz2.Game
 
             // Blur all targets, separating horizontal and vertical blur
             for (int i = 0; i < targetPingPongA.Length; i++) {
-                BatchInfo material = new BatchInfo(blurShader, ColorRgba.White);
-
+                BatchInfo material = drawDevice.RentMaterial();
+                material.Technique = blurShader;
                 material.MainTexture = targetPingPongA[i].Targets[0];
                 material.SetValue("blurDirection", new Vector2(1f, 0f));
                 material.SetValue("pixelOffset", new Vector2(1f / material.MainTexture.Res.ContentWidth, 1f / material.MainTexture.Res.ContentHeight));
@@ -324,7 +329,8 @@ namespace Jazz2.Game
             // Blit it into screen
             if (viewWaterLevel < viewSize.Y) {
                 // Render lighting with water
-                BatchInfo material = new BatchInfo(combineSceneWaterShader, ColorRgba.White);
+                BatchInfo material = drawDevice.RentMaterial();
+                material.Technique = combineSceneWaterShader;
                 material.SetTexture("mainTex", mainTexture);
                 material.SetTexture("lightTex", lightingTexture);
                 material.SetTexture("displacementTex", noiseTexture); // Underwater displacement
@@ -338,7 +344,8 @@ namespace Jazz2.Game
                 this.Blit(drawDevice, material, finalTarget);
             } else {
                 // Render lighting without water
-                BatchInfo material = new BatchInfo(combineSceneShader, ColorRgba.White);
+                BatchInfo material = drawDevice.RentMaterial();
+                material.Technique = combineSceneShader;
                 material.SetTexture("mainTex", mainTexture);
                 material.SetTexture("lightTex", lightingTexture);
 

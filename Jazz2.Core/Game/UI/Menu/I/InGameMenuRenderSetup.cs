@@ -42,7 +42,7 @@ namespace Jazz2.Game.UI.Menu.I
             finalTexture = new Texture(null, TextureSizeMode.NonPowerOfTwo, TextureMagFilter.Nearest, TextureMinFilter.Nearest);
 
             finalTarget = new RenderTarget(AAQuality.Off, false, finalTexture);
-            
+
             // Render steps
             AddRenderStep(RenderStepPosition.Last, new RenderStep {
                 MatrixMode = RenderMatrix.ScreenSpace,
@@ -108,7 +108,9 @@ namespace Jazz2.Game.UI.Menu.I
 
         private void ProcessResizeStep(DrawDevice drawDevice)
         {
-            BatchInfo material = new BatchInfo(resizeShader, finalTexture);
+            BatchInfo material = drawDevice.RentMaterial();
+            material.Technique = resizeShader;
+            material.MainTexture = finalTexture;
             material.SetValue("mainTexSize", new Vector2(finalTexture.ContentWidth, finalTexture.ContentHeight));
             this.Blit(drawDevice, material, drawDevice.ViewportRect);
         }

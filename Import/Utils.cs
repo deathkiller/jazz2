@@ -14,7 +14,7 @@ namespace Import
 
             string directory = Path.GetDirectoryName(path);
             string fileName = Path.GetFileName(path);
-            string found = Directory.EnumerateFiles(directory).FirstOrDefault(current => string.Compare(Path.GetFileName(current), fileName, true) == 0);
+            string found = Directory.EnumerateFiles(directory).FirstOrDefault(current => string.Compare(Path.GetFileName(current), fileName, StringComparison.OrdinalIgnoreCase) == 0);
             if (found == null) {
                 return false;
             } else {

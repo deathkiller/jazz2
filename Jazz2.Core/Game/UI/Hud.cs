@@ -339,7 +339,11 @@ namespace Jazz2.Game.UI
                     Vector2 originPos = new Vector2(canvas.DrawDevice.TargetSize.X, 0f);
                     Alignment.TopRight.ApplyTo(ref originPos, new Vector2(paletteTexture.Res.InternalWidth, paletteTexture.Res.InternalHeight));
 
-                    canvas.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, paletteTexture));
+                    BatchInfo material = canvas.DrawDevice.RentMaterial();
+                    material.Technique = DrawTechnique.Alpha;
+                    material.MainTexture = paletteTexture;
+                    canvas.State.SetMaterial(material);
+
                     canvas.State.ColorTint = ColorRgba.White;
                     canvas.FillRect((int)originPos.X, (int)originPos.Y, paletteTexture.Res.InternalWidth, paletteTexture.Res.InternalHeight);
                 }
@@ -351,15 +355,17 @@ namespace Jazz2.Game.UI
                     0.65f, charSpacing: 0.9f, lineSpacing: 0.9f);
 
                 // Render debug rectangles
-                canvas.State.SetMaterial(new BatchInfo {
-                    Technique = DrawTechnique.Alpha,
-                    MainColor = new ColorRgba(1f, 0.8f)
-                });
+                {
+                    BatchInfo material = canvas.DrawDevice.RentMaterial();
+                    material.Technique = DrawTechnique.Alpha;
+                    material.MainColor = new ColorRgba(1f, 0.8f);
+                    canvas.State.SetMaterial(material);
 
-                Vector2 offset = canvas.DrawDevice.TargetSize * 0.5f - canvas.DrawDevice.RefCoord.Xy;
-                for (int i = 0; i < debugRects.Count; i++) {
-                    Rect rect = debugRects[i];
-                    canvas.DrawRect(rect.X + offset.X, rect.Y + offset.Y, rect.W, rect.H);
+                    Vector2 offset = canvas.DrawDevice.TargetSize * 0.5f - canvas.DrawDevice.RefCoord.Xy;
+                    for (int i = 0; i < debugRects.Count; i++) {
+                        Rect rect = debugRects[i];
+                        canvas.DrawRect(rect.X + offset.X, rect.Y + offset.Y, rect.W, rect.H);
+                    }
                 }
             }
 

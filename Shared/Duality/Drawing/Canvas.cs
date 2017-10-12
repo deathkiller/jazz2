@@ -14,8 +14,8 @@ namespace Duality.Drawing
     public class Canvas
 	{
 		private IDrawDevice           device     = null;
-		private List<CanvasState>     stateStack = new List<CanvasState> { new CanvasState() };
-		private int                   stateCount = 1;
+		private List<CanvasState>     stateStack = new List<CanvasState>();
+		private int                   stateCount = 0;
 		private RawList<VertexC1P3T2> buffer     = new RawList<VertexC1P3T2>();
 
 
@@ -49,7 +49,13 @@ namespace Duality.Drawing
 		{
 			get { return MathF.RoundToInt(this.device.TargetSize.Y); }
 		}
-		
+
+
+		public Canvas()
+		{
+			this.stateStack.Add(new CanvasState(this));
+			this.stateCount = 1;
+		}
 
 		/// <summary>
 		/// Prepares the <see cref="Canvas"/> for drawing using the specified <see cref="IDrawDevice"/>.
@@ -85,7 +91,7 @@ namespace Duality.Drawing
 			this.stateCount++;
 
 			if (this.stateStack.Count <= this.stateCount)
-				this.stateStack.Add(new CanvasState());
+				this.stateStack.Add(new CanvasState(this));
 
 			CanvasState oldState = this.stateStack[this.stateCount - 2];
 			CanvasState newState = this.stateStack[this.stateCount - 1];
@@ -329,7 +335,7 @@ namespace Duality.Drawing
 			vertices[0].Color = shapeColor;
 			vertices[1].Color = shapeColor;
 
-			BatchInfo customMat = new BatchInfo(this.State.MaterialDirect);
+			BatchInfo customMat = this.device.RentMaterial(this.State.MaterialDirect);
 			customMat.MainTexture = dashTexRef;
 			this.State.TransformVertices(vertices, shapeHandle, scale);
 			device.AddVertices(customMat, VertexMode.Lines, vertices, 0, 2);

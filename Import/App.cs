@@ -221,24 +221,10 @@ namespace Import
             }
 
             MergeToCompressedContent(targetPath, keep);
-            // ToDo
-            /*if (check) {
+
+            if (check) {
                 CheckMissingFiles(targetPath);
             }
-
-            bool isAnyMissing = false;
-            if (!Directory.Exists(Path.Combine(targetPath, "Content", "Metadata"))) {
-                Log.Write(LogType.Error, "Directory \"Metadata\" is missing!");
-                isAnyMissing = true;
-            }
-
-            if (!Directory.Exists(Path.Combine(targetPath, "Content", "Shaders"))) {
-                Log.Write(LogType.Error, "Directory \"Shaders\" is missing!");
-                isAnyMissing = true;
-            }
-            if (isAnyMissing) {
-                Log.Write(LogType.Error, "It should be distributed with Jazz² Resurrection.");
-            }*/
 
             if (wait) {
                 Log.Write(LogType.Info, "Done! (Press any key to exit)");
@@ -888,56 +874,86 @@ namespace Import
             Log.Write(LogType.Info, "Checking \"Animations\" directory for missing files...");
             Log.PushIndent();
 
-            foreach (string unreferenced in new[] { ".palette", "_custom/noise.png", "UI/font_medium.png", "UI/font_medium.png.res", "UI/font_medium.png.config", "UI/font_small.png", "UI/font_small.png.res", "UI/font_small.png.config" }) {
-                if (!Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Animations", unreferenced))) {
-                    Log.Write(LogType.Warning, "\"" + Path.Combine("Animations", unreferenced.Replace('/', Path.DirectorySeparatorChar)) + "\" is missing!");
-                }
-            }
+            if (File.Exists(Path.Combine(targetPath, "Content", ".dz"))) {
+                IFileSystem fs = new CompressedContent(Path.Combine(targetPath, "Content", ".dz"));
 
-            if (Directory.Exists(Path.Combine(targetPath, "Content", "Metadata"))) {
-                foreach (string metadata in Directory.EnumerateDirectories(Path.Combine(targetPath, "Content", "Metadata"))) {
-                    foreach (string path in Directory.EnumerateFiles(metadata, "*.res")) {
-                        using (Stream s = File.Open(path, FileMode.Open)) {
-                            MetadataJson json;
-                            try {
-                                json = jsonParser.Parse<MetadataJson>(s);
-                            } catch (Exception ex) {
-                                Log.Write(LogType.Error, "\"" + Path.GetFileName(Path.GetDirectoryName(path)) + Path.DirectorySeparatorChar + Path.GetFileName(path) + "\" is corrupted! " + ex.Message);
+                foreach (string unreferenced in new[] {
+                    ".palette", "_custom/noise.png", "UI/font_medium.png", "UI/font_medium.png.res",
+                    "UI/font_medium.png.config", "UI/font_small.png", "UI/font_small.png.res",
+                    "UI/font_small.png.config"
+                }) {
+                    if (!fs.FileExists(Path.Combine("Animations", unreferenced))) {
+                        Log.Write(LogType.Warning,
+                            "\"" + Path.Combine("Animations", unreferenced.Replace('/', Path.DirectorySeparatorChar)) +
+                            "\" is missing!");
+                    }
+                }
+
+                if (fs.DirectoryExists("Metadata")) {
+                    foreach (string metadata in fs.GetDirectories("Metadata")) {
+                        foreach (string path in fs.GetFiles(metadata)) {
+                            if (!path.EndsWith(".res")) {
                                 continue;
                             }
 
-                            if (json.Animations != null) {
-                                foreach (var animation in json.Animations) {
-                                    if (animation.Value == null || animation.Value.Path == null) {
-                                        continue;
-                                    }
-                                    if (!Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Animations", animation.Value.Path))) {
-                                        Log.Write(LogType.Warning, "\"" + Path.Combine("Animations", animation.Value.Path.Replace('/', Path.DirectorySeparatorChar)) + "\" is missing!");
-                                    }
-                                    if (!Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Animations", animation.Value.Path + ".res"))) {
-                                        Log.Write(LogType.Warning, "\"" + Path.Combine("Animations", animation.Value.Path.Replace('/', Path.DirectorySeparatorChar)) + ".res" + "\" is missing!");
-                                    }
+                            using (Stream s = File.Open(path, FileMode.Open)) {
+                                MetadataJson json;
+                                try {
+                                    json = jsonParser.Parse<MetadataJson>(s);
+                                } catch (Exception ex) {
+                                    Log.Write(LogType.Error,
+                                        "\"" + Path.GetFileName(Path.GetDirectoryName(path)) +
+                                        Path.DirectorySeparatorChar + Path.GetFileName(path) + "\" is corrupted! " +
+                                        ex.Message);
+                                    continue;
                                 }
-                            }
 
-                            if (json.Sounds != null) {
-                                foreach (var sound in json.Sounds) {
-                                    if (sound.Value == null || sound.Value.Paths == null) {
-                                        continue;
-                                    }
-                                    foreach (var soundPath in sound.Value.Paths) {
-                                        if (soundPath == null) {
+                                if (json.Animations != null) {
+                                    foreach (var animation in json.Animations) {
+                                        if (animation.Value == null || animation.Value.Path == null) {
                                             continue;
                                         }
-                                        if (!Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Animations", soundPath))) {
-                                            Log.Write(LogType.Warning, "\"" + Path.Combine("Animations", soundPath.Replace('/', Path.DirectorySeparatorChar)) + "\" is missing!");
+                                        if (!fs.FileExists(Path.Combine("Animations", animation.Value.Path))) {
+                                            Log.Write(LogType.Warning,
+                                                "\"" + Path.Combine("Animations",
+                                                    animation.Value.Path.Replace('/', Path.DirectorySeparatorChar)) +
+                                                "\" is missing!");
+                                        }
+                                        if (!fs.FileExists(Path.Combine("Animations", animation.Value.Path + ".res"))) {
+                                            Log.Write(LogType.Warning,
+                                                "\"" + Path.Combine("Animations",
+                                                    animation.Value.Path.Replace('/', Path.DirectorySeparatorChar)) +
+                                                ".res" + "\" is missing!");
+                                        }
+                                    }
+                                }
+
+                                if (json.Sounds != null) {
+                                    foreach (var sound in json.Sounds) {
+                                        if (sound.Value == null || sound.Value.Paths == null) {
+                                            continue;
+                                        }
+                                        foreach (var soundPath in sound.Value.Paths) {
+                                            if (soundPath == null) {
+                                                continue;
+                                            }
+                                            if (!fs.FileExists(Path.Combine("Animations", soundPath))) {
+                                                Log.Write(LogType.Warning,
+                                                    "\"" + Path.Combine("Animations",
+                                                        soundPath.Replace('/', Path.DirectorySeparatorChar)) +
+                                                    "\" is missing!");
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
                     }
+                } else {
+                    Log.Write(LogType.Error, "Directory \"Metadata\" is missing!");
                 }
+            } else {
+                Log.Write(LogType.Error, "\".\\Content\\.dz\" does not exist!");
             }
 
             Log.PopIndent();
