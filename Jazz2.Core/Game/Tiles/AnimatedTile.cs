@@ -6,7 +6,7 @@ namespace Jazz2.Game.Tiles
     public class AnimatedTiles
     {
         private RawList<LayerTile> animationTiles;
-        private int fps;
+        private int frameRate;
         private int delay;
         //private int delayJitter;
         private bool pingPong;
@@ -25,7 +25,7 @@ namespace Jazz2.Game.Tiles
 
         public AnimatedTiles(TileSet tileset, ushort[] tileIDs, byte[] tileFlags, int fps, int delay, int delayJitter, bool pingPong, int pingPongDelay)
         {
-            this.fps = fps;
+            this.frameRate = fps;
             this.delay = delay;
             // ToDo: DelayJitter is not used...
             //this.delayJitter = delayJitter;
@@ -64,7 +64,7 @@ namespace Jazz2.Game.Tiles
 
         public void UpdateTile(float timeMult)
         {
-            if (fps == 0 || animationTiles.Count < 2) {
+            if (frameRate == 0 || animationTiles.Count < 2) {
                 return;
             }
 

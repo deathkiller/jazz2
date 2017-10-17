@@ -298,7 +298,7 @@ namespace Jazz2.Game.Events
             // Store event parameters
             int i = 0;
             if (tileParams != null) {
-                int n = Math.Min(tileParams.Length, 8);
+                int n = MathF.Min(tileParams.Length, 8);
                 for (; i < n; ++i) {
                     tile.EventParams[i] = tileParams[i];
                 }
@@ -323,8 +323,8 @@ namespace Jazz2.Game.Events
                         int x = generator.EventPos % layoutWidth;
                         int y = generator.EventPos / layoutWidth;
 
-                        ActorBase actor = levelHandler.EventSpawner.SpawnEvent(ActorInstantiationFlags.IsFromGenerator, generator.EventType,
-                            x, y, LevelHandler.MainPlaneZ, generator.EventParams);
+                        ActorBase actor = levelHandler.EventSpawner.SpawnEvent(ActorInstantiationFlags.IsFromGenerator,
+                            generator.EventType, x, y, LevelHandler.MainPlaneZ, generator.EventParams);
                         if (actor != null) {
                             levelHandler.AddActor(actor);
                             generator.SpawnedActor = actor;

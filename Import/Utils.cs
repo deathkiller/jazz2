@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace Import
 {
@@ -76,6 +77,34 @@ namespace Import
             } else {
                 return File.Exists(path);
             }
+        }
+
+        public static bool FileTryDelete(string path)
+        {
+            for (int i = 0; i < 5; i++) {
+                try {
+                    File.Delete(path);
+                    return true;
+                } catch {
+                    Thread.Sleep((i + 1) * 100);
+                }
+            }
+
+            return false;
+        }
+
+        public static bool DirectoryTryDelete(string path, bool recursive)
+        {
+            for (int i = 0; i < 5; i++) {
+                try {
+                    Directory.Delete(path, recursive);
+                    return true;
+                } catch {
+                    Thread.Sleep((i + 1) * 100);
+                }
+            }
+
+            return false;
         }
     }
 }

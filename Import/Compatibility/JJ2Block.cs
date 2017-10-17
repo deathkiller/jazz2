@@ -6,9 +6,9 @@ namespace Jazz2.Compatibility
 {
     public class JJ2Block
     {
-        private readonly MemoryStream s;
-        private readonly BinaryReader r;
-        private readonly byte[] b;
+        private readonly MemoryStream stream;
+        private readonly BinaryReader reader;
+        private readonly byte[] buffer;
 
         public JJ2Block(Stream s, int length, int uncompressedLength = 0)
         {
@@ -17,7 +17,7 @@ namespace Jazz2.Compatibility
                 s.Seek(2, SeekOrigin.Current);
             }
 
-            byte[] buffer = b = new byte[length];
+            buffer = new byte[length];
 
             s.Read(buffer, 0, length);
 
@@ -26,87 +26,87 @@ namespace Jazz2.Compatibility
             if (uncompressedLength > 0) {
                 DeflateStream ds = new DeflateStream(ms, CompressionMode.Decompress);
 
-                this.s = new MemoryStream(b = new byte[uncompressedLength], true);
-                ds.CopyTo(this.s);
-                this.s.Position = 0;
+                stream = new MemoryStream(buffer = new byte[uncompressedLength], true);
+                ds.CopyTo(stream);
+                stream.Position = 0;
             } else {
-                this.s = ms;
+                stream = ms;
             }
 
-            r = new BinaryReader(this.s);
+            reader = new BinaryReader(stream);
         }
 
         public void SeekTo(int offset)
         {
-            s.Position = offset;
+            stream.Position = offset;
         }
 
         public void DiscardBytes(int length)
         {
-            if (s.CanSeek) {
-                s.Seek(length, SeekOrigin.Current);
+            if (stream.CanSeek) {
+                stream.Seek(length, SeekOrigin.Current);
             } else {
-                r.ReadBytes(length);
+                reader.ReadBytes(length);
             }
         }
 
         public byte[] AsByteArray()
         {
-            return b;
+            return buffer;
         }
 
         public bool ReadBool()
         {
-            return r.ReadByte() != 0x00;
+            return reader.ReadByte() != 0x00;
         }
 
         public byte ReadByte()
         {
-            return r.ReadByte();
+            return reader.ReadByte();
         }
 
         public short ReadInt16()
         {
-            return r.ReadInt16();
+            return reader.ReadInt16();
         }
 
         public ushort ReadUInt16()
         {
-            return r.ReadUInt16();
+            return reader.ReadUInt16();
         }
 
         public int ReadInt32()
         {
-            return r.ReadInt32();
+            return reader.ReadInt32();
         }
 
         public uint ReadUInt32()
         {
-            return r.ReadUInt32();
+            return reader.ReadUInt32();
         }
 
         public float ReadFloat()
         {
-            return (r.ReadInt32() * 1f / 65536f);
+            return (reader.ReadInt32() * 1f / 65536f);
         }
 
         public byte[] ReadRawBytes(int length)
         {
-            return r.ReadBytes(length);
+            return reader.ReadBytes(length);
         }
 
         public byte[] ReadRawBytes(int length, uint offset)
         {
-            long old = s.Position;
-            s.Position = offset;
-            byte[] result = r.ReadBytes(length);
-            s.Position = old;
+            long old = stream.Position;
+            stream.Position = offset;
+            byte[] result = reader.ReadBytes(length);
+            stream.Position = old;
             return result;
         }
 
         public string ReadString(int length, bool trimToNull)
         {
-            byte[] raw = r.ReadBytes(length);
+            byte[] raw = reader.ReadBytes(length);
             if (raw.Length == 0) {
                 throw new EndOfStreamException();
             }

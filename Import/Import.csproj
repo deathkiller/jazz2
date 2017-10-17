@@ -51,6 +51,7 @@
     <Compile Include="Compatibility\JJ2Episode.cs" />
     <Compile Include="Compatibility\JJ2Block.cs" />
     <Compile Include="Compatibility\AnimSetMapping.cs" />
+    <Compile Include="Compatibility\JJ2Event.cs" />
     <Compile Include="Compatibility\JJ2Level.cs" />
     <Compile Include="Compatibility\JJ2DefaultPalette.cs" />
     <Compile Include="Compatibility\JJ2Tileset.cs" />

@@ -68,7 +68,7 @@ namespace Jazz2.Game
                 ShowMainMenu();
             } else if (carryOver.LevelName == ":end") {
                 // End of episode
-                
+
                 if (!string.IsNullOrEmpty(carryOver.LastEpisodeName) && carryOver.LastEpisodeName != "unknown") {
                     // ToDo: Implement time
                     Preferences.Set("EpisodeEnd_Time_" + carryOver.LastEpisodeName, (int)1);

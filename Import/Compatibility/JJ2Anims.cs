@@ -46,7 +46,6 @@ namespace Jazz2.Compatibility
 
         private struct SampleSection
         {
-            public ushort Id;
             public int Set;
             public ushort IdInSet;
             public uint SampleRate;
@@ -335,7 +334,7 @@ namespace Jazz2.Compatibility
 
                             for (ushort j = 0; j < sndCount; ++j) {
                                 SampleSection sample;
-                                sample.Id = (ushort)(cumulativeSndIndex + j);
+                                //sample.Id = (ushort)(cumulativeSndIndex + j);
                                 sample.IdInSet = j;
                                 sample.Set = i;
 
@@ -452,7 +451,7 @@ namespace Jazz2.Compatibility
                     for (int i = range.Item1; i < range.Item2; i++) {
                         AnimSection currentAnim = anims[i];
 
-                        AnimSetMapping.Data data = animMapping.Get(currentAnim.Set, currentAnim.Anim);
+                        AnimSetMapping.Entry data = animMapping.Get(currentAnim.Set, currentAnim.Anim);
                         if (data.Category == AnimSetMapping.Discard) {
                             continue;
                         }
@@ -558,7 +557,7 @@ namespace Jazz2.Compatibility
             }
         }
 
-        private static void CreateAnimationMetadataFile(string filename, AnimSection currentAnim, AnimSetMapping.Data data, JJ2Version version, int sizeX, int sizeY)
+        private static void CreateAnimationMetadataFile(string filename, AnimSection currentAnim, AnimSetMapping.Entry data, JJ2Version version, int sizeX, int sizeY)
         {
             using (Stream so = File.Create(filename + ".res"))
             using (StreamWriter w = new StreamWriter(so, new UTF8Encoding(false))) {
@@ -664,7 +663,7 @@ namespace Jazz2.Compatibility
                     for (int i = range.Item1; i < range.Item2; i++) {
                         ref SampleSection sample = ref samples.Data[i];
 
-                        AnimSetMapping.Data data = mapping.Get(sample.Set, sample.IdInSet);
+                        AnimSetMapping.Entry data = mapping.Get(sample.Set, sample.IdInSet);
                         if (data.Category == AnimSetMapping.Discard) {
                             continue;
                         }

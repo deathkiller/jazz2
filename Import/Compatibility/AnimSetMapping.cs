@@ -6,7 +6,7 @@ namespace Jazz2.Compatibility
 {
     public class AnimSetMapping
     {
-        public struct Data
+        public struct Entry
         {
             public string Category;
             public string Name;
@@ -21,755 +21,755 @@ namespace Jazz2.Compatibility
 
         public static AnimSetMapping GetAnimMapping(JJ2Version version)
         {
-            AnimSetMapping mapping = new AnimSetMapping(version);
+            AnimSetMapping m = new AnimSetMapping(version);
 
             if (version == JJ2Version.PlusExtension) {
-                mapping.SkipItems(5); // Unimplemented weapon
-                mapping.Add("Pickup", "fast_fire_lori");
-                mapping.Add("UI", "blaster_upgraded_lori");
+                m.SkipItems(5); // Unimplemented weapon
+                m.Add("Pickup", "fast_fire_lori");
+                m.Add("UI", "blaster_upgraded_lori");
 
-                mapping.NextSet();
-                mapping.DiscardItems(4); // Beta version sprites
+                m.NextSet();
+                m.DiscardItems(4); // Beta version sprites
 
-                mapping.NextSet();
-                mapping.Add("Object", "crate_ammo_pepper");
-                mapping.Add("Object", "crate_ammo_electro");
-                mapping.Add("Object", "powerup_shield_laser");
-                mapping.Add("Object", "powerup_unknown");
-                mapping.Add("Object", "powerup_empty");
-                mapping.Add("Object", "powerup_upgrade_blaster_lori");
-                mapping.Add("Common", "SugarRushStars");
-                mapping.SkipItems(); // Carrotade
+                m.NextSet();
+                m.Add("Object", "crate_ammo_pepper");
+                m.Add("Object", "crate_ammo_electro");
+                m.Add("Object", "powerup_shield_laser");
+                m.Add("Object", "powerup_unknown");
+                m.Add("Object", "powerup_empty");
+                m.Add("Object", "powerup_upgrade_blaster_lori");
+                m.Add("Common", "SugarRushStars");
+                m.SkipItems(); // Carrotade
 
-                mapping.NextSet(); // 3
-                mapping.DiscardItems(3); // Lori's continue animations
+                m.NextSet(); // 3
+                m.DiscardItems(3); // Lori's continue animations
 
-                mapping.NextSet(); // 4
+                m.NextSet(); // 4
 
-                mapping.Add("UI", "font_medium");
-                mapping.Add("UI", "font_small");
-                mapping.Add("UI", "font_large");
+                m.Add("UI", "font_medium");
+                m.Add("UI", "font_small");
+                m.Add("UI", "font_large");
 
                 //mapping.Add("UI", "logo_plus", skipNormalMap: true);
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
 
-                mapping.NextSet(); // 5
-                mapping.Add("Object", "powerup_swap_characters_lori");
+                m.NextSet(); // 5
+                m.Add("Object", "powerup_swap_characters_lori");
 
                 //mapping.Add("UI", "logo_plus_large", JJ2DefaultPalette.Menu, skipNormalMap: true);
                 //mapping.Add("UI", "logo_plus_small", JJ2DefaultPalette.Menu, skipNormalMap: true);
-                mapping.DiscardItems(2);
+                m.DiscardItems(2);
 
-                mapping.NextSet(); // 6
-                mapping.DiscardItems(5); // Reticles
+                m.NextSet(); // 6
+                m.DiscardItems(5); // Reticles
 
             } else if (version != JJ2Version.Unknown) {
                 bool isFull = (version & JJ2Version.SharewareDemo) == 0;
 
                 // set 0 (all)
-                mapping.Add("Unknown", "flame_blue");
-                mapping.Add("Common", "Bomb");
-                mapping.Add("Common", "smoke_poof");
-                mapping.Add("Common", "explosion_rf");
-                mapping.Add("Common", "explosion_small");
-                mapping.Add("Common", "explosion_large");
-                mapping.Add("Common", "smoke_circling_gray");
-                mapping.Add("Common", "smoke_circling_brown");
-                mapping.Add("Unknown", "bubble");
+                m.Add("Unknown", "flame_blue");
+                m.Add("Common", "Bomb");
+                m.Add("Common", "smoke_poof");
+                m.Add("Common", "explosion_rf");
+                m.Add("Common", "explosion_small");
+                m.Add("Common", "explosion_large");
+                m.Add("Common", "smoke_circling_gray");
+                m.Add("Common", "smoke_circling_brown");
+                m.Add("Unknown", "bubble");
 
                 //mapping.Add("Unknown", "brown_thing");
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
 
-                mapping.Add("Common", "explosion_pepper");
+                m.Add("Common", "explosion_pepper");
 
                 //mapping.Add("Unknown", "bullet_maybe_electro");
-                mapping.Add("Weapon", "bullet_maybe_electro");
+                m.Add("Weapon", "bullet_maybe_electro");
                 //mapping.Add("Unknown", "bullet_maybe_electro_trail");
-                mapping.Add("Weapon", "bullet_maybe_electro_trail");
+                m.Add("Weapon", "bullet_maybe_electro_trail");
 
-                mapping.Add("Unknown", "flame_red");
-                mapping.Add("Weapon", "bullet_shield_fireball");
-                mapping.Add("Unknown", "flare_diag_downleft");
-                mapping.Add("Unknown", "flare_hor");
-                mapping.Add("Weapon", "bullet_blaster");
-                mapping.Add("UI", "blaster_upgraded_jazz");
-                mapping.Add("UI", "blaster_upgraded_spaz");
-                mapping.Add("Weapon", "bullet_blaster_upgraded");
+                m.Add("Unknown", "flame_red");
+                m.Add("Weapon", "bullet_shield_fireball");
+                m.Add("Unknown", "flare_diag_downleft");
+                m.Add("Unknown", "flare_hor");
+                m.Add("Weapon", "bullet_blaster");
+                m.Add("UI", "blaster_upgraded_jazz");
+                m.Add("UI", "blaster_upgraded_spaz");
+                m.Add("Weapon", "bullet_blaster_upgraded");
 
                 //mapping.Add("Weapon", "bullet_blaster_upgraded_ver");
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_blaster_ver");
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
 
-                mapping.Add("Weapon", "bullet_bouncer");
-                mapping.Add("Pickup", "ammo_bouncer_upgraded");
-                mapping.Add("Pickup", "ammo_bouncer");
-                mapping.Add("Weapon", "bullet_bouncer_upgraded");
-                mapping.Add("Weapon", "bullet_freezer_hor");
-                mapping.Add("Pickup", "ammo_freezer_upgraded");
-                mapping.Add("Pickup", "ammo_freezer");
-                mapping.Add("Weapon", "bullet_freezer_upgraded_hor");
+                m.Add("Weapon", "bullet_bouncer");
+                m.Add("Pickup", "ammo_bouncer_upgraded");
+                m.Add("Pickup", "ammo_bouncer");
+                m.Add("Weapon", "bullet_bouncer_upgraded");
+                m.Add("Weapon", "bullet_freezer_hor");
+                m.Add("Pickup", "ammo_freezer_upgraded");
+                m.Add("Pickup", "ammo_freezer");
+                m.Add("Weapon", "bullet_freezer_upgraded_hor");
 
                 //mapping.Add("Weapon", "bullet_freezer_ver");
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_freezer_upgraded_ver");
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
 
-                mapping.Add("Pickup", "ammo_seeker_upgraded");
-                mapping.Add("Pickup", "ammo_seeker");
+                m.Add("Pickup", "ammo_seeker_upgraded");
+                m.Add("Pickup", "ammo_seeker");
 
                 //mapping.Add("Weapon", "bullet_seeker_ver_down");
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_seeker_diag_downright");
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
 
-                mapping.Add("Weapon", "bullet_seeker_hor");
+                m.Add("Weapon", "bullet_seeker_hor");
 
                 //mapping.Add("Weapon", "bullet_seeker_ver_up");
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_seeker_diag_upright");
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_seeker_upgraded_ver_down");
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_seeker_upgraded_diag_downright");
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
 
-                mapping.Add("Weapon", "bullet_seeker_upgraded_hor");
+                m.Add("Weapon", "bullet_seeker_upgraded_hor");
 
                 //mapping.Add("Weapon", "bullet_seeker_upgraded_ver_up");
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_seeker_upgraded_diag_upright");
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
 
-                mapping.Add("Weapon", "bullet_rf_hor");
+                m.Add("Weapon", "bullet_rf_hor");
 
                 //mapping.Add("Weapon", "bullet_rf_diag_downright");
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_rf_upgraded_diag_downright");
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
 
-                mapping.Add("Pickup", "ammo_rf_upgraded");
-                mapping.Add("Pickup", "ammo_rf");
-                mapping.Add("Weapon", "bullet_rf_upgraded_hor");
+                m.Add("Pickup", "ammo_rf_upgraded");
+                m.Add("Pickup", "ammo_rf");
+                m.Add("Weapon", "bullet_rf_upgraded_hor");
 
                 //mapping.Add("Weapon", "bullet_rf_upgraded_ver");
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_rf_upgraded_diag_upright");
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_rf_ver");
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_rf_diag_upright");
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
 
-                mapping.Add("Weapon", "bullet_toaster");
-                mapping.Add("Pickup", "ammo_toaster_upgraded");
-                mapping.Add("Pickup", "ammo_toaster");
-                mapping.Add("Weapon", "bullet_toaster_upgraded");
-                mapping.Add("Weapon", "bullet_tnt");
-                mapping.Add("Weapon", "bullet_fireball_hor");
-                mapping.Add("Pickup", "ammo_pepper_upgraded");
-                mapping.Add("Pickup", "ammo_pepper");
-                mapping.Add("Weapon", "bullet_fireball_upgraded_hor");
+                m.Add("Weapon", "bullet_toaster");
+                m.Add("Pickup", "ammo_toaster_upgraded");
+                m.Add("Pickup", "ammo_toaster");
+                m.Add("Weapon", "bullet_toaster_upgraded");
+                m.Add("Weapon", "bullet_tnt");
+                m.Add("Weapon", "bullet_fireball_hor");
+                m.Add("Pickup", "ammo_pepper_upgraded");
+                m.Add("Pickup", "ammo_pepper");
+                m.Add("Weapon", "bullet_fireball_upgraded_hor");
 
                 //mapping.Add("Weapon", "bullet_fireball_ver");
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
                 //mapping.Add("Weapon", "bullet_fireball_upgraded_ver");
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
 
-                mapping.Add("Weapon", "bullet_bladegun");
-                mapping.Add("Pickup", "ammo_electro_upgraded");
-                mapping.Add("Pickup", "ammo_electro");
-                mapping.Add("Weapon", "bullet_bladegun_upgraded");
-                mapping.Add("Common", "explosion_tiny");
-                mapping.Add("Common", "explosion_freezer_maybe");
-                mapping.Add("Common", "explosion_tiny_black");
-                mapping.Add("Weapon", "bullet_fireball_upgraded_hor_2");
-                mapping.Add("Unknown", "flare_hor_2");
-                mapping.Add("Unknown", "green_explosion");
-                mapping.Add("Weapon", "bullet_bladegun_alt");
-                mapping.Add("Weapon", "bullet_tnt_explosion");
-                mapping.Add("Object", "container_ammo_shrapnel_1");
-                mapping.Add("Object", "container_ammo_shrapnel_2");
-                mapping.Add("Common", "explosion_upwards");
-                mapping.Add("Common", "explosion_bomb");
-                mapping.Add("Common", "smoke_circling_white");
+                m.Add("Weapon", "bullet_bladegun");
+                m.Add("Pickup", "ammo_electro_upgraded");
+                m.Add("Pickup", "ammo_electro");
+                m.Add("Weapon", "bullet_bladegun_upgraded");
+                m.Add("Common", "explosion_tiny");
+                m.Add("Common", "explosion_freezer_maybe");
+                m.Add("Common", "explosion_tiny_black");
+                m.Add("Weapon", "bullet_fireball_upgraded_hor_2");
+                m.Add("Unknown", "flare_hor_2");
+                m.Add("Unknown", "green_explosion");
+                m.Add("Weapon", "bullet_bladegun_alt");
+                m.Add("Weapon", "bullet_tnt_explosion");
+                m.Add("Object", "container_ammo_shrapnel_1");
+                m.Add("Object", "container_ammo_shrapnel_2");
+                m.Add("Common", "explosion_upwards");
+                m.Add("Common", "explosion_bomb");
+                m.Add("Common", "smoke_circling_white");
 
                 if (isFull) {
-                    mapping.NextSet();
-                    mapping.Add("Bat", "idle");
-                    mapping.Add("Bat", "resting");
-                    mapping.Add("Bat", "takeoff_1");
-                    mapping.Add("Bat", "takeoff_2");
-                    mapping.Add("Bat", "roost");
-                    mapping.NextSet();
-                    mapping.Add("Bee", "swarm");
-                    mapping.NextSet();
-                    mapping.Add("Bee", "swarm_2");
-                    mapping.NextSet();
-                    mapping.Add("Object", "PushBoxCrate");
-                    mapping.NextSet();
-                    mapping.Add("Object", "PushBoxRock");
-                    mapping.NextSet();
+                    m.NextSet();
+                    m.Add("Bat", "idle");
+                    m.Add("Bat", "resting");
+                    m.Add("Bat", "takeoff_1");
+                    m.Add("Bat", "takeoff_2");
+                    m.Add("Bat", "roost");
+                    m.NextSet();
+                    m.Add("Bee", "swarm");
+                    m.NextSet();
+                    m.Add("Bee", "swarm_2");
+                    m.NextSet();
+                    m.Add("Object", "PushBoxCrate");
+                    m.NextSet();
+                    m.Add("Object", "PushBoxRock");
+                    m.NextSet();
 
                     //mapping.Add("Unknown", "diamondus_tileset_tree");
-                    mapping.DiscardItems(1);
+                    m.DiscardItems(1);
 
-                    mapping.NextSet();
-                    mapping.Add("Bilsy", "throw_fireball");
-                    mapping.Add("Bilsy", "appear");
-                    mapping.Add("Bilsy", "vanish");
-                    mapping.Add("Bilsy", "bullet_fireball");
-                    mapping.Add("Bilsy", "idle");
+                    m.NextSet();
+                    m.Add("Bilsy", "throw_fireball");
+                    m.Add("Bilsy", "appear");
+                    m.Add("Bilsy", "vanish");
+                    m.Add("Bilsy", "bullet_fireball");
+                    m.Add("Bilsy", "idle");
                 }
 
-                mapping.NextSet();
-                mapping.Add("Birdy", "charge_diag_downright");
-                mapping.Add("Birdy", "charge_ver");
-                mapping.Add("Birdy", "charge_diag_upright");
-                mapping.Add("Birdy", "caged");
-                mapping.Add("Birdy", "cage_destroyed");
-                mapping.Add("Birdy", "die");
-                mapping.Add("Birdy", "feather_green");
-                mapping.Add("Birdy", "feather_red");
-                mapping.Add("Birdy", "feather_green_and_red");
-                mapping.Add("Birdy", "fly");
-                mapping.Add("Birdy", "hurt");
-                mapping.Add("Birdy", "idle_worm");
-                mapping.Add("Birdy", "idle_turn_head_left");
-                mapping.Add("Birdy", "idle_look_left");
-                mapping.Add("Birdy", "idle_turn_head_left_back");
-                mapping.Add("Birdy", "idle_turn_head_right");
-                mapping.Add("Birdy", "idle_look_right");
-                mapping.Add("Birdy", "idle_turn_head_right_back");
-                mapping.Add("Birdy", "idle");
-                mapping.Add("Birdy", "corpse");
+                m.NextSet();
+                m.Add("Birdy", "charge_diag_downright");
+                m.Add("Birdy", "charge_ver");
+                m.Add("Birdy", "charge_diag_upright");
+                m.Add("Birdy", "caged");
+                m.Add("Birdy", "cage_destroyed");
+                m.Add("Birdy", "die");
+                m.Add("Birdy", "feather_green");
+                m.Add("Birdy", "feather_red");
+                m.Add("Birdy", "feather_green_and_red");
+                m.Add("Birdy", "fly");
+                m.Add("Birdy", "hurt");
+                m.Add("Birdy", "idle_worm");
+                m.Add("Birdy", "idle_turn_head_left");
+                m.Add("Birdy", "idle_look_left");
+                m.Add("Birdy", "idle_turn_head_left_back");
+                m.Add("Birdy", "idle_turn_head_right");
+                m.Add("Birdy", "idle_look_right");
+                m.Add("Birdy", "idle_turn_head_right_back");
+                m.Add("Birdy", "idle");
+                m.Add("Birdy", "corpse");
 
                 if (isFull) {
-                    mapping.NextSet();
-                    mapping.Add("Unimplemented", "BonusBirdy");
-                    mapping.NextSet(); // set 10 (all)
-                    mapping.Add("Platform", "ball");
-                    mapping.Add("Platform", "ball_chain");
-                    mapping.NextSet();
-                    mapping.Add("Object", "BonusActive");
-                    mapping.Add("Object", "BonusInactive");
+                    m.NextSet();
+                    m.Add("Unimplemented", "BonusBirdy");
+                    m.NextSet(); // set 10 (all)
+                    m.Add("Platform", "ball");
+                    m.Add("Platform", "ball_chain");
+                    m.NextSet();
+                    m.Add("Object", "BonusActive");
+                    m.Add("Object", "BonusInactive");
                 }
 
-                mapping.NextSet();
-                mapping.Add("UI", "boss_health_bar", skipNormalMap: true);
-                mapping.NextSet();
-                mapping.Add("Bridge", "Rope");
-                mapping.Add("Bridge", "Stone");
-                mapping.Add("Bridge", "Vine");
-                mapping.Add("Bridge", "StoneRed");
-                mapping.Add("Bridge", "Log");
-                mapping.Add("Bridge", "Gem");
-                mapping.Add("Bridge", "Lab");
-                mapping.NextSet();
-                mapping.Add("Bubba", "spew_fireball");
-                mapping.Add("Bubba", "corpse");
-                mapping.Add("Bubba", "jump");
-                mapping.Add("Bubba", "jump_fall");
-                mapping.Add("Bubba", "fireball");
-                mapping.Add("Bubba", "hop");
-                mapping.Add("Bubba", "tornado");
-                mapping.Add("Bubba", "tornado_start");
-                mapping.Add("Bubba", "tornado_end");
-                mapping.NextSet();
-                mapping.Add("Bee", "Bee");
-                mapping.Add("Bee", "bee_turn");
+                m.NextSet();
+                m.Add("UI", "boss_health_bar", skipNormalMap: true);
+                m.NextSet();
+                m.Add("Bridge", "Rope");
+                m.Add("Bridge", "Stone");
+                m.Add("Bridge", "Vine");
+                m.Add("Bridge", "StoneRed");
+                m.Add("Bridge", "Log");
+                m.Add("Bridge", "Gem");
+                m.Add("Bridge", "Lab");
+                m.NextSet();
+                m.Add("Bubba", "spew_fireball");
+                m.Add("Bubba", "corpse");
+                m.Add("Bubba", "jump");
+                m.Add("Bubba", "jump_fall");
+                m.Add("Bubba", "fireball");
+                m.Add("Bubba", "hop");
+                m.Add("Bubba", "tornado");
+                m.Add("Bubba", "tornado_start");
+                m.Add("Bubba", "tornado_end");
+                m.NextSet();
+                m.Add("Bee", "Bee");
+                m.Add("Bee", "bee_turn");
 
                 if (isFull) {
-                    mapping.NextSet();
-                    mapping.Add("Unimplemented", "butterfly");
-                    mapping.NextSet();
-                    mapping.Add("Pole", "Carrotus");
-                    mapping.NextSet();
-                    mapping.Add("Cheshire", "platform_appear");
-                    mapping.Add("Cheshire", "platform_vanish");
-                    mapping.Add("Cheshire", "platform_idle");
-                    mapping.Add("Cheshire", "platform_invisible");
+                    m.NextSet();
+                    m.Add("Unimplemented", "butterfly");
+                    m.NextSet();
+                    m.Add("Pole", "Carrotus");
+                    m.NextSet();
+                    m.Add("Cheshire", "platform_appear");
+                    m.Add("Cheshire", "platform_vanish");
+                    m.Add("Cheshire", "platform_idle");
+                    m.Add("Cheshire", "platform_invisible");
                 }
 
-                mapping.NextSet();
-                mapping.Add("Cheshire", "hook_appear");
-                mapping.Add("Cheshire", "hook_vanish");
-                mapping.Add("Cheshire", "hook_idle");
-                mapping.Add("Cheshire", "hook_invisible");
+                m.NextSet();
+                m.Add("Cheshire", "hook_appear");
+                m.Add("Cheshire", "hook_vanish");
+                m.Add("Cheshire", "hook_idle");
+                m.Add("Cheshire", "hook_invisible");
 
-                mapping.NextSet(); // set 20 (all)
-                mapping.Add("Caterpillar", "exhale_start");
-                mapping.Add("Caterpillar", "exhale");
-                mapping.Add("Caterpillar", "disoriented");
-                mapping.Add("Caterpillar", "idle");
-                mapping.Add("Caterpillar", "inhale_start");
-                mapping.Add("Caterpillar", "inhale");
-                mapping.Add("Caterpillar", "smoke");
+                m.NextSet(); // set 20 (all)
+                m.Add("Caterpillar", "exhale_start");
+                m.Add("Caterpillar", "exhale");
+                m.Add("Caterpillar", "disoriented");
+                m.Add("Caterpillar", "idle");
+                m.Add("Caterpillar", "inhale_start");
+                m.Add("Caterpillar", "inhale");
+                m.Add("Caterpillar", "smoke");
 
                 if (isFull) {
-                    mapping.NextSet();
-                    mapping.Add("BirdyYellow", "charge_diag_downright_placeholder");
-                    mapping.Add("BirdyYellow", "charge_ver");
-                    mapping.Add("BirdyYellow", "charge_diag_upright");
-                    mapping.Add("BirdyYellow", "caged");
-                    mapping.Add("BirdyYellow", "cage_destroyed");
-                    mapping.Add("BirdyYellow", "die");
-                    mapping.Add("BirdyYellow", "feather_blue");
-                    mapping.Add("BirdyYellow", "feather_yellow");
-                    mapping.Add("BirdyYellow", "feather_blue_and_yellow");
-                    mapping.Add("BirdyYellow", "fly");
-                    mapping.Add("BirdyYellow", "hurt");
-                    mapping.Add("BirdyYellow", "idle_worm");
-                    mapping.Add("BirdyYellow", "idle_turn_head_left");
-                    mapping.Add("BirdyYellow", "idle_look_left");
-                    mapping.Add("BirdyYellow", "idle_turn_head_left_back");
-                    mapping.Add("BirdyYellow", "idle_turn_head_right");
-                    mapping.Add("BirdyYellow", "idle_look_right");
-                    mapping.Add("BirdyYellow", "idle_turn_head_right_back");
-                    mapping.Add("BirdyYellow", "idle");
-                    mapping.Add("BirdyYellow", "corpse");
+                    m.NextSet();
+                    m.Add("BirdyYellow", "charge_diag_downright_placeholder");
+                    m.Add("BirdyYellow", "charge_ver");
+                    m.Add("BirdyYellow", "charge_diag_upright");
+                    m.Add("BirdyYellow", "caged");
+                    m.Add("BirdyYellow", "cage_destroyed");
+                    m.Add("BirdyYellow", "die");
+                    m.Add("BirdyYellow", "feather_blue");
+                    m.Add("BirdyYellow", "feather_yellow");
+                    m.Add("BirdyYellow", "feather_blue_and_yellow");
+                    m.Add("BirdyYellow", "fly");
+                    m.Add("BirdyYellow", "hurt");
+                    m.Add("BirdyYellow", "idle_worm");
+                    m.Add("BirdyYellow", "idle_turn_head_left");
+                    m.Add("BirdyYellow", "idle_look_left");
+                    m.Add("BirdyYellow", "idle_turn_head_left_back");
+                    m.Add("BirdyYellow", "idle_turn_head_right");
+                    m.Add("BirdyYellow", "idle_look_right");
+                    m.Add("BirdyYellow", "idle_turn_head_right_back");
+                    m.Add("BirdyYellow", "idle");
+                    m.Add("BirdyYellow", "corpse");
                 }
 
-                mapping.NextSet();
-                mapping.Add("Common", "water_bubble_1");
-                mapping.Add("Common", "water_bubble_2");
-                mapping.Add("Common", "water_bubble_3");
-                mapping.Add("Common", "water_splash");
+                m.NextSet();
+                m.Add("Common", "water_bubble_1");
+                m.Add("Common", "water_bubble_2");
+                m.Add("Common", "water_bubble_3");
+                m.Add("Common", "water_splash");
 
-                mapping.NextSet();
-                mapping.Add("Jazz", "gameover_continue");
-                mapping.Add("Jazz", "gameover_idle");
-                mapping.Add("Jazz", "gameover_end");
-                mapping.Add("Spaz", "gameover_continue");
-                mapping.Add("Spaz", "gameover_idle");
-                mapping.Add("Spaz", "gameover_end");
+                m.NextSet();
+                m.Add("Jazz", "gameover_continue");
+                m.Add("Jazz", "gameover_idle");
+                m.Add("Jazz", "gameover_end");
+                m.Add("Spaz", "gameover_continue");
+                m.Add("Spaz", "gameover_idle");
+                m.Add("Spaz", "gameover_end");
 
                 if (isFull) {
-                    mapping.NextSet();
-                    mapping.Add("Demon", "idle");
-                    mapping.Add("Demon", "attack_start");
-                    mapping.Add("Demon", "attack");
-                    mapping.Add("Demon", "attack_end");
+                    m.NextSet();
+                    m.Add("Demon", "idle");
+                    m.Add("Demon", "attack_start");
+                    m.Add("Demon", "attack");
+                    m.Add("Demon", "attack_end");
                 }
 
-                mapping.NextSet();
-                mapping.DiscardItems(4); // Green rectangles
-                mapping.Add("Common", "IceBlock");
+                m.NextSet();
+                m.DiscardItems(4); // Green rectangles
+                m.Add("Common", "IceBlock");
 
                 if (isFull) {
-                    mapping.NextSet();
-                    mapping.Add("Devan", "bullet_small");
-                    mapping.Add("Devan", "remote_idle");
-                    mapping.Add("Devan", "remote_fall_warp_out");
-                    mapping.Add("Devan", "remote_fall");
-                    mapping.Add("Devan", "remote_fall_rotate");
-                    mapping.Add("Devan", "remote_fall_warp_in");
-                    mapping.Add("Devan", "remote_warp_out");
+                    m.NextSet();
+                    m.Add("Devan", "bullet_small");
+                    m.Add("Devan", "remote_idle");
+                    m.Add("Devan", "remote_fall_warp_out");
+                    m.Add("Devan", "remote_fall");
+                    m.Add("Devan", "remote_fall_rotate");
+                    m.Add("Devan", "remote_fall_warp_in");
+                    m.Add("Devan", "remote_warp_out");
 
-                    mapping.NextSet();
-                    mapping.Add("Devan", "demon_spew_fireball");
-                    mapping.Add("Devan", "disoriented");
-                    mapping.Add("Devan", "freefall");
-                    mapping.Add("Devan", "disoriented_start");
-                    mapping.Add("Devan", "demon_fireball");
-                    mapping.Add("Devan", "demon_fly");
-                    mapping.Add("Devan", "demon_transform_start");
-                    mapping.Add("Devan", "demon_transform_end");
-                    mapping.Add("Devan", "disarmed_idle");
-                    mapping.Add("Devan", "demon_turn");
-                    mapping.Add("Devan", "disarmed_warp_in");
-                    mapping.Add("Devan", "disoriented_warp_out");
-                    mapping.Add("Devan", "disarmed");
-                    mapping.Add("Devan", "crouch");
-                    mapping.Add("Devan", "shoot");
-                    mapping.Add("Devan", "disarmed_gun");
-                    mapping.Add("Devan", "jump");
-                    mapping.Add("Devan", "bullet");
-                    mapping.Add("Devan", "run");
-                    mapping.Add("Devan", "run_end");
-                    mapping.Add("Devan", "jump_end");
-                    mapping.Add("Devan", "idle");
-                    mapping.Add("Devan", "warp_in");
-                    mapping.Add("Devan", "warp_out");
+                    m.NextSet();
+                    m.Add("Devan", "demon_spew_fireball");
+                    m.Add("Devan", "disoriented");
+                    m.Add("Devan", "freefall");
+                    m.Add("Devan", "disoriented_start");
+                    m.Add("Devan", "demon_fireball");
+                    m.Add("Devan", "demon_fly");
+                    m.Add("Devan", "demon_transform_start");
+                    m.Add("Devan", "demon_transform_end");
+                    m.Add("Devan", "disarmed_idle");
+                    m.Add("Devan", "demon_turn");
+                    m.Add("Devan", "disarmed_warp_in");
+                    m.Add("Devan", "disoriented_warp_out");
+                    m.Add("Devan", "disarmed");
+                    m.Add("Devan", "crouch");
+                    m.Add("Devan", "shoot");
+                    m.Add("Devan", "disarmed_gun");
+                    m.Add("Devan", "jump");
+                    m.Add("Devan", "bullet");
+                    m.Add("Devan", "run");
+                    m.Add("Devan", "run_end");
+                    m.Add("Devan", "jump_end");
+                    m.Add("Devan", "idle");
+                    m.Add("Devan", "warp_in");
+                    m.Add("Devan", "warp_out");
                 }
 
-                mapping.NextSet();
-                mapping.Add("Pole", "Diamondus");
+                m.NextSet();
+                m.Add("Pole", "Diamondus");
 
                 if (isFull) {
-                    mapping.NextSet();
-                    mapping.Add("Doggy", "attack");
-                    mapping.Add("Doggy", "walk");
+                    m.NextSet();
+                    m.Add("Doggy", "attack");
+                    m.Add("Doggy", "walk");
 
-                    mapping.NextSet(); // set 30 (all)
-                    mapping.Add("Unimplemented", "door");
-                    mapping.Add("Unimplemented", "door_enter_jazz_spaz");
+                    m.NextSet(); // set 30 (all)
+                    m.Add("Unimplemented", "door");
+                    m.Add("Unimplemented", "door_enter_jazz_spaz");
                 }
 
-                mapping.NextSet();
-                mapping.Add("Dragonfly", "idle");
+                m.NextSet();
+                m.Add("Dragonfly", "idle");
 
                 if (isFull) {
-                    mapping.NextSet();
-                    mapping.Add("Dragon", "attack");
-                    mapping.Add("Dragon", "idle");
-                    mapping.Add("Dragon", "turn");
+                    m.NextSet();
+                    m.Add("Dragon", "attack");
+                    m.Add("Dragon", "idle");
+                    m.Add("Dragon", "turn");
 
-                    mapping.NextSet(1, JJ2Version.BaseGame | JJ2Version.HH);
-                    mapping.NextSet(2, JJ2Version.TSF | JJ2Version.CC);
+                    m.NextSet(1, JJ2Version.BaseGame | JJ2Version.HH);
+                    m.NextSet(2, JJ2Version.TSF | JJ2Version.CC);
                 }
 
-                mapping.NextSet(4);
-                mapping.Add("Eva", "Blink");
-                mapping.Add("Eva", "Idle");
-                mapping.Add("Eva", "KissStart");
-                mapping.Add("Eva", "KissEnd");
+                m.NextSet(4);
+                m.Add("Eva", "Blink");
+                m.Add("Eva", "Idle");
+                m.Add("Eva", "KissStart");
+                m.Add("Eva", "KissEnd");
 
-                mapping.NextSet();
-                mapping.Add("UI", "icon_birdy");
-                mapping.Add("UI", "icon_birdy_yellow");
-                mapping.Add("UI", "icon_frog");
-                mapping.Add("UI", "icon_jazz");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "UI", "icon_lori");
-                mapping.Add("UI", "icon_spaz");
+                m.NextSet();
+                m.Add("UI", "icon_birdy");
+                m.Add("UI", "icon_birdy_yellow");
+                m.Add("UI", "icon_frog");
+                m.Add("UI", "icon_jazz");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "UI", "icon_lori");
+                m.Add("UI", "icon_spaz");
 
                 if (isFull) {
-                    mapping.NextSet(2); // set 41 (1.24) / set 40 (1.23)
-                    mapping.Add("FatChick", "attack");
-                    mapping.Add("FatChick", "walk");
-                    mapping.NextSet();
-                    mapping.Add("Fencer", "attack");
-                    mapping.Add("Fencer", "idle");
-                    mapping.NextSet();
-                    mapping.Add("Fish", "attack");
-                    mapping.Add("Fish", "idle");
+                    m.NextSet(2); // set 41 (1.24) / set 40 (1.23)
+                    m.Add("FatChick", "attack");
+                    m.Add("FatChick", "walk");
+                    m.NextSet();
+                    m.Add("Fencer", "attack");
+                    m.Add("Fencer", "idle");
+                    m.NextSet();
+                    m.Add("Fish", "attack");
+                    m.Add("Fish", "idle");
                 }
 
-                mapping.NextSet();
-                mapping.Add("CTF", "arrow");
-                mapping.Add("CTF", "base");
-                mapping.Add("CTF", "lights");
-                mapping.Add("CTF", "flag_blue");
-                mapping.Add("UI", "ctf_flag_blue");
-                mapping.Add("CTF", "base_eva");
-                mapping.Add("CTF", "base_eva_cheer");
-                mapping.Add("CTF", "flag_red");
-                mapping.Add("UI", "ctf_flag_red");
+                m.NextSet();
+                m.Add("CTF", "arrow");
+                m.Add("CTF", "base");
+                m.Add("CTF", "lights");
+                m.Add("CTF", "flag_blue");
+                m.Add("UI", "ctf_flag_blue");
+                m.Add("CTF", "base_eva");
+                m.Add("CTF", "base_eva_cheer");
+                m.Add("CTF", "flag_red");
+                m.Add("UI", "ctf_flag_red");
 
                 if (isFull) {
-                    mapping.NextSet();
-                    mapping.DiscardItems(1); // Strange green circles
+                    m.NextSet();
+                    m.DiscardItems(1); // Strange green circles
                 }
 
-                mapping.NextSet();
-                mapping.Add("UI", "font_medium");
-                mapping.Add("UI", "font_small");
-                mapping.Add("UI", "font_large");
+                m.NextSet();
+                m.Add("UI", "font_medium");
+                m.Add("UI", "font_small");
+                m.Add("UI", "font_large");
 
                 //mapping.Add("UI", "logo", skipNormalMap: true);
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
                 //mapping.Add(JJ2Version.CC, "UI", "cc_logo");
-                mapping.DiscardItems(1, JJ2Version.CC);
+                m.DiscardItems(1, JJ2Version.CC);
 
-                mapping.NextSet();
-                mapping.Add("Frog", "fall_land");
-                mapping.Add("Frog", "hurt");
-                mapping.Add("Frog", "idle");
-                mapping.Add("Jazz", "transform_frog");
-                mapping.Add("Frog", "fall");
-                mapping.Add("Frog", "jump_start");
-                mapping.Add("Frog", "crouch");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "transform_frog");
-                mapping.Add("Frog", "tongue_diag_upright");
-                mapping.Add("Frog", "tongue_hor");
-                mapping.Add("Frog", "tongue_ver");
-                mapping.Add("Spaz", "transform_frog");
-                mapping.Add("Frog", "run");
+                m.NextSet();
+                m.Add("Frog", "fall_land");
+                m.Add("Frog", "hurt");
+                m.Add("Frog", "idle");
+                m.Add("Jazz", "transform_frog");
+                m.Add("Frog", "fall");
+                m.Add("Frog", "jump_start");
+                m.Add("Frog", "crouch");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "transform_frog");
+                m.Add("Frog", "tongue_diag_upright");
+                m.Add("Frog", "tongue_hor");
+                m.Add("Frog", "tongue_ver");
+                m.Add("Spaz", "transform_frog");
+                m.Add("Frog", "run");
 
                 if (isFull) {
-                    mapping.NextSet();
-                    mapping.Add("Platform", "carrotus_fruit");
-                    mapping.Add("Platform", "carrotus_fruit_chain");
-                    mapping.NextSet();
+                    m.NextSet();
+                    m.Add("Platform", "carrotus_fruit");
+                    m.Add("Platform", "carrotus_fruit_chain");
+                    m.NextSet();
                     //mapping.Add("Pickup", "gem_gemring", keepIndexed: true);
-                    mapping.DiscardItems(1);
-                    mapping.NextSet(); // set 50 (1.24) / set 49 (1.23)
-                    mapping.Add("Unimplemented", "boxing_glove_stiff");
-                    mapping.Add("Unimplemented", "boxing_glove_stiff_idle");
-                    mapping.Add("Unimplemented", "boxing_glove_normal");
-                    mapping.Add("Unimplemented", "boxing_glove_normal_idle");
-                    mapping.Add("Unimplemented", "boxing_glove_relaxed");
-                    mapping.Add("Unimplemented", "boxing_glove_relaxed_idle");
+                    m.DiscardItems(1);
+                    m.NextSet(); // set 50 (1.24) / set 49 (1.23)
+                    m.Add("Unimplemented", "boxing_glove_stiff");
+                    m.Add("Unimplemented", "boxing_glove_stiff_idle");
+                    m.Add("Unimplemented", "boxing_glove_normal");
+                    m.Add("Unimplemented", "boxing_glove_normal_idle");
+                    m.Add("Unimplemented", "boxing_glove_relaxed");
+                    m.Add("Unimplemented", "boxing_glove_relaxed_idle");
 
-                    mapping.NextSet();
-                    mapping.Add("Platform", "carrotus_grass");
-                    mapping.Add("Platform", "carrotus_grass_chain");
+                    m.NextSet();
+                    m.Add("Platform", "carrotus_grass");
+                    m.Add("Platform", "carrotus_grass_chain");
                 }
 
-                mapping.NextSet();
-                mapping.Add("MadderHatter", "cup");
-                mapping.Add("MadderHatter", "hat");
-                mapping.Add("MadderHatter", "attack");
-                mapping.Add("MadderHatter", "bullet_spit");
-                mapping.Add("MadderHatter", "walk");
+                m.NextSet();
+                m.Add("MadderHatter", "cup");
+                m.Add("MadderHatter", "hat");
+                m.Add("MadderHatter", "attack");
+                m.Add("MadderHatter", "bullet_spit");
+                m.Add("MadderHatter", "walk");
 
                 if (isFull) {
-                    mapping.NextSet();
-                    mapping.Add("Helmut", "idle");
-                    mapping.Add("Helmut", "walk");
+                    m.NextSet();
+                    m.Add("Helmut", "idle");
+                    m.Add("Helmut", "walk");
                 }
 
-                mapping.NextSet(2);
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unknown_disoriented");
-                mapping.Add("Jazz", "airboard");
-                mapping.Add("Jazz", "airboard_turn");
-                mapping.Add("Jazz", "buttstomp_end");
-                mapping.Add("Jazz", "corpse");
-                mapping.Add("Jazz", "die");
-                mapping.Add("Jazz", "crouch_start");
-                mapping.Add("Jazz", "crouch");
-                mapping.Add("Jazz", "crouch_shoot");
-                mapping.Add("Jazz", "crouch_end");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_door_enter");
-                mapping.Add("Jazz", "vine_walk");
-                mapping.Add("Jazz", "eol");
-                mapping.Add("Jazz", "fall");
-                mapping.Add("Jazz", "buttstomp");
-                mapping.Add("Jazz", "fall_end");
-                mapping.Add("Jazz", "shoot");
-                mapping.Add("Jazz", "shoot_ver");
-                mapping.Add("Jazz", "shoot_end");
-                mapping.Add("Jazz", "transform_frog_end");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_ledge_climb");
-                mapping.Add("Jazz", "vine_shoot_start");
-                mapping.Add("Jazz", "vine_shoot_up_end");
-                mapping.Add("Jazz", "vine_shoot_up");
-                mapping.Add("Jazz", "vine_idle");
-                mapping.Add("Jazz", "vine_idle_flavor");
-                mapping.Add("Jazz", "vine_shoot_end");
-                mapping.Add("Jazz", "vine_shoot");
-                mapping.Add("Jazz", "copter");
-                mapping.Add("Jazz", "copter_shoot_start");
-                mapping.Add("Jazz", "copter_shoot");
-                mapping.Add("Jazz", "pole_h");
-                mapping.Add("Jazz", "hurt");
-                mapping.Add("Jazz", "idle_flavor_1");
-                mapping.Add("Jazz", "idle_flavor_2");
-                mapping.Add("Jazz", "idle_flavor_3");
-                mapping.Add("Jazz", "idle_flavor_4");
-                mapping.Add("Jazz", "idle_flavor_5");
-                mapping.Add("Jazz", "vine_shoot_up_start");
-                mapping.Add("Jazz", "fall_shoot");
-                mapping.Add("Jazz", "jump_unknown_1");
-                mapping.Add("Jazz", "jump_unknown_2");
-                mapping.Add("Jazz", "jump");
-                mapping.Add("Jazz", "ledge");
-                mapping.Add("Jazz", "lift");
-                mapping.Add("Jazz", "lift_jump_light");
-                mapping.Add("Jazz", "lift_jump_heavy");
-                mapping.Add("Jazz", "lookup_start");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_run_diag_upright");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_run_ver_up");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_run_diag_upleft_reverse");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_run_reverse");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_run_diag_downleft_reverse");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_run_ver_down");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_run_diag_downright");
-                mapping.Add("Jazz", "dizzy_walk");
-                mapping.Add("Jazz", "push");
-                mapping.Add("Jazz", "shoot_start");
-                mapping.Add("Jazz", "revup_start");
-                mapping.Add("Jazz", "revup");
-                mapping.Add("Jazz", "revup_end");
-                mapping.Add("Jazz", "fall_diag");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unknown_mid_frame");
-                mapping.Add("Jazz", "jump_diag");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_jump_shoot_end");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_jump_shoot_ver_start");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_jump_shoot_ver");
-                mapping.Add("Jazz", "ball");
-                mapping.Add("Jazz", "run");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_run_aim_diag");
-                mapping.Add("Jazz", "dash_start");
-                mapping.Add("Jazz", "dash");
-                mapping.Add("Jazz", "dash_stop");
-                mapping.Add("Jazz", "walk_stop");
-                mapping.Add("Jazz", "run_stop");
-                mapping.Add("Jazz", "Spring");
-                mapping.Add("Jazz", "idle");
-                mapping.Add("Jazz", "uppercut");
-                mapping.Add("Jazz", "uppercut_end");
-                mapping.Add("Jazz", "uppercut_start");
-                mapping.Add("Jazz", "dizzy");
-                mapping.Add("Jazz", "swim_diag_downright");
-                mapping.Add("Jazz", "swim_right");
-                mapping.Add("Jazz", "swim_diag_right_to_downright");
-                mapping.Add("Jazz", "swim_diag_right_to_upright");
-                mapping.Add("Jazz", "swim_diag_upright");
-                mapping.Add("Jazz", "swing");
-                mapping.Add("Jazz", "warp_in");
-                mapping.Add("Jazz", "warp_out_freefall");
-                mapping.Add("Jazz", "freefall");
-                mapping.Add("Jazz", "warp_in_freefall");
-                mapping.Add("Jazz", "warp_out");
-                mapping.Add("Jazz", "pole_v");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unarmed_crouch_start");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unarmed_crouch_end");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unarmed_fall");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unarmed_hurt");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unarmed_idle");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unarmed_jump");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unarmed_crouch_end_2");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_lookup_start");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unarmed_run");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unarmed_stare");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_lookup_start_2");
+                m.NextSet(2);
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unknown_disoriented");
+                m.Add("Jazz", "airboard");
+                m.Add("Jazz", "airboard_turn");
+                m.Add("Jazz", "buttstomp_end");
+                m.Add("Jazz", "corpse");
+                m.Add("Jazz", "die");
+                m.Add("Jazz", "crouch_start");
+                m.Add("Jazz", "crouch");
+                m.Add("Jazz", "crouch_shoot");
+                m.Add("Jazz", "crouch_end");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_door_enter");
+                m.Add("Jazz", "vine_walk");
+                m.Add("Jazz", "eol");
+                m.Add("Jazz", "fall");
+                m.Add("Jazz", "buttstomp");
+                m.Add("Jazz", "fall_end");
+                m.Add("Jazz", "shoot");
+                m.Add("Jazz", "shoot_ver");
+                m.Add("Jazz", "shoot_end");
+                m.Add("Jazz", "transform_frog_end");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_ledge_climb");
+                m.Add("Jazz", "vine_shoot_start");
+                m.Add("Jazz", "vine_shoot_up_end");
+                m.Add("Jazz", "vine_shoot_up");
+                m.Add("Jazz", "vine_idle");
+                m.Add("Jazz", "vine_idle_flavor");
+                m.Add("Jazz", "vine_shoot_end");
+                m.Add("Jazz", "vine_shoot");
+                m.Add("Jazz", "copter");
+                m.Add("Jazz", "copter_shoot_start");
+                m.Add("Jazz", "copter_shoot");
+                m.Add("Jazz", "pole_h");
+                m.Add("Jazz", "hurt");
+                m.Add("Jazz", "idle_flavor_1");
+                m.Add("Jazz", "idle_flavor_2");
+                m.Add("Jazz", "idle_flavor_3");
+                m.Add("Jazz", "idle_flavor_4");
+                m.Add("Jazz", "idle_flavor_5");
+                m.Add("Jazz", "vine_shoot_up_start");
+                m.Add("Jazz", "fall_shoot");
+                m.Add("Jazz", "jump_unknown_1");
+                m.Add("Jazz", "jump_unknown_2");
+                m.Add("Jazz", "jump");
+                m.Add("Jazz", "ledge");
+                m.Add("Jazz", "lift");
+                m.Add("Jazz", "lift_jump_light");
+                m.Add("Jazz", "lift_jump_heavy");
+                m.Add("Jazz", "lookup_start");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_run_diag_upright");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_run_ver_up");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_run_diag_upleft_reverse");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_run_reverse");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_run_diag_downleft_reverse");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_run_ver_down");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_run_diag_downright");
+                m.Add("Jazz", "dizzy_walk");
+                m.Add("Jazz", "push");
+                m.Add("Jazz", "shoot_start");
+                m.Add("Jazz", "revup_start");
+                m.Add("Jazz", "revup");
+                m.Add("Jazz", "revup_end");
+                m.Add("Jazz", "fall_diag");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unknown_mid_frame");
+                m.Add("Jazz", "jump_diag");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_jump_shoot_end");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_jump_shoot_ver_start");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_jump_shoot_ver");
+                m.Add("Jazz", "ball");
+                m.Add("Jazz", "run");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_run_aim_diag");
+                m.Add("Jazz", "dash_start");
+                m.Add("Jazz", "dash");
+                m.Add("Jazz", "dash_stop");
+                m.Add("Jazz", "walk_stop");
+                m.Add("Jazz", "run_stop");
+                m.Add("Jazz", "Spring");
+                m.Add("Jazz", "idle");
+                m.Add("Jazz", "uppercut");
+                m.Add("Jazz", "uppercut_end");
+                m.Add("Jazz", "uppercut_start");
+                m.Add("Jazz", "dizzy");
+                m.Add("Jazz", "swim_diag_downright");
+                m.Add("Jazz", "swim_right");
+                m.Add("Jazz", "swim_diag_right_to_downright");
+                m.Add("Jazz", "swim_diag_right_to_upright");
+                m.Add("Jazz", "swim_diag_upright");
+                m.Add("Jazz", "swing");
+                m.Add("Jazz", "warp_in");
+                m.Add("Jazz", "warp_out_freefall");
+                m.Add("Jazz", "freefall");
+                m.Add("Jazz", "warp_in_freefall");
+                m.Add("Jazz", "warp_out");
+                m.Add("Jazz", "pole_v");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unarmed_crouch_start");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unarmed_crouch_end");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unarmed_fall");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unarmed_hurt");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unarmed_idle");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unarmed_jump");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unarmed_crouch_end_2");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_lookup_start");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unarmed_run");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_unarmed_stare");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Jazz", "unused_lookup_start_2");
 
-                mapping.NextSet();
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Unimplemented", "bonus_jazz_idle_flavor_2");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Unimplemented", "bonus_jazz_jump_2");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Unimplemented", "bonus_jazz_dash_2");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Unimplemented", "bonus_jazz_rotate_2");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Unimplemented", "bonus_jazz_ball_2");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Unimplemented", "bonus_jazz_run_2");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Unimplemented", "bonus_jazz_idle_2");
-                mapping.Add("Unimplemented", "bonus_jazz_idle_flavor");
-                mapping.Add("Unimplemented", "bonus_jazz_jump");
-                mapping.Add("Unimplemented", "bonus_jazz_ball");
-                mapping.Add("Unimplemented", "bonus_jazz_run");
-                mapping.Add("Unimplemented", "bonus_jazz_dash");
-                mapping.Add("Unimplemented", "bonus_jazz_rotate");
-                mapping.Add("Unimplemented", "bonus_jazz_idle");
+                m.NextSet();
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Unimplemented", "bonus_jazz_idle_flavor_2");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Unimplemented", "bonus_jazz_jump_2");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Unimplemented", "bonus_jazz_dash_2");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Unimplemented", "bonus_jazz_rotate_2");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Unimplemented", "bonus_jazz_ball_2");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Unimplemented", "bonus_jazz_run_2");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Unimplemented", "bonus_jazz_idle_2");
+                m.Add("Unimplemented", "bonus_jazz_idle_flavor");
+                m.Add("Unimplemented", "bonus_jazz_jump");
+                m.Add("Unimplemented", "bonus_jazz_ball");
+                m.Add("Unimplemented", "bonus_jazz_run");
+                m.Add("Unimplemented", "bonus_jazz_dash");
+                m.Add("Unimplemented", "bonus_jazz_rotate");
+                m.Add("Unimplemented", "bonus_jazz_idle");
 
                 if (isFull) {
-                    mapping.NextSet(2);
-                    mapping.Add("Pole", "Jungle");
+                    m.NextSet(2);
+                    m.Add("Pole", "Jungle");
                 }
 
-                mapping.NextSet();
-                mapping.Add("LabRat", "attack");
-                mapping.Add("LabRat", "idle");
-                mapping.Add("LabRat", "walk");
+                m.NextSet();
+                m.Add("LabRat", "attack");
+                m.Add("LabRat", "idle");
+                m.Add("LabRat", "walk");
 
-                mapping.NextSet(); // set 60 (1.24) / set 59 (1.23)
-                mapping.Add("Lizard", "copter_attack");
-                mapping.Add("Lizard", "bomb");
-                mapping.Add("Lizard", "copter_idle");
-                mapping.Add("Lizard", "copter");
-                mapping.Add("Lizard", "walk");
+                m.NextSet(); // set 60 (1.24) / set 59 (1.23)
+                m.Add("Lizard", "copter_attack");
+                m.Add("Lizard", "bomb");
+                m.Add("Lizard", "copter_idle");
+                m.Add("Lizard", "copter");
+                m.Add("Lizard", "walk");
 
-                mapping.NextSet(1, JJ2Version.TSF | JJ2Version.CC);
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "airboard");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "airboard_turn");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "buttstomp_end");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "corpse");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "die");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "crouch_start");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "crouch");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "crouch_shoot");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "crouch_end");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "vine_walk");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "eol");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "fall");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "buttstomp");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "fall_end");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "shoot");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "shoot_ver");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "shoot_end");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "transform_frog_end");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "vine_shoot_start");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "vine_shoot_up_end");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "vine_shoot_up");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "vine_idle");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "vine_idle_flavor");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "vine_shoot_end");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "vine_shoot");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "copter");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "copter_shoot_start");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "copter_shoot");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "pole_h");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "hurt");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "idle_flavor_1");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "idle_flavor_2");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "idle_flavor_3");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "idle_flavor_4");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "idle_flavor_5");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "vine_shoot_up_start");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "fall_shoot");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "jump_unknown_1");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "jump_unknown_2");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "jump");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "ledge");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "lift");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "lift_jump_light");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "lift_jump_heavy");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "lookup_start");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "dizzy_walk");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "push");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "shoot_start");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "revup_start");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "revup");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "revup_end");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "fall_diag");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "jump_diag");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "ball");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "run");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "dash_start");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "dash");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "dash_stop");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "walk_stop");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "run_stop");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "Spring");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "idle");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "uppercut_placeholder_1");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "uppercut_placeholder_2");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "sidekick");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "dizzy");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "swim_diag_downright");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "swim_right");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "swim_diag_right_to_downright");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "swim_diag_right_to_upright");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "swim_diag_upright");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "swing");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "warp_in");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "warp_out_freefall");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "freefall");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "warp_in_freefall");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "warp_out");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "pole_v");
-                mapping.NextSet(1, JJ2Version.TSF | JJ2Version.CC);
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "idle_2");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "gun");
+                m.NextSet(1, JJ2Version.TSF | JJ2Version.CC);
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "airboard");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "airboard_turn");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "buttstomp_end");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "corpse");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "die");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "crouch_start");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "crouch");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "crouch_shoot");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "crouch_end");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "vine_walk");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "eol");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "fall");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "buttstomp");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "fall_end");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "shoot");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "shoot_ver");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "shoot_end");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "transform_frog_end");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "vine_shoot_start");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "vine_shoot_up_end");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "vine_shoot_up");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "vine_idle");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "vine_idle_flavor");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "vine_shoot_end");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "vine_shoot");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "copter");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "copter_shoot_start");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "copter_shoot");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "pole_h");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "hurt");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "idle_flavor_1");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "idle_flavor_2");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "idle_flavor_3");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "idle_flavor_4");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "idle_flavor_5");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "vine_shoot_up_start");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "fall_shoot");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "jump_unknown_1");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "jump_unknown_2");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "jump");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "ledge");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "lift");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "lift_jump_light");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "lift_jump_heavy");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "lookup_start");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "dizzy_walk");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "push");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "shoot_start");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "revup_start");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "revup");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "revup_end");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "fall_diag");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "jump_diag");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "ball");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "run");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "dash_start");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "dash");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "dash_stop");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "walk_stop");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "run_stop");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "Spring");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "idle");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "uppercut_placeholder_1");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "uppercut_placeholder_2");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "sidekick");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "dizzy");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "swim_diag_downright");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "swim_right");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "swim_diag_right_to_downright");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "swim_diag_right_to_upright");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "swim_diag_upright");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "swing");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "warp_in");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "warp_out_freefall");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "freefall");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "warp_in_freefall");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "warp_out");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "pole_v");
+                m.NextSet(1, JJ2Version.TSF | JJ2Version.CC);
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "idle_2");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Lori", "gun");
 
-                mapping.NextSet(1, JJ2Version.TSF | JJ2Version.CC);
-                mapping.NextSet();
+                m.NextSet(1, JJ2Version.TSF | JJ2Version.CC);
+                m.NextSet();
                 //mapping.Add("UI", "multiplayer_char", JJ2DefaultPalette.Menu, skipNormalMap: true);
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
 
                 //mapping.Add("UI", "multiplayer_color", JJ2DefaultPalette.Menu);
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
 
-                mapping.Add("UI", "character_art_difficulty_jazz", JJ2DefaultPalette.Menu, skipNormalMap: true);
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "UI", "character_art_difficulty_lori", JJ2DefaultPalette.Menu, skipNormalMap: true);
-                mapping.Add("UI", "character_art_difficulty_spaz", JJ2DefaultPalette.Menu, skipNormalMap: true);
-                mapping.Add("Unimplemented", "key", JJ2DefaultPalette.Menu, skipNormalMap: true);
+                m.Add("UI", "character_art_difficulty_jazz", JJ2DefaultPalette.Menu, skipNormalMap: true);
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "UI", "character_art_difficulty_lori", JJ2DefaultPalette.Menu, skipNormalMap: true);
+                m.Add("UI", "character_art_difficulty_spaz", JJ2DefaultPalette.Menu, skipNormalMap: true);
+                m.Add("Unimplemented", "key", JJ2DefaultPalette.Menu, skipNormalMap: true);
 
                 //mapping.Add("UI", "loading_bar", JJ2DefaultPalette.Menu, skipNormalMap: true);
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
 
-                mapping.Add("UI", "multiplayer_mode", JJ2DefaultPalette.Menu, skipNormalMap: true);
+                m.Add("UI", "multiplayer_mode", JJ2DefaultPalette.Menu, skipNormalMap: true);
 
                 //mapping.Add("UI", "character_name_jazz", JJ2DefaultPalette.Menu, skipNormalMap: true);
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
                 //mapping.Add(JJ2Version.TSF | JJ2Version.CC, "UI", "character_name_lori", JJ2DefaultPalette.Menu, skipNormalMap: true);
-                mapping.DiscardItems(1, JJ2Version.TSF | JJ2Version.CC);
+                m.DiscardItems(1, JJ2Version.TSF | JJ2Version.CC);
                 //mapping.Add("UI", "character_name_spaz", JJ2DefaultPalette.Menu, skipNormalMap: true);
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
 
-                mapping.Add("UI", "character_art_jazz", JJ2DefaultPalette.Menu, skipNormalMap: true);
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "UI", "character_art_lori", JJ2DefaultPalette.Menu, skipNormalMap: true);
-                mapping.Add("UI", "character_art_spaz", JJ2DefaultPalette.Menu, skipNormalMap: true);
-                mapping.NextSet();
+                m.Add("UI", "character_art_jazz", JJ2DefaultPalette.Menu, skipNormalMap: true);
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "UI", "character_art_lori", JJ2DefaultPalette.Menu, skipNormalMap: true);
+                m.Add("UI", "character_art_spaz", JJ2DefaultPalette.Menu, skipNormalMap: true);
+                m.NextSet();
 
                 //mapping.Add("UI", "font_medium_2", JJ2DefaultPalette.Menu);
                 //mapping.Add("UI", "font_small_2", JJ2DefaultPalette.Menu);
@@ -779,494 +779,494 @@ namespace Jazz2.Compatibility
                 //mapping.Add("UI", "logo_small", JJ2DefaultPalette.Menu, skipNormalMap: true);
                 //mapping.Add(JJ2Version.CC, "UI", "cc_title", JJ2DefaultPalette.Menu, skipNormalMap: true);
                 //mapping.Add(JJ2Version.CC, "UI", "cc_title_small", JJ2DefaultPalette.Menu, skipNormalMap: true);
-                mapping.DiscardItems(8);
+                m.DiscardItems(8);
 
                 if (isFull) {
-                    mapping.NextSet(2);
-                    mapping.Add("Monkey", "Banana");
-                    mapping.Add("Monkey", "BananaSplat");
-                    mapping.Add("Monkey", "Jump");
-                    mapping.Add("Monkey", "WalkStart");
-                    mapping.Add("Monkey", "WalkEnd");
-                    mapping.Add("Monkey", "Attack");
-                    mapping.Add("Monkey", "Walk");
+                    m.NextSet(2);
+                    m.Add("Monkey", "Banana");
+                    m.Add("Monkey", "BananaSplat");
+                    m.Add("Monkey", "Jump");
+                    m.Add("Monkey", "WalkStart");
+                    m.Add("Monkey", "WalkEnd");
+                    m.Add("Monkey", "Attack");
+                    m.Add("Monkey", "Walk");
 
-                    mapping.NextSet();
-                    mapping.Add("Moth", "Green");
-                    mapping.Add("Moth", "Gray");
-                    mapping.Add("Moth", "Purple");
-                    mapping.Add("Moth", "Pink");
+                    m.NextSet();
+                    m.Add("Moth", "Green");
+                    m.Add("Moth", "Gray");
+                    m.Add("Moth", "Purple");
+                    m.Add("Moth", "Pink");
                 } else {
-                    mapping.NextSet();
+                    m.NextSet();
                 }
 
-                mapping.NextSet(3); // set 71 (1.24) / set 67 (1.23)
-                mapping.Add("Pickup", "1up");
-                mapping.Add("Pickup", "food_apple");
-                mapping.Add("Pickup", "food_banana");
-                mapping.Add("Object", "container_barrel");
-                mapping.Add("Common", "poof_brown");
-                mapping.Add("Object", "container_box_crush");
-                mapping.Add("Object", "container_barrel_shrapnel_1");
-                mapping.Add("Object", "container_barrel_shrapnel_2");
-                mapping.Add("Object", "container_barrel_shrapnel_3");
-                mapping.Add("Object", "container_barrel_shrapnel_4");
-                mapping.Add("Object", "powerup_shield_bubble");
-                mapping.Add("Pickup", "food_burger");
-                mapping.Add("Pickup", "food_cake");
-                mapping.Add("Pickup", "food_candy");
-                mapping.Add("Object", "Savepoint");
-                mapping.Add("Pickup", "food_cheese");
-                mapping.Add("Pickup", "food_cherry");
-                mapping.Add("Pickup", "food_chicken");
-                mapping.Add("Pickup", "food_chips");
-                mapping.Add("Pickup", "food_chocolate");
-                mapping.Add("Pickup", "food_cola");
-                mapping.Add("Pickup", "carrot");
-                mapping.Add("Pickup", "Gem", allowRealtimePalette: true, addBorder: 1);
-                mapping.Add("Pickup", "food_cucumber");
-                mapping.Add("Pickup", "food_cupcake");
-                mapping.Add("Pickup", "food_donut");
-                mapping.Add("Pickup", "food_eggplant");
-                mapping.Add("Unknown", "green_blast_thing");
-                mapping.Add("Object", "ExitSign");
-                mapping.Add("Pickup", "fast_fire_jazz");
-                mapping.Add("Pickup", "fast_fire_spaz");
-                mapping.Add("Object", "powerup_shield_fire");
-                mapping.Add("Pickup", "food_fries");
-                mapping.Add("Pickup", "fast_feet");
-                mapping.Add("Object", "GemSuper", allowRealtimePalette: true);
+                m.NextSet(3); // set 71 (1.24) / set 67 (1.23)
+                m.Add("Pickup", "1up");
+                m.Add("Pickup", "food_apple");
+                m.Add("Pickup", "food_banana");
+                m.Add("Object", "container_barrel");
+                m.Add("Common", "poof_brown");
+                m.Add("Object", "container_box_crush");
+                m.Add("Object", "container_barrel_shrapnel_1");
+                m.Add("Object", "container_barrel_shrapnel_2");
+                m.Add("Object", "container_barrel_shrapnel_3");
+                m.Add("Object", "container_barrel_shrapnel_4");
+                m.Add("Object", "powerup_shield_bubble");
+                m.Add("Pickup", "food_burger");
+                m.Add("Pickup", "food_cake");
+                m.Add("Pickup", "food_candy");
+                m.Add("Object", "Savepoint");
+                m.Add("Pickup", "food_cheese");
+                m.Add("Pickup", "food_cherry");
+                m.Add("Pickup", "food_chicken");
+                m.Add("Pickup", "food_chips");
+                m.Add("Pickup", "food_chocolate");
+                m.Add("Pickup", "food_cola");
+                m.Add("Pickup", "carrot");
+                m.Add("Pickup", "Gem", allowRealtimePalette: true, addBorder: 1);
+                m.Add("Pickup", "food_cucumber");
+                m.Add("Pickup", "food_cupcake");
+                m.Add("Pickup", "food_donut");
+                m.Add("Pickup", "food_eggplant");
+                m.Add("Unknown", "green_blast_thing");
+                m.Add("Object", "ExitSign");
+                m.Add("Pickup", "fast_fire_jazz");
+                m.Add("Pickup", "fast_fire_spaz");
+                m.Add("Object", "powerup_shield_fire");
+                m.Add("Pickup", "food_fries");
+                m.Add("Pickup", "fast_feet");
+                m.Add("Object", "GemSuper", allowRealtimePalette: true);
 
                 //mapping.Add("Pickup", "Gem2", keepIndexed: true);
-                mapping.DiscardItems(1);
+                m.DiscardItems(1);
 
-                mapping.Add("Pickup", "airboard");
-                mapping.Add("Pickup", "coin_gold");
-                mapping.Add("Pickup", "food_grapes");
-                mapping.Add("Pickup", "food_ham");
-                mapping.Add("Pickup", "carrot_fly");
-                mapping.Add("UI", "heart", skipNormalMap: true);
-                mapping.Add("Pickup", "freeze_enemies");
-                mapping.Add("Pickup", "food_ice_cream");
-                mapping.Add("Common", "ice_break_shrapnel_1");
-                mapping.Add("Common", "ice_break_shrapnel_2");
-                mapping.Add("Common", "ice_break_shrapnel_3");
-                mapping.Add("Common", "ice_break_shrapnel_4");
-                mapping.Add("Pickup", "food_lemon");
-                mapping.Add("Pickup", "food_lettuce");
-                mapping.Add("Pickup", "food_lime");
-                mapping.Add("Object", "powerup_shield_lightning");
-                mapping.Add("Object", "TriggerCrate");
-                mapping.Add("Pickup", "food_milk");
-                mapping.Add("Object", "crate_ammo_bouncer");
-                mapping.Add("Object", "crate_ammo_freezer");
-                mapping.Add("Object", "crate_ammo_seeker");
-                mapping.Add("Object", "crate_ammo_rf");
-                mapping.Add("Object", "crate_ammo_toaster");
-                mapping.Add("Object", "crate_ammo_tnt");
-                mapping.Add("Object", "powerup_upgrade_blaster_jazz");
-                mapping.Add("Object", "powerup_upgrade_bouncer");
-                mapping.Add("Object", "powerup_upgrade_freezer");
-                mapping.Add("Object", "powerup_upgrade_seeker");
-                mapping.Add("Object", "powerup_upgrade_rf");
-                mapping.Add("Object", "powerup_upgrade_toaster");
-                mapping.Add("Object", "powerup_upgrade_pepper");
-                mapping.Add("Object", "powerup_upgrade_electro");
-                mapping.Add("Object", "powerup_transform_birdy");
-                mapping.Add("Object", "powerup_transform_birdy_yellow");
-                mapping.Add("Object", "powerup_swap_characters");
-                mapping.Add("Pickup", "food_orange");
-                mapping.Add("Pickup", "carrot_invincibility");
-                mapping.Add("Pickup", "food_peach");
-                mapping.Add("Pickup", "food_pear");
-                mapping.Add("Pickup", "food_soda");
-                mapping.Add("Pickup", "food_pie");
-                mapping.Add("Pickup", "food_pizza");
-                mapping.Add("Pickup", "potion");
-                mapping.Add("Pickup", "food_pretzel");
-                mapping.Add("Pickup", "food_sandwich");
-                mapping.Add("Pickup", "food_strawberry");
-                mapping.Add("Pickup", "carrot_full");
-                mapping.Add("Object", "powerup_upgrade_blaster_spaz");
-                mapping.Add("Pickup", "coin_silver");
-                mapping.Add("Unknown", "green_blast_thing_2");
-                mapping.Add("Common", "generator");
-                mapping.Add("Pickup", "stopwatch");
-                mapping.Add("Pickup", "food_taco");
-                mapping.Add("Pickup", "food_thing");
-                mapping.Add("Object", "tnt");
-                mapping.Add("Pickup", "food_hotdog");
-                mapping.Add("Pickup", "food_watermelon");
-                mapping.Add("Object", "container_crate_shrapnel_1");
-                mapping.Add("Object", "container_crate_shrapnel_2");
+                m.Add("Pickup", "airboard");
+                m.Add("Pickup", "coin_gold");
+                m.Add("Pickup", "food_grapes");
+                m.Add("Pickup", "food_ham");
+                m.Add("Pickup", "carrot_fly");
+                m.Add("UI", "heart", skipNormalMap: true);
+                m.Add("Pickup", "freeze_enemies");
+                m.Add("Pickup", "food_ice_cream");
+                m.Add("Common", "ice_break_shrapnel_1");
+                m.Add("Common", "ice_break_shrapnel_2");
+                m.Add("Common", "ice_break_shrapnel_3");
+                m.Add("Common", "ice_break_shrapnel_4");
+                m.Add("Pickup", "food_lemon");
+                m.Add("Pickup", "food_lettuce");
+                m.Add("Pickup", "food_lime");
+                m.Add("Object", "powerup_shield_lightning");
+                m.Add("Object", "TriggerCrate");
+                m.Add("Pickup", "food_milk");
+                m.Add("Object", "crate_ammo_bouncer");
+                m.Add("Object", "crate_ammo_freezer");
+                m.Add("Object", "crate_ammo_seeker");
+                m.Add("Object", "crate_ammo_rf");
+                m.Add("Object", "crate_ammo_toaster");
+                m.Add("Object", "crate_ammo_tnt");
+                m.Add("Object", "powerup_upgrade_blaster_jazz");
+                m.Add("Object", "powerup_upgrade_bouncer");
+                m.Add("Object", "powerup_upgrade_freezer");
+                m.Add("Object", "powerup_upgrade_seeker");
+                m.Add("Object", "powerup_upgrade_rf");
+                m.Add("Object", "powerup_upgrade_toaster");
+                m.Add("Object", "powerup_upgrade_pepper");
+                m.Add("Object", "powerup_upgrade_electro");
+                m.Add("Object", "powerup_transform_birdy");
+                m.Add("Object", "powerup_transform_birdy_yellow");
+                m.Add("Object", "powerup_swap_characters");
+                m.Add("Pickup", "food_orange");
+                m.Add("Pickup", "carrot_invincibility");
+                m.Add("Pickup", "food_peach");
+                m.Add("Pickup", "food_pear");
+                m.Add("Pickup", "food_soda");
+                m.Add("Pickup", "food_pie");
+                m.Add("Pickup", "food_pizza");
+                m.Add("Pickup", "potion");
+                m.Add("Pickup", "food_pretzel");
+                m.Add("Pickup", "food_sandwich");
+                m.Add("Pickup", "food_strawberry");
+                m.Add("Pickup", "carrot_full");
+                m.Add("Object", "powerup_upgrade_blaster_spaz");
+                m.Add("Pickup", "coin_silver");
+                m.Add("Unknown", "green_blast_thing_2");
+                m.Add("Common", "generator");
+                m.Add("Pickup", "stopwatch");
+                m.Add("Pickup", "food_taco");
+                m.Add("Pickup", "food_thing");
+                m.Add("Object", "tnt");
+                m.Add("Pickup", "food_hotdog");
+                m.Add("Pickup", "food_watermelon");
+                m.Add("Object", "container_crate_shrapnel_1");
+                m.Add("Object", "container_crate_shrapnel_2");
 
                 if (isFull) {
-                    mapping.NextSet();
-                    mapping.Add("Pinball", "Bumper500");
-                    mapping.Add("Pinball", "Bumper500Hit");
-                    mapping.Add("Pinball", "BumperCarrot");
-                    mapping.Add("Pinball", "BumperCarrotHit");
+                    m.NextSet();
+                    m.Add("Pinball", "Bumper500");
+                    m.Add("Pinball", "Bumper500Hit");
+                    m.Add("Pinball", "BumperCarrot");
+                    m.Add("Pinball", "BumperCarrotHit");
 
-                    mapping.Add("Pinball", "PaddleLeft", addBorder: 1);
+                    m.Add("Pinball", "PaddleLeft", addBorder: 1);
                     //mapping.Add("Pinball", "PaddleRight", JJ2DefaultPalette.ByIndex);
-                    mapping.DiscardItems(1);
+                    m.DiscardItems(1);
 
-                    mapping.NextSet();
-                    mapping.Add("Platform", "lab");
-                    mapping.Add("Platform", "lab_chain");
+                    m.NextSet();
+                    m.Add("Platform", "lab");
+                    m.Add("Platform", "lab_chain");
 
-                    mapping.NextSet();
-                    mapping.Add("Pole", "Psych");
+                    m.NextSet();
+                    m.Add("Pole", "Psych");
 
-                    mapping.NextSet();
-                    mapping.Add("Queen", "scream");
-                    mapping.Add("Queen", "ledge");
-                    mapping.Add("Queen", "ledge_recover");
-                    mapping.Add("Queen", "idle");
-                    mapping.Add("Queen", "brick");
-                    mapping.Add("Queen", "fall");
-                    mapping.Add("Queen", "stomp");
-                    mapping.Add("Queen", "backstep");
+                    m.NextSet();
+                    m.Add("Queen", "scream");
+                    m.Add("Queen", "ledge");
+                    m.Add("Queen", "ledge_recover");
+                    m.Add("Queen", "idle");
+                    m.Add("Queen", "brick");
+                    m.Add("Queen", "fall");
+                    m.Add("Queen", "stomp");
+                    m.Add("Queen", "backstep");
 
-                    mapping.NextSet();
-                    mapping.Add("Rapier", "attack");
-                    mapping.Add("Rapier", "attack_swing");
-                    mapping.Add("Rapier", "idle");
-                    mapping.Add("Rapier", "attack_start");
-                    mapping.Add("Rapier", "attack_end");
+                    m.NextSet();
+                    m.Add("Rapier", "attack");
+                    m.Add("Rapier", "attack_swing");
+                    m.Add("Rapier", "idle");
+                    m.Add("Rapier", "attack_start");
+                    m.Add("Rapier", "attack_end");
 
-                    mapping.NextSet();
-                    mapping.Add("Raven", "Attack");
-                    mapping.Add("Raven", "Idle");
-                    mapping.Add("Raven", "Turn");
+                    m.NextSet();
+                    m.Add("Raven", "Attack");
+                    m.Add("Raven", "Idle");
+                    m.Add("Raven", "Turn");
 
-                    mapping.NextSet();
-                    mapping.Add("Robot", "spike_ball");
-                    mapping.Add("Robot", "attack_start");
-                    mapping.Add("Robot", "attack");
-                    mapping.Add("Robot", "copter");
-                    mapping.Add("Robot", "idle");
-                    mapping.Add("Robot", "attack_end");
-                    mapping.Add("Robot", "shrapnel_1");
-                    mapping.Add("Robot", "shrapnel_2");
-                    mapping.Add("Robot", "shrapnel_3");
-                    mapping.Add("Robot", "shrapnel_4");
-                    mapping.Add("Robot", "shrapnel_5");
-                    mapping.Add("Robot", "shrapnel_6");
-                    mapping.Add("Robot", "shrapnel_7");
-                    mapping.Add("Robot", "shrapnel_8");
-                    mapping.Add("Robot", "shrapnel_9");
-                    mapping.Add("Robot", "run");
-                    mapping.Add("Robot", "copter_start");
-                    mapping.Add("Robot", "copter_end");
+                    m.NextSet();
+                    m.Add("Robot", "spike_ball");
+                    m.Add("Robot", "attack_start");
+                    m.Add("Robot", "attack");
+                    m.Add("Robot", "copter");
+                    m.Add("Robot", "idle");
+                    m.Add("Robot", "attack_end");
+                    m.Add("Robot", "shrapnel_1");
+                    m.Add("Robot", "shrapnel_2");
+                    m.Add("Robot", "shrapnel_3");
+                    m.Add("Robot", "shrapnel_4");
+                    m.Add("Robot", "shrapnel_5");
+                    m.Add("Robot", "shrapnel_6");
+                    m.Add("Robot", "shrapnel_7");
+                    m.Add("Robot", "shrapnel_8");
+                    m.Add("Robot", "shrapnel_9");
+                    m.Add("Robot", "run");
+                    m.Add("Robot", "copter_start");
+                    m.Add("Robot", "copter_end");
 
-                    mapping.NextSet();
-                    mapping.Add("Object", "rolling_rock");
+                    m.NextSet();
+                    m.Add("Object", "rolling_rock");
 
-                    mapping.NextSet(); // set 80 (1.24) / set 76 (1.23)
-                    mapping.Add("TurtleRocket", "downright");
-                    mapping.Add("TurtleRocket", "upright");
-                    mapping.Add("TurtleRocket", "smoke");
-                    mapping.Add("TurtleRocket", "upright_to_downright");
+                    m.NextSet(); // set 80 (1.24) / set 76 (1.23)
+                    m.Add("TurtleRocket", "downright");
+                    m.Add("TurtleRocket", "upright");
+                    m.Add("TurtleRocket", "smoke");
+                    m.Add("TurtleRocket", "upright_to_downright");
 
-                    mapping.NextSet(3);
-                    mapping.Add("Skeleton", "Bone");
-                    mapping.Add("Skeleton", "Skull");
-                    mapping.Add("Skeleton", "Walk");
+                    m.NextSet(3);
+                    m.Add("Skeleton", "Bone");
+                    m.Add("Skeleton", "Skull");
+                    m.Add("Skeleton", "Walk");
                 } else {
-                    mapping.NextSet();
+                    m.NextSet();
                 }
 
-                mapping.NextSet();
-                mapping.Add("Pole", "DiamondusTree");
+                m.NextSet();
+                m.Add("Pole", "DiamondusTree");
 
                 if (isFull) {
-                    mapping.NextSet();
-                    mapping.Add("Common", "Snow", JJ2DefaultPalette.Snow);
+                    m.NextSet();
+                    m.Add("Common", "Snow", JJ2DefaultPalette.Snow);
 
-                    mapping.NextSet();
-                    mapping.Add("Bolly", "rocket");
-                    mapping.Add("Bolly", "mace_chain");
-                    mapping.Add("Bolly", "bottom");
-                    mapping.Add("Bolly", "top");
-                    mapping.Add("Bolly", "puff");
-                    mapping.Add("Bolly", "mace");
-                    mapping.Add("Bolly", "turret");
-                    mapping.Add("Bolly", "crosshairs");
-                    mapping.NextSet();
-                    mapping.Add("Platform", "sonic");
-                    mapping.Add("Platform", "sonic_chain");
-                    mapping.NextSet();
-                    mapping.Add("Sparks", "idle");
+                    m.NextSet();
+                    m.Add("Bolly", "rocket");
+                    m.Add("Bolly", "mace_chain");
+                    m.Add("Bolly", "bottom");
+                    m.Add("Bolly", "top");
+                    m.Add("Bolly", "puff");
+                    m.Add("Bolly", "mace");
+                    m.Add("Bolly", "turret");
+                    m.Add("Bolly", "crosshairs");
+                    m.NextSet();
+                    m.Add("Platform", "sonic");
+                    m.Add("Platform", "sonic_chain");
+                    m.NextSet();
+                    m.Add("Sparks", "idle");
                 }
 
-                mapping.NextSet();
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_unknown_disoriented");
-                mapping.Add("Spaz", "airboard");
-                mapping.Add("Spaz", "airboard_turn");
-                mapping.Add("Spaz", "buttstomp_end");
-                mapping.Add("Spaz", "corpse");
-                mapping.Add("Spaz", "die");
-                mapping.Add("Spaz", "crouch_start");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "crouch_shoot_2");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Spaz", "crouch");
-                mapping.Add("Spaz", "crouch_shoot");
-                mapping.Add("Spaz", "crouch_end");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_door_enter");
-                mapping.Add("Spaz", "vine_walk");
-                mapping.Add("Spaz", "eol");
-                mapping.Add("Spaz", "fall");
-                mapping.Add("Spaz", "buttstomp");
-                mapping.Add("Spaz", "fall_end");
-                mapping.Add("Spaz", "shoot");
-                mapping.Add("Spaz", "shoot_ver");
-                mapping.Add("Spaz", "shoot_end");
-                mapping.Add("Spaz", "transform_frog_end");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_ledge_climb");
-                mapping.Add("Spaz", "vine_shoot_start");
-                mapping.Add("Spaz", "vine_shoot_up_end");
-                mapping.Add("Spaz", "vine_shoot_up");
-                mapping.Add("Spaz", "vine_idle");
-                mapping.Add("Spaz", "vine_idle_flavor");
-                mapping.Add("Spaz", "vine_shoot_end");
-                mapping.Add("Spaz", "vine_shoot");
-                mapping.Add("Spaz", "copter");
-                mapping.Add("Spaz", "copter_shoot_start");
-                mapping.Add("Spaz", "copter_shoot");
-                mapping.Add("Spaz", "pole_h");
-                mapping.Add("Spaz", "hurt");
-                mapping.Add("Spaz", "idle_flavor_1");
-                mapping.Add("Spaz", "idle_flavor_2");
-                mapping.Add("Spaz", "idle_flavor_3_placeholder");
-                mapping.Add("Spaz", "idle_flavor_4");
-                mapping.Add("Spaz", "idle_flavor_5");
-                mapping.Add("Spaz", "vine_shoot_up_start");
-                mapping.Add("Spaz", "fall_shoot");
-                mapping.Add("Spaz", "jump_unknown_1");
-                mapping.Add("Spaz", "jump_unknown_2");
-                mapping.Add("Spaz", "jump");
-                mapping.Add("Spaz", "ledge");
-                mapping.Add("Spaz", "lift");
-                mapping.Add("Spaz", "lift_jump_light");
-                mapping.Add("Spaz", "lift_jump_heavy");
-                mapping.Add("Spaz", "lookup_start");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_run_diag_upright");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_run_ver_up");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_run_diag_upleft_reverse");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_run_reverse");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_run_diag_downleft_reverse");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_run_ver_down");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_run_diag_downright");
-                mapping.Add("Spaz", "dizzy_walk");
-                mapping.Add("Spaz", "push");
-                mapping.Add("Spaz", "shoot_start");
-                mapping.Add("Spaz", "revup_start");
-                mapping.Add("Spaz", "revup");
-                mapping.Add("Spaz", "revup_end");
-                mapping.Add("Spaz", "fall_diag");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_unknown_mid_frame");
-                mapping.Add("Spaz", "jump_diag");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_jump_shoot_end");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_jump_shoot_ver_start");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_jump_shoot_ver");
-                mapping.Add("Spaz", "ball");
-                mapping.Add("Spaz", "run");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_run_aim_diag");
-                mapping.Add("Spaz", "dash_start");
-                mapping.Add("Spaz", "dash");
-                mapping.Add("Spaz", "dash_stop");
-                mapping.Add("Spaz", "walk_stop");
-                mapping.Add("Spaz", "run_stop");
-                mapping.Add("Spaz", "Spring");
-                mapping.Add("Spaz", "idle");
-                mapping.Add("Spaz", "sidekick");
-                mapping.Add("Spaz", "sidekick_end");
-                mapping.Add("Spaz", "sidekick_start");
-                mapping.Add("Spaz", "dizzy");
-                mapping.Add("Spaz", "swim_diag_downright");
-                mapping.Add("Spaz", "swim_right");
-                mapping.Add("Spaz", "swim_diag_right_to_downright");
-                mapping.Add("Spaz", "swim_diag_right_to_upright");
-                mapping.Add("Spaz", "swim_diag_upright");
-                mapping.Add("Spaz", "swing");
-                mapping.Add("Spaz", "warp_in");
-                mapping.Add("Spaz", "warp_out_freefall");
-                mapping.Add("Spaz", "freefall");
-                mapping.Add("Spaz", "warp_in_freefall");
-                mapping.Add("Spaz", "warp_out");
-                mapping.Add("Spaz", "pole_v");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_unarmed_crouch_start");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_unarmed_crouch_end");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_unarmed_fall");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_unarmed_hurt");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_unarmed_idle");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_unarmed_jump");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_unarmed_crouch_end_2");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_lookup_start");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_unarmed_run");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_unarmed_stare");
-                mapping.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_lookup_start_2");
-                mapping.NextSet(); // set 90 (1.24) / set 86 (1.23)
-                mapping.Add("Spaz", "idle_flavor_3_start");
-                mapping.Add("Spaz", "idle_flavor_3");
-                mapping.Add("Spaz", "idle_flavor_3_bird");
-                mapping.Add("Spaz", "idle_flavor_5_spaceship");
+                m.NextSet();
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_unknown_disoriented");
+                m.Add("Spaz", "airboard");
+                m.Add("Spaz", "airboard_turn");
+                m.Add("Spaz", "buttstomp_end");
+                m.Add("Spaz", "corpse");
+                m.Add("Spaz", "die");
+                m.Add("Spaz", "crouch_start");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "crouch_shoot_2");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Spaz", "crouch");
+                m.Add("Spaz", "crouch_shoot");
+                m.Add("Spaz", "crouch_end");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_door_enter");
+                m.Add("Spaz", "vine_walk");
+                m.Add("Spaz", "eol");
+                m.Add("Spaz", "fall");
+                m.Add("Spaz", "buttstomp");
+                m.Add("Spaz", "fall_end");
+                m.Add("Spaz", "shoot");
+                m.Add("Spaz", "shoot_ver");
+                m.Add("Spaz", "shoot_end");
+                m.Add("Spaz", "transform_frog_end");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_ledge_climb");
+                m.Add("Spaz", "vine_shoot_start");
+                m.Add("Spaz", "vine_shoot_up_end");
+                m.Add("Spaz", "vine_shoot_up");
+                m.Add("Spaz", "vine_idle");
+                m.Add("Spaz", "vine_idle_flavor");
+                m.Add("Spaz", "vine_shoot_end");
+                m.Add("Spaz", "vine_shoot");
+                m.Add("Spaz", "copter");
+                m.Add("Spaz", "copter_shoot_start");
+                m.Add("Spaz", "copter_shoot");
+                m.Add("Spaz", "pole_h");
+                m.Add("Spaz", "hurt");
+                m.Add("Spaz", "idle_flavor_1");
+                m.Add("Spaz", "idle_flavor_2");
+                m.Add("Spaz", "idle_flavor_3_placeholder");
+                m.Add("Spaz", "idle_flavor_4");
+                m.Add("Spaz", "idle_flavor_5");
+                m.Add("Spaz", "vine_shoot_up_start");
+                m.Add("Spaz", "fall_shoot");
+                m.Add("Spaz", "jump_unknown_1");
+                m.Add("Spaz", "jump_unknown_2");
+                m.Add("Spaz", "jump");
+                m.Add("Spaz", "ledge");
+                m.Add("Spaz", "lift");
+                m.Add("Spaz", "lift_jump_light");
+                m.Add("Spaz", "lift_jump_heavy");
+                m.Add("Spaz", "lookup_start");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_run_diag_upright");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_run_ver_up");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_run_diag_upleft_reverse");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_run_reverse");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_run_diag_downleft_reverse");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_run_ver_down");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_run_diag_downright");
+                m.Add("Spaz", "dizzy_walk");
+                m.Add("Spaz", "push");
+                m.Add("Spaz", "shoot_start");
+                m.Add("Spaz", "revup_start");
+                m.Add("Spaz", "revup");
+                m.Add("Spaz", "revup_end");
+                m.Add("Spaz", "fall_diag");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_unknown_mid_frame");
+                m.Add("Spaz", "jump_diag");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_jump_shoot_end");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_jump_shoot_ver_start");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_jump_shoot_ver");
+                m.Add("Spaz", "ball");
+                m.Add("Spaz", "run");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_run_aim_diag");
+                m.Add("Spaz", "dash_start");
+                m.Add("Spaz", "dash");
+                m.Add("Spaz", "dash_stop");
+                m.Add("Spaz", "walk_stop");
+                m.Add("Spaz", "run_stop");
+                m.Add("Spaz", "Spring");
+                m.Add("Spaz", "idle");
+                m.Add("Spaz", "sidekick");
+                m.Add("Spaz", "sidekick_end");
+                m.Add("Spaz", "sidekick_start");
+                m.Add("Spaz", "dizzy");
+                m.Add("Spaz", "swim_diag_downright");
+                m.Add("Spaz", "swim_right");
+                m.Add("Spaz", "swim_diag_right_to_downright");
+                m.Add("Spaz", "swim_diag_right_to_upright");
+                m.Add("Spaz", "swim_diag_upright");
+                m.Add("Spaz", "swing");
+                m.Add("Spaz", "warp_in");
+                m.Add("Spaz", "warp_out_freefall");
+                m.Add("Spaz", "freefall");
+                m.Add("Spaz", "warp_in_freefall");
+                m.Add("Spaz", "warp_out");
+                m.Add("Spaz", "pole_v");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_unarmed_crouch_start");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_unarmed_crouch_end");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_unarmed_fall");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_unarmed_hurt");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_unarmed_idle");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_unarmed_jump");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_unarmed_crouch_end_2");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_lookup_start");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_unarmed_run");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_unarmed_stare");
+                m.Add(JJ2Version.BaseGame | JJ2Version.HH, "Spaz", "unused_lookup_start_2");
+                m.NextSet(); // set 90 (1.24) / set 86 (1.23)
+                m.Add("Spaz", "idle_flavor_3_start");
+                m.Add("Spaz", "idle_flavor_3");
+                m.Add("Spaz", "idle_flavor_3_bird");
+                m.Add("Spaz", "idle_flavor_5_spaceship");
 
                 if (isFull) {
-                    mapping.NextSet();
-                    mapping.Add("Unimplemented", "bonus_spaz_idle_flavor");
-                    mapping.Add("Unimplemented", "bonus_spaz_jump");
-                    mapping.Add("Unimplemented", "bonus_spaz_ball");
-                    mapping.Add("Unimplemented", "bonus_spaz_run");
-                    mapping.Add("Unimplemented", "bonus_spaz_dash");
-                    mapping.Add("Unimplemented", "bonus_spaz_rotate");
-                    mapping.Add("Unimplemented", "bonus_spaz_idle");
+                    m.NextSet();
+                    m.Add("Unimplemented", "bonus_spaz_idle_flavor");
+                    m.Add("Unimplemented", "bonus_spaz_jump");
+                    m.Add("Unimplemented", "bonus_spaz_ball");
+                    m.Add("Unimplemented", "bonus_spaz_run");
+                    m.Add("Unimplemented", "bonus_spaz_dash");
+                    m.Add("Unimplemented", "bonus_spaz_rotate");
+                    m.Add("Unimplemented", "bonus_spaz_idle");
 
-                    mapping.NextSet(2);
-                    mapping.Add("Object", "3d_spike");
-                    mapping.Add("Object", "3d_spike_chain");
+                    m.NextSet(2);
+                    m.Add("Object", "3d_spike");
+                    m.Add("Object", "3d_spike_chain");
 
-                    mapping.NextSet();
+                    m.NextSet();
                     //mapping.Add("Object", "3d_spike_2");
                     //mapping.Add("Object", "3d_spike_2_chain");
-                    mapping.DiscardItems(2);
+                    m.DiscardItems(2);
 
-                    mapping.NextSet();
-                    mapping.Add("Platform", "spike");
-                    mapping.Add("Platform", "spike_chain");
+                    m.NextSet();
+                    m.Add("Platform", "spike");
+                    m.Add("Platform", "spike_chain");
                 } else {
-                    mapping.NextSet();
+                    m.NextSet();
                 }
 
-                mapping.NextSet();
-                mapping.Add("Spring", "spring_blue_ver");
-                mapping.Add("Spring", "spring_blue_hor");
-                mapping.Add("Spring", "spring_blue_ver_reverse");
-                mapping.Add("Spring", "spring_green_ver_reverse");
-                mapping.Add("Spring", "spring_red_ver_reverse");
-                mapping.Add("Spring", "spring_green_ver");
-                mapping.Add("Spring", "spring_green_hor");
-                mapping.Add("Spring", "spring_red_ver");
-                mapping.Add("Spring", "spring_red_hor");
+                m.NextSet();
+                m.Add("Spring", "spring_blue_ver");
+                m.Add("Spring", "spring_blue_hor");
+                m.Add("Spring", "spring_blue_ver_reverse");
+                m.Add("Spring", "spring_green_ver_reverse");
+                m.Add("Spring", "spring_red_ver_reverse");
+                m.Add("Spring", "spring_green_ver");
+                m.Add("Spring", "spring_green_hor");
+                m.Add("Spring", "spring_red_ver");
+                m.Add("Spring", "spring_red_hor");
 
-                mapping.NextSet();
-                mapping.Add("Common", "SteamNote");
+                m.NextSet();
+                m.Add("Common", "SteamNote");
 
                 if (isFull) {
-                    mapping.NextSet();
+                    m.NextSet();
                 }
 
-                mapping.NextSet();
-                mapping.Add("Sucker", "walk_top");
-                mapping.Add("Sucker", "inflated_deflate");
-                mapping.Add("Sucker", "walk_ver_down");
-                mapping.Add("Sucker", "fall");
-                mapping.Add("Sucker", "inflated");
-                mapping.Add("Sucker", "poof");
-                mapping.Add("Sucker", "walk");
-                mapping.Add("Sucker", "walk_ver_up");
+                m.NextSet();
+                m.Add("Sucker", "walk_top");
+                m.Add("Sucker", "inflated_deflate");
+                m.Add("Sucker", "walk_ver_down");
+                m.Add("Sucker", "fall");
+                m.Add("Sucker", "inflated");
+                m.Add("Sucker", "poof");
+                m.Add("Sucker", "walk");
+                m.Add("Sucker", "walk_ver_up");
 
                 if (isFull) {
-                    mapping.NextSet(); // set 100 (1.24) / set 96 (1.23)
-                    mapping.Add("TurtleTube", "Idle");
+                    m.NextSet(); // set 100 (1.24) / set 96 (1.23)
+                    m.Add("TurtleTube", "Idle");
 
-                    mapping.NextSet();
-                    mapping.Add("TurtleToughBoss", "attack_start");
-                    mapping.Add("TurtleToughBoss", "attack_end");
-                    mapping.Add("TurtleToughBoss", "shell");
-                    mapping.Add("TurtleToughBoss", "mace");
-                    mapping.Add("TurtleToughBoss", "idle");
-                    mapping.Add("TurtleToughBoss", "walk");
+                    m.NextSet();
+                    m.Add("TurtleToughBoss", "attack_start");
+                    m.Add("TurtleToughBoss", "attack_end");
+                    m.Add("TurtleToughBoss", "shell");
+                    m.Add("TurtleToughBoss", "mace");
+                    m.Add("TurtleToughBoss", "idle");
+                    m.Add("TurtleToughBoss", "walk");
 
-                    mapping.NextSet();
-                    mapping.Add("TurtleTough", "Walk");
+                    m.NextSet();
+                    m.Add("TurtleTough", "Walk");
                 }
 
-                mapping.NextSet();
-                mapping.Add("Turtle", "attack");
-                mapping.Add("Turtle", "idle_flavor");
-                mapping.Add("Turtle", "turn_start");
-                mapping.Add("Turtle", "turn_end");
-                mapping.Add("Turtle", "shell_reverse");
-                mapping.Add("Turtle", "shell");
-                mapping.Add("Turtle", "idle");
-                mapping.Add("Turtle", "walk");
+                m.NextSet();
+                m.Add("Turtle", "attack");
+                m.Add("Turtle", "idle_flavor");
+                m.Add("Turtle", "turn_start");
+                m.Add("Turtle", "turn_end");
+                m.Add("Turtle", "shell_reverse");
+                m.Add("Turtle", "shell");
+                m.Add("Turtle", "idle");
+                m.Add("Turtle", "walk");
 
                 if (isFull) {
-                    mapping.NextSet();
-                    mapping.Add("Tweedle", "magnet_start");
-                    mapping.Add("Tweedle", "spin");
-                    mapping.Add("Tweedle", "magnet_end");
-                    mapping.Add("Tweedle", "shoot_jazz");
-                    mapping.Add("Tweedle", "shoot_spaz");
-                    mapping.Add("Tweedle", "hurt");
-                    mapping.Add("Tweedle", "idle");
-                    mapping.Add("Tweedle", "magnet");
-                    mapping.Add("Tweedle", "walk");
+                    m.NextSet();
+                    m.Add("Tweedle", "magnet_start");
+                    m.Add("Tweedle", "spin");
+                    m.Add("Tweedle", "magnet_end");
+                    m.Add("Tweedle", "shoot_jazz");
+                    m.Add("Tweedle", "shoot_spaz");
+                    m.Add("Tweedle", "hurt");
+                    m.Add("Tweedle", "idle");
+                    m.Add("Tweedle", "magnet");
+                    m.Add("Tweedle", "walk");
 
-                    mapping.NextSet();
-                    mapping.Add("Uterus", "closed_start");
-                    mapping.Add("Uterus", "crab_spawn");
-                    mapping.Add("Uterus", "closed_idle");
-                    mapping.Add("Uterus", "idle");
-                    mapping.Add("Crab", "fall_end");
-                    mapping.Add("Uterus", "closed_end");
-                    mapping.Add("Uterus", "shield");
-                    mapping.Add("Crab", "walk");
+                    m.NextSet();
+                    m.Add("Uterus", "closed_start");
+                    m.Add("Uterus", "crab_spawn");
+                    m.Add("Uterus", "closed_idle");
+                    m.Add("Uterus", "idle");
+                    m.Add("Crab", "fall_end");
+                    m.Add("Uterus", "closed_end");
+                    m.Add("Uterus", "shield");
+                    m.Add("Crab", "walk");
 
-                    mapping.NextSet();
-                    mapping.DiscardItems(1); // Red dot
+                    m.NextSet();
+                    m.DiscardItems(1); // Red dot
 
-                    mapping.Add("Object", "vine");
-                    mapping.NextSet();
-                    mapping.Add("Object", "Bonus10");
-                    mapping.NextSet();
-                    mapping.Add("Object", "Bonus100");
+                    m.Add("Object", "vine");
+                    m.NextSet();
+                    m.Add("Object", "Bonus10");
+                    m.NextSet();
+                    m.Add("Object", "Bonus100");
                 }
 
-                mapping.NextSet();
-                mapping.Add("Object", "Bonus20");
+                m.NextSet();
+                m.Add("Object", "Bonus20");
 
                 if (isFull) {
-                    mapping.NextSet(); // set 110 (1.24) / set 106 (1.23)
-                    mapping.Add("Object", "Bonus50");
+                    m.NextSet(); // set 110 (1.24) / set 106 (1.23)
+                    m.Add("Object", "Bonus50");
                 }
 
-                mapping.NextSet(2);
-                mapping.Add("Witch", "attack");
-                mapping.Add("Witch", "die");
-                mapping.Add("Witch", "idle");
-                mapping.Add("Witch", "bullet_magic");
+                m.NextSet(2);
+                m.Add("Witch", "attack");
+                m.Add("Witch", "die");
+                m.Add("Witch", "idle");
+                m.Add("Witch", "bullet_magic");
 
-                mapping.NextSet(1, JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH);
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Bilsy", "xmas_throw_fireball");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Bilsy", "xmas_appear");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Bilsy", "xmas_vanish");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Bilsy", "xmas_bullet_fireball");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Bilsy", "xmas_idle");
-                mapping.NextSet(1, JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH);
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Lizard", "xmas_copter_attack");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Lizard", "xmas_bomb");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Lizard", "xmas_copter_idle");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Lizard", "xmas_copter");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Lizard", "xmas_walk");
-                mapping.NextSet(1, JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH);
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Turtle", "xmas_attack");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Turtle", "xmas_idle_flavor");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Turtle", "xmas_turn_start");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Turtle", "xmas_turn_end");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Turtle", "xmas_shell_reverse");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Turtle", "xmas_shell");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Turtle", "xmas_idle");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Turtle", "xmas_walk");
-                mapping.NextSet(1, JJ2Version.TSF | JJ2Version.CC);
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Doggy", "xmas_attack");
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Doggy", "xmas_walk");
-                mapping.NextSet(1, JJ2Version.TSF | JJ2Version.CC);
-                mapping.Add(JJ2Version.TSF | JJ2Version.CC, "Sparks", "ghost_idle");
+                m.NextSet(1, JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH);
+                m.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Bilsy", "xmas_throw_fireball");
+                m.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Bilsy", "xmas_appear");
+                m.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Bilsy", "xmas_vanish");
+                m.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Bilsy", "xmas_bullet_fireball");
+                m.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Bilsy", "xmas_idle");
+                m.NextSet(1, JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH);
+                m.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Lizard", "xmas_copter_attack");
+                m.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Lizard", "xmas_bomb");
+                m.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Lizard", "xmas_copter_idle");
+                m.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Lizard", "xmas_copter");
+                m.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Lizard", "xmas_walk");
+                m.NextSet(1, JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH);
+                m.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Turtle", "xmas_attack");
+                m.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Turtle", "xmas_idle_flavor");
+                m.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Turtle", "xmas_turn_start");
+                m.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Turtle", "xmas_turn_end");
+                m.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Turtle", "xmas_shell_reverse");
+                m.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Turtle", "xmas_shell");
+                m.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Turtle", "xmas_idle");
+                m.Add(JJ2Version.TSF | JJ2Version.CC | JJ2Version.HH, "Turtle", "xmas_walk");
+                m.NextSet(1, JJ2Version.TSF | JJ2Version.CC);
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Doggy", "xmas_attack");
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Doggy", "xmas_walk");
+                m.NextSet(1, JJ2Version.TSF | JJ2Version.CC);
+                m.Add(JJ2Version.TSF | JJ2Version.CC, "Sparks", "ghost_idle");
             }
 
-            return mapping;
+            return m;
         }
 
         public static AnimSetMapping GetSampleMapping(JJ2Version version)
@@ -1957,10 +1957,9 @@ namespace Jazz2.Compatibility
         }
 
 
-        //private MappingType type;
         private JJ2Version version;
         private int currentItem, currentSet;
-        private Dictionary<Pair<int, int>, Data> data = new Dictionary<Pair<int, int>, Data>();
+        private Dictionary<Pair<int, int>, Entry> entries = new Dictionary<Pair<int, int>, Entry>();
 
         public AnimSetMapping(JJ2Version version)
         {
@@ -1971,7 +1970,7 @@ namespace Jazz2.Compatibility
         {
             if ((version & appliesTo) != 0) {
                 for (int i = 0; i < advanceBy; i++) {
-                    data.Add(Pair.Create(currentSet, currentItem), new Data {
+                    entries.Add(Pair.Create(currentSet, currentItem), new Entry {
                         Category = Discard
                     });
                     currentItem++;
@@ -1994,7 +1993,7 @@ namespace Jazz2.Compatibility
 
         private void Add(JJ2Version appliesTo, string category, string name, Color[] palette = null, bool skipNormalMap = false, int addBorder = 0, bool allowRealtimePalette = false) {
             if ((version & appliesTo) != 0) {
-                data.Add(Pair.Create(currentSet, currentItem), new Data {
+                entries.Add(Pair.Create(currentSet, currentItem), new Entry {
                     Category = category,
                     Name = name,
                     Palette = palette,
@@ -2008,7 +2007,7 @@ namespace Jazz2.Compatibility
 
         private void Add(string category, string name, Color[] palette = null, bool skipNormalMap = false, int addBorder = 0, bool allowRealtimePalette = false)
         {
-            data.Add(Pair.Create(currentSet, currentItem), new Data {
+            entries.Add(Pair.Create(currentSet, currentItem), new Entry {
                 Category = category,
                 Name = name,
                 Palette = palette,
@@ -2019,11 +2018,11 @@ namespace Jazz2.Compatibility
             currentItem++;
         }
 
-        public Data Get(int set, int item)
+        public Entry Get(int set, int item)
         {
-            Data result;
-            if (!data.TryGetValue(Pair.Create(set, item), out result)) {
-                result = new Data();
+            Entry result;
+            if (!entries.TryGetValue(Pair.Create(set, item), out result)) {
+                result = new Entry();
             }
             return result;
         }

@@ -98,8 +98,8 @@ namespace Jazz2.Compatibility
 
         private Dictionary<JJ2Event, int> unsupportedEvents;
 
-        public ushort MaxSupportedTiles => (ushort)(version == JJ2Version.BaseGame ? 1024 : 4096);
-        public ushort MaxSupportedAnims => (ushort)(version == JJ2Version.BaseGame ? 128 : 256);
+        public int MaxSupportedTiles => (version == JJ2Version.BaseGame ? 1024 : 4096);
+        public int MaxSupportedAnims => (version == JJ2Version.BaseGame ? 128 : 256);
 
         public string CurrentLevelToken => levelToken;
 
@@ -362,14 +362,14 @@ namespace Jazz2.Compatibility
             }
 
             ref TileEventSection lastTileEvent = ref events[events.Length - 1];
-            if (lastTileEvent.EventType == JJ2Event.JJ2_EMPTY_255 /*MCE Event*/) {
+            if (lastTileEvent.EventType == JJ2Event.EMPTY_255 /*MCE Event*/) {
                 hasPit = true;
             }
 
             for (int i = 0; i < events.Length; i++) {
-                if (events[i].EventType == JJ2Event.JJ2_CTF_BASE) {
+                if (events[i].EventType == JJ2Event.CTF_BASE) {
                     hasCTF = true;
-                } else if (events[i].EventType == JJ2Event.JJ2_WARP_ORIGIN) {
+                } else if (events[i].EventType == JJ2Event.WARP_ORIGIN) {
                     if (((events[i].TileParams >> 16) & 1) == 1) {
                         hasLaps = true;
                     }
@@ -646,7 +646,7 @@ namespace Jazz2.Compatibility
             using (DeflateStream deflate = new DeflateStream(s, CompressionLevel.Optimal))
             using (BinaryWriter w = new BinaryWriter(deflate)) {
 
-                ushort maxTiles = MaxSupportedTiles;
+                ushort maxTiles = (ushort)MaxSupportedTiles;
                 ushort lastTilesetTileIndex = (ushort)(maxTiles - animCount);
 
                 w.Write(layer.Width);
@@ -724,7 +724,8 @@ namespace Jazz2.Compatibility
                         JJ2Event eventType;
                         int generatorDelay;
                         byte generatorFlags;
-                        if (tileEvent.EventType == JJ2Event.JJ2_MODIFIER_GENERATOR) {
+                        if (tileEvent.EventType == JJ2Event.MODIFIER_GENERATOR) {
+                            // Generators are converted differently
                             ushort[] eventParams = ConvertParamInt(tileEvent.TileParams,
                                 Pair.Create(JJ2EventParamType.UInt, 8),  // Event
                                 Pair.Create(JJ2EventParamType.UInt, 8),  // Delay
@@ -739,9 +740,10 @@ namespace Jazz2.Compatibility
                             generatorFlags = 0;
                         }
 
-                        ConversionResult converted = EventConverter.Convert(this, eventType, tileEvent.TileParams);
+                        ConversionResult converted = EventConverter.TryConvert(this, eventType, tileEvent.TileParams);
 
-                        if (eventType != JJ2Event.JJ2_EMPTY && converted.eventType == EventType.Empty) {
+                        // If the event is unsupported or can't be converted, add it to warning list
+                        if (eventType != JJ2Event.EMPTY && converted.eventType == EventType.Empty) {
                             int count;
                             unsupportedEvents.TryGetValue(eventType, out count);
                             unsupportedEvents[eventType] = (count + 1);
@@ -784,7 +786,7 @@ namespace Jazz2.Compatibility
 
         private unsafe void WriteAnimatedTiles(string filename)
         {
-            ushort maxTiles = MaxSupportedTiles;
+            ushort maxTiles = (ushort)MaxSupportedTiles;
             ushort lastTilesetTileIndex = (ushort)(maxTiles - animCount);
 
             using (Stream s = File.Create(filename))

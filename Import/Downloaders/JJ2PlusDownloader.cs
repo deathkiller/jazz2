@@ -2,7 +2,6 @@
 using System.IO;
 using System.IO.Compression;
 using System.Net;
-using System.Threading;
 using Jazz2;
 using Jazz2.Compatibility;
 
@@ -52,24 +51,10 @@ namespace Import.Downloaders
                 Log.Write(LogType.Error, ex.ToString());
             } finally {
                 // Try to delete downloaded ZIP file
-                for (int i = 0; i < 5; i++) {
-                    try {
-                        File.Delete(zipFile);
-                        break;
-                    } catch {
-                        Thread.Sleep(100);
-                    }
-                }
+                Utils.FileTryDelete(zipFile);
 
                 // Try to delete extracted files
-                for (int i = 0; i < 5; i++) {
-                    try {
-                        Directory.Delete(tempDir, true);
-                        break;
-                    } catch {
-                        Thread.Sleep(100);
-                    }
-                }
+                Utils.DirectoryTryDelete(tempDir, true);
             }
 
             Log.PopIndent();

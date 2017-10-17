@@ -72,7 +72,6 @@ namespace Import
                             return;
                         }
 #endif
-
                         if (!Directory.Exists(args[i]) && File.Exists(args[i])) {
                             args[i] = Path.GetDirectoryName(args[i]);
                         }
@@ -387,7 +386,8 @@ namespace Import
                 ["roe2"] = Tuple.Create("Resurrection of Evil 2", "01_roe_2"),
             };
 
-            Func<string, JJ2Level.LevelToken> levelTokenConversion = levelToken => {
+            JJ2Level.LevelToken LevelTokenConversion(string levelToken)
+            {
                 levelToken = levelToken.ToLower(CultureInfo.InvariantCulture).Replace(" ", "_").Replace("\"", "").Replace("'", "");
 
                 Tuple<string, string> knownLevel;
@@ -406,9 +406,10 @@ namespace Import
                 return new JJ2Level.LevelToken {
                     Level = levelToken
                 };
-            };
+            }
 
-            Func<JJ2Episode, string> episodeNameConversion = episode => {
+            string EpisodeNameConversion(JJ2Episode episode)
+            {
                 if (episode.Token == "share" && episode.Name == "#Shareware@Levels") {
                     return "Shareware Demo";
                 } else if (episode.Token == "xmas98" && episode.Name == "#Xmas 98@Levels") {
@@ -421,10 +422,11 @@ namespace Import
                     // @ is new line, # is random color
                     return episode.Name.Replace("#", "").Replace("@", " ");
                 }
-            };
+            }
 
             // Previous/Next Episode mapping
-            Func<JJ2Episode, Tuple<string, string>> episodePrevNext = episode => {
+            Tuple<string, string> EpisodePrevNext(JJ2Episode episode)
+            {
                 if (episode.Token == "prince") {
                     return Tuple.Create((string)null, "rescue");
                 } else if (episode.Token == "rescue") {
@@ -436,9 +438,9 @@ namespace Import
                 } else {
                     return Tuple.Create((string)null, (string)null);
                 }
-            };
+            }
 
-            Dictionary<EventConverter.JJ2Event, int> unsupportedEventsStats = new Dictionary<EventConverter.JJ2Event, int>();
+            Dictionary<JJ2Event, int> unsupportedEventsStats = new Dictionary<JJ2Event, int>();
 
             Directory.CreateDirectory(Path.Combine(targetPath, "Content", "Episodes"));
 
@@ -451,7 +453,7 @@ namespace Import
 
                     string output = Path.Combine(targetPath, "Content", "Episodes", e.Token);
                     Directory.CreateDirectory(output);
-                    e.Convert(output, levelTokenConversion, episodeNameConversion, episodePrevNext);
+                    e.Convert(output, LevelTokenConversion, EpisodeNameConversion, EpisodePrevNext);
 
                     Log.Write(LogType.Info, "Episode \"" + e.Token + "\" (" + e.Name + ") converted.");
                 } catch (Exception ex) {
@@ -497,7 +499,7 @@ namespace Import
                     }
 
                     Directory.CreateDirectory(targetPathInner);
-                    l.Convert(targetPathInner, levelTokenConversion);
+                    l.Convert(targetPathInner, LevelTokenConversion);
 
                     if (l.UnsupportedEvents.Count > 0) {
                         Log.Write(LogType.Warning, "Level \"" + levelToken + "\"" + versionPart + " converted" + (isPlusEnhanced ? " without .j2as" : "") + " with " + l.UnsupportedEvents.Sum(i => i.Value) + " warnings.");
@@ -537,7 +539,7 @@ namespace Import
                 string output = Path.Combine(targetPath, "Content", "Episodes", episode.Key);
                 if (Directory.Exists(output)) {
                     JJ2Episode e = new JJ2Episode(episode.Key, episode.Value.Item1, episode.Value.Item2, 100);
-                    e.Convert(output, levelTokenConversion, episodeNameConversion, episodePrevNext);
+                    e.Convert(output, LevelTokenConversion, EpisodeNameConversion, EpisodePrevNext);
 
                     Log.Write(LogType.Info, "Custom episode \"" + e.Token + "\" (" + e.Name + ") created.");
                 }

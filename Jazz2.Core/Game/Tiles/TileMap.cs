@@ -43,7 +43,7 @@ namespace Jazz2.Game.Tiles
             );
 
             if (!tileset.IsValid) {
-                throw new InvalidDataException("Invalid tileset");
+                throw new InvalidDataException("Tileset is corrupted");
             }
 
             triggerState = new BitArray(TriggerCount);
@@ -69,13 +69,11 @@ namespace Jazz2.Game.Tiles
             using (Stream s = FileOp.Open(PathOp.Combine(path, layerName + ".layer"), FileAccessMode.Read))
             using (DeflateStream deflate = new DeflateStream(s, CompressionMode.Decompress))
             using (BinaryReader r = new BinaryReader(deflate)) {
-
                 int width = r.ReadInt32();
                 int height = r.ReadInt32();
 
                 TileMapLayer newLayer = new TileMapLayer();
                 newLayer.Index = layerIdx;
-                //newLayer.Type = type;
                 newLayer.Layout = new LayerTile[width * height];
 
                 for (int i = 0; i < newLayer.Layout.Length; i++) {
@@ -358,7 +356,7 @@ namespace Jazz2.Game.Tiles
             int rx = (int)x & 31;
             int ry = (int)y & 31;
 
-            // TODO: negative coordinates collides with bit-shifting
+            // ToDo: negative coordinates collides with bit-shifting
             if (ax < 0 || ay < 0 || ax >= levelWidth || ay >= levelHeight) {
                 return SuspendType.None;
             }

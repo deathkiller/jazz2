@@ -113,7 +113,7 @@ namespace Jazz2.Storage.Content
             this.size = size;
         }
 
-        public override System.IO.Stream GetStream()
+        public override Stream GetStream()
         {
             return new SourceStream(this);
         }

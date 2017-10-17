@@ -17,7 +17,6 @@ namespace Jazz2.Game.Events
         public delegate ActorBase SpawnFunction(ActorInstantiationFlags flags, float x, float y, float z, ushort[] spawnParams);
 
         private readonly ActorApi api;
-
         private Dictionary<EventType, SpawnFunction> spawnableEvents;
 
         public EventSpawner(ActorApi api)
@@ -160,12 +159,12 @@ namespace Jazz2.Game.Events
 
         public void RegisterSpawnable<T>(EventType type) where T : ActorBase, new()
         {
-            RegisterSpawnable(type, CreateCommonActorEvent<T>);
+            spawnableEvents.Add(type, CreateCommonActorEvent<T>);
         }
 
         public void RegisterSpawnable<T>(EventType type, params ushort[] spawnParams) where T : ActorBase, new()
         {
-            RegisterSpawnable(type, (fromEventMap, x, y, z, p) => {
+            spawnableEvents.Add(type, (fromEventMap, x, y, z, p) => {
                 return CreateCommonActorEvent<T>(fromEventMap, x, y, z, spawnParams);
             });
         }

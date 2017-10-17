@@ -27,7 +27,7 @@ namespace Jazz2.Compatibility
 
         public string Name => name;
 
-        public ushort MaxSupportedTiles => (ushort)(version == JJ2Version.BaseGame ? 1024 : 4096);
+        public int MaxSupportedTiles => (version == JJ2Version.BaseGame ? 1024 : 4096);
 
         public static JJ2Tileset Open(string path, bool strictParser)
         {
