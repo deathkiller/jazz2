@@ -66,47 +66,21 @@ namespace Jazz2.Actors
                 return;
             }
 
-            // Rewind the animation if it should be played only once
+            // Rewind the animation, if it should be played only once
             if (currentAnimation.OnlyOnce) {
                 renderer.AnimTime = 0f;
             }
 
             switch (currentWeapon) {
-                case WeaponType.Blaster:
-                    FireWeaponBlaster();
-                    break;
-
-                case WeaponType.Bouncer:
-                    FireWeaponBouncer();
-                    break;
-
-                case WeaponType.Freezer:
-                    FireWeaponFreezer();
-                    break;
-
-                case WeaponType.Seeker:
-                    FireWeaponSeeker();
-                    break;
-
-                case WeaponType.RF:
-                    FireWeaponRF();
-                    break;
-
-                case WeaponType.Toaster:
-                    FireWeaponToaster();
-                    break;
-
-                case WeaponType.TNT:
-                    FireWeaponTNT();
-                    break;
-
-                case WeaponType.Pepper:
-                    FireWeaponPepper();
-                    break;
-
-                case WeaponType.Electro:
-                    FireWeaponElectro();
-                    break;
+                case WeaponType.Blaster: FireWeaponBlaster(); break;
+                case WeaponType.Bouncer: FireWeaponBouncer(); break;
+                case WeaponType.Freezer: FireWeaponFreezer(); break;
+                case WeaponType.Seeker: FireWeaponSeeker(); break;
+                case WeaponType.RF: FireWeaponRF(); break;
+                case WeaponType.Toaster: FireWeaponToaster(); break;
+                case WeaponType.TNT: FireWeaponTNT(); break;
+                case WeaponType.Pepper: FireWeaponPepper(); break;
+                case WeaponType.Electro: FireWeaponElectro(); break;
 
                 case WeaponType.Thunderbolt:
                     if (!FireWeaponThunderbolt()) {
@@ -144,7 +118,6 @@ namespace Jazz2.Actors
                 int size = (currentAnimation.Base.FrameDimensions.X / 2);
                 pos.X += (MathF.Cos(angle) * size) * (isFacingLeft ? -1f : 1f);
                 pos.Y += (MathF.Sin(angle) * size) * (isFacingLeft ? -1f : 1f);
-                
             } else {
                 angle = ((currentAnimationState & AnimState.Lookup) > 0 ? MathF.PiOver2 * (isFacingLeft ? 1 : -1) : 0f);
 
@@ -152,6 +125,7 @@ namespace Jazz2.Actors
                 pos.Y -= (currentAnimation.Base.Hotspot.Y - currentAnimation.Base.Gunspot.Y);
             }
 
+            // Spawn bullet behind the player
             pos.Z += 2f;
         }
 

@@ -598,11 +598,9 @@ namespace Duality.Backend.Android.OpenTK
                     data = modelViewData;
                 } else if (varInfo[i].Name == "Projection") {
                     data = projectionData;
-                } else if (material.Uniforms != null) {
+                } else {
                     data = material.GetInternalData(varInfo[i].Name);
                     if (data == null) continue;
-                } else {
-                    continue;
                 }
 
                 NativeShaderProgram.SetUniform(ref varInfo[i], locations[i], data);

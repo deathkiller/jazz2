@@ -69,7 +69,7 @@ namespace Jazz2.Actors
             }
         }
 
-        public bool IncreaseTime(float secs)
+        public bool IncreaseShieldTime(float secs)
         {
             if (shieldTime <= 0f) {
                 return false;
@@ -83,8 +83,8 @@ namespace Jazz2.Actors
 
         private class ShieldComponent : ActorBase
         {
-            private ShieldType shieldType;
-            private bool front;
+            private readonly ShieldType shieldType;
+            private readonly bool front;
 
             public ShieldComponent(ShieldType shieldType, bool front)
             {

@@ -13,7 +13,7 @@
 
         protected override void Collect(Player player)
         {
-            if (player.IncreaseTime(10f)) {
+            if (player.IncreaseShieldTime(10f)) {
                 base.Collect(player);
             }
         }
