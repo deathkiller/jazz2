@@ -24,10 +24,6 @@ namespace Jazz2.Actors.Solid
 
         public override void HandleCollision(ActorBase other)
         {
-            if (health == 0) {
-                return;
-            }
-
             switch (other) {
                 case AmmoBase collision: {
                     if ((collision.WeaponType == WeaponType.RF ||

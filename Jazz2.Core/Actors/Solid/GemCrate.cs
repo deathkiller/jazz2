@@ -1,24 +1,65 @@
-﻿using Jazz2.Game.Structs;
+﻿using Jazz2.Actors.Weapons;
+using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Solid
 {
-    public class GemCrate : CrateContainer
+    public class GemCrate : GenericContainer
     {
         public override void OnAttach(ActorInstantiationDetails details)
         {
-            ushort red = details.Params[0];
-            ushort green = details.Params[1];
-            ushort blue = details.Params[2];
-            ushort purble = details.Params[3];
-
-            details.Params[0] = 0;
-
             base.OnAttach(details);
 
-            GenerateContents(EventType.Gem, red, 0);
-            GenerateContents(EventType.Gem, green, 1);
-            GenerateContents(EventType.Gem, blue, 2);
-            GenerateContents(EventType.Gem, purble, 3);
+            Movable = true;
+
+            collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
+
+            GenerateContents(EventType.Gem, details.Params[0], 0);
+            GenerateContents(EventType.Gem, details.Params[1], 1);
+            GenerateContents(EventType.Gem, details.Params[2], 2);
+            GenerateContents(EventType.Gem, details.Params[3], 3);
+
+            RequestMetadata("Object/CrateContainer");
+            SetAnimation(AnimState.Idle);
+        }
+
+        protected override bool OnPerish(ActorBase collider)
+        {
+            collisionFlags = CollisionFlags.None;
+
+            CreateParticleDebris();
+
+            PlaySound("Break");
+
+            CreateSpriteDebris("CrateShrapnel1", 3);
+            CreateSpriteDebris("CrateShrapnel2", 2);
+
+            SetTransition(AnimState.TransitionDeath, false, delegate {
+                base.OnPerish(collider);
+            });
+            SpawnContent();
+            return true;
+        }
+
+        public override void HandleCollision(ActorBase other)
+        {
+            switch (other) {
+                case AmmoBase collision: {
+                    DecreaseHealth(collision.Strength, collision);
+                    break;
+                }
+
+                case AmmoTNT collision: {
+                    DecreaseHealth(int.MaxValue, collision);
+                    break;
+                }
+
+                case Player collision: {
+                    if (collision.CanBreakSolidObjects) {
+                        DecreaseHealth(int.MaxValue, collision);
+                    }
+                    break;
+                }
+            }
         }
     }
 }

@@ -24,10 +24,6 @@ namespace Jazz2.Actors.Solid
 
         public override void HandleCollision(ActorBase other)
         {
-            if (health == 0) {
-                return;
-            }
-
             switch (other) {
                 case AmmoBase collision: {
                     if ((collision.WeaponType == WeaponType.RF ||
@@ -91,8 +87,6 @@ namespace Jazz2.Actors.Solid
             CreateSpriteDebris("BarrelShrapnel3", 2);
             CreateSpriteDebris("BarrelShrapnel4", 1);
 
-            SetTransition(AnimState.TransitionDeath, false);
-            SpawnContent();
             return base.OnPerish(collider);
         }
     }

@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // Obecné informace o sestavení se řídí přes následující 
 // sadu atributů. Změnou hodnot těchto atributů se upraví informace
 // přidružené k sestavení.
-[assembly: AssemblyTitle("Jazz² Resurrection Import Tool")]
+[assembly: AssemblyTitle("Jazz² Resurrection Editor")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Jazz² Resurrection Import Tool")]
-[assembly: AssemblyCopyright("© 2016-2017 Dan R.")]
+[assembly: AssemblyProduct("Jazz² Resurrection Editor")]
+[assembly: AssemblyCopyright("© 2016-2018 Dan R.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // Následující GUID se používá pro ID knihovny typů, pokud je tento projekt vystavený pro COM.
-[assembly: Guid("742eeb7b-19d1-41b1-8870-02300cc9281f")]
+[assembly: Guid("c9c06a4e-0a2c-4050-8f98-8bed249bf8bb")]
 
 // Informace o verzi sestavení se skládá z těchto čtyř hodnot:
 //
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // Můžete zadat všechny hodnoty nebo nastavit výchozí číslo buildu a revize pomocí *, jak je vidět níže:
 // pomocí zástupného znaku * takto:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.4.6.0")]
-[assembly: AssemblyFileVersion("0.4.6.0")]
+[assembly: AssemblyVersion("0.1.0.0")]
+[assembly: AssemblyFileVersion("0.1.0.0")]

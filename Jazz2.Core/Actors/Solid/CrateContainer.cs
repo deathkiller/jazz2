@@ -22,7 +22,6 @@ namespace Jazz2.Actors.Solid
             SetAnimation(AnimState.Idle);
         }
 
-
         protected override bool OnPerish(ActorBase collider)
         {
             collisionFlags = CollisionFlags.None;

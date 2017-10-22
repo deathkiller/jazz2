@@ -808,7 +808,6 @@ namespace Jazz2.Actors
                 isInvulnerable = true;
                 currentTransitionCancellable = true;
                 SetPlayerTransition(AnimState.TransitionDeath, false, true, SpecialMoveType.None, delegate {
-                    // ToDo: Animation is not played, instant switch to main menu ???
                     if (lives > 1) {
                         lives--;
 
@@ -1715,7 +1714,7 @@ namespace Jazz2.Actors
                     externalForceX = 0f;
                     speedY = 0f;
 
-                    PlaySound("Die");
+                    PlaySound("Die", 1.3f);
                 }
             }
         }

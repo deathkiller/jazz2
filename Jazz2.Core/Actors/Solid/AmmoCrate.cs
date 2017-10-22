@@ -69,7 +69,6 @@ namespace Jazz2.Actors.Solid
                 CreateSpriteDebris("CrateAmmoShrapnel1", 3);
                 CreateSpriteDebris("CrateAmmoShrapnel2", 2);
 
-                SpawnContent();
                 return base.OnPerish(collider);
             }
         }

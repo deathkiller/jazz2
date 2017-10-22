@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jazz2", "Jazz2\Jazz2.csproj", "{7CC64746-8BA3-49ED-AFFC-AE4308AC1FA4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Import", "Import\Import.csproj", "{742EEB7B-19D1-41B1-8870-02300CC9281F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Import", "Tools\Import\Import.csproj", "{742EEB7B-19D1-41B1-8870-02300CC9281F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTKBackend", "Extensions\OpenTKBackend\OpenTKBackend.csproj", "{2CC35924-68BF-4099-A809-AD2C3B219FF6}"
 EndProject
@@ -33,6 +33,8 @@ EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Primitives", "Shared\Primitives\Primitives.shproj", "{2DAD5DF0-99D5-4837-AF78-CF189DB386A2}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Console", "Shared\Console\Console.shproj", "{ADC9A0C0-6830-49B6-858B-30395699EE30}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Editor", "Tools\Editor\Editor.csproj", "{C9C06A4E-0A2C-4050-8F98-8BED249BF8BB}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -82,6 +84,10 @@ Global
 		{1BBE20FE-4DE1-4DC0-A56E-822F48617B27}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1BBE20FE-4DE1-4DC0-A56E-822F48617B27}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1BBE20FE-4DE1-4DC0-A56E-822F48617B27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9C06A4E-0A2C-4050-8F98-8BED249BF8BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9C06A4E-0A2C-4050-8F98-8BED249BF8BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9C06A4E-0A2C-4050-8F98-8BED249BF8BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9C06A4E-0A2C-4050-8F98-8BED249BF8BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -94,6 +100,7 @@ Global
 		{89366AC3-B408-492B-8EF5-714CDFE4FEFF} = {551F2C0E-647C-4DE2-BB1C-DF57AB0F2663}
 		{2DAD5DF0-99D5-4837-AF78-CF189DB386A2} = {551F2C0E-647C-4DE2-BB1C-DF57AB0F2663}
 		{ADC9A0C0-6830-49B6-858B-30395699EE30} = {551F2C0E-647C-4DE2-BB1C-DF57AB0F2663}
+		{C9C06A4E-0A2C-4050-8F98-8BED249BF8BB} = {B73F0AF4-8283-4019-B9E5-85A57B12489F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {68CDB158-C20C-4E20-9FFD-828478D43E3D}
