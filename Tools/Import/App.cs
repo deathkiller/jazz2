@@ -46,10 +46,11 @@ namespace Import
             bool processMusic = true;
             bool processTilesets = true;
             bool all = false;
-            bool noWait = false;
+            bool noWait = ConsoleUtils.IsShared;
             bool check = false;
             bool keep = false;
             bool verbose = false;
+            bool minimal = false;
             for (int i = 0; i < args.Length; i++) {
                 switch (args[i]) {
                     case "/skip-anims": processAnims = false; break;
@@ -64,6 +65,11 @@ namespace Import
 
                     case "/check": check = true; break;
                     case "/keep": keep = true; break;
+
+                    case "/minimal":
+                        minimal = true;
+                        processAnims = processLevels = processMusic = processTilesets = false;
+                        break;
 
                     default:
 #if DEBUG
@@ -120,7 +126,11 @@ namespace Import
                 Log.PopIndent();
             }
 
-            OnPostImport(targetPath, verbose, !noWait, keep, check || (processAnims && processLevels && processMusic && processTilesets));
+            if (minimal) {
+                CreateMinimalCompressedContent(targetPath);
+            }
+
+            OnPostImport(targetPath, verbose, !noWait, keep || minimal, !minimal, check || (processAnims && processLevels && processMusic && processTilesets));
         }
 
         private static void OnShowHelp(int cursorTop)
@@ -210,16 +220,18 @@ namespace Import
             // Download and import...
             DemoDownloader.Run(targetPath);
 
-            OnPostImport(targetPath, false, true, false, false);
+            OnPostImport(targetPath, false, true, false, true, false);
         }
 
-        private static void OnPostImport(string targetPath, bool verbose, bool wait, bool keep, bool check)
+        private static void OnPostImport(string targetPath, bool verbose, bool wait, bool keep, bool merge, bool check)
         {
             if (!keep) {
                 Clean(targetPath, verbose);
             }
 
-            MergeToCompressedContent(targetPath, keep);
+            if (merge) {
+                MergeToCompressedContent(targetPath, keep);
+            }
 
             if (check) {
                 CheckMissingFiles(targetPath);
@@ -898,7 +910,7 @@ namespace Import
                                 continue;
                             }
 
-                            using (Stream s = File.Open(path, FileMode.Open)) {
+                            using (Stream s = fs.OpenFile(path, FileAccessMode.Read)) {
                                 MetadataJson json;
                                 try {
                                     json = jsonParser.Parse<MetadataJson>(s);
@@ -957,6 +969,78 @@ namespace Import
             } else {
                 Log.Write(LogType.Error, "\".\\Content\\.dz\" does not exist!");
             }
+
+            Log.PopIndent();
+        }
+
+        private static void CreateMinimalCompressedContent(string targetPath)
+        {
+            Log.Write(LogType.Info, "Creating minimal compressed content...");
+            Log.PushIndent();
+
+            Log.Write(LogType.Info, "Compressing content into \".\\Content\\.dz\" file...");
+            Log.PushIndent();
+
+            string oldContent = Path.Combine(targetPath, "Content", ".dz");
+            string newContent = oldContent + ".new";
+
+            bool keepOld = false;
+
+            ContentTree tree = new ContentTree();
+
+            foreach (string unreferenced in new[] {
+                ".palette",
+                "UI/font_medium.png.config",
+                "UI/font_small.png.config"
+            }) {
+                string file = PathOp.Combine("Animations", unreferenced.Replace('/', PathOp.DirectorySeparatorChar));
+                string path = Path.Combine(targetPath, "Content", "Animations", unreferenced);
+                if (Utils.FileResolveCaseInsensitive(ref path)) {
+                    FileInfo info = new FileInfo(path);
+                    ContentTree.Node node = tree.AddNodeByPath(file);
+                    node.Source = new FileResourceSource(path, 0, info.Length, false);
+                } else {
+                    Log.Write(LogType.Warning,
+                        "\"" + Path.Combine("Animations", unreferenced.Replace('/', Path.DirectorySeparatorChar)) +
+                        "\" is missing!");
+
+                    keepOld = true;
+                }
+            }
+
+            if (Directory.Exists(Path.Combine(targetPath, "Content", "Animations", "_custom"))) {
+                tree.GetContentFromDirectory(Path.Combine(targetPath, "Content", "Animations", "_custom"), "Animations");
+            }
+
+            if (Directory.Exists(Path.Combine(targetPath, "Content", "Metadata"))) {
+                tree.GetContentFromDirectory(Path.Combine(targetPath, "Content", "Metadata"));
+            }
+
+            if (Directory.Exists(Path.Combine(targetPath, "Content", "Shaders"))) {
+                tree.GetContentFromDirectory(Path.Combine(targetPath, "Content", "Shaders"));
+            }
+
+            Log.PopIndent();
+            Log.Write(LogType.Info, "Saving changes...");
+
+            tree.RemoveEmptyNodes();
+
+            CompressedContent.Create(newContent, tree, (name, flags) => {
+                if ((flags & CompressedContent.ResourceFlags.HasResource) != 0 && !name.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) {
+                    flags |= CompressedContent.ResourceFlags.Compressed;
+                }
+                return flags;
+            });
+
+            if (File.Exists(oldContent)) {
+                if (keepOld) {
+                    File.Move(oldContent, oldContent + ".old");
+                } else {
+                    File.Delete(oldContent);
+                }
+            }
+
+            File.Move(newContent, oldContent);
 
             Log.PopIndent();
         }

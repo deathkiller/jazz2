@@ -1415,20 +1415,22 @@ namespace Jazz2.Actors
             // float events, so checking for a wider box is necessary.
             const float extendedHitbox = 2f;
 
-            if ((events.GetEventByPosition(pos.X, pos.Y, ref p) == EventType.AreaFloatUp) ||
-                (events.GetEventByPosition(currentHitbox.Left - extendedHitbox, currentHitbox.Top - extendedHitbox, ref p) == EventType.AreaFloatUp) ||
-                (events.GetEventByPosition(currentHitbox.Right + extendedHitbox, currentHitbox.Top - extendedHitbox, ref p) == EventType.AreaFloatUp) ||
-                (events.GetEventByPosition(currentHitbox.Right + extendedHitbox, currentHitbox.Bottom + extendedHitbox, ref p) == EventType.AreaFloatUp) ||
-                (events.GetEventByPosition(currentHitbox.Left - extendedHitbox, currentHitbox.Bottom + extendedHitbox, ref p) == EventType.AreaFloatUp)
-               ) {
-                float timeMult = Time.TimeMult;
-                if ((collisionFlags & CollisionFlags.ApplyGravitation) != 0) {
-                    float gravity = api.Gravity;
+            if (currentSpecialMove != SpecialMoveType.Buttstomp) {
+                if ((events.GetEventByPosition(pos.X, pos.Y, ref p) == EventType.AreaFloatUp) ||
+                    (events.GetEventByPosition(currentHitbox.Left - extendedHitbox, currentHitbox.Top - extendedHitbox, ref p) == EventType.AreaFloatUp) ||
+                    (events.GetEventByPosition(currentHitbox.Right + extendedHitbox, currentHitbox.Top - extendedHitbox, ref p) == EventType.AreaFloatUp) ||
+                    (events.GetEventByPosition(currentHitbox.Right + extendedHitbox, currentHitbox.Bottom + extendedHitbox, ref p) == EventType.AreaFloatUp) ||
+                    (events.GetEventByPosition(currentHitbox.Left - extendedHitbox, currentHitbox.Bottom + extendedHitbox, ref p) == EventType.AreaFloatUp)
+                ) {
+                    float timeMult = Time.TimeMult;
+                    if ((collisionFlags & CollisionFlags.ApplyGravitation) != 0) {
+                        float gravity = api.Gravity;
 
-                    externalForceY = gravity * 2f * timeMult;
-                    speedY = MathF.Min(gravity * timeMult, speedY);
-                } else {
-                    speedY -= api.Gravity * 1.2f * timeMult;
+                        externalForceY = gravity * 2f * timeMult;
+                        speedY = MathF.Min(gravity * timeMult, speedY);
+                    } else {
+                        speedY -= api.Gravity * 1.2f * timeMult;
+                    }
                 }
             }
 

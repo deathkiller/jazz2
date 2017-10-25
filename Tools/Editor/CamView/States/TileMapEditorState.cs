@@ -383,7 +383,7 @@ namespace Editor.CamView.States
         {
             base.OnMouseDown(e);
 
-            if (tileMapDragMode != TileMapDragMode.None) {
+            if (e.Button == MouseButtons.Left && tileMapDragMode != TileMapDragMode.None) {
                 tileMapDragActive = true;
                 Invalidate();
             }
@@ -393,8 +393,10 @@ namespace Editor.CamView.States
         {
             base.OnMouseUp(e);
 
-            tileMapDragActive = false;
-            Invalidate();
+            if (e.Button == MouseButtons.Left) {
+                tileMapDragActive = false;
+                Invalidate();
+            }
         }
     }
 }

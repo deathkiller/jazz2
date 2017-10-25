@@ -7,6 +7,7 @@ namespace Jazz2
     public class ConsoleUtils
     {
         private static bool? isOutputRedirected;
+        private static bool? isShared;
         private static bool supportsUnicode;
 
         public static bool IsOutputRedirected
@@ -29,6 +30,27 @@ namespace Jazz2
                 }
 
                 return isOutputRedirected == true;
+            }
+        }
+
+        public static unsafe bool IsShared
+        {
+            get
+            {
+                if (isShared == null) {
+                    if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
+                        const int dwProcessCountMax = 1;
+
+                        int* lpdwProcessList = stackalloc int[dwProcessCountMax];
+                        int n = GetConsoleProcessList(lpdwProcessList, dwProcessCountMax);
+                        isShared = (n > 1);
+                    } else {
+                        // Always shared on non-Windows platforms
+                        isShared = true;
+                    }
+                }
+
+                return (isShared == true);
             }
         }
 
@@ -80,6 +102,9 @@ namespace Jazz2
 
         [DllImport("kernel32", SetLastError = true)]
         private static extern bool GetConsoleMode(IntPtr hConsole, out uint lpMode);
+
+        [DllImport("kernel32", SetLastError = true)]
+        private static extern unsafe int GetConsoleProcessList(int* lpdwProcessList, int dwProcessCount);
         #endregion
     }
 }
