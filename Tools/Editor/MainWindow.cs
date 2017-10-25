@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
 namespace Editor
 {
@@ -17,6 +9,39 @@ namespace Editor
             InitializeComponent();
 
             Text = Jazz2.App.AssemblyTitle + " v" + Jazz2.App.AssemblyVersion;
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            base.OnFormClosing(e);
+
+            bool isUserCloseReason;
+            switch (e.CloseReason) {
+                default:
+                case CloseReason.ApplicationExitCall:
+                case CloseReason.WindowsShutDown:
+                case CloseReason.TaskManagerClosing:
+                    isUserCloseReason = false;
+                    break;
+                case CloseReason.FormOwnerClosing:
+                case CloseReason.MdiFormClosing:
+                case CloseReason.UserClosing:
+                    isUserCloseReason = true;
+                    break;
+            }
+
+            bool isClosedByUser =
+                isUserCloseReason /*&&
+                !this.nonUserClosing &&
+                !App.IsReloadingPlugins*/;
+
+            e.Cancel = !App.Terminate(isClosedByUser);
+        }
+
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            base.OnFormClosed(e);
+            Application.Exit();
         }
     }
 }

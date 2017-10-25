@@ -158,8 +158,6 @@ namespace Jazz2.Game.Tiles
                 // Reserve the required space for vertex data in our locally cached buffer
                 VertexC1P3T2[] vertexData;
 
-                // ToDo: This is wrong!
-                //int neededVertices = (int)(((x3 - x1) / 32) * ((y3 - y1) / 32) * 5);
                 int neededVertices = (int)((((x3 - x1) / 32) + 1) * (((y3 - y1) / 32) + 1) * 4);
                 if (cachedVertices[layerIndex] == null || cachedVertices[layerIndex].Length < neededVertices) {
                     cachedVertices[layerIndex] = vertexData = new VertexC1P3T2[neededVertices];

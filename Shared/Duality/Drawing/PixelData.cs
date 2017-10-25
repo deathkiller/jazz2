@@ -43,10 +43,17 @@ namespace Duality.Drawing
 		{
 			get { return this.height; }
 		}
-		/// <summary>
-		/// [GET] The layers pixel data
-		/// </summary>
-		public ColorRgba[] Data
+	    /// <summary>
+	    /// [GET] The image data's size in pixels
+	    /// </summary>
+	    public Point2 Size
+	    {
+	        get { return new Point2(this.width, this.height); }
+	    }
+        /// <summary>
+        /// [GET] The layers pixel data
+        /// </summary>
+        public ColorRgba[] Data
 		{
 			get { return this.data; }
 		}

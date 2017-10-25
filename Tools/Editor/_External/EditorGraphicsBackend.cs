@@ -1,0 +1,37 @@
+﻿using Duality.Backend;
+using OpenTK.Graphics;
+
+namespace Duality.Editor.Backend.DefaultOpenTK
+{
+    public class EditorGraphicsBackend : IEditorGraphicsBackend
+	{
+		string IDualityBackend.Id
+		{
+			get { return "DefaultOpenTKEditorGraphicsBackend"; }
+		}
+		string IDualityBackend.Name
+		{
+			get { return "GLControl (OpenTK)"; }
+		}
+		int IDualityBackend.Priority
+		{
+			get { return 0; }
+		}
+
+		bool IDualityBackend.CheckAvailable()
+		{
+			return true;
+		}
+		void IDualityBackend.Init()
+		{
+			// Since we'll be using only one context, we don't need sharing
+			GraphicsContext.ShareContexts = false;
+		}
+		void IDualityBackend.Shutdown() { }
+
+		INativeEditorGraphicsContext IEditorGraphicsBackend.CreateContext(AAQuality antialiasingQuality)
+		{
+			return new NativeEditorGraphicsContext(antialiasingQuality);
+		}
+	}
+}

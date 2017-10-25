@@ -453,7 +453,7 @@ namespace Duality
             isUpdating = true;
             //Profile.TimeUpdate.BeginMeasure();
 
-            Time.FrameTick();
+            Time.FrameTick(false, true);
             //Profile.FrameTick();
             //VisualLog.UpdateLogEntries();
             pluginManager.InvokeBeforeUpdate();
@@ -469,62 +469,65 @@ namespace Duality
 
             if (terminateScheduled) Terminate();
         }
-        /*internal static void EditorUpdate(IEnumerable<GameObject> updateObjects, bool freezeScene, bool forceFixedStep)
+		internal static void EditorUpdate(IEnumerable<GameObject> updateObjects, bool simulateGame, bool forceFixedStep)
 		{
 			isUpdating = true;
 			//Profile.TimeUpdate.BeginMeasure();
 
-			Time.FrameTick(forceFixedStep);
-			Profile.FrameTick();
-			if (execContext == ExecutionContext.Game && !freezeScene)
-			{
-				VisualLog.UpdateLogEntries();
-			}
-			pluginManager.InvokeBeforeUpdate();
-			if (execContext == ExecutionContext.Game)
-			{
-				if (!freezeScene)	UpdateUserInput();
+			Time.FrameTick(forceFixedStep, simulateGame);
+			//Profile.FrameTick();
 
-				if (!freezeScene)	Scene.Current.Update();
-				else				Scene.Current.EditorUpdate();
+			if (simulateGame) {
+				//VisualLogs.UpdateLogEntries();
+				pluginManager.InvokeBeforeUpdate();
 
-				foreach (GameObject obj in updateObjects)
-				{
-					if (!freezeScene && obj.ParentScene == Scene.Current)
+				UpdateUserInput();
+				Scene.Current.Update();
+
+				List<ICmpUpdatable> updatables = new List<ICmpUpdatable>();
+				foreach (GameObject obj in updateObjects) {
+					if (obj.ParentScene == Scene.Current)
 						continue;
-					
-					obj.IterateComponents<ICmpUpdatable>(
-						l => l.OnUpdate(),
-						l => (l as Component).Active);
+
+					updatables.Clear();
+					obj.GetComponents(updatables);
+					for (int i = 0; i < updatables.Count; i++) {
+						if (!(updatables[i] as Component).Active) continue;
+						updatables[i].OnUpdate();
+					}
 				}
-			}
-			else if (execContext == ExecutionContext.Editor)
-			{
+
+				pluginManager.InvokeAfterUpdate();
+			} else {
 				Scene.Current.EditorUpdate();
-				foreach (GameObject obj in updateObjects)
-				{
-					obj.IterateComponents<ICmpUpdatable>(
-						l => l.OnUpdate(),
-						l => (l as Component).Active);
+
+				List<ICmpUpdatable> updatables = new List<ICmpUpdatable>();
+				foreach (GameObject obj in updateObjects) {
+					updatables.Clear();
+					obj.GetComponents(updatables);
+					for (int i = 0; i < updatables.Count; i++) {
+						if (!(updatables[i] as Component).Active) continue;
+						updatables[i].OnUpdate();
+					}
 				}
 			}
+
 			sound.Update();
-			pluginManager.InvokeAfterUpdate();
-			//VisualLog.PrepareRenderLogEntries();
+			//VisualLogs.PrepareRenderLogEntries();
 			RunCleanup();
 
 			//Profile.TimeUpdate.EndMeasure();
 			isUpdating = false;
 
 			if (terminateScheduled) Terminate();
-		}*/
+		}
 
-        /// <summary>
-        /// Performs a single render cycle.
-        /// </summary>
-        /// <param name="viewportRect">The viewport to render to, in pixel coordinates.</param>
- 		/// <param name="imageSize">Target size of the rendered image before adjusting it to fit the specified viewport.</param>
- 		public static void Render(ContentRef<RenderTarget> target, Rect viewportRect, Vector2 imageSize)
+		/// <summary>
+		/// Performs a single render cycle.
+		/// </summary>
+		/// <param name="viewportRect">The viewport to render to, in pixel coordinates.</param>
+		/// <param name="imageSize">Target size of the rendered image before adjusting it to fit the specified viewport.</param>
+		public static void Render(ContentRef<RenderTarget> target, Rect viewportRect, Vector2 imageSize)
         {
             Scene.Current.Render(target, viewportRect, imageSize);
         }

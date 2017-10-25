@@ -23,7 +23,7 @@ using Jazz2.Game.UI.Menu.I;
 
 namespace Jazz2.Game
 {
-    public class LevelHandler : Scene
+    public class LevelHandler : Scene, ILevelHandler
     {
         public const float NearZ = 0f;
         public const float FarZ = 1000f;
@@ -356,15 +356,6 @@ namespace Jazz2.Game
                 GameObject tilemapHandler = new GameObject("TilemapHandler");
                 tilemapHandler.Parent = rootObject;
                 tilemapHandler.AddComponent(tileMap);
-
-                // Load extensions
-                // ToDo: Implement level extensions (.dll) for scripting
-                /*if (config.Extensions != null) {
-                    for (int j = 0; j < config.Extensions.Count; j++) {
-                        string path = PathOp.Combine(levelPath, config.Extensions[j]);
-                        System.Reflection.Assembly a = DualityApp.PluginLoader.LoadAssembly(path);
-                    }
-                }*/
 
                 // Load default music
                 musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", config.Description.DefaultMusic);

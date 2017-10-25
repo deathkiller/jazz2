@@ -42,6 +42,12 @@
     <ApplicationManifest>App.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="OpenTK, Version=1.1.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\AdamsLair.OpenTK.1.1.8\lib\net20\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK.GLControl, Version=1.1.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\AdamsLair.OpenTK.GLControl.1.1.8\lib\net20\OpenTK.GLControl.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -55,6 +61,32 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Backend\Dummy\DummyEditorGraphicsBackend.cs" />
+    <Compile Include="Backend\Dummy\DummyNativeEditorGraphicsContext.cs" />
+    <Compile Include="Backend\Dummy\DummyNativeRenderableSite.cs" />
+    <Compile Include="Backend\EditorGraphics\INativeEditorGraphicsContext.cs" />
+    <Compile Include="Backend\EditorGraphics\INativeRenderableSite.cs" />
+    <Compile Include="Backend\IEditorGraphicsBackend.cs" />
+    <Compile Include="CamView\CamView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="CamView\CamViewClient.cs" />
+    <Compile Include="CamView\CamViewLayer.cs" />
+    <Compile Include="CamView\CamViewState.cs" />
+    <Compile Include="CamView\States\TileMapEditorState.cs" />
+    <Compile Include="EditorLevelHandler.cs" />
+    <Compile Include="EditorPlugin.cs" />
+    <Compile Include="EditorPluginManager.cs" />
+    <Compile Include="Font\FitTextMode.cs" />
+    <Compile Include="Font\FontRasterizer.cs" />
+    <Compile Include="Font\FontCharSet.cs" />
+    <Compile Include="Font\FontData.cs" />
+    <Compile Include="Font\FontGlyphData.cs" />
+    <Compile Include="Font\FontKerningLookup.cs" />
+    <Compile Include="Font\FontKerningPair.cs" />
+    <Compile Include="Font\FontMetrics.cs" />
+    <Compile Include="Font\FontRenderMode.cs" />
+    <Compile Include="Font\FontStyle.cs" />
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -62,7 +94,19 @@
       <DependentUpon>MainWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="App.cs" />
+    <Compile Include="Utility\NativeMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\Extensions\ExtMethodsBitmap.cs" />
+    <Compile Include="Utility\Extensions\ExtMethodsColor.cs" />
+    <Compile Include="Utility\Extensions\ExtMethodsControl.cs" />
+    <Compile Include="Utility\Extensions\ExtMethodsGraphics.cs" />
+    <Compile Include="Utility\Extensions\ExtMethodsKeys.cs" />
+    <Compile Include="Utility\Extensions\ExtMethodsMouseButtons.cs" />
+    <Compile Include="Utility\Extensions\ExtMethodsPixelData.cs" />
+    <Compile Include="_External\EditorGraphicsBackend.cs" />
+    <Compile Include="_External\GraphicsModeComparer.cs" />
+    <Compile Include="_External\NativeEditorGraphicsContext.cs" />
+    <Compile Include="_External\NativeRenderableSite.cs" />
     <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.cs</DependentUpon>
     </EmbeddedResource>
@@ -77,6 +121,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <None Include="App.manifest" />
+    <None Include="Packages.config" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

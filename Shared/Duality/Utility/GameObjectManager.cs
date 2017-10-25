@@ -180,6 +180,9 @@ namespace Duality
 
         private void OnObjectsAdded(List<GameObject> objList)
         {
+            if (objList.Count == 0)
+                return;
+
             foreach (GameObject obj in objList) {
                 this.RegisterEvents(obj);
             }
@@ -188,6 +191,9 @@ namespace Duality
         }
         private void OnObjectsRemoved(List<GameObject> objList)
         {
+            if (objList.Count == 0)
+                return;
+
             foreach (GameObject obj in objList) {
                 this.UnregisterEvents(obj);
             }

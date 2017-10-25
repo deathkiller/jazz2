@@ -554,8 +554,24 @@ namespace Duality.Resources
 
             switchLock--;
         }
+	    /// <summary>
+	    /// Updates the Scene in the editor.
+	    /// </summary>
+	    internal void EditorUpdate()
+	    {
+		    if (!this.IsCurrent) throw new InvalidOperationException("Can't update non-current Scene!");
+		    switchLock++;
 
-        private void UpdateComponents<T>(Action<T> updateAction) where T : class
+		    //Profile.TimeUpdateScene.BeginMeasure();
+		    //DualityApp.EditorGuard(() => {
+			//    this.UpdateComponents<ICmpEditorUpdatable>(cmp => cmp.OnUpdate());
+			    this.visibilityStrategy.Update();
+		    //});
+		    //Profile.TimeUpdateScene.EndMeasure();
+
+		    switchLock--;
+	    }
+		private void UpdateComponents<T>(Action<T> updateAction) where T : class
         {
             //Profile.TimeUpdateSceneComponents.BeginMeasure();
 

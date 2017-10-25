@@ -13,7 +13,7 @@ namespace Jazz2.Game.Tiles
     {
         private const int TriggerCount = 32;
 
-        private LevelHandler levelHandler;
+        private ILevelHandler levelHandler;
 
         private TileSet tileset;
         private RawList<TileMapLayer> levelLayout = new RawList<TileMapLayer>();
@@ -29,7 +29,7 @@ namespace Jazz2.Game.Tiles
         public Point2 Size => new Point2(levelWidth, levelHeight);
         public TileSet Tileset => tileset;
 
-        public TileMap(LevelHandler levelHandler, string tilesPath, string maskPath, string normalPath, bool hasPit)
+        public TileMap(ILevelHandler levelHandler, string tilesPath, string maskPath, string normalPath, bool hasPit)
         {
             this.levelHandler = levelHandler;
             this.hasPit = hasPit;

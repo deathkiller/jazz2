@@ -116,6 +116,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoThunderbolt.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoTNT.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoToaster.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\ILevelHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Storage\Content\CompressedContent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ControlScheme.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Disposable.cs" />
