@@ -26,7 +26,7 @@ namespace Jazz2.Actors.Enemies
         protected override void OnUpdate()
         {
             if (frozenTimeLeft <= 0) {
-                phase = (phase + 0.05f) % MathF.TwoPi;
+                phase = (phase + 0.05f * Time.TimeMult) % MathF.TwoPi;
                 MoveInstantly(new Vector2(originPos.X + 10 * MathF.Cos(phase), originPos.Y + 10 * MathF.Sin(phase)), MoveType.Absolute, true);
 
                 isFacingLeft = (phase < MathF.PiOver2 || phase > 3 * MathF.PiOver2);

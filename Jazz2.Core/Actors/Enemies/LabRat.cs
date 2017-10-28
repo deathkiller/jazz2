@@ -85,7 +85,7 @@ namespace Jazz2.Actors.Enemies
                     }
                 }
 
-                if (MathF.Rnd.NextFloat() < 0.006f) {
+                if (MathF.Rnd.NextFloat() < 0.004f * Time.TimeMult) {
                     PlaySound("Noise", 0.4f);
                 }
 
@@ -108,7 +108,7 @@ namespace Jazz2.Actors.Enemies
                     }
                 }
             } else {
-                internalForceY += 0.08f;
+                internalForceY += 0.08f * Time.TimeMult;
             }
 
             stateTime -= Time.TimeMult;

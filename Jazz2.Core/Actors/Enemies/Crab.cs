@@ -8,6 +8,7 @@ namespace Jazz2.Actors.Enemies
         private const float DefaultSpeed = 0.7f;
 
         private float noiseCooldown = 70f;
+        private bool canJumpPrev;
         private bool stuck;
 
         public override void OnAttach(ActorInstantiationDetails details)
@@ -18,10 +19,12 @@ namespace Jazz2.Actors.Enemies
             scoreValue = 300;
 
             RequestMetadata("Enemy/Crab");
-            SetAnimation(AnimState.Walk);
+            SetAnimation(AnimState.Fall);
 
             isFacingLeft = MathF.Rnd.NextBool();
             speedX = (isFacingLeft ? -1 : 1) * DefaultSpeed;
+
+            canJumpPrev = canJump;
         }
 
         protected override void OnUpdateHitbox()
@@ -38,6 +41,12 @@ namespace Jazz2.Actors.Enemies
             }
 
             if (canJump) {
+                if (!canJumpPrev) {
+                    canJumpPrev = true;
+                    SetAnimation(AnimState.Walk);
+                    SetTransition(AnimState.TransitionFallToIdle, false);
+                }
+
                 if (!CanMoveToPosition(speedX * 4, 0)) {
                     if (stuck) {
                         MoveInstantly(new Vector2(0f, -2f), MoveType.Relative, true);
@@ -49,6 +58,11 @@ namespace Jazz2.Actors.Enemies
                 } else {
                     stuck = false;
                 }
+            } else {
+                if (canJumpPrev) {
+                    canJumpPrev = false;
+                    SetAnimation(AnimState.Fall);
+                }
             }
 
             if (noiseCooldown <= 0f) {
@@ -57,8 +71,6 @@ namespace Jazz2.Actors.Enemies
             } else {
                 noiseCooldown -= Time.TimeMult;
             }
-
-            // ToDo: Implement fall animation
         }
 
         protected override bool OnPerish(ActorBase collider)

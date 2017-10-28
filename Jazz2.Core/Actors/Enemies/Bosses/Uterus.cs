@@ -111,7 +111,7 @@ namespace Jazz2.Actors.Bosses
                         Crab crab = new Crab();
                         crab.OnAttach(new ActorInstantiationDetails {
                             Api = api,
-                            Pos = Transform.Pos + new Vector3(force * 0.3f, 0f, 4f)
+                            Pos = Transform.Pos + new Vector3(0f, 0f, 4f)
                         });
                         crab.AddExternalForce(force, 0f);
                         api.AddActor(crab);

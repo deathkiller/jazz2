@@ -8,6 +8,18 @@
             "Path": "Crab/walk.png",
             "FrameRate": 6,
             "States": [ 1 ]
+        },
+        
+        "Fall": {
+            "Path": "Crab/fall.png",
+            "FrameRate": 14,
+            "States": [ 8 ]
+        },
+        
+        "FallEnd": {
+            "Path": "Crab/fall_end.png",
+            "FrameRate": 30,
+            "States": [ 1073741826 ]
         }
     },
 

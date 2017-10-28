@@ -199,7 +199,7 @@ namespace Jazz2.Game.Tiles
                     continue;
                 }
                 if (debris.Time <= 0f) {
-                    debris.AlphaSpeed = -MathF.Min(0.08f, debris.Alpha);
+                    debris.AlphaSpeed = -MathF.Min(0.02f, debris.Alpha);
                 }
 
                 if (debris.CollisionAction != DebrisCollisionAction.None) {

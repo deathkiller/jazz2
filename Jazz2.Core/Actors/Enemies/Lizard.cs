@@ -43,6 +43,27 @@ namespace Jazz2.Actors.Enemies
                 isFacingLeft = MathF.Rnd.NextBool();
             }
             speedX = (isFacingLeft ? -1 : 1) * DefaultSpeed;
+
+            if (isFalling) {
+                // Lizard lost its copter, check if spawn position is
+                // empty, because walking Lizard has bigger hitbox
+                OnUpdateHitbox();
+
+                Hitbox hitbox = currentHitbox;
+                if (!api.IsPositionEmpty(this, ref hitbox, true)) {
+                    // Lizard was probably spawned into a wall, try to move it
+                    // from the wall by 4px steps (max. 12px) in both directions
+                    const float adjust = 4f;
+
+                    for (int i = 1; i < 4; i++) {
+                        if (MoveInstantly(new Vector2( adjust * i, 0f), MoveType.Relative, false) ||
+                            MoveInstantly(new Vector2(-adjust * i, 0f), MoveType.Relative, false)) {
+                            // Empty spot found
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         protected override void OnUpdateHitbox()
@@ -72,7 +93,7 @@ namespace Jazz2.Actors.Enemies
                 }
             }
 
-            if ((MathF.Rnd.Next() & 0x3FF) == 1) {
+            if (MathF.Rnd.NextFloat() < 0.004f * Time.TimeMult) {
                 PlaySound("Noise", 0.4f);
             }
         }

@@ -6,6 +6,8 @@ namespace Jazz2.Actors.Enemies
     public class Sucker : EnemyBase
     {
         private int cycle;
+        private float cycleTimer;
+
         private bool stuck;
 
         public override void OnAttach(ActorInstantiationDetails details)
@@ -62,20 +64,29 @@ namespace Jazz2.Actors.Enemies
             }
 
             if (currentTransitionState == AnimState.Idle && frozenTimeLeft <= 0) {
-                cycle = (cycle + 1) % (7 * 12);
-                if (cycle == 0) {
-                    PlaySound("Walk1", 0.4f);
-                }
-                if (cycle == (7 * 7)) {
-                    PlaySound("Walk2", 0.4f);
-                }
-                if (cycle == (3 * 7) || cycle == (8 * 7)) {
-                    PlaySound("Walk3", 0.4f);
-                }
-                if ((cycle >= (6 * 7) && cycle < (8 * 7)) || cycle >= (10 * 7)) {
-                    speedX = 0.5f * (isFacingLeft ? -1 : 1);
+                if (cycleTimer < 0f) {
+                    cycle++;
+                    if (cycle == 12) {
+                        cycle = 0;
+                    }
+
+                    if (cycle == 0) {
+                        PlaySound("Walk1", 0.5f);
+                    } else if (cycle == 6) {
+                        PlaySound("Walk2", 0.5f);
+                    } else if (cycle == 2 || cycle == 7) {
+                        PlaySound("Walk3", 0.5f);
+                    }
+
+                    if ((cycle >= 4 && cycle < 7) || cycle >= 9) {
+                        speedX = 0.6f * (isFacingLeft ? -1 : 1);
+                    } else {
+                        speedX = 0;
+                    }
+
+                    cycleTimer = 5f;
                 } else {
-                    speedX = 0;
+                    cycleTimer -= Time.TimeMult;
                 }
             }
         }

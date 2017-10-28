@@ -1206,7 +1206,7 @@ namespace Jazz2.Compatibility
 
                     m.NextSet();
                     m.Add("Uterus", "closed_start");
-                    m.Add("Uterus", "crab_spawn");
+                    m.Add("Crab", "fall");
                     m.Add("Uterus", "closed_idle");
                     m.Add("Uterus", "idle");
                     m.Add("Crab", "fall_end");

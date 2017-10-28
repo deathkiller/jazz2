@@ -125,6 +125,8 @@ namespace Jazz2.Actors.Enemies
                     Params = new[] { theme, (ushort)1, (ushort)(isFacingLeft ? 1 : 0) }
                 });
                 api.AddActor(lizard);
+
+                Explosion.Create(api, Transform.Pos, Explosion.SmokeGray);
             }
 
             return base.OnPerish(collider);
