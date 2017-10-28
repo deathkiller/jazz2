@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using Duality;
+using Duality.IO;
 
 namespace Jazz2.Storage.Content
 {
@@ -7,7 +9,7 @@ namespace Jazz2.Storage.Content
     {
         public class SourceStream : Stream
         {
-            private FileStream stream;
+            private Stream stream;
             private readonly long offset, size;
 
             public override bool CanRead => true;
@@ -35,7 +37,7 @@ namespace Jazz2.Storage.Content
             {
                 this.offset = source.offset;
                 this.size = source.size;
-                this.stream = new FileStream(source.path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                this.stream = DualityApp.SystemBackend.FileSystem.OpenFile(source.path, FileAccessMode.Read);
 
                 if (this.stream.Length < this.offset + this.size) {
                     this.stream.Dispose();

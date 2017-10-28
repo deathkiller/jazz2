@@ -38,12 +38,12 @@ namespace Jazz2.Game.UI.Menu
             api.DrawStringShadow(ref charOffset, "Dan R.", pos.X + 25f, pos.Y + 20f + 20f,
                 Alignment.Left, ColorRgba.TransparentBlack, 1.0f, 0.4f, 0.75f, 0.75f, 7f, 0.9f);
 
-            api.DrawStringShadow(ref charOffset, "(http://deat.tk/)", pos.X + 25f + 70f, pos.Y + 20f + 20f,
-                Alignment.Left, ColorRgba.TransparentBlack, 0.7f, 0.4f, 0.6f, 0.6f, 7f, 0.8f);
+            api.DrawStringShadow(ref charOffset, "<https://github.com/deathkiller/jazz2>", pos.X + 25f + 70f, pos.Y + 20f + 20f,
+                Alignment.Left, ColorRgba.TransparentBlack, 0.7f, 0.4f, 0.6f, 0.6f, 7f, 0.9f);
 
             float y = pos.Y + 80f;
 
-            api.DrawStringShadow(ref charOffset, "Uses parts of Duality Engine released under MIT/X11 license.", pos.X, y,
+            api.DrawStringShadow(ref charOffset, "Uses parts of Duality - A 2D GameDev Framework released under MIT/X11 license.", pos.X, y,
                 Alignment.Left, ColorRgba.TransparentBlack, 0.7f, 0.4f, 0.6f, 0.6f, 7f, 0.9f);
             api.DrawStringShadow(ref charOffset, "Fedja Adam", pos.X + 25f, y + 16f,
                 Alignment.Left, ColorRgba.TransparentBlack, 0.8f, 0.4f, 0.7f, 0.7f, 7f, 0.9f);

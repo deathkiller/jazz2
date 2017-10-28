@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Duality;
 using Duality.IO;
 
 namespace Jazz2.Storage.Content
@@ -33,7 +34,7 @@ namespace Jazz2.Storage.Content
 
         private ContentTree ReadContentTree()
         {
-            using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (Stream stream = DualityApp.SystemBackend.FileSystem.OpenFile(path, FileAccessMode.Read))
             using (BinaryReader r = new BinaryReader(stream, Encoding.UTF8, true)) {
                 uint signature = r.ReadUInt32();
                 if (signature != 0x5A616544u) {
@@ -105,7 +106,7 @@ namespace Jazz2.Storage.Content
             using (MemoryStream dataStream = new MemoryStream()) {
                 WriteContentTreeSection(tree.Root, tableStream, dataStream, resourceFlagsModifier);
 
-                using (FileStream stream = new FileStream(path, FileMode.Create, FileAccess.Write)) {
+                using (Stream stream = DualityApp.SystemBackend.FileSystem.CreateFile(path)) {
                     using (BinaryWriter w = new BinaryWriter(stream, Encoding.UTF8, true)) {
                         w.Write((uint)0x5A616544u); // Signature
                         w.Write((byte)1);           // Version

@@ -41,6 +41,9 @@
   <PropertyGroup>
     <ApplicationManifest>App.manifest</ApplicationManifest>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="OpenTK, Version=1.1.8.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\AdamsLair.OpenTK.1.1.8\lib\net20\OpenTK.dll</HintPath>
@@ -131,6 +134,9 @@
       <Project>{7cc64746-8ba3-49ed-affc-ae4308ac1fa4}</Project>
       <Name>Jazz2</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">

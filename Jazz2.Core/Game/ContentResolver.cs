@@ -446,7 +446,9 @@ namespace Jazz2.Game
 
             ContentRef<DrawTechnique> shader;
             if (!cachedShaders.TryGetValue(path, out shader)) {
-#if UNCOMPRESSED_CONTENT
+                // Shaders for Android are always uncompressed for now, so the compressed
+                // content package can be used in Android version as well.
+#if UNCOMPRESSED_CONTENT || __ANDROID__
                 string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Shaders", path + ".res");
 #else
                 string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, ".dz", "Shaders", path + ".res");
