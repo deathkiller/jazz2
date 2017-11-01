@@ -150,7 +150,7 @@ namespace Jazz2.Game.Tiles
             cachedTexturedBackground = renderTarget;
         }
 
-        public void RenderTexturedBackground(IDrawDevice device, ref TileMapLayer layer, int layerIndex, float x, float y)
+        public void RenderTexturedBackground(IDrawDevice device, ref TileMapLayer layer, int cacheIndex, float x, float y)
         {
             if (cachedTexturedBackground == null || cachedTexturedBackgroundAnimated) {
                 RecreateTexturedBackground(ref layer);
@@ -177,10 +177,10 @@ namespace Jazz2.Game.Tiles
             VertexC1P3T2[] vertexData;
 
             int neededVertices = 4;
-            if (cachedVertices[layerIndex] == null || cachedVertices[layerIndex].Length < neededVertices) {
-                cachedVertices[layerIndex] = vertexData = new VertexC1P3T2[neededVertices];
+            if (cachedVertices[cacheIndex] == null || cachedVertices[cacheIndex].Length < neededVertices) {
+                cachedVertices[cacheIndex] = vertexData = new VertexC1P3T2[neededVertices];
             } else {
-                vertexData = cachedVertices[layerIndex];
+                vertexData = cachedVertices[cacheIndex];
             }
 
             // Render it as world-space fullscreen quad

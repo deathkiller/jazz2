@@ -44,15 +44,15 @@ namespace Jazz2.Game.Tiles
 
         public void CreateDebris(DestructibleDebris debris)
         {
-            if (debris.CollisionAction == DebrisCollisionAction.Disappear && debris.Pos.Z >= levelLayout[sprLayerIndex].Depth /*&& !IsTileEmpty((int)debris.Pos.X / 32, (int)debris.Pos.Y / 32)*/) {
+            if (debris.CollisionAction == DebrisCollisionAction.Disappear && debris.Pos.Z >= layers[sprLayerIndex].Depth /*&& !IsTileEmpty((int)debris.Pos.X / 32, (int)debris.Pos.Y / 32)*/) {
                 int x = (int)debris.Pos.X / 32;
                 int y = (int)debris.Pos.Y / 32;
                 if (x < 0 || y < 0 || x >= levelWidth || y >= levelHeight) {
                     return;
                 }
 
-                int idx = levelLayout[sprLayerIndex].Layout[x + y * levelWidth].TileID;
-                if (levelLayout[sprLayerIndex].Layout[x + y * levelWidth].IsAnimated) {
+                int idx = layers[sprLayerIndex].Layout[x + y * levelWidth].TileID;
+                if (layers[sprLayerIndex].Layout[x + y * levelWidth].IsAnimated) {
                     idx = animatedTiles[idx].CurrentTile.TileID;
                 }
 
@@ -60,9 +60,9 @@ namespace Jazz2.Game.Tiles
                     return;
                 }
 
-                if (sprLayerIndex + 1 < levelLayout.Count && levelLayout[sprLayerIndex + 1].SpeedX == 1f && levelLayout[sprLayerIndex + 1].SpeedY == 1f) {
-                    idx = levelLayout[sprLayerIndex + 1].Layout[x + y * levelWidth].TileID;
-                    if (levelLayout[sprLayerIndex + 1].Layout[x + y * levelWidth].IsAnimated) {
+                if (sprLayerIndex + 1 < layers.Count && layers[sprLayerIndex + 1].SpeedX == 1f && layers[sprLayerIndex + 1].SpeedY == 1f) {
+                    idx = layers[sprLayerIndex + 1].Layout[x + y * levelWidth].TileID;
+                    if (layers[sprLayerIndex + 1].Layout[x + y * levelWidth].IsAnimated) {
                         idx = animatedTiles[idx].CurrentTile.TileID;
                     }
 
@@ -79,7 +79,7 @@ namespace Jazz2.Game.Tiles
         {
             float[] speedMultiplier = { -2, 2, -1, 1 };
             int quarterSize = Tileset.TileSize / 2;
-            float z = levelLayout[sprLayerIndex].Depth - 80f;
+            float z = layers[sprLayerIndex].Depth - 80f;
 
             int tx = (tileID % tileset.TilesPerRow) * tileset.TileSize;
             int ty = (tileID / tileset.TilesPerRow) * tileset.TileSize;

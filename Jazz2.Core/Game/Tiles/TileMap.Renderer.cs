@@ -24,13 +24,13 @@ namespace Jazz2.Game.Tiles
                 return;
             }
 
-            if (cachedVertices == null || cachedVertices.Length != levelLayout.Count) {
-                cachedVertices = new VertexC1P3T2[levelLayout.Count][];
+            if (cachedVertices == null || cachedVertices.Length != this.layers.Count) {
+                cachedVertices = new VertexC1P3T2[this.layers.Count][];
             }
 
-            TileMapLayer[] layers = levelLayout.Data;
-            for (int i = levelLayout.Count - 1; i >= 0; i--) {
-                DrawLayer(device, ref layers[i], i);
+            TileMapLayer[] layersRaw = layers.Data;
+            for (int i = this.layers.Count - 1; i >= 0; i--) {
+                DrawLayer(device, ref layersRaw[i], i);
             }
 
             DrawDebris(device);
@@ -50,8 +50,12 @@ namespace Jazz2.Game.Tiles
             return (coordinate * speed + offset + (70 + (isY ? (viewHeight - 200) : (viewWidth - 320)) / 2) * (speed - 1));
         }
 
-        private void DrawLayer(IDrawDevice device, ref TileMapLayer layer, int layerIndex)
+        private void DrawLayer(IDrawDevice device, ref TileMapLayer layer, int cacheIndex)
         {
+            if (!layer.Visible) {
+                return;
+            }
+
             Vector2 viewSize = device.TargetSize;
             Vector3 viewCenter = device.RefCoord;
 
@@ -99,7 +103,7 @@ namespace Jazz2.Game.Tiles
             if (layer.BackgroundStyle != BackgroundStyle.Plain && tileCount.Y == 8 && tileCount.X == 8) {
                 const float PerspectiveSpeedX = 0.4f;
                 const float PerspectiveSpeedY = 0.16f;
-                RenderTexturedBackground(device, ref layer, layerIndex,
+                RenderTexturedBackground(device, ref layer, cacheIndex,
                     (x1 * PerspectiveSpeedX + loX),
                     (y1 * PerspectiveSpeedY + loY));
             } else {
@@ -159,10 +163,10 @@ namespace Jazz2.Game.Tiles
                 VertexC1P3T2[] vertexData;
 
                 int neededVertices = (int)((((x3 - x1) / 32) + 1) * (((y3 - y1) / 32) + 1) * 4);
-                if (cachedVertices[layerIndex] == null || cachedVertices[layerIndex].Length < neededVertices) {
-                    cachedVertices[layerIndex] = vertexData = new VertexC1P3T2[neededVertices];
+                if (cachedVertices[cacheIndex] == null || cachedVertices[cacheIndex].Length < neededVertices) {
+                    cachedVertices[cacheIndex] = vertexData = new VertexC1P3T2[neededVertices];
                 } else {
-                    vertexData = cachedVertices[layerIndex];
+                    vertexData = cachedVertices[cacheIndex];
                 }
 
                 int vertexBaseIndex = 0;

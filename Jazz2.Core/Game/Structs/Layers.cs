@@ -63,7 +63,7 @@ namespace Jazz2.Game.Structs
 
     public struct TileMapLayer
     {
-        public int Index;
+        public bool Visible;
 
         public LayerTile[] Layout;
         public int LayoutWidth;

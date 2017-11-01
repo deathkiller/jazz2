@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.IO;
 using System.IO.Compression;
 using Duality;
@@ -16,7 +15,7 @@ namespace Jazz2.Game.Tiles
         private ILevelHandler levelHandler;
 
         private TileSet tileset;
-        private RawList<TileMapLayer> levelLayout = new RawList<TileMapLayer>();
+        private RawList<TileMapLayer> layers = new RawList<TileMapLayer>();
         private RawList<AnimatedTiles> animatedTiles;
         private RawList<Point2> activeCollapsingTiles = new RawList<Point2>();
 
@@ -28,6 +27,7 @@ namespace Jazz2.Game.Tiles
 
         public Point2 Size => new Point2(levelWidth, levelHeight);
         public TileSet Tileset => tileset;
+        public RawList<TileMapLayer> Layers => layers;
 
         public TileMap(ILevelHandler levelHandler, string tilesPath, string maskPath, string normalPath, bool hasPit)
         {
@@ -64,7 +64,7 @@ namespace Jazz2.Game.Tiles
             UpdateDebris(timeMult);
         }
 
-        internal void ReadLayerConfiguration(LayerType type, int layerIdx, string path, string layerName, LevelHandler.LevelConfigJson.LayerSection layer)
+        internal void ReadLayerConfiguration(LayerType type, string path, string layerName, LevelHandler.LevelConfigJson.LayerSection layer)
         {
             using (Stream s = FileOp.Open(PathOp.Combine(path, layerName + ".layer"), FileAccessMode.Read))
             using (DeflateStream deflate = new DeflateStream(s, CompressionMode.Decompress))
@@ -73,7 +73,7 @@ namespace Jazz2.Game.Tiles
                 int height = r.ReadInt32();
 
                 TileMapLayer newLayer = new TileMapLayer();
-                newLayer.Index = layerIdx;
+                newLayer.Visible = true;
                 newLayer.Layout = new LayerTile[width * height];
 
                 for (int i = 0; i < newLayer.Layout.Length; i++) {
@@ -122,7 +122,7 @@ namespace Jazz2.Game.Tiles
                 if (type == LayerType.Sprite) {
                     levelWidth = width;
                     levelHeight = height;
-                    sprLayerIndex = levelLayout.Count;
+                    sprLayerIndex = layers.Count;
 
                     // No limit
                     limitRight = levelWidth;
@@ -147,7 +147,7 @@ namespace Jazz2.Game.Tiles
                     newLayer.BackgroundColor = ColorRgba.Black;
                 }
 
-                levelLayout.Add(newLayer);
+                layers.Add(newLayer);
             }
         }
 
@@ -191,7 +191,7 @@ namespace Jazz2.Game.Tiles
 
         public void SetTileEventFlags(int x, int y, EventType tileEvent, ushort[] tileParams)
         {
-            ref LayerTile tile = ref levelLayout[sprLayerIndex].Layout[x + y * levelWidth];
+            ref LayerTile tile = ref layers[sprLayerIndex].Layout[x + y * levelWidth];
 
             switch (tileEvent) {
                 case EventType.ModifierOneWay:
@@ -248,8 +248,8 @@ namespace Jazz2.Game.Tiles
                 return hasPit;
             }
 
-            int idx = levelLayout[sprLayerIndex].Layout[x + y * levelWidth].TileID;
-            if (levelLayout[sprLayerIndex].Layout[x + y * levelWidth].IsAnimated) {
+            int idx = layers[sprLayerIndex].Layout[x + y * levelWidth].TileID;
+            if (layers[sprLayerIndex].Layout[x + y * levelWidth].IsAnimated) {
                 idx = animatedTiles[idx].CurrentTile.TileID;
             }
 
@@ -283,7 +283,7 @@ namespace Jazz2.Game.Tiles
             int hy1 = (int)MathF.Floor(hitbox.Top);
             int hy2 = (int)MathF.Min(MathF.Ceiling(hitbox.Bottom), limitBottomPx - 1);
 
-            LayerTile[] sprLayerLayout = levelLayout.Data[sprLayerIndex].Layout;
+            LayerTile[] sprLayerLayout = layers.Data[sprLayerIndex].Layout;
 
             for (int x = hx1 / tileSize; x <= hx2 / tileSize; x++) {
                 for (int y = hy1 / tileSize; y <= hy2 / tileSize; y++) {
@@ -361,7 +361,7 @@ namespace Jazz2.Game.Tiles
                 return SuspendType.None;
             }
 
-            ref LayerTile tile = ref levelLayout[sprLayerIndex].Layout[ax + ay * levelWidth];
+            ref LayerTile tile = ref layers[sprLayerIndex].Layout[ax + ay * levelWidth];
             if (tile.SuspendType == SuspendType.None) {
                 return SuspendType.None;
             }

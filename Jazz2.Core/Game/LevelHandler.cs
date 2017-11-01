@@ -315,7 +315,6 @@ namespace Jazz2.Game
                     YSpeed = 1
                 });
 
-                int i = 0;
                 foreach (var layer in config.Layers.OrderBy(layer => layer.Value.Depth)) {
                     LayerType type;
                     if (layer.Key == "Sprite") {
@@ -330,8 +329,7 @@ namespace Jazz2.Game
                         type = LayerType.Other;
                     }
 
-                    tileMap.ReadLayerConfiguration(type, i, levelPath, layer.Key, layer.Value);
-                    i++;
+                    tileMap.ReadLayerConfiguration(type, levelPath, layer.Key, layer.Value);
                 }
 
                 // Read animated tiles

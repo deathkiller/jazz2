@@ -17,7 +17,7 @@ namespace Jazz2.Game.Tiles
             int hit = 0;
             for (int tx = x1; tx <= x2; tx++) {
                 for (int ty = y1; ty <= y2; ty++) {
-                    ref LayerTile tile = ref levelLayout[sprLayerIndex].Layout[tx + ty * levelWidth];
+                    ref LayerTile tile = ref layers[sprLayerIndex].Layout[tx + ty * levelWidth];
                     if (tile.DestructType == TileDestructType.Weapon) {
                         if (weapon == WeaponType.Freezer && (animatedTiles[tile.DestructAnimation].Length - 2) > tile.DestructFrameIndex) {
                             FrozenBlock frozen = new FrozenBlock();
@@ -57,7 +57,7 @@ namespace Jazz2.Game.Tiles
             int hit = 0;
             for (int tx = x1; tx <= x2; tx++) {
                 for (int ty = y1; ty <= y2; ty++) {
-                    ref LayerTile tile = ref levelLayout[sprLayerIndex].Layout[tx + ty * levelWidth];
+                    ref LayerTile tile = ref layers[sprLayerIndex].Layout[tx + ty * levelWidth];
                     if (tile.DestructType == TileDestructType.Special) {
                         int amount = 1;
                         if (AdvanceDestructibleTileAnimation(ref tile, tx, ty, ref amount, "SceneryDestruct")) {
@@ -83,7 +83,7 @@ namespace Jazz2.Game.Tiles
             int hit = 0;
             for (int tx = x1; tx <= x2; tx++) {
                 for (int ty = y1; ty <= y2; ty++) {
-                    ref LayerTile tile = ref levelLayout[sprLayerIndex].Layout[tx + ty * levelWidth];
+                    ref LayerTile tile = ref layers[sprLayerIndex].Layout[tx + ty * levelWidth];
                     if (tile.DestructType == TileDestructType.Speed && /*tile.ExtraData +*/ 5 <= speed) {
                         int amount = 1;
                         if (AdvanceDestructibleTileAnimation(ref tile, tx, ty, ref amount, "SceneryDestruct")) {
@@ -110,7 +110,7 @@ namespace Jazz2.Game.Tiles
             uint hit = 0;
             for (int tx = x1; tx <= x2; tx++) {
                 for (int ty = y1; ty <= y2; ty++) {
-                    ref LayerTile tile = ref levelLayout[sprLayerIndex].Layout[tx + ty * levelWidth];
+                    ref LayerTile tile = ref layers[sprLayerIndex].Layout[tx + ty * levelWidth];
                     if (tile.DestructType == TileDestructType.Collapse && !activeCollapsingTiles.Contains(new Point2(tx, ty))) {
                         activeCollapsingTiles.Add(new Point2(tx, ty));
                         hit++;
@@ -146,7 +146,7 @@ namespace Jazz2.Game.Tiles
         {
             for (int i = 0; i < activeCollapsingTiles.Count; i++) {
                 Point2 tilePos = activeCollapsingTiles[i];
-                ref LayerTile tile = ref levelLayout[sprLayerIndex].Layout[tilePos.X + tilePos.Y * levelWidth];
+                ref LayerTile tile = ref layers[sprLayerIndex].Layout[tilePos.X + tilePos.Y * levelWidth];
                 if (tile.ExtraData == 0) {
                     int amount = 1;
                     if (!AdvanceDestructibleTileAnimation(ref tile, tilePos.X, tilePos.Y, ref amount, "SceneryCollapse")) {

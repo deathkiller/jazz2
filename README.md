@@ -10,21 +10,22 @@ Uses parts of [Duality - A 2D GameDev Framework](https://duality.adamslair.net/)
 * [OpenALSoft](https://github.com/opentk/opentk-dependencies)
   * Copy `x86/openal32.dll` to `‹Game›/Extensions/OpenALSoft.x86.dll`
   * Copy `x64/openal32.dll` to `‹Game›/Extensions/OpenALSoft.x64.dll`
-* [libopenmpt](http://lib.openmpt.org/libopenmpt/)
+* [libopenmpt](https://lib.openmpt.org/libopenmpt/download/)
   * Copy `libopenmpt.dll` (*x86*, and its dependencies) to `‹Game›` directory
 
 ### Linux
 * [Mono 4.6 (or newer)](http://www.mono-project.com/download/#download-lin)
 * OpenAL
-* [libopenmpt](http://lib.openmpt.org/libopenmpt/)
+* [libopenmpt](https://lib.openmpt.org/libopenmpt/download/)
   * Copy `libopenmpt.so` (*x86*, and its dependencies) to `‹Game›` directory
 
 ### macOS
 * [Mono 4.6 (or newer)](http://www.mono-project.com/download/#download-mac)
+* [libopenmpt](https://lib.openmpt.org/libopenmpt/)
 
 ### Android
 * Xamarin
-* [libopenmpt](http://lib.openmpt.org/libopenmpt/) (included for *armeabi-v7a* and *x86*)
+* [libopenmpt](https://lib.openmpt.org/libopenmpt/download/) (included for *armeabi-v7a* and *x86*)
 
 Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) (or equivalent Mono compiler) to build the solution.
 
@@ -58,6 +59,7 @@ Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) (or equiv
 * Open the solution in [Microsoft Visual Studio 2017](https://www.visualstudio.com/) and build it
 * Copy `/Packages/AdamsLair.OpenTK.x.y.z/lib/OpenTK.dll.config` to `/Jazz2/Bin/Debug/OpenTK.dll.config`
 * Copy dependencies to `/Jazz2/Bin/Debug/` or `/Jazz2/Bin/Release/`
+* If you build Release configuration, you have to replace `Debug` with `Release` in paths above
 
 ### Linux
 * Install [Mono 5.0 (or newer)](http://www.mono-project.com/download/#download-lin)
@@ -70,14 +72,19 @@ msbuild
 * Copy `/Packages/AdamsLair.OpenTK.x.y.z/lib/OpenTK.dll.config` to `/Jazz2/Bin/Debug/OpenTK.dll.config`
 * Obtain and copy `libopenmpt.so` to `/Jazz2/Bin/Debug/libopenmpt.so` to enable music playback
 * Then you can rebuild the solution only with `msbuild` command
-* Use `msbuild /p:Configuration=Release` to build Release configuration, you have to replace `Debug` with `Release` in paths
+* Use `msbuild /p:Configuration=Release` to build Release configuration, you have to replace `Debug` with `Release` in paths above
 
 ### macOS
 * Install [Mono 5.0 (or newer)](http://www.mono-project.com/download/#download-mac)
 * Open the solution in [Microsoft Visual Studio for Mac](https://www.visualstudio.com/vs/visual-studio-mac/) and build it
 * Copy `/Packages/AdamsLair.OpenTK.x.y.z/lib/OpenTK.dll.config` to `/Jazz2/Bin/Debug/OpenTK.dll.config`
+* If you build Release configuration, you have to replace `Debug` with `Release` in paths above
 
-*Errors about Jazz2.Android project can be ignored, if you don't need Android build.*
+*Errors about `Jazz2.Android` project can be ignored, if you don't need Android build.*
+
+### Android
+* Install *Mobile development in .NET* to Microsoft Visual Studio 2017
+* Open the solution and build `Jazz2.Android` project
 
 
 ## License

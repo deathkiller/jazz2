@@ -20,7 +20,7 @@ namespace Jazz2.Game.Tiles
             // Go through all tiles and update any that are influenced by this trigger
             int n = levelWidth * levelHeight;
             for (int i = 0; i < n; i++) {
-                ref LayerTile tile = ref levelLayout[sprLayerIndex].Layout[i];
+                ref LayerTile tile = ref layers[sprLayerIndex].Layout[i];
                 if (tile.DestructType == TileDestructType.Trigger && tile.ExtraData == triggerID) {
                     if (animatedTiles[tile.DestructAnimation].Length > 1) {
                         tile.DestructFrameIndex = (newState ? 1 : 0);
