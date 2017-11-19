@@ -83,7 +83,7 @@ msbuild
 *Errors about `Jazz2.Android` project can be ignored, if you don't need Android build.*
 
 ### Android
-* Install *Mobile development in .NET* to Microsoft Visual Studio 2017
+* Install **Mobile development in .NET** to Microsoft Visual Studio 2017
 * Open the solution and build `Jazz2.Android` project
 
 
