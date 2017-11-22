@@ -232,7 +232,7 @@
             // Add Bloom
             outColor.rgb+=Bloom(pos, texture_size)*bloomAmount;
 
-            if(shadowMask) {
+            if(shadowMask != 0) {
                 outColor.rgb*=Mask(floor(tex.xy*(texture_size.xy/video_size.xy)*output_size.xy)+vec2(0.5,0.5));
             }
 

@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Duality;
 using Duality.Components;
 using Duality.Drawing;
@@ -15,7 +13,6 @@ using Jazz2.Game;
 using Jazz2.Game.Events;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
-using Jazz2.Game.UI;
 
 namespace Editor
 {
@@ -109,7 +106,6 @@ namespace Editor
                     YSpeed = 1
                 });
 
-                int i = 0;
                 foreach (var layer in config.Layers.OrderBy(layer => layer.Value.Depth)) {
                     LayerType type;
                     if (layer.Key == "Sprite") {
@@ -124,8 +120,7 @@ namespace Editor
                         type = LayerType.Other;
                     }
 
-                    tileMap.ReadLayerConfiguration(type, i, levelPath, layer.Key, layer.Value);
-                    i++;
+                    tileMap.ReadLayerConfiguration(type, levelPath, layer.Key, layer.Value);
                 }
 
                 // Read animated tiles

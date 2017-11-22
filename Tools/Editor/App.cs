@@ -50,6 +50,9 @@ namespace Editor
 
         private static void Init()
         {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+
             //DualityApp.PluginManager.PluginsReady += DualityApp_PluginsReady;
 
             DualityApp.Init(
@@ -84,7 +87,7 @@ namespace Editor
 
             // Enter a new, empty Scene, which will trigger the usual updates
             //Scene.SwitchTo(null, true);
-            Scene.SwitchTo(new EditorLevelHandler("prince", "01_castle1"), true);
+            Scene.SwitchTo(new EditorLevelHandler("prince", "03_carrot1"), true);
 
             mainWindow.Show();
 

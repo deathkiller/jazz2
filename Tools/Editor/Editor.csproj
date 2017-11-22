@@ -70,13 +70,13 @@
     <Compile Include="Backend\EditorGraphics\INativeEditorGraphicsContext.cs" />
     <Compile Include="Backend\EditorGraphics\INativeRenderableSite.cs" />
     <Compile Include="Backend\IEditorGraphicsBackend.cs" />
-    <Compile Include="CamView\CamView.cs">
+    <Compile Include="UI\CamView\CamView.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="CamView\CamViewClient.cs" />
-    <Compile Include="CamView\CamViewLayer.cs" />
-    <Compile Include="CamView\CamViewState.cs" />
-    <Compile Include="CamView\States\TileMapEditorState.cs" />
+    <Compile Include="UI\CamView\CamViewClient.cs" />
+    <Compile Include="UI\CamView\CamViewLayer.cs" />
+    <Compile Include="UI\CamView\CamViewState.cs" />
+    <Compile Include="UI\CamView\States\TileMapEditorState.cs" />
     <Compile Include="EditorLevelHandler.cs" />
     <Compile Include="EditorPlugin.cs" />
     <Compile Include="EditorPluginManager.cs" />
@@ -97,6 +97,15 @@
       <DependentUpon>MainWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="App.cs" />
+    <Compile Include="UI\Controls\RenderControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\Controls\TileMapLayersListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\Controls\TileSetView.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Utility\NativeMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\Extensions\ExtMethodsBitmap.cs" />
@@ -138,6 +147,7 @@
   <ItemGroup>
     <None Include="Icon.ico" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(SolutionDir)Jazz2\Bin\$(ConfigurationName)\" SkipUnchangedFiles="true" />

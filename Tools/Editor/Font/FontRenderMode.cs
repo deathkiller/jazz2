@@ -20,6 +20,8 @@
 		/// <summary>
 		/// A greyscale bitmap is used to store glyphs. Rendering is properly filtered and uses a shader to enforce sharp masked edges.
 		/// </summary>
-		SharpBitmap
+		SharpBitmap,
+
+        ClearType
 	}
 }

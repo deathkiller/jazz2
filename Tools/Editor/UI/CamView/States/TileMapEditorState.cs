@@ -8,7 +8,7 @@ using Jazz2.Game;
 using Jazz2.Game.Tiles;
 using FontStyle = Duality.Resources.FontStyle;
 
-namespace Editor.CamView.States
+namespace Editor.UI.CamView.States
 {
     /// <summary>
     /// Provides a full preview of the game within the editor. 
@@ -55,7 +55,6 @@ namespace Editor.CamView.States
         private SpecialRenderSize targetRenderSizeMode = SpecialRenderSize.CamView;
         private bool isUpdatingUI;
 
-        private FontRasterizer font;
         private TileMap tilemap;
         private Point activeTilePos;
         private Rect activeTileRect;
@@ -167,9 +166,6 @@ namespace Editor.CamView.States
         {
             this.CameraActionAllowed = false;
             this.EngineUserInput = true;
-
-            font = new FontRasterizer("Segoe UI", 9f, FontStyle.Regular, null, true, false, FontRenderMode.GrayscaleBitmap);
-            font.CharSpacing = 1f;
 
             CameraActionAllowed = true;
         }
@@ -303,21 +299,21 @@ namespace Editor.CamView.States
                 canvas.State.SetMaterial(DrawTechnique.Alpha);
                 canvas.State.ColorTint = new ColorRgba(0.4f, 1f, 0.4f);
 
-                canvas.DrawDashLine(x1, y1, x2, y1, DashPattern.DotMore);
-                canvas.DrawDashLine(x1, y1, x1, y2, DashPattern.DotMore);
-                canvas.DrawDashLine(x2, y1, x2, y2, DashPattern.DotMore);
-                canvas.DrawDashLine(x1, y2, x2, y2, DashPattern.DotMore);
+                canvas.DrawDashLine(x1, y1, x2, y1, DashPattern.Dash);
+                canvas.DrawDashLine(x1, y1, x1, y2, DashPattern.Dash);
+                canvas.DrawDashLine(x2, y1, x2, y2, DashPattern.Dash);
+                canvas.DrawDashLine(x1, y2, x2, y2, DashPattern.Dash);
             }
 
             VertexC1P3T2[] vertices = null;
             {
-                int vertexCount = font.EmitTextVertices("Pre-alpha version", ref vertices, 10, 10, ColorRgba.White);
-                canvas.DrawDevice.AddVertices(font.Material, VertexMode.Quads, vertices, 0, vertexCount);
+                int vertexCount = FontRasterizer.Native9.EmitTextVertices("Pre-alpha version", ref vertices, 10, 10, ColorRgba.White);
+                canvas.DrawDevice.AddVertices(FontRasterizer.Native9.Material, VertexMode.Quads, vertices, 0, vertexCount);
             }
 
             {
-                int vertexCount = font.EmitTextVertices("Tile: " + activeTilePos.X + "; " + activeTilePos.Y, ref vertices, 10, 28, ColorRgba.White);
-                canvas.DrawDevice.AddVertices(font.Material, VertexMode.Quads, vertices, 0, vertexCount);
+                int vertexCount = FontRasterizer.Native9.EmitTextVertices("Tile: " + activeTilePos.X + "; " + activeTilePos.Y, ref vertices, 10, 28, ColorRgba.White);
+                canvas.DrawDevice.AddVertices(FontRasterizer.Native9.Material, VertexMode.Quads, vertices, 0, vertexCount);
             }
         }
 
@@ -397,6 +393,16 @@ namespace Editor.CamView.States
                 tileMapDragActive = false;
                 Invalidate();
             }
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+
+            activeTilePos = default(Point);
+            activeTileRect = default(Rect);
+
+            Invalidate();
         }
     }
 }

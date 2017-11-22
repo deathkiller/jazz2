@@ -1,7 +1,7 @@
 ﻿using System.Xml.Linq;
 using Duality.Drawing;
 
-namespace Editor.CamView
+namespace Editor.UI.CamView
 {
     public abstract class CamViewLayer : CamViewClient
     {

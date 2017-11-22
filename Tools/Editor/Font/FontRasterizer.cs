@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Text;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Duality.Drawing;
 using Editor;
 using SysDrawFont = System.Drawing.Font;
@@ -13,6 +14,21 @@ namespace Duality.Resources
 {
     public class FontRasterizer
     {
+        public static readonly FontRasterizer Native9, Window9;
+
+        static FontRasterizer()
+        {
+            // Initialize default fonts
+            Native9 = new FontRasterizer(SystemFonts.MessageBoxFont.FontFamily, 9f,
+                FontStyle.Regular, null, true, false, FontRenderMode.GrayscaleBitmap);
+            Native9.CharSpacing = 1f;
+
+            Window9 = new FontRasterizer(SystemFonts.MessageBoxFont.FontFamily, 9f,
+                FontStyle.Regular, null, true, false, FontRenderMode.ClearType);
+            Window9.CharSpacing = -1f;
+        }
+
+
         private FontData fontData;
         private float spacing = 0.0f;
 	    private float lineHeightFactor = 1.0f;
@@ -81,13 +97,14 @@ namespace Duality.Resources
             get { return this.fontData.Metrics; }
         }
 
-        public FontRasterizer(string fontFamily, float emSize, FontStyle style, string extendedSet, bool antialiasing, bool monospace, FontRenderMode renderMode)
+        public FontRasterizer(FontFamily fontFamily, float emSize, FontStyle style, string extendedSet, bool antialiasing, bool monospace, FontRenderMode renderMode)
 		{
             fontData = this.RenderGlyphs(
                 fontFamily,
                 emSize,
                 style,
                 !string.IsNullOrEmpty(extendedSet) ? new FontCharSet(extendedSet) : null,
+		        renderMode,
                 antialiasing,
                 monospace);
 
@@ -112,7 +129,7 @@ namespace Duality.Resources
 	        this.pixmap.Atlas = fontData.Atlas.ToList();
 
 		    bool isPixelGridAligned =
-		        renderMode == FontRenderMode.MonochromeBitmap || renderMode == FontRenderMode.GrayscaleBitmap;
+		        renderMode == FontRenderMode.MonochromeBitmap || renderMode == FontRenderMode.GrayscaleBitmap || renderMode == FontRenderMode.ClearType;
 
             this.texture = new Texture(this.pixmap,
 		        TextureSizeMode.Enlarge,
@@ -121,7 +138,9 @@ namespace Duality.Resources
 
 	        // Select DrawTechnique to use
 	        ContentRef<DrawTechnique> technique;
-	        if (renderMode == FontRenderMode.MonochromeBitmap)
+		    if (renderMode == FontRenderMode.ClearType)
+		        technique = DrawTechnique.Alpha;
+            else if (renderMode == FontRenderMode.MonochromeBitmap)
 		        technique = DrawTechnique.Mask;
 	        else if (renderMode == FontRenderMode.GrayscaleBitmap)
 		        technique = DrawTechnique.Alpha;
@@ -410,7 +429,7 @@ namespace Duality.Resources
         /// Renders the <see cref="Duality.Resources.FontRasterizer"/> based on its embedded TrueType representation.
         /// <param name="extendedSet">Extended set of characters for renderning.</param>
         /// </summary>
-        private FontData RenderGlyphs(string fontFamily, float emSize, FontStyle style, FontCharSet extendedSet, bool antialiasing, bool monospace)
+        private FontData RenderGlyphs(string fontFamily, float emSize, FontStyle style, FontCharSet extendedSet, FontRenderMode renderMode, bool antialiasing, bool monospace)
         {
             FontFamily family = new FontFamily(fontFamily);
 
@@ -420,13 +439,14 @@ namespace Duality.Resources
                 emSize,
                 style,
                 extendedSet,
+                renderMode,
                 antialiasing,
                 monospace);
         }
         /// <summary>
         /// Renders the <see cref="Duality.Resources.FontRasterizer"/> using the specified system font family.
         /// </summary>
-        private FontData RenderGlyphs(FontFamily fontFamily, float emSize, FontStyle style, FontCharSet extendedSet, bool antialiasing, bool monospace)
+        private FontData RenderGlyphs(FontFamily fontFamily, float emSize, FontStyle style, FontCharSet extendedSet, FontRenderMode renderMode, bool antialiasing, bool monospace)
         {
             // Determine System.Drawing font style
             SysDrawFontStyle systemStyle = SysDrawFontStyle.Regular;
@@ -438,7 +458,7 @@ namespace Duality.Resources
             if (fontFamily != null) {
                 try { internalFont = new SysDrawFont(fontFamily, emSize, systemStyle); } catch (Exception e) {
                     Console.WriteLine(
-                        "Failed to create System Font '{1} {2}, {3}' for rendering Duality Font glyphs: {0}",
+                        "Failed to create System Font '{1} {2}, {3}' for rendering: {0}",
                         /*LogFormat.Exception(*/e/*)*/,
                         fontFamily.Name,
                         emSize,
@@ -455,6 +475,7 @@ namespace Duality.Resources
                 return this.RenderGlyphs(
                     internalFont,
                     FontCharSet.Default.MergedWith(extendedSet),
+                    renderMode,
                     antialiasing,
                     monospace);
             }
@@ -464,8 +485,12 @@ namespace Duality.Resources
         /// This method assumes that the system font's size and style match the one specified in
         /// the specified Duality font.
         /// </summary>
-        private FontData RenderGlyphs(SysDrawFont internalFont, FontCharSet charSet, bool antialiazing, bool monospace)
+        private FontData RenderGlyphs(SysDrawFont internalFont, FontCharSet charSet, FontRenderMode renderMode, bool antialiazing, bool monospace)
         {
+            if (renderMode == FontRenderMode.ClearType) {
+                return RenderGlyphsCleartype(internalFont, charSet, monospace);
+            }
+
             FontGlyphData[] glyphs = new FontGlyphData[charSet.Chars.Length];
             for (int i = 0; i < glyphs.Length; i++) {
                 glyphs[i].Glyph = charSet.Chars[i];
@@ -582,6 +607,137 @@ namespace Duality.Resources
                 pixelLayer.Data[i].G = 255;
                 pixelLayer.Data[i].B = 255;
             }
+
+            // Monospace offset and advance adjustments
+            if (monospace) {
+                float maxGlyphWidth = 0;
+                for (int i = 0; i < glyphs.Length; i++) {
+                    maxGlyphWidth = Math.Max(maxGlyphWidth, glyphs[i].Size.X);
+                }
+                for (int i = 0; i < glyphs.Length; ++i) {
+                    glyphs[i].Offset.X -= (int)Math.Round((maxGlyphWidth - glyphs[i].Size.X) / 2.0f);
+                    glyphs[i].Advance = maxGlyphWidth;
+                }
+            }
+
+            // Determine Font properties
+            {
+                float lineSpacing = internalFont.FontFamily.GetLineSpacing(internalFont.Style);
+                float emHeight = internalFont.FontFamily.GetEmHeight(internalFont.Style);
+                float cellAscent = internalFont.FontFamily.GetCellAscent(internalFont.Style);
+                float cellDescent = internalFont.FontFamily.GetCellDescent(internalFont.Style);
+
+                ascent = (int)Math.Round(cellAscent * internalFont.Size / emHeight);
+                bodyAscent /= charSet.CharBodyAscentRef.Length;
+                baseLine /= charSet.CharBaseLineRef.Length;
+                descent = (int)Math.Round(((float)descent / charSet.CharDescentRef.Length) - (float)baseLine);
+            }
+
+            // Aggregate rendered and generated data into our return value
+            FontMetrics metrics = new FontMetrics(
+                size: internalFont.SizeInPoints,
+                height: (int)internalFont.Height,
+                ascent: ascent,
+                bodyAscent: bodyAscent,
+                descent: descent,
+                baseLine: baseLine,
+                monospace: monospace);
+
+            // Determine kerning pairs
+            FontKerningPair[] kerningPairs = null;
+            if (monospace)
+                kerningPairs = null;
+            else
+                kerningPairs = this.GatherKerningPairs(glyphs, metrics, glyphBitmaps);
+
+            return new FontData(pixelLayer, atlas, glyphs, metrics, kerningPairs);
+        }
+
+        private FontData RenderGlyphsCleartype(SysDrawFont internalFont, FontCharSet charSet, bool monospace)
+        {
+            FontGlyphData[] glyphs = new FontGlyphData[charSet.Chars.Length];
+            for (int i = 0; i < glyphs.Length; i++) {
+                glyphs[i].Glyph = charSet.Chars[i];
+            }
+
+            int bodyAscent = 0;
+            int baseLine = 0;
+            int descent = 0;
+            int ascent = 0;
+
+            int cols;
+            int rows;
+            cols = rows = (int)Math.Ceiling(Math.Sqrt(glyphs.Length));
+
+            IntPtr hFont = internalFont.ToHfont();
+
+            PixelData pixelLayer = new PixelData(
+                MathF.RoundToInt(cols * internalFont.Size * 1.2f),
+                MathF.RoundToInt(rows * internalFont.Height * 1.2f),
+                ColorRgba.TransparentBlack);
+            Bitmap measureBm = new Bitmap(1, 1);
+            Rect[] atlas = new Rect[glyphs.Length];
+            PixelData[] glyphBitmaps = new PixelData[glyphs.Length];
+            using (Graphics measureGraphics = Graphics.FromImage(measureBm)) {
+                IntPtr measureHdc = measureGraphics.GetHdc();
+
+                int x = 1;
+                int y = 1;
+                for (int i = 0; i < glyphs.Length; ++i) {
+                    string str = glyphs[i].Glyph.ToString(CultureInfo.InvariantCulture);
+                    bool isSpace = str == " ";
+
+                    Size charSize;
+                    GetTextExtentPoint32(measureHdc, str, str.Length, out charSize);
+
+                    // Rasterize a single glyph for rendering
+                    Bitmap bm = new Bitmap(Math.Max(1, charSize.Width), internalFont.Height + 1);
+                    using (Graphics glyphGraphics = Graphics.FromImage(bm)) {
+                        glyphGraphics.Clear(SystemColors.Window);
+
+                        IntPtr hdc = glyphGraphics.GetHdc();
+                        SelectObject(hdc, hFont);
+                        SetTextColor(hdc, (0 /*B*/ << 16) | (0 /*G*/ << 8) | 0 /*R*/);
+                        TextOut(hdc, 0, 0, str, str.Length);
+                        glyphGraphics.ReleaseHdc(hdc);
+                    }
+                    glyphBitmaps[i] = new PixelData();
+                    glyphBitmaps[i].FromBitmap(bm);
+
+                    PixelData glyphTempTypo = glyphBitmaps[i];
+
+                    // Update xy values if it doesn't fit anymore
+                    if (x + glyphBitmaps[i].Width + 2 > pixelLayer.Width) {
+                        x = 1;
+                        y += internalFont.Height + MathF.Clamp((int)MathF.Ceiling(internalFont.Height * 0.1875f), 3, 10);
+                    }
+
+                    // Memorize atlas coordinates & glyph data
+                    glyphs[i].Size = glyphBitmaps[i].Size;
+                    glyphs[i].Offset.X = glyphBitmaps[i].Width - glyphTempTypo.Width;
+                    glyphs[i].Offset.Y = 0; // TTF fonts are rendered on blocks that are the whole size of the height - so no need for offset
+                    if (isSpace) {
+                        glyphs[i].Size.X /= 2;
+                        glyphs[i].Offset.X /= 2;
+                    }
+                    glyphs[i].Advance = glyphs[i].Size.X - glyphs[i].Offset.X;
+
+                    atlas[i].X = x;
+                    atlas[i].Y = y;
+                    atlas[i].W = glyphBitmaps[i].Width;
+                    atlas[i].H = (internalFont.Height + 1);
+
+                    // Draw it onto the font surface
+                    glyphBitmaps[i].DrawOnto(pixelLayer, BlendMode.Solid, x, y);
+
+                    x += glyphBitmaps[i].Width + MathF.Clamp((int)MathF.Ceiling(internalFont.Height * 0.125f), 2, 10);
+                }
+
+                measureGraphics.ReleaseHdc(measureHdc);
+            }
+
+            // ToDo: finally
+            DeleteObject(hFont);
 
             // Monospace offset and advance adjustments
             if (monospace) {
@@ -760,5 +916,24 @@ namespace Duality.Resources
 
             return;
         }
+
+
+        [DllImport("gdi32")]
+        private static extern bool DeleteObject(IntPtr hObject);
+
+        [DllImport("gdi32", EntryPoint = "GetTextExtentPoint32W")]
+        private static extern int GetTextExtentPoint32(IntPtr hdc, [MarshalAs(UnmanagedType.LPWStr)] string str, int len, out Size size);
+
+        [DllImport("gdi32", EntryPoint = "TextOutW")]
+        private static extern bool TextOut(IntPtr hdc, int x, int y, [MarshalAs(UnmanagedType.LPWStr)] string str, int len);
+
+        [DllImport("gdi32")]
+        private static extern IntPtr SelectObject(IntPtr hdc, IntPtr hgdiobj);
+
+        [DllImport("gdi32")]
+        private static extern int SetBkMode(IntPtr hdc, int mode);
+
+        [DllImport("gdi32")]
+        private static extern int SetTextColor(IntPtr hdc, int color);
     }
 }
