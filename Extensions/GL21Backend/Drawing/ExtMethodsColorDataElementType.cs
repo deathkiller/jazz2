@@ -3,7 +3,7 @@ using Duality.Drawing;
 
 using OpenTK.Graphics.OpenGL;
 
-namespace Duality.Backend.DefaultOpenTK
+namespace Duality.Backend.GL21
 {
     public static class ExtMethodColorDataElementType
 	{

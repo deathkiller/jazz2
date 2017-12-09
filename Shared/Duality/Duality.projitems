@@ -216,10 +216,4 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utility\RefreshMode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\ScreenMode.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="$(MSBuildThisFileDirectory)EmbeddedResources\Minimal.frag" />
-    <EmbeddedResource Include="$(MSBuildThisFileDirectory)EmbeddedResources\Minimal.vert" />
-    <EmbeddedResource Include="$(MSBuildThisFileDirectory)EmbeddedResources\Picking.frag" />
-    <EmbeddedResource Include="$(MSBuildThisFileDirectory)EmbeddedResources\SharpAlpha.frag" />
-  </ItemGroup>
 </Project>

@@ -3,8 +3,9 @@ using System.Linq;
 using Duality.Resources;
 
 using OpenTK.Graphics.OpenGL;
+using Duality.Backend.DefaultOpenTK;
 
-namespace Duality.Backend.DefaultOpenTK
+namespace Duality.Backend.GL21
 {
     public class NativeShaderProgram : INativeShaderProgram
 	{

@@ -87,5 +87,18 @@ msbuild
 * Open the solution and build `Jazz2.Android` project
 
 
+## Extensions
+### OpenGL ES 2.0
+Alternative OpenGL ES 2.0 backend can be built separatelly. It does not contain all features
+that are available in default OpenGL 2.1 backend, but it should run faster on low-end configurations.
+**Don't use it if you have no reason for it!**
+
+To use it, build `Extensions/Es20Backend` project. It should be copied to
+`/Jazz2/Bin/Debug/Extensions/Es20Backend.core.dll` automatically.
+Then copy all files from `Content/_ES20` directory to `/Jazz2/Bin/Debug/Content` and replace them.
+
+Also, you have to remove `/Jazz2/Bin/Debug/Extensions/GL21Backend.core.dll` file to disable default OpenGL 2.1 backend.
+
+
 ## License
 This software is licensed under the [GNU General Public License v3.0](./LICENSE).

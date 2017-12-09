@@ -1,15 +1,16 @@
 ﻿using System;
 using Duality.Drawing;
-using OpenTK.Graphics.OpenGL;
-using GLPixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
-using GLTexMagFilter = OpenTK.Graphics.OpenGL.TextureMagFilter;
-using GLTexMinFilter = OpenTK.Graphics.OpenGL.TextureMinFilter;
-using GLTexWrapMode = OpenTK.Graphics.OpenGL.TextureWrapMode;
+using Duality.Resources;
+using OpenTK.Graphics.ES20;
+using GLPixelFormat = OpenTK.Graphics.ES20.PixelFormat;
+using GLTexMagFilter = OpenTK.Graphics.ES20.TextureMagFilter;
+using GLTexMinFilter = OpenTK.Graphics.ES20.TextureMinFilter;
+using GLTexWrapMode = OpenTK.Graphics.ES20.TextureWrapMode;
 using TextureMagFilter = Duality.Drawing.TextureMagFilter;
 using TextureMinFilter = Duality.Drawing.TextureMinFilter;
 using TextureWrapMode = Duality.Drawing.TextureWrapMode;
 
-namespace Duality.Backend.DefaultOpenTK
+namespace Duality.Backend.Es20
 {
     public class NativeTexture : INativeTexture
     {
@@ -33,10 +34,9 @@ namespace Duality.Backend.DefaultOpenTK
 
             texInit = true;
         }
-
         public static void Bind(ContentRef<Duality.Resources.Texture> target, int texUnit = 0)
         {
-            Bind((target.Res != null ? target.Res.Native : null) as NativeTexture, texUnit);
+            Bind((target.Res != null ? target.Res : Texture.White.Res).Native as NativeTexture, texUnit);
         }
         public static void Bind(NativeTexture tex, int texUnit = 0)
         {
@@ -48,10 +48,8 @@ namespace Duality.Backend.DefaultOpenTK
 
             if (tex == null) {
                 GL.BindTexture(TextureTarget.Texture2D, 0);
-                GL.Disable(EnableCap.Texture2D);
                 curBound[texUnit] = null;
             } else {
-                GL.Enable(EnableCap.Texture2D);
                 GL.BindTexture(TextureTarget.Texture2D, tex.Handle);
                 curBound[texUnit] = tex;
             }
@@ -59,6 +57,8 @@ namespace Duality.Backend.DefaultOpenTK
         public static void ResetBinding(int beginAtIndex = 0)
         {
             if (!texInit) InitTextureFields();
+
+            Bind(Texture.White.Res.Native as NativeTexture, beginAtIndex++);
             for (int i = beginAtIndex; i < texUnits.Length; i++) {
                 Bind(null as NativeTexture, i);
             }
@@ -99,7 +99,13 @@ namespace Duality.Backend.DefaultOpenTK
 
         void INativeTexture.SetupEmpty(TexturePixelFormat format, int width, int height, TextureMinFilter minFilter, TextureMagFilter magFilter, TextureWrapMode wrapX, TextureWrapMode wrapY, int anisoLevel, bool mipmaps)
         {
-            DefaultOpenTKBackendPlugin.GuardSingleThreadState();
+            // Removed thread guards because of performance
+            //DefaultOpenTKBackendPlugin.GuardSingleThreadState();
+
+            if (width == 0 || height == 0)
+            {
+                return;
+            }
 
             int lastTexId;
             GL.GetInteger(GetPName.TextureBinding2D, out lastTexId);
@@ -112,17 +118,21 @@ namespace Duality.Backend.DefaultOpenTK
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)ToOpenTKTextureWrapMode(wrapY));
 
             // Anisotropic filtering
-            if (anisoLevel > 0) {
-                GL.TexParameter(TextureTarget.Texture2D, (TextureParameterName)ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, (float)anisoLevel);
-            }
+            // ToDo: Add similar code for OpenGL ES
+            //if (anisoLevel > 0) {
+            //    GL.TexParameter(TextureTarget.Texture2D, (TextureParameterName)ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, (float)anisoLevel);
+            //}
 
             // If needed, care for Mipmaps
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.GenerateMipmap, mipmaps ? 1 : 0);
+            // ToDo: Why are mipmaps disabled here?
+            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.GenerateMipmap, mipmaps ? 1 : 0);
 
             // Setup pixel format
-            GL.TexImage2D(TextureTarget.Texture2D, 0,
-                ToOpenTKPixelFormat(format), width, height, 0,
-                GLPixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+            GL.TexImage2D(TextureTarget2d.Texture2D, 0,
+                ToOpenTKPixelInternalFormat(format), width, height, 0,
+                ToOpenTKPixelFormat(format), PixelType.UnsignedByte, IntPtr.Zero);
+
+            //GL.GenerateMipmap(TextureTarget.Texture2D);
 
             this.width = width;
             this.height = height;
@@ -133,17 +143,20 @@ namespace Duality.Backend.DefaultOpenTK
         }
         void INativeTexture.LoadData<T>(TexturePixelFormat format, int width, int height, T[] data, ColorDataLayout dataLayout, ColorDataElementType dataElementType)
         {
-            DefaultOpenTKBackendPlugin.GuardSingleThreadState();
+            // Removed thread guards because of performance
+            //DefaultOpenTKBackendPlugin.GuardSingleThreadState();
 
             int lastTexId;
             GL.GetInteger(GetPName.TextureBinding2D, out lastTexId);
             GL.BindTexture(TextureTarget.Texture2D, this.handle);
 
             // Load pixel data to video memory
-            GL.TexImage2D(TextureTarget.Texture2D, 0,
-                ToOpenTKPixelFormat(format), width, height, 0,
+            GL.TexImage2D(TextureTarget2d.Texture2D, 0,
+                ToOpenTKPixelInternalFormat(format), width, height, 0,
                 dataLayout.ToOpenTK(), dataElementType.ToOpenTK(),
                 data);
+
+            GL.GenerateMipmap(TextureTarget.Texture2D);
 
             this.width = width;
             this.height = height;
@@ -151,63 +164,95 @@ namespace Duality.Backend.DefaultOpenTK
 
             GL.BindTexture(TextureTarget.Texture2D, lastTexId);
         }
+
         void INativeTexture.GetData<T>(T[] target, ColorDataLayout dataLayout, ColorDataElementType dataElementType)
         {
-            DefaultOpenTKBackendPlugin.GuardSingleThreadState();
+            // ToDo: Add similar code for OpenGL ES
+            throw new NotSupportedException();
 
-            int lastTexId;
-            GL.GetInteger(GetPName.TextureBinding2D, out lastTexId);
-            GL.BindTexture(TextureTarget.Texture2D, this.handle);
-
-            GL.GetTexImage(TextureTarget.Texture2D, 0,
-                dataLayout.ToOpenTK(), dataElementType.ToOpenTK(),
-                target);
-
-            GL.BindTexture(TextureTarget.Texture2D, lastTexId);
+            // Removed thread guards because of performance
+            //DefaultOpenTKBackendPlugin.GuardSingleThreadState();
+            //
+            //int lastTexId;
+            //GL.GetInteger(GetPName.TextureBinding2D, out lastTexId);
+            //GL.BindTexture(TextureTarget.Texture2D, this.handle);
+            //
+            //
+            //OpenTK.Graphics.OpenGL.GL.GetTexImage(TextureTarget.Texture2D, 0,
+            //    dataLayout.ToOpenTK(), dataElementType.ToOpenTK(),
+            //    target);
+            //
+            //GL.BindTexture(TextureTarget.Texture2D, lastTexId);
         }
+
         void IDisposable.Dispose()
         {
             if (DualityApp.ExecContext != DualityApp.ExecutionContext.Terminated &&
                 this.handle != 0) {
-                DefaultOpenTKBackendPlugin.GuardSingleThreadState();
+                // Removed thread guards because of performance
+                //DefaultOpenTKBackendPlugin.GuardSingleThreadState();
                 GL.DeleteTexture(this.handle);
                 this.handle = 0;
             }
         }
 
-        private static PixelInternalFormat ToOpenTKPixelFormat(TexturePixelFormat format)
+        private static TextureComponentCount ToOpenTKPixelInternalFormat(TexturePixelFormat format)
         {
             switch (format) {
-                case TexturePixelFormat.Single: return PixelInternalFormat.R8;
-                case TexturePixelFormat.Dual: return PixelInternalFormat.Rg8;
-                case TexturePixelFormat.Rgb: return PixelInternalFormat.Rgb;
-                case TexturePixelFormat.Rgba: return PixelInternalFormat.Rgba;
+                // ToDo
+                //case TexturePixelFormat.Single: return TextureComponentCount./*R8Ext*/Rgb;
+                //case TexturePixelFormat.Dual: return TextureComponentCount./*Rg8Ext*/Rgb;
+                //case TexturePixelFormat.Rgb: return TextureComponentCount.Rgb;
+                default:
+                case TexturePixelFormat.Rgba: return TextureComponentCount.Rgba;
 
-                case TexturePixelFormat.FloatSingle: return PixelInternalFormat.R16f;
-                case TexturePixelFormat.FloatDual: return PixelInternalFormat.Rg16f;
-                case TexturePixelFormat.FloatRgb: return PixelInternalFormat.Rgb16f;
-                case TexturePixelFormat.FloatRgba: return PixelInternalFormat.Rgba16f;
+                //case TexturePixelFormat.FloatSingle: return TextureComponentCount.R16fExt;
+                //case TexturePixelFormat.FloatDual: return TextureComponentCount.Rg16fExt;
+                //case TexturePixelFormat.FloatRgb: return TextureComponentCount.Rgb16fExt;
+                //case TexturePixelFormat.FloatRgba: return TextureComponentCount.Rgba16fExt;
 
-                case TexturePixelFormat.CompressedSingle: return PixelInternalFormat.CompressedRed;
-                case TexturePixelFormat.CompressedDual: return PixelInternalFormat.CompressedRg;
-                case TexturePixelFormat.CompressedRgb: return PixelInternalFormat.CompressedRgb;
-                case TexturePixelFormat.CompressedRgba: return PixelInternalFormat.CompressedRgba;
+                // Compressed formats are not supported in OpenGL ES
+                //case TexturePixelFormat.CompressedSingle: return (PixelInternalFormat)TextureComponentCount.CompressedRed;
+                //case TexturePixelFormat.CompressedDual: return (PixelInternalFormat)TextureComponentCount.CompressedRg;
+                //case TexturePixelFormat.CompressedRgb: return (PixelInternalFormat)TextureComponentCount.CompressedRgb;
+                //case TexturePixelFormat.CompressedRgba: return (PixelInternalFormat)TextureComponentCount.CompressedRgba;
             }
+        }
 
-            return PixelInternalFormat.Rgba;
+        private static GLPixelFormat ToOpenTKPixelFormat(TexturePixelFormat format)
+        {
+            switch (format) {
+                // ToDo
+                //case TexturePixelFormat.Single: return GLPixelFormat.Red;
+                //case TexturePixelFormat.Dual: return GLPixelFormat.Rgb;
+                //case TexturePixelFormat.Rgb: return GLPixelFormat.Rgb;
+                default:
+                case TexturePixelFormat.Rgba: return GLPixelFormat.Rgba;
+
+                //case TexturePixelFormat.FloatSingle: return GLPixelFormat.Red;
+                //case TexturePixelFormat.FloatDual: return GLPixelFormat.Rgb;
+                //case TexturePixelFormat.FloatRgb: return GLPixelFormat.Rgb;
+                //case TexturePixelFormat.FloatRgba: return GLPixelFormat.Rgba;
+
+                // Compressed formats are not supported in OpenGL ES
+                //case TexturePixelFormat.CompressedSingle: return (PixelInternalFormat)TextureComponentCount.CompressedRed;
+                //case TexturePixelFormat.CompressedDual: return (PixelInternalFormat)TextureComponentCount.CompressedRg;
+                //case TexturePixelFormat.CompressedRgb: return (PixelInternalFormat)TextureComponentCount.CompressedRgb;
+                //case TexturePixelFormat.CompressedRgba: return (PixelInternalFormat)TextureComponentCount.CompressedRgba;
+            }
         }
         private static GLTexMagFilter ToOpenTKTextureMagFilter(TextureMagFilter value)
         {
             switch (value) {
+                default:
                 case TextureMagFilter.Nearest: return GLTexMagFilter.Nearest;
                 case TextureMagFilter.Linear: return GLTexMagFilter.Linear;
             }
-
-            return GLTexMagFilter.Nearest;
         }
         private static GLTexMinFilter ToOpenTKTextureMinFilter(TextureMinFilter value)
         {
             switch (value) {
+                default:
                 case TextureMinFilter.Nearest: return GLTexMinFilter.Nearest;
                 case TextureMinFilter.Linear: return GLTexMinFilter.Linear;
                 case TextureMinFilter.NearestMipmapNearest: return GLTexMinFilter.NearestMipmapNearest;
@@ -215,18 +260,16 @@ namespace Duality.Backend.DefaultOpenTK
                 case TextureMinFilter.NearestMipmapLinear: return GLTexMinFilter.NearestMipmapLinear;
                 case TextureMinFilter.LinearMipmapLinear: return GLTexMinFilter.LinearMipmapLinear;
             }
-
-            return GLTexMinFilter.Nearest;
         }
         private static GLTexWrapMode ToOpenTKTextureWrapMode(TextureWrapMode value)
         {
             switch (value) {
+                default:
                 case TextureWrapMode.Clamp: return GLTexWrapMode.ClampToEdge;
                 case TextureWrapMode.Repeat: return GLTexWrapMode.Repeat;
-                case TextureWrapMode.MirroredRepeat: return GLTexWrapMode.MirroredRepeat;
+                // ToDo
+                //case TextureWrapMode.MirroredRepeat: return GLTexWrapMode.MirroredRepeat;
             }
-
-            return GLTexWrapMode.Clamp;
         }
     }
 }

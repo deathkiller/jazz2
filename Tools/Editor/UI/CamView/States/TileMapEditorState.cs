@@ -6,7 +6,6 @@ using Duality.Drawing;
 using Duality.Resources;
 using Jazz2.Game;
 using Jazz2.Game.Tiles;
-using FontStyle = Duality.Resources.FontStyle;
 
 namespace Editor.UI.CamView.States
 {

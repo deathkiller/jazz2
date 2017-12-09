@@ -4,13 +4,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2CC35924-68BF-4099-A809-AD2C3B219FF6}</ProjectGuid>
+    <ProjectGuid>{160237C0-871E-47EE-9118-AB51548FB123}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>OpenTKBackend</RootNamespace>
-    <AssemblyName>OpenTKBackend</AssemblyName>
+    <RootNamespace>Es20Backend</RootNamespace>
+    <AssemblyName>Es20Backend</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -20,6 +21,9 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -28,10 +32,17 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="OpenTK, Version=1.1.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\AdamsLair.OpenTK.1.1.8\lib\net20\OpenTK.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Jazz2\Bin\Debug\OpenTK.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -39,15 +50,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CorePlugin.cs" />
-    <Compile Include="Input\GameWindowKeyboardInputSource.cs" />
-    <Compile Include="Input\GameWindowMouseInputSource.cs" />
-    <Compile Include="Input\GlobalGamepadInputSource.cs" />
-    <Compile Include="Input\GlobalJoystickInputSource.cs" />
+    <Compile Include="Drawing\ExtMethodsColorDataElementType.cs" />
+    <Compile Include="Drawing\ExtMethodsColorDataLayout.cs" />
+    <Compile Include="Drawing\GraphicsBackend.cs" />
+    <Compile Include="Drawing\NativeRenderTarget.cs" />
+    <Compile Include="Drawing\NativeShaderPart.cs" />
+    <Compile Include="Drawing\NativeShaderProgram.cs" />
+    <Compile Include="Drawing\NativeTexture.cs" />
+    <Compile Include="Drawing\NativeWindow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Sound\AudioBackend.cs" />
-    <Compile Include="Sound\AudioLibraryLoader.cs" />
-    <Compile Include="Sound\NativeAudioBuffer.cs" />
-    <Compile Include="Sound\NativeAudioSource.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Jazz2\Jazz2.csproj">
@@ -55,13 +69,14 @@
       <Name>Jazz2</Name>
       <Private>False</Private>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Packages.config" />
+    <ProjectReference Include="..\OpenTKBackend\OpenTKBackend.csproj">
+      <Project>{2cc35924-68bf-4099-a809-ad2c3b219ff6}</Project>
+      <Name>OpenTKBackend</Name>
+      <Private>False</Private>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
-    <Copy SourceFiles="$(TargetDir)/OpenTK.dll" DestinationFiles="$(SolutionDir)Jazz2\Bin\$(ConfigurationName)\OpenTK.dll" SkipUnchangedFiles="true" />
     <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(SolutionDir)Jazz2\Bin\$(ConfigurationName)\Extensions\$(TargetName).core$(TargetExt)" SkipUnchangedFiles="true" />
   </Target>
 </Project>

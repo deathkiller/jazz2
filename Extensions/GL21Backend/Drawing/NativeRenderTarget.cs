@@ -6,8 +6,9 @@ using Duality.Drawing;
 
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+using Duality.Backend.DefaultOpenTK;
 
-namespace Duality.Backend.DefaultOpenTK
+namespace Duality.Backend.GL21
 {
     public class NativeRenderTarget : INativeRenderTarget
     {

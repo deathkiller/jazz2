@@ -1,9 +1,7 @@
-﻿
-using Duality.Drawing;
+﻿using Duality.Drawing;
+using OpenTK.Graphics.ES20;
 
-using OpenTK.Graphics.OpenGL;
-
-namespace Duality.Backend.DefaultOpenTK
+namespace Duality.Backend.Es20
 {
     public static class ExtMethodColorDataLayout
 	{
@@ -13,7 +11,8 @@ namespace Duality.Backend.DefaultOpenTK
 			{
 				default:
 				case ColorDataLayout.Rgba: return PixelFormat.Rgba;
-				case ColorDataLayout.Bgra: return PixelFormat.Bgra;
+                // ToDo: Not supported in OpenGL ES
+				//case ColorDataLayout.Bgra: return PixelFormat.Bgra;
 			}
 		}
 	}

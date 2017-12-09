@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using OpenTK.Graphics;
 
-namespace Duality.Backend.DefaultOpenTK
+namespace Duality.Backend.GL21
 {
     /// <summary>
     /// Compares two <see cref="GraphicsMode">GraphicsModes</see>.

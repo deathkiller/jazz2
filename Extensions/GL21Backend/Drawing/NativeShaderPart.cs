@@ -5,8 +5,9 @@ using Duality.Resources;
 using OpenTK.Graphics.OpenGL;
 using GLShaderType = OpenTK.Graphics.OpenGL.ShaderType;
 using ShaderType = Duality.Resources.ShaderType;
+using Duality.Backend.DefaultOpenTK;
 
-namespace Duality.Backend.DefaultOpenTK
+namespace Duality.Backend.GL21
 {
     public class NativeShaderPart : INativeShaderPart
     {

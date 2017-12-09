@@ -60,7 +60,7 @@ namespace Duality.Backend.DefaultOpenTK
             GlobalJoystickInputSource.UpdateAvailableDecives(DualityApp.Joysticks);
         }
 
-        internal static void InitOpenTK()
+        public static void InitOpenTK()
         {
             if (openTKInitialized) return;
             openTKInitialized = true;
@@ -102,7 +102,7 @@ namespace Duality.Backend.DefaultOpenTK
         /// <param name="silent"></param>
         /// <returns>True if everyhing is allright. False if the guarded state has been violated.</returns>
         [System.Diagnostics.DebuggerStepThrough]
-        internal static bool GuardSingleThreadState(bool silent = false, [CallerMemberName] string callerInfoMember = null)
+        public static bool GuardSingleThreadState(bool silent = false, [CallerMemberName] string callerInfoMember = null)
         {
             if (Thread.CurrentThread != mainThread) {
                 if (!silent) {
