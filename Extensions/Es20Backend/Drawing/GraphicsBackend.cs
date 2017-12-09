@@ -96,6 +96,8 @@ namespace Duality.Backend.Es20
         void IDualityBackend.Init()
         {
             activeInstance = this;
+
+            Console.WriteLine("Active graphics backend: OpenGL ES 2.0");
         }
         void IDualityBackend.Shutdown()
         {

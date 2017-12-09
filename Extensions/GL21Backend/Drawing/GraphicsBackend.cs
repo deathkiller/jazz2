@@ -86,9 +86,11 @@ namespace Duality.Backend.GL21
 		{
 			// Initialize OpenTK, if not done yet
 			DefaultOpenTKBackendPlugin.InitOpenTK();
-			
-			// Log information about the available display devices
-			GraphicsBackend.LogDisplayDevices();
+
+            Console.WriteLine("Active graphics backend: OpenGL 2.1");
+
+            // Log information about the available display devices
+            GraphicsBackend.LogDisplayDevices();
 
 			// Determine available and default graphics modes
 			this.QueryGraphicsModes();
