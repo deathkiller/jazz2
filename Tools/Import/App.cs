@@ -19,7 +19,7 @@ using static Jazz2.Game.LevelHandler;
 
 namespace Import
 {
-    internal class App
+    internal static class App
     {
         private static void Main(string[] args)
         {
@@ -271,24 +271,7 @@ namespace Import
                 JJ2PlusDownloader.Run(targetPath);
             }
 
-            string defaultPalettePath = Path.Combine(animationsPath, ".palette");
-            if (!File.Exists(defaultPalettePath)) {
-                Log.Write(LogType.Info, "Recreating default palette...");
-
-                using (FileStream s = File.Open(defaultPalettePath, FileMode.Create, FileAccess.Write))
-                using (BinaryWriter w = new BinaryWriter(s)) {
-                    Color[] palette = JJ2DefaultPalette.Sprite;
-
-                    w.Write((ushort)palette.Length);
-                    w.Write((int)0); // Empty color
-                    for (int i = 1; i < palette.Length; i++) {
-                        w.Write((byte)palette[i].R);
-                        w.Write((byte)palette[i].G);
-                        w.Write((byte)palette[i].B);
-                        w.Write((byte)palette[i].A);
-                    }
-                }
-            }
+            RecreateDefaultPalette(animationsPath);
 
             Log.PopIndent();
         }
@@ -978,6 +961,9 @@ namespace Import
             Log.Write(LogType.Info, "Creating minimal compressed content...");
             Log.PushIndent();
 
+            string animationsPath = Path.Combine(targetPath, "Content", "Animations");
+            RecreateDefaultPalette(animationsPath);
+
             Log.Write(LogType.Info, "Compressing content into \".\\Content\\.dz\" file...");
             Log.PushIndent();
 
@@ -994,7 +980,7 @@ namespace Import
                 "UI/font_small.png.config"
             }) {
                 string file = PathOp.Combine("Animations", unreferenced.Replace('/', PathOp.DirectorySeparatorChar));
-                string path = Path.Combine(targetPath, "Content", "Animations", unreferenced);
+                string path = Path.Combine(animationsPath, unreferenced);
                 if (Utils.FileResolveCaseInsensitive(ref path)) {
                     FileInfo info = new FileInfo(path);
                     ContentTree.Node node = tree.AddNodeByPath(file);
@@ -1008,8 +994,8 @@ namespace Import
                 }
             }
 
-            if (Directory.Exists(Path.Combine(targetPath, "Content", "Animations", "_custom"))) {
-                tree.GetContentFromDirectory(Path.Combine(targetPath, "Content", "Animations", "_custom"), "Animations");
+            if (Directory.Exists(Path.Combine(animationsPath, "_custom"))) {
+                tree.GetContentFromDirectory(Path.Combine(animationsPath, "_custom"), "Animations");
             }
 
             if (Directory.Exists(Path.Combine(targetPath, "Content", "Metadata"))) {
@@ -1121,6 +1107,28 @@ namespace Import
             }
 
             Log.PopIndent();
+        }
+
+        private static void RecreateDefaultPalette(string animationsPath)
+        {
+            string defaultPalettePath = Path.Combine(animationsPath, ".palette");
+            if (!File.Exists(defaultPalettePath)) {
+                Log.Write(LogType.Info, "Recreating default palette...");
+
+                using (FileStream s = File.Open(defaultPalettePath, FileMode.Create, FileAccess.Write))
+                using (BinaryWriter w = new BinaryWriter(s)) {
+                    Color[] palette = JJ2DefaultPalette.Sprite;
+
+                    w.Write((ushort)palette.Length);
+                    w.Write((int)0); // Empty color
+                    for (int i = 1; i < palette.Length; i++) {
+                        w.Write((byte)palette[i].R);
+                        w.Write((byte)palette[i].G);
+                        w.Write((byte)palette[i].B);
+                        w.Write((byte)palette[i].A);
+                    }
+                }
+            }
         }
 
         // :: Dev-only methods ::

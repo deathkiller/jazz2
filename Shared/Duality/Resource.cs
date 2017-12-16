@@ -452,35 +452,13 @@ namespace Duality
             }
         }
 
-        internal static void InitDefaultContent<T>(string embeddedNameExt, Func<Stream, T> resourceCreator) where T : Resource
+        internal static void InitDefaultContent<T>(string nameExt, Func<Stream, T> resourceCreator) where T : Resource
         {
-//#if __ANDROID__
-            // ToDo: Remove Android branching
             InitDefaultContent<T>(name => {
-                using (Stream stream = FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, "Internal", name + embeddedNameExt), FileAccessMode.Read)) {
+                using (Stream stream = FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, "Internal", name + nameExt), FileAccessMode.Read)) {
                     return resourceCreator(stream);
                 }
             });
-//#else
-            //string embeddedNameBase = "Duality.EmbeddedResources.";
-            /*Assembly embeddingAssembly = typeof(Resource).GetTypeInfo().Assembly;
-
-            string embeddedNameBase = null;
-            string[] resourceNames = embeddingAssembly.GetManifestResourceNames();
-            for (int i = 0; i < resourceNames.Length; i++) {
-                int index = resourceNames[i].IndexOf(".EmbeddedResources.");
-                if (index != -1 && resourceNames[i].EndsWith(embeddedNameExt)) {
-                    embeddedNameBase = resourceNames[i].Substring(0, index + 19);
-                    break;
-                }
-            }
-
-            InitDefaultContent<T>(name => {
-                using (Stream stream = embeddingAssembly.GetManifestResourceStream(embeddedNameBase + name + embeddedNameExt)) {
-                    return resourceCreator(stream);
-                }
-            });*/
-//#endif
         }
         internal static void InitDefaultContent<T>(IDictionary<string, T> dictionary) where T : Resource
         {

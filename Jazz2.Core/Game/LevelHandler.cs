@@ -451,7 +451,7 @@ namespace Jazz2.Game
                     }
 
                     SolidObjectBase solidObject = collision as SolidObjectBase;
-                    if (solidObject == null || (solidObject != null && (!solidObject.IsOneWay || downwards))) {
+                    if (solidObject == null || !solidObject.IsOneWay || downwards) {
                         collider = collision;
                         return false;
                     }

@@ -92,7 +92,6 @@ namespace Jazz2.Game.UI
 
             float phase = (float)Time.GameTimer.TotalSeconds * speed;
 
-            fixed (char* ptr = text) {
                 bool hasColor = false;
                 // Pre-compute text size
                 //int lines = 1;
@@ -100,7 +99,7 @@ namespace Jazz2.Game.UI
                 float charSpacingPre = charSpacing;
                 float scalePre = scale;
                 for (int i = 0; i < text.Length; i++) {
-                    if (ptr[i] == '\n') {
+                    if (text[i] == '\n') {
                         if (lastWidth < totalWidth) {
                             lastWidth = totalWidth;
                         }
@@ -108,26 +107,28 @@ namespace Jazz2.Game.UI
                         totalHeight += (height * scale * lineSpacing);
                         //lines++;
                         continue;
-                    } else if (ptr[i] == '\f' && ptr[i + 1] == '[') {
+                    } else if (text[i] == '\f' && text[i + 1] == '[') {
                         i += 2;
                         int formatIndex = i;
-                        while (ptr[i] != ']') {
+                        while (text[i] != ']') {
                             i++;
                         }
 
-                        if (ptr[formatIndex + 1] == ':') {
+                        if (text[formatIndex + 1] == ':') {
                             int paramInt;
-                            switch (ptr[formatIndex]) {
+                            switch (text[formatIndex]) {
                                 case 'c': // Color
                                     hasColor = true;
                                     break;
                                 case 's': // Scale
-                                    if (int.TryParse(new string(ptr, formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
+                                    //if (int.TryParse(new string(ptr, formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
+                                    if (int.TryParse(text.Substring(formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
                                         scalePre = paramInt * 0.01f;
                                     }
                                     break;
                                 case 'w': // Char spacing
-                                    if (int.TryParse(new string(ptr, formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
+                                    //if (int.TryParse(new string(ptr, formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
+                                    if (int.TryParse(text.Substring(formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
                                         charSpacingPre = paramInt * 0.01f;
                                     }
                                     break;
@@ -136,7 +137,7 @@ namespace Jazz2.Game.UI
                         continue;
                     }
 
-                    Rect uvRect = chars[(byte)ptr[i]];
+                Rect uvRect = chars[(byte)text[i]];
                     if (uvRect.W > 0 && uvRect.H > 0) {
                         totalWidth += (uvRect.W + spacing) * charSpacingPre * scalePre;
                     }
@@ -146,173 +147,174 @@ namespace Jazz2.Game.UI
                 }
                 totalHeight += (height * scale * lineSpacing);
 
-                //VertexC1P3T2[] vertexData = new VertexC1P3T2[text.Length * 4];
-                VertexC1P3T2[] vertexData = canvas.RentVertices(text.Length * 4);
+            //VertexC1P3T2[] vertexData = new VertexC1P3T2[text.Length * 4];
+            VertexC1P3T2[] vertexData = canvas.RentVertices(text.Length * 4);
 
-                // Set default material
-                bool colorize, allowColorChange;
-                ContentRef<Material> material;
-                ColorRgba mainColor;
-                if (color.HasValue) {
-                    mainColor = color.Value;
-                    if (mainColor == ColorRgba.TransparentBlack) {
-                        if (hasColor) {
-                            material = materialColor;
-                            mainColor = new ColorRgba(0.46f, 0.46f, 0.4f, 0.5f);
-                        } else {
-                            material = materialPlain;
-                            mainColor = ColorRgba.White;
-                        }
-                    } else {
+            // Set default material
+            bool colorize, allowColorChange;
+            ContentRef<Material> material;
+            ColorRgba mainColor;
+            if (color.HasValue) {
+                mainColor = color.Value;
+                if (mainColor == ColorRgba.TransparentBlack) {
+                    if (hasColor) {
                         material = materialColor;
-                    }
-                    colorize = false;
-
-                    if (mainColor.R == 0 && mainColor.G == 0 && mainColor.B == 0) {
-                        allowColorChange = false;
+                        mainColor = new ColorRgba(0.46f, 0.46f, 0.4f, 0.5f);
                     } else {
-                        allowColorChange = true;
+                        material = materialPlain;
+                        mainColor = ColorRgba.White;
                     }
                 } else {
                     material = materialColor;
-                    mainColor = ColorRgba.White;
-                    colorize = true;
+                }
+                colorize = false;
+
+                if (mainColor.R == 0 && mainColor.G == 0 && mainColor.B == 0) {
                     allowColorChange = false;
+                } else {
+                    allowColorChange = true;
+                }
+            } else {
+                material = materialColor;
+                mainColor = ColorRgba.White;
+                colorize = true;
+                allowColorChange = false;
+            }
+
+            Vector2 uvRatio = new Vector2(
+                1f / materialPlain.Res.MainTexture.Res.ContentWidth,
+                1f / materialPlain.Res.MainTexture.Res.ContentHeight
+            );
+
+            int vertexBaseIndex = 0;
+
+            Vector2 originPos = new Vector2(x, y);
+            alignment.ApplyTo(ref originPos, new Vector2(lastWidth /** scale*/, totalHeight/*lines * height * scale * lineSpacing*/));
+            float lineStart = originPos.X;
+
+            for (int i = 0; i < text.Length; i++) {
+                if (text[i] == '\n') {
+                    // New line
+                    originPos.X = lineStart;
+                    originPos.Y += (height * scale * lineSpacing);
+                    continue;
+                } else if (text[i] == '\f' && text[i + 1] == '[') {
+                    // Format
+                    i += 2;
+                    int formatIndex = i;
+                    while (text[i] != ']') {
+                        i++;
+                    }
+
+                    if (text[formatIndex + 1] == ':') {
+                        int paramInt;
+                        switch (text[formatIndex]) {
+                            case 'c': // Color
+                                //if (allowColorChange && int.TryParse(new string(ptr, formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
+                                if (allowColorChange && int.TryParse(text.Substring(formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
+                                    if (paramInt == -1) {
+                                        colorize = true;
+                                    } else {
+                                        colorize = false;
+                                        mainColor = colors[paramInt % colors.Length];
+                                    }
+                                }
+                                break;
+                            case 's': // Scale
+                                //if (int.TryParse(new string(ptr, formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
+                                if (int.TryParse(text.Substring(formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
+                                    scale = paramInt * 0.01f;
+                                }
+                                break;
+                            case 'w': // Char spacing
+                                //if (int.TryParse(new string(ptr, formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
+                                if (int.TryParse(text.Substring(formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
+                                    charSpacing = paramInt * 0.01f;
+                                }
+                                break;
+                        }
+                    }
+                    continue;
                 }
 
-                Vector2 uvRatio = new Vector2(
-                    1f / materialPlain.Res.MainTexture.Res.ContentWidth,
-                    1f / materialPlain.Res.MainTexture.Res.ContentHeight
-                );
-
-                int vertexBaseIndex = 0;
-
-                Vector2 originPos = new Vector2(x, y);
-                alignment.ApplyTo(ref originPos, new Vector2(lastWidth /** scale*/, totalHeight/*lines * height * scale * lineSpacing*/));
-                float lineStart = originPos.X;
-
-                for (int i = 0; i < text.Length; i++) {
-                    if (ptr[i] == '\n') {
-                        // New line
-                        originPos.X = lineStart;
-                        originPos.Y += (height * scale * lineSpacing);
-                        continue;
-                    } else if (ptr[i] == '\f' && ptr[i + 1] == '[') {
-                        // Format
-                        i += 2;
-                        int formatIndex = i;
-                        while (ptr[i] != ']') {
-                            i++;
-                        }
-
-                        if (ptr[formatIndex + 1] == ':') {
-                            int paramInt;
-                            switch (ptr[formatIndex]) {
-                                case 'c': // Color
-                                    if (allowColorChange && int.TryParse(new string(ptr, formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
-                                        if (paramInt == -1) {
-                                            colorize = true;
-                                        } else {
-                                            colorize = false;
-                                            mainColor = colors[paramInt % colors.Length];
-                                        }
-                                    }
-                                    break;
-                                case 's': // Scale
-                                    if (int.TryParse(new string(ptr, formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
-                                        scale = paramInt * 0.01f;
-                                    }
-                                    break;
-                                case 'w': // Char spacing
-                                    if (int.TryParse(new string(ptr, formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
-                                        charSpacing = paramInt * 0.01f;
-                                    }
-                                    break;
-                            }
-                        }
-                        continue;
+            Rect uvRect = chars[(byte)text[i]];
+                if (uvRect.W > 0 && uvRect.H > 0) {
+                    if (colorize) {
+                        mainColor = colors[charOffset % colors.Length];
                     }
 
-                    Rect uvRect = chars[(byte)ptr[i]];
-                    if (uvRect.W > 0 && uvRect.H > 0) {
-                        if (colorize) {
-                            mainColor = colors[charOffset % colors.Length];
-                        }
+                Vector3 pos = new Vector3(originPos);
 
-                        Vector3 pos = new Vector3(originPos);
-
-                        if (angleOffset > 0f) {
-                            pos.X += MathF.Cos((phase + charOffset) * angleOffset * MathF.Pi) * varianceX * scale;
-                            pos.Y += MathF.Sin((phase + charOffset) * angleOffset * MathF.Pi) * varianceY * scale;
-                        }
-
-                        pos.X = MathF.Round(pos.X);
-                        pos.Y = MathF.Round(pos.Y);
-
-                        float x2 = MathF.Round(pos.X + uvRect.W * scale);
-                        float y2 = MathF.Round(pos.Y + uvRect.H * scale);
-
-                        vertexData[vertexBaseIndex + 0].Pos = pos;
-                        vertexData[vertexBaseIndex + 0].TexCoord.X = uvRect.X;
-                        vertexData[vertexBaseIndex + 0].TexCoord.Y = uvRect.Y;
-                        vertexData[vertexBaseIndex + 0].Color = mainColor;
-
-                        vertexData[vertexBaseIndex + 1].Pos.X = pos.X;
-                        vertexData[vertexBaseIndex + 1].Pos.Y = y2;
-                        vertexData[vertexBaseIndex + 1].Pos.Z = pos.Z;
-                        vertexData[vertexBaseIndex + 1].TexCoord.X = uvRect.X;
-                        vertexData[vertexBaseIndex + 1].TexCoord.Y = uvRect.Y + uvRect.H * uvRatio.Y;
-                        vertexData[vertexBaseIndex + 1].Color = mainColor;
-
-                        vertexData[vertexBaseIndex + 2].Pos.X = x2;
-                        vertexData[vertexBaseIndex + 2].Pos.Y = y2;
-                        vertexData[vertexBaseIndex + 2].Pos.Z = pos.Z;
-                        vertexData[vertexBaseIndex + 2].TexCoord.X = uvRect.X + uvRect.W * uvRatio.X;
-                        vertexData[vertexBaseIndex + 2].TexCoord.Y = uvRect.Y + uvRect.H * uvRatio.Y;
-                        vertexData[vertexBaseIndex + 2].Color = mainColor;
-
-                        vertexData[vertexBaseIndex + 3].Pos.X = x2;
-                        vertexData[vertexBaseIndex + 3].Pos.Y = pos.Y;
-                        vertexData[vertexBaseIndex + 3].Pos.Z = pos.Z;
-                        vertexData[vertexBaseIndex + 3].TexCoord.X = uvRect.X + uvRect.W * uvRatio.X;
-                        vertexData[vertexBaseIndex + 3].TexCoord.Y = uvRect.Y;
-                        vertexData[vertexBaseIndex + 3].Color = mainColor;
-
-                        if (MathF.RoundToInt(canvas.DrawDevice.TargetSize.X) != (MathF.RoundToInt(canvas.DrawDevice.TargetSize.X) / 2) * 2) {
-                            float align = 0.5f / canvas.DrawDevice.TargetSize.X;
-
-                            vertexData[vertexBaseIndex + 0].Pos.X += align;
-                            vertexData[vertexBaseIndex + 1].Pos.X += align;
-                            vertexData[vertexBaseIndex + 2].Pos.X += align;
-                            vertexData[vertexBaseIndex + 3].Pos.X += align;
-                        }
-
-                        if (MathF.RoundToInt(canvas.DrawDevice.TargetSize.Y) != (MathF.RoundToInt(canvas.DrawDevice.TargetSize.Y) / 2) * 2) {
-                            float align = 0.5f * scale / canvas.DrawDevice.TargetSize.Y;
-
-                            vertexData[vertexBaseIndex + 0].Pos.Y += align;
-                            vertexData[vertexBaseIndex + 1].Pos.Y += align;
-                            vertexData[vertexBaseIndex + 2].Pos.Y += align;
-                            vertexData[vertexBaseIndex + 3].Pos.Y += align;
-                        }
-
-                        vertexBaseIndex += 4;
-
-                        originPos.X += ((uvRect.W + spacing) * scale * charSpacing);
+                    if (angleOffset > 0f) {
+                        pos.X += MathF.Cos((phase + charOffset) * angleOffset * MathF.Pi) * varianceX * scale;
+                        pos.Y += MathF.Sin((phase + charOffset) * angleOffset * MathF.Pi) * varianceY * scale;
                     }
-                    charOffset++;
+
+                    pos.X = MathF.Round(pos.X);
+                    pos.Y = MathF.Round(pos.Y);
+
+                    float x2 = MathF.Round(pos.X + uvRect.W * scale);
+                    float y2 = MathF.Round(pos.Y + uvRect.H * scale);
+
+                    vertexData[vertexBaseIndex + 0].Pos = pos;
+                    vertexData[vertexBaseIndex + 0].TexCoord.X = uvRect.X;
+                    vertexData[vertexBaseIndex + 0].TexCoord.Y = uvRect.Y;
+                    vertexData[vertexBaseIndex + 0].Color = mainColor;
+
+                    vertexData[vertexBaseIndex + 1].Pos.X = pos.X;
+                    vertexData[vertexBaseIndex + 1].Pos.Y = y2;
+                    vertexData[vertexBaseIndex + 1].Pos.Z = pos.Z;
+                    vertexData[vertexBaseIndex + 1].TexCoord.X = uvRect.X;
+                    vertexData[vertexBaseIndex + 1].TexCoord.Y = uvRect.Y + uvRect.H * uvRatio.Y;
+                    vertexData[vertexBaseIndex + 1].Color = mainColor;
+
+                    vertexData[vertexBaseIndex + 2].Pos.X = x2;
+                    vertexData[vertexBaseIndex + 2].Pos.Y = y2;
+                    vertexData[vertexBaseIndex + 2].Pos.Z = pos.Z;
+                    vertexData[vertexBaseIndex + 2].TexCoord.X = uvRect.X + uvRect.W * uvRatio.X;
+                    vertexData[vertexBaseIndex + 2].TexCoord.Y = uvRect.Y + uvRect.H * uvRatio.Y;
+                    vertexData[vertexBaseIndex + 2].Color = mainColor;
+
+                    vertexData[vertexBaseIndex + 3].Pos.X = x2;
+                    vertexData[vertexBaseIndex + 3].Pos.Y = pos.Y;
+                    vertexData[vertexBaseIndex + 3].Pos.Z = pos.Z;
+                    vertexData[vertexBaseIndex + 3].TexCoord.X = uvRect.X + uvRect.W * uvRatio.X;
+                    vertexData[vertexBaseIndex + 3].TexCoord.Y = uvRect.Y;
+                    vertexData[vertexBaseIndex + 3].Color = mainColor;
+
+                    if (MathF.RoundToInt(canvas.DrawDevice.TargetSize.X) != (MathF.RoundToInt(canvas.DrawDevice.TargetSize.X) / 2) * 2) {
+                        float align = 0.5f / canvas.DrawDevice.TargetSize.X;
+
+                        vertexData[vertexBaseIndex + 0].Pos.X += align;
+                        vertexData[vertexBaseIndex + 1].Pos.X += align;
+                        vertexData[vertexBaseIndex + 2].Pos.X += align;
+                        vertexData[vertexBaseIndex + 3].Pos.X += align;
+                    }
+
+                    if (MathF.RoundToInt(canvas.DrawDevice.TargetSize.Y) != (MathF.RoundToInt(canvas.DrawDevice.TargetSize.Y) / 2) * 2) {
+                        float align = 0.5f * scale / canvas.DrawDevice.TargetSize.Y;
+
+                        vertexData[vertexBaseIndex + 0].Pos.Y += align;
+                        vertexData[vertexBaseIndex + 1].Pos.Y += align;
+                        vertexData[vertexBaseIndex + 2].Pos.Y += align;
+                        vertexData[vertexBaseIndex + 3].Pos.Y += align;
+                    }
+
+                    vertexBaseIndex += 4;
+
+                    originPos.X += ((uvRect.W + spacing) * scale * charSpacing);
                 }
                 charOffset++;
-
-                // Submit all the vertices as one draw batch
-                canvas.DrawDevice.AddVertices(
-                    material,
-                    VertexMode.Quads,
-                    vertexData,
-                    0,
-                    vertexBaseIndex);
-
             }
+            charOffset++;
+
+            // Submit all the vertices as one draw batch
+            canvas.DrawDevice.AddVertices(
+                material,
+                VertexMode.Quads,
+                vertexData,
+                0,
+                vertexBaseIndex);
         }
 
         public static string StripFormatting(string text)

@@ -34,7 +34,14 @@ namespace Jazz2.Storage.Content
 
         private ContentTree ReadContentTree()
         {
-            using (Stream stream = DualityApp.SystemBackend.FileSystem.OpenFile(path, FileAccessMode.Read))
+            Stream stream;
+            if (DualityApp.ExecContext == DualityApp.ExecutionContext.Game) {
+                stream = DualityApp.SystemBackend.FileSystem.OpenFile(path, FileAccessMode.Read);
+            } else {
+                stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+            }
+
+            using (stream)
             using (BinaryReader r = new BinaryReader(stream, Encoding.UTF8, true)) {
                 uint signature = r.ReadUInt32();
                 if (signature != 0x5A616544u) {
@@ -106,7 +113,14 @@ namespace Jazz2.Storage.Content
             using (MemoryStream dataStream = new MemoryStream()) {
                 WriteContentTreeSection(tree.Root, tableStream, dataStream, resourceFlagsModifier);
 
-                using (Stream stream = DualityApp.SystemBackend.FileSystem.CreateFile(path)) {
+                Stream stream;
+                if (DualityApp.ExecContext == DualityApp.ExecutionContext.Game) {
+                    stream = DualityApp.SystemBackend.FileSystem.CreateFile(path);
+                } else {
+                    stream = File.Create(path);
+                }
+
+                using (stream) {
                     using (BinaryWriter w = new BinaryWriter(stream, Encoding.UTF8, true)) {
                         w.Write((uint)0x5A616544u); // Signature
                         w.Write((byte)1);           // Version
