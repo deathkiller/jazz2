@@ -1,5 +1,6 @@
 {
     "Fragment": "
+        #version 100
         precision mediump float;
 
         uniform sampler2D blurFullTex;

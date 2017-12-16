@@ -3,6 +3,7 @@
 
     "Vertex": "#inherit MinimalC1P3T4",
     "Fragment": "
+        #version 100
         precision mediump float;
 
         uniform vec2 ViewSize;

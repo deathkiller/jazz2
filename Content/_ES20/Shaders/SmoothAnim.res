@@ -3,6 +3,8 @@
     "VertexFormat": "C1P3T4A1",
     
     "Vertex": "
+        #version 100
+        
         uniform vec4 mainColor;
 
         uniform mat4 ModelView;
@@ -25,6 +27,7 @@
         }",
 
     "Fragment": "
+        #version 100
         precision mediump float;
 
         uniform sampler2D mainTex;

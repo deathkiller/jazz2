@@ -1,5 +1,6 @@
 {
     "Fragment": "
+        #version 100
         precision highp float;
 
         uniform vec2 ViewSize;
