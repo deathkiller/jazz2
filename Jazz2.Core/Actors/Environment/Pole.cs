@@ -1,25 +1,36 @@
 ﻿using Duality;
 using Jazz2.Actors.Weapons;
+using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Environment
 {
+    // ToDo: Implement bounce effect
+    // ToDo: Implement collision with player
     public class Pole : ActorBase
     {
-        private bool falling;
+        private enum FallDirection
+        {
+            None,
+            Right,
+            Left,
+            Fallen
+        }
+
+        private FallDirection fall;
         private float angleVel;
+        private int bouncesLeft = 3;
 
         public override void OnAttach(ActorInstantiationDetails details)
         {
             base.OnAttach(details);
 
             ushort theme = details.Params[0];
-            // ToDo: x or y ??? something's wrong with this... leads to misalignment
-            short y = unchecked((short)(details.Params[1] + 10));
-            short x = unchecked((short)(details.Params[2] + 10));
+            short x = unchecked((short)(details.Params[1]));
+            short y = unchecked((short)(details.Params[2]));
 
             Vector3 pos = Transform.Pos;
-            pos.X += 24 - x;
-            pos.Y += 10 + y;
+            pos.X += x;
+            pos.Y += y;
             pos.Z += 20;
             Transform.Pos = pos;
 
@@ -38,18 +49,36 @@ namespace Jazz2.Actors.Environment
             }
         }
 
-        // ToDo: Implement Poles, collisions, hit by bullet, falling
-
         protected override void OnUpdate()
         {
+            const float FallMultiplier = 0.0036f;
+            const float Bounce = 0.02f;
+
             base.OnUpdate();
 
-            if (falling) {
-                angleVel += Time.TimeMult * 0.006f;
-                if (Transform.Angle > MathF.PiOver2) {
-                    falling = false;
+            if (fall == FallDirection.Right) {
+                if (angleVel > 0 && IsPositionBlocked()) {
+                    if (bouncesLeft > 0) {
+                        bouncesLeft--;
+                        angleVel = -Bounce * bouncesLeft;
+                    } else {
+                        fall = FallDirection.Fallen;
+                    }
                 } else {
-                    Transform.Angle += angleVel;
+                    angleVel += FallMultiplier * Time.TimeMult;
+                    Transform.Angle += angleVel * Time.TimeMult;
+                }
+            } else if (fall == FallDirection.Left) {
+                if (angleVel < 0 && IsPositionBlocked()) {
+                    if (bouncesLeft > 0) {
+                        bouncesLeft--;
+                        angleVel = Bounce * bouncesLeft;
+                    } else {
+                        fall = FallDirection.Fallen;
+                    }
+                } else {
+                    angleVel -= FallMultiplier * Time.TimeMult;
+                    Transform.Angle += angleVel * Time.TimeMult;
                 }
             }
         }
@@ -58,14 +87,67 @@ namespace Jazz2.Actors.Environment
         {
             //base.HandleCollision(other);
 
-            if (falling) {
-                return;
-            }
-
             AmmoBase ammo = other as AmmoBase;
             if (ammo != null) {
-                falling = true;
+                if (fall == FallDirection.None) {
+                    fall = (ammo.Speed.X < 0 ? FallDirection.Left : FallDirection.Right);
+                }
+
+                ammo.DecreaseHealth(1, this);
             }
+        }
+
+        private bool IsPositionBlocked()
+        {
+            const float Ratio1 = 0.96f;
+            const float Ratio2 = 0.8f;
+            const float Ratio3 = 0.6f;
+            const float Ratio4 = 0.3f;
+
+            Vector3 pos = Transform.Pos;
+            float angle = Transform.Angle - MathF.PiOver2;
+            float rx = MathF.Cos(angle);
+            float ry = MathF.Sin(angle);
+            float radius = currentAnimation.Base.FrameDimensions.Y;
+
+            // Check radius 1
+            {
+                float x = pos.X + (rx * Ratio1 * radius);
+                float y = pos.Y + (ry * Ratio1 * radius);
+                Hitbox hitbox = new Hitbox(x - 3, y - 3, x + 7, y + 7);
+                if (!api.IsPositionEmpty(this, ref hitbox, true)) {
+                    return true;
+                }
+            }
+            // Check radius 2
+            {
+                float x = pos.X + (rx * Ratio2 * radius);
+                float y = pos.Y + (ry * Ratio2 * radius);
+                Hitbox hitbox = new Hitbox(x - 3, y - 3, x + 7, y + 7);
+                if (!api.IsPositionEmpty(this, ref hitbox, true)) {
+                    return true;
+                }
+            }
+            // Check radius 3
+            {
+                float x = pos.X + (rx * Ratio3 * radius);
+                float y = pos.Y + (ry * Ratio3 * radius);
+                Hitbox hitbox = new Hitbox(x - 3, y - 3, x + 7, y + 7);
+                if (!api.IsPositionEmpty(this, ref hitbox, true)) {
+                    return true;
+                }
+            }
+            // Check radius 4
+            {
+                float x = pos.X + (rx * Ratio4 * radius);
+                float y = pos.Y + (ry * Ratio4 * radius);
+                Hitbox hitbox = new Hitbox(x - 3, y - 3, x + 7, y + 7);
+                if (!api.IsPositionEmpty(this, ref hitbox, true)) {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

@@ -628,60 +628,15 @@ namespace Jazz2.Compatibility
                 };
             });
 
-            Add(JJ2Event.POLE_CARROTUS, (level, jj2Params) => {
-                ushort[] eventParams = ConvertParamInt(jj2Params,
-                    Pair.Create(JJ2EventParamType.UInt, 5), // Adjust Y
-                    Pair.Create(JJ2EventParamType.Int, 6)); // Adjust X
+            Add(JJ2Event.POLE_CARROTUS, GetPoleConverter(0));
 
-                return new ConversionResult {
-                    eventType = EventType.Pole,
-                    eventParams = new ushort[] { 0, eventParams[1], eventParams[0] }
-                };
-            });
+            Add(JJ2Event.POLE_DIAMONDUS, GetPoleConverter(1));
 
-            Add(JJ2Event.POLE_DIAMONDUS, (level, jj2Params) => {
-                ushort[] eventParams = ConvertParamInt(jj2Params,
-                    Pair.Create(JJ2EventParamType.UInt, 5), // Adjust Y
-                    Pair.Create(JJ2EventParamType.Int, 6)); // Adjust X
+            Add(JJ2Event.SMALL_TREE, GetPoleConverter(2));
 
-                return new ConversionResult {
-                    eventType = EventType.Pole,
-                    eventParams = new ushort[] { 1, eventParams[1], eventParams[0] }
-                };
-            });
+            Add(JJ2Event.POLE_JUNGLE, GetPoleConverter(3));
 
-            Add(JJ2Event.SMALL_TREE, (level, jj2Params) => {
-                ushort[] eventParams = ConvertParamInt(jj2Params,
-                    Pair.Create(JJ2EventParamType.UInt, 5), // Adjust Y
-                    Pair.Create(JJ2EventParamType.Int, 6)); // Adjust X
-
-                return new ConversionResult {
-                    eventType = EventType.Pole,
-                    eventParams = new ushort[] { 2, eventParams[1], eventParams[0] }
-                };
-            });
-
-            Add(JJ2Event.POLE_JUNGLE, (level, jj2Params) => {
-                ushort[] eventParams = ConvertParamInt(jj2Params,
-                    Pair.Create(JJ2EventParamType.UInt, 5), // Adjust Y
-                    Pair.Create(JJ2EventParamType.Int, 6)); // Adjust X
-
-                return new ConversionResult {
-                    eventType = EventType.Pole,
-                    eventParams = new ushort[] { 3, eventParams[1], eventParams[0] }
-                };
-            });
-
-            Add(JJ2Event.POLE_PSYCH, (level, jj2Params) => {
-                ushort[] eventParams = ConvertParamInt(jj2Params,
-                    Pair.Create(JJ2EventParamType.UInt, 5), // Adjust Y
-                    Pair.Create(JJ2EventParamType.Int, 6)); // Adjust X
-
-                return new ConversionResult {
-                    eventType = EventType.Pole,
-                    eventParams = new ushort[] { 4, eventParams[1], eventParams[0] }
-                };
-            });
+            Add(JJ2Event.POLE_PSYCH, GetPoleConverter(4));
 
             // Enemies
             Add(JJ2Event.ENEMY_TURTLE_NORMAL, ConstantParamList(EventType.EnemyTurtle, 0));
@@ -999,6 +954,27 @@ namespace Jazz2.Compatibility
                 return new ConversionResult {
                     eventType = EventType.MovingPlatform,
                     eventParams = new ushort[] { type, eventParams[0], eventParams[1], eventParams[2], eventParams[3], 0, 0, 0 }
+                };
+            };
+        }
+
+        private static ConversionFunction GetPoleConverter(byte theme)
+        {
+            return (level, jj2Params) => {
+                ushort[] eventParams = ConvertParamInt(jj2Params,
+                    Pair.Create(JJ2EventParamType.UInt, 5), // Adjust Y
+                    Pair.Create(JJ2EventParamType.Int, 6)   // Adjust X
+                );
+
+                const int AdjustX = 2;
+                const int AdjustY = 2;
+
+                ushort x = unchecked((ushort)((short)eventParams[1] + 16 - AdjustX));
+                ushort y = unchecked((ushort)((eventParams[0] == 0 ? 24 : eventParams[0]) - AdjustY));
+
+                return new ConversionResult {
+                    eventType = EventType.Pole,
+                    eventParams = new ushort[] { theme, x, y }
                 };
             };
         }
