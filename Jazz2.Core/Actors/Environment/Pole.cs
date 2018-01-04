@@ -4,7 +4,6 @@ using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Environment
 {
-    // ToDo: Implement bounce effect
     // ToDo: Implement collision with player
     public class Pole : ActorBase
     {

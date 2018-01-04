@@ -224,7 +224,7 @@ namespace Jazz2.Game.UI.Menu.I
             // Copyright
             Vector2 bottomLeft = bottomRight;
             bottomLeft.X = 24f;
-            DrawStringShadow(ref charOffset, "(c) 2016-2017  Dan R.", bottomLeft.X, bottomLeft.Y, Alignment.BottomLeft,
+            DrawStringShadow(ref charOffset, "(c) 2016-" + DateTime.Now.Year + "  Dan R.", bottomLeft.X, bottomLeft.Y, Alignment.BottomLeft,
                 new ColorRgba(0.45f, 0.5f), 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
 
             // Current section

@@ -269,28 +269,32 @@ namespace Jazz2.Game.UI.Menu
 
             if (episodes.Count > 1) {
                 if (ControlScheme.MenuActionHit(PlayerActions.Up)) {
-                    api.PlaySound("MenuSelect", 0.4f);
-                    selectAnimation = 0f;
+                    if (episodes.Count > 1) {
+                        api.PlaySound("MenuSelect", 0.4f);
+                        selectAnimation = 0f;
 
-                    expanded = false;
-                    expandedAnimation = 0f;
+                        expanded = false;
+                        expandedAnimation = 0f;
 
-                    if (selectedIndex > 0) {
-                        selectedIndex--;
-                    } else {
-                        selectedIndex = episodes.Count - 1;
+                        if (selectedIndex > 0) {
+                            selectedIndex--;
+                        } else {
+                            selectedIndex = episodes.Count - 1;
+                        }
                     }
                 } else if (ControlScheme.MenuActionHit(PlayerActions.Down)) {
-                    api.PlaySound("MenuSelect", 0.4f);
-                    selectAnimation = 0f;
+                    if (episodes.Count > 1) {
+                        api.PlaySound("MenuSelect", 0.4f);
+                        selectAnimation = 0f;
 
-                    expanded = false;
-                    expandedAnimation = 0f;
+                        expanded = false;
+                        expandedAnimation = 0f;
 
-                    if (selectedIndex < episodes.Count - 1) {
-                        selectedIndex++;
-                    } else {
-                        selectedIndex = 0;
+                        if (selectedIndex < episodes.Count - 1) {
+                            selectedIndex++;
+                        } else {
+                            selectedIndex = 0;
+                        }
                     }
                 } else if (ControlScheme.MenuActionHit(PlayerActions.Left)) {
                     expanded = false;
