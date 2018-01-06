@@ -63,11 +63,11 @@ namespace Jazz2.Game.UI.Menu
 
                 // Render background layer to texture
                 string tilesetPath = PathOp.Combine(DualityApp.DataDirectory, "Tilesets", config.Description.DefaultTileset);
-                TileSet levelTileset = new TileSet(
-                    codec.Read(FileOp.Open(PathOp.Combine(tilesetPath, "tiles.png"), FileAccessMode.Read)),
-                    codec.Read(FileOp.Open(PathOp.Combine(tilesetPath, "mask.png"), FileAccessMode.Read)),
-                    null
-                );
+
+                ColorRgba[] tileMapPalette = TileSet.LoadPalette(PathOp.Combine(tilesetPath, ".palette"));
+                ContentResolver.Current.ApplyBasePalette(tileMapPalette);
+
+                TileSet levelTileset = new TileSet(config.Description.DefaultTileset);
                 if (!levelTileset.IsValid) {
                     throw new InvalidDataException();
                 }
@@ -151,7 +151,8 @@ namespace Jazz2.Game.UI.Menu
 
                 device.PrepareForDrawcalls();
 
-                Material material = levelTileset.Material.Res;
+                // ToDo
+                Material material = levelTileset.GetDefaultTile(0).Material.Res;
                 Texture texture = material.MainTexture.Res;
 
                 // Reserve the required space for vertex data in our locally cached buffer

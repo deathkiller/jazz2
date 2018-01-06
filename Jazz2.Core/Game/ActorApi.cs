@@ -44,23 +44,45 @@ namespace Jazz2.Game
             get { return levelHandler.ActiveObjects; }
         }
 
-        public float Gravity => levelHandler.Gravity;
+        public float Gravity
+        {
+#if NET45
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+            get { return levelHandler.Gravity; }
+        }
 
-        public GameDifficulty Difficulty => levelHandler.Difficulty;
+        public GameDifficulty Difficulty
+        {
+#if NET45
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+            get { return levelHandler.Difficulty; }
+        }
 
-        public float AmbientLight {
+        public float AmbientLight
+        {
+#if NET45
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
             get { return levelHandler.AmbientLightCurrent; }
             set { levelHandler.AmbientLightCurrent = value; }
         }
 
         public int WaterLevel
         {
+#if NET45
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
             get { return levelHandler.WaterLevel; }
             set { levelHandler.WaterLevel = value; }
         }
 
         public List<Player> Players
         {
+#if NET45
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
             get { return levelHandler.Players; }
         }
 

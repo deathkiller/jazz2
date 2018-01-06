@@ -73,13 +73,11 @@ namespace Jazz2.Game.UI.Menu
                         entry.Logo = null;
                     }
 
-                    if (episodes.Count >= json.Position) {
-                        episodes.Insert(json.Position - 1, entry);
-                    } else {
-                        episodes.Add(entry);
-                    }
+                    episodes.Add(entry);
                 }
             }
+
+            episodes.Sort((x, y) => x.Episode.Position.CompareTo(y.Episode.Position));
         }
 
         public override void OnShow(MainMenu root)

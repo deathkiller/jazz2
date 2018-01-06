@@ -523,5 +523,38 @@ namespace Jazz2.Game
 
             return shader;
         }
+
+        public void RequestTileset(string path, out ContentRef<Material> materialRef, out PixelData mask)
+        {
+            path = PathOp.Combine(DualityApp.DataDirectory, "Tilesets", path);
+
+            // Load textures
+            string texturePath = PathOp.Combine(path, "tiles.png");
+            string maskPath = PathOp.Combine(path, "mask.png");
+            string normalPath = PathOp.Combine(path, "normal.png");
+
+            PixelData texturePixels = imageCodec.Read(FileOp.Open(texturePath, FileAccessMode.Read));
+            PixelData normalPixels = (FileOp.Exists(normalPath) ? imageCodec.Read(FileOp.Open(normalPath, FileAccessMode.Read)) : null);
+
+            // Apply palette to tileset
+            ColorRgba[] palette = paletteTexture.Res.BasePixmap.Res.PixelData[0].Data;
+
+            ColorRgba[] data = texturePixels.Data;
+            Parallel.ForEach(Partitioner.Create(0, data.Length), range => {
+                for (int i = range.Item1; i < range.Item2; i++) {
+                    int colorIdx = data[i].R;
+                    data[i] = palette[colorIdx].WithAlpha(palette[colorIdx].A * data[i].A / (255f * 255f));
+                }
+            });
+
+            // Create material
+            Material material = new Material(RequestShader("BasicNormal"));
+            material.SetTexture("mainTex", new Texture(new Pixmap(texturePixels)));
+            material.SetTexture("normalTex", normalPixels == null ? DefaultNormalMap : new Texture(new Pixmap(normalPixels)));
+            material.SetValue("normalMultiplier", Vector2.One);
+
+            materialRef = material;
+            mask = imageCodec.Read(FileOp.Open(maskPath, FileAccessMode.Read));
+        }
     }
 }

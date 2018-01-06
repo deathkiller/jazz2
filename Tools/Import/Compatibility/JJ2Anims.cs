@@ -543,7 +543,7 @@ namespace Jazz2.Compatibility
                         if (!string.IsNullOrEmpty(data.Name) && !data.SkipNormalMap) {
                             using (Bitmap normalMap = NormalMapGenerator.FromSprite(img,
                                     new Point(currentAnim.FrameConfigurationX, currentAnim.FrameConfigurationY),
-                                    !data.AllowRealtimePalette && data.Palette == JJ2DefaultPalette.ByIndex)) {
+                                    !data.AllowRealtimePalette && data.Palette == JJ2DefaultPalette.ByIndex ? JJ2DefaultPalette.Sprite : null)) {
 
                                 normalMap.Save(filename.Replace(".png", ".n.png"), ImageFormat.Png);
                             }
@@ -563,10 +563,10 @@ namespace Jazz2.Compatibility
             using (StreamWriter w = new StreamWriter(so, new UTF8Encoding(false))) {
                 w.WriteLine("{");
                 w.WriteLine("    \"Version\": {");
-                w.WriteLine("        \"Target\": \"Jazz² Resurrection\",");
-                w.WriteLine("        \"SourceLocation\": \"" +
-                            currentAnim.Set.ToString(CultureInfo.InvariantCulture) + ":" +
-                            currentAnim.Anim.ToString(CultureInfo.InvariantCulture) + "\",");
+                w.Write("        \"Target\": \"Jazz² Resurrection\"");
+
+#if DEBUG
+                w.WriteLine(",");
 
                 string sourceVersion;
                 switch (version) {
@@ -590,7 +590,14 @@ namespace Jazz2.Compatibility
                         break;
                 }
 
-                w.WriteLine("        \"SourceVersion\": \"" + sourceVersion + "\"");
+                w.WriteLine("        \"Source\": \"" + sourceVersion + "\",");
+                w.WriteLine("        \"SourceIndex\": \"" +
+                            currentAnim.Set.ToString(CultureInfo.InvariantCulture) + ":" +
+                            currentAnim.Anim.ToString(CultureInfo.InvariantCulture) + "\"");
+#else
+                w.WriteLine();
+#endif
+
                 w.WriteLine("    },");
 
                 int flags = 0x00;
@@ -694,16 +701,16 @@ namespace Jazz2.Compatibility
                             // Create PCM wave file
                             // Main header
                             w.Write(new[] { (byte)'R', (byte)'I', (byte)'F', (byte)'F' });
-                            w.Write((uint)(sample.Data.Length + 36));
+                            w.Write((uint)(36 + sample.Data.Length)); // File size
                             w.Write(new[] { (byte)'W', (byte)'A', (byte)'V', (byte)'E' });
 
                             // Format header
                             w.Write(new[] { (byte)'f', (byte)'m', (byte)'t', (byte)' ' });
-                            w.Write((uint)16); // header remainder length
-                            w.Write((ushort)1); // format = PCM
-                            w.Write((ushort)1); // channels
-                            w.Write((uint)sample.SampleRate); // sample rate
-                            w.Write((uint)(sample.SampleRate * multiplier)); // byte rate
+                            w.Write((uint)16); // Header remainder length
+                            w.Write((ushort)1); // Format = PCM
+                            w.Write((ushort)1); // Channels
+                            w.Write((uint)sample.SampleRate); // Sample rate
+                            w.Write((uint)(sample.SampleRate * multiplier)); // Bytes per second
                             w.Write((uint)(multiplier * 0x00080001));
 
                             // Payload

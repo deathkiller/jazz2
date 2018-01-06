@@ -5,6 +5,7 @@ using Duality;
 using Duality.Drawing;
 using Duality.Resources;
 using Jazz2.Game;
+using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
 
 namespace Editor.UI.CamView.States
@@ -313,6 +314,18 @@ namespace Editor.UI.CamView.States
             {
                 int vertexCount = FontRasterizer.Native9.EmitTextVertices("Tile: " + activeTilePos.X + "; " + activeTilePos.Y, ref vertices, 10, 28, ColorRgba.White);
                 canvas.DrawDevice.AddVertices(FontRasterizer.Native9.Material, VertexMode.Quads, vertices, 0, vertexCount);
+            }
+
+            if (activeTilePos.X >= 0 && activeTilePos.Y >= 0) {
+                ref TileMapLayer layer = ref tilemap.Layers.Data[tilemap.SpriteLayerIndex];
+
+                int index = activeTilePos.X + activeTilePos.Y * layer.LayoutWidth;
+                if (index < layer.Layout.Length) {
+                    ref LayerTile tile = ref layer.Layout[index];
+
+                    int vertexCount = FontRasterizer.Native9.EmitTextVertices("ID: " + tile.TileID + "; Anim: " + tile.IsAnimated + "; FlipX: " + tile.IsFlippedX + "; FlipY: " + tile.IsFlippedY + "; OneWay:" + tile.IsOneWay + "; " + tile.MaterialOffset + "; " + tile.Material, ref vertices, 10, 56, ColorRgba.White);
+                    canvas.DrawDevice.AddVertices(FontRasterizer.Native9.Material, VertexMode.Quads, vertices, 0, vertexCount);
+                }
             }
         }
 

@@ -15,8 +15,9 @@ namespace Jazz2.Game.Tiles
         private ILevelHandler levelHandler;
 
         private TileSet tileset;
+
         private RawList<TileMapLayer> layers = new RawList<TileMapLayer>();
-        private RawList<AnimatedTiles> animatedTiles;
+        private RawList<AnimatedTile> animatedTiles;
         private RawList<Point2> activeCollapsingTiles = new RawList<Point2>();
 
         private int levelWidth, levelHeight, sprLayerIndex;
@@ -28,19 +29,16 @@ namespace Jazz2.Game.Tiles
         public Point2 Size => new Point2(levelWidth, levelHeight);
         public TileSet Tileset => tileset;
         public RawList<TileMapLayer> Layers => layers;
+        public int SpriteLayerIndex => sprLayerIndex;
 
-        public TileMap(ILevelHandler levelHandler, string tilesPath, string maskPath, string normalPath, bool hasPit)
+        public TileMap(ILevelHandler levelHandler, string tilesetPath, bool hasPit)
         {
             this.levelHandler = levelHandler;
             this.hasPit = hasPit;
 
             IImageCodec codec = ImageCodec.GetRead(ImageCodec.FormatPng);
 
-            tileset = new TileSet(
-                codec.Read(FileOp.Open(tilesPath, FileAccessMode.Read)),
-                codec.Read(FileOp.Open(maskPath, FileAccessMode.Read)),
-                (FileOp.Exists(normalPath) ? codec.Read(FileOp.Open(normalPath, FileAccessMode.Read)) : null)
-            );
+            tileset = new TileSet(tilesetPath);
 
             if (!tileset.IsValid) {
                 throw new InvalidDataException("Tileset is corrupted");
@@ -54,7 +52,7 @@ namespace Jazz2.Game.Tiles
             float timeMult = Time.TimeMult;
 
             int n = animatedTiles.Count;
-            AnimatedTiles[] list = animatedTiles.Data;
+            AnimatedTile[] list = animatedTiles.Data;
             for (int i = 0; i < n; i++) {
                 list[i].UpdateTile(timeMult);
             }
@@ -72,9 +70,10 @@ namespace Jazz2.Game.Tiles
                 int width = r.ReadInt32();
                 int height = r.ReadInt32();
 
-                TileMapLayer newLayer = new TileMapLayer();
-                newLayer.Visible = true;
-                newLayer.Layout = new LayerTile[width * height];
+                TileMapLayer newLayer = new TileMapLayer {
+                    Visible = true,
+                    Layout = new LayerTile[width * height]
+                };
 
                 for (int i = 0; i < newLayer.Layout.Length; i++) {
                     ushort tileType = r.ReadUInt16();
@@ -88,12 +87,7 @@ namespace Jazz2.Game.Tiles
                     bool isFlippedX = (flags & 0x01) != 0;
                     bool isFlippedY = (flags & 0x02) != 0;
                     bool isAnimated = (flags & 0x04) != 0;
-                    bool legacyTranslucent = (flags & 0x80) != 0;
-
-                    // Invalid tile numbers (higher than tileset tile amount) are silently changed to empty tiles
-                    if (tileType >= tileset.TileCount && !isAnimated) {
-                        tileType = 0;
-                    }
+                    byte tileModifier = (byte)(flags >> 4);
 
                     LayerTile tile;
 
@@ -112,8 +106,10 @@ namespace Jazz2.Game.Tiles
                     tile.IsFlippedY = isFlippedY;
                     tile.IsAnimated = isAnimated;
 
-                    if (legacyTranslucent) {
+                    if (tileModifier == 1 /*Translucent*/) {
                         tile.MaterialAlpha = /*127*/140;
+                    } else if (tileModifier == 2 /*Invisible*/) {
+                        tile.MaterialAlpha = 0;
                     }
 
                     newLayer.Layout[i] = tile;
@@ -151,14 +147,14 @@ namespace Jazz2.Game.Tiles
             }
         }
 
-        internal void ReadAnimatedTiles(string filename)
+        internal void ReadAnimatedTiles(string path)
         {
-            using (Stream s = FileOp.Open(filename, FileAccessMode.Read))
+            using (Stream s = FileOp.Open(path, FileAccessMode.Read))
             using (DeflateStream deflate = new DeflateStream(s, CompressionMode.Decompress))
             using (BinaryReader r = new BinaryReader(deflate)) {
                 int count = r.ReadInt32();
 
-                animatedTiles = new RawList<AnimatedTiles>(count);
+                animatedTiles = new RawList<AnimatedTile>(count);
 
                 for (int i = 0; i < count; i++) {
                     ushort frameCount = r.ReadUInt16();
@@ -183,10 +179,15 @@ namespace Jazz2.Game.Tiles
                     // ToDo: Adjust FPS in Import
                     speed = (byte)(speed * 14 / 10);
 
-                    animatedTiles.Add(new AnimatedTiles(tileset, frames, flags, speed,
+                    animatedTiles.Add(new AnimatedTile(tileset, frames, flags, speed,
                         delay, delayJitter, (pingPong > 0), pingPongDelay));
                 }
             }
+        }
+
+        internal void ReadTilesetPart(string path, int offset, int count)
+        {
+            tileset.MergeTiles(path, offset, count);
         }
 
         public void SetTileEventFlags(int x, int y, EventType tileEvent, ushort[] tileParams)
@@ -231,7 +232,7 @@ namespace Jazz2.Game.Tiles
             tile.DestructType = type;
             tile.IsAnimated = false;
             tile.DestructAnimation = tile.TileID;
-            tile.TileID = animatedTiles[tile.DestructAnimation][0];
+            tile.TileID = animatedTiles[tile.DestructAnimation].Tiles[0].TileID;
             tile.DestructFrameIndex = 0;
             tile.MaterialOffset = tileset.GetTileTextureRect(tile.TileID);
             tile.ExtraData = extraData;

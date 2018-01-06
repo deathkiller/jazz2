@@ -129,11 +129,12 @@ namespace Jazz2.Game.Tiles
                 int current = MathF.Min(amount, max - tile.DestructFrameIndex);
 
                 tile.DestructFrameIndex = tile.DestructFrameIndex + current;
-                tile.TileID = animatedTiles[tile.DestructAnimation][tile.DestructFrameIndex];
+                tile.TileID = animatedTiles[tile.DestructAnimation].Tiles[tile.DestructFrameIndex].TileID;
                 tile.MaterialOffset = tileset.GetTileTextureRect(tile.TileID);
                 if (tile.DestructFrameIndex >= max) {
                     levelHandler.PlayCommonSound(soundName, new Vector3(x * 32 + 16, y * 32 + 16, LevelHandler.MainPlaneZ));
-                    CreateTileDebris(animatedTiles[tile.DestructAnimation][animatedTiles[tile.DestructAnimation].Length - 1], x, y);
+                    AnimatedTile anim = animatedTiles[tile.DestructAnimation];
+                    CreateTileDebris(ref anim.Tiles[anim.Length - 1], x, y);
                 }
 
                 amount -= current;

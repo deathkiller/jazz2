@@ -75,16 +75,13 @@ namespace Jazz2.Game.Tiles
             debrisList.Add(debris);
         }
 
-        public void CreateTileDebris(int tileID, int x, int y)
+        public void CreateTileDebris(ref LayerTile tile, int x, int y)
         {
             float[] speedMultiplier = { -2, 2, -1, 1 };
             int quarterSize = Tileset.TileSize / 2;
             float z = layers[sprLayerIndex].Depth - 80f;
 
-            int tx = (tileID % tileset.TilesPerRow) * tileset.TileSize;
-            int ty = (tileID / tileset.TilesPerRow) * tileset.TileSize;
-
-            Material material = tileset.Material.Res;
+            Material material = tile.Material.Res;
             Texture texture = material.MainTexture.Res;
 
             for (int i = 0; i < 4; i++) {
@@ -105,8 +102,8 @@ namespace Jazz2.Game.Tiles
 
                     Material = material,
                     MaterialOffset = new Rect(
-                        (tx + (i % 2) * quarterSize) * texture.UVRatio.X / texture.ContentWidth,
-                        (ty + (i / 2) * quarterSize) * texture.UVRatio.Y / texture.ContentHeight,
+                        (tile.MaterialOffset.X + (i % 2) * quarterSize) * texture.UVRatio.X / texture.ContentWidth,
+                        (tile.MaterialOffset.Y + (i / 2) * quarterSize) * texture.UVRatio.Y / texture.ContentHeight,
                         quarterSize * texture.UVRatio.X / texture.ContentWidth,
                         quarterSize * texture.UVRatio.Y / texture.ContentHeight
                     )

@@ -3,9 +3,9 @@ using Jazz2.Game.Structs;
 
 namespace Jazz2.Game.Tiles
 {
-    public class AnimatedTiles
+    public class AnimatedTile
     {
-        private RawList<LayerTile> animationTiles;
+        private RawList<LayerTile> tiles;
         private int frameRate;
         private int delay;
         //private int delayJitter;
@@ -17,13 +17,13 @@ namespace Jazz2.Game.Tiles
         private float frameDuration;
         private float framesLeft;
 
-        public int this[int index] => animationTiles[index].TileID;
+        public LayerTile CurrentTile => tiles[currentTileIdx];
 
-        public LayerTile CurrentTile => animationTiles[currentTileIdx];
+        public LayerTile[] Tiles => tiles.Data;
 
-        public int Length => animationTiles.Count;
+        public int Length => tiles.Count;
 
-        public AnimatedTiles(TileSet tileset, ushort[] tileIDs, byte[] tileFlags, int fps, int delay, int delayJitter, bool pingPong, int pingPongDelay)
+        public AnimatedTile(TileSet tileset, ushort[] tileIDs, byte[] tileFlags, int fps, int delay, int delayJitter, bool pingPong, int pingPongDelay)
         {
             this.frameRate = fps;
             this.delay = delay;
@@ -32,28 +32,23 @@ namespace Jazz2.Game.Tiles
             this.pingPong = pingPong;
             this.pingPongDelay = pingPongDelay;
 
-            animationTiles = new RawList<LayerTile>();
+            tiles = new RawList<LayerTile>();
 
             for (int i = 0; i < tileIDs.Length; i++) {
-                ushort tidx = tileIDs[i];
+                LayerTile tile = tileset.GetDefaultTile(tileIDs[i]);
 
-                LayerTile pseudotile = new LayerTile();
-                pseudotile.Material = tileset.Material;
-                pseudotile.MaterialOffset = new Point2(
-                    (tidx % tileset.TilesPerRow) * tileset.TileSize,
-                    (tidx / tileset.TilesPerRow) * tileset.TileSize
-                );
-
-                if ((tileFlags[i] & 0x80) > 0) {
-                    pseudotile.MaterialAlpha = /*127*/140;
+                byte tileModifier = (byte)(tileFlags[i] >> 4);
+                if (tileModifier == 1 /*Translucent*/) {
+                    tile.MaterialAlpha = /*127*/140;
+                } else if (tileModifier == 2 /*Invisible*/) {
+                    tile.MaterialAlpha = 0;
                 } else {
-                    pseudotile.MaterialAlpha = 255;
+                    tile.MaterialAlpha = 255;
                 }
 
-                pseudotile.SuspendType = SuspendType.None;
-                pseudotile.TileID = tidx;
+                tile.SuspendType = SuspendType.None;
 
-                animationTiles.Add(pseudotile);
+                tiles.Add(tile);
             }
 
             if (fps > 0) {
@@ -64,7 +59,7 @@ namespace Jazz2.Game.Tiles
 
         public void UpdateTile(float timeMult)
         {
-            if (frameRate == 0 || animationTiles.Count < 2) {
+            if (frameRate == 0 || tiles.Count < 2) {
                 return;
             }
 
@@ -74,7 +69,7 @@ namespace Jazz2.Game.Tiles
             }
 
             if (forwards) {
-                if (currentTileIdx == animationTiles.Count - 1) {
+                if (currentTileIdx == tiles.Count - 1) {
                     if (pingPong) {
                         forwards = false;
                         framesLeft += (frameDuration * (1 + pingPongDelay));

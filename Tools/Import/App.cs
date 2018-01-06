@@ -371,6 +371,30 @@ namespace Import
                 ["roe23"] = Tuple.Create("roe2", "14"),
                 ["roe24"] = Tuple.Create("roe2", "15"),
 
+                // Holiday Hare '17
+                ["hh17_level00"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level01"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level01_save"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level02"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level02_save"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level02-mlle-data-1"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level03"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level03_save"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level04"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level04_save"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level04-mlle-data-1"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level04-mlle-data-2"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level05"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level05_save"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level06"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level06_save"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level06-mlle-data-1"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level06-mlle-data-2"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level07"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level07_save"] = Tuple.Create("hh17", (string)null),
+                ["hh17_ending"] = Tuple.Create("hh17", (string)null),
+                ["hh17_guardian"] = Tuple.Create("hh17", (string)null),
+
                 // Special names
                 ["endepis"] = Tuple.Create((string)null, ":end"),
                 ["ending"] = Tuple.Create((string)null, ":credits")
@@ -413,6 +437,8 @@ namespace Import
                     return "The Christmas Chronicles";
                 } else if (episode.Token == "secretf" && episode.Name == "#Secret@Files") {
                     return "The Secret Files";
+                } else if (episode.Token == "hh17" && episode.Name == "Holiday Hare 17") {
+                    return "Holiday Hare '17";
                 } else {
                     // @ is new line, # is random color
                     return episode.Name.Replace("#", "").Replace("@", " ");
@@ -507,6 +533,11 @@ namespace Import
                     }
                     if (!string.IsNullOrEmpty(l.Tileset)) {
                         usedTilesets.Add(l.Tileset.ToLowerInvariant());
+                    }
+                    if (l.ExtraTilesets != null) {
+                        for (int i = 0; i < l.ExtraTilesets.Length; i++) {
+                            usedTilesets.Add(l.ExtraTilesets[i].Name.ToLowerInvariant());
+                        }
                     }
 
                     lock (unsupportedEventsStats) {
@@ -1180,7 +1211,7 @@ namespace Import
                     if (frameConfiguration.X == 0 || frameConfiguration.Y == 0) {
                         Log.Write(LogType.Info, "Generating normal map (" + frameConfiguration.X + "x" + frameConfiguration.Y + " frames)...");
 
-                        using (Bitmap normalMap = NormalMapGenerator.FromSprite(b, frameConfiguration, false)) {
+                        using (Bitmap normalMap = NormalMapGenerator.FromSprite(b, frameConfiguration, null)) {
                             normalMap.Save(Path.ChangeExtension(path, ".n.new" + Path.GetExtension(path)), ImageFormat.Png);
                         }
                     }

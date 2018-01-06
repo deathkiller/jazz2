@@ -252,6 +252,13 @@ namespace Jazz2.Game
                 public LevelFlags Flags { get; set; }
             }
 
+            public class TilesetSection
+            {
+                public string Name { get; set; }
+                public int Offset { get; set; }
+                public int Count { get; set; }
+            }
+
             public class LayerSection
             {
                 public float XSpeed { get; set; }
@@ -271,6 +278,7 @@ namespace Jazz2.Game
             public VersionSection Version { get; set; }
             public DescriptionSection Description { get; set; }
             public IDictionary<int, string> TextEvents { get; set; }
+            public IList<TilesetSection> Tilesets { get; set; }
             public IDictionary<string, LayerSection> Layers { get; set; }
 
         }
@@ -297,17 +305,31 @@ namespace Jazz2.Game
                 ambientLightDefault = config.Description.DefaultLight;
                 ambientLightCurrent = ambientLightTarget = ambientLightDefault * 0.01f;
 
-                string tilesetPath = PathOp.Combine(DualityApp.DataDirectory, "Tilesets", config.Description.DefaultTileset);
+                // Palette
+                {
+                    ColorRgba[] tileMapPalette;
 
-                tileMap = new TileMap(this,
-                    PathOp.Combine(tilesetPath, "tiles.png"),
-                    PathOp.Combine(tilesetPath, "mask.png"),
-                    PathOp.Combine(tilesetPath, "normal.png"),
-                    (config.Description.Flags & LevelFlags.HasPit) != 0);
+                    string levelPalette = PathOp.Combine(levelPath, ".palette");
+                    if (FileOp.Exists(levelPalette)) {
+                        tileMapPalette = TileSet.LoadPalette(levelPalette);
+                    } else {
+                        string tilesetPath = PathOp.Combine(DualityApp.DataDirectory, "Tilesets", config.Description.DefaultTileset);
+                        tileMapPalette = TileSet.LoadPalette(PathOp.Combine(tilesetPath, ".palette"));
+                    }
 
-                ColorRgba[] tileMapPalette = TileSet.LoadPalette(PathOp.Combine(tilesetPath, ".palette"));
+                    ContentResolver.Current.ApplyBasePalette(tileMapPalette);
+                }
 
-                ContentResolver.Current.ApplyBasePalette(tileMapPalette);
+                // Tileset
+                tileMap = new TileMap(this, config.Description.DefaultTileset, (config.Description.Flags & LevelFlags.HasPit) != 0);
+
+                // Additional tilesets
+                if (config.Tilesets != null) {
+                    for (int i = 0; i < config.Tilesets.Count; i++) {
+                        LevelConfigJson.TilesetSection part = config.Tilesets[i];
+                        tileMap.ReadTilesetPart(part.Name, part.Offset, part.Count);
+                    }
+                }
 
                 // Read all layers
                 config.Layers.Add("Sprite", new LevelConfigJson.LayerSection {

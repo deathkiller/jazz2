@@ -3,6 +3,7 @@
     public enum JJ2Event : byte
     {
         EMPTY = 0x00,
+
         MODIFIER_ONE_WAY = 0x01,
         MODIFIER_HURT = 0x02,
         MODIFIER_VINE = 0x03,

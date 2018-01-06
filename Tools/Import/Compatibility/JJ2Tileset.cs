@@ -148,9 +148,11 @@ namespace Jazz2.Compatibility
                     byte idx = imageData[j];
                     Color color;
                     if (alphaMaskData.Length > 0 && ((alphaMaskData[j / 8] >> (j % 8)) & 0x01) == 0x00) {
-                        color = Color.Transparent;
+                        //color = Color.Transparent;
+                        color = JJ2DefaultPalette.ByIndex[0];
                     } else {
-                        color = palette[idx];
+                        //color = palette[idx];
+                        color = JJ2DefaultPalette.ByIndex[idx];
                     }
 
                     tile.Image.SetPixel(j % BlockSize, j / BlockSize, color);
@@ -211,7 +213,7 @@ namespace Jazz2.Compatibility
             // Create normal map
             using (Bitmap normalMap = NormalMapGenerator.FromSprite(tilesTexture,
                     new Point(tilesTexture.Width / TileSize, tilesTexture.Height / TileSize),
-                    false)) {
+                    palette)) {
 
                 normalMap.Save(Path.Combine(path, "normal.png"), ImageFormat.Png);
             }

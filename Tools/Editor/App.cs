@@ -87,7 +87,7 @@ namespace Editor
 
             // Enter a new, empty Scene, which will trigger the usual updates
             //Scene.SwitchTo(null, true);
-            Scene.SwitchTo(new EditorLevelHandler("prince", "03_carrot1"), true);
+            Scene.SwitchTo(new EditorLevelHandler("prince", "04_carrot1n"), true);
 
             mainWindow.Show();
 

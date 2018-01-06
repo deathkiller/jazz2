@@ -47,8 +47,8 @@ namespace Jazz2.Game.Tiles
 
                 device.PrepareForDrawcalls();
 
-                Material material = tileset.Material.Res;
-                Texture texture = material.MainTexture.Res;
+                Material material = null;
+                Texture texture = null;
 
                 // Reserve the required space for vertex data in our locally cached buffer
                 int neededVertices = 4 * w * h;
@@ -76,6 +76,21 @@ namespace Jazz2.Game.Tiles
                             offset = tile.MaterialOffset;
                             isFlippedX = tile.IsFlippedX;
                             isFlippedY = tile.IsFlippedY;
+                        }
+
+                        if (material != tile.Material) {
+                            // Submit all the vertices as one draw batch
+                            device.AddVertices(
+                                material,
+                                VertexMode.Quads,
+                                vertexData,
+                                0,
+                                vertexBaseIndex);
+
+                            vertexBaseIndex = 0;
+
+                            material = tile.Material.Res;
+                            texture = material.MainTexture.Res;
                         }
 
                         Rect uvRect = new Rect(
@@ -142,7 +157,12 @@ namespace Jazz2.Game.Tiles
                     }
                 }
 
-                device.AddVertices(material, VertexMode.Quads, vertexData, 0, vertexBaseIndex);
+                device.AddVertices(
+                    material,
+                    VertexMode.Quads,
+                    vertexData,
+                    0,
+                    vertexBaseIndex);
 
                 device.Render();
             }

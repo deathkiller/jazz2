@@ -60,6 +60,7 @@
     <Compile Include="Compatibility\JJ2Event.cs" />
     <Compile Include="Compatibility\JJ2Level.cs" />
     <Compile Include="Compatibility\JJ2DefaultPalette.cs" />
+    <Compile Include="Compatibility\JJ2Text.cs" />
     <Compile Include="Compatibility\JJ2Tileset.cs" />
     <Compile Include="Compatibility\JJ2Version.cs" />
     <Compile Include="App.cs" />

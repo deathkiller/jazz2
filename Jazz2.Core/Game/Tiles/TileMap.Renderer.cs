@@ -155,8 +155,8 @@ namespace Jazz2.Game.Tiles
                 float x3 = x1 + 100 + viewSize.X;
                 float y3 = y1 + 100 + viewSize.Y;
 
-                Material material = tileset.Material.Res;
-                Texture texture = material.MainTexture.Res;
+                Material material = null;
+                Texture texture = null;
                 ColorRgba mainColor = ColorRgba.White;
 
                 // Reserve the required space for vertex data in our locally cached buffer
@@ -215,6 +215,21 @@ namespace Jazz2.Game.Tiles
                             isFlippedY = tile.IsFlippedY;
 
                             mainColor.A = tile.MaterialAlpha;
+                        }
+
+                        if (material != tile.Material) {
+                            // Submit all the vertices as one draw batch
+                            device.AddVertices(
+                                material,
+                                VertexMode.Quads,
+                                vertexData,
+                                0,
+                                vertexBaseIndex);
+
+                            vertexBaseIndex = 0;
+
+                            material = tile.Material.Res;
+                            texture = material.MainTexture.Res;
                         }
 
                         Rect uvRect = new Rect(

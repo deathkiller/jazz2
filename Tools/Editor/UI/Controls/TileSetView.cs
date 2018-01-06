@@ -49,13 +49,16 @@ namespace Editor.UI.Controls
             if (levelHandler != null) {
                 tilemap = levelHandler.TileMap;
 
-                int tilesY = tilemap.Tileset.TileCount / 10;
+                // ToDo: Duplicate code
+                if (tilemap != null) {
+                    int tilesY = tilemap.Tileset.TileCount / 10;
 
-                scrollBar.Minimum = 0;
-                scrollBar.Maximum = tilesY * tilemap.Tileset.TileSize/* - ClientSize.Height*/;
+                    scrollBar.Minimum = 0;
+                    scrollBar.Maximum = tilesY * tilemap.Tileset.TileSize/* - ClientSize.Height*/;
 
-                scrollBar.SmallChange = 8;
-                scrollBar.LargeChange = ClientSize.Height / 2;
+                    scrollBar.SmallChange = 8;
+                    scrollBar.LargeChange = ClientSize.Height / 2;
+                }
             } else {
                 tilemap = null;
             }
@@ -64,6 +67,21 @@ namespace Editor.UI.Controls
         private void ScrollBar_ValueChanged(object sender, EventArgs e)
         {
             InvalidateView();
+        }
+
+        protected override void OnLayout(LayoutEventArgs e)
+        {
+            base.OnLayout(e);
+
+            if (tilemap != null) {
+                int tilesY = tilemap.Tileset.TileCount / 10;
+
+                scrollBar.Minimum = 0;
+                scrollBar.Maximum = tilesY * tilemap.Tileset.TileSize/* - ClientSize.Height*/;
+
+                scrollBar.SmallChange = 8;
+                scrollBar.LargeChange = ClientSize.Height / 2;
+            }
         }
 
         protected override void OnRender(Canvas canvas)
@@ -81,7 +99,8 @@ namespace Editor.UI.Controls
             IDrawDevice device = canvas.DrawDevice;
 
             TileSet tileset = tilemap.Tileset;
-            Texture texture = tilemap.Tileset.Material.Res.MainTexture.Res;
+            Material material = tilemap.Tileset.GetDefaultTile(0).Material.Res;
+            Texture texture = material.MainTexture.Res;
 
             int scrollBarOffset = scrollBar.Value;
 
@@ -134,7 +153,7 @@ namespace Editor.UI.Controls
                     vertexData[3].TexCoord.Y = uvRect.Y;
                     vertexData[3].Color = mainColor;
 
-                    device.AddVertices(tilemap.Tileset.Material, VertexMode.Quads, vertexData);
+                    device.AddVertices(material, VertexMode.Quads, vertexData);
 
                     tileIndex++;
                 }

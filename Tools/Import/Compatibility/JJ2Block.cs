@@ -85,7 +85,30 @@ namespace Jazz2.Compatibility
             return reader.ReadUInt32();
         }
 
+
+        public int ReadUint7bitEncoded()
+        {
+            int result = 0;
+
+            while (true) {
+                byte current = reader.ReadByte();
+                result |= (current & 0x7F);
+                if (current >= 0x80) {
+                    result <<= 7;
+                } else {
+                    break;
+                }
+            }
+
+            return result;
+        }
+
         public float ReadFloat()
+        {
+            return reader.ReadSingle();
+        }
+
+        public float ReadFloatEncoded()
         {
             return (reader.ReadInt32() * 1f / 65536f);
         }

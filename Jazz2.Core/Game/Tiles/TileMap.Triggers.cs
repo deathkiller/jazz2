@@ -24,7 +24,7 @@ namespace Jazz2.Game.Tiles
                 if (tile.DestructType == TileDestructType.Trigger && tile.ExtraData == triggerID) {
                     if (animatedTiles[tile.DestructAnimation].Length > 1) {
                         tile.DestructFrameIndex = (newState ? 1 : 0);
-                        tile.TileID = animatedTiles[tile.DestructAnimation][tile.DestructFrameIndex];
+                        tile.TileID = animatedTiles[tile.DestructAnimation].Tiles[tile.DestructFrameIndex].TileID;
                         tile.MaterialOffset = tileset.GetTileTextureRect(tile.TileID);
                     }
                 }

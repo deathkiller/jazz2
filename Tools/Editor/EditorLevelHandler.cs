@@ -90,15 +90,11 @@ namespace Editor
 
                 string tilesetPath = PathOp.Combine(DualityApp.DataDirectory, "Tilesets", config.Description.DefaultTileset);
 
-                tileMap = new TileMap(this,
-                    PathOp.Combine(tilesetPath, "tiles.png"),
-                    PathOp.Combine(tilesetPath, "mask.png"),
-                    PathOp.Combine(tilesetPath, "normal.png"),
-                    (config.Description.Flags & LevelHandler.LevelFlags.HasPit) != 0);
-
                 ColorRgba[] tileMapPalette = TileSet.LoadPalette(PathOp.Combine(tilesetPath, ".palette"));
 
                 ContentResolver.Current.ApplyBasePalette(tileMapPalette);
+
+                tileMap = new TileMap(this, config.Description.DefaultTileset, (config.Description.Flags & LevelHandler.LevelFlags.HasPit) != 0);
 
                 // Read all layers
                 config.Layers.Add("Sprite", new LevelHandler.LevelConfigJson.LayerSection {

@@ -35,11 +35,11 @@ namespace Jazz2.Game.Tiles
 
         public const int DefaultTileSize = 32;
 
-        public readonly ContentRef<Material> Material;
-        public readonly int TileCount;
+        public readonly RawList<ContentRef<Material>> Materials;
+        public int TileCount => defaultLayerTiles.Count;
         public readonly int TileSize;
         public readonly int TilesPerRow;
-        public readonly bool IsValid;
+        public bool IsValid;
 
         private RawList<BitArray> masks;
         private BitArray isMaskEmpty;
@@ -49,26 +49,30 @@ namespace Jazz2.Game.Tiles
 
         private RawList<LayerTile> defaultLayerTiles;
 
-        public TileSet(PixelData texture, PixelData mask, PixelData normal)
+        public TileSet(string path)
         {
-            Material material = new Material(ContentResolver.Current.RequestShader("BasicNormal"));
-            material.SetTexture("mainTex", new Texture(new Pixmap(texture)));
-            material.SetTexture("normalTex", normal == null ? ContentResolver.Current.DefaultNormalMap : new Texture(new Pixmap(normal)));
-            material.SetValue("normalMultiplier", Vector2.One);
-            Material = material;
+            Materials = new RawList<ContentRef<Material>>();
+
+            ContentRef<Material> material;
+            PixelData mask;
+            ContentResolver.Current.RequestTileset(path, out material, out mask);
+
+            Materials.Add(material);
 
             TileSize = DefaultTileSize;
+
+            PixelData texture = material.Res.MainTexture.Res.BasePixmap.Res.MainLayer;
 
             int width = (texture.Width / TileSize);
             int height = (texture.Height / TileSize);
             TilesPerRow = width;
-            TileCount = width * height;
+            int tileCount = width * height;
 
             masks = new RawList<BitArray>();
-            isMaskEmpty = new BitArray(TileCount);
-            isMaskFilled = new BitArray(TileCount);
+            isMaskEmpty = new BitArray(tileCount);
+            isMaskFilled = new BitArray(tileCount);
 
-            isTileFilled = new BitArray(TileCount);
+            isTileFilled = new BitArray(tileCount);
 
             defaultLayerTiles = new RawList<LayerTile>();
 
@@ -104,11 +108,73 @@ namespace Jazz2.Game.Tiles
                     defaultLayerTiles.Add(new LayerTile {
                         TileID = idx,
 
-                        Material = Material,
+                        Material = material,
                         MaterialOffset = new Point2(TileSize * ((i * width + j) % TilesPerRow), TileSize * ((i * width + j) / TilesPerRow)),
                         MaterialAlpha = 255
                     });
                 }
+            }
+
+            IsValid = true;
+        }
+
+        public void MergeTiles(string path, int offset, int count)
+        {
+            ContentRef<Material> material;
+            PixelData mask;
+            ContentResolver.Current.RequestTileset(path, out material, out mask);
+
+            Materials.Add(material);
+
+            PixelData texture = material.Res.MainTexture.Res.BasePixmap.Res.MainLayer;
+
+            int width = (texture.Width / TileSize);
+            int height = (texture.Height / TileSize);
+
+            isMaskEmpty.Length += count;
+            isMaskFilled.Length += count;
+            isTileFilled.Length += count;
+
+            int partStart = defaultLayerTiles.Count;
+
+            for (int i = 0; i < count; i++) {
+                int ty = (offset + i) / width;
+                int tx = (offset + i) % width;
+
+                BitArray tileMask = new BitArray(TileSize * TileSize);
+                bool maskEmpty = true;
+                bool maskFilled = true;
+                bool tileFilled = true;
+                for (int x = 0; x < TileSize; x++) {
+                    for (int y = 0; y < TileSize; y++) {
+                        ColorRgba px = mask[tx * TileSize + x, ty * TileSize + y];
+                        // Consider any fully white or fully transparent pixel in the masks as non-solid and all others as solid
+                        bool masked = (px != ColorRgba.White && px.A > 0);
+                        tileMask[x + TileSize * y] = masked;
+                        maskEmpty &= !masked;
+                        maskFilled &= masked;
+
+                        ColorRgba pxTex = texture[tx * TileSize + x, ty * TileSize + y];
+                        masked = (pxTex.A > 20);
+                        tileFilled &= masked;
+                    }
+                }
+
+                masks.Add(tileMask);
+
+                int idx = (partStart + i);
+                isMaskEmpty[idx] = maskEmpty;
+                isMaskFilled[idx] = maskFilled;
+
+                isTileFilled[idx] = tileFilled || !maskEmpty;
+
+                defaultLayerTiles.Add(new LayerTile {
+                    TileID = idx,
+
+                    Material = material,
+                    MaterialOffset = new Point2(tx * TileSize, ty * TileSize),
+                    MaterialAlpha = 255
+                });
             }
 
             IsValid = true;
@@ -132,7 +198,7 @@ namespace Jazz2.Game.Tiles
 
         public Point2 GetTileTextureRect(int tileID)
         {
-            return new Point2(TileSize * (tileID % TilesPerRow), TileSize * (tileID / TilesPerRow));
+            return defaultLayerTiles[tileID].MaterialOffset;
         }
 
 #if NET45

@@ -92,27 +92,29 @@ namespace Jazz2.Compatibility
                 }
 
                 switch (paramTypes[i].First) {
-                    case JJ2EventParamType.Bool:
+                    case JJ2EventParamType.Bool: {
                         eventParams[i] = (ushort)(paramInt % 2);
                         paramInt = paramInt >> 1;
                         break;
-                    case JJ2EventParamType.UInt:
+                    }
+                    case JJ2EventParamType.UInt: {
                         eventParams[i] = (ushort)(paramInt % (1 << paramTypes[i].Second));
                         paramInt = paramInt >> paramTypes[i].Second;
                         break;
+                    }
                     case JJ2EventParamType.Int: {
-                            uint val = (uint)(paramInt % (1 << paramTypes[i].Second));
+                        uint val = (uint)(paramInt % (1 << paramTypes[i].Second));
 
-                            // Complement of two, with variable bit length
-                            int highestBitValue = (1 << (paramTypes[i].Second - 1));
-                            if (val >= highestBitValue) {
-                                val = (uint)(-highestBitValue + (val - highestBitValue));
-                            }
-
-                            eventParams[i] = (ushort)val;
-                            paramInt = paramInt >> paramTypes[i].Second;
+                        // Complement of two, with variable bit length
+                        int highestBitValue = (1 << (paramTypes[i].Second - 1));
+                        if (val >= highestBitValue) {
+                            val = (uint)(-highestBitValue + (val - highestBitValue));
                         }
+
+                        eventParams[i] = (ushort)val;
+                        paramInt = paramInt >> paramTypes[i].Second;
                         break;
+                    }
 
                     default:
                         throw new InvalidEnumArgumentException("paramType", (int)paramTypes[i].First, typeof(JJ2EventParamType));
@@ -130,9 +132,9 @@ namespace Jazz2.Compatibility
             Add(JJ2Event.EMPTY, NoParamList(EventType.Empty));
 
             // Basic
-            Add(JJ2Event.JAZZ_LEVEL_START, ConstantParamList(EventType.LevelStart, 0x01));
-            Add(JJ2Event.SPAZ_LEVEL_START, ConstantParamList(EventType.LevelStart, 0x02));
-            Add(JJ2Event.LORI_LEVEL_START, ConstantParamList(EventType.LevelStart, 0x04));
+            Add(JJ2Event.JAZZ_LEVEL_START, ConstantParamList(EventType.LevelStart, 0x01 /*Jazz*/));
+            Add(JJ2Event.SPAZ_LEVEL_START, ConstantParamList(EventType.LevelStart, 0x02 /*Spaz*/));
+            Add(JJ2Event.LORI_LEVEL_START, ConstantParamList(EventType.LevelStart, 0x04 /*Lori*/));
 
             Add(JJ2Event.MP_LEVEL_START, ParamIntToParamList(EventType.LevelStartMP,
                 Pair.Create(JJ2EventParamType.UInt, 2)  // Team (JJ2+)

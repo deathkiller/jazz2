@@ -15,7 +15,7 @@ namespace Import
             public Point CurrentFrame;
         }
 
-        public static Bitmap FromSprite(Bitmap sprite, Point frameConfiguration, bool applyPalette)
+        public static Bitmap FromSprite(Bitmap sprite, Point frameConfiguration, Color[] palette)
         {
             Point frameSize = new Point(sprite.Width / frameConfiguration.X, sprite.Height / frameConfiguration.Y);
 
@@ -52,14 +52,14 @@ namespace Import
                             Vector2 rv = new Vector2(uv.X + step.X, uv.Y);
                             Vector2 brv = new Vector2(uv.X + step.X, uv.Y - step.Y);
 
-                            float tl = Texture2D(sampler, tlv, applyPalette).X;
-                            float l = Texture2D(sampler, lv, applyPalette).X;
-                            float bl = Texture2D(sampler, blv, applyPalette).X;
-                            float t = Texture2D(sampler, tv, applyPalette).X;
-                            float b = Texture2D(sampler, bv, applyPalette).X;
-                            float tr = Texture2D(sampler, trv, applyPalette).X;
-                            float r = Texture2D(sampler, rv, applyPalette).X;
-                            float br = Texture2D(sampler, brv, applyPalette).X;
+                            float tl = Texture2D(sampler, tlv, palette).X;
+                            float l = Texture2D(sampler, lv, palette).X;
+                            float bl = Texture2D(sampler, blv, palette).X;
+                            float t = Texture2D(sampler, tv, palette).X;
+                            float b = Texture2D(sampler, bv, palette).X;
+                            float tr = Texture2D(sampler, trv, palette).X;
+                            float r = Texture2D(sampler, rv, palette).X;
+                            float br = Texture2D(sampler, brv, palette).X;
 
                             // Sobel
                             float dx = tl + l * 2.0f + bl - tr - r * 2.0f - br;
@@ -68,7 +68,7 @@ namespace Import
                             //float dx = tl * 3.0 + l * 10.0 + bl * 3.0 - tr * 3.0 - r * 10.0 - br * 3.0;
                             //float dy = tl * 3.0 + t * 10.0 + tr * 3.0 - bl * 3.0 - b * 10.0 - br * 3.0;
 
-                            Vector4 normal = new Vector4(new Vector3(dx * 255.0f, dy * 255.0f, dz).Normalized, Texture2D(sampler, uv, applyPalette).W);
+                            Vector4 normal = new Vector4(new Vector3(dx * 255.0f, dy * 255.0f, dz).Normalized, Texture2D(sampler, uv, palette).W);
 
                             RenderPixel(sampler, new Point(x, y), new Vector4(normal.X * 0.5f + 0.5f, normal.Y * 0.5f + 0.5f, normal.Z, normal.W));
                         }
@@ -79,15 +79,17 @@ namespace Import
             return normalMap;
         }
 
-        private static Vector4 Texture2D(Sampler sampler, Vector2 coords, bool applyPalette)
+        private static Vector4 Texture2D(Sampler sampler, Vector2 coords, Color[] palette)
         {
             // Nearest neighbour sampling
             int x = MathF.Clamp((int)Math.Round(coords.X * sampler.FrameSize.X), 0, sampler.FrameSize.X - 1) + sampler.CurrentFrame.X * sampler.FrameSize.X;
             int y = MathF.Clamp((int)Math.Round(coords.Y * sampler.FrameSize.Y), 0, sampler.FrameSize.Y - 1) + sampler.CurrentFrame.Y * sampler.FrameSize.Y;
 
             Color color = sampler.Source.GetPixel(x, y);
-            if (applyPalette) {
-                color = JJ2DefaultPalette.Sprite[color.R];
+            if (palette != null) {
+                int alpha = color.A;
+                color = palette[color.R];
+                color = Color.FromArgb((int)(color.A * alpha / 255f), color);
             }
 
             // Convert to grayscale

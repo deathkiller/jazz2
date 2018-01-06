@@ -164,7 +164,7 @@ namespace Jazz2.Compatibility
             }
         }
 
-        private Bitmap ConvertEpisodeLogo(Bitmap logo)
+        private static Bitmap ConvertEpisodeLogo(Bitmap logo)
         {
             // Resize the original image
             const float ratio = 120f / 220f;
@@ -241,6 +241,7 @@ namespace Jazz2.Compatibility
                     // Use menu palette here
                     Color color;
                     if (removeShadow && (index == 63 || index == 143)) {
+                        // Remove original shadow pixels
                         color = Color.FromArgb(0, 0, 0, 0);
                     } else {
                         color = JJ2DefaultPalette.Menu[index];

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
@@ -69,6 +70,13 @@ namespace Jazz2.Compatibility
             public fixed ushort Tiles[4];
         }
 
+        public struct ExtraTilesetEntry
+        {
+            public string Name;
+            public ushort Offset;
+            public ushort Count;
+        }
+
         public struct LevelToken
         {
             public string Episode;
@@ -96,6 +104,9 @@ namespace Jazz2.Compatibility
         private bool isMpLevel;
         private bool hasPit, hasCTF, hasLaps;
 
+        private Color[] palette;
+        private ExtraTilesetEntry[] extraTilesets;
+
         private Dictionary<JJ2Event, int> unsupportedEvents;
 
         public int MaxSupportedTiles => (version == JJ2Version.BaseGame ? 1024 : 4096);
@@ -104,6 +115,7 @@ namespace Jazz2.Compatibility
         public string CurrentLevelToken => levelToken;
 
         public string Tileset => tileset;
+        public ExtraTilesetEntry[] ExtraTilesets => extraTilesets;
         public string Music => music;
         public JJ2Version Version => version;
         public bool VerticalMpSplitscreen => verticalMPSplitscreen;
@@ -111,7 +123,7 @@ namespace Jazz2.Compatibility
 
         public Dictionary<JJ2Event, int> UnsupportedEvents => unsupportedEvents;
 
-        public static JJ2Level Open(string path, bool strictParser)
+        public unsafe static JJ2Level Open(string path, bool strictParser)
         {
             using (Stream s = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
                 // Skip copyright notice
@@ -128,9 +140,6 @@ namespace Jazz2.Compatibility
                 }
 
                 uint passwordHash = headerBlock.ReadUInt32();
-
-                bool hasMlleStream = (passwordHash == 0xEFBEBACA);
-                // ToDo: Read MLLE stream data
 
                 level.name = headerBlock.ReadString(32, true);
 
@@ -166,6 +175,24 @@ namespace Jazz2.Compatibility
                 level.LoadMetadata(infoBlock, strictParser);
                 level.LoadEvents(eventBlock, strictParser);
                 level.LoadLayers(dictBlock, dictBlockUnpackedSize / 8, layoutBlock, strictParser);
+
+                // Try to read MLLE data stream
+                const int mlleHeaderSize = 4 + 4 + 4 + 4;
+                byte[] mlleHeader = new byte[mlleHeaderSize];
+
+                if (s.Read(mlleHeader, 0, mlleHeaderSize) == mlleHeaderSize) {
+                    fixed (byte* ptr = mlleHeader) {
+                        uint mlleMagic = *(uint*)ptr;
+                        if (mlleMagic == 0x454C4C4D /*MLLE*/) {
+                            uint mlleVersion = *(uint*)(ptr + 4);
+                            int mlleBlockPackedSize = *(int*)(ptr + 4 + 4);
+                            int mlleBlockUnpackedSize = *(int*)(ptr + 4 + 4 + 4);
+
+                            JJ2Block mlleBlock = new JJ2Block(s, mlleBlockPackedSize, mlleBlockUnpackedSize);
+                            level.LoadMlleData(mlleBlock, mlleVersion, strictParser);
+                        }
+                    }
+                }
 
                 return level;
             }
@@ -302,27 +329,27 @@ namespace Jazz2.Compatibility
             }
 
             for (int i = 0; i < JJ2LayerCount; ++i) {
-                layers[i].WaveX = block.ReadFloat();
+                layers[i].WaveX = block.ReadFloatEncoded();
             }
 
             for (int i = 0; i < JJ2LayerCount; ++i) {
-                layers[i].WaveY = block.ReadFloat();
+                layers[i].WaveY = block.ReadFloatEncoded();
             }
 
             for (int i = 0; i < JJ2LayerCount; ++i) {
-                layers[i].SpeedX = block.ReadFloat();
+                layers[i].SpeedX = block.ReadFloatEncoded();
             }
 
             for (int i = 0; i < JJ2LayerCount; ++i) {
-                layers[i].SpeedY = block.ReadFloat();
+                layers[i].SpeedY = block.ReadFloatEncoded();
             }
 
             for (int i = 0; i < JJ2LayerCount; ++i) {
-                layers[i].AutoSpeedX = block.ReadFloat();
+                layers[i].AutoSpeedX = block.ReadFloatEncoded();
             }
 
             for (int i = 0; i < JJ2LayerCount; ++i) {
-                layers[i].AutoSpeedY = block.ReadFloat();
+                layers[i].AutoSpeedY = block.ReadFloatEncoded();
             }
 
             for (int i = 0; i < JJ2LayerCount; ++i) {
@@ -418,6 +445,149 @@ namespace Jazz2.Compatibility
             }
         }
 
+        private void LoadMlleData(JJ2Block block, uint version, bool strictParser)
+        {
+            if (version != 0x104) {
+                Log.Write(LogType.Warning, "Unsupported version (0x" + version.ToString("X") + ") of MLLE stream found in level \"" + levelToken + "\".");
+                return;
+            }
+
+            // ToDo
+            bool isSnowing = block.ReadBool();
+            bool isSnowingOutdoorsOnly = block.ReadBool();
+            byte snowIntensity = block.ReadByte();
+            byte snowType = block.ReadByte();
+
+            bool warpsTransmuteCoins = block.ReadBool();
+            bool delayGeneratedCrateOrigins = block.ReadBool();
+            int echo = block.ReadInt32();
+            uint darknessColor = block.ReadUInt32();
+            float waterChangeSpeed = block.ReadFloat();
+            byte waterInteraction = block.ReadByte();
+            int waterLayer = block.ReadInt32();
+            byte waterLighting = block.ReadByte();
+            float waterLevel = block.ReadFloat();
+            uint waterGradient1 = block.ReadUInt32();
+            uint waterGradient2 = block.ReadUInt32();
+
+            bool hasPalette = block.ReadBool();
+            if (hasPalette) {
+                palette = new Color[256];
+
+                for (int i = 0; i < 256; i++) {
+                    byte r = block.ReadByte();
+                    byte g = block.ReadByte();
+                    byte b = block.ReadByte();
+                    palette[i] = Color.FromArgb(0xFF, r, g, b);
+                }
+            }
+
+            // ToDo
+            LoadMlleRecoloring(block); // PINBALL, 0, 4
+            LoadMlleRecoloring(block); // PINBALL, 2, 4
+            LoadMlleRecoloring(block); // CARROTPOLE, 0, 1
+            LoadMlleRecoloring(block); // DIAMPOLE, 0, 1
+            LoadMlleRecoloring(block); // PINBALL, 4, 8
+            LoadMlleRecoloring(block); // JUNGLEPOLE, 0, 1
+            LoadMlleRecoloring(block); // PLUS_SCENERY, 0, 17
+            LoadMlleRecoloring(block); // PSYCHPOLE, 0, 1
+            LoadMlleRecoloring(block); // SMALTREE, 0, 1
+            LoadMlleRecoloring(block); // SNOW, 0, 8
+            LoadMlleRecoloring(block); // COMMON, 2, 18
+
+            byte tilesetCount = block.ReadByte();
+            if (tilesetCount > 0) {
+                extraTilesets = new ExtraTilesetEntry[tilesetCount];
+
+                for (int i = 0; i < tilesetCount; i++) {
+                    int tilesetNameLength = block.ReadUint7bitEncoded();
+                    extraTilesets[i].Name = block.ReadString(tilesetNameLength, false);
+
+                    extraTilesets[i].Offset = block.ReadUInt16();
+                    extraTilesets[i].Count = block.ReadUInt16();
+
+                    // ToDo
+                    bool tilesetHasColors = block.ReadBool();
+                    if (tilesetHasColors) {
+                        for (int j = 0; j < 256; j++) {
+                            byte idx = block.ReadByte();
+                        }
+                    }
+                }
+            }
+
+            uint layerCount = block.ReadUInt32();
+            if (layerCount > 8) {
+                Log.Write(LogType.Warning, "Unsupported MLLE extra layers found in level \"" + levelToken + "\".");
+            }
+
+            int[] layerOrder = new int[layerCount];
+            for (int i = 0; i < layerCount; i++) {
+                sbyte id = unchecked((sbyte)block.ReadByte());
+                if (id >= 0) {
+                    layerOrder[id] = i;
+                } else {
+                    // ToDo
+                }
+
+                int layerNameLength = block.ReadUint7bitEncoded();
+                string layerName = block.ReadString(layerNameLength, false);
+
+                bool hideTiles = block.ReadBool();
+                byte spriteMode = block.ReadByte();
+                byte spriteParam = block.ReadByte();
+                int rotationAngle = block.ReadInt32();
+                int rotationRadiusMult = block.ReadInt32();
+            }
+
+            // Sprite layer has zero depth
+            int zeroDepthIdx = layerOrder[3];
+
+            // Adjust depth of all layers
+            for (int i = 0; i < layers.Length; i++) {
+                int newIdx = layerOrder[i];
+                layers[i].Depth = (newIdx - zeroDepthIdx) * 100;
+
+                if (layers[i].Depth < -200) {
+                    layers[i].Depth = -200 - (200 - layers[i].Depth) / 5;
+                } else if (layers[i].Depth > 300) {
+                    layers[i].Depth = 300 + (layers[i].Depth - 300) / 5;
+                }
+            }
+
+            // ToDo
+            ushort imageCount = block.ReadUInt16();
+            for (int i = 0; i < imageCount; i++) {
+                ushort id = block.ReadUInt16();
+                for (int j = 0; j < 32 * 32; j++) {
+                    byte idx = block.ReadByte();
+                }
+            }
+
+            // ToDo
+            ushort maskCount = block.ReadUInt16();
+            for (int i = 0; i < imageCount; i++) {
+                ushort id = block.ReadUInt16();
+                for (int j = 0; j < (32 * 32) / 8; j++) {
+                    byte idx = block.ReadByte();
+                }
+            }
+
+            if (isSnowing || warpsTransmuteCoins || delayGeneratedCrateOrigins || imageCount > 0 || maskCount > 0) {
+                Log.Write(LogType.Warning, "Unsupported MLLE property found in level \"" + levelToken + "\".");
+            }
+        }
+
+        private void LoadMlleRecoloring(JJ2Block block)
+        {
+            bool exists = block.ReadBool();
+            if (exists) {
+                for (int i = 0; i < 256; i++) {
+                    byte idx = block.ReadByte();
+                }
+            }
+        }
+
         public void Convert(string path, Func<string, LevelToken> levelTokenConversion = null)
         {
             WriteLayer(Path.Combine(path, "Sprite.layer"), layers[3]);
@@ -434,6 +604,8 @@ namespace Jazz2.Compatibility
             WriteAnimatedTiles(Path.Combine(path, "Animated.tiles"));
 
             WriteResFile(Path.Combine(path, ".res"), levelTokenConversion);
+
+            WritePalette(Path.Combine(path, ".palette"));
         }
 
         public void AddLevelTokenTextID(ushort textID)
@@ -441,12 +613,12 @@ namespace Jazz2.Compatibility
             levelTokenTextIDs.Add(textID);
         }
 
-        private void WriteResFile(string filename, Func<string, LevelToken> levelTokenConversion = null)
+        private void WriteResFile(string path, Func<string, LevelToken> levelTokenConversion = null)
         {
             const int LayerFormatVersion = 1;
             const int EventSetVersion = 2;
 
-            using (Stream s = File.Create(filename))
+            using (Stream s = File.Create(path))
             using (StreamWriter w = new StreamWriter(s, new UTF8Encoding(false))) {
                 w.WriteLine("{");
                 w.WriteLine("    \"Version\": {");
@@ -456,7 +628,7 @@ namespace Jazz2.Compatibility
                 w.WriteLine("    },");
 
                 w.WriteLine("    \"Description\": {");
-                w.WriteLine("        \"Name\": \"" + ConvertFormattedString(name ?? "", true) + "\",");
+                w.WriteLine("        \"Name\": \"" + JJ2Text.ConvertFormattedString(name ?? "", true) + "\",");
 
                 if (!string.IsNullOrEmpty(nextLevel)) {
                     if (nextLevel.EndsWith(".j2l", StringComparison.InvariantCultureIgnoreCase) ||
@@ -565,7 +737,7 @@ namespace Jazz2.Compatibility
 
                             current = string.Join("|", tokens);
                         } else {
-                            current = ConvertFormattedString(current);
+                            current = JJ2Text.ConvertFormattedString(current);
                         }
 
                         w.Write("        \"" + i.ToString(CultureInfo.InvariantCulture) + "\": \"" + current + "\"");
@@ -574,6 +746,27 @@ namespace Jazz2.Compatibility
                 if (textFound) {
                     w.WriteLine();
                     w.WriteLine("    },");
+                }
+
+                if (extraTilesets != null) {
+                    w.WriteLine("    \"Tilesets\": [");
+
+                    for (int i = 0; i < extraTilesets.Length; i++) {
+                        if (i > 0) {
+                            w.WriteLine(",");
+                        }
+
+                        if (extraTilesets[i].Name.EndsWith(".j2t", StringComparison.InvariantCultureIgnoreCase)) {
+                            extraTilesets[i].Name = extraTilesets[i].Name.Substring(0, extraTilesets[i].Name.Length - 4);
+                        }
+
+                        w.Write("        { \"Name\": \"" + extraTilesets[i].Name.ToLowerInvariant() + "\", \"Offset\": " +
+                            extraTilesets[i].Offset.ToString(CultureInfo.InvariantCulture) + ", \"Count\": " +
+                            extraTilesets[i].Count.ToString(CultureInfo.InvariantCulture) + " }");
+                    }
+
+                    w.WriteLine();
+                    w.WriteLine("    ],");
                 }
 
                 w.WriteLine("    \"Layers\": {");
@@ -636,13 +829,13 @@ namespace Jazz2.Compatibility
             w.Write("        }");
         }
 
-        private void WriteLayer(string filename, LayerSection layer)
+        private void WriteLayer(string path, LayerSection layer)
         {
             if (!layer.Used) {
                 return;
             }
 
-            using (Stream s = File.Create(filename))
+            using (Stream s = File.Create(path))
             using (DeflateStream deflate = new DeflateStream(s, CompressionLevel.Optimal))
             using (BinaryWriter w = new BinaryWriter(deflate)) {
 
@@ -656,6 +849,12 @@ namespace Jazz2.Compatibility
                     for (int x = 0; x < layer.Width; ++x) {
                         ushort tileIdx = layer.Tiles[x + y * layer.InternalWidth];
 
+                        bool flipX = false, flipY = false;
+                        if ((tileIdx & 0x2000) != 0) {
+                            flipY = true;
+                            tileIdx -= 0x2000;
+                        }
+
                         if ((tileIdx & ~(maxTiles | (maxTiles - 1))) != 0) {
                             // Fix of bug in updated Psych2.j2l
                             tileIdx = (ushort)((tileIdx & (maxTiles | (maxTiles - 1))) | maxTiles);
@@ -664,7 +863,7 @@ namespace Jazz2.Compatibility
                         // Max. tiles is either 0x0400 or 0x1000 and doubles as a mask to separate flipped tiles.
                         // In J2L, each flipped tile had a separate entry in the tile list, probably to make
                         // the dictionary concept easier to handle.
-                        bool flipX = false, flipY = false;
+                        
                         if ((tileIdx & maxTiles) > 0) {
                             flipX = true;
                             tileIdx -= maxTiles;
@@ -677,8 +876,10 @@ namespace Jazz2.Compatibility
                         }
 
                         bool legacyTranslucent = false;
+                        bool invisible = false;
                         if (!animated && tileIdx < lastTilesetTileIndex) {
-                            legacyTranslucent = ((staticTiles[tileIdx].Type & 0x01) != 0);
+                            legacyTranslucent = (staticTiles[tileIdx].Type == 1);
+                            invisible = (staticTiles[tileIdx].Type == 3);
                         }
 
                         byte tileFlags = 0;
@@ -688,8 +889,11 @@ namespace Jazz2.Compatibility
                             tileFlags |= 0x02;
                         if (animated)
                             tileFlags |= 0x04;
+
                         if (legacyTranslucent)
-                            tileFlags |= 0x80;
+                            tileFlags |= 0x10;
+                        else if (invisible)
+                            tileFlags |= 0x20;
 
                         w.Write(tileIdx);
                         w.Write(tileFlags);
@@ -698,11 +902,11 @@ namespace Jazz2.Compatibility
             }
         }
 
-        private void WriteEvents(string filename, int width, int height)
+        private void WriteEvents(string path, int width, int height)
         {
             unsupportedEvents = new Dictionary<JJ2Event, int>();
 
-            using (Stream s = File.Create(filename))
+            using (Stream s = File.Create(path))
             using (DeflateStream deflate = new DeflateStream(s, CompressionLevel.Optimal))
             using (BinaryWriter w = new BinaryWriter(deflate)) {
                 w.Write(width);
@@ -784,12 +988,12 @@ namespace Jazz2.Compatibility
             }
         }
 
-        private unsafe void WriteAnimatedTiles(string filename)
+        private unsafe void WriteAnimatedTiles(string path)
         {
             ushort maxTiles = (ushort)MaxSupportedTiles;
             ushort lastTilesetTileIndex = (ushort)(maxTiles - animCount);
 
-            using (Stream s = File.Create(filename))
+            using (Stream s = File.Create(path))
             using (DeflateStream ds = new DeflateStream(s, CompressionLevel.Optimal))
             using (BinaryWriter w = new BinaryWriter(ds)) {
                 w.Write(animatedTiles.Length);
@@ -829,8 +1033,11 @@ namespace Jazz2.Compatibility
                                 tileFlags |= 0x01; // Flip X
                             if (flipY)
                                 tileFlags |= 0x02; // Flip Y
-                            if ((staticTiles[frames[j]].Type & 0x01) != 0)
-                                tileFlags |= 0x80; // Legacy Translucent
+
+                            if (staticTiles[frames[j]].Type == 1)
+                                tileFlags |= 0x10; // Legacy Translucent
+                            else if (staticTiles[frames[j]].Type == 3)
+                                tileFlags |= 0x20; // Invisible
 
                             w.Write(tileIdx);
                             w.Write(tileFlags);
@@ -847,59 +1054,21 @@ namespace Jazz2.Compatibility
             }
         }
 
-        private static string ConvertFormattedString(string current, bool keepColors = true)
+        private void WritePalette(string path)
         {
-            StringBuilder sb = new StringBuilder();
-            bool randomColor = false;
-            int colorIndex = -1;
-            bool colorEmitted = true;
-            for (int j = 0; j < current.Length; j++) {
-                if (current[j] == '"') {
-                    sb.Append("\\\"");
-                } else if (current[j] == '@') {
-                    // New line
-                    sb.Append("\\n");
-                } else if (current[j] == '§' && j + 1 < current.Length && char.IsDigit(current[j + 1])) {
-                    // Char spacing
-                    j++;
-                    int spacing = current[j] - '0';
-                    int converted = 100 - (spacing * 10);
-
-                    sb.Append("\\f[");
-                    sb.Append("w:");
-                    sb.Append(converted);
-                    sb.Append("]");
-                } else if (current[j] == '#') {
-                    // Random color
-                    colorEmitted = false;
-                    randomColor ^= true;
-                    colorIndex = -1;
-                } else if (current[j] == '~') {
-                    // Freeze the active color
-                    randomColor = false;
-                } else if (current[j] == '|') {
-                    // Custom color
-                    colorIndex++;
-                    colorEmitted = false;
-                } else {
-                    if (keepColors && !colorEmitted) {
-                        colorEmitted = true;
-                        sb.Append("\\f[");
-                        sb.Append("c:");
-                        sb.Append(colorIndex);
-                        sb.Append("]");
-                    }
-
-                    sb.Append(current[j]);
-
-                    if (randomColor && colorIndex > -1) {
-                        colorIndex = -1;
-                        colorEmitted = false;
+            if (palette != null && palette.Length > 1) {
+                using (FileStream s = File.Open(path, FileMode.Create, FileAccess.Write))
+                using (BinaryWriter w = new BinaryWriter(s)) {
+                    w.Write((ushort)palette.Length);
+                    w.Write((int)0); // Empty color
+                    for (int i = 1; i < palette.Length; i++) {
+                        w.Write((byte)palette[i].R);
+                        w.Write((byte)palette[i].G);
+                        w.Write((byte)palette[i].B);
+                        w.Write((byte)palette[i].A);
                     }
                 }
             }
-
-            return sb.ToString();
         }
     }
 }
