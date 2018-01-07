@@ -83,7 +83,7 @@ namespace Jazz2.Game.Structs
         public bool UseInherentOffset;
 
         public BackgroundStyle BackgroundStyle;
-        public ColorRgba BackgroundColor;
+        public Vector4 BackgroundColor;
         public bool UseStarsTextured;
     }
 }

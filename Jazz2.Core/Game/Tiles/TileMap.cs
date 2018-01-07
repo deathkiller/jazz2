@@ -138,9 +138,9 @@ namespace Jazz2.Game.Tiles
                 newLayer.BackgroundStyle = (BackgroundStyle)layer.BackgroundStyle;
                 newLayer.UseStarsTextured = layer.ParallaxStarsEnabled;
                 if (layer.BackgroundColor != null && layer.BackgroundColor.Count >= 3) {
-                    newLayer.BackgroundColor = new ColorRgba((byte)layer.BackgroundColor[0], (byte)layer.BackgroundColor[1], (byte)layer.BackgroundColor[2]);
+                    newLayer.BackgroundColor = new Vector4(layer.BackgroundColor[0] / 255f, layer.BackgroundColor[1] / 255f, layer.BackgroundColor[2] / 255f, 1f);
                 } else {
-                    newLayer.BackgroundColor = ColorRgba.Black;
+                    newLayer.BackgroundColor = new Vector4(0, 0, 0, 1);
                 }
 
                 layers.Add(newLayer);

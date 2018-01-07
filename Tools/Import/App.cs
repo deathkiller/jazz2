@@ -377,19 +377,14 @@ namespace Import
                 ["hh17_level01_save"] = Tuple.Create("hh17", (string)null),
                 ["hh17_level02"] = Tuple.Create("hh17", (string)null),
                 ["hh17_level02_save"] = Tuple.Create("hh17", (string)null),
-                ["hh17_level02-mlle-data-1"] = Tuple.Create("hh17", (string)null),
                 ["hh17_level03"] = Tuple.Create("hh17", (string)null),
                 ["hh17_level03_save"] = Tuple.Create("hh17", (string)null),
                 ["hh17_level04"] = Tuple.Create("hh17", (string)null),
                 ["hh17_level04_save"] = Tuple.Create("hh17", (string)null),
-                ["hh17_level04-mlle-data-1"] = Tuple.Create("hh17", (string)null),
-                ["hh17_level04-mlle-data-2"] = Tuple.Create("hh17", (string)null),
                 ["hh17_level05"] = Tuple.Create("hh17", (string)null),
                 ["hh17_level05_save"] = Tuple.Create("hh17", (string)null),
                 ["hh17_level06"] = Tuple.Create("hh17", (string)null),
                 ["hh17_level06_save"] = Tuple.Create("hh17", (string)null),
-                ["hh17_level06-mlle-data-1"] = Tuple.Create("hh17", (string)null),
-                ["hh17_level06-mlle-data-2"] = Tuple.Create("hh17", (string)null),
                 ["hh17_level07"] = Tuple.Create("hh17", (string)null),
                 ["hh17_level07_save"] = Tuple.Create("hh17", (string)null),
                 ["hh17_ending"] = Tuple.Create("hh17", (string)null),
@@ -488,6 +483,11 @@ namespace Import
 
             Parallel.ForEach(Directory.EnumerateFiles(sourcePath, "*.j2l"), file => {
                 try {
+                    if (file.Contains("-MLLE-Data-")) {
+                        Log.Write(LogType.Verbose, "Level \"" + Path.GetFileName(file) + "\" skipped (MLLE extra layers).");
+                        return;
+                    }
+
                     string asPath = Path.ChangeExtension(file, ".j2as");
                     bool isPlusEnhanced = Utils.FileResolveCaseInsensitive(ref asPath);
 
@@ -579,7 +579,8 @@ namespace Import
             Log.Write(LogType.Info, "Importing music...");
             Log.PushIndent();
 
-            string[] exts = { ".j2b", ".xm", ".it", ".s3m" };
+            // Known music extensions
+            string[] exts = { ".j2b", ".xm", ".it", ".s3m", ".mo3" };
 
             Directory.CreateDirectory(Path.Combine(targetPath, "Content", "Music"));
 

@@ -60,6 +60,7 @@ namespace Jazz2.Game
         private float ambientLightCurrent;
         private float ambientLightTarget;
         private int ambientLightDefault;
+        private Vector4 darknessColor;
         private float gravity;
 
         private BossBase activeBoss;
@@ -98,6 +99,12 @@ namespace Jazz2.Game
         public int AmbientLightDefault
         {
             get { return ambientLightDefault; }
+        }
+
+        public Vector4 DarknessColor
+        {
+            get { return darknessColor; }
+            set { darknessColor = value; }
         }
 
         public int WaterLevel
@@ -248,6 +255,11 @@ namespace Jazz2.Game
                 public string DefaultTileset { get; set; }
                 public string DefaultMusic { get; set; }
                 public int DefaultLight { get; set; }
+                public IList<int> DefaultDarkness { get; set; }
+
+                public WeatherType DefaultWeather { get; set; }
+                public int DefaultWeatherIntensity { get; set; }
+                public bool DefaultWeatherOutdoors { get; set; }
 
                 public LevelFlags Flags { get; set; }
             }
@@ -304,6 +316,12 @@ namespace Jazz2.Game
                 defaultSecretLevel = config.Description.SecretLevel;
                 ambientLightDefault = config.Description.DefaultLight;
                 ambientLightCurrent = ambientLightTarget = ambientLightDefault * 0.01f;
+
+                if (config.Description.DefaultDarkness != null && config.Description.DefaultDarkness.Count >= 4) {
+                    darknessColor = new Vector4(config.Description.DefaultDarkness[0] / 255f, config.Description.DefaultDarkness[1] / 255f, config.Description.DefaultDarkness[2] / 255f, config.Description.DefaultDarkness[3] / 255f);
+                } else {
+                    darknessColor = new Vector4(0, 0, 0, 1);
+                }
 
                 // Palette
                 {
@@ -381,6 +399,13 @@ namespace Jazz2.Game
                 musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", config.Description.DefaultMusic);
                 music = DualityApp.Sound.PlaySound(new OpenMptStream(musicPath));
                 music.BeginFadeIn(0.5f);
+
+                if (config.Description.DefaultWeather != WeatherType.None) {
+                    ApplyWeather(
+                        config.Description.DefaultWeather,
+                        config.Description.DefaultWeatherIntensity,
+                        config.Description.DefaultWeatherOutdoors);
+                }
             }
         }
 

@@ -11,6 +11,7 @@
         uniform sampler2D lightTex;
 
         uniform float ambientLight;
+        uniform vec4 darknessColor;
 
         varying vec2 vTexcoord0;
         varying vec4 vCornerColor;
@@ -31,6 +32,6 @@
                                  main * (1.0 + light.g),
                                  blur,
                                  vec4(clamp((1.0 - light.r) / sqrt(max(ambientLight, 0.35)), 0.0, 1.0))
-                               ), vec4(0.0, 0.0, 0.0, 1.0), vec4(1.0 - light.r));
+                               ), darknessColor, vec4(1.0 - light.r));
         }"
 }

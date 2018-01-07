@@ -218,7 +218,7 @@ namespace Jazz2.Game.Tiles
 
             // Setup custom pixel shader
             BatchInfo material = new BatchInfo(texturedBackgroundShader, cachedTexturedBackground);
-            material.SetValue("horizonColor", new Vector4(layer.BackgroundColor.R / 255f, layer.BackgroundColor.G / 255f, layer.BackgroundColor.B / 255f, layer.BackgroundColor.A / 255f));
+            material.SetValue("horizonColor", layer.BackgroundColor);
             material.SetValue("shift", new Vector2(x, y));
 
             device.AddVertices(material, VertexMode.Quads, vertexData);

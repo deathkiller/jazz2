@@ -13,6 +13,7 @@
         
         uniform float waterLevel;
         uniform float ambientLight;
+        uniform vec4 darknessColor;
 
         float wave(float x, float time) {
             float waveOffset = cos((x - time) * 60.0) * 0.004
@@ -76,6 +77,6 @@
                                     main * (1.0 + light.g),
                                     blur,
                                     vec4(clamp((1.0 - light.r) / sqrt(max(ambientLight, 0.35)), 0.0, 1.0))
-                                  ), vec4(0.0, 0.0, 0.0, 1.0), vec4(1.0 - light.r));
+                                  ), darknessColor, vec4(1.0 - light.r));
         }"
 }

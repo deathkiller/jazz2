@@ -83,9 +83,18 @@ namespace Jazz2.Compatibility
             public string Level;
         }
 
+        public enum WeatherType
+        {
+            None,
+            Snow,
+            Flowers,
+            Rain,
+            Leaf
+        }
+
         private const int JJ2LayerCount = 8;
 
-        private string levelToken, name;
+        private string path, levelToken, name;
         private string tileset, music;
         private string nextLevel, bonusLevel, secretLevel;
 
@@ -104,8 +113,13 @@ namespace Jazz2.Compatibility
         private bool isMpLevel;
         private bool hasPit, hasCTF, hasLaps;
 
-        private Color[] palette;
-        private ExtraTilesetEntry[] extraTilesets;
+        private Color[] palette; // JJ2+
+        private ExtraTilesetEntry[] extraTilesets; // JJ2+
+
+        private WeatherType weatherType; // JJ2+
+        private byte weatherIntensity; // JJ2+
+        private bool weatherOutdoors; // JJ2+
+        private Color darknessColor = Color.FromArgb(255, 0, 0, 0); // JJ2+
 
         private Dictionary<JJ2Event, int> unsupportedEvents;
 
@@ -130,6 +144,7 @@ namespace Jazz2.Compatibility
                 s.Seek(180, SeekOrigin.Current);
 
                 JJ2Level level = new JJ2Level();
+                level.path = path;
                 level.levelToken = Path.GetFileNameWithoutExtension(path);
 
                 JJ2Block headerBlock = new JJ2Block(s, 262 - 180);
@@ -196,6 +211,10 @@ namespace Jazz2.Compatibility
 
                 return level;
             }
+        }
+
+        private JJ2Level()
+        {
         }
 
         private void LoadMetadata(JJ2Block block, bool strictParser)
@@ -452,23 +471,30 @@ namespace Jazz2.Compatibility
                 return;
             }
 
-            // ToDo
             bool isSnowing = block.ReadBool();
             bool isSnowingOutdoorsOnly = block.ReadBool();
             byte snowIntensity = block.ReadByte();
             byte snowType = block.ReadByte();
 
-            bool warpsTransmuteCoins = block.ReadBool();
-            bool delayGeneratedCrateOrigins = block.ReadBool();
-            int echo = block.ReadInt32();
-            uint darknessColor = block.ReadUInt32();
-            float waterChangeSpeed = block.ReadFloat();
-            byte waterInteraction = block.ReadByte();
-            int waterLayer = block.ReadInt32();
-            byte waterLighting = block.ReadByte();
-            float waterLevel = block.ReadFloat();
-            uint waterGradient1 = block.ReadUInt32();
-            uint waterGradient2 = block.ReadUInt32();
+            if (isSnowing) {
+                weatherType = (WeatherType)(snowType + 1);
+                weatherIntensity = snowIntensity;
+                weatherOutdoors = isSnowingOutdoorsOnly;
+            }
+
+            bool warpsTransmuteCoins = block.ReadBool(); // ToDo
+            bool delayGeneratedCrateOrigins = block.ReadBool(); // ToDo
+            int echo = block.ReadInt32(); // ToDo
+            int darknessColorRaw = block.ReadInt32();
+            float waterChangeSpeed = block.ReadFloat(); // ToDo
+            byte waterInteraction = block.ReadByte(); // ToDo
+            int waterLayer = block.ReadInt32(); // ToDo
+            byte waterLighting = block.ReadByte(); // ToDo
+            float waterLevel = block.ReadFloat(); // ToDo
+            uint waterGradient1 = block.ReadUInt32(); // ToDo
+            uint waterGradient2 = block.ReadUInt32(); // ToDo
+
+            darknessColor = Color.FromArgb(darknessColorRaw);
 
             bool hasPalette = block.ReadBool();
             if (hasPalette) {
@@ -516,18 +542,33 @@ namespace Jazz2.Compatibility
                 }
             }
 
-            uint layerCount = block.ReadUInt32();
-            if (layerCount > 8) {
-                Log.Write(LogType.Warning, "Unsupported MLLE extra layers found in level \"" + levelToken + "\".");
+            int layerCount = block.ReadInt32();
+
+            Array.Resize(ref layers, layerCount);
+
+            try {
+                for (int i = 8; i < layerCount; i += 8) {
+                    int index = path.LastIndexOf('.');
+                    string extraLayersPath = path.Substring(0, index) + "-MLLE-Data-" + (i / 8) + ".j2l";
+
+                    JJ2Level extraLayersFile = JJ2Level.Open(extraLayersPath, strictParser);
+
+                    for (int j = 0; j < 8 && (i + j) < layerCount; j++) {
+                        layers[i + j] = extraLayersFile.layers[j];
+                    }
+                }
+            } catch (Exception ex) {
+                Log.Write(LogType.Error, "Cannot load extra layers for level \"" + levelToken + "\". " + ex.Message);
             }
 
+            int nextExtraLayerIdx = 8;
             int[] layerOrder = new int[layerCount];
             for (int i = 0; i < layerCount; i++) {
                 sbyte id = unchecked((sbyte)block.ReadByte());
                 if (id >= 0) {
                     layerOrder[id] = i;
                 } else {
-                    // ToDo
+                    layerOrder[nextExtraLayerIdx++] = i;
                 }
 
                 int layerNameLength = block.ReadUint7bitEncoded();
@@ -549,9 +590,9 @@ namespace Jazz2.Compatibility
                 layers[i].Depth = (newIdx - zeroDepthIdx) * 100;
 
                 if (layers[i].Depth < -200) {
-                    layers[i].Depth = -200 - (200 - layers[i].Depth) / 5;
+                    layers[i].Depth = -200 - (200 - layers[i].Depth) / 20;
                 } else if (layers[i].Depth > 300) {
-                    layers[i].Depth = 300 + (layers[i].Depth - 300) / 5;
+                    layers[i].Depth = 300 + (layers[i].Depth - 300) / 20;
                 }
             }
 
@@ -573,7 +614,7 @@ namespace Jazz2.Compatibility
                 }
             }
 
-            if (isSnowing || warpsTransmuteCoins || delayGeneratedCrateOrigins || imageCount > 0 || maskCount > 0) {
+            if (warpsTransmuteCoins || delayGeneratedCrateOrigins || imageCount > 0 || maskCount > 0) {
                 Log.Write(LogType.Warning, "Unsupported MLLE property found in level \"" + levelToken + "\".");
             }
         }
@@ -593,8 +634,8 @@ namespace Jazz2.Compatibility
             WriteLayer(Path.Combine(path, "Sprite.layer"), layers[3]);
             WriteLayer(Path.Combine(path, "Sky.layer"), layers[7]);
 
-            for (int i = 0; i < 7; i++) {
-                if (i != 3) {
+            for (int i = 0; i < layers.Length; i++) {
+                if (i != 3 && i != 7) {
                     WriteLayer(Path.Combine(path, (i + 1).ToString(CultureInfo.InvariantCulture) + ".layer"), layers[i]);
                 }
             }
@@ -689,6 +730,25 @@ namespace Jazz2.Compatibility
 
                 w.Write("        \"DefaultLight\": " + (lightingStart * 100 / 64).ToString(CultureInfo.InvariantCulture));
 
+                if (darknessColor.R != 0 || darknessColor.G != 0 || darknessColor.B != 0 || darknessColor.A != 255) {
+                    w.WriteLine(",");
+                    w.Write("        \"DefaultDarkness\": [ " + darknessColor.R.ToString(CultureInfo.InvariantCulture) + ", " +
+                                                                darknessColor.G.ToString(CultureInfo.InvariantCulture) + ", " +
+                                                                darknessColor.B.ToString(CultureInfo.InvariantCulture) + ", " +
+                                                                darknessColor.A.ToString(CultureInfo.InvariantCulture) + " ]");
+                }
+
+                if (weatherType != WeatherType.None) {
+                    w.WriteLine(",");
+                    w.WriteLine("        \"DefaultWeather\": " + weatherType.ToString("D") + ",");
+                    w.Write("        \"DefaultWeatherIntensity\": " + weatherIntensity.ToString(CultureInfo.InvariantCulture));
+
+                    if (weatherOutdoors) {
+                        w.WriteLine(",");
+                        w.Write("        \"DefaultWeatherOutdoors\": true");
+                    }
+                }
+
                 LevelHandler.LevelFlags flags = 0;
 
                 if (hasPit) {
@@ -709,6 +769,7 @@ namespace Jazz2.Compatibility
 
                 if (flags != 0) {
                     w.WriteLine(",");
+                    w.WriteLine();
                     w.Write("        \"Flags\": " + flags.ToString("D"));
                 }
 
@@ -775,8 +836,8 @@ namespace Jazz2.Compatibility
                     WriteResFileLayerSection(w, "Sky", layers[7], true);
                 }
 
-                for (int i = 0; i < 7; i++) {
-                    if (i != 3 && layers[i].Used) {
+                for (int i = 0; i < layers.Length; i++) {
+                    if (i != 3 && i != 7 && layers[i].Used) {
                         w.WriteLine(",");
                         WriteResFileLayerSection(w, (i + 1).ToString(CultureInfo.InvariantCulture), layers[i], false);
                     }

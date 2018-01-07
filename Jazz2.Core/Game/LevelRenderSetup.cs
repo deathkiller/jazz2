@@ -343,6 +343,8 @@ namespace Jazz2.Game
                 material.SetTexture("blurQuarterTex", targetPingPongA[2].Targets[0]);
 
                 material.SetValue("ambientLight", ambientLight);
+                material.SetValue("darknessColor", levelHandler.DarknessColor);
+
                 material.SetValue("waterLevel", viewWaterLevel / viewSize.Y);
 
                 this.Blit(drawDevice, material, finalTarget);
@@ -357,6 +359,7 @@ namespace Jazz2.Game
                 material.SetTexture("blurQuarterTex", targetPingPongA[2].Targets[0]);
 
                 material.SetValue("ambientLight", ambientLight);
+                material.SetValue("darknessColor", levelHandler.DarknessColor);
 
                 this.Blit(drawDevice, material, finalTarget);
             }

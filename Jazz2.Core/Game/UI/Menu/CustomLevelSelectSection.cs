@@ -158,7 +158,7 @@ namespace Jazz2.Game.UI.Menu
                         float xMultiplier = levelList[i].DisplayName.Length * 0.5f;
                         float easing = Ease.OutElastic(animation);
                         float x = column1 + xMultiplier - easing * xMultiplier;
-                        float size = 0.7f + easing * 0.1f;
+                        float size = 0.7f + easing * 0.12f;
 
                         // Column 2
                         api.DrawStringShadow(ref charOffset, levelList[i].LevelName, column2, currentItem, Alignment.Left,

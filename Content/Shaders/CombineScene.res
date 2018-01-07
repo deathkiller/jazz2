@@ -8,6 +8,7 @@
         uniform sampler2D lightTex;
 
         uniform float ambientLight;
+        uniform vec4 darknessColor;
 
         void main() {
             //vec4 blur0 = texture2D(blurFullTex, gl_TexCoord[0].st);
@@ -26,6 +27,6 @@
                                     main * (1.0 + /*floor(*/light.g/* * 10) / 10*/),
                                     blur,
                                     vec4(clamp((1.0 - light.r) / sqrt(max(ambientLight, 0.35)), 0.0, 1.0))
-                                  ), vec4(0.0, 0.0, 0.0, 1.0), vec4(1.0 - light.r));
+                                  ), darknessColor, vec4(1.0 - light.r));
         }"
 }
