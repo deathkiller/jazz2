@@ -11,8 +11,6 @@ namespace Duality.Backend.Android.OpenTK
 			{
 				default:
 				case ColorDataLayout.Rgba: return PixelFormat.Rgba;
-                // ToDo: Not supported in OpenGL ES
-				//case ColorDataLayout.Bgra: return PixelFormat.Bgra;
 			}
 		}
 	}

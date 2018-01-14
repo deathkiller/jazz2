@@ -5,7 +5,6 @@
     /// </summary>
     public enum ColorDataLayout
 	{
-		Rgba,
-		Bgra
+		Rgba
 	}
 }

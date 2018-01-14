@@ -55,8 +55,8 @@ namespace Duality
 		/// <param name="y">The y coordinate of the Point.</param>
 		public Point2(int x, int y)
 		{
-			X = x;
-			Y = y;
+			this.X = x;
+			this.Y = y;
 		}
 
 		/// <summary>
@@ -102,72 +102,70 @@ namespace Duality
 		/// </summary>
 		public static Point2 operator +(Point2 left, Point2 right)
 		{
-			left.X += right.X;
-			left.Y += right.Y;
-			return left;
+			return new Point2(
+				left.X + right.X, 
+				left.Y + right.Y);
 		}
 		/// <summary>
 		/// Subtracts the specified points component-wise.
 		/// </summary>
 		public static Point2 operator -(Point2 left, Point2 right)
 		{
-			left.X -= right.X;
-			left.Y -= right.Y;
-			return left;
+			return new Point2(
+				left.X - right.X, 
+				left.Y - right.Y);
 		}
 		/// <summary>
 		/// Inverts the specified point component-wise,
 		/// </summary>
 		public static Point2 operator -(Point2 point)
 		{
-			point.X = -point.X;
-			point.Y = -point.Y;
-			return point;
+			return new Point2(
+				-point.X, 
+				-point.Y);
 		}
 		/// <summary>
 		/// Multiplies the specified point component-wise with the specified factor.
 		/// </summary>
 		public static Point2 operator *(Point2 left, int right)
 		{
-			left.X *= right;
-			left.Y *= right;
-			return left;
+			return new Point2(
+				left.X * right, 
+				left.Y * right);
 		}
 		/// <summary>
 		/// Multiplies the specified point component-wise with the specified factor.
 		/// </summary>
 		public static Point2 operator *(int left, Point2 right)
 		{
-			right.X *= left;
-			right.Y *= left;
-			return right;
+			return right * left;
 		}
 		/// <summary>
 		/// Multiplies the specified points component-wise.
 		/// </summary>
 		public static Point2 operator *(Point2 left, Point2 right)
 		{
-			left.X *= right.X;
-			left.Y *= right.Y;
-			return left;
+			return new Point2(
+				left.X * right.X, 
+				left.Y * right.Y);
 		}
 		/// <summary>
 		/// Divides the specified point component-wise with the specified value.
 		/// </summary>
 		public static Point2 operator /(Point2 left, int right)
 		{
-			left.X /= right;
-			left.Y /= right;
-			return left;
+			return new Point2(
+				left.X / right, 
+				left.Y / right);
 		}
 		/// <summary>
 		/// Divides the specified points component-wise.
 		/// </summary>
 		public static Point2 operator /(Point2 left, Point2 right)
 		{
-			left.X /= right.X;
-			left.Y /= right.Y;
-			return left;
+			return new Point2(
+				left.X / right.X, 
+				left.Y / right.Y);
 		}
 
 		/// <summary>
@@ -175,20 +173,16 @@ namespace Duality
 		/// </summary>
 		public static Vector2 operator *(Point2 left, float right)
 		{
-			Vector2 result = left;
-			result.X *= right;
-			result.Y *= right;
-			return result;
+			return new Vector2(
+				left.X * right, 
+				left.Y * right);
 		}
 		/// <summary>
 		/// Multiplies the specified point component-wise with the specified factor.
 		/// </summary>
 		public static Vector2 operator *(float left, Point2 right)
 		{
-			Vector2 result = right;
-			result.X *= left;
-			result.Y *= left;
-			return result;
+			return right * left;
 		}
 		/// <summary>
 		/// Divides the specified point component-wise with the specified value.
@@ -196,10 +190,9 @@ namespace Duality
 		public static Vector2 operator /(Point2 left, float right)
 		{
 			float mult = 1.0f / right;
-			Vector2 result = left;
-			result.X *= mult;
-			result.Y *= mult;
-			return result;
+			return new Vector2(
+				left.X * mult, 
+				left.Y * mult);
 		}
 
 		/// <summary>
@@ -229,7 +222,7 @@ namespace Duality
 		/// <returns></returns>
 		public override string ToString()
 		{
-			return String.Format("({0}, {1})", X, Y);
+			return string.Format("({0}, {1})", this.X, this.Y);
 		}
 		/// <summary>
 		/// Returns the hashcode for this instance.
@@ -237,7 +230,7 @@ namespace Duality
 		/// <returns>A System.Int32 containing the unique hashcode for this instance.</returns>
 		public override int GetHashCode()
 		{
-			return X.GetHashCode() ^ Y.GetHashCode();
+			return this.X.GetHashCode() ^ this.Y.GetHashCode();
 		}
 		/// <summary>
 		/// Indicates whether this instance and a specified object are equal.
@@ -260,8 +253,8 @@ namespace Duality
 		public bool Equals(Point2 other)
 		{
 			return
-				X == other.X &&
-				Y == other.Y;
+				this.X == other.X &&
+				this.Y == other.Y;
 		}
 
 		public static implicit operator Vector2(Point2 r)

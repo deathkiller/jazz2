@@ -13,7 +13,6 @@ namespace Duality.Backend.GL21
 			{
 				default:
 				case ColorDataLayout.Rgba: return PixelFormat.Rgba;
-				case ColorDataLayout.Bgra: return PixelFormat.Bgra;
 			}
 		}
 	}
