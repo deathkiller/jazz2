@@ -1,4 +1,5 @@
 ﻿using Duality;
+using Jazz2.Game.Collisions;
 
 namespace Jazz2.Game.Structs
 {
@@ -35,6 +36,14 @@ namespace Jazz2.Game.Structs
         public Hitbox Extend(float v)
         {
             return new Hitbox(Left - v, Top - v, Right + v, Bottom + v);
+        }
+
+        public AABB ToAABB()
+        {
+            AABB aabb = new AABB();
+            aabb.LowerBound = new Vector2(Left, Top);
+            aabb.UpperBound = new Vector2(Right, Bottom);
+            return aabb;
         }
 
         public static Hitbox operator +(Hitbox hitbox, Vector2 cp)

@@ -37,6 +37,7 @@ namespace Jazz2.Actors.Solid
         private float heightFactor;
         private List<Piece> bridgePieces;
 
+        private List<ActorBase> collisions = new List<ActorBase>();
         private Player lastPlayer;
 
         public override void OnAttach(ActorInstantiationDetails details)
@@ -104,9 +105,11 @@ namespace Jazz2.Actors.Solid
 
         protected override void OnUpdate()
         {
-            IEnumerable<ActorBase> collisions = api.FindCollisionActorsFast(this, currentHitbox);
+            collisions.Clear();
+
+            api.FindCollisionActorsFast(this, currentHitbox, ResolveCollisions);
             for (int j = 0; j < bridgePieces.Count; ++j) {
-                collisions = collisions.Concat(api.FindCollisionActorsFast(this, bridgePieces[j].GetHitboxForParent()));
+                api.FindCollisionActorsFast(this, bridgePieces[j].GetHitboxForParent(), ResolveCollisions);
             }
 
             Vector3 pos = Transform.Pos;
@@ -189,6 +192,12 @@ namespace Jazz2.Actors.Solid
 
                 lastPlayer = null;
             }
+        }
+
+        private bool ResolveCollisions(ActorBase actor)
+        {
+            collisions.Add(actor);
+            return true;
         }
 
         public class Piece : SolidObjectBase

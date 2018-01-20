@@ -15,9 +15,11 @@ namespace Jazz2.Actors.Environment
             Fallen
         }
 
+        private const int BouncesMax = 3;
+
         private FallDirection fall;
-        private float angleVel;
-        private int bouncesLeft = 3;
+        private float angleVel, angleVelLast;
+        private int bouncesLeft = BouncesMax;
 
         public override void OnAttach(ActorInstantiationDetails details)
         {
@@ -51,15 +53,19 @@ namespace Jazz2.Actors.Environment
         protected override void OnUpdate()
         {
             const float FallMultiplier = 0.0036f;
-            const float Bounce = 0.02f;
+            const float Bounce = -0.2f;
 
             base.OnUpdate();
 
             if (fall == FallDirection.Right) {
                 if (angleVel > 0 && IsPositionBlocked()) {
                     if (bouncesLeft > 0) {
+                        if (bouncesLeft == BouncesMax) {
+                            angleVelLast = angleVel;
+                        }
+
                         bouncesLeft--;
-                        angleVel = -Bounce * bouncesLeft;
+                        angleVel = Bounce * bouncesLeft * angleVelLast;
                     } else {
                         fall = FallDirection.Fallen;
                     }
@@ -70,8 +76,12 @@ namespace Jazz2.Actors.Environment
             } else if (fall == FallDirection.Left) {
                 if (angleVel < 0 && IsPositionBlocked()) {
                     if (bouncesLeft > 0) {
+                        if (bouncesLeft == BouncesMax) {
+                            angleVelLast = angleVel;
+                        }
+
                         bouncesLeft--;
-                        angleVel = Bounce * bouncesLeft;
+                        angleVel = Bounce * bouncesLeft * angleVelLast;
                     } else {
                         fall = FallDirection.Fallen;
                     }

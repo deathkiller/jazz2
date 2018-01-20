@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Duality;
 using Jazz2.Actors;
@@ -118,9 +119,9 @@ namespace Jazz2.Game
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public IEnumerable<ActorBase> FindCollisionActorsFast(ActorBase self, Hitbox hitbox)
+        public void FindCollisionActorsFast(ActorBase self, Hitbox hitbox, Func<ActorBase, bool> callback)
         {
-            return levelHandler.FindCollisionActorsFast(self, hitbox);
+            levelHandler.FindCollisionActorsFast(self, hitbox, callback);
         }
 
 #if NET45

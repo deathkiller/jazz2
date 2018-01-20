@@ -185,10 +185,11 @@ namespace Jazz2.Game.Components
                 curAnimFrame = (int)frameTemp;
 
                 // Normalize current frame when exceeding anim duration
-                if (animLoopMode == LoopMode.Once || animLoopMode == LoopMode.FixedSingle)
+                if (animLoopMode == LoopMode.Once || animLoopMode == LoopMode.FixedSingle) {
                     curAnimFrame = MathF.Clamp(curAnimFrame, 0, animFrameCount - 1);
-                else
+                } else {
                     curAnimFrame = MathF.NormalizeVar(curAnimFrame, 0, animFrameCount);
+                }
 
                 // Calculate second frame and fade value
                 curAnimFrameFade = frameTemp - (int)frameTemp;
@@ -397,12 +398,14 @@ namespace Jazz2.Game.Components
                 }
             }
 
+            /*
 #if DEBUG && !SHOW_HITBOXES
             Structs.Hitbox h = ((Actors.ActorBase)gameobj).Hitbox;
             Hud.ShowDebugRect(new Rect(h.Left, h.Top, h.Right - h.Left, h.Bottom - h.Top));
             Vector3 pos = ((Actors.ActorBase)gameobj).Transform.Pos;
             Hud.ShowDebugRect(new Rect(pos.X - 1, pos.Y - 1 , 3, 3));
 #endif
+            */
         }
     }
 }
