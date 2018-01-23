@@ -25,8 +25,8 @@ namespace Jazz2.Actors.Enemies
             RequestMetadata("Enemy/LabRat");
             SetAnimation(AnimState.Walk);
 
-            isFacingLeft = MathF.Rnd.NextBool();
-            speedX = (isFacingLeft ? -1 : 1) * DefaultSpeed;
+            IsFacingLeft = MathF.Rnd.NextBool();
+            speedX = (IsFacingLeft ? -1 : 1) * DefaultSpeed;
 
             stateTime = MathF.Rnd.NextFloat(180, 300);
             attackTime = MathF.Rnd.NextFloat(300, 400);
@@ -46,30 +46,45 @@ namespace Jazz2.Actors.Enemies
             }
 
             if (idling) {
-                if (stateTime <= 0f) {
-                    idling = false;
-                    SetAnimation(AnimState.Walk);
-                    speedX = (isFacingLeft ? -1 : 1) * DefaultSpeed;
-                    speedY = 0f;
-
-                    stateTime = MathF.Rnd.NextFloat(420, 540);
-                } else {
-                    stateTime -= Time.TimeMult;
-                }
-                return;
+                Idle();
+            } else {
+                Walking();
             }
 
+            stateTime -= Time.TimeMult;
+        }
+
+        private void Idle()
+        {
+            if (stateTime <= 0f) {
+                idling = false;
+                SetAnimation(AnimState.Walk);
+                speedX = (IsFacingLeft ? -1 : 1) * DefaultSpeed;
+                speedY = 0f;
+
+                stateTime = MathF.Rnd.NextFloat(420, 540);
+            } else {
+                stateTime -= Time.TimeMult;
+
+                if (MathF.Rnd.NextFloat() < 0.008f * Time.TimeMult) {
+                    PlaySound("Idle", 0.4f);
+                }
+            }
+        }
+
+        private void Walking()
+        {
             if (!isAttacking) {
                 if (canJump && !CanMoveToPosition(speedX * 4, 0)) {
-                    isFacingLeft = !(isFacingLeft);
-                    speedX = (isFacingLeft ? -1f : 1f) * DefaultSpeed;
+                    IsFacingLeft = !IsFacingLeft;
+                    speedX = (IsFacingLeft ? -1f : 1f) * DefaultSpeed;
                 }
 
                 if (canAttack) {
                     if (MathF.Abs(speedY) < float.Epsilon) {
                         Hitbox hitbox = currentHitbox.Extend(
-                            isFacingLeft ? 128 : 0, 20,
-                            isFacingLeft ? 0 : 128, 20
+                            IsFacingLeft ? 128 : 0, 20,
+                            IsFacingLeft ? 0 : 128, 20
                         );
 
                         if (api.GetCollidingPlayers(hitbox).Any()) {
@@ -97,9 +112,6 @@ namespace Jazz2.Actors.Enemies
                         canIdle = false;
 
                         stateTime = MathF.Rnd.NextFloat(260, 320);
-
-                        // TODO: Play with timer
-                        //PlaySound("Idle");
                     }
                 } else {
                     if (stateTime <= 0f) {
@@ -110,21 +122,19 @@ namespace Jazz2.Actors.Enemies
             } else {
                 internalForceY += 0.08f * Time.TimeMult;
             }
-
-            stateTime -= Time.TimeMult;
         }
 
         private void Attack()
         {
             SetTransition(AnimState.TransitionAttack, false, delegate {
-                speedX = (isFacingLeft ? -1f : 1f) * DefaultSpeed;
+                speedX = (IsFacingLeft ? -1f : 1f) * DefaultSpeed;
                 isAttacking = false;
                 canAttack = false;
 
                 attackTime = 180;
             });
 
-            speedX = (isFacingLeft ? -1f : 1f) * 2f;
+            speedX = (IsFacingLeft ? -1f : 1f) * 2f;
             MoveInstantly(new Vector2(0f, -1f), MoveType.Relative);
             speedY = -1;
             internalForceY = 0.5f;

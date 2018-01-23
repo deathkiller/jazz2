@@ -49,7 +49,7 @@ namespace Jazz2.Actors.Weapons
 
                 Vector3 pos = Transform.Pos;
                 foreach (ActorBase collision in api.FindCollisionActorsRadius(pos.X, pos.Y, 50)) {
-                    collision.HandleCollision(this);
+                    collision.OnHandleCollision(this);
                 }
 
                 TileMap tiles = api.TileMap;

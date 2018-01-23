@@ -12,7 +12,7 @@ namespace Jazz2.Actors.Environment
             base.OnAttach(details);
 
             ushort theme = details.Params[0];
-            isFacingLeft = (details.Params[1] != 0);
+            IsFacingLeft = (details.Params[1] != 0);
 
             health = int.MaxValue;
             elasticity = 0.3f;

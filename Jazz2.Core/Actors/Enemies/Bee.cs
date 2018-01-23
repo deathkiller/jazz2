@@ -65,10 +65,9 @@ namespace Jazz2.Actors.Enemies
             lastSpeed = speed;
 
             bool willFaceLeft = (speed.X < 0f);
-            if (isFacingLeft != willFaceLeft) {
-                isFacingLeft = willFaceLeft;
+            if (IsFacingLeft != willFaceLeft) {
                 SetTransition(AnimState.TransitionTurn, false, delegate {
-                    RefreshFlipMode();
+                    IsFacingLeft = willFaceLeft;
                 });
             }
 

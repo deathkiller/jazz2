@@ -22,7 +22,7 @@ namespace Jazz2.Actors
             UpdateHitbox(20, 20);
         }
 
-        public override void HandleCollision(ActorBase other)
+        public override void OnHandleCollision(ActorBase other)
         {
             switch (other) {
                 case Player player:

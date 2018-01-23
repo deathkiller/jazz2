@@ -35,8 +35,6 @@ namespace Jazz2.Actors.Weapons
 
         protected override void OnUpdate()
         {
-            RefreshFlipMode();
-
             timeLeft -= Time.TimeMult;
             if (timeLeft <= 0) {
                 DecreaseHealth();
@@ -45,16 +43,6 @@ namespace Jazz2.Actors.Weapons
 
         protected void CheckCollisions()
         {
-            foreach (ActorBase collision in api.FindCollisionActors(this)) {
-                this.HandleCollision(collision);
-                collision.HandleCollision(this);
-
-                if (health <= 0) {
-                    // Bullet was destroyed by the target, skip other collisions
-                    return;
-                }
-            }
-
             TileMap tiles = api.TileMap;
             if (tiles != null) {
                 float timeMult = Time.TimeMult;
@@ -91,7 +79,7 @@ namespace Jazz2.Actors.Weapons
             speedX = speedX * -0.9f + (MathF.Rnd.Next() % 100 - 50) * 0.1f;
         }
 
-        public override void HandleCollision(ActorBase other)
+        public override void OnHandleCollision(ActorBase other)
         {
             if (other is TriggerCrate || other is BarrelContainer || other is PowerUpWeaponMonitor) {
                 if (lastRicochet != other) {

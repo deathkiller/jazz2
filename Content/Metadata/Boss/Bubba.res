@@ -75,7 +75,7 @@
 
         "Fireball": {
             "Path": "Bubba/fireball.png",
-            "FrameRate": 20,
+            "FrameRate": 24,
             "States": [ 1073741834 ]
         }
     },

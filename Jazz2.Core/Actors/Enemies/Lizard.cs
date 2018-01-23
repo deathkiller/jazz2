@@ -38,11 +38,11 @@ namespace Jazz2.Actors.Enemies
             SetAnimation(AnimState.Walk);
 
             if (isFalling) {
-                isFacingLeft = details.Params[2] != 0;
+                IsFacingLeft = details.Params[2] != 0;
             } else {
-                isFacingLeft = MathF.Rnd.NextBool();
+                IsFacingLeft = MathF.Rnd.NextBool();
             }
-            speedX = (isFacingLeft ? -1 : 1) * DefaultSpeed;
+            speedX = (IsFacingLeft ? -1 : 1) * DefaultSpeed;
 
             if (isFalling) {
                 // Lizard lost its copter, check if spawn position is
@@ -84,8 +84,8 @@ namespace Jazz2.Actors.Enemies
                     if (stuck) {
                         MoveInstantly(new Vector2(0f, -2f), MoveType.Relative, true);
                     } else {
-                        isFacingLeft = !(isFacingLeft);
-                        speedX = (isFacingLeft ? -1 : 1) * DefaultSpeed;
+                        IsFacingLeft = !IsFacingLeft;
+                        speedX = (IsFacingLeft ? -1 : 1) * DefaultSpeed;
                         stuck = true;
                     }
                 } else {

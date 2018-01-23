@@ -23,8 +23,8 @@ namespace Jazz2.Actors.Enemies
             RequestMetadata("Enemy/TurtleTough");
             SetAnimation(AnimState.Walk);
 
-            isFacingLeft = MathF.Rnd.NextBool();
-            speedX = (isFacingLeft ? -1 : 1) * DefaultSpeed;
+            IsFacingLeft = MathF.Rnd.NextBool();
+            speedX = (IsFacingLeft ? -1 : 1) * DefaultSpeed;
         }
 
         protected override void OnUpdateHitbox()
@@ -45,8 +45,8 @@ namespace Jazz2.Actors.Enemies
                     if (stuck) {
                         MoveInstantly(new Vector2(0f, -2f), MoveType.Relative, true);
                     } else {
-                        isFacingLeft = !(isFacingLeft);
-                        speedX = (isFacingLeft ? -1 : 1) * DefaultSpeed;
+                        IsFacingLeft = !IsFacingLeft;
+                        speedX = (IsFacingLeft ? -1 : 1) * DefaultSpeed;
                         stuck = true;
                     }
                 } else {

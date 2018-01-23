@@ -73,7 +73,7 @@ namespace Jazz2.Actors.Solid
             }
         }
 
-        public override void HandleCollision(ActorBase other)
+        public override void OnHandleCollision(ActorBase other)
         {
             switch (other) {
                 case AmmoBase collision: {

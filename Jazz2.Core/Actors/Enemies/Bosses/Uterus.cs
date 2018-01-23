@@ -265,7 +265,7 @@ namespace Jazz2.Actors.Bosses
                 return base.OnPerish(collider);
             }
 
-            public override void HandleCollision(ActorBase other)
+            public override void OnHandleCollision(ActorBase other)
             {
                 AmmoBase ammo = other as AmmoBase;
                 if (ammo != null) {

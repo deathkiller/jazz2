@@ -10,7 +10,7 @@ namespace Jazz2.Actors.Environment
         {
             base.OnAttach(details);
 
-            isFacingLeft = (details.Params[0] != 0);
+            IsFacingLeft = (details.Params[0] != 0);
 
             collisionFlags = CollisionFlags.CollideWithOtherActors;
 
@@ -24,9 +24,9 @@ namespace Jazz2.Actors.Environment
             if (currentAnimation != null) {
                 Vector3 pos = Transform.Pos;
                 currentHitbox = new Hitbox(
-                    pos.X - currentAnimation.Base.FrameDimensions.X * (isFacingLeft ? 0.7f : 0.3f),
+                    pos.X - currentAnimation.Base.FrameDimensions.X * (IsFacingLeft ? 0.7f : 0.3f),
                     pos.Y - currentAnimation.Base.FrameDimensions.Y * 0.1f,
-                    pos.X + currentAnimation.Base.FrameDimensions.X * (isFacingLeft ? 0.3f : 0.7f),
+                    pos.X + currentAnimation.Base.FrameDimensions.X * (IsFacingLeft ? 0.3f : 0.7f),
                     pos.Y + currentAnimation.Base.FrameDimensions.Y * 0.3f
                 );
             }
@@ -41,7 +41,7 @@ namespace Jazz2.Actors.Environment
                     float colliderX = collider.Transform.Pos.X;
 
                     float mult = (colliderX - selfX) / currentAnimation.Base.FrameDimensions.X;
-                    if (isFacingLeft) {
+                    if (IsFacingLeft) {
                         mult = 1 - mult;
                     }
                     mult = MathF.Clamp(mult * 1.6f, 0.4f, 1f);

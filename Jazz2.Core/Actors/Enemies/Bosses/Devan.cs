@@ -83,8 +83,7 @@ namespace Jazz2.Actors.Bosses
                         }
 
                         if (found) {
-                            isFacingLeft = (targetPos.X < pos.X);
-                            RefreshFlipMode();
+                            IsFacingLeft = (targetPos.X < pos.X);
                         }
 
                         renderer.Active = true;
@@ -146,8 +145,8 @@ namespace Jazz2.Actors.Bosses
                             
                     } else {
                         if (!CanMoveToPosition(speedX, 0)) {
-                            isFacingLeft ^= true;
-                            speedX = (isFacingLeft ? -4f : 4f);
+                            IsFacingLeft ^= true;
+                            speedX = (IsFacingLeft ? -4f : 4f);
                         }
                     }
                     break;
@@ -186,8 +185,8 @@ namespace Jazz2.Actors.Bosses
                         Fireball fireball = new Fireball();
                         fireball.OnAttach(new ActorInstantiationDetails {
                             Api = api,
-                            Pos = Transform.Pos + new Vector3(isFacingLeft ? -26f : 26f, -14f, 0f),
-                            Params = new[] { (ushort)(isFacingLeft ? 1 : 0) }
+                            Pos = Transform.Pos + new Vector3(IsFacingLeft ? -26f : 26f, -14f, 0f),
+                            Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
                         });
                         api.AddActor(fireball);
 
@@ -270,9 +269,9 @@ namespace Jazz2.Actors.Bosses
                 state = newState;
                 stateTime = time;
 
-                isFacingLeft = (targetPos.X < pos.X);
+                IsFacingLeft = (targetPos.X < pos.X);
 
-                speedX = (isFacingLeft ? -4f : 4f);
+                speedX = (IsFacingLeft ? -4f : 4f);
 
                 //PlaySound("RUN");
                 SetAnimation(AnimState.Run);
@@ -307,10 +306,9 @@ namespace Jazz2.Actors.Bosses
                 lastSpeed = speed;
 
                 bool willFaceLeft = (speed.X < 0f);
-                if (isFacingLeft != willFaceLeft) {
+                if (IsFacingLeft != willFaceLeft) {
                     SetTransition(AnimState.TransitionTurn, false, delegate {
-                        isFacingLeft = willFaceLeft;
-                        RefreshFlipMode();
+                        IsFacingLeft = willFaceLeft;
                     });
                 }
 
@@ -326,8 +324,8 @@ namespace Jazz2.Actors.Bosses
                 Bullet bullet = new Bullet();
                 bullet.OnAttach(new ActorInstantiationDetails {
                     Api = api,
-                    Pos = Transform.Pos + new Vector3(isFacingLeft ? -24f : 24f, 2f, 0f),
-                    Params = new[] { (ushort)(isFacingLeft ? 1 : 0) }
+                    Pos = Transform.Pos + new Vector3(IsFacingLeft ? -24f : 24f, 2f, 0f),
+                    Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
                 });
                 api.AddActor(bullet);
 
@@ -358,14 +356,14 @@ namespace Jazz2.Actors.Bosses
             {
                 base.OnAttach(details);
 
-                isFacingLeft = (details.Params[0] != 0);
+                IsFacingLeft = (details.Params[0] != 0);
 
                 collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
                 canBeFrozen = false;
                 health = int.MaxValue;
 
-                speedX = (isFacingLeft ? -8f : 8f);
+                speedX = (IsFacingLeft ? -8f : 8f);
 
                 RequestMetadata("Boss/Devan");
                 SetAnimation((AnimState)668);
@@ -396,7 +394,7 @@ namespace Jazz2.Actors.Bosses
                 return base.OnPerish(collider);
             }
 
-            public override void HandleCollision(ActorBase other)
+            public override void OnHandleCollision(ActorBase other)
             {
             }
 
@@ -428,14 +426,14 @@ namespace Jazz2.Actors.Bosses
             {
                 base.OnAttach(details);
 
-                isFacingLeft = (details.Params[0] != 0);
+                IsFacingLeft = (details.Params[0] != 0);
 
                 collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
                 canBeFrozen = false;
                 health = int.MaxValue;
 
-                speedX = (isFacingLeft ? -5f : 5f);
+                speedX = (IsFacingLeft ? -5f : 5f);
                 speedY = 5f;
 
                 RequestMetadata("Boss/Devan");
@@ -469,7 +467,7 @@ namespace Jazz2.Actors.Bosses
                 return base.OnPerish(collider);
             }
 
-            public override void HandleCollision(ActorBase other)
+            public override void OnHandleCollision(ActorBase other)
             {
             }
 

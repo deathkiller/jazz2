@@ -153,13 +153,15 @@ namespace Jazz2
             if (this.fadeTarget != this.curFade) {
                 float fadeTemp = Time.TimeMult * Time.SecondsPerFrame / Math.Max(0.05f, this.fadeTimeSec);
 
-                if (this.fadeTarget > this.curFade)
+                if (this.fadeTarget > this.curFade) {
                     this.curFade += fadeTemp;
-                else
+                } else {
                     this.curFade -= fadeTemp;
+                }
 
-                if (Math.Abs(this.curFade - this.fadeTarget) < fadeTemp * 2.0f)
+                if (Math.Abs(this.curFade - this.fadeTarget) < fadeTemp * 2.0f) {
                     this.curFade = this.fadeTarget;
+                }
             }
 
             if (this.notYetAssigned) {

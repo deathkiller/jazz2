@@ -19,7 +19,7 @@ namespace Jazz2.Actors.Bosses
 
             canBeFrozen = false;
             collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.ApplyGravitation;
-            isFacingLeft = true;
+            IsFacingLeft = true;
 
             RequestMetadata("Boss/DevanRemote");
             SetAnimation(AnimState.Idle);

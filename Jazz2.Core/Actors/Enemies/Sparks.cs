@@ -12,8 +12,6 @@ namespace Jazz2.Actors.Enemies
         {
             base.OnAttach(details);
 
-            // ToDo: Turn off tileset collisions
-
             collisionFlags = CollisionFlags.CollideWithOtherActors;
             //friction = 40f;
 
@@ -23,7 +21,7 @@ namespace Jazz2.Actors.Enemies
             RequestMetadata("Enemy/Sparks");
             SetAnimation(AnimState.Idle);
 
-            isFacingLeft = true;
+            IsFacingLeft = true;
         }
 
         protected override void OnUpdate()

@@ -30,7 +30,7 @@ namespace Jazz2.Actors.Bosses
 
             renderer.Active = false;
 
-            isFacingLeft = true;
+            IsFacingLeft = true;
         }
 
         public void Activate()
@@ -168,10 +168,10 @@ namespace Jazz2.Actors.Bosses
                 state = newState;
                 stateTime = time;
 
-                isFacingLeft = (targetPos.X < pos.X);
+                IsFacingLeft = (targetPos.X < pos.X);
                 
                 float mult = MathF.Rnd.NextFloat(0.6f, 0.9f);
-                speedX = (isFacingLeft ? -3f : 3f) * mult;
+                speedX = (IsFacingLeft ? -3f : 3f) * mult;
                 renderer.AnimDuration = currentAnimation.FrameDuration / mult;
 
                 PlaySound("Run");
@@ -185,7 +185,7 @@ namespace Jazz2.Actors.Bosses
             spikeBall.OnAttach(new ActorInstantiationDetails {
                 Api = api,
                 Pos = Transform.Pos + new Vector3(0f, -32f, 0f),
-                Params = new[] { (ushort)(isFacingLeft ? 1 : 0) }
+                Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
             });
             api.AddActor(spikeBall);
 
@@ -217,12 +217,12 @@ namespace Jazz2.Actors.Bosses
             {
                 base.OnAttach(details);
 
-                isFacingLeft = (details.Params[0] != 0);
+                IsFacingLeft = (details.Params[0] != 0);
 
                 canBeFrozen = false;
                 health = int.MaxValue;
 
-                speedX = (isFacingLeft ? -8f : 8f);
+                speedX = (IsFacingLeft ? -8f : 8f);
 
                 RequestMetadata("Boss/Robot");
                 SetAnimation((AnimState)1073741827);
@@ -253,7 +253,7 @@ namespace Jazz2.Actors.Bosses
                 return base.OnPerish(collider);
             }
 
-            public override void HandleCollision(ActorBase other)
+            public override void OnHandleCollision(ActorBase other)
             {
             }
 

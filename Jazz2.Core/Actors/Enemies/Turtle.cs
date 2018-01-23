@@ -33,8 +33,8 @@ namespace Jazz2.Actors.Enemies
 
             SetAnimation(AnimState.Walk);
 
-            isFacingLeft = MathF.Rnd.NextBool();
-            speedX = (isFacingLeft ? -1 : 1) * DefaultSpeed;
+            IsFacingLeft = MathF.Rnd.NextBool();
+            speedX = (IsFacingLeft ? -1 : 1) * DefaultSpeed;
         }
 
         protected override void OnUpdateHitbox()
@@ -94,7 +94,7 @@ namespace Jazz2.Actors.Enemies
         {
             if (isTurning) {
                 if (isFirstPhase) {
-                    isFacingLeft = !isFacingLeft;
+                    IsFacingLeft = !IsFacingLeft;
                     SetTransition(AnimState.TransitionWithdrawEnd, false, delegate {
                        HandleTurn(false);
                     });
@@ -104,23 +104,24 @@ namespace Jazz2.Actors.Enemies
                     canHurtPlayer = true;
                     isWithdrawn = false;
                     isTurning = false;
-                    speedX = (isFacingLeft ? -1 : 1) * DefaultSpeed;
+                    speedX = (IsFacingLeft ? -1 : 1) * DefaultSpeed;
                 }
             }
         }
 
         private void Attack()
         {
-            SetTransition(AnimState.TransitionAttack, false, delegate {
-                speedX = (isFacingLeft ? -1 : 1) * DefaultSpeed;
-                isAttacking = false;
-            });
             speedX = 0;
             isAttacking = true;
             PlaySound("Attack");
 
-            // ToDo: Play with timer
-            //PlaySound("Attack2");
+            SetTransition(AnimState.TransitionAttack, false, delegate {
+                speedX = (IsFacingLeft ? -1 : 1) * DefaultSpeed;
+                isAttacking = false;
+
+                // ToDo: Bad timing
+                //PlaySound("Attack2");
+            });
         }
     }
 }

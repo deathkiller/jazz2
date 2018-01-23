@@ -63,13 +63,13 @@ namespace Jazz2.Actors.Enemies
         {
             Vector3 pos = Transform.Pos;
 
-            int sign = (isFacingLeft ? -1 : 1);
+            int direction = (IsFacingLeft ? -1 : 1);
 
             EventMap events = api.EventMap;
 
             Hitbox h1 = currentHitbox + new Vector2(x, y - 3);
             Hitbox h2 = currentHitbox + new Vector2(x, y + 3);
-            Hitbox h3 = currentHitbox + new Vector2(x + sign * (currentHitbox.Right - currentHitbox.Left) / 2, y + 12);
+            Hitbox h3 = currentHitbox + new Vector2(x + direction * (currentHitbox.Right - currentHitbox.Left) / 2, y + 12);
 
             ushort[] p = null;
             return ((api.IsPositionEmpty(this, ref h1, true) || api.IsPositionEmpty(this, ref h2, true))
@@ -158,9 +158,9 @@ namespace Jazz2.Actors.Enemies
                         float currentSizeX = debrisSizeX * MathF.Rnd.NextFloat(0.8f, 1.1f);
                         float currentSizeY = debrisSizeY * MathF.Rnd.NextFloat(0.8f, 1.1f);
                         api.TileMap.CreateDebris(new DestructibleDebris {
-                            Pos = new Vector3(x + (isFacingLeft ? res.Base.FrameDimensions.X - fx : fx), y + fy, pos.Z),
+                            Pos = new Vector3(x + (IsFacingLeft ? res.Base.FrameDimensions.X - fx : fx), y + fy, pos.Z),
                             Size = new Vector2(currentSizeX, currentSizeY),
-                            Speed = new Vector2(((fx - res.Base.FrameDimensions.X / 2) + MathF.Rnd.NextFloat(-2f, 2f)) * (isFacingLeft ? -1f : 1f) * MathF.Rnd.NextFloat(0.5f, 2f) / res.Base.FrameDimensions.X,
+                            Speed = new Vector2(((fx - res.Base.FrameDimensions.X / 2) + MathF.Rnd.NextFloat(-2f, 2f)) * (IsFacingLeft ? -1f : 1f) * MathF.Rnd.NextFloat(0.5f, 2f) / res.Base.FrameDimensions.X,
                                  MathF.Rnd.NextFloat(0f, 0.2f)),
                             Acceleration = new Vector2(0f, 0.06f),
 
@@ -196,10 +196,10 @@ namespace Jazz2.Actors.Enemies
                     for (int fy = 0; fy < res.Base.FrameDimensions.Y; fy += debrisSize + 1) {
                         float currentSize = debrisSize * MathF.Rnd.NextFloat(0.2f, 1.1f);
                         api.TileMap.CreateDebris(new DestructibleDebris {
-                            Pos = new Vector3(x + (isFacingLeft ? res.Base.FrameDimensions.X - fx : fx), y + fy, pos.Z),
+                            Pos = new Vector3(x + (IsFacingLeft ? res.Base.FrameDimensions.X - fx : fx), y + fy, pos.Z),
                             Size = new Vector2(currentSize /** (isFacingLeft ? -1f : 1f)*/, currentSize),
-                            Speed = new Vector2(((fx - res.Base.FrameDimensions.X / 2) + MathF.Rnd.NextFloat(-2f, 2f)) * (isFacingLeft ? -1f : 1f) * MathF.Rnd.NextFloat(1f, 3f) / res.Base.FrameDimensions.X,
-                                 ((fy - res.Base.FrameDimensions.Y / 2) + MathF.Rnd.NextFloat(-2f, 2f)) * (isFacingLeft ? -1f : 1f) * MathF.Rnd.NextFloat(1f, 3f) / res.Base.FrameDimensions.Y),
+                            Speed = new Vector2(((fx - res.Base.FrameDimensions.X / 2) + MathF.Rnd.NextFloat(-2f, 2f)) * (IsFacingLeft ? -1f : 1f) * MathF.Rnd.NextFloat(1f, 3f) / res.Base.FrameDimensions.X,
+                                 ((fy - res.Base.FrameDimensions.Y / 2) + MathF.Rnd.NextFloat(-2f, 2f)) * (IsFacingLeft ? -1f : 1f) * MathF.Rnd.NextFloat(1f, 3f) / res.Base.FrameDimensions.Y),
                             Acceleration = new Vector2(0f, 0f),
 
                             Scale = 1f,
@@ -232,13 +232,13 @@ namespace Jazz2.Actors.Enemies
                 }
 
                 tilemap.CreateParticleDebris(currentTransitionState != AnimState.Idle ? currentTransition : currentAnimation,
-                    Transform.Pos, force, renderer.CurrentFrame, isFacingLeft);
+                    Transform.Pos, force, renderer.CurrentFrame, IsFacingLeft);
             }
         }
 
-        public override void HandleCollision(ActorBase other)
+        public override void OnHandleCollision(ActorBase other)
         {
-            base.HandleCollision(other);
+            base.OnHandleCollision(other);
 
             if (!isInvulnerable) {
                 switch (other) {

@@ -26,8 +26,8 @@ namespace Jazz2.Actors.Enemies
             if (isWalking) {
                 SetAnimation(AnimState.Walk);
 
-                isFacingLeft = MathF.Rnd.NextBool();
-                speedX = (isFacingLeft ? -1 : 1) * DefaultSpeed;
+                IsFacingLeft = MathF.Rnd.NextBool();
+                speedX = (IsFacingLeft ? -1 : 1) * DefaultSpeed;
             } else {
                 SetAnimation(AnimState.Jump);
             }
@@ -46,8 +46,8 @@ namespace Jazz2.Actors.Enemies
                     if (stuck) {
                         MoveInstantly(new Vector2(0f, -2f), MoveType.Relative, true);
                     } else {
-                        isFacingLeft ^= true;
-                        speedX = (isFacingLeft ? -1f : 1f) * DefaultSpeed;
+                        IsFacingLeft ^= true;
+                        speedX = (IsFacingLeft ? -1f : 1f) * DefaultSpeed;
                         stuck = true;
                     }
                 } else {
@@ -81,36 +81,36 @@ namespace Jazz2.Actors.Enemies
                             speedX = 0f;
 
                             SetTransition((AnimState)1073741825, false, delegate {
-                                isFacingLeft = (targetPos.X < pos.X);
+                                IsFacingLeft = (targetPos.X < pos.X);
 
                                 SetTransition((AnimState)1073741826, false, delegate {
                                     Banana banana = new Banana();
                                     banana.OnAttach(new ActorInstantiationDetails {
                                         Api = api,
-                                        Pos = Transform.Pos + new Vector3(isFacingLeft ? -8f : 8f, -8f, 0f),
-                                        Params = new[] { (ushort)(isFacingLeft ? 1 : 0) }
+                                        Pos = Transform.Pos + new Vector3(IsFacingLeft ? -8f : 8f, -8f, 0f),
+                                        Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
                                     });
                                     api.AddActor(banana);
 
                                     SetTransition((AnimState)1073741827, false, delegate {
 
                                         SetTransition((AnimState)1073741824, false, delegate {
-                                            isFacingLeft = MathF.Rnd.NextBool();
-                                            speedX = (isFacingLeft ? -1 : 1) * DefaultSpeed;
+                                            IsFacingLeft = MathF.Rnd.NextBool();
+                                            speedX = (IsFacingLeft ? -1 : 1) * DefaultSpeed;
 
                                         });
                                     });
                                 });
                             });
                         } else {
-                            isFacingLeft = (targetPos.X < pos.X);
+                            IsFacingLeft = (targetPos.X < pos.X);
 
                             SetTransition((AnimState)1073741826, false, delegate {
                                 Banana banana = new Banana();
                                 banana.OnAttach(new ActorInstantiationDetails {
                                     Api = api,
-                                    Pos = Transform.Pos + new Vector3(isFacingLeft ? -42f : 42f, -8f, 0f),
-                                    Params = new[] { (ushort)(isFacingLeft ? 1 : 0) }
+                                    Pos = Transform.Pos + new Vector3(IsFacingLeft ? -42f : 42f, -8f, 0f),
+                                    Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
                                 });
                                 api.AddActor(banana);
 
@@ -140,11 +140,11 @@ namespace Jazz2.Actors.Enemies
             {
                 base.OnAttach(details);
 
-                isFacingLeft = (details.Params[0] != 0);
+                IsFacingLeft = (details.Params[0] != 0);
 
                 health = int.MaxValue;
 
-                speedX = (isFacingLeft ? -8f : 8f);
+                speedX = (IsFacingLeft ? -8f : 8f);
                 speedY = -3f;
 
                 RequestMetadata("Enemy/Monkey");
@@ -184,7 +184,7 @@ namespace Jazz2.Actors.Enemies
                 return false;
             }
 
-            public override void HandleCollision(ActorBase other)
+            public override void OnHandleCollision(ActorBase other)
             {
             }
 

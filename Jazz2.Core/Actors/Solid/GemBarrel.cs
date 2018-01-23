@@ -22,7 +22,7 @@ namespace Jazz2.Actors.Solid
             SetAnimation(AnimState.Idle);
         }
 
-        public override void HandleCollision(ActorBase other)
+        public override void OnHandleCollision(ActorBase other)
         {
             switch (other) {
                 case AmmoBase collision: {
@@ -50,7 +50,7 @@ namespace Jazz2.Actors.Solid
                 }
             }
 
-            base.HandleCollision(other);
+            base.OnHandleCollision(other);
         }
 
         protected override bool OnPerish(ActorBase collider)

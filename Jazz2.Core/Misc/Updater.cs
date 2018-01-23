@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Text;
+using System.Threading;
 
 namespace Jazz2
 {
@@ -14,38 +15,31 @@ namespace Jazz2
                 return;
             }
 
-            try {
-                WebClient client = new WebClient();
-                client.Encoding = Encoding.UTF8;
-                client.DownloadStringCompleted += OnCheckUpdatesCompleted;
-                client.DownloadStringAsync(new Uri("http://deat.tk/downloads/other/jazz2/updates"), callback);
-            } catch {
-                // Nothing to do...
-                callback(false, null);
-            }
-        }
+            ThreadPool.UnsafeQueueUserWorkItem(delegate {
+                try {
+                    WebClient client = new WebClient();
+                    client.Encoding = Encoding.UTF8;
+                    string content = client.DownloadString(new Uri("http://deat.tk/downloads/other/jazz2/updates"));
 
-        private static void OnCheckUpdatesCompleted(object sender, DownloadStringCompletedEventArgs e)
-        {
-            CheckUpdatesCallback callback = e.UserState as CheckUpdatesCallback;
-            if (callback == null) {
-                return;
-            }
-            
-            if (e.Error != null || e.Cancelled || e.Result == null || !e.Result.StartsWith("Death™ Updates :: ", StringComparison.InvariantCulture)) {
-                callback(false, null);
-                return;
-            }
+                    if (content == null || !content.StartsWith("Death™ Updates :: ", StringComparison.InvariantCulture)) {
+                        callback(false, null);
+                        return;
+                    }
 
-            int i = e.Result.IndexOf(' ', 19);
-            if (i == -1) {
-                callback(false, null);
-                return;
-            }
+                    int i = content.IndexOf(' ', 19);
+                    if (i == -1) {
+                        callback(false, null);
+                        return;
+                    }
 
-            string version = e.Result.Substring(18, i - 18);
-            bool isNewer = IsVersionNewer(App.AssemblyVersion, version);
-            callback(isNewer, version);
+                    string version = content.Substring(18, i - 18);
+                    bool isNewer = IsVersionNewer(App.AssemblyVersion, version);
+                    callback(isNewer, version);
+                } catch {
+                    // Nothing to do...
+                    callback(false, null);
+                }
+            }, null);
         }
 
         private static bool IsVersionNewer(string currentVersion, string newVersion)

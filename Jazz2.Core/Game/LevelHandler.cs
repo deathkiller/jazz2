@@ -15,6 +15,7 @@ using Duality.Resources;
 using Jazz2.Actors;
 using Jazz2.Actors.Bosses;
 using Jazz2.Actors.Solid;
+using Jazz2.Game.Collisions;
 using Jazz2.Game.Events;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
@@ -42,12 +43,14 @@ namespace Jazz2.Game
         private readonly GameObject camera;
 
         private TileMap tileMap;
+        private EventMap eventMap;
+        private EventSpawner eventSpawner;
+        private DynamicTreeBroadPhase collisions;
+        private int collisionsCountA, collisionsCountB, collisionsCountC;
 
         private List<Player> players = new List<Player>();
         private List<ActorBase> actors = new List<ActorBase>();
 
-        private EventMap eventMap;
-        private EventSpawner eventSpawner;
         //private string levelName;
         private string levelFileName;
         private string episodeName;
@@ -128,6 +131,8 @@ namespace Jazz2.Game
             difficulty = data.Difficulty;
 
             gravity = DefaultGravity;
+
+            collisions = new DynamicTreeBroadPhase();
 
             api = new ActorApi(this);
             eventSpawner = new EventSpawner(api);
@@ -414,10 +419,18 @@ namespace Jazz2.Game
             actors.Add(actor);
 
             AddObject(actor);
+
+            actor.UpdateAABB();
+
+            collisions.AddProxy(actor);
+            actor.Transform.EventTransformChanged += OnActorTransformChanged;
         }
 
         public void RemoveActor(ActorBase actor)
         {
+            actor.Transform.EventTransformChanged -= OnActorTransformChanged;
+            collisions.RemoveProxy(actor);
+
             actors.Remove(actor);
 
             RemoveObject(actor);
@@ -426,21 +439,23 @@ namespace Jazz2.Game
         public void AddPlayer(Player actor)
         {
             players.Add(actor);
-            actors.Add(actor);
 
-            AddObject(actor);
+            AddActor(actor);
         }
 
-        public IEnumerable<ActorBase> FindCollisionActorsFast(ActorBase self, Hitbox hitbox)
+        public void FindCollisionActorsFast(ActorBase self, Hitbox hitbox, Func<ActorBase, bool> callback)
         {
-            for (int i = 0; i < actors.Count; ++i) {
-                if (self == actors[i] || (actors[i].CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0) {
-                    continue;
+            AABB aabb = hitbox.ToAABB();
+
+            collisions.Query((actor) => {
+                if (self == actor || (actor.CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0) {
+                    return true;
                 }
-                if (actors[i].Hitbox.Intersects(ref hitbox)) {
-                    yield return actors[i];
+                if (actor.Hitbox.Intersects(ref hitbox)) {
+                    return callback(actor);
                 }
-            }
+                return true;
+            }, ref aabb);
         }
 
         public IEnumerable<ActorBase> FindCollisionActors(ActorBase self)
@@ -492,20 +507,26 @@ namespace Jazz2.Game
 
             // Check for solid objects
             if ((self.CollisionFlags & CollisionFlags.CollideWithSolidObjects) != 0) {
-                foreach (ActorBase collision in FindCollisionActorsFast(self, hitbox)) {
-                    if ((collision.CollisionFlags & CollisionFlags.IsSolidObject) == 0) {
-                        continue;
+                ActorBase colliderActor = null;
+
+                FindCollisionActorsFast(self, hitbox, (actor) => {
+                    if ((actor.CollisionFlags & CollisionFlags.IsSolidObject) == 0) {
+                        return true;
                     }
 
-                    SolidObjectBase solidObject = collision as SolidObjectBase;
+                    SolidObjectBase solidObject = actor as SolidObjectBase;
                     if (solidObject == null || !solidObject.IsOneWay || downwards) {
-                        collider = collision;
+                        colliderActor = actor;
                         return false;
                     }
-                }
+
+                    return true;
+                });
+
+                collider = colliderActor;
             }
 
-            return true;
+            return (collider == null);
         }
 
         public bool IsPositionEmpty(ActorBase self, ref Hitbox hitbox, bool downwards)
@@ -791,6 +812,8 @@ namespace Jazz2.Game
 
             eventMap.ProcessGenerators();
 
+            ResolveCollisions();
+
             // Ambient Light Transition
             if (ambientLightCurrent != ambientLightTarget) {
                 float step = Time.TimeMult * 0.012f;
@@ -899,8 +922,44 @@ namespace Jazz2.Game
             Hud.ShowDebugText("- FPS: " + Time.Fps.ToString("N0") + "  (" + Math.Round(Time.UnscaledDeltaTime * 1000, 1).ToString("N1") + " ms)");
             Hud.ShowDebugText("  Diff.: " + difficulty + " | Actors: " + actors.Count.ToString("N0"));
             Hud.ShowDebugText("  Ambient Light: " + ambientLightCurrent.ToString("0.00") + " / " + ambientLightTarget.ToString("0.00"));
+
+
+            Hud.ShowDebugText("  Collisions: " + collisionsCountA + " > " + collisionsCountB + " > " + collisionsCountC);
+            collisionsCountA = 0;
+            collisionsCountB = 0;
+            collisionsCountC = 0;
         }
 
+        private void ResolveCollisions()
+        {
+            collisions.UpdatePairs((proxyA, proxyB) => {
+
+                if (proxyA.Health <= 0 || proxyB.Health <= 0) {
+                    return;
+                }
+
+                if (proxyA.IsCollidingWith(proxyB)) {
+                    proxyA.OnHandleCollision(proxyB);
+                    proxyB.OnHandleCollision(proxyA);
+
+                    collisionsCountC++;
+                }
+
+                collisionsCountB++;
+
+            });
+        }
+
+        private void OnActorTransformChanged(object sender, TransformChangedEventArgs e)
+        {
+            ActorBase actor = e.Component.GameObj as ActorBase;
+            actor.UpdateAABB();
+            collisions.MoveProxy(actor, ref actor.AABB, actor.Speed.Xy);
+
+            collisionsCountA++;
+        }
+
+        [ExecutionOrder(ExecutionRelation.After, typeof(Transform))]
         private class LocalController : Component, ICmpUpdatable
         {
             private readonly LevelHandler levelHandler;

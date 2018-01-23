@@ -26,6 +26,9 @@
     "Sounds": {
         "Noise": {
             "Paths": [ "Crab/noise_1.wav", "Crab/noise_2.wav", "Crab/noise_3.wav", "Crab/noise_4.wav", "Crab/noise_5.wav", "Crab/noise_6.wav", "Crab/noise_7.wav", "Crab/noise_8.wav" ]
+        },
+        "Step": {
+            "Paths": [ "Crab/step_1.wav", "Crab/step_2.wav" ]
         }
     }
 }

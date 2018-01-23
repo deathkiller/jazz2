@@ -190,7 +190,7 @@ namespace Jazz2.Actors
                 //});
             }
 
-            isFacingLeft = false;
+            IsFacingLeft = false;
             isInvulnerable = true;
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
             speedX = speedY = 0f;
@@ -224,8 +224,6 @@ namespace Jazz2.Actors
 
                 OnUpdateHitbox();
 
-                RefreshFlipMode();
-
                 if (renderer != null && renderer.AnimPaused) {
                     if (frozenTimeLeft <= 0f) {
                         renderer.AnimPaused = false;
@@ -244,7 +242,6 @@ namespace Jazz2.Actors
 
             OnHandleWater();
             OnHandleAreaEvents();
-            OnHandleActorCollisions();
 
             // Timers
             if (weaponCooldown > 0f) {
@@ -346,20 +343,20 @@ namespace Jazz2.Actors
                 if (!isLifting && controllable && ((isRightPressed = ControlScheme.PlayerActionPressed(index, PlayerActions.Right)) ^ ControlScheme.PlayerActionPressed(index, PlayerActions.Left))) {
                     SetAnimation(currentAnimationState & ~(AnimState.Lookup | AnimState.Crouch));
 
-                    isFacingLeft = !isRightPressed;
+                    IsFacingLeft = !isRightPressed;
                     isActivelyPushing = wasActivelyPushing = true;
 
                     bool isDashPressed = ControlScheme.PlayerActionPressed(index, PlayerActions.Run);
                     if (suspendType == SuspendType.None && isDashPressed) {
-                        speedX = MathF.Clamp(speedX + Acceleration * timeMult * (isFacingLeft ? -1 : 1), -MaxDashingSpeed, MaxDashingSpeed);
+                        speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxDashingSpeed, MaxDashingSpeed);
                     } else if (suspendType == SuspendType.Vine) {
                         if (wasFirePressed) {
                             speedX = 0f;
                         } else {
-                            speedX = MathF.Clamp(speedX + Acceleration * timeMult * (isFacingLeft ? -1 : 1), -MaxVineSpeed, MaxVineSpeed);
+                            speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxVineSpeed, MaxVineSpeed);
                         }
                     } else if (suspendType != SuspendType.Hook) {
-                        speedX = MathF.Clamp(speedX + Acceleration * timeMult * (isFacingLeft ? -1 : 1), -MaxRunningSpeed, MaxRunningSpeed);
+                        speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxRunningSpeed, MaxRunningSpeed);
                     }
 
                     if (canJump) {
@@ -371,7 +368,7 @@ namespace Jazz2.Actors
 
                     float absSpeedX = MathF.Abs(speedX);
                     if (absSpeedX > 4f) {
-                        isFacingLeft = (speedX < 0f);
+                        IsFacingLeft = (speedX < 0f);
                     } else if (absSpeedX < 0.001f) {
                         wasActivelyPushing = false;
                     }
@@ -383,7 +380,7 @@ namespace Jazz2.Actors
 
                 float absSpeedX = MathF.Abs(speedX);
                 if (absSpeedX > 1f) {
-                    isFacingLeft = (speedX < 0f);
+                    IsFacingLeft = (speedX < 0f);
                 } else if (absSpeedX < 0.001f) {
                     keepRunningTime = 0f;
                 }
@@ -520,8 +517,8 @@ namespace Jazz2.Actors
                                         controllable = false;
                                         SetAnimation(AnimState.Uppercut);
                                         SetPlayerTransition(AnimState.TransitionUppercutA, true, true, SpecialMoveType.Sidekick, delegate {
-                                            externalForceX = 8f * (isFacingLeft ? -1f : 1f);
-                                            speedX = 14.4f * (isFacingLeft ? -1f : 1f);
+                                            externalForceX = 8f * (IsFacingLeft ? -1f : 1f);
+                                            speedX = 14.4f * (IsFacingLeft ? -1f : 1f);
                                             collisionFlags &= ~CollisionFlags.ApplyGravitation;
                                             SetPlayerTransition(AnimState.TransitionUppercutB, true, true, SpecialMoveType.Sidekick);
                                         });
@@ -547,8 +544,8 @@ namespace Jazz2.Actors
                                         controllable = false;
                                         SetAnimation(AnimState.Uppercut);
                                         SetPlayerTransition(AnimState.TransitionUppercutA, true, true, SpecialMoveType.Sidekick, delegate {
-                                            externalForceX = 15f * (isFacingLeft ? -1f : 1f);
-                                            speedX = 6f * (isFacingLeft ? -1f : 1f);
+                                            externalForceX = 15f * (IsFacingLeft ? -1f : 1f);
+                                            speedX = 6f * (IsFacingLeft ? -1f : 1f);
                                             collisionFlags &= ~CollisionFlags.ApplyGravitation;
                                         });
                                     } else {
@@ -721,7 +718,7 @@ namespace Jazz2.Actors
                     if (FindAnimationCandidates(AnimState.TransitionLedgeClimb).Count > 0) {
                         const int maxTolerance = 6;
 
-                        float x = (isFacingLeft ? -8f : 8f);
+                        float x = (IsFacingLeft ? -8f : 8f);
                         Hitbox hitbox1 = currentHitbox + new Vector2(x, -42f - maxTolerance);   // Empty space to climb to
                         Hitbox hitbox2 = currentHitbox + new Vector2(x, -42f + 2f);             // Wall below the empty space
                         Hitbox hitbox3 = currentHitbox + new Vector2(x, -42f + 2f + 24f);       // Wall between the player and the wall above (vertically)
@@ -734,7 +731,7 @@ namespace Jazz2.Actors
                              api.IsPositionEmpty(this, ref hitbox5, false)) {
 
                             ushort[] wallParams = null;
-                            if (api.EventMap.GetEventByPosition(isFacingLeft ? hitbox2.Left : hitbox2.Right, hitbox2.Bottom, ref wallParams) != EventType.ModifierNoClimb) {
+                            if (api.EventMap.GetEventByPosition(IsFacingLeft ? hitbox2.Left : hitbox2.Right, hitbox2.Bottom, ref wallParams) != EventType.ModifierNoClimb) {
                                 // Move the player upwards, if it is in tolerance, so the animation will look better
                                 for (int y = 0; y >= -maxTolerance; y -= 2) {
                                     Hitbox hitbox = currentHitbox + new Vector2(x, -42f + y);
@@ -753,7 +750,7 @@ namespace Jazz2.Actors
                                 pushFramesLeft = fireFramesLeft = copterFramesLeft = 0f;
 
                                 // Stick the player to wall
-                                MoveInstantly(new Vector2(isFacingLeft ? -6f : 6f, 0f), MoveType.Relative, true);
+                                MoveInstantly(new Vector2(IsFacingLeft ? -6f : 6f, 0f), MoveType.Relative, true);
 
                                 SetAnimation(AnimState.Idle);
                                 SetTransition(AnimState.TransitionLedgeClimb, false, delegate {
@@ -766,7 +763,7 @@ namespace Jazz2.Actors
                                     speedY = 0f;
 
                                     // Move it far from the ledge
-                                    MoveInstantly(new Vector2(isFacingLeft ? -4f : 4f, 0f), MoveType.Relative);
+                                    MoveInstantly(new Vector2(IsFacingLeft ? -4f : 4f, 0f), MoveType.Relative);
 
                                     // Move the player upwards, so it will not be stuck in the wall
                                     for (int y = -2; y > -24; y -= 2) {
@@ -832,7 +829,7 @@ namespace Jazz2.Actors
                         corpse.OnAttach(new ActorInstantiationDetails {
                             Api = api,
                             Pos = Transform.Pos,
-                            Params = new[] { (ushort)(playerType), (ushort)(isFacingLeft ? 1 : 0) }
+                            Params = new[] { (ushort)(playerType), (ushort)(IsFacingLeft ? 1 : 0) }
                         });
                         api.AddActor(corpse);
 
@@ -962,7 +959,7 @@ namespace Jazz2.Actors
                             Hitbox hitboxL = new Hitbox(currentHitbox.Left + 2, currentHitbox.Bottom - 10, currentHitbox.Left + 4, currentHitbox.Bottom + 28);
                             Hitbox hitboxR = new Hitbox(currentHitbox.Right - 4, currentHitbox.Bottom - 10, currentHitbox.Right - 2, currentHitbox.Bottom + 28);
 
-                            if (isFacingLeft
+                            if (IsFacingLeft
                                 ? (api.IsPositionEmpty(this, ref hitboxL, true) && !api.IsPositionEmpty(this, ref hitboxR, true))
                                 : (!api.IsPositionEmpty(this, ref hitboxL, true) && api.IsPositionEmpty(this, ref hitboxR, true))) {
 
@@ -1093,7 +1090,7 @@ namespace Jazz2.Actors
 
                 ActorBase solidObject;
                 if (!(api.IsPositionEmpty(this, ref tileCollisionHitbox, false, out solidObject)) && solidObject != null) {
-                    solidObject.HandleCollision(this);
+                    solidObject.OnHandleCollision(this);
                 }
             }
 
@@ -1199,7 +1196,7 @@ namespace Jazz2.Actors
                     if (MathF.Abs(speedX) > 1f || MathF.Abs(speedY) > 1f) {
                         float angle;
                         if (speedX == 0f) {
-                            if (isFacingLeft) {
+                            if (IsFacingLeft) {
                                 angle = MathF.Atan2(-speedY, -float.Epsilon);
                             } else {
                                 angle = MathF.Atan2(speedY, float.Epsilon);
@@ -1463,16 +1460,15 @@ namespace Jazz2.Actors
             }
         }
 
-        private void OnHandleActorCollisions()
+        public override void OnHandleCollision(ActorBase other)
         {
+            //base.OnHandleCollision(other);
+
             bool removeSpecialMove = false;
 
-            foreach (ActorBase collision in api.FindCollisionActors(this)) {
-                // Different things happen with different actor types
-
-                if (currentSpecialMove != SpecialMoveType.None || isSugarRush) {
-                    TurtleShell collider = collision as TurtleShell;
-                    if (collider != null) {
+            switch (other) {
+                case TurtleShell collider: {
+                    if (currentSpecialMove != SpecialMoveType.None || isSugarRush) {
                         collider.DecreaseHealth(int.MaxValue, this);
 
                         if ((currentAnimationState & AnimState.Buttstomp) != 0) {
@@ -1480,145 +1476,131 @@ namespace Jazz2.Actors
                             speedY *= -0.6f;
                             canJump = true;
                         }
-
-                        continue;
                     }
+                    break;
                 }
 
-                {
-                    EnemyBase collider = collision as EnemyBase;
-                    if (collider != null) {
-                        if (currentSpecialMove != SpecialMoveType.None || isSugarRush || shieldTime > 0f) {
-                            if (!collider.IsInvulnerable) {
-                                collider.DecreaseHealth(4, this);
+                case EnemyBase collider: {
+                    if (currentSpecialMove != SpecialMoveType.None || isSugarRush || shieldTime > 0f) {
+                        if (!collider.IsInvulnerable) {
+                            collider.DecreaseHealth(4, this);
 
-                                Explosion.Create(api, collider.Transform.Pos, Explosion.Small);
+                            Explosion.Create(api, collider.Transform.Pos, Explosion.Small);
 
-                                if (isSugarRush) {
-                                    if (canJump) {
-                                        speedY = 3;
-                                        canJump = false;
-                                        externalForceY = 0.6f;
-                                    }
-                                    speedY *= -0.5f;
+                            if (isSugarRush) {
+                                if (canJump) {
+                                    speedY = 3;
+                                    canJump = false;
+                                    externalForceY = 0.6f;
                                 }
-                                if ((currentAnimationState & AnimState.Buttstomp) != 0) {
-                                    removeSpecialMove = true;
-                                    speedY *= -0.6f;
-                                    canJump = true;
-                                } else if (currentSpecialMove != SpecialMoveType.None && collider.Health >= 0) {
-                                    removeSpecialMove = true;
-                                    externalForceX = 0f;
-                                    externalForceY = 0f;
-                                }
+                                speedY *= -0.5f;
                             }
-
-                            // Decrease remaining shield time by 5 secs
-                            if (shieldTime > 0f) {
-                                shieldTime = Math.Max(1f, shieldTime - 5f * Time.FramesPerSecond);
-                            }
-                        } else {
-                            if (collider.CanHurtPlayer) {
-                                TakeDamage(4 * (Transform.Pos.X > collider.Transform.Pos.X ? 1 : -1));
-                            }
-                        }
-                        continue;
-                    }
-                }
-                {
-                    Spring spring = collision as Spring;
-                    if (spring != null) {
-                        // Collide only with hitbox
-                        if (spring.Hitbox.Intersects(ref currentHitbox)) {
-                            Vector2 force = spring.Activate();
-                            int sign = ((force.X + force.Y) > float.Epsilon ? 1 : -1);
-                            if (MathF.Abs(force.X) > 0f) {
+                            if ((currentAnimationState & AnimState.Buttstomp) != 0) {
                                 removeSpecialMove = true;
-                                copterFramesLeft = 0f;
-                                //speedX = force.X;
-                                speedX = (1 + MathF.Abs(force.X)) * sign;
-                                externalForceX = force.X * 0.6f;
-
-                                wasActivelyPushing = false;
-
-                                keepRunningTime = 100f;
-
-                                if (!spring.KeepSpeedY) {
-                                    speedY = 0f;
-                                    externalForceY = 0f;
-                                }
-
-                                SetPlayerTransition(AnimState.Dash | AnimState.Jump, true, true, SpecialMoveType.None);
-                                // ToDo: ...
-                                controllableTimeout = 20f;
-                            } else if (MathF.Abs(force.Y) > 0f) {
-                                copterFramesLeft = 0f;
-                                speedY = (4 + MathF.Abs(force.Y)) * sign;
-                                externalForceY = -force.Y;
-
-                                if (!spring.KeepSpeedX) {
-                                    speedX = 0f;
-                                    externalForceX = 0f;
-                                    keepRunningTime = 0f;
-                                }
-
-                                if (sign > 0) {
-                                    removeSpecialMove = false;
-                                    currentSpecialMove = SpecialMoveType.Buttstomp;
-                                    SetAnimation(AnimState.Buttstomp);
-                                } else {
-                                    removeSpecialMove = true;
-                                    isSpring = true;
-                                }
-
-                                PlaySound("Spring");
-                            } else {
-                                continue;
+                                speedY *= -0.6f;
+                                canJump = true;
+                            } else if (currentSpecialMove != SpecialMoveType.None && collider.Health >= 0) {
+                                removeSpecialMove = true;
+                                externalForceX = 0f;
+                                externalForceY = 0f;
                             }
-                            canJump = false;
-                        }
-                        continue;
-                    }
-                }
-                {
-                    PinballBumper bumper = collision as PinballBumper;
-                    if (bumper != null) {
-                        Vector2 force = bumper.Activate(this);
-                        if (force != Vector2.Zero) {
-                            removeSpecialMove = true;
-                            canJump = false;
-
-                            speedX += force.X * 0.4f;
-                            speedY += force.Y * 0.4f;
-                            externalForceX += force.X * 0.04f;
-                            externalForceY -= force.Y * 0.04f;
-
-                            // ToDo: Check this...
-                            AddScore(500);
                         }
 
-                        continue;
+                        // Decrease remaining shield time by 5 secs
+                        if (shieldTime > 0f) {
+                            shieldTime = Math.Max(1f, shieldTime - 5f * Time.FramesPerSecond);
+                        }
+                    } else if (collider.CanHurtPlayer) {
+                        TakeDamage(4 * (Transform.Pos.X > collider.Transform.Pos.X ? 1 : -1));
                     }
+                    break;
                 }
-                {
-                    PinballPaddle paddle = collision as PinballPaddle;
-                    if (paddle != null) {
-                        Vector2 force = paddle.Activate(this);
-                        if (force != Vector2.Zero) {
+
+                case Spring spring: {
+                    // Collide only with hitbox
+                    if (spring.Hitbox.Intersects(ref currentHitbox)) {
+                        Vector2 force = spring.Activate();
+                        int sign = ((force.X + force.Y) > float.Epsilon ? 1 : -1);
+                        if (MathF.Abs(force.X) > 0f) {
                             removeSpecialMove = true;
                             copterFramesLeft = 0f;
-                            canJump = false;
+                            //speedX = force.X;
+                            speedX = (1 + MathF.Abs(force.X)) * sign;
+                            externalForceX = force.X * 0.6f;
 
-                            speedX = force.X;
-                            speedY = force.Y;
+                            wasActivelyPushing = false;
+
+                            keepRunningTime = 100f;
+
+                            if (!spring.KeepSpeedY) {
+                                speedY = 0f;
+                                externalForceY = 0f;
+                            }
+
+                            SetPlayerTransition(AnimState.Dash | AnimState.Jump, true, true, SpecialMoveType.None);
+                            // ToDo: ...
+                            controllableTimeout = 20f;
+                        } else if (MathF.Abs(force.Y) > 0f) {
+                            copterFramesLeft = 0f;
+                            speedY = (4 + MathF.Abs(force.Y)) * sign;
+                            externalForceY = -force.Y;
+
+                            if (!spring.KeepSpeedX) {
+                                speedX = 0f;
+                                externalForceX = 0f;
+                                keepRunningTime = 0f;
+                            }
+
+                            if (sign > 0) {
+                                removeSpecialMove = false;
+                                currentSpecialMove = SpecialMoveType.Buttstomp;
+                                SetAnimation(AnimState.Buttstomp);
+                            } else {
+                                removeSpecialMove = true;
+                                isSpring = true;
+                            }
+
+                            PlaySound("Spring");
+                        } else {
+                            break;
                         }
-                        continue;
+                        canJump = false;
                     }
+                    break;
                 }
 
-                if (currentTransitionState == AnimState.Idle || currentTransitionCancellable) {
-                    BonusWarp warp = collision as BonusWarp;
-                    if (warp != null) {
+                case PinballBumper bumper: {
+                    Vector2 force = bumper.Activate(this);
+                    if (force != Vector2.Zero) {
+                        removeSpecialMove = true;
+                        canJump = false;
+
+                        speedX += force.X * 0.4f;
+                        speedY += force.Y * 0.4f;
+                        externalForceX += force.X * 0.04f;
+                        externalForceY -= force.Y * 0.04f;
+
+                        // ToDo: Check this...
+                        AddScore(500);
+                    }
+                    break;
+                }
+
+                case PinballPaddle paddle: {
+                    Vector2 force = paddle.Activate(this);
+                    if (force != Vector2.Zero) {
+                        removeSpecialMove = true;
+                        copterFramesLeft = 0f;
+                        canJump = false;
+
+                        speedX = force.X;
+                        speedY = force.Y;
+                    }
+                    break;
+                }
+
+                case BonusWarp warp: {
+                    if (currentTransitionState == AnimState.Idle || currentTransitionCancellable) {
                         if (warp.Cost <= coins) {
                             coins -= warp.Cost;
                             warp.Activate(this);
@@ -1632,12 +1614,9 @@ namespace Jazz2.Actors
 
                             bonusWarpTimer = 400f;
                         }
-
-                        continue;
                     }
+                    break;
                 }
-
-                collision.HandleCollision(this);
             }
 
             if (removeSpecialMove) {
@@ -1683,7 +1662,7 @@ namespace Jazz2.Actors
                     currentTransitionCancellable = true;
                     CancelTransition();
 
-                    MoveInstantly(new Vector2(isFacingLeft ? 6f : -6f, 0f), MoveType.Relative, true);
+                    MoveInstantly(new Vector2(IsFacingLeft ? 6f : -6f, 0f), MoveType.Relative, true);
                 }
 
                 DecreaseHealth(1, null);
@@ -1841,7 +1820,7 @@ namespace Jazz2.Actors
 
                     speedX = 10 * sign + lastSpeed * 0.2f;
                     externalForceX = 10 * sign;
-                    isFacingLeft = !positive;
+                    IsFacingLeft = !positive;
 
                     keepRunningTime = 60f;
 

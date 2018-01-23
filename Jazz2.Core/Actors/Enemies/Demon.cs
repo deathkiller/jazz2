@@ -20,7 +20,7 @@ namespace Jazz2.Actors.Enemies
             RequestMetadata("Enemy/Demon");
             SetAnimation(AnimState.Idle);
 
-            isFacingLeft = MathF.Rnd.NextBool();
+            IsFacingLeft = MathF.Rnd.NextBool();
         }
 
         protected override void OnUpdate()
@@ -46,8 +46,8 @@ namespace Jazz2.Actors.Enemies
                             if (stuck) {
                                 MoveInstantly(new Vector2(0f, -2f), MoveType.Relative, true);
                             } else {
-                                isFacingLeft ^= true;
-                                speedX = (isFacingLeft ? -1.8f : 1.8f);
+                                IsFacingLeft ^= true;
+                                speedX = (IsFacingLeft ? -1.8f : 1.8f);
                                 stuck = true;
                             }
                         } else {
@@ -67,8 +67,8 @@ namespace Jazz2.Actors.Enemies
                                 attacking = true;
                                 attackTime = MathF.Rnd.NextFloat(130, 180);
 
-                                isFacingLeft = (newPos.X < pos.X);
-                                speedX = (isFacingLeft ? -1.8f : 1.8f);
+                                IsFacingLeft = (newPos.X < pos.X);
+                                speedX = (IsFacingLeft ? -1.8f : 1.8f);
 
                                 SetAnimation((AnimState)1073741824);
                                 SetTransition((AnimState)1073741825, false);

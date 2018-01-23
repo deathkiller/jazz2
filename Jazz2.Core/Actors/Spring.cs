@@ -66,7 +66,7 @@ namespace Jazz2.Actors
                     MoveInstantly(new Vector2(tileCorner.X + 16, tileCorner.Y + 16), MoveType.Absolute, true);
                     orientationBit = 1;
                     collisionFlags &= ~CollisionFlags.ApplyGravitation;
-                    isFacingLeft = true;
+                    IsFacingLeft = true;
                     break;
             }
 

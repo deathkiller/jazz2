@@ -1,4 +1,5 @@
-﻿using Jazz2.Actors.Weapons;
+﻿using Duality;
+using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
 
@@ -29,7 +30,7 @@ namespace Jazz2.Actors.Solid
             SetAnimation(AnimState.Idle);
         }
 
-        public override void HandleCollision(ActorBase other)
+        public override void OnHandleCollision(ActorBase other)
         {
             if (health == 0) {
                 return;
@@ -61,7 +62,7 @@ namespace Jazz2.Actors.Solid
                 }
             }
 
-            base.HandleCollision(other);
+            base.OnHandleCollision(other);
         }
 
         protected override bool OnPerish(ActorBase collider)

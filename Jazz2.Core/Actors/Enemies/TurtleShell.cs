@@ -97,7 +97,7 @@ namespace Jazz2.Actors.Enemies
                         break;
                     }
                     case Collectible collider: {
-                        collider.HandleCollision(this);
+                        collider.OnHandleCollision(this);
                         break;
                     }
                 }
@@ -114,9 +114,9 @@ namespace Jazz2.Actors.Enemies
             Transform.Angle = lastAngle;
         }
 
-        public override void HandleCollision(ActorBase other)
+        public override void OnHandleCollision(ActorBase other)
         {
-            base.HandleCollision(other);
+            base.OnHandleCollision(other);
 
             if (other is AmmoBase && !(other is AmmoFreezer)) {
                 if (other is AmmoToaster) {

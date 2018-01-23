@@ -39,8 +39,8 @@ namespace Jazz2.Actors.Enemies
 
             SetAnimation(AnimState.Walk);
 
-            isFacingLeft = MathF.Rnd.NextBool();
-            speedX = (isFacingLeft ? -1 : 1) * 1f;
+            IsFacingLeft = MathF.Rnd.NextBool();
+            speedX = (IsFacingLeft ? -1 : 1) * 1f;
         }
 
         protected override void OnUpdateHitbox()
@@ -57,7 +57,7 @@ namespace Jazz2.Actors.Enemies
             }
 
             if (attackTime <= 0f) {
-                speedX = (isFacingLeft ? -1 : 1) * 1f;
+                speedX = (IsFacingLeft ? -1 : 1) * 1f;
                 SetAnimation(AnimState.Walk);
 
                 if (noiseCooldown <= 0f) {
@@ -68,6 +68,13 @@ namespace Jazz2.Actors.Enemies
                 }
             } else {
                 attackTime -= Time.TimeMult;
+
+                if (noiseCooldown <= 0f) {
+                    noiseCooldown = MathF.Rnd.NextFloat(25, 40);
+                    PlaySound("Woof");
+                } else {
+                    noiseCooldown -= Time.TimeMult;
+                }
             }
 
             if (canJump) {
@@ -75,8 +82,8 @@ namespace Jazz2.Actors.Enemies
                     if (stuck) {
                         MoveInstantly(new Vector2(0f, -2f), MoveType.Relative, true);
                     } else {
-                        isFacingLeft ^= true;
-                        speedX = (isFacingLeft ? -1f : 1f) * (attackTime <= 0f ? 1f : attackSpeed);
+                        IsFacingLeft ^= true;
+                        speedX = (IsFacingLeft ? -1f : 1f) * (attackTime <= 0f ? 1f : attackSpeed);
                         stuck = true;
                     }
                 } else {
@@ -95,11 +102,15 @@ namespace Jazz2.Actors.Enemies
             return base.OnPerish(collider);
         }
 
-        public override void HandleCollision(ActorBase other)
+        public override void OnHandleCollision(ActorBase other)
         {
             AmmoBase ammo = other as AmmoBase;
             if (ammo != null) {
                 DecreaseHealth(ammo.Strength, ammo);
+
+                if (health <= 0) {
+                    return;
+                }
 
                 HandleAmmoFrozenStateChange(ammo);
                 
@@ -107,11 +118,12 @@ namespace Jazz2.Actors.Enemies
                     if (attackTime <= 0f) {
                         PlaySound("Attack");
 
-                        speedX = (isFacingLeft ? -1f : 1f) * attackSpeed;
+                        speedX = (IsFacingLeft ? -1f : 1f) * attackSpeed;
                         SetAnimation(AnimState.TransitionAttack);
                     }
 
                     attackTime = 200f;
+                    noiseCooldown = 45f;
                 }
             }
         }

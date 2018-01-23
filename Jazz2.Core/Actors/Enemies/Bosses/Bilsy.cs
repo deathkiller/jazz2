@@ -74,8 +74,8 @@ namespace Jazz2.Actors.Bosses
                             BilsyFireball fireball = new BilsyFireball();
                             fireball.OnAttach(new ActorInstantiationDetails {
                                 Api = api,
-                                Pos = new Vector3(pos.X + 26f * (isFacingLeft ? -1f : 1f), pos.Y - 20f, pos.Z - 2f),
-                                Params = new[] { theme, (ushort)(isFacingLeft ? 1 : 0) }
+                                Pos = new Vector3(pos.X + 26f * (IsFacingLeft ? -1f : 1f), pos.Y - 20f, pos.Z - 2f),
+                                Params = new[] { theme, (ushort)(IsFacingLeft ? 1 : 0) }
                             });
                             api.AddActor(fireball);
 
@@ -157,7 +157,7 @@ namespace Jazz2.Actors.Bosses
             }
 
             if (found) {
-                isFacingLeft = (targetPos.X < pos.X);
+                IsFacingLeft = (targetPos.X < pos.X);
             }
 
             renderer.Active = true;
@@ -242,7 +242,7 @@ namespace Jazz2.Actors.Bosses
                 return base.OnPerish(collider);
             }
 
-            public override void HandleCollision(ActorBase other)
+            public override void OnHandleCollision(ActorBase other)
             {
             }
 

@@ -19,7 +19,7 @@ namespace Jazz2.Actors.Enemies
             base.OnAttach(details);
 
             canBeFrozen = false;
-            isFacingLeft = true;
+            IsFacingLeft = true;
             collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation;
             canHurtPlayer = false;
             isInvulnerable = true;
@@ -86,9 +86,9 @@ namespace Jazz2.Actors.Enemies
             }
         }
 
-        public override void HandleCollision(ActorBase other)
+        public override void OnHandleCollision(ActorBase other)
         {
-            base.HandleCollision(other);
+            base.OnHandleCollision(other);
 
             switch (other) {
                 case AmmoBase ammo:
@@ -155,7 +155,7 @@ namespace Jazz2.Actors.Enemies
                 }
             }
 
-            public override void HandleCollision(ActorBase other)
+            public override void OnHandleCollision(ActorBase other)
             {
                 // ToDo
             }
