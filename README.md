@@ -1,5 +1,5 @@
 # ![Jazz² Resurrection](https://github.com/deathkiller/jazz2/raw/master/Docs/Logo.gif)
-Jazz² Resurrection is reimplementation of game ***Jazz Jackrabbit 2*** from year 1998. Supports various versions of the game (Shareware Demo, Holiday Hare '98, The Secret Files and Christmas Chronicles). Also, it partially supports some features of [JJ2+](http://jj2.plus/) extension.
+Jazz² Resurrection is reimplementation of game ***Jazz Jackrabbit 2*** from year 1998. Supports various versions of the game (Shareware Demo, Holiday Hare '98, The Secret Files and Christmas Chronicles). Also, it partially supports some features of [JJ2+](http://jj2.plus/) extension and MLLE.
 
 Uses parts of [Duality - A 2D GameDev Framework](https://duality.adamslair.net/).
 
@@ -82,7 +82,7 @@ msbuild
 
 *Errors about `Jazz2.Android` project can be ignored, if you don't need Android build.*
 
-### Android
+### Android ![Build status](https://build.appcenter.ms/v0.1/apps/a88b4a01-69a6-483a-93ba-e58726182e66/branches/master/badge)
 * Install **Mobile development in .NET** to Microsoft Visual Studio 2017
 * Open the solution and build `Jazz2.Android` project
 
