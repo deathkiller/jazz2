@@ -26,8 +26,8 @@ namespace Jazz2.Actors.Enemies
             RequestMetadata("Enemy/FatChick");
             SetAnimation(AnimState.Walk);
 
-            isFacingLeft = MathF.Rnd.NextBool();
-            speedX = (isFacingLeft ? -1f : 1f) * DefaultSpeed;
+            IsFacingLeft = MathF.Rnd.NextBool();
+            speedX = (IsFacingLeft ? -1f : 1f) * DefaultSpeed;
         }
 
         protected override void OnUpdateHitbox()
@@ -51,8 +51,8 @@ namespace Jazz2.Actors.Enemies
                 targetPos = players[i].Transform.Pos;
                 float length = (pos - targetPos).Length;
                 if (length > 20f && length < 60f) {
-                    isFacingLeft = (pos.X > targetPos.X);
-                    speedX = (isFacingLeft ? -1f : 1f) * DefaultSpeed;
+                    IsFacingLeft = (pos.X > targetPos.X);
+                    speedX = (IsFacingLeft ? -1f : 1f) * DefaultSpeed;
                     break;
                 }
             }
@@ -62,8 +62,8 @@ namespace Jazz2.Actors.Enemies
                     if (stuck) {
                         MoveInstantly(new Vector2(0f, -2f), MoveType.Relative, true);
                     } else {
-                        isFacingLeft = !isFacingLeft;
-                        speedX = (isFacingLeft ? -1f : 1f) * DefaultSpeed;
+                        IsFacingLeft = !IsFacingLeft;
+                        speedX = (IsFacingLeft ? -1f : 1f) * DefaultSpeed;
                         stuck = true;
                     }
                 } else {
@@ -83,7 +83,7 @@ namespace Jazz2.Actors.Enemies
             PlaySound("Attack");
 
             SetTransition(AnimState.TransitionAttack, false, delegate {
-                speedX = (isFacingLeft ? -1f : 1f) * DefaultSpeed;
+                speedX = (IsFacingLeft ? -1f : 1f) * DefaultSpeed;
                 isAttacking = false;
             });
             speedX = 0f;

@@ -939,8 +939,8 @@ namespace Jazz2.Game
                 }
 
                 if (proxyA.IsCollidingWith(proxyB)) {
-                    proxyA.HandleCollision(proxyB);
-                    proxyB.HandleCollision(proxyA);
+                    proxyA.OnHandleCollision(proxyB);
+                    proxyB.OnHandleCollision(proxyA);
 
                     collisionsCountC++;
                 }
@@ -954,11 +954,12 @@ namespace Jazz2.Game
         {
             ActorBase actor = e.Component.GameObj as ActorBase;
             actor.UpdateAABB();
-            collisions.MoveProxy(actor, ref actor.AABB, Vector2.Zero);
+            collisions.MoveProxy(actor, ref actor.AABB, actor.Speed.Xy);
 
             collisionsCountA++;
         }
 
+        [ExecutionOrder(ExecutionRelation.After, typeof(Transform))]
         private class LocalController : Component, ICmpUpdatable
         {
             private readonly LevelHandler levelHandler;

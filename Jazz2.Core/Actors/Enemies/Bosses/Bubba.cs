@@ -74,14 +74,14 @@ namespace Jazz2.Actors.Bosses
 
                                 SetTransition(AnimState.Shoot, false, delegate {
                                     Vector3 pos = Transform.Pos;
-                                    float x = (isFacingLeft ? -16f : 16f);
+                                    float x = (IsFacingLeft ? -16f : 16f);
                                     float y = -5f;
 
                                     BubbaFireball fireball = new BubbaFireball();
                                     fireball.OnAttach(new ActorInstantiationDetails {
                                         Api = api,
                                         Pos = new Vector3(pos.X + x, pos.Y + y, pos.Z + 2f),
-                                        Params = new[] { (ushort)(isFacingLeft ? 1 : 0) }
+                                        Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
                                     });
                                     api.AddActor(fireball);
 
@@ -170,9 +170,9 @@ namespace Jazz2.Actors.Bosses
                 state = StateJumping;
                 stateTime = 26;
 
-                isFacingLeft = (targetPos.X < pos.X);
+                IsFacingLeft = (targetPos.X < pos.X);
 
-                speedX = (isFacingLeft ? -1.3f : 1.3f);
+                speedX = (IsFacingLeft ? -1.3f : 1.3f);
 
                 internalForceY = 1.27f;
 
@@ -225,8 +225,8 @@ namespace Jazz2.Actors.Bosses
             {
                 base.OnAttach(details);
 
-                isFacingLeft = (details.Params[0] != 0);
-                speedX = (isFacingLeft ? -4.8f : 4.8f);
+                IsFacingLeft = (details.Params[0] != 0);
+                speedX = (IsFacingLeft ? -4.8f : 4.8f);
 
                 collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors;
 
@@ -236,7 +236,6 @@ namespace Jazz2.Actors.Bosses
                 SetAnimation((AnimState)1073741834);
 
                 OnUpdateHitbox();
-                RefreshFlipMode();
 
                 LightEmitter light = AddComponent<LightEmitter>();
                 light.Intensity = 0.85f;
@@ -269,7 +268,7 @@ namespace Jazz2.Actors.Bosses
                 return base.OnPerish(collider);
             }
 
-            public override void HandleCollision(ActorBase other)
+            public override void OnHandleCollision(ActorBase other)
             {
                 // Nothing to do...
             }

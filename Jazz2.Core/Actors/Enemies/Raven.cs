@@ -25,7 +25,7 @@ namespace Jazz2.Actors.Enemies
             RequestMetadata("Enemy/Raven");
             SetAnimation(AnimState.Idle);
 
-            isFacingLeft = MathF.Rnd.NextBool();
+            IsFacingLeft = MathF.Rnd.NextBool();
         }
 
         protected override void OnUpdate()
@@ -58,16 +58,15 @@ namespace Jazz2.Actors.Enemies
             anglePhase += Time.TimeMult * 0.04f;
 
             if ((targetPos - lastPos).Length > 5f) {
-                Vector3 speed = ((targetPos - lastPos).Normalized * (attacking ? 4.6f : 2.6f) + lastSpeed * 1.4f) / 2.4f;
+                Vector3 speed = ((targetPos - lastPos).Normalized * (attacking ? 5f : 2.6f) + lastSpeed * 1.4f) / 2.4f;
                 lastPos.X += speed.X;
                 lastPos.Y += speed.Y;
                 lastSpeed = speed;
 
                 bool willFaceLeft = (speed.X < 0f);
-                if (isFacingLeft != willFaceLeft) {
-                    isFacingLeft = willFaceLeft;
+                if (IsFacingLeft != willFaceLeft) {
                     SetTransition(AnimState.TransitionTurn, false, delegate {
-                        RefreshFlipMode();
+                        IsFacingLeft = willFaceLeft;
                     });
                 }
             }
@@ -113,6 +112,8 @@ namespace Jazz2.Actors.Enemies
 
                 attackTime = 80f;
                 attacking = true;
+
+                PlaySound("Attack", 0.7f, MathF.Rnd.NextFloat(1.4f, 1.8f));
             }
         }
     }

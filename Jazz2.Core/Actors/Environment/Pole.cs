@@ -92,7 +92,7 @@ namespace Jazz2.Actors.Environment
             }
         }
 
-        public override void HandleCollision(ActorBase other)
+        public override void OnHandleCollision(ActorBase other)
         {
             //base.HandleCollision(other);
 

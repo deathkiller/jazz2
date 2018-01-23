@@ -68,7 +68,7 @@ namespace Jazz2.Actors.Enemies
                     PlaySound("MagicFire");
 
                     SetTransition(AnimState.TransitionAttack, true, delegate {
-                        Vector3 bulletPos = Transform.Pos + new Vector3(24f * (isFacingLeft ? -1f : 1f), 0f, -2f);
+                        Vector3 bulletPos = Transform.Pos + new Vector3(24f * (IsFacingLeft ? -1f : 1f), 0f, -2f);
 
                         MagicBullet bullet = new MagicBullet(this);
                         bullet.OnAttach(new ActorInstantiationDetails {
@@ -84,8 +84,7 @@ namespace Jazz2.Actors.Enemies
                     speedX = (direction.X * DefaultSpeed + speedX) * 0.5f;
                     speedY = (direction.Y * DefaultSpeed + speedY) * 0.5f;
 
-                    isFacingLeft = (speedX < 0f);
-                    RefreshFlipMode();
+                    IsFacingLeft = (speedX < 0f);
                     return;
                 }
             }
@@ -116,7 +115,7 @@ namespace Jazz2.Actors.Enemies
             playerHit = true;
             attackTime = 400f;
 
-            speedX = (isFacingLeft ? -1f : 1f) * 9f;
+            speedX = (IsFacingLeft ? -1f : 1f) * 9f;
             speedY = -0.8f;
 
             PlaySound("Laugh");
@@ -180,7 +179,7 @@ namespace Jazz2.Actors.Enemies
                 UpdateHitbox(10, 10);
             }
 
-            public override void HandleCollision(ActorBase other)
+            public override void OnHandleCollision(ActorBase other)
             {
             }
 

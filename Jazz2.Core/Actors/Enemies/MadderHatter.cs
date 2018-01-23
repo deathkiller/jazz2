@@ -21,8 +21,8 @@ namespace Jazz2.Actors.Enemies
             RequestMetadata("Enemy/MadderHatter");
             SetAnimation(AnimState.Walk);
 
-            isFacingLeft = MathF.Rnd.NextBool();
-            speedX = (isFacingLeft ? -1f : 1f) * DefaultSpeed;
+            IsFacingLeft = MathF.Rnd.NextBool();
+            speedX = (IsFacingLeft ? -1f : 1f) * DefaultSpeed;
         }
 
         protected override void OnUpdateHitbox()
@@ -47,7 +47,7 @@ namespace Jazz2.Actors.Enemies
                         Vector3 newPos = players[i].Transform.Pos;
                         if ((newPos - pos).Length <= 200f) {
 
-                            isFacingLeft = (newPos.X < pos.X);
+                            IsFacingLeft = (newPos.X < pos.X);
                             speedX = 0f;
 
                             SetAnimation((AnimState)1073741824);
@@ -57,8 +57,8 @@ namespace Jazz2.Actors.Enemies
                                 BulletSpit bullet = new BulletSpit();
                                 bullet.OnAttach(new ActorInstantiationDetails {
                                     Api = api,
-                                    Pos = new Vector3(pos.X + (isFacingLeft ? -42f : 42f), pos.Y - 6f, pos.Z - 2f),
-                                    Params = new[] { (ushort)(isFacingLeft ? 1 : 0) }
+                                    Pos = new Vector3(pos.X + (IsFacingLeft ? -42f : 42f), pos.Y - 6f, pos.Z - 2f),
+                                    Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
                                 });
                                 api.AddActor(bullet);
 
@@ -66,7 +66,7 @@ namespace Jazz2.Actors.Enemies
                                 SetTransition((AnimState)1073741825, false, delegate {
                                     attackTime = MathF.Rnd.NextFloat(120, 160);
 
-                                    speedX = (isFacingLeft ? -1f : 1f) * DefaultSpeed;
+                                    speedX = (IsFacingLeft ? -1f : 1f) * DefaultSpeed;
                                 });
                             });
                             break;
@@ -81,8 +81,8 @@ namespace Jazz2.Actors.Enemies
                         if (stuck) {
                             MoveInstantly(new Vector2(0f, -2f), MoveType.Relative, true);
                         } else {
-                            isFacingLeft ^= true;
-                            speedX = (isFacingLeft ? -1f : 1f) * DefaultSpeed;
+                            IsFacingLeft ^= true;
+                            speedX = (IsFacingLeft ? -1f : 1f) * DefaultSpeed;
                             stuck = true;
                         }
                     } else {
@@ -111,8 +111,8 @@ namespace Jazz2.Actors.Enemies
             {
                 base.OnAttach(details);
 
-                isFacingLeft = (details.Params[0] != 0);
-                speedX = (isFacingLeft ? -6f : 6f);
+                IsFacingLeft = (details.Params[0] != 0);
+                speedX = (IsFacingLeft ? -6f : 6f);
                 externalForceY = 0.6f;
 
                 health = int.MaxValue;
@@ -121,7 +121,6 @@ namespace Jazz2.Actors.Enemies
                 SetAnimation((AnimState)1073741826);
 
                 OnUpdateHitbox();
-                RefreshFlipMode();
             }
 
             protected override void OnUpdateHitbox()
@@ -129,7 +128,7 @@ namespace Jazz2.Actors.Enemies
                 UpdateHitbox(8, 8);
             }
 
-            public override void HandleCollision(ActorBase other)
+            public override void OnHandleCollision(ActorBase other)
             {
             }
 

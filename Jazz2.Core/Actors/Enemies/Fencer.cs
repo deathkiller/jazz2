@@ -18,7 +18,7 @@ namespace Jazz2.Actors.Enemies
             RequestMetadata("Enemy/Fencer");
             SetAnimation(AnimState.Idle);
 
-            isFacingLeft = true;
+            IsFacingLeft = true;
         }
 
         protected override void OnUpdate()
@@ -29,39 +29,28 @@ namespace Jazz2.Actors.Enemies
                 return;
             }
 
-            Vector3 pos = Transform.Pos;
             Vector3 targetPos;
+            if (FindNearestPlayer(out targetPos)) {
+                IsFacingLeft = (Transform.Pos.X > targetPos.X);
 
-            List<Player> players = api.Players;
-            for (int i = 0; i < players.Count; i++) {
-                targetPos = players[i].Transform.Pos;
-                if ((pos - targetPos).Length < 100f) {
-                    goto PLAYER_IS_CLOSE;
-                }
-            }
+                if (stateTime <= 0f) {
+                    if (MathF.Rnd.NextFloat() < 0.3f) {
+                        speedX = (IsFacingLeft ? -1 : 1) * 1.8f;
+                    } else {
+                        speedX = (IsFacingLeft ? -1 : 1) * -1.2f;
+                    }
+                    speedY = -4.5f;
 
-            return;
+                    PlaySound("Attack");
 
-        PLAYER_IS_CLOSE:
-            isFacingLeft = (pos.X > targetPos.X);
+                    SetTransition(AnimState.TransitionAttack, false, delegate {
+                        speedX = speedY = 0;
+                    });
 
-            if (stateTime <= 0f) {
-                if (MathF.Rnd.NextFloat() < 0.3f) {
-                    speedX = (isFacingLeft ? -1 : 1) * 1.8f;
+                    stateTime = MathF.Rnd.NextFloat(180f, 300f);
                 } else {
-                    speedX = (isFacingLeft ? -1 : 1) * -1.2f;
+                    stateTime -= Time.TimeMult;
                 }
-                speedY = -4.5f;
-
-                PlaySound("Attack");
-
-                SetTransition(AnimState.TransitionAttack, false, delegate {
-                    speedX = speedY = 0;
-                });
-
-                stateTime = MathF.Rnd.NextFloat(180f, 300f);
-            } else {
-                stateTime -= Time.TimeMult;
             }
         }
 
@@ -73,6 +62,24 @@ namespace Jazz2.Actors.Enemies
             TryGenerateRandomDrop();
 
             return base.OnPerish(collider);
+        }
+
+        private bool FindNearestPlayer(out Vector3 targetPos)
+        {
+            const float VisionDistance = 100f;
+
+            Vector3 pos = Transform.Pos;
+
+            List<Player> players = api.Players;
+            for (int i = 0; i < players.Count; i++) {
+                targetPos = players[i].Transform.Pos;
+                if ((pos - targetPos).Length < VisionDistance) {
+                    return true;
+                }
+            }
+
+            targetPos = Vector3.Zero;
+            return false;
         }
     }
 }

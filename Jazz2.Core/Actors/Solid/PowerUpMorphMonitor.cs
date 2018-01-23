@@ -33,7 +33,7 @@ namespace Jazz2.Actors.Solid
             }
         }
 
-        public override void HandleCollision(ActorBase other)
+        public override void OnHandleCollision(ActorBase other)
         {
             if (health == 0) {
                 return;
@@ -68,7 +68,7 @@ namespace Jazz2.Actors.Solid
                 }
             }
 
-            base.HandleCollision(other);
+            base.OnHandleCollision(other);
         }
 
         public void DestroyAndApplyToPlayer(Player player)

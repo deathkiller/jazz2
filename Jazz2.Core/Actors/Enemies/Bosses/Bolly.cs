@@ -88,8 +88,8 @@ namespace Jazz2.Actors.Bosses
 
         protected override bool OnPerish(ActorBase collider)
         {
-            api.TileMap.CreateParticleDebris(availableAnimations["Top"], Transform.Pos, Vector2.Zero, 0, isFacingLeft);
-            api.TileMap.CreateParticleDebris(availableAnimations["Bottom"], Transform.Pos, Vector2.Zero, 0, isFacingLeft);
+            api.TileMap.CreateParticleDebris(availableAnimations["Top"], Transform.Pos, Vector2.Zero, 0, IsFacingLeft);
+            api.TileMap.CreateParticleDebris(availableAnimations["Bottom"], Transform.Pos, Vector2.Zero, 0, IsFacingLeft);
 
             api.PlayCommonSound(this, "Splat");
 
@@ -119,8 +119,7 @@ namespace Jazz2.Actors.Bosses
                 state = newState;
                 stateTime = time;
 
-                isFacingLeft = (targetPos.X < pos.X);
-                RefreshFlipMode();
+                IsFacingLeft = (targetPos.X < pos.X);
 
                 Vector3 speed = (targetPos - pos).Normalized;
                 speedX = speed.X * 0.8f;
@@ -144,15 +143,14 @@ namespace Jazz2.Actors.Bosses
 
             protected override void OnUpdate()
             {
-                isFacingLeft = (Parent as Bolly).isFacingLeft;
-                RefreshFlipMode();
+                IsFacingLeft = (Parent as Bolly).IsFacingLeft;
 
                 Transform.RelativePos = new Vector3(0f, 0f, -2f);
 
                 OnUpdateHitbox();
             }
 
-            public override void HandleCollision(ActorBase other)
+            public override void OnHandleCollision(ActorBase other)
             {
             }
         }
@@ -173,13 +171,12 @@ namespace Jazz2.Actors.Bosses
 
             protected override void OnUpdate()
             {
-                isFacingLeft = (Parent as Bolly).isFacingLeft;
-                RefreshFlipMode();
+                IsFacingLeft = (Parent as Bolly).IsFacingLeft;
 
-                Transform.RelativePos = new Vector3(isFacingLeft ? 10f : -10f, 10f, -4f);
+                Transform.RelativePos = new Vector3(IsFacingLeft ? 10f : -10f, 10f, -4f);
             }
 
-            public override void HandleCollision(ActorBase other)
+            public override void OnHandleCollision(ActorBase other)
             {
             }
         }

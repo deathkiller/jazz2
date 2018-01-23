@@ -75,7 +75,7 @@ namespace Jazz2.Actors
         protected bool canJump;
         protected bool canBeFrozen = true;
 
-        protected bool isFacingLeft;
+        private bool isFacingLeft;
         protected bool isInvulnerable;
         protected CollisionFlags collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation;
 
@@ -112,6 +112,31 @@ namespace Jazz2.Actors
         public Vector3 Speed => new Vector3(speedX, speedY, 0f);
         public Vector3 ExternalForce => new Vector3(externalForceX, externalForceY, 0f);
         public Vector3 InternalForce => new Vector3(0, internalForceY, 0f);
+
+        protected bool IsFacingLeft
+        {
+            get
+            {
+                return isFacingLeft;
+            }
+            set
+            {
+                if (isFacingLeft == value) {
+                    return;
+                }
+
+                isFacingLeft = value;
+
+                if ((collisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0) {
+                    // ToDo: Workaround for refresh of AABB
+                    Transform.Pos = Transform.Pos;
+                }
+
+                if (renderer != null) {
+                    renderer.Flip = (isFacingLeft ? SpriteRenderer.FlipMode.Horizontal : SpriteRenderer.FlipMode.None);
+                }
+            }
+        }
 
         public virtual void OnAttach(ActorInstantiationDetails details)
         {
@@ -164,6 +189,11 @@ namespace Jazz2.Actors
 
         internal void UpdateAABB()
         {
+            if ((collisionFlags & (CollisionFlags.CollideWithOtherActors | CollisionFlags.CollideWithSolidObjects | CollisionFlags.IsSolidObject)) == 0) {
+                // Collisions are deactivated
+                return;
+            }
+
             if ((collisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0) {
                 GraphicResource res = (currentTransitionState != AnimState.Idle ? currentTransition : currentAnimation);
                 if (res == null) {
@@ -203,6 +233,8 @@ namespace Jazz2.Actors
                     AABB.UpperBound = AABB.LowerBound + size;
                 }
             } else {
+                OnUpdateHitbox();
+
                 AABB = currentHitbox.ToAABB();
             }
 
@@ -406,16 +438,6 @@ namespace Jazz2.Actors
             internalForceY = MathF.Max(internalForceY - gravity * 0.33f * timeMult, 0f);
         }
 
-#if NET45
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        protected void RefreshFlipMode()
-        {
-            if (renderer != null) {
-                renderer.Flip = (isFacingLeft ? SpriteRenderer.FlipMode.Horizontal : SpriteRenderer.FlipMode.None);
-            }
-        }
-
         public virtual bool OnTileDeactivate(int tx, int ty, int tileDistance)
         {
             if ((flags & (ActorInstantiationFlags.IsCreatedFromEventMap | ActorInstantiationFlags.IsFromGenerator)) != 0 && ((MathF.Abs(tx - originTile.X) > tileDistance) || (MathF.Abs(ty - originTile.Y) > tileDistance))) {
@@ -435,7 +457,7 @@ namespace Jazz2.Actors
             return false;
         }
 
-        public virtual void HandleCollision(ActorBase other)
+        public virtual void OnHandleCollision(ActorBase other)
         {
             // Objects should override this if they need to.
 
@@ -514,8 +536,6 @@ namespace Jazz2.Actors
 
             TryStandardMovement(timeMult);
             OnUpdateHitbox();
-
-            RefreshFlipMode();
 
             if (renderer != null && renderer.AnimPaused) {
                 if (frozenTimeLeft <= 0f) {
@@ -854,6 +874,7 @@ namespace Jazz2.Actors
                 renderer.AnimationFinished = OnAnimationFinished;
                 renderer.AlignToPixelGrid = true;
                 renderer.Offset = -2000;
+                renderer.Flip = (isFacingLeft ? SpriteRenderer.FlipMode.Horizontal : SpriteRenderer.FlipMode.None);
             }
 
             renderer.SharedMaterial = resource.Material;

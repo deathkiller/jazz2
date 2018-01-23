@@ -75,10 +75,9 @@ namespace Jazz2.Actors.Enemies
             lastSpeed = speed;
 
             bool willFaceLeft = (speed.X < 0f);
-            if (isFacingLeft != willFaceLeft) {
-                isFacingLeft = willFaceLeft;
+            if (IsFacingLeft != willFaceLeft) {
                 SetTransition(AnimState.TransitionTurn, false, delegate {
-                    RefreshFlipMode();
+                    IsFacingLeft = willFaceLeft;
                 });
             }
 
@@ -87,6 +86,7 @@ namespace Jazz2.Actors.Enemies
 
         protected override bool OnPerish(ActorBase collider)
         {
+            // Death particles
             {
                 const int debrisSize = 2;
 
@@ -101,10 +101,10 @@ namespace Jazz2.Actors.Enemies
                     for (int fy = 0; fy < currentAnimation.Base.FrameDimensions.Y; fy += debrisSize + 1) {
                         float currentSize = debrisSize * MathF.Rnd.NextFloat(0.2f, 1.1f);
                         api.TileMap.CreateDebris(new DestructibleDebris {
-                            Pos = new Vector3(x + (isFacingLeft ? currentAnimation.Base.FrameDimensions.X - fx : fx), y + fy, pos.Z),
-                            Size = new Vector2(currentSize /** (isFacingLeft ? -1f : 1f)*/, currentSize),
-                            Speed = new Vector2(((fx - currentAnimation.Base.FrameDimensions.X / 2) + MathF.Rnd.NextFloat(-2f, 2f)) * (isFacingLeft ? -1f : 1f) * MathF.Rnd.NextFloat(2f, 5f) / currentAnimation.Base.FrameDimensions.X,
-                                 ((fy - currentAnimation.Base.FrameDimensions.Y / 2) + MathF.Rnd.NextFloat(-2f, 2f)) * (isFacingLeft ? -1f : 1f) * MathF.Rnd.NextFloat(2f, 5f) / currentAnimation.Base.FrameDimensions.Y),
+                            Pos = new Vector3(x + (IsFacingLeft ? currentAnimation.Base.FrameDimensions.X - fx : fx), y + fy, pos.Z),
+                            Size = new Vector2(currentSize /** (IsFacingLeft ? -1f : 1f)*/, currentSize),
+                            Speed = new Vector2(((fx - currentAnimation.Base.FrameDimensions.X / 2) + MathF.Rnd.NextFloat(-2f, 2f)) * (IsFacingLeft ? -1f : 1f) * MathF.Rnd.NextFloat(2f, 5f) / currentAnimation.Base.FrameDimensions.X,
+                                 ((fy - currentAnimation.Base.FrameDimensions.Y / 2) + MathF.Rnd.NextFloat(-2f, 2f)) * (IsFacingLeft ? -1f : 1f) * MathF.Rnd.NextFloat(2f, 5f) / currentAnimation.Base.FrameDimensions.Y),
                             Acceleration = new Vector2(0f, 0f),
 
                             Scale = 1.2f,

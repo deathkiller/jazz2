@@ -116,12 +116,12 @@ namespace Jazz2.Actors
                 angle = Transform.Angle;
 
                 int size = (currentAnimation.Base.FrameDimensions.X / 2);
-                pos.X += (MathF.Cos(angle) * size) * (isFacingLeft ? -1f : 1f);
-                pos.Y += (MathF.Sin(angle) * size) * (isFacingLeft ? -1f : 1f);
+                pos.X += (MathF.Cos(angle) * size) * (IsFacingLeft ? -1f : 1f);
+                pos.Y += (MathF.Sin(angle) * size) * (IsFacingLeft ? -1f : 1f);
             } else {
-                angle = ((currentAnimationState & AnimState.Lookup) > 0 ? MathF.PiOver2 * (isFacingLeft ? 1 : -1) : 0f);
+                angle = ((currentAnimationState & AnimState.Lookup) > 0 ? MathF.PiOver2 * (IsFacingLeft ? 1 : -1) : 0f);
 
-                pos.X += (currentAnimation.Base.Hotspot.X - currentAnimation.Base.Gunspot.X) * (isFacingLeft ? 1 : -1);
+                pos.X += (currentAnimation.Base.Hotspot.X - currentAnimation.Base.Gunspot.X) * (IsFacingLeft ? 1 : -1);
                 pos.Y -= (currentAnimation.Base.Hotspot.Y - currentAnimation.Base.Gunspot.Y);
             }
 
@@ -139,7 +139,7 @@ namespace Jazz2.Actors
                 Api = api,
                 Pos = pos
             });
-            newAmmo.OnFire(this, Speed, angle, isFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            newAmmo.OnFire(this, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
             api.AddActor(newAmmo);
 
             PlaySound("WeaponBlaster");
@@ -156,7 +156,7 @@ namespace Jazz2.Actors
                 Api = api,
                 Pos = pos
             });
-            newAmmo.OnFire(this, Speed, angle, isFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            newAmmo.OnFire(this, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
             api.AddActor(newAmmo);
 
             weaponCooldown = 32f - (weaponUpgrades[(int)WeaponType.Blaster] >> 1) * 1.7f;
@@ -173,7 +173,7 @@ namespace Jazz2.Actors
                     Api = api,
                     Pos = pos
                 });
-                newAmmo.OnFire(this, Speed, angle - 0.018f, isFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, Speed, angle - 0.018f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
                 api.AddActor(newAmmo);
 
                 newAmmo = new AmmoFreezer();
@@ -181,7 +181,7 @@ namespace Jazz2.Actors
                     Api = api,
                     Pos = pos
                 });
-                newAmmo.OnFire(this, Speed, angle + 0.018f, isFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, Speed, angle + 0.018f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
                 api.AddActor(newAmmo);
             } else {
                 AmmoFreezer newAmmo = new AmmoFreezer();
@@ -189,7 +189,7 @@ namespace Jazz2.Actors
                     Api = api,
                     Pos = pos
                 });
-                newAmmo.OnFire(this, Speed, angle, isFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
                 api.AddActor(newAmmo);
             }
 
@@ -206,7 +206,7 @@ namespace Jazz2.Actors
                 Api = api,
                 Pos = pos
             });
-            newAmmo.OnFire(this, Speed, angle, isFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            newAmmo.OnFire(this, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
             api.AddActor(newAmmo);
 
             weaponCooldown = 46f - (weaponUpgrades[(int)WeaponType.Blaster] >> 1) * 1.4f;
@@ -223,7 +223,7 @@ namespace Jazz2.Actors
                     Api = api,
                     Pos = pos
                 });
-                newAmmo.OnFire(this, Speed, angle - 0.26f, isFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, Speed, angle - 0.26f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
                 api.AddActor(newAmmo);
 
                 newAmmo = new AmmoRF();
@@ -231,7 +231,7 @@ namespace Jazz2.Actors
                     Api = api,
                     Pos = pos
                 });
-                newAmmo.OnFire(this, Speed, angle, isFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
                 api.AddActor(newAmmo);
 
                 newAmmo = new AmmoRF();
@@ -239,7 +239,7 @@ namespace Jazz2.Actors
                     Api = api,
                     Pos = pos
                 });
-                newAmmo.OnFire(this, Speed, angle + 0.26f, isFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, Speed, angle + 0.26f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
                 api.AddActor(newAmmo);
             } else {
                 AmmoRF newAmmo = new AmmoRF();
@@ -247,7 +247,7 @@ namespace Jazz2.Actors
                     Api = api,
                     Pos = pos
                 });
-                newAmmo.OnFire(this, Speed, angle - 0.2f, isFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, Speed, angle - 0.2f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
                 api.AddActor(newAmmo);
 
                 newAmmo = new AmmoRF();
@@ -255,7 +255,7 @@ namespace Jazz2.Actors
                     Api = api,
                     Pos = pos
                 });
-                newAmmo.OnFire(this, Speed, angle + 0.2f, isFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, Speed, angle + 0.2f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
                 api.AddActor(newAmmo);
             }
 
@@ -272,7 +272,7 @@ namespace Jazz2.Actors
                 Api = api,
                 Pos = pos
             });
-            newAmmo.OnFire(this, Speed, angle, isFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            newAmmo.OnFire(this, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
             api.AddActor(newAmmo);
 
             //PlaySound("WeaponToaster", 0.6f);
@@ -304,7 +304,7 @@ namespace Jazz2.Actors
                 Api = api,
                 Pos = pos
             });
-            newAmmo.OnFire(this, Speed, angle + MathF.Rnd.NextFloat(-0.2f, 0.2f), isFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            newAmmo.OnFire(this, Speed, angle + MathF.Rnd.NextFloat(-0.2f, 0.2f), IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
             api.AddActor(newAmmo);
 
             newAmmo = new AmmoPepper();
@@ -312,7 +312,7 @@ namespace Jazz2.Actors
                 Api = api,
                 Pos = pos
             });
-            newAmmo.OnFire(this, Speed, angle + MathF.Rnd.NextFloat(-0.2f, 0.2f), isFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            newAmmo.OnFire(this, Speed, angle + MathF.Rnd.NextFloat(-0.2f, 0.2f), IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
             api.AddActor(newAmmo);
 
             weaponCooldown = 36f - (weaponUpgrades[(int)WeaponType.Blaster] >> 1) * 1.6f;
@@ -328,7 +328,7 @@ namespace Jazz2.Actors
                 Api = api,
                 Pos = pos
             });
-            newAmmo.OnFire(this, Speed, angle, isFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            newAmmo.OnFire(this, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
             api.AddActor(newAmmo);
 
             weaponCooldown = 32f - (weaponUpgrades[(int)WeaponType.Blaster] >> 1) * 1.2f;
@@ -348,7 +348,7 @@ namespace Jazz2.Actors
                 Api = api,
                 Pos = pos
             });
-            newAmmo.OnFire(this, Speed, angle, isFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            newAmmo.OnFire(this, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
             api.AddActor(newAmmo);
 
             controllable = false;

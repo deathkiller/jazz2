@@ -30,7 +30,7 @@ namespace Jazz2.Actors.Enemies
             RequestMetadata("Enemy/Dragonfly");
             SetAnimation(AnimState.Idle);
 
-            isFacingLeft = MathF.Rnd.NextBool();
+            IsFacingLeft = MathF.Rnd.NextBool();
         }
 
         protected override void OnUpdate()
@@ -58,7 +58,7 @@ namespace Jazz2.Actors.Enemies
                         direction.Normalize();
 
                         speedX = speedY = 0f;
-                        isFacingLeft = (direction.X < 0f);
+                        IsFacingLeft = (direction.X < 0f);
                         state = StateAttacking;
 
                         idleTime = MathF.Rnd.NextFloat(40f, 60f);
@@ -110,6 +110,11 @@ namespace Jazz2.Actors.Enemies
                 if (pos.Y > api.WaterLevel - 12f) {
                     speedY = -0.4f;
                     state = StateIdle;
+
+                    if (noise != null) {
+                        noise.FadeOut(0.4f);
+                        noise = null;
+                    }
                 }
 
                 attackCooldown -= timeMult;

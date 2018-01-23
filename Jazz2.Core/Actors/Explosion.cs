@@ -101,8 +101,7 @@ namespace Jazz2.Actors
 
                     // Apply random orientation
                     Transform.Angle = MathF.Rnd.Next(4) * MathF.PiOver2;
-                    isFacingLeft = (MathF.Rnd.NextFloat() < 0.5f);
-                    RefreshFlipMode();
+                    IsFacingLeft = (MathF.Rnd.NextFloat() < 0.5f);
                     break;
                 }
             }

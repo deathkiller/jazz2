@@ -24,7 +24,7 @@ namespace Jazz2.Actors.Enemies
             SetAnimation(AnimState.Walk);
 
             if (parentLastHitDir != LastHitDirection.None) {
-                isFacingLeft = (parentLastHitDir == LastHitDirection.Left);
+                IsFacingLeft = (parentLastHitDir == LastHitDirection.Left);
                 health = 1;
                 collisionFlags &= ~CollisionFlags.ApplyGravitation;
                 SetTransition((AnimState)1073741824, false, delegate {
@@ -54,7 +54,7 @@ namespace Jazz2.Actors.Enemies
                     if (stuck) {
                         MoveInstantly(new Vector2(0f, -2f), MoveType.Relative, true);
                     } else {
-                        isFacingLeft = !isFacingLeft;
+                        IsFacingLeft = !IsFacingLeft;
                         speedX *= -1;
                         stuck = true;
                     }
@@ -79,7 +79,7 @@ namespace Jazz2.Actors.Enemies
                     }
 
                     if ((cycle >= 4 && cycle < 7) || cycle >= 9) {
-                        speedX = 0.6f * (isFacingLeft ? -1 : 1);
+                        speedX = 0.6f * (IsFacingLeft ? -1 : 1);
                     } else {
                         speedX = 0;
                     }

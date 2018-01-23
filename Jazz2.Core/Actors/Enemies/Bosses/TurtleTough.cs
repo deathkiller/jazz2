@@ -30,7 +30,7 @@ namespace Jazz2.Actors.Bosses
             SetHealthByDifficulty(100);
             scoreValue = 5000;
 
-            isFacingLeft = true;
+            IsFacingLeft = true;
 
             RequestMetadata("Boss/TurtleTough");
             SetAnimation(AnimState.Idle);
@@ -62,7 +62,7 @@ namespace Jazz2.Actors.Bosses
                     if (stateTime <= 0f) {
                         FollowNearestPlayer(StateWalking2, 16);
                     } else if (!CanMoveToPosition(speedX, 0)) {
-                        isFacingLeft ^= true;
+                        IsFacingLeft ^= true;
                         speedX = -speedX;
                     }
                     break;
@@ -162,9 +162,9 @@ namespace Jazz2.Actors.Bosses
                 state = newState;
                 stateTime = time;
 
-                isFacingLeft = (targetPos.X < pos.X);
+                IsFacingLeft = (targetPos.X < pos.X);
 
-                speedX = (isFacingLeft ? -1.6f : 1.6f);
+                speedX = (IsFacingLeft ? -1.6f : 1.6f);
 
                 SetAnimation(AnimState.Walk);
             }
@@ -258,8 +258,7 @@ namespace Jazz2.Actors.Bosses
                 }
 
                 if (found) {
-                    isFacingLeft = (targetPos.X < originPos.X);
-                    RefreshFlipMode();
+                    IsFacingLeft = (targetPos.X < originPos.X);
 
                     returnTime = (TotalTime / 2);
 
@@ -269,7 +268,7 @@ namespace Jazz2.Actors.Bosses
                 }
             }
 
-            public override void HandleCollision(ActorBase other)
+            public override void OnHandleCollision(ActorBase other)
             {
             }
         }

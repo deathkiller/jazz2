@@ -27,7 +27,7 @@ namespace Jazz2.Actors.Weapons
         public void OnFire(Player owner, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
         {
             base.owner = owner;
-            base.isFacingLeft = isFacingLeft;
+            base.IsFacingLeft = isFacingLeft;
             base.upgrades = upgrades;
 
             float angleRel = angle * (isFacingLeft ? -1 : 1);
@@ -106,19 +106,19 @@ namespace Jazz2.Actors.Weapons
             PlaySound("Ricochet");
         }
 
-        public override void HandleCollision(ActorBase other)
+        public override void OnHandleCollision(ActorBase other)
         {
             switch (other) {
                 case Queen queen:
                     if (queen.IsInvulnerable) {
                         OnRicochet();
                     } else {
-                        base.HandleCollision(other);
+                        base.OnHandleCollision(other);
                     }
                     break;
 
                 default:
-                    base.HandleCollision(other);
+                    base.OnHandleCollision(other);
                     break;
             }
         }

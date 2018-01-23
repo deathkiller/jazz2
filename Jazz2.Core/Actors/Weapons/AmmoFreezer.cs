@@ -31,7 +31,7 @@ namespace Jazz2.Actors.Weapons
         public void OnFire(Player owner, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
         {
             base.owner = owner;
-            base.isFacingLeft = isFacingLeft;
+            base.IsFacingLeft = isFacingLeft;
             base.upgrades = upgrades;
 
             float angleRel = angle * (isFacingLeft ? -1 : 1);

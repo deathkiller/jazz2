@@ -46,7 +46,7 @@ namespace Jazz2.Actors.Collectibles
         {
             Vector3 pos = Transform.Pos;
             if ((((int)(pos.X + pos.Y) / 32) & 1) == 0) {
-                isFacingLeft = true;
+                IsFacingLeft = true;
             }
         }
 
@@ -72,7 +72,7 @@ namespace Jazz2.Actors.Collectibles
             }
         }
 
-        public override void HandleCollision(ActorBase other)
+        public override void OnHandleCollision(ActorBase other)
         {
             switch (other) {
                 case Player player:

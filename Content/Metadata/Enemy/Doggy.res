@@ -22,6 +22,9 @@
         },
         "Noise": {
             "Paths": [ "Doggy/noise.wav" ]
+        },
+        "Woof": {
+            "Paths": [ "Doggy/woof_1.wav", "Doggy/woof_2.wav", "Doggy/woof_3.wav" ]
         }
     }
 }

@@ -7,7 +7,7 @@
             base.OnAttach(details);
 
             PlayerType playerType = (PlayerType)details.Params[0];
-            isFacingLeft = (details.Params[1] != 0);
+            IsFacingLeft = (details.Params[1] != 0);
 
             switch (playerType) {
                 case PlayerType.Jazz:
@@ -22,7 +22,6 @@
             }
 
             SetAnimation("Corpse");
-            RefreshFlipMode();
 
             collisionFlags = CollisionFlags.None;
         }

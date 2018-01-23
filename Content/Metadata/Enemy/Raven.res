@@ -17,5 +17,11 @@
             "Path": "Raven/Attack.png",
             "States": [ 1325400065 ]
         }
+    },
+
+    "Sounds": {
+        "Attack": {
+            "Paths": [ "Common/slip.wav" ]
+        }
     }
 }

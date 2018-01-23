@@ -21,7 +21,7 @@ namespace Jazz2.Actors.Enemies
             RequestMetadata("Enemy/Dragon");
             SetAnimation(AnimState.Idle);
 
-            isFacingLeft = MathF.Rnd.NextBool();
+            IsFacingLeft = MathF.Rnd.NextBool();
         }
 
         protected override void OnUpdate()
@@ -58,9 +58,9 @@ namespace Jazz2.Actors.Enemies
                 if (!attacking) {
                     if (stateTime <= 0f) {
                         bool willFaceLeft = (pos.X > targetPos.X);
-                        if (isFacingLeft != willFaceLeft) {
+                        if (IsFacingLeft != willFaceLeft) {
                             SetTransition(AnimState.TransitionTurn, false, delegate {
-                                isFacingLeft = willFaceLeft;
+                                IsFacingLeft = willFaceLeft;
 
                                 SetAnimation((AnimState)1073741825);
                                 SetTransition((AnimState)1073741824, false, delegate {
@@ -88,8 +88,8 @@ namespace Jazz2.Actors.Enemies
                             Fire fire = new Fire();
                             fire.OnAttach(new ActorInstantiationDetails {
                                 Api = api,
-                                Pos = new Vector3(pos.X + (isFacingLeft ? -14f : 14f), pos.Y - 6f, pos.Z - 2f),
-                                Params = new[] { (ushort)(isFacingLeft ? 1 : 0) }
+                                Pos = new Vector3(pos.X + (IsFacingLeft ? -14f : 14f), pos.Y - 6f, pos.Z - 2f),
+                                Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
                             });
                             api.AddActor(fire);
 
@@ -124,7 +124,7 @@ namespace Jazz2.Actors.Enemies
             {
                 base.OnAttach(details);
 
-                isFacingLeft = (details.Params[0] != 0);
+                IsFacingLeft = (details.Params[0] != 0);
 
                 collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
@@ -132,7 +132,7 @@ namespace Jazz2.Actors.Enemies
                 SetAnimation("Fire");
 
                 const float baseSpeed = 1.2f;
-                if (isFacingLeft) {
+                if (IsFacingLeft) {
                     speedX = -1f * (baseSpeed + MathF.Rnd.NextFloat(0f, 0.2f));
                 } else {
                     speedX = +1f * (baseSpeed + MathF.Rnd.NextFloat(0f, 0.2f));

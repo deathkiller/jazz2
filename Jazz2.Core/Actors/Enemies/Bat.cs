@@ -37,67 +37,55 @@ namespace Jazz2.Actors.Enemies
 
             canJump = false;
 
-            Vector3 pos = Transform.Pos;
             Vector3 targetPos;
+            if (FindNearestPlayer(out targetPos)) {
+                if (attacking) {
+                    // Can't fly into the water
+                    if (targetPos.Y > api.WaterLevel - 20f) {
+                        targetPos.Y = api.WaterLevel - 20f;
+                    }
 
-            List<Player> players = api.Players;
-            for (int i = 0; i < players.Count; i++) {
-                targetPos = players[i].Transform.Pos;
-                float visionDistance = (currentAnimationState == AnimState.Idle ? /*96f*/120f : 320f);
-                if ((originPos - targetPos).Length < visionDistance) {
-                    goto PLAYER_IS_CLOSE;
-                }
-            }
-
-            if (attacking && currentTransitionState == AnimState.Idle) {
-                Vector3 direction = (pos - originPos);
-                float length = direction.Length;
-                if (length < 2f) {
-                    attacking = false;
-                    Transform.Pos = originPos;
-                    speedX = speedY = 0;
-                    SetAnimation(AnimState.Idle);
-                    SetTransition((AnimState)1073741826, false);
-                } else {
+                    Vector3 direction = (Transform.Pos - targetPos);
                     direction.Normalize();
                     speedX = direction.X * DefaultSpeed;
                     speedY = direction.Y * DefaultSpeed;
-                }
-            }
 
-            return;
-
-        PLAYER_IS_CLOSE:
-            if (attacking) {
-                // Can't fly into the water
-                if (targetPos.Y > api.WaterLevel - 20f) {
-                    targetPos.Y = api.WaterLevel - 20f;
-                }
-
-                Vector3 direction = (pos - targetPos);
-                direction.Normalize();
-                speedX = direction.X * DefaultSpeed;
-                speedY = direction.Y * DefaultSpeed;
-
-                if (noiseCooldown > 0f) {
-                    noiseCooldown -= Time.TimeMult;
+                    if (noiseCooldown > 0f) {
+                        noiseCooldown -= Time.TimeMult;
+                    } else {
+                        noiseCooldown = 60f;
+                        PlaySound("Noise");
+                    }
                 } else {
-                    noiseCooldown = 60f;
-                    PlaySound("Noise");
+                    if (currentTransitionState != AnimState.Idle)
+                        return;
+
+                    speedX = speedY = 0;
+
+                    SetAnimation(AnimState.Walk);
+
+                    SetTransition((AnimState)1073741824, false, delegate {
+                        attacking = true;
+
+                        SetTransition((AnimState)1073741825, false);
+                    });
                 }
             } else {
-                if (currentTransitionState != AnimState.Idle)
-                    return;
-
-                speedX = speedY = 0;
-
-                SetAnimation(AnimState.Walk);
-
-                SetTransition((AnimState)1073741824, false, delegate {
-                    attacking = true;
-
-                    SetTransition((AnimState)1073741825, false);
-                });
+                if (attacking && currentTransitionState == AnimState.Idle) {
+                    Vector3 direction = (Transform.Pos - originPos);
+                    float length = direction.Length;
+                    if (length < 2f) {
+                        attacking = false;
+                        Transform.Pos = originPos;
+                        speedX = speedY = 0;
+                        SetAnimation(AnimState.Idle);
+                        SetTransition((AnimState)1073741826, false);
+                    } else {
+                        direction.Normalize();
+                        speedX = direction.X * DefaultSpeed;
+                        speedY = direction.Y * DefaultSpeed;
+                    }
+                }
             }
         }
 
@@ -109,6 +97,24 @@ namespace Jazz2.Actors.Enemies
             TryGenerateRandomDrop();
 
             return base.OnPerish(collider);
+        }
+
+        private bool FindNearestPlayer(out Vector3 targetPos)
+        {
+            const float VisionDistanceIdle = 120f;
+            const float VisionDistanceAttacking = 320f;
+
+            List<Player> players = api.Players;
+            for (int i = 0; i < players.Count; i++) {
+                targetPos = players[i].Transform.Pos;
+                float visionDistance = (currentAnimationState == AnimState.Idle ? VisionDistanceIdle : VisionDistanceAttacking);
+                if ((originPos - targetPos).Length < visionDistance) {
+                    return true;
+                }
+            }
+
+            targetPos = Vector3.Zero;
+            return false;
         }
     }
 }

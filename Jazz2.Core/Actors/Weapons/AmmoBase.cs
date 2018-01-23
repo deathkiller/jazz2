@@ -35,8 +35,6 @@ namespace Jazz2.Actors.Weapons
 
         protected override void OnUpdate()
         {
-            RefreshFlipMode();
-
             timeLeft -= Time.TimeMult;
             if (timeLeft <= 0) {
                 DecreaseHealth();
@@ -81,7 +79,7 @@ namespace Jazz2.Actors.Weapons
             speedX = speedX * -0.9f + (MathF.Rnd.Next() % 100 - 50) * 0.1f;
         }
 
-        public override void HandleCollision(ActorBase other)
+        public override void OnHandleCollision(ActorBase other)
         {
             if (other is TriggerCrate || other is BarrelContainer || other is PowerUpWeaponMonitor) {
                 if (lastRicochet != other) {

@@ -27,7 +27,7 @@ namespace Jazz2.Actors.Enemies
             RequestMetadata("Enemy/Fish");
             SetAnimation(AnimState.Idle);
 
-            isFacingLeft = MathF.Rnd.NextBool();
+            IsFacingLeft = MathF.Rnd.NextBool();
         }
 
         protected override void OnUpdate()
@@ -55,7 +55,7 @@ namespace Jazz2.Actors.Enemies
                         direction.Normalize();
 
                         speedX = speedY = 0f;
-                        isFacingLeft = (direction.X < 0f);
+                        IsFacingLeft = (direction.X < 0f);
                         state = StateAttacking;
 
                         attackCooldown = 240f;

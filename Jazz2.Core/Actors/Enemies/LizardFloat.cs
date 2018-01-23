@@ -35,7 +35,6 @@ namespace Jazz2.Actors.Enemies
 
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
-            canHurtPlayer = false;
             SetHealthByDifficulty(1);
             scoreValue = 200;
 
@@ -81,8 +80,8 @@ namespace Jazz2.Actors.Enemies
                         Bomb bomb = new Bomb();
                         bomb.OnAttach(new ActorInstantiationDetails {
                             Api = api,
-                            Pos = Transform.Pos + new Vector3(isFacingLeft ? -30f : 30f, -10f, -4f),
-                            Params = new[] { (ushort)(theme + 1), (ushort)(isFacingLeft ? 1 : 0) }
+                            Pos = Transform.Pos + new Vector3(IsFacingLeft ? -30f : 30f, -10f, -4f),
+                            Params = new[] { (ushort)(theme + 1), (ushort)(IsFacingLeft ? 1 : 0) }
                         });
                         api.AddActor(bomb);
 
@@ -99,7 +98,7 @@ namespace Jazz2.Actors.Enemies
                     speedX = speed.X * DefaultSpeed;
                     speedY = speed.Y * DefaultSpeed;
 
-                    isFacingLeft = (speedX < 0f);
+                    IsFacingLeft = (speedX < 0f);
 
                     moveTime = 8f;
                 }
@@ -122,7 +121,7 @@ namespace Jazz2.Actors.Enemies
                 lizard.OnAttach(new ActorInstantiationDetails {
                     Api = api,
                     Pos = Transform.Pos,
-                    Params = new[] { theme, (ushort)1, (ushort)(isFacingLeft ? 1 : 0) }
+                    Params = new[] { theme, (ushort)1, (ushort)(IsFacingLeft ? 1 : 0) }
                 });
                 api.AddActor(lizard);
 
