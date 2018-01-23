@@ -11,15 +11,21 @@ namespace Import.Downloaders
     {
         private const string Url = "http://deat.tk/public/jazz2/demo.zip";
 
-        public static void Run(string targetPath)
+        public static bool Run(string targetPath)
         {
             Log.Write(LogType.Info, "Downloading Shareware Demo (7 MB)...");
             Log.PushIndent();
 
             string zipFile = Path.Combine(Path.GetTempPath(), "Jazz2-" + Guid.NewGuid());
 
-            WebClient client = new WebClient();
-            client.DownloadFile(Url, zipFile);
+            try {
+                WebClient client = new WebClient();
+                client.DownloadFile(Url, zipFile);
+            } catch (Exception ex) {
+                Log.Write(LogType.Error, ex.ToString());
+                Log.PopIndent();
+                return false;
+            }
 
             string tempDir = Path.Combine(Path.GetTempPath(), "Jazz2-" + Guid.NewGuid());
 
@@ -47,6 +53,8 @@ namespace Import.Downloaders
                 App.ConvertJJ2Tilesets(tempDir, targetPath, usedTilesets, false);
             } catch (Exception ex) {
                 Log.Write(LogType.Error, ex.ToString());
+                Log.PopIndent();
+                return false;
             } finally {
                 // Try to delete downloaded ZIP file
                 Utils.FileTryDelete(zipFile);
@@ -56,6 +64,7 @@ namespace Import.Downloaders
             }
 
             Log.PopIndent();
+            return true;
         }
     }
 }

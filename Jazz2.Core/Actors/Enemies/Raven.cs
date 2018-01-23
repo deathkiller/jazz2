@@ -8,7 +8,7 @@ namespace Jazz2.Actors.Enemies
     {
         private Vector3 originPos, lastPos, targetPos, lastSpeed;
         private float anglePhase;
-        private float attackTime = 220f;
+        private float attackTime = 160f;
         private bool attacking;
 
         public override void OnAttach(ActorInstantiationDetails details)

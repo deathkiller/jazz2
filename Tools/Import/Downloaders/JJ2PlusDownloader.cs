@@ -15,7 +15,7 @@ namespace Import.Downloaders
         // Older version without installer
         private const string Url = "https://www.jazz2online.com/jj2plus/old/plus-2016-12-06.zip";
 
-        public static void Run(string targetPath)
+        public static bool Run(string targetPath)
         {
             targetPath = Path.Combine(targetPath, "Content", "Animations");
 
@@ -29,7 +29,8 @@ namespace Import.Downloaders
                 client.DownloadFile(Url, zipFile);
             } catch (Exception ex) {
                 Log.Write(LogType.Error, ex.ToString());
-                return;
+                Log.PopIndent();
+                return false;
             }
 
             string tempDir = Path.Combine(Path.GetTempPath(), "Jazz2-" + Guid.NewGuid());
@@ -49,6 +50,8 @@ namespace Import.Downloaders
                 }
             } catch (Exception ex) {
                 Log.Write(LogType.Error, ex.ToString());
+                Log.PopIndent();
+                return false;
             } finally {
                 // Try to delete downloaded ZIP file
                 Utils.FileTryDelete(zipFile);
@@ -58,6 +61,7 @@ namespace Import.Downloaders
             }
 
             Log.PopIndent();
+            return true;
         }
     }
 }

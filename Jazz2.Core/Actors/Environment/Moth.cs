@@ -57,8 +57,8 @@ namespace Jazz2.Actors.Environment
         {
             switch (other) {
                 case Player player: {
-                    if (timer <= 0f) {
-                        timer = 100f;
+                    if (timer <= 50f) {
+                        timer = 100f - timer * 0.2f;
 
                         canJump = false;
 

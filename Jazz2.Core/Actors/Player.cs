@@ -599,7 +599,7 @@ namespace Jazz2.Actors
             if (ControlScheme.PlayerActionPressed(index, PlayerActions.Fire)) {
                 if (!isLifting && (currentAnimationState & AnimState.Push) == 0 && pushFramesLeft <= 0f) {
                     if (weaponAmmo[(int)currentWeapon] != 0) {
-                        if (currentTransitionState == AnimState.Spring) {
+                        if (currentTransitionState == AnimState.Spring || currentTransitionState == AnimState.TransitionShootToIdle) {
                             currentTransitionCancellable = true;
                             CancelTransition();
                         }

@@ -218,9 +218,9 @@ namespace Import
             }
 
             // Download and import...
-            DemoDownloader.Run(targetPath);
-
-            OnPostImport(targetPath, false, true, false, true, false);
+            if (DemoDownloader.Run(targetPath)) {
+                OnPostImport(targetPath, false, true, false, true, false);
+            }
         }
 
         private static void OnPostImport(string targetPath, bool verbose, bool wait, bool keep, bool merge, bool check)
