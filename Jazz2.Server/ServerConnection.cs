@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if MULTIPLAYER
+
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Runtime.CompilerServices;
@@ -80,7 +82,7 @@ namespace Jazz2.Server
             server = null;
         }
 
-        #region Messages
+#region Messages
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
@@ -136,7 +138,7 @@ namespace Jazz2.Server
         {
             server.Introduce(hostInternal, hostExternal, clientInternal, clientExternal, token);
         }
-        #endregion
+#endregion
 
         private void OnMessage()
         {
@@ -253,3 +255,5 @@ namespace Jazz2.Server
         }
     }
 }
+
+#endif

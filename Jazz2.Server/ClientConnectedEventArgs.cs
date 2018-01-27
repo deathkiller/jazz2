@@ -1,4 +1,6 @@
-﻿using Lidgren.Network;
+﻿#if MULTIPLAYER
+
+using Lidgren.Network;
 
 namespace Jazz2.Server
 {
@@ -13,3 +15,5 @@ namespace Jazz2.Server
         }
     }
 }
+
+#endif

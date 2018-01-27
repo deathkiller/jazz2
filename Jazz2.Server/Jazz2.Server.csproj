@@ -57,10 +57,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Extensions\Lidgren.Network\Lidgren.Network.csproj">
-      <Project>{49ba1c69-6104-41ac-a5d8-b54fa9f696e8}</Project>
-      <Name>Lidgren.Network</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Jazz2\Jazz2.csproj">
       <Project>{7cc64746-8ba3-49ed-affc-ae4308ac1fa4}</Project>
       <Name>Jazz2</Name>

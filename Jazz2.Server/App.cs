@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if MULTIPLAYER
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -674,3 +676,15 @@ namespace Jazz2.Server
         }
     }
 }
+
+#else
+
+public class App
+{
+    public static void Main()
+    {
+        throw new System.NotSupportedException();
+    }
+}
+
+#endif
