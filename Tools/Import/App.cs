@@ -25,12 +25,15 @@ namespace Import
         {
             ConsoleUtils.TryEnableUnicode();
 
-            int cursorTop = Console.CursorTop;
-
             Console.Title = Jazz2.App.AssemblyTitle;
 
+            int cursorTop;
             if (!ConsoleUtils.IsOutputRedirected) {
+                cursorTop = Console.CursorTop;
+
                 ConsoleImage.RenderFromManifestResource("ConsoleImage.udl");
+            } else {
+                cursorTop = 0;
             }
 
             if (args.Length < 1) {
@@ -137,16 +140,19 @@ namespace Import
         {
             string exeName = Path.GetFileName(Assembly.GetEntryAssembly().Location);
 
-            int width = Console.BufferWidth;
-
-            // Show version number in the right corner
+            int width;
             if (!ConsoleUtils.IsOutputRedirected) {
+                width = Console.BufferWidth;
+
+                // Show version number in the right corner
                 string appVersion = "v" + Jazz2.App.AssemblyVersion;
 
                 int currentCursorTop = Console.CursorTop;
                 Console.SetCursorPosition(width - appVersion.Length - 2, cursorTop + 1);
                 Console.WriteLine(appVersion);
                 Console.CursorTop = currentCursorTop;
+            } else {
+                width = 80;
             }
 
             // Show help
