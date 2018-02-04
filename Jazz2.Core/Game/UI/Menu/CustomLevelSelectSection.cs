@@ -289,7 +289,7 @@ namespace Jazz2.Game.UI.Menu
                             }
                         } else {
                             selectedIndex = levelList.Count - 1;
-                            xOffset = selectedIndex - (itemCount - 1);
+                            xOffset = Math.Max(0, selectedIndex - (itemCount - 1));
                         }
                         pressedCount = Math.Min(pressedCount + 4, 19);
                     }

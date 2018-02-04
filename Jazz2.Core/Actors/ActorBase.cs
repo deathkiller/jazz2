@@ -168,6 +168,10 @@ namespace Jazz2.Actors
 
             Vector3 pos = Transform.Pos;
 
+            float timeMult = Time.TimeMult;
+            pos.X += speedX * timeMult;
+            pos.Y += speedY * timeMult;
+
             if (currentAnimation.Base.HasColdspot) {
                 currentHitbox = new Hitbox(
                     pos.X - currentAnimation.Base.Hotspot.X + currentAnimation.Base.Coldspot.X - (w / 2),
@@ -201,6 +205,11 @@ namespace Jazz2.Actors
                 }
 
                 Vector3 pos = Transform.Pos;
+
+                float timeMult = Time.TimeMult;
+                pos.X += speedX * timeMult;
+                pos.Y += speedY * timeMult;
+
                 Point2 hotspot = res.Base.Hotspot;
                 Point2 size = res.Base.FrameDimensions;
 

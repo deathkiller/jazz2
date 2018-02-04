@@ -111,7 +111,10 @@ namespace Jazz2.Actors.Weapons
             switch (other) {
                 case Queen queen:
                     if (queen.IsInvulnerable) {
-                        OnRicochet();
+                        if (lastRicochet != other) {
+                            lastRicochet = other;
+                            OnRicochet();
+                        }
                     } else {
                         base.OnHandleCollision(other);
                     }

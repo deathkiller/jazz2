@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Android.App;
 using Duality.IO;
+using Jazz2.Android;
 using Environment = Android.OS.Environment;
 
 namespace Duality.Backend.Android
@@ -39,7 +41,33 @@ namespace Duality.Backend.Android
             }
 
             if (RootPath == null) {
-                throw new DirectoryNotFoundException("Content directory was not found");
+                //throw new DirectoryNotFoundException("Content directory was not found");
+
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("Content directory was not found!");
+                sb.AppendLine();
+                sb.AppendLine("Searched mount points:");
+
+                for (int i = storages.Count - 1; i >= 0; i--) {
+
+                    sb.Append(" - ");
+                    sb.Append(storages[i].Path);
+                    sb.Append(" (");
+
+                    if (storages[i].IsReadOnly && storages[i].IsRemovable) {
+                        sb.Append("Read-only removable");
+                    } else if (storages[i].IsReadOnly) {
+                        sb.Append("Read-only fixed");
+                    } else if (storages[i].IsRemovable)  {
+                        sb.Append("Removable");
+                    } else {
+                        sb.Append("Fixed");
+                    }
+
+                    sb.AppendLine(")");
+                }
+
+                CrashHandlerActivity.ShowErrorDialog(new DirectoryNotFoundException(sb.ToString()));
             }
 
             Console.WriteLine("Android Root Path: " + RootPath);

@@ -13,16 +13,33 @@ using Duality.Android;
 
 namespace Jazz2.Android
 {
-    [Activity(Label = "Jazz² Resurrection Crashed", Process = ":crash_handler")]
+    [Activity(Label = "Jazz² Resurrection Crashed"/*, Process = ":crash_handler"*/)]
     public class CrashHandlerActivity : Activity
     {
-        public static void Register()
+        private static Activity currentActivity;
+
+        public static void Register(Activity activity)
         {
+            currentActivity = activity;
+
+            AppDomain.CurrentDomain.UnhandledException += OnCurrentDomainUnhandledException;
             AndroidEnvironment.UnhandledExceptionRaiser += OnUnhandledExceptionRaiser;
+        }
+
+        private static void OnCurrentDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            ShowErrorDialog(e.ExceptionObject as Exception);
         }
 
         private static void OnUnhandledExceptionRaiser(object sender, RaiseThrowableEventArgs e)
         {
+            ShowErrorDialog(e.Exception);
+            e.Handled = true;
+        }
+
+        public static void ShowErrorDialog(Exception ex)
+        {
+            AppDomain.CurrentDomain.UnhandledException -= OnCurrentDomainUnhandledException;
             AndroidEnvironment.UnhandledExceptionRaiser -= OnUnhandledExceptionRaiser;
 
             try {
@@ -34,12 +51,12 @@ namespace Jazz2.Android
                 sb.AppendLine("<br><br><hr><small>");
 
                 // Obtain debugging information
-                Exception innerException = e.Exception.InnerException;
+                Exception innerException = ex.InnerException;
                 if (innerException != null) {
                     sb.Append("<b>");
-                    sb.Append(WebUtility.HtmlEncode(innerException.Message));
+                    sb.Append(WebUtility.HtmlEncode(innerException.Message).Replace("\n", "<br>"));
                     sb.Append("</b> (");
-                    sb.Append(WebUtility.HtmlEncode(e.Exception.Message));
+                    sb.Append(WebUtility.HtmlEncode(ex.Message).Replace("\n", "<br>"));
                     sb.AppendLine(")<br>");
 
                     do {
@@ -48,30 +65,40 @@ namespace Jazz2.Android
                     } while (innerException != null);
                 } else {
                     sb.Append("<b>");
-                    sb.Append(WebUtility.HtmlEncode(e.Exception.Message));
+                    sb.Append(WebUtility.HtmlEncode(ex.Message).Replace("\n", "<br>"));
                     sb.AppendLine("</b><br>");
                 }
 
-                ParseStackTrace(sb, e.Exception);
+                ParseStackTrace(sb, ex);
 
                 // Append additional information
                 sb.AppendLine("</small>");
                 sb.AppendLine("<br><br>Please report this issue to developer (<a>https://github.com/deathkiller/jazz2</a>).");
 
                 // Start new activity in separate process
-                Context context = Application.Context;
+                //Context context = Application.Context;
+                //Context context = DualityActivity.Current.ApplicationContext;
+                Context context = currentActivity;
                 Intent intent = new Intent(context, typeof(CrashHandlerActivity));
-                intent.SetFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
+                intent.SetFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask | ActivityFlags.ClearTop);
                 intent.PutExtra("ExceptionData", sb.ToString());
-                context.StartActivity(intent);
+                //context.StartActivity(intent);
+
+                PendingIntent pendingIntent = PendingIntent.GetActivity(context, 0, intent, PendingIntentFlags.OneShot);
+
+                AlarmManager mgr = (AlarmManager)context.GetSystemService(Context.AlarmService);
+                mgr.Set(AlarmType.Rtc, Java.Lang.JavaSystem.CurrentTimeMillis() + 200, pendingIntent);
 
                 // Try to close current activity
-                DualityActivity activity = DualityActivity.Current;
+                //DualityActivity activity = DualityActivity.Current;
+                Activity activity = currentActivity;
                 if (activity != null) {
                     activity.Finish();
                 }
-            } catch (Exception ex) {
-                Console.WriteLine("CrashHandlerActivity failed: " + ex);
+
+                Java.Lang.JavaSystem.Exit(2);
+            } catch (Exception ex2) {
+                Console.WriteLine("CrashHandlerActivity failed: " + ex2);
             }
         }
 

@@ -41,7 +41,7 @@ namespace Duality.Android
 
             weakActivity = new WeakReference<DualityActivity>(this);
 
-            CrashHandlerActivity.Register();
+            CrashHandlerActivity.Register(this);
 
             Window.AddFlags(WindowManagerFlags.KeepScreenOn);
 

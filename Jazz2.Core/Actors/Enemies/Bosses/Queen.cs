@@ -78,39 +78,6 @@ namespace Jazz2.Actors.Bosses
                 block.UpdateBlock(Transform.Pos);
             }
 
-            if (!canJump && state != StateDead) {
-                // It can only die by collision with spring in the air
-                foreach (ActorBase collision in api.FindCollisionActors(this)) {
-                    Spring spring = collision as Spring;
-                    if (spring != null) {
-                        // Collide only with hitbox
-                        if (spring.Hitbox.Intersects(ref currentHitbox)) {
-                            Vector2 force = spring.Activate();
-                            int sign = ((force.X + force.Y) > float.Epsilon ? 1 : -1);
-                            if (Math.Abs(force.X) > float.Epsilon) {
-                                speedX = (4 + Math.Abs(force.X)) * sign;
-                                externalForceX = force.X;
-                            } else if (Math.Abs(force.Y) > float.Epsilon) {
-                                speedY = (4 + Math.Abs(force.Y)) * sign;
-                                externalForceY = -force.Y;
-                            } else {
-                                return;
-                            }
-                            canJump = false;
-
-                            SetAnimation(AnimState.Fall);
-                            PlaySound("Spring");
-
-                            api.BroadcastLevelText(endText);
-
-                            state = StateDead;
-                            stateTime = 50f;
-                        }
-                        continue;
-                    }
-                }
-            }
-
             switch (state) {
                 case StateWaiting: {
                     // Waiting for player to enter the arena
@@ -220,7 +187,6 @@ namespace Jazz2.Actors.Bosses
                                                 });
                                             });
                                         }
-
                                             
                                     });
                                 } else {
@@ -257,11 +223,40 @@ namespace Jazz2.Actors.Bosses
             stateTime -= Time.TimeMult;
         }
 
-        // BoundingBox set in Metadata
-        //protected override void OnUpdateHitbox()
-        //{
-        //    UpdateHitbox(20, 30);
-        //}
+        public override void OnHandleCollision(ActorBase other)
+        {
+            base.OnHandleCollision(other);
+
+            if (!canJump && state != StateDead) {
+                // It can only die by collision with spring in the air
+                Spring spring = other as Spring;
+                if (spring != null) {
+                    // Collide only with hitbox
+                    if (spring.Hitbox.Intersects(ref currentHitbox)) {
+                        Vector2 force = spring.Activate();
+                        int sign = ((force.X + force.Y) > float.Epsilon ? 1 : -1);
+                        if (Math.Abs(force.X) > float.Epsilon) {
+                            speedX = (4 + Math.Abs(force.X)) * sign;
+                            externalForceX = force.X;
+                        } else if (Math.Abs(force.Y) > float.Epsilon) {
+                            speedY = (4 + Math.Abs(force.Y)) * sign;
+                            externalForceY = -force.Y;
+                        } else {
+                            return;
+                        }
+                        canJump = false;
+
+                        SetAnimation(AnimState.Fall);
+                        PlaySound("Spring");
+
+                        api.BroadcastLevelText(endText);
+
+                        state = StateDead;
+                        stateTime = 50f;
+                    }
+                }
+            }
+        }
 
         private void CheckDestructibleTiles()
         {

@@ -17,7 +17,7 @@ namespace Jazz2.Actors.Weapons
         protected byte upgrades;
         protected int strength;
 
-        private ActorBase lastRicochet;
+        protected ActorBase lastRicochet;
 
         public Player Owner => owner;
 
