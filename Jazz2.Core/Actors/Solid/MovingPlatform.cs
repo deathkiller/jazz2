@@ -68,36 +68,38 @@ namespace Jazz2.Actors.Solid
 
         protected override void OnUpdate()
         {
-            phase -= speed * Time.TimeMult;
-            if (phase < 0f) {
-                phase += BaseCycleFrames;
-            }
-
-            MoveInstantly(GetPhasePosition(false, length), MoveType.Absolute, true);
-
-            for (int i = 0; i < length; i++) {
-                pieces[i].Transform.Pos = new Vector3(GetPhasePosition(false, i), pieces[i].Transform.Pos.Z);
-            }
-
-            Hitbox hitbox = currentHitbox;
-            hitbox.Top -= 2;
-
-            if (type != PlatformType.SpikeBall) {
-                foreach (Player player in api.GetCollidingPlayers(hitbox)) {
-                    player.SetCarryingPlatform(this);
+            if (length > 0) {
+                phase -= speed * Time.TimeMult;
+                if (phase < 0f) {
+                    phase += BaseCycleFrames;
                 }
 
-                if (type == PlatformType.Spike) {
-                    hitbox.Top += 40;
-                    hitbox.Bottom += 40;
+                MoveInstantly(GetPhasePosition(false, length), MoveType.Absolute, true);
 
+                for (int i = 0; i < length; i++) {
+                    pieces[i].Transform.Pos = new Vector3(GetPhasePosition(false, i), pieces[i].Transform.Pos.Z);
+                }
+
+                Hitbox hitbox = currentHitbox;
+                hitbox.Top -= 2;
+
+                if (type != PlatformType.SpikeBall) {
+                    foreach (Player player in api.GetCollidingPlayers(hitbox)) {
+                        player.SetCarryingPlatform(this);
+                    }
+
+                    if (type == PlatformType.Spike) {
+                        hitbox.Top += 40;
+                        hitbox.Bottom += 40;
+
+                        foreach (Player player in api.GetCollidingPlayers(hitbox)) {
+                            player.TakeDamage(2);
+                        }
+                    }
+                } else {
                     foreach (Player player in api.GetCollidingPlayers(hitbox)) {
                         player.TakeDamage(2);
                     }
-                }
-            } else {
-                foreach (Player player in api.GetCollidingPlayers(hitbox)) {
-                    player.TakeDamage(2);
                 }
             }
 

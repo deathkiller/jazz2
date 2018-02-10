@@ -249,26 +249,21 @@ namespace Jazz2.Game.Tiles
                 return hasPit;
             }
 
-            int idx = layers[sprLayerIndex].Layout[x + y * levelWidth].TileID;
-            if (layers[sprLayerIndex].Layout[x + y * levelWidth].IsAnimated) {
+            ref LayerTile tile = ref layers[sprLayerIndex].Layout[y * levelWidth + x];
+
+            int idx = tile.TileID;
+            if (tile.IsAnimated) {
                 idx = animatedTiles[idx].CurrentTile.TileID;
             }
 
-            if (tileset.IsTileMaskEmpty(idx)) {
-                return true;
-            } else {
-                return false;
-            }
+            return tileset.IsTileMaskEmpty(idx);
         }
 
         public bool IsTileEmpty(ref Hitbox hitbox, bool downwards)
         {
-            //int tileSize = Tileset.TileSize;
-            const int tileSize = 32;
-
-            int limitLeftPx = limitLeft * tileSize;
-            int limitRightPx = limitRight * tileSize;
-            int limitBottomPx = levelHeight * tileSize;
+            int limitLeftPx = limitLeft << 5;
+            int limitRightPx = limitRight << 5;
+            int limitBottomPx = levelHeight << 5;
 
             // Consider out-of-level coordinates as solid walls
             if (hitbox.Left < limitLeftPx || hitbox.Top < 0 || hitbox.Right >= limitRightPx) {
@@ -278,66 +273,60 @@ namespace Jazz2.Game.Tiles
                 return hasPit;
             }
 
-            // Check all covered tiles for collisions; if all are empty, no need to do pixel level collision checking
-            int hx1 = (int)MathF.Max(MathF.Floor(hitbox.Left), limitLeftPx);
-            int hx2 = (int)MathF.Min(MathF.Ceiling(hitbox.Right), limitRightPx - 1);
-            int hy1 = (int)MathF.Floor(hitbox.Top);
-            int hy2 = (int)MathF.Min(MathF.Ceiling(hitbox.Bottom), limitBottomPx - 1);
+            // Check all covered tiles for collisions; if all are empty, no need to do pixel collision checking
+            int hx1 = MathF.Max((int)hitbox.Left, limitLeftPx);
+            int hx2 = MathF.Min((int)MathF.Ceiling(hitbox.Right), limitRightPx - 1);
+            int hy1 = (int)hitbox.Top;
+            int hy2 = MathF.Min((int)MathF.Ceiling(hitbox.Bottom), limitBottomPx - 1);
+
+            int hx1t = hx1 >> 5;
+            int hx2t = hx2 >> 5;
+            int hy1t = hy1 >> 5;
+            int hy2t = hy2 >> 5;
 
             LayerTile[] sprLayerLayout = layers.Data[sprLayerIndex].Layout;
 
-            for (int x = hx1 / tileSize; x <= hx2 / tileSize; x++) {
-                for (int y = hy1 / tileSize; y <= hy2 / tileSize; y++) {
-                    int idx = sprLayerLayout[x + y * levelWidth].TileID;
-                    if (sprLayerLayout[x + y * levelWidth].IsAnimated) {
-                        idx = animatedTiles[idx].CurrentTile.TileID;
-                    }
+            for (int y = hy1t; y <= hy2t; y++) {
+                for (int x = hx1t; x <= hx2t; x++) {
+                    ref LayerTile tile = ref sprLayerLayout[y * levelWidth + x];
 
-                    if (sprLayerLayout[x + y * levelWidth].SuspendType == SuspendType.None &&
-                        !tileset.IsTileMaskEmpty(idx) &&
-                        !(sprLayerLayout[x + y * levelWidth].IsOneWay && !downwards)) {
-
-                        goto NOT_EMPTY;
-                    }
-                }
-            }
-
-            return true;
-
-        NOT_EMPTY:
-            // Check each tile pixel perfectly for collisions
-            for (int x = hx1 / tileSize; x <= hx2 / tileSize; x++) {
-                for (int y = hy1 / tileSize; y <= hy2 / tileSize; y++) {
-                    ref LayerTile tile = ref sprLayerLayout[x + y * levelWidth];
                     int idx = tile.TileID;
-                    if (sprLayerLayout[x + y * levelWidth].IsAnimated) {
+                    if (tile.IsAnimated) {
                         idx = animatedTiles[idx].CurrentTile.TileID;
                     }
 
-                    if ((sprLayerLayout[x + y * levelWidth].IsOneWay && !downwards && hy2 < (y + 1) * tileSize) ||
-                        sprLayerLayout[x + y * levelWidth].SuspendType != SuspendType.None) {
+                    if (tile.SuspendType != SuspendType.None || tileset.IsTileMaskEmpty(idx) || (tile.IsOneWay && !downwards)) {
                         continue;
                     }
 
-                    BitArray mask = tileset.GetTileMask(idx);
-                    for (int i = 0; i < (tileSize * tileSize); i++) {
-                        int nowx = (tileSize * x + i % tileSize);
-                        int nowy = (tileSize * y + i / tileSize);
-                        if (hx2 < nowx || hx1 >= nowx) {
-                            continue;
-                        }
-                        if (hy2 < nowy || hy1 >= nowy) {
-                            continue;
-                        }
-                        int px_idx;
-                        if (tile.IsFlippedX || tile.IsFlippedY) {
-                            px_idx = (tile.IsFlippedX ? (31 - (i & 31)) : (i & 31)) | (tile.IsFlippedY ? ((31 - ((i >> 5) & 31)) << 5) : (i & ~31));
-                        } else {
-                            px_idx = i;
-                        }
+                    int tx = x << 5;
+                    int ty = y << 5;
 
-                        if (mask[px_idx]) {
-                            return false;
+                    int left = MathF.Max(hx1 - tx, 0);
+                    int right = MathF.Min(hx2 - tx, 31);
+                    int top = MathF.Max(hy1 - ty, 0);
+                    int bottom = MathF.Min(hy2 - ty, 31);
+
+                    if (tile.IsFlippedX) {
+                        int left2 = left;
+                        left = (31 - right);
+                        right = (31 - left2);
+                    }
+                    if (tile.IsFlippedY) {
+                        int top2 = top;
+                        top = (31 - bottom);
+                        bottom = (31 - top2);
+                    }
+
+                    top <<= 5;
+                    bottom <<= 5;
+
+                    BitArray mask = tileset.GetTileMask(idx);
+                    for (int ry = top; ry <= bottom; ry += 32) {
+                        for (int rx = left; rx <= right; rx++) {
+                            if (mask[ry | rx]) {
+                                return false;
+                            }
                         }
                     }
                 }
@@ -348,17 +337,16 @@ namespace Jazz2.Game.Tiles
 
         public SuspendType GetTileSuspendState(float x, float y)
         {
-            //int ax = (int)x / levelTileset.TileSize;
-            //int ay = (int)y / levelTileset.TileSize;
-            //int rx = (int)x - levelTileset.TileSize * ax;
-            //int ry = (int)y - levelTileset.TileSize * ay;
+            const int Tolerance = 4;
+
+            if (x < 0 || y < 0) {
+                return SuspendType.None;
+            }
+
             int ax = (int)x >> 5;
             int ay = (int)y >> 5;
-            int rx = (int)x & 31;
-            int ry = (int)y & 31;
 
-            // ToDo: negative coordinates collides with bit-shifting
-            if (ax < 0 || ay < 0 || ax >= levelWidth || ay >= levelHeight) {
+            if (ax >= levelWidth || ay >= levelHeight) {
                 return SuspendType.None;
             }
 
@@ -378,19 +366,21 @@ namespace Jazz2.Game.Tiles
                 mask = tileset.GetTileMask(tile.TileID);
             }
 
-            for (int ty = ry - 4; ty < ry + 4; ty++) {
-                if (ty < 0 || ty > 31) {
-                    continue;
-                }
+            int rx = (int)x & 31;
+            int ry = (int)y & 31;
 
-                int i;
-                if (tile.IsFlippedX || tile.IsFlippedY) {
-                    i = (tile.IsFlippedX ? (31 - rx) : rx) | ((tile.IsFlippedY ? (31 - ty) : ty) << 5);
-                } else {
-                    i = rx | (ty << 5);
-                }
+            if (tile.IsFlippedX) {
+                rx = (31 - rx);
+            }
+            if (tile.IsFlippedY) {
+                ry = (31 - ry);
+            }
 
-                if (mask[i]) {
+            int top = MathF.Max(ry - Tolerance, 0) << 5;
+            int bottom = MathF.Min(ry + Tolerance, 31) << 5;
+
+            for (int ti = bottom | rx; ti >= top; ti -= 32) {
+                if (mask[ti]) {
                     return tile.SuspendType;
                 }
             }

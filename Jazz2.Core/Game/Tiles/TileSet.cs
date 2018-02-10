@@ -180,14 +180,20 @@ namespace Jazz2.Game.Tiles
             IsValid = true;
         }
 
+#if NET45
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public BitArray GetTileMask(int tileID)
         {
             if (tileID < TileCount) {
                 return masks.Data[tileID];
             }
-            return new BitArray(TileSize * TileSize);
+            return masks.Data[0];
         }
 
+#if NET45
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public LayerTile GetDefaultTile(int tileID)
         {
             if (tileID < TileCount) {
@@ -196,6 +202,9 @@ namespace Jazz2.Game.Tiles
             return defaultLayerTiles.Data[0];
         }
 
+#if NET45
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public Point2 GetTileTextureRect(int tileID)
         {
             return defaultLayerTiles[tileID].MaterialOffset;
