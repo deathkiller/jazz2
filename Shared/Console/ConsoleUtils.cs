@@ -66,25 +66,21 @@ namespace Jazz2
         {
             if (Environment.OSVersion.Platform == PlatformID.Win32NT && !IsOutputRedirected) {
                 var prevEncoding = Console.OutputEncoding;
-                int x = Console.CursorLeft;
-                Console.OutputEncoding = Encoding.Unicode;
-                Console.Write("Ω");
-                if (Console.CursorLeft == x + 1) {
+                int startLeft = Console.CursorLeft;
+                Console.OutputEncoding = Encoding.UTF8;
+                Console.Write("≠");
+                if (Console.CursorLeft == startLeft + 1) {
                     // One character displayed
-                    Console.CursorLeft--;
-                    Console.Write(" ");
-                    Console.CursorLeft--;
-
-                    supportsUnicode = true;
                 } else {
                     // Multiple characters displayed, Unicode not supported
                     Console.OutputEncoding = prevEncoding;
-                    Console.CursorLeft -= 3;
-                    Console.Write("   ");
-                    Console.CursorLeft -= 3;
-
-                    supportsUnicode = false;
                 }
+
+                // Clean up (with safety guard in case of line wrapping)
+                int len = Math.Max(Console.CursorLeft - startLeft, 0);
+                Console.CursorLeft -= len;
+                Console.Write(new string(' ', len));
+                Console.CursorLeft -= len;
             } else {
                 supportsUnicode = true;
             }

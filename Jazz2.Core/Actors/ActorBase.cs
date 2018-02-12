@@ -562,6 +562,8 @@ namespace Jazz2.Actors
 
         public bool IsCollidingWith(ActorBase other)
         {
+            const byte AlphaThreshold = 40;
+
             bool perPixel1 = (collisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0;
             bool perPixel2 = (other.collisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0;
 
@@ -589,12 +591,16 @@ namespace Jazz2.Actors
             Point2 size2 = res2.Base.FrameDimensions;
 
             Rect box1, box2;
-            if (isFacingLeft) {
+            if (!perPixel1) {
+                box1 = new Rect(currentHitbox.Left, currentHitbox.Top, currentHitbox.Right - currentHitbox.Left, currentHitbox.Bottom - currentHitbox.Top);
+            } else if (isFacingLeft) {
                 box1 = new Rect(pos1.X + hotspot1.X - size1.X, pos1.Y - hotspot1.Y, size1.X, size1.Y);
             } else {
                 box1 = new Rect(pos1.X - hotspot1.X, pos1.Y - hotspot1.Y, size1.X, size1.Y);
             }
-            if (other.isFacingLeft) {
+            if (!perPixel2) {
+                box2 = new Rect(other.currentHitbox.Left, other.currentHitbox.Top, other.currentHitbox.Right - other.currentHitbox.Left, other.currentHitbox.Bottom - other.currentHitbox.Top);
+            } else if (other.isFacingLeft) {
                 box2 = new Rect(pos2.X + hotspot2.X - size2.X, pos2.Y - hotspot2.Y, size2.X, size2.Y);
             } else {
                 box2 = new Rect(pos2.X - hotspot2.X, pos2.Y - hotspot2.Y, size2.X, size2.Y);
@@ -608,7 +614,7 @@ namespace Jazz2.Actors
 
             if (!perPixel1 || !perPixel2) {
                 if (perPixel1 == perPixel2) {
-                    return currentHitbox.Intersects(ref other.currentHitbox);
+                    return true;
                 }
 
                 PixelData p;
@@ -653,7 +659,7 @@ namespace Jazz2.Actors
                         int i1 = i - xs;
                         if (isFacingLeftCurrent) i1 = res.Base.FrameDimensions.X - i1 - 1;
 
-                        if (p[i1 + dx, j + dy].A > 40) {
+                        if (p[i1 + dx, j + dy].A > AlphaThreshold) {
                             return true;
                         }
                     }
@@ -684,7 +690,7 @@ namespace Jazz2.Actors
                         int i2 = i - x2s;
                         if (other.isFacingLeft) i2 = res2.Base.FrameDimensions.X - i2 - 1;
 
-                        if (p1[i1 + dx1, j + dy1].A > 20 && p2[i2 + dx2, j + dy2].A > 20) {
+                        if (p1[i1 + dx1, j + dy1].A > AlphaThreshold && p2[i2 + dx2, j + dy2].A > AlphaThreshold) {
                             return true;
                         }
                     }
@@ -696,6 +702,8 @@ namespace Jazz2.Actors
 
         private bool IsCollidingWithAngled(ActorBase other)
         {
+            const byte AlphaThreshold = 40;
+
             GraphicResource res1 = (currentTransitionState != AnimState.Idle ? currentTransition : currentAnimation);
             GraphicResource res2 = (other.currentTransitionState != AnimState.Idle ? other.currentTransition : other.currentAnimation);
 
@@ -761,9 +769,6 @@ namespace Jazz2.Actors
                     MathF.Ceiling(maxY));
             }
 
-            //Hud.ShowDebugRect(new Rect(box1.Left, box1.Top, box1.Right - box1.Left, box1.Bottom - box1.Top));
-            //Hud.ShowDebugRect(new Rect(box2.Left, box2.Top, box2.Right - box2.Left, box2.Bottom - box2.Top));
-
             if (!box1.Intersects(ref box2)) {
                 return false;
             }
@@ -794,7 +799,7 @@ namespace Jazz2.Actors
 
                     if (x2 >= 0 && x2 < width2 && y2 >= 0 && y2 < height2) {
 
-                        if (p1[x1 + dx1, y1 + dy1].A > 20 && p2[x2 + dx2, y2 + dy2].A > 20) {
+                        if (p1[x1 + dx1, y1 + dy1].A > AlphaThreshold && p2[x2 + dx2, y2 + dy2].A > AlphaThreshold) {
                             return true;
                         }
                     }

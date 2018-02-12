@@ -386,6 +386,42 @@ namespace Jazz2.Actors
                 }
             }
 
+            // ToDo: Debug keys only
+#if DEBUG
+            if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.T)) {
+                WarpToPosition(new Vector2(Transform.Pos.X, Transform.Pos.Y - (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f)), false);
+            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.G)) {
+                WarpToPosition(new Vector2(Transform.Pos.X, Transform.Pos.Y + (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f)), false);
+            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.F)) {
+                WarpToPosition(new Vector2(Transform.Pos.X - (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f), Transform.Pos.Y), false);
+            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.H)) {
+                WarpToPosition(new Vector2(Transform.Pos.X + (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f), Transform.Pos.Y), false);
+            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.N)) {
+                api.InitLevelChange(ExitType.Warp, null);
+            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.J)) {
+                //coins += 5;
+                controllable = true;
+            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.U)) {
+                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Ammo");
+
+                for (int i = 0; i < weaponAmmo.Length; i++) {
+                    if (weaponAmmo[i] >= 0) {
+                        weaponAmmo[i] = 99;
+                    }
+                }
+            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.I)) {
+                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add FastFire");
+
+                AddFastFire(1);
+            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.O)) {
+                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add all PowerUps");
+
+                for (int i = 0; i < weaponAmmo.Length; i++) {
+                    AddWeaponUpgrade((WeaponType)i, 0x1);
+                }
+            }
+#endif
+
             if (!controllable) {
                 return;
             }
@@ -630,41 +666,6 @@ namespace Jazz2.Actors
 
                 attachedHud?.ChangeCurrentWeapon(currentWeapon, weaponUpgrades[(int)currentWeapon]);
             }
-
-            // ToDo: Debug keys only
-#if DEBUG
-            if (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.T)) {
-                WarpToPosition(new Vector2(Transform.Pos.X, Transform.Pos.Y - (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f)), false);
-            } else if (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.G)) {
-                WarpToPosition(new Vector2(Transform.Pos.X, Transform.Pos.Y + (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f)), false);
-            } else if (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.F)) {
-                WarpToPosition(new Vector2(Transform.Pos.X - (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f), Transform.Pos.Y), false);
-            } else if (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.H)) {
-                WarpToPosition(new Vector2(Transform.Pos.X + (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f), Transform.Pos.Y), false);
-            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.N)) {
-                api.InitLevelChange(ExitType.Warp, null);
-            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.J)) {
-                coins += 5;
-            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.U)) {
-                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Ammo");
-
-                for (int i = 0; i < weaponAmmo.Length; i++) {
-                    if (weaponAmmo[i] >= 0) {
-                        weaponAmmo[i] = 99;
-                    }
-                }
-            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.I)) {
-                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add FastFire");
-
-                AddFastFire(1);
-            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.O)) {
-                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add all PowerUps");
-
-                for (int i = 0; i < weaponAmmo.Length; i++) {
-                    AddWeaponUpgrade((WeaponType)i, 0x1);
-                }
-            }
-#endif
         }
 
         protected override void OnHitFloorHook()

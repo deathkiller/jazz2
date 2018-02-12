@@ -18,12 +18,12 @@ namespace Duality.Backend
 		{
 			get
 			{
-				List<string> availLibFiles = new List<string>();
+				List<string> searchDirectories = new List<string>();
 
 				// Add the working directory plugin folder
 				if (Directory.Exists(DualityApp.PluginDirectory)) 
 				{
-					availLibFiles.Add(DualityApp.PluginDirectory);
+					searchDirectories.Add(DualityApp.PluginDirectory);
 				}
 
 				// Add the executing directory plugin folder
@@ -34,10 +34,10 @@ namespace Duality.Backend
 					StringComparison.InvariantCultureIgnoreCase);
 				if (!sameDir && Directory.Exists(execPluginDir))
 				{
-					availLibFiles.Add(execPluginDir);
+					searchDirectories.Add(execPluginDir);
 				}
 
-				return availLibFiles;
+				return searchDirectories;
 			}
 		}
 		public IEnumerable<string> AvailableAssemblyPaths
@@ -93,8 +93,8 @@ namespace Duality.Backend
 		{
 			// Log environment specs for diagnostic purposes
 			// Even though more fitted for the system backend, we'll
-			// do this here, because the plugin loader available much sooner
-			// and more reliably.
+			// do this here, because the plugin loader available much
+			// sooner, and more reliably.
 			{
 				string osName = Environment.OSVersion != null ? Environment.OSVersion.ToString() : "Unknown";
 				string osFriendlyName = null;
@@ -157,19 +157,34 @@ namespace Duality.Backend
 					return resolveArgs.ResolvedAssembly;
 			}
 
-			// Admit that we didn't find anything.
-			if (args.RequestingAssembly != null)
+			// Admit that we didn't find anything - unless it's a resource Assembly, which
+			// is used for WinForms localization. Not finding them is the default / expected.
+			bool isResourceAssembly = false;
+			if (args.Name != null)
 			{
-			    Console.WriteLine(
-					"Can't resolve Assembly '{0}' (as requested by '{1}'): None of the available assembly paths matches the requested name.",
-					args.Name,
-					args.RequestingAssembly);
+				string token = ".resources";
+				int index = args.Name.IndexOf(token);
+				int pastEndIndex = index + token.Length;
+				if (index != -1 && (pastEndIndex >= args.Name.Length || args.Name[pastEndIndex] == ','))
+				{
+					isResourceAssembly = true;
+				}
 			}
-			else
+			if (!isResourceAssembly)
 			{
-			    Console.WriteLine(
-					"Can't resolve Assembly '{0}': None of the available assembly paths matches the requested name.",
-					args.Name);
+				if (args.RequestingAssembly != null)
+				{
+					Console.WriteLine(
+						"Can't resolve Assembly '{0}' (as requested by '{1}'): None of the available assembly paths matches the requested name.",
+						args.Name,
+						args.RequestingAssembly);
+				}
+				else
+				{
+					Console.WriteLine(
+						"Can't resolve Assembly '{0}': None of the available assembly paths matches the requested name.",
+						args.Name);
+				}
 			}
 			return null;
 		}
