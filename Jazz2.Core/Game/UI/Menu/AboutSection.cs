@@ -45,7 +45,7 @@ namespace Jazz2.Game.UI.Menu
 
             api.DrawStringShadow(ref charOffset, "Uses parts of Duality - A 2D GameDev Framework released under MIT/X11 license.", pos.X, y,
                 Alignment.Left, ColorRgba.TransparentBlack, 0.7f, 0.4f, 0.6f, 0.6f, 7f, 0.9f);
-            api.DrawStringShadow(ref charOffset, "Fedja Adam", pos.X + 25f, y + 16f,
+            api.DrawStringShadow(ref charOffset, "Fedja Adam & contributors", pos.X + 25f, y + 16f,
                 Alignment.Left, ColorRgba.TransparentBlack, 0.8f, 0.4f, 0.7f, 0.7f, 7f, 0.9f);
 
             y += 40f;

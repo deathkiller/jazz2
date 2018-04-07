@@ -1,7 +1,28 @@
-# [![Jazz² Resurrection](https://github.com/deathkiller/jazz2/raw/master/Docs/Logo.gif)](https://github.com/deathkiller/jazz2)
-Jazz² Resurrection is reimplementation of game ***Jazz Jackrabbit 2*** from year 1998. Supports various versions of the game (Shareware Demo, Holiday Hare '98, The Secret Files and Christmas Chronicles). Also, it partially supports some features of [JJ2+](http://jj2.plus/) extension and MLLE.
+<div align="center">
+    <a href="https://github.com/deathkiller/jazz2"><img src="https://raw.githubusercontent.com/deathkiller/jazz2/master/Docs/Logo.gif" alt="Jazz² Resurrection" title="Jazz² Resurrection"></a>
+</div>
+
+<div align="center">
+    Open-source <strong>Jazz Jackrabbit 2</strong> re-implementation
+</div>
+
+<div align="center">
+  <sub>
+    Brought to you by <a href="https://github.com/deathkiller">@deathkiller</a>
+  </sub>
+</div>
+<hr/>
+
+
+## Introduction
+Jazz² Resurrection is reimplementation of game **Jazz Jackrabbit 2** from year 1998. Supports various versions of the game (Shareware Demo, Holiday Hare '98, The Secret Files and Christmas Chronicles). Also, it partially supports some features of [JJ2+](http://jj2.plus/) extension and MLLE.
 
 Uses parts of [Duality - A 2D GameDev Framework](https://duality.adamslair.net/).
+
+## Preview
+<div align="center">
+    <img src="https://raw.githubusercontent.com/deathkiller/jazz2/master/Docs/Screen1.png" alt="Preview">
+</div>
 
 
 ## Dependencies
@@ -101,4 +122,4 @@ Also, you have to remove `/Jazz2/Bin/Debug/Extensions/GL21Backend.core.dll` file
 
 
 ## License
-This software is licensed under the [GNU General Public License v3.0](./LICENSE).
+This project is licensed under the terms of the [GNU General Public License v3.0](./LICENSE).
