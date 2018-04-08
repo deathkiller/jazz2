@@ -3,7 +3,7 @@
 </div>
 
 <div align="center">
-    Open-source <strong>Jazz Jackrabbit 2</strong> re-implementation
+    Open-source <strong>Jazz Jackrabbit 2</strong> reimplementation
 </div>
 
 <div align="center">
@@ -17,7 +17,12 @@
 ## Introduction
 Jazz² Resurrection is reimplementation of game **Jazz Jackrabbit 2** from year 1998. Supports various versions of the game (Shareware Demo, Holiday Hare '98, The Secret Files and Christmas Chronicles). Also, it partially supports some features of [JJ2+](http://jj2.plus/) extension and MLLE.
 
+[![Build Status](https://img.shields.io/appveyor/ci/deathkiller/jazz2.svg?logo=appveyor)](https://ci.appveyor.com/project/deathkiller/jazz2)
+[![Latest Release](https://img.shields.io/github/release/deathkiller/jazz2.svg?logo=dockbit)](https://github.com/deathkiller/jazz2/releases)
+[![License](https://img.shields.io/github/license/deathkiller/jazz2.svg)](https://github.com/deathkiller/jazz2/blob/master/LICENSE)
+
 Uses parts of [Duality - A 2D GameDev Framework](https://duality.adamslair.net/).
+
 
 ## Preview
 <div align="center">
@@ -76,7 +81,7 @@ Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) (or equiv
 
 
 ## Building the solution
-### Windows · [![Build status](https://ci.appveyor.com/api/projects/status/m4iy9vaot84bsrqn?svg=true)](https://ci.appveyor.com/project/deathkiller/jazz2)
+### Windows
 * Open the solution in [Microsoft Visual Studio 2017](https://www.visualstudio.com/) and build it
 * Copy `/Packages/AdamsLair.OpenTK.x.y.z/lib/OpenTK.dll.config` to `/Jazz2/Bin/Debug/OpenTK.dll.config`
 * Copy dependencies to `/Jazz2/Bin/Debug/` or `/Jazz2/Bin/Release/`
@@ -103,7 +108,7 @@ msbuild
 
 *Errors about `Jazz2.Android` project can be ignored, if you don't need Android build.*
 
-### Android · [![Build status](https://build.appcenter.ms/v0.1/apps/a88b4a01-69a6-483a-93ba-e58726182e66/branches/master/badge)](https://github.com/deathkiller/jazz2)
+### Android
 * Install **Mobile development in .NET** to Microsoft Visual Studio 2017
 * Open the solution and build `Jazz2.Android` project
 
