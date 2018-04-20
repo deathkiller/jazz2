@@ -27,7 +27,7 @@ namespace Jazz2.Game.UI.Menu
 
         private OpenMptStream music;
 
-        private static string newVersion;
+        private static Updater.Release newVersion;
 
         public MainMenu(Controller root)
         {
@@ -251,9 +251,12 @@ namespace Jazz2.Game.UI.Menu
                 ColorRgba.TransparentBlack, 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
 
             // New Version
-            if (!string.IsNullOrEmpty(newVersion)) {
-                DrawStringShadow(ref charOffset, "New version available: " + newVersion, (bottomLeft.X + bottomRight.X) * 0.5f, bottomLeft.Y, Alignment.Bottom,
+            if (newVersion != null) {
+                DrawStringShadow(ref charOffset, "New version available!", (bottomLeft.X + bottomRight.X) * 0.5f, bottomLeft.Y - 12, Alignment.Bottom,
                     new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f), 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.9f);
+
+                DrawStringShadow(ref charOffset, newVersion.name, (bottomLeft.X + bottomRight.X) * 0.5f, bottomLeft.Y + 2, Alignment.Bottom,
+                    new ColorRgba(0.6f, 0.4f, 0.3f, 0.5f), 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.9f);
             }
 
             // Current section
@@ -266,12 +269,12 @@ namespace Jazz2.Game.UI.Menu
             canvas.End();
         }
 
-        private void OnCheckUpdates(bool newAvailable, string version)
+        private void OnCheckUpdates(bool newAvailable, Updater.Release release)
         {
             if (newAvailable) {
-                newVersion = version;
+                newVersion = release;
             } else {
-                newVersion = "";
+                newVersion = null;
             }
         }
 

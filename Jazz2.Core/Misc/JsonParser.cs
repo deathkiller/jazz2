@@ -161,7 +161,6 @@ namespace System.Text.Json
         public int TypeCacheCapacity { get; set; }
     }
 
-    //[SuppressMessage("ReSharper", "UnusedParameter.Local")]
     public class JsonParser
     {
         private const string TypeTag1 = "__type";
@@ -1081,7 +1080,7 @@ namespace System.Text.Json
             while (ch < EOF)
             {
 #if FASTER_GETPROPINFO
-                    var prop = (typed ? FasterGetPropInfo(cached) : null);
+                var prop = (typed ? FasterGetPropInfo(cached) : null);
 #else
                 var prop = (typed ? GetPropInfo(props) : null);
 #endif

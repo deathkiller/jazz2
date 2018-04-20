@@ -1,13 +1,23 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 
 namespace Jazz2
 {
     public class Updater
     {
-        public delegate void CheckUpdatesCallback(bool newAvailable, string version);
+        public delegate void CheckUpdatesCallback(bool newAvailable, Release release);
+
+        public class Release
+        {
+            public string tag_name { get; set; }
+            public string name { get; set; }
+            //public string published_at { get; set; }
+            //public string body { get; set; }
+        }
+
+        private const string Url = "https://api.github.com/repos/deathkiller/jazz2/releases/latest";
 
         public static void CheckUpdates(CheckUpdatesCallback callback)
         {
@@ -17,24 +27,26 @@ namespace Jazz2
 
             ThreadPool.UnsafeQueueUserWorkItem(delegate {
                 try {
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
                     WebClient client = new WebClient();
                     client.Encoding = Encoding.UTF8;
-                    string content = client.DownloadString(new Uri("http://deat.tk/downloads/other/jazz2/updates"));
+                    client.Headers["User-Agent"] = App.AssemblyTitle;
 
-                    if (content == null || !content.StartsWith("Death™ Updates :: ", StringComparison.InvariantCulture)) {
+                    string content = client.DownloadString(Url);
+                    if (content == null) {
                         callback(false, null);
                         return;
                     }
 
-                    int i = content.IndexOf(' ', 19);
-                    if (i == -1) {
+                    Release release = new JsonParser().Parse<Release>(content);
+                    if (release == null || release.tag_name == null) {
                         callback(false, null);
                         return;
                     }
 
-                    string version = content.Substring(18, i - 18);
-                    bool isNewer = IsVersionNewer(App.AssemblyVersion, version);
-                    callback(isNewer, version);
+                    bool isNewer = IsVersionNewer(App.AssemblyVersion, release.tag_name);
+                    callback(isNewer, release);
                 } catch {
                     // Nothing to do...
                     callback(false, null);

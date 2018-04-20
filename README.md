@@ -15,7 +15,7 @@
 
 
 ## Introduction
-Jazz² Resurrection is reimplementation of game **Jazz Jackrabbit 2** from year 1998. Supports various versions of the game (Shareware Demo, Holiday Hare '98, The Secret Files and Christmas Chronicles). Also, it partially supports some features of [JJ2+](http://jj2.plus/) extension and MLLE.
+Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** released in 1998. Supports various versions of the game (Shareware Demo, Holiday Hare '98, The Secret Files and Christmas Chronicles). Also, it partially supports some features of [JJ2+](http://jj2.plus/) extension and MLLE.
 
 [![Build Status](https://img.shields.io/appveyor/ci/deathkiller/jazz2.svg?logo=appveyor)](https://ci.appveyor.com/project/deathkiller/jazz2)
 [![Latest Release](https://img.shields.io/github/release/deathkiller/jazz2.svg?logo=dockbit)](https://github.com/deathkiller/jazz2/releases)

@@ -51,6 +51,8 @@ namespace Jazz2.Game
             }
 #endif
 
+            System.Runtime.GCSettings.LatencyMode = System.Runtime.GCLatencyMode.Interactive;
+
             ContentResolver.Current.ResetReferenceFlag();
 
             Scene.Current.DisposeLater();
@@ -61,6 +63,8 @@ namespace Jazz2.Game
 
         public void ChangeLevel(LevelInitialization carryOver = default(LevelInitialization))
         {
+            System.Runtime.GCSettings.LatencyMode = System.Runtime.GCLatencyMode.LowLatency;
+
             ContentResolver.Current.ResetReferenceFlag();
 
             if (string.IsNullOrEmpty(carryOver.LevelName)) {
