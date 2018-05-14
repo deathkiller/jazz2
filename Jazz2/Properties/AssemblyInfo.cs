@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Jazz² Resurrection")]
-[assembly: AssemblyDescription("Reimplementation of game called Jazz Jackrabbit 2 from year 1998.")]
+[assembly: AssemblyDescription("Reimplementation of the game Jazz Jackrabbit 2 released in 1998.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Jazz² Resurrection")]

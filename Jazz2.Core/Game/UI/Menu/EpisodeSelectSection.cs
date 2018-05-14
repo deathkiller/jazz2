@@ -294,13 +294,15 @@ namespace Jazz2.Game.UI.Menu
                             selectedIndex = 0;
                         }
                     }
-                } else if (ControlScheme.MenuActionHit(PlayerActions.Left)) {
-                    expanded = false;
-                    expandedAnimation = 0f;
-                } else if (ControlScheme.MenuActionHit(PlayerActions.Right)) {
-                    if (episodes[selectedIndex].CanContinue) {
-                        expanded = true;
-                    }
+                }
+            }
+            
+            if (ControlScheme.MenuActionHit(PlayerActions.Left)) {
+                expanded = false;
+                expandedAnimation = 0f;
+            } else if (ControlScheme.MenuActionHit(PlayerActions.Right)) {
+                if (episodes[selectedIndex].CanContinue) {
+                    expanded = true;
                 }
             }
         }

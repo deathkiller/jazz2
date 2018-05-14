@@ -37,7 +37,7 @@ namespace Jazz2.Game.UI.Menu
                             levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "xmas99", "03_xmas3");
                             if (!DirectoryOp.Exists(levelPath)) {
                                 // Try to use "Shareware Demo" background;
-                                levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "share", "03_share3");
+                                levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "share", "02_share2");
                                 if (!DirectoryOp.Exists(levelPath)) {
                                     // No usable background found
                                     throw new FileNotFoundException();
@@ -58,6 +58,17 @@ namespace Jazz2.Game.UI.Menu
                 if (config.Layers.TryGetValue("Sky", out layer)) {
                     if (layer.BackgroundColor != null && layer.BackgroundColor.Count >= 3) {
                         horizonColor = new Vector4(layer.BackgroundColor[0] / 255f, layer.BackgroundColor[1] / 255f, layer.BackgroundColor[2] / 255f, 1f);
+                    }
+
+                    switch ((BackgroundStyle)layer.BackgroundStyle) {
+                        case BackgroundStyle.Sky:
+                        default:
+                            texturedBackgroundShader = ContentResolver.Current.RequestShader("TexturedBackground");
+                            break;
+
+                        case BackgroundStyle.Circle:
+                            texturedBackgroundShader = ContentResolver.Current.RequestShader("TexturedBackgroundCircle");
+                            break;
                     }
                 }
 
@@ -138,7 +149,7 @@ namespace Jazz2.Game.UI.Menu
                 renderTarget = cachedTexturedBackground.Res;
             } else {
                 renderTarget = new Texture(w * 32, h * 32, TextureSizeMode.NonPowerOfTwo, TextureMagFilter.Linear, TextureMinFilter.Linear, TextureWrapMode.Repeat, TextureWrapMode.Repeat);
-                texturedBackgroundShader = ContentResolver.Current.RequestShader("TexturedBackground");
+                //texturedBackgroundShader = ContentResolver.Current.RequestShader("TexturedBackground");
             }
 
             using (DrawDevice device = new DrawDevice()) {

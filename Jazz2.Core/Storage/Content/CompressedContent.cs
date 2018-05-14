@@ -280,6 +280,12 @@ namespace Jazz2.Storage.Content
             path = path.Replace(PathOp.AltDirectorySeparatorChar, PathOp.DirectorySeparatorChar);
 
             ContentTree.Node node = tree[path];
+            if (node == null) {
+                throw new FileNotFoundException("File \"" + path + "\" was not found in CompressedContent");
+            }
+            if (node.Source == null) {
+                throw new NotSupportedException();
+            }
             return node.Source.GetUncompressedStream();
         }
 
