@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Reflection;
 
 namespace Duality.Drawing
 {
-	public static class ImageCodec
+    public static class ImageCodec
 	{
 		public const string FormatJpeg = "image/jpeg";
 		public const string FormatPng  = "image/png";

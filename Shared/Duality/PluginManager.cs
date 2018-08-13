@@ -65,16 +65,6 @@ namespace Duality
 		{
 			get { return this.pluginRegistry; }
 		}
-		/// <summary>
-		/// [GET / SET] An optional <see cref="Log"/> which is used for logging plugin
-		/// loading states and issues.
-		/// </summary>
-		//protected Log PluginLog
-		//{
-		//	get { return this.pluginLog; }
-		//	set { this.pluginLog = value ?? dummyPluginLog; }
-		//}
-
 
 		internal PluginManager() { }
 

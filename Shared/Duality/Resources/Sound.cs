@@ -170,13 +170,6 @@ namespace Duality.Resources
             set { this.maxDistFactor = value / DualityApp.Sound.DefaultMaxDist; }
         }
 
-        /*
-		/// <summary>
-		/// Creates a new, empty sound. Since it does not refer to any <see cref="Duality.Resources.AudioData"/> yet,
-		/// it can't be played.
-		/// </summary>
-		public Sound() : this(AudioData.Beep) {}*/
-
         /// <summary>
         /// Creates a new Sound referring to an existing <see cref="Duality.Resources.AudioData"/>.
         /// </summary>

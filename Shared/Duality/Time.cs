@@ -139,9 +139,6 @@ namespace Duality
             // Initial timer start
             if (!watch.IsRunning) watch.Restart();
 
-            //Profile.TimeFrame.EndMeasure();
-            //Profile.TimeFrame.BeginMeasure();
-
             frameCount++;
 
             double mainTimer = Time.MainTimer.TotalSeconds;

@@ -12,9 +12,7 @@ namespace Duality.Drawing
 		private Canvas           canvas;
 		private BatchInfo        batchInfo;
 		private ColorRgba        color;
-		//private ContentRef<Font> font;
 		private float            depthOffset;
-		//private bool             invariantTextScale;
 		private float            transformAngle;
 		private Vector2          transformScale;
 		private Vector2          transformHandle;
@@ -43,22 +41,6 @@ namespace Duality.Drawing
 		{
 			get { return this.batchInfo.Equals(DefaultMaterial); }
 		}
-		/// <summary>
-		/// [GET / SET] The <see cref="Duality.Resources.Font"/> to use for text rendering.
-		/// </summary>
-		//public ContentRef<Font> TextFont
-		//{
-		//	get { return this.font; }
-		//	set { this.font = value.IsAvailable ? value : Font.GenericMonospace10; }
-		//}
-		/// <summary>
-		/// [GET / SET] If true, text does not scale due to its position in space
-		/// </summary>
-		//public bool TextInvariantScale
-		//{
-		//	get { return this.invariantTextScale; }
-		//	set { this.invariantTextScale = value; }
-		//}
 		/// <summary>
 		/// [GET / SET] The texture coordinate rect which is used for UV generation when drawing shapes.
 		/// </summary>
@@ -150,9 +132,7 @@ namespace Duality.Drawing
 			target.batchInfo          = this.batchInfo;
 			target.uvGenRect          = this.uvGenRect;
 			target.texBaseSize        = this.texBaseSize;
-			//target.font               = this.font;
 			target.color              = this.color;
-			//target.invariantTextScale = this.invariantTextScale;
 			target.depthOffset        = this.depthOffset;
 			target.transformAngle     = this.transformAngle;
 			target.transformHandle    = this.transformHandle;

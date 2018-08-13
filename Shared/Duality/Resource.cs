@@ -23,11 +23,6 @@ namespace Duality
         private static List<Resource> finalizeSched = new List<Resource>();
 
         /// <summary>
-        /// Contains information on how this <see cref="Resource"/> should be treated during
-        /// Asset import operations in the editor.
-        /// </summary>
-        //protected AssetInfo assetInfo = null;
-        /// <summary>
         /// The path of this Resource.
         /// </summary>
         protected string path = null;

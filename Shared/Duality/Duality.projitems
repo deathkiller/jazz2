@@ -190,10 +190,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utility\EventArgs\GameObjectGroupEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\EventArgs\GameObjectParentChangedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\EventArgs\TransformChangedEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utility\Extensions\ExtMethodsIColorData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\Extensions\ExtMethodsIEnumerable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\Extensions\ExtMethodsIList.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utility\Extensions\ExtMethodsMemberInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\Extensions\ExtMethodsPropertyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\Extensions\ExtMethodsRandom.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\Extensions\ExtMethodsTypeInfo.cs" />
@@ -202,7 +200,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utility\InitState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\Math\AudioUnit.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\Math\ExtMethodsTargetResize.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utility\Math\GenericOperator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\Math\Range.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\Math\TargetResize.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\ObjectCreator.cs" />

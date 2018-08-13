@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Duality.Drawing;
-using Duality.IO;
 using Duality.Resources;
 
 namespace Duality.Components
@@ -148,10 +147,6 @@ namespace Duality.Components
 		/// <param name="imageSize">Target size of the rendered image before adjusting it to fit the specified viewport.</param>
 		public void Render(Rect viewportRect, Vector2 imageSize)
 		{
-			//string counterName = PathOp.Combine("Cameras", this.gameobj.Name);
-			//Profile.BeginMeasure(counterName);
-			//Profile.TimeRender.BeginMeasure();
-
 			// Configure the wrapped drawing device, so rendering matrices and settings
 			// are set up properly.
 			this.UpdateDeviceConfig();
@@ -176,9 +171,6 @@ namespace Duality.Components
 			// Set up drawdevice matrices so world-screen space conversions work properly
 			this.drawDevice.TargetSize = imageSize;
 			this.drawDevice.UpdateMatrices();
-
-			//Profile.TimeRender.EndMeasure();
-			//Profile.EndMeasure(counterName);
 		}
 		/// <summary>
 		/// Renders a picking map of the current <see cref="Duality.Resources.Scene"/>.
@@ -189,8 +181,6 @@ namespace Duality.Components
 		/// <param name="renderOverlay">Whether or not to render screen overlay renderers onto the picking target.</param>
 		public void RenderPickingMap(Point2 viewportSize, Vector2 imageSize, bool renderOverlay)
 		{
-			//Profile.TimeVisualPicking.BeginMeasure();
-
 			this.UpdateDeviceConfig();
 
 			if (this.pickingSetup == null) this.pickingSetup = new PickingRenderSetup();
@@ -201,8 +191,6 @@ namespace Duality.Components
 				this.drawDevice, 
 				new Rect(viewportSize), 
 				imageSize);
-
-			//Profile.TimeVisualPicking.EndMeasure();
 		}
 		/// <summary>
 		/// Picks the <see cref="Duality.ICmpRenderer"/> that owns the pixel at the specified position.

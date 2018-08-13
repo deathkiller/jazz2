@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-
-namespace Duality.Drawing
+﻿namespace Duality.Drawing
 {
-	/// <summary>
-	/// Holds culling information about a renderer object, which can be
-	/// used to determine whether it could be visible to any given observer.
-	/// </summary>
-	public struct CullingInfo
+    /// <summary>
+    /// Holds culling information about a renderer object, which can be
+    /// used to determine whether it could be visible to any given observer.
+    /// </summary>
+    public struct CullingInfo
 	{
 		/// <summary>
 		/// The renderers reference position in world space coordinates.

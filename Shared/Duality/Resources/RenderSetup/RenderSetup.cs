@@ -338,7 +338,6 @@ namespace Duality.Resources
 		/// <param name="pickingMap"></param>
 		protected void CollectRendererDrawcalls(Scene scene, DrawDevice drawDevice)
 		{
-			//Profile.TimeCollectDrawcalls.BeginMeasure();
 			try
 			{
 				// If no visibility groups are met, don't bother looking for renderers.
@@ -351,8 +350,6 @@ namespace Duality.Resources
 				// Query renderers
 				IRendererVisibilityStrategy visibilityStrategy = scene.VisibilityStrategy;
 				if (visibilityStrategy == null) return;
-
-				//Profile.TimeQueryVisibleRenderers.BeginMeasure();
 
 				if (this.collectRendererBuffer == null)
 					this.collectRendererBuffer = new RawList<ICmpRenderer>();
@@ -371,15 +368,12 @@ namespace Duality.Resources
 					});
 				}
 
-				//Profile.TimeQueryVisibleRenderers.EndMeasure();
-
 				this.OnCollectRendererDrawcalls(drawDevice, this.collectRendererBuffer, visibilityStrategy.IsRendererQuerySorted);
 			}
 			catch (Exception e)
 			{
 			    Console.WriteLine("There was an error while {0} was collecting renderer drawcalls: {1}", this, /*LogFormat.Exception(*/e/*)*/);
 			}
-			//Profile.TimeCollectDrawcalls.EndMeasure();
 		}
 		/// <summary>
 		/// Collects drawcalls that are submitted by external sources which are 
@@ -507,7 +501,6 @@ namespace Duality.Resources
 		{
 			Type lastRendererType = null;
 			Type rendererType = null;
-			//TimeCounter activeProfiler = null;
 			ICmpRenderer[] data = visibleRenderers.Data;
 			for (int i = 0; i < data.Length; i++)
 			{
@@ -519,10 +512,6 @@ namespace Duality.Resources
 					rendererType = data[i].GetType();
 					if (rendererType != lastRendererType)
 					{
-						//if (activeProfiler != null)
-						//	activeProfiler.EndMeasure();
-						//activeProfiler = Profile.RequestCounter<TimeCounter>(Profile.TimeCollectDrawcalls.FullName + @"\" + rendererType.Name);
-						//activeProfiler.BeginMeasure();
 						lastRendererType = rendererType;
 					}
 				}
@@ -530,9 +519,6 @@ namespace Duality.Resources
 				// Collect Drawcalls from this Component
 				data[i].Draw(drawDevice);
 			}
-
-			//if (activeProfiler != null)
-			//	activeProfiler.EndMeasure();
 		}
 	}
 }

@@ -340,9 +340,6 @@ namespace Duality
             ShutdownBackend(ref audioBack);
             pluginManager.ClearPlugins();
 
-            // Since this performs file system operations, it needs to happen before shutting down the system backend.
-            //Profile.SaveTextReport(environment == ExecutionEnvironment.Editor ? "perflog_editor.txt" : "perflog.txt");
-
             ShutdownBackend(ref systemBack);
 
             // Shut down the plugin manager and plugin loader
@@ -389,7 +386,6 @@ namespace Duality
             // Perform a cleanup step to catch all DisposeLater calls from this update
             RunCleanup();
 
-            //Profile.TimeUpdate.EndMeasure();
             isUpdating = false;
 
             if (terminateScheduled) Terminate();
@@ -397,13 +393,10 @@ namespace Duality
 		internal static void EditorUpdate(IEnumerable<GameObject> updateObjects, bool simulateGame, bool forceFixedStep)
 		{
 			isUpdating = true;
-			//Profile.TimeUpdate.BeginMeasure();
 
 			Time.FrameTick(forceFixedStep, simulateGame);
-			//Profile.FrameTick();
 
 			if (simulateGame) {
-				//VisualLogs.UpdateLogEntries();
 				pluginManager.InvokeBeforeUpdate();
 
 				UpdateUserInput();
@@ -438,10 +431,9 @@ namespace Duality
 			}
 
 			sound.Update();
-			//VisualLogs.PrepareRenderLogEntries();
+
 			RunCleanup();
 
-			//Profile.TimeUpdate.EndMeasure();
 			isUpdating = false;
 
 			if (terminateScheduled) Terminate();

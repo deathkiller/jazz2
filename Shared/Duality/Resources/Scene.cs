@@ -14,12 +14,6 @@ namespace Duality.Resources
     /// </summary>
     public /*sealed*/ class Scene : Resource
     {
-        //private const float PhysicsAccStart = Time.MsPFMult;
-
-
-        //private static World               physicsWorld      = new World(Vector2.Zero);
-        //private static float               physicsAcc        = 0.0f;
-        //private static bool                physicsLowFps     = false;
         private static ContentRef<Scene> current = new Scene();
         private static bool curAutoGen = false;
         private static bool isSwitching = false;
@@ -27,29 +21,6 @@ namespace Duality.Resources
         private static bool switchToScheduled = false;
         private static ContentRef<Scene> switchToTarget = null;
 
-
-        /// <summary>
-        /// [GET] When using fixed-timestep physics, the alpha value [0.0 - 1.0] indicates how
-        /// complete the next step is. This is used for linear interpolation inbetween fixed physics steps.
-        /// </summary>
-        /*public static float PhysicsAlpha
-		{
-			get { return physicsAcc / Time.MsPFMult; }
-		}*/
-        /// <summary>
-        /// [GET] Is fixed-timestep physics calculation currently active?
-        /// </summary>
-        /*public static bool PhysicsFixedTime
-		{
-			get { return DualityApp.AppData.PhysicsFixedTime && !physicsLowFps; }
-		}*/
-        /// <summary>
-        /// [GET] Returns the current physics world.
-        /// </summary>
-        /*public static World PhysicsWorld
-		{
-			get { return physicsWorld; }
-		}*/
         /// <summary>
         /// [GET / SET] The Scene that is currently active i.e. updated and rendered. This is never null.
         /// You may assign null in order to leave the current Scene and enter en empty dummy Scene.
@@ -78,13 +49,6 @@ namespace Duality.Resources
                     current.Res = value ?? new Scene();
             }
         }
-        /// <summary>
-        /// [GET] The Resource file path of the current Scene.
-        /// </summary>
-        /*public static string CurrentPath
-		{
-			get { return current.Res != null ? current.Res.Path : current.Path; }
-		}*/
         /// <summary>
         /// [GET] Returns whether <see cref="Scene.Current"/> is in a transition between two different states, i.e.
         /// whether the current Scene is being changed right now.
@@ -222,10 +186,6 @@ namespace Duality.Resources
                 }
 
                 //});
-
-                // Clear the physics world of all contents
-                //physicsWorld.Clear();
-                //ResetPhysics();
             }
             switchLock--;
         }
@@ -233,16 +193,6 @@ namespace Duality.Resources
         {
             switchLock++;
             if (current.ResWeak != null) {
-                // Apply physical properties
-                //physicsWorld.Gravity = PhysicsUnit.ForceToPhysical * current.ResWeak.GlobalGravity;
-
-                // When in the editor, apply prefab links
-                //if (DualityApp.ExecEnvironment == DualityApp.ExecutionEnvironment.Editor)
-                //	current.ResWeak.ApplyPrefabLinks();
-
-                // When running the game, break prefab links
-                //if (DualityApp.ExecContext == DualityApp.ExecutionContext.Game)
-                //	current.ResWeak.BreakPrefabLinks();
 
                 // Activate GameObjects
                 //DualityApp.EditorGuard(() =>
@@ -350,7 +300,6 @@ namespace Duality.Resources
             //public TimeCounter Profiler;
         }
 
-        //private Vector2                     globalGravity      = Vector2.UnitY * 33.0f;
         private IRendererVisibilityStrategy visibilityStrategy = new DefaultRendererVisibilityStrategy();
         private GameObject[] serializeObj = null;
 
@@ -373,26 +322,6 @@ namespace Duality.Resources
             get { return this.visibilityStrategy; }
             set { this.visibilityStrategy = value ?? new DefaultRendererVisibilityStrategy(); }
         }
-        /// <summary>
-        /// [GET / SET] Global gravity force that is applied to all objects that obey the laws of physics.
-        /// </summary>
-        /*public Vector2 GlobalGravity
-		{
-			get { return this.globalGravity; }
-			set
-			{
-				this.globalGravity = value;
-				if (this.IsCurrent)
-				{
-					physicsWorld.Gravity = PhysicsUnit.ForceToPhysical * value;
-					foreach (Body b in physicsWorld.BodyList)
-					{
-						if (b.IgnoreGravity || b.BodyType != BodyType.Dynamic) continue;
-						b.Awake = true;
-					}
-				}
-			}
-		}*/
         /// <summary>
         /// [GET] Enumerates all registered objects.
         /// </summary>
@@ -477,66 +406,6 @@ namespace Duality.Resources
             if (!this.IsCurrent) throw new InvalidOperationException("Can't update non-current Scene!");
             switchLock++;
 
-            // Update physics
-            /*bool physUpdate = false;
-			double physBegin = Time.MainTimer.TotalMilliseconds;
-			if (Scene.PhysicsFixedTime)
-			{
-				physicsAcc += Time.MsPFMult * Time.TimeMult;
-				int iterations = 0;
-				if (physicsAcc >= Time.MsPFMult)
-				{
-					//Profile.TimeUpdatePhysics.BeginMeasure();
-					DualityApp.EditorGuard(() =>
-					{
-						double timeUpdateBegin = Time.MainTimer.TotalMilliseconds;
-						while (physicsAcc >= Time.MsPFMult)
-						{
-							// Catch up on updating progress
-							FarseerPhysics.Settings.VelocityThreshold = PhysicsUnit.VelocityToPhysical * DualityApp.AppData.PhysicsVelocityThreshold;
-							physicsWorld.Step(Time.SPFMult);
-							physicsAcc -= Time.MsPFMult;
-							iterations++;
-							
-							double timeSpent = Time.MainTimer.TotalMilliseconds - timeUpdateBegin;
-							if (timeSpent >= Time.MsPFMult * 10.0f) break; // Emergency exit
-						}
-					});
-					physUpdate = true;
-					//Profile.TimeUpdatePhysics.EndMeasure();
-				}
-			}
-			else
-			{
-				//Profile.TimeUpdatePhysics.BeginMeasure();
-				//DualityApp.EditorGuard(() =>
-				//{
-					//FarseerPhysics.Settings.VelocityThreshold = PhysicsUnit.VelocityToPhysical * Time.TimeMult * DualityApp.AppData.PhysicsVelocityThreshold;
-					//physicsWorld.Step(Time.TimeMult * Time.SPFMult);
-					//if (Time.TimeMult == 0.0f) physicsWorld.ClearForces(); // Complete freeze? Clear forces, so they don't accumulate.
-					physicsAcc = PhysicsAccStart;
-				//});
-				physUpdate = true;
-				//Profile.TimeUpdatePhysics.EndMeasure();
-			}
-			double physTime = Time.MainTimer.TotalMilliseconds - physBegin;
-
-			// Apply Farseers internal measurements to Duality
-			if (physUpdate)
-			{
-				Profile.TimeUpdatePhysicsAddRemove.Set(1000.0f * physicsWorld.AddRemoveTime / System.Diagnostics.Stopwatch.Frequency);
-				Profile.TimeUpdatePhysicsContacts.Set(1000.0f * physicsWorld.ContactsUpdateTime / System.Diagnostics.Stopwatch.Frequency);
-				Profile.TimeUpdatePhysicsContinous.Set(1000.0f * physicsWorld.ContinuousPhysicsTime / System.Diagnostics.Stopwatch.Frequency);
-				Profile.TimeUpdatePhysicsController.Set(1000.0f * physicsWorld.ControllersUpdateTime / System.Diagnostics.Stopwatch.Frequency);
-				Profile.TimeUpdatePhysicsSolve.Set(1000.0f * physicsWorld.SolveUpdateTime / System.Diagnostics.Stopwatch.Frequency);
-			}
-
-			// Update low fps physics state
-			if (!physicsLowFps)
-				physicsLowFps = Time.LastDelta > Time.MsPFMult && physTime > Time.LastDelta * 0.85f;
-			else
-				physicsLowFps = !(Time.LastDelta < Time.MsPFMult * 0.9f || physTime < Time.LastDelta * 0.6f);*/
-
             // Update all GameObjects
             //Profile.TimeUpdateScene.BeginMeasure();
             //DualityApp.EditorGuard(() =>
@@ -573,8 +442,6 @@ namespace Duality.Resources
 	    }
 		private void UpdateComponents<T>(Action<T> updateAction) where T : class
         {
-            //Profile.TimeUpdateSceneComponents.BeginMeasure();
-
             // Create a sorted list of updatable component types
             this.updateTypeOrder.Clear();
             foreach (var pair in this.componentsByType) {
@@ -606,7 +473,6 @@ namespace Duality.Resources
                     this.updateMap.Add(new UpdateEntry {
                         Type = typeInfo,
                         Count = this.updatableComponents.Count - oldCount,
-                        //Profiler = Profile.RequestCounter<TimeCounter>(Profile.TimeUpdateScene.FullName + @"\" + typeInfo.Name)
                     });
                 }
             }
@@ -630,11 +496,6 @@ namespace Duality.Resources
 
                         updateMapIndex++;
                         updateMapBegin = i;
-
-                        //if (activeProfiler != null)
-                        //    activeProfiler.EndMeasure();
-                        //activeProfiler = updateData[updateMapIndex].Profiler;
-                        //activeProfiler.BeginMeasure();
                     }
 
                     // Skip inactive, disposed and detached Components
@@ -643,12 +504,7 @@ namespace Duality.Resources
                     // Invoke the Component's update action
                     updateAction(data[i] as T);
                 }
-
-                //if (activeProfiler != null)
-                //    activeProfiler.EndMeasure();
             }
-
-            //Profile.TimeUpdateSceneComponents.EndMeasure();
         }
 
         /// <summary>
@@ -670,17 +526,6 @@ namespace Duality.Resources
         {
             this.objectManager.Clear();
         }
-        /*
-        /// <summary>
-        /// Appends a cloned version of the specified Scenes contents to this Scene.
-        /// </summary>
-        /// <param name="scene">The source Scene.</param>
-        public void Append(ContentRef<Scene> scene)
-        {
-            if (!scene.IsAvailable) return;
-            this.objectManager.AddObjects(scene.Res.RootObjects.Select(o => o.Clone()));
-        }
-        */
 
         /// <summary>
         /// Appends the specified Scene's contents to this Scene and consumes the specified Scene.

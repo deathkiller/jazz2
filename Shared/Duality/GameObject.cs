@@ -23,7 +23,6 @@ namespace Duality
 
 		private		Scene						scene		= null;
 		private		GameObject					parent		= null;
-		//private		PrefabLink					prefabLink	= null;
 		private		Guid						identifier	= Guid.NewGuid();
 		private		List<GameObject>			children	= null;
 		private		List<Component>				compList	= new List<Component>();
@@ -234,19 +233,6 @@ namespace Duality
 		}
 
 	    /// <summary>
-	    /// Enumerates all GameObjects that are directly or indirectly parented to this object, i.e. its
-	    /// children, grandchildren, etc.
-	    /// </summary>
-	    public IEnumerable<GameObject> GetChildrenDeep()
-	    {
-	        if (this.children == null) return EmptyChildren;
-
-	        int startCapacity = Math.Max(this.children.Count * 2, 8);
-	        List<GameObject> result = new List<GameObject>(startCapacity);
-	        this.GetChildrenDeep(result);
-	        return result;
-	    }
-	    /// <summary>
 	    /// Gathers all GameObjects that are directly or indirectly parented to this object, i.e. its
 	    /// children, grandchildren, etc.
 	    /// </summary>
@@ -258,53 +244,7 @@ namespace Duality
 	            this.children[i].GetChildrenDeep(resultList);
 	        }
 	    }
-
-        /// <summary>
-        /// Returns the first child GameObject with the specified name. You may also specify a full name to access children's children.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public GameObject ChildByName(string name)
-		{
-			if (this.children == null || string.IsNullOrEmpty(name)) return null;
-			return this.children.FirstByName(name);
-		}
-	    /// <summary>
-	    /// Executes a series of child indexing operations, beginning at this GameObject and 
-	    /// each on the last retrieved child object.
-	    /// </summary>
-	    /// <param name="indexPath">An enumeration of child indices.</param>
-	    /// <returns>The last retrieved GameObject after executing all indexing steps.</returns>
-	    /// <example>
-	    /// Calling <c>ChildAtIndexPath(new[] { 0, 0 })</c> will return the first child of the first child.
-	    /// </example>
-	    public GameObject GetChildAtIndexPath(IEnumerable<int> indexPath)
-	    {
-	        GameObject curObj = this;
-	        foreach (int i in indexPath) {
-	            if (i < 0) return null;
-	            if (i >= curObj.children.Count) return null;
-	            curObj = curObj.children[i];
-	        }
-	        return curObj;
-	    }
-	    /// <summary>
-	    /// Determines the index path from this GameObject to the specified child (or grandchild, etc.) of it.
-	    /// </summary>
-	    /// <param name="child">The child GameObject to lead to.</param>
-	    /// <returns>A <see cref="List{T}"/> of indices that lead from this GameObject to the specified child GameObject.</returns>
-	    /// <seealso cref="GetChildAtIndexPath"/>
-	    public List<int> GetIndexPathOfChild(GameObject child)
-	    {
-	        List<int> path = new List<int>();
-	        while (child.parent != null && child != this) {
-	            path.Add(child.parent.children.IndexOf(child));
-	            child = child.parent;
-	        }
-	        path.Reverse();
-	        return path;
-	    }
-
+        
 		/// <summary>
 		/// Returns whether this GameObject is a child, grandchild or similar of the specified GameObject.
 		/// </summary>
@@ -837,11 +777,6 @@ namespace Duality
 			// Public event
 			if (this.eventComponentRemoving != null)
 				this.eventComponentRemoving(this, new ComponentEventArgs(cmp));
-		}
-
-		public override string ToString()
-		{
-			return string.Format("GameObject \"{0}\"", this.FullName);
 		}
 	}
 }
