@@ -33,6 +33,12 @@ namespace Jazz2.Game.Events
             public ActorBase SpawnedActor;
         }
 
+        private struct DelayedSpawnInfo
+        {
+            public string Path;
+            public int X, Y;
+        }
+
         private readonly LevelHandler levelHandler;
 
         private EventTile[] eventLayout;
@@ -42,6 +48,8 @@ namespace Jazz2.Game.Events
         private Dictionary<PlayerType, List<Vector2>> spawnPositions;
 
         private RawList<GeneratorInfo> generators = new RawList<GeneratorInfo>();
+        private RawList<DelayedSpawnInfo> delayedSpawn = new RawList<DelayedSpawnInfo>();
+        private RawList<string> resourceReadyList = new RawList<string>();
 
         public EventMap(LevelHandler levelHandler, Point2 size)
         {
@@ -353,9 +361,12 @@ namespace Jazz2.Game.Events
 
             for (int x = x1; x <= x2; x++) {
                 for (int y = y1; y <= y2; y++) {
-                    ref EventTile tile = ref eventLayout[x + y * layoutWidth];
+                    int tileID = x + y * layoutWidth;
+                    ref EventTile tile = ref eventLayout[tileID];
 
                     if (!tile.IsEventActive && tile.EventType != EventType.Empty) {
+                        tile.IsEventActive = true;
+
                         try {
                             if (tile.EventType == EventType.Weather) {
                                 levelHandler.ApplyWeather((LevelHandler.WeatherType)tile.EventParams[0], tile.EventParams[1], tile.EventParams[2] != 0);
@@ -365,14 +376,46 @@ namespace Jazz2.Game.Events
                                     levelHandler.AddActor(actor);
                                 }
                             }
-
-                            tile.IsEventActive = true;
-                        } catch (ResourcesNotReady) {
+                        } catch (ResourcesNotReady ex) {
                             // A spawned actor needs resources that are not loaded in memory yet.
                             // Request is added into queue. Second thread starts to fetch these resources
                             // and current thread tries to spawn this actor again in next frames.
+                            delayedSpawn.Add(new DelayedSpawnInfo {
+                                Path = ex.Path,
+                                X = x,
+                                Y = y
+                            });
                         }
                     }
+                }
+            }
+
+            lock (resourceReadyList) {
+                while (resourceReadyList.Count > 0) {
+                    string path = resourceReadyList[0];
+
+                    for (int i = 0; i < delayedSpawn.Count;) {
+                        if (path == delayedSpawn.Data[i].Path) {
+                            int x = delayedSpawn.Data[i].X;
+                            int y = delayedSpawn.Data[i].Y;
+                            int tileID = x + y * layoutWidth;
+                            ref EventTile tile = ref eventLayout[tileID];
+                            delayedSpawn.RemoveAtFast(i);
+
+                            if (tile.EventType == EventType.Weather) {
+                                levelHandler.ApplyWeather((LevelHandler.WeatherType)tile.EventParams[0], tile.EventParams[1], tile.EventParams[2] != 0);
+                            } else if (tile.EventType != EventType.Generator) {
+                                ActorBase actor = levelHandler.EventSpawner.SpawnEvent(ActorInstantiationFlags.IsCreatedFromEventMap | tile.EventFlags, tile.EventType, x, y, LevelHandler.MainPlaneZ, tile.EventParams);
+                                if (actor != null) {
+                                    levelHandler.AddActor(actor);
+                                }
+                            }
+                        } else {
+                            i++;
+                        }
+                    }
+
+                    resourceReadyList.RemoveAtFast(0);
                 }
             }
         }
@@ -398,6 +441,13 @@ namespace Jazz2.Game.Events
             ushort generatorIdx = eventLayout[tx + ty * layoutWidth].EventParams[0];
 
             generators.Data[generatorIdx].TimeLeft = 0f;
+        }
+
+        public void OnResourceReadyCallback(string path)
+        {
+            lock (resourceReadyList) {
+                resourceReadyList.Add(path);
+            }
         }
     }
 }

@@ -21,16 +21,19 @@ namespace Jazz2.Game
         private readonly ContentRef<Material> lightingMaterial, lightingNoiseMaterial;
         private readonly ContentRef<DrawTechnique> combineSceneShader, combineSceneWaterShader;
 
+#if !__ANDROID__
         private readonly ContentRef<DrawTechnique> downsampleShader;
         private readonly ContentRef<DrawTechnique> blurShader;
-
+#endif
         private readonly ContentRef<DrawTechnique> resizeShader;
 
         private Texture lightingTexture, mainTexture, normalTexture, finalTexture;
         private RenderTarget lightingTarget, mainTarget, finalTarget;
 
+#if !__ANDROID__
         private readonly RenderTarget[] targetPingPongA = new RenderTarget[PyramidSize];
         private readonly RenderTarget[] targetPingPongB = new RenderTarget[PyramidSize];
+#endif
 
         private readonly VertexC1P3T4A1[] lightBuffer = new VertexC1P3T4A1[4];
 
@@ -49,9 +52,10 @@ namespace Jazz2.Game
             ContentRef<DrawTechnique> lightingShader = ContentResolver.Current.RequestShader("Lighting");
             ContentRef<DrawTechnique> lightingNoiseShader = ContentResolver.Current.RequestShader("LightingNoise");
 
+#if !__ANDROID__
             downsampleShader = ContentResolver.Current.RequestShader("Downsample");
             blurShader = ContentResolver.Current.RequestShader("Blur");
-
+#endif
             combineSceneShader = ContentResolver.Current.RequestShader("CombineScene");
             combineSceneWaterShader = ContentResolver.Current.RequestShader("CombineSceneWater");
 
@@ -154,8 +158,10 @@ namespace Jazz2.Game
             Disposable.Free(ref finalTarget);
             Disposable.Free(ref finalTexture);
 
+#if !__ANDROID__
             Disposable.FreeContents(targetPingPongA);
             Disposable.FreeContents(targetPingPongB);
+#endif
         }
 
         protected override void OnRenderPointOfView(Scene scene, DrawDevice drawDevice, Rect viewportRect, Vector2 imageSize)
@@ -292,6 +298,7 @@ namespace Jazz2.Game
 
             drawDevice.Render();
 
+#if !__ANDROID__
             // Resize Blur targets
             SetupTargets((Point2)drawDevice.TargetSize);
 
@@ -329,6 +336,7 @@ namespace Jazz2.Game
 
                 this.Blit(drawDevice, material, targetPingPongA[i]);
             }
+#endif
 
             // Blit it into screen
             if (viewWaterLevel < viewSize.Y) {
@@ -338,11 +346,12 @@ namespace Jazz2.Game
                 material.SetTexture("mainTex", mainTexture);
                 material.SetTexture("lightTex", lightingTexture);
                 material.SetTexture("displacementTex", noiseTexture); // Underwater displacement
-
+#if !__ANDROID__
                 material.SetTexture("blurHalfTex", targetPingPongA[1].Targets[0]);
                 material.SetTexture("blurQuarterTex", targetPingPongA[2].Targets[0]);
 
                 material.SetValue("ambientLight", ambientLight);
+#endif
                 material.SetValue("darknessColor", levelHandler.DarknessColor);
 
                 material.SetValue("waterLevel", viewWaterLevel / viewSize.Y);
@@ -354,17 +363,19 @@ namespace Jazz2.Game
                 material.Technique = combineSceneShader;
                 material.SetTexture("mainTex", mainTexture);
                 material.SetTexture("lightTex", lightingTexture);
-
+#if !__ANDROID__
                 material.SetTexture("blurHalfTex", targetPingPongA[1].Targets[0]);
                 material.SetTexture("blurQuarterTex", targetPingPongA[2].Targets[0]);
 
                 material.SetValue("ambientLight", ambientLight);
+#endif
                 material.SetValue("darknessColor", levelHandler.DarknessColor);
 
                 this.Blit(drawDevice, material, finalTarget);
             }
         }
 
+#if !__ANDROID__
         private void SetupTargets(Point2 size)
         {
             for (int i = 0; i < targetPingPongA.Length; i++) {
@@ -396,5 +407,6 @@ namespace Jazz2.Game
                 renderTarget.SetupTarget();
             }
         }
+#endif
     }
 }

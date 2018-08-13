@@ -29,6 +29,13 @@ namespace Jazz2
         }
 
         private static Mapping[] mappings;
+        private static bool isSuspended;
+
+        public static bool IsSuspended
+        {
+            get { return isSuspended; }
+            set { isSuspended = value; }
+        }
 
         static ControlScheme()
         {
@@ -58,6 +65,10 @@ namespace Jazz2
 
         public static bool MenuActionPressed(PlayerActions action)
         {
+            if (isSuspended) {
+                return false;
+            }
+
             switch (action) {
                 case PlayerActions.Left: return DualityApp.Keyboard.KeyPressed(Key.Left);
                 case PlayerActions.Right: return DualityApp.Keyboard.KeyPressed(Key.Right);
@@ -71,6 +82,10 @@ namespace Jazz2
 
         public static bool MenuActionHit(PlayerActions action)
         {
+            if (isSuspended) {
+                return false;
+            }
+
             switch (action) {
                 case PlayerActions.Left: return DualityApp.Keyboard.KeyHit(Key.Left);
                 case PlayerActions.Right: return DualityApp.Keyboard.KeyHit(Key.Right);
@@ -84,6 +99,10 @@ namespace Jazz2
 
         public static bool PlayerActionPressed(int index, PlayerActions action)
         {
+            if (isSuspended) {
+                return false;
+            }
+
             ref Mapping mapping = ref mappings[index * (int)PlayerActions.Count + (int)action];
 
             if (mapping.Key1 != Key.Unknown && DualityApp.Keyboard[mapping.Key1])
@@ -99,6 +118,10 @@ namespace Jazz2
 
         public static bool PlayerActionHit(int index, PlayerActions action)
         {
+            if (isSuspended) {
+                return false;
+            }
+
             ref Mapping mapping = ref mappings[index * (int)PlayerActions.Count + (int)action];
 
             if (mapping.Key1 != Key.Unknown && DualityApp.Keyboard.KeyHit(mapping.Key1))

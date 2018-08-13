@@ -462,6 +462,8 @@ namespace Duality
             sound.Update();
             pluginManager.InvokeAfterUpdate();
             //VisualLog.PrepareRenderLogEntries();
+
+            // Perform a cleanup step to catch all DisposeLater calls from this update
             RunCleanup();
 
             //Profile.TimeUpdate.EndMeasure();
