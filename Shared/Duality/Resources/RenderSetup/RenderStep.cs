@@ -120,20 +120,5 @@ namespace Duality.Resources
 			get { return this.visibilityMask; }
 			set { this.visibilityMask = value; }
 		}
-
-
-		public override string ToString()
-		{
-			ContentRef<Texture> inputTex = (this.input == null) ? null : this.input.MainTexture;
-			string configString = string.Format("{0} => {1}{2}",
-				inputTex.IsExplicitNull ? (this.input == null ? "World" : "Undefined") : inputTex.Name,
-				this.output.IsExplicitNull ? "Screen" : this.output.Name,
-				(this.visibilityMask & VisibilityFlag.ScreenOverlay) != VisibilityFlag.None ? " (Overlay)" : "");
-
-			if (!string.IsNullOrEmpty(this.id))
-				return string.Format("{0}, {1}", this.id, configString);
-			else
-				return configString;
-		}
 	}
 }

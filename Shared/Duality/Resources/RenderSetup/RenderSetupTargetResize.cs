@@ -21,17 +21,5 @@
 		/// was taken into account.
 		/// </summary>
 		public Vector2 Scale;
-
-		public override string ToString()
-		{
-			if (this.Scale == Vector2.Zero)
-				return string.Format("{0}, scale to zero", this.Target.Name);
-			else if (this.Scale == Vector2.One)
-				return string.Format("{0}: {1}", this.Target.Name, this.ResizeMode);
-			else if (this.Scale.X == this.Scale.Y)
-				return string.Format("{0}: {1} x{2}", this.Target.Name, this.ResizeMode, this.Scale.X);
-			else
-				return string.Format("{0}: {1} x{2}", this.Target.Name, this.ResizeMode, this.Scale);
-		}
 	}
 }

@@ -169,11 +169,5 @@ namespace Duality.Resources
 			this.prefFormat = formatPref;
 			this.prefType = formatPref != null ? formatPref.DataType : null;
 		}
-
-		protected override void OnLoaded()
-		{
-			base.OnLoaded();
-			this.prefFormat = VertexDeclaration.Get(this.prefType);
-		}
 	}
 }

@@ -189,9 +189,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utility\EventArgs\GameObjectEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\EventArgs\GameObjectGroupEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\EventArgs\GameObjectParentChangedEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utility\EventArgs\ResourceEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utility\EventArgs\ResourceResolveEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utility\EventArgs\ResourceSaveEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\EventArgs\TransformChangedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\Extensions\ExtMethodsIColorData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\Extensions\ExtMethodsIEnumerable.cs" />

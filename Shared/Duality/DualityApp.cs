@@ -59,8 +59,6 @@ namespace Duality
         private static GamepadInputCollection gamepads = new GamepadInputCollection();
         private static SoundDevice sound = null;
         private static ExecutionContext execContext = ExecutionContext.Terminated;
-        //private static DualityAppData          appData            = null;
-        //private static DualityUserData         userData           = null;
         private static List<object> disposeSchedule = new List<object>();
 
         /// <summary>
@@ -79,14 +77,6 @@ namespace Duality
                 keyboard.NoLongerAvailable -= value;
             }
         }
-        /// <summary>
-        /// Called when the games UserData changes
-        /// </summary>
-        //public static event EventHandler UserDataChanged = null;
-        /// <summary>
-        /// Called when the games AppData changes
-        /// </summary>
-        //public static event EventHandler AppDataChanged = null;
         /// <summary>
         /// Called when Duality is being terminated by choice (e.g. not because of crashes or similar).
         /// It is also called in an editor environment.
@@ -203,63 +193,6 @@ namespace Duality
             get { return sound; }
         }
         /// <summary>
-        /// [GET / SET] Provides access to Duality's current <see cref="DualityAppData">application data</see>. This is never null.
-        /// Any kind of data change event is fired as soon as you re-assign this property. Be sure to do that after changing its data.
-        /// </summary>
-        /*public static DualityAppData AppData
-		{
-			get { return appData; }
-			set 
-			{ 
-				appData = value ?? new DualityAppData();
-				// We're currently missing direct changes without invoking this setter
-				OnAppDataChanged();
-			}
-		}*/
-        /// <summary>
-        /// [GET / SET] Provides access to Duality's current <see cref="DualityUserData">user data</see>. This is never null.
-        /// Any kind of data change event is fired as soon as you re-assign this property. Be sure to do that after changing its data.
-        /// </summary>
-        /*public static DualityUserData UserData
-		{
-			get { return userData; }
-			set 
-			{ 
-				userData = value ?? new DualityUserData();
-				// We're currently missing direct changes without invoking this setter
-				OnUserDataChanged();
-			}
-		}*/
-        /// <summary>
-        /// [GET] Returns the path where this DualityApp's <see cref="DualityAppData">application data</see> is located at.
-        /// </summary>
-        /*public static string AppDataPath
-		{
-			get { return "AppData.dat"; }
-		}*/
-        /// <summary>
-        /// [GET] Returns the path where this DualityApp's <see cref="DualityUserData">user data</see> is located at.
-        /// </summary>
-        /*public static string UserDataPath
-		{
-			get
-			{
-				if (AppData.LocalUserData)
-				{
-					return "UserData.dat";
-				}
-				else
-				{
-					return PathOp.Combine(
-						systemBack.GetNamedPath(NamedDirectory.MyDocuments),
-						"Duality", 
-						"AppData", 
-						PathOp.GetValidFileName(appData.AppName), 
-						"UserData.dat");
-				}
-			}
-		}*/
-        /// <summary>
         /// [GET] Returns the <see cref="ExecutionContext"/> in which this DualityApp is currently running.
         /// </summary>
         public static ExecutionContext ExecContext
@@ -332,12 +265,6 @@ namespace Duality
             // Initialize the system backend for system info and file system access
             InitBackend(out systemBack);
 
-            // Load application and user data and submit a change event, so all settings are applied
-            //LoadAppData();
-            //LoadUserData();
-            //OnAppDataChanged();
-            //OnUserDataChanged();
-
             // Initialize the graphics backend
             InitBackend(out graphicsBack);
 
@@ -402,7 +329,6 @@ namespace Duality
 
             //if (execContext != ExecutionContext.Editor) {
             OnTerminating();
-            //SaveUserData();
             //}
 
             // Discard plugin data (Resources, current Scene) ahead of time. Otherwise, it'll get shut down in ClearPlugins, after the backend is gone.
@@ -451,17 +377,14 @@ namespace Duality
         public static void Update()
         {
             isUpdating = true;
-            //Profile.TimeUpdate.BeginMeasure();
 
             Time.FrameTick(false, true);
-            //Profile.FrameTick();
-            //VisualLog.UpdateLogEntries();
+
             pluginManager.InvokeBeforeUpdate();
             UpdateUserInput();
             Scene.Current.Update();
             sound.Update();
             pluginManager.InvokeAfterUpdate();
-            //VisualLog.PrepareRenderLogEntries();
 
             // Perform a cleanup step to catch all DisposeLater calls from this update
             RunCleanup();
@@ -594,43 +517,6 @@ namespace Duality
         }
 
         /// <summary>
-        /// Triggers Duality to (re)load its <see cref="DualityAppData"/>.
-        /// </summary>
-        //public static void LoadAppData()
-        //{
-        //    appData = Serializer.TryReadObject<DualityAppData>(AppDataPath) ?? new DualityAppData();
-        //}
-        /// <summary>
-        /// Triggers Duality to (re)load its <see cref="DualityUserData"/>.
-        /// </summary>
-        //public static void LoadUserData()
-        //{
-        //    string path = UserDataPath;
-		//	if (!FileOp.Exists(path) || execContext == ExecutionContext.Editor || runFromEditor) path = "DefaultUserData.dat";
-		//	userData = Serializer.TryReadObject<DualityUserData>(path) ?? new DualityUserData();
-        //}
-        /// <summary>
-        /// Triggers Duality to save its <see cref="DualityAppData"/>.
-        /// </summary>
-        //public static void SaveAppData()
-        //{
-        //    Serializer.WriteObject(appData, AppDataPath, typeof(XmlSerializer));
-        //}
-        /// <summary>
-        /// Triggers Duality to save its <see cref="DualityUserData"/>.
-        /// </summary>
-        //public static void SaveUserData()
-        //{
-        //    string path = UserDataPath;
-		//	Serializer.WriteObject(userData, UserDataPath, typeof(XmlSerializer));
-		//	if (execContext == ExecutionContext.Editor)
-		//	{
-		//		Serializer.WriteObject(userData, "DefaultUserData.dat", typeof(XmlSerializer));
-		//	}
-        //}
-
-
-        /// <summary>
         /// Enumerates all currently loaded assemblies that are part of Duality, i.e. Duality itsself and all loaded plugins.
         /// </summary>
         /// <returns></returns>
@@ -750,16 +636,6 @@ namespace Duality
             }
         }
 
-        //private static void OnUserDataChanged()
-        //{
-        //    if (UserDataChanged != null)
-        //        UserDataChanged(null, EventArgs.Empty);
-        //}
-        //private static void OnAppDataChanged()
-        //{
-        //    if (AppDataChanged != null)
-        //        AppDataChanged(null, EventArgs.Empty);
-        //}
         private static void OnTerminating()
         {
             if (Terminating != null)
@@ -769,11 +645,8 @@ namespace Duality
         private static void pluginManager_PluginsRemoving(object sender, DualityPluginEventArgs e)
         {
             // Dispose any existing Resources that could reference plugin data
-            //VisualLog.ClearAll();
             if (!Scene.Current.IsEmpty)
                 Scene.Current.Dispose();
-            foreach (Resource r in ContentProvider.EnumeratePluginContent().ToArray())
-                ContentProvider.RemoveContent(r.Path);
         }
         private static void pluginManager_PluginsRemoved(object sender, DualityPluginEventArgs e)
         {
@@ -783,8 +656,6 @@ namespace Duality
             ReflectionHelper.ClearTypeCache();
             Component.RequireMap.ClearTypeCache();
             Component.ExecOrder.ClearTypeCache();
-            //Serializer.ClearTypeCache();
-            //CloneProvider.ClearTypeCache();
 
             // Clean input sources that a disposed Assembly forgot to unregister.
             foreach (CorePlugin plugin in e.Plugins)

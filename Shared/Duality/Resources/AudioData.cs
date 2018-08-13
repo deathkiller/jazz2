@@ -183,11 +183,5 @@ namespace Duality.Resources
             // Get rid of the big data blob, so the GC can collect it.
             this.data = null;
         }
-
-        protected override void OnLoaded()
-        {
-            base.OnLoaded();
-            this.SetupNativeBuffer();
-        }
     }
 }

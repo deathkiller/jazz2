@@ -628,8 +628,8 @@ namespace Duality.Drawing
 
 		public void UpdateMatrices()
 		{
-			this.GenerateModelView(out this.matModelView);
-			this.GenerateProjection(new Rect(this.targetSize), out this.matProjection);
+			this.UpdateModelViewMatrix();
+			this.UpdateProjectionMatrix();
 			this.matFinal = this.matModelView * this.matProjection;
 		}
 		public void PrepareForDrawcalls()
@@ -705,45 +705,47 @@ namespace Duality.Drawing
 			return (float)(zSortIndex / (double)count);
 		}
 
-		private void GenerateModelView(out Matrix4 mvMat)
+		private void UpdateModelViewMatrix()
 		{
-			mvMat = Matrix4.Identity;
+            this.matModelView = Matrix4.Identity;
 			if (this.renderMode == RenderMatrix.ScreenSpace) return;
 
-			// Translate objects contrary to the camera
-			// Removed: Do this in software now for custom perspective / parallax support
-			// modelViewMat *= Matrix4.CreateTranslation(-this.GameObj.Transform.Pos);
+            // Translate objects contrary to the camera
+            // Removed: Do this in software now for custom perspective / parallax support
+            // modelViewMat *= Matrix4.CreateTranslation(-this.GameObj.Transform.Pos);
 
-			// Rotate them according to the camera angle
-			mvMat *= Matrix4.CreateRotationZ(-this.refAngle);
+            // Rotate them according to the camera angle
+            this.matModelView *= Matrix4.CreateRotationZ(-this.refAngle);
 		}
-		private void GenerateProjection(Rect orthoAbs, out Matrix4 projMat)
+		private void UpdateProjectionMatrix()
 		{
-			if (this.renderMode == RenderMatrix.ScreenSpace)
+            Rect targetRect = new Rect(this.targetSize);
+
+            if (this.renderMode == RenderMatrix.ScreenSpace)
 			{
 				Matrix4.CreateOrthographicOffCenter(
-					orthoAbs.X,
-					orthoAbs.X + orthoAbs.W, 
-					orthoAbs.Y + orthoAbs.H, 
-					orthoAbs.Y, 
+                    targetRect.X,
+                    targetRect.X + targetRect.W,
+                    targetRect.Y + targetRect.H,
+                    targetRect.Y, 
 					this.nearZ, 
 					this.farZ,
-					out projMat);
-				// Flip Z direction from "out of the screen" to "into the screen".
-				projMat.M33 = -projMat.M33;
+					out this.matProjection);
+                // Flip Z direction from "out of the screen" to "into the screen".
+                this.matProjection.M33 = -this.matProjection.M33;
 			}
 			else
 			{
 				Matrix4.CreateOrthographicOffCenter(
-					orthoAbs.X - orthoAbs.W * 0.5f, 
-					orthoAbs.X + orthoAbs.W * 0.5f, 
-					orthoAbs.Y + orthoAbs.H * 0.5f, 
-					orthoAbs.Y - orthoAbs.H * 0.5f, 
+                    targetRect.X - targetRect.W * 0.5f,
+                    targetRect.X + targetRect.W * 0.5f,
+                    targetRect.Y + targetRect.H * 0.5f,
+                    targetRect.Y - targetRect.H * 0.5f, 
 					this.nearZ, 
 					this.farZ,
-					out projMat);
-				// Flip Z direction from "out of the screen" to "into the screen".
-				projMat.M33 = -projMat.M33;
+					out this.matProjection);
+                // Flip Z direction from "out of the screen" to "into the screen".
+                this.matProjection.M33 = -this.matProjection.M33;
 			}
 		}
 

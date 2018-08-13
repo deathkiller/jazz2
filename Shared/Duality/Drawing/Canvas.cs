@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 using Duality.Resources;
 
@@ -306,16 +305,17 @@ namespace Duality.Drawing
 		public void DrawDashLine(float x, float y, float z, float x2, float y2, float z2, DashPattern pattern = DashPattern.Dash, float patternLen = 1.0f)
 		{
 			uint patternBits = (uint)pattern;
-			string dashTextPath = string.Format("__DashLineTexture{0}__", patternBits);
-			ContentRef<Texture> dashTexRef = new ContentRef<Texture>(null, dashTextPath);
-			if (!dashTexRef.IsAvailable)
-			{
+            // ToDo
+			//string dashTextPath = string.Format("__DashLineTexture{0}__", patternBits);
+			//ContentRef<Texture> dashTexRef = new ContentRef<Texture>(null, dashTextPath);
+			//if (!dashTexRef.IsAvailable)
+			//{
 				PixelData pxLayerDash = new PixelData(32, 1);
 				for (int i = 31; i >= 0; i--) pxLayerDash[i, 0] = ((patternBits & (1U << i)) != 0) ? ColorRgba.White : ColorRgba.TransparentWhite;
 				Pixmap pxDash = new Pixmap(pxLayerDash);
 				Texture texDash = new Texture(pxDash, TextureSizeMode.Stretch, TextureMagFilter.Nearest, TextureMinFilter.Nearest, TextureWrapMode.Repeat);
-				ContentProvider.AddContent(dashTextPath, texDash);
-			}
+				//ContentProvider.AddContent(dashTextPath, texDash);
+			//}
 
 			Vector3 pos = new Vector3(x, y, z);
 			Vector3 target = new Vector3(x2, y2, z2);
@@ -336,8 +336,9 @@ namespace Duality.Drawing
 			vertices[1].Color = shapeColor;
 
 			BatchInfo customMat = this.device.RentMaterial(this.State.MaterialDirect);
-			customMat.MainTexture = dashTexRef;
-			this.State.TransformVertices(vertices, shapeHandle, scale);
+            //customMat.MainTexture = dashTexRef;
+            customMat.MainTexture = texDash;
+            this.State.TransformVertices(vertices, shapeHandle, scale);
 			device.AddVertices(customMat, VertexMode.Lines, vertices, 0, 2);
 		}
 		/// <summary>

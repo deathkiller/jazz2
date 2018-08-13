@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Globalization;
-using System.Reflection;
 
 namespace Duality
 {
@@ -30,7 +28,6 @@ namespace Duality
         {
             get
             {
-                if (this.contentInstance == null || this.contentInstance.Disposed) this.RetrieveInstance();
                 return this.contentInstance;
             }
             set
@@ -46,31 +43,6 @@ namespace Duality
         public T ResWeak
         {
             get { return (this.contentInstance == null || this.contentInstance.Disposed) ? null : this.contentInstance; }
-        }
-        /// <summary>
-        /// [GET] The <see cref="System.Type"/> of the referenced Resource. If currently unavailable, this is determined by
-        /// the Resource file path.
-        /// </summary>
-        public Type ResType
-        {
-            get
-            {
-                // If we have a valid instance, ask for its type.
-                if (this.contentInstance != null && !this.contentInstance.Disposed)
-                    return this.contentInstance.GetType();
-
-                // Otherwise, try to derive the type from its path.
-                Type result = Resource.GetTypeByFileName(this.contentPath);
-                if (result != null) return result;
-
-                // If that fails, load or retrieve a Resource instance and ask for its type.
-                this.RetrieveInstance();
-                if (this.contentInstance != null && !this.contentInstance.Disposed)
-                    return this.contentInstance.GetType();
-
-                // If that fails too, just remain unspecific by stating that it's a Resource.
-                return typeof(Resource);
-            }
         }
         /// <summary>
         /// [GET / SET] The path where to look for the Resource, if it is currently unavailable.
@@ -103,27 +75,8 @@ namespace Duality
             get
             {
                 if (this.contentInstance != null && !this.contentInstance.Disposed) return true;
-                this.RetrieveInstance();
                 return this.contentInstance != null;
             }
-        }
-        /// <summary>
-        /// [GET] Returns whether the referenced Resource is currently loaded.
-        /// </summary>
-        public bool IsLoaded
-        {
-            get
-            {
-                if (this.contentInstance != null && !this.contentInstance.Disposed) return true;
-                return ContentProvider.HasContent(this.contentPath);
-            }
-        }
-        /// <summary>
-        /// [GET] Returns whether the referenced Resource is part of Duality's embedded default content.
-        /// </summary>
-        public bool IsDefaultContent
-        {
-            get { return this.contentPath != null && ContentProvider.IsDefaultContentPath(this.contentPath); }
         }
         /// <summary>
         /// [GET] Returns whether the Resource has been generated at runtime and cannot be retrieved via content path.
@@ -132,34 +85,6 @@ namespace Duality
         {
             get { return this.contentInstance != null && string.IsNullOrEmpty(this.contentPath); }
         }
-        /// <summary>
-        /// [GET] The name of the referenced Resource.
-        /// </summary>
-        public string Name
-        {
-            get
-            {
-                if (this.IsRuntimeResource)
-                    return this.contentInstance.GetHashCode().ToString(CultureInfo.InvariantCulture);
-                else
-                    return ContentProvider.GetNameFromPath(this.contentPath);
-            }
-        }
-        /// <summary>
-        /// [GET] The full name of the referenced Resource, including its path but not its file extension
-        /// </summary>
-        public string FullName
-        {
-            get
-            {
-                if (this.IsRuntimeResource)
-                    return this.contentInstance.GetHashCode().ToString(CultureInfo.InvariantCulture);
-                else
-                    return ContentProvider.GetFullNameFromPath(this.contentPath);
-            }
-        }
-
-
         /// <summary>
         /// Creates a ContentRef pointing to the specified <see cref="Resource"/>, assuming the
         /// specified path as its origin, if the Resource itsself is either null or doesn't
@@ -186,53 +111,14 @@ namespace Duality
             this.contentInstance = res;
             this.contentPath = (res != null) ? res.Path : null;
         }
-
-        /// <summary>
-        /// Determines if the references Resource's Type is assignable to the specified Type.
-        /// </summary>
-        /// <param name="resType">The Resource Type in question.</param>
-        /// <returns>True, if the referenced Resource is of the specified Type or subclassing it.</returns>
-        public bool Is(Type resType)
-        {
-            TypeInfo resTypeInfo = resType.GetTypeInfo();
-            return resTypeInfo.IsAssignableFrom(typeof(Resource).GetTypeInfo()) || resTypeInfo.IsAssignableFrom(this.ResType.GetTypeInfo());
-        }
-        /// <summary>
-        /// Determines if the references Resource's Type is assignable to the specified Type.
-        /// </summary>
-        /// <typeparam name="U">The Resource Type in question.</typeparam>
-        /// <returns>True, if the referenced Resource is of the specified Type or subclassing it.</returns>
-        public bool Is<U>() where U : Resource
-        {
-            if (this.contentInstance != null && !this.contentInstance.Disposed) {
-                return this.contentInstance is U;
-            } else {
-                TypeInfo typeInfoU = typeof(U).GetTypeInfo();
-                return typeInfoU.IsAssignableFrom(typeof(Resource).GetTypeInfo()) || typeInfoU.IsAssignableFrom(this.ResType.GetTypeInfo());
-            }
-        }
-        /// <summary>
-        /// Creates a <see cref="ContentRef{T}"/> of the specified Type, referencing the same Resource.
-        /// </summary>
-        /// <typeparam name="U">The Resource Type to create a reference of.</typeparam>
-        /// <returns>
-        /// A <see cref="ContentRef{T}"/> of the specified Type, referencing the same Resource.
-        /// Returns a null reference if the Resource is not assignable
-        /// to the specified Type.
-        /// </returns>
-        public ContentRef<U> As<U>() where U : Resource
-        {
-            if (!Is<U>()) return null;
-            return new ContentRef<U>(this.contentInstance as U, this.contentPath);
-        }
-
+        
         /// <summary>
         /// Loads the associated content as if it was accessed now.
         /// You don't usually need to call this method. It is invoked implicitly by trying to access the ContentRef
         /// </summary>
         public void MakeAvailable()
         {
-            if (this.contentInstance == null || this.contentInstance.Disposed) this.RetrieveInstance();
+            //if (this.contentInstance == null || this.contentInstance.Disposed) this.RetrieveInstance();
         }
         /// <summary>
         /// Discards the resolved content reference cache to allow garbage-collecting the Resource
@@ -242,34 +128,7 @@ namespace Duality
         {
             this.contentInstance = null;
         }
-        private void RetrieveInstance()
-        {
-            if (!String.IsNullOrEmpty(this.contentPath))
-                this.contentInstance = ContentProvider.RequestContent<T>(this.contentPath).contentInstance;
-            else if (this.contentInstance != null && !String.IsNullOrEmpty(this.contentInstance.Path))
-                this = ContentProvider.RequestContent<T>(this.contentInstance.Path);
-            else
-                this.contentInstance = null;
-        }
 
-        public override string ToString()
-        {
-            Type resType = this.ResType;
-
-            char stateChar;
-            if (this.IsDefaultContent)
-                stateChar = 'D';
-            else if (this.IsRuntimeResource)
-                stateChar = 'R';
-            else if (this.IsExplicitNull)
-                stateChar = 'N';
-            else if (this.IsLoaded)
-                stateChar = 'L';
-            else
-                stateChar = '_';
-
-            return string.Format("[{2}] {0} \"{1}\"", resType.Name, this.FullName, stateChar);
-        }
         public override bool Equals(object obj)
         {
             if (obj is ContentRef<T>)

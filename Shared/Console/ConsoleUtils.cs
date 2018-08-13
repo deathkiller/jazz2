@@ -71,6 +71,7 @@ namespace Jazz2
                 Console.Write("≠");
                 if (Console.CursorLeft == startLeft + 1) {
                     // One character displayed
+                    supportsUnicode = true;
                 } else {
                     // Multiple characters displayed, Unicode not supported
                     Console.OutputEncoding = prevEncoding;

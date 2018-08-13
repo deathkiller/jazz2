@@ -833,28 +833,6 @@ namespace Duality.Drawing
 			return this.hash == other.hash;
 		}
 
-		public override string ToString()
-		{
-			StringBuilder builder = new StringBuilder();
-			int otherCount = this.values != null ? this.values.Count : 0;
-
-			ContentRef<Texture> mainTex;
-			if (this.TryGet(ShaderFieldInfo.DefaultNameMainTex, out mainTex))
-			{
-				builder.Append(mainTex.Name);
-				otherCount--;
-			}
-
-			if (otherCount > 0)
-			{
-				if (builder.Length != 0) builder.Append(", +");
-				builder.Append(otherCount);
-				builder.Append(" variables");
-			}
-
-			return builder.ToString();
-		}
-
 		private static void ThrowInvalidName()
 		{
 			throw new ArgumentException("The name parameter cannot be null or empty.", "name");

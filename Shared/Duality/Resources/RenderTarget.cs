@@ -230,11 +230,6 @@ namespace Duality.Resources
             }
         }
 
-        protected override void OnLoaded()
-        {
-            this.SetupNativeRes();
-            base.OnLoaded();
-        }
         protected override void OnDisposing(bool manually)
         {
             base.OnDisposing(manually);

@@ -110,7 +110,6 @@ namespace Duality.Audio
 
 		public SoundDevice()
 		{
-            //DualityApp.AppDataChanged += this.DualityApp_AppDataChanged;
             UpdateWorldSettings();
         }
 		~SoundDevice()
@@ -127,15 +126,10 @@ namespace Duality.Audio
 			if (!this.disposed)
 			{
 				this.disposed = true;
-				//DualityApp.AppDataChanged -= this.DualityApp_AppDataChanged;
 
 				// Clear all playing sounds
 				foreach (ISoundInstance inst in this.sounds) inst.Dispose();
 				this.sounds.Clear();
-
-				// Clear all audio related Resources
-				ContentProvider.RemoveAllContent<AudioData>();
-				ContentProvider.RemoveAllContent<Sound>();
 			}
 		}
 
@@ -189,8 +183,6 @@ namespace Duality.Audio
 		/// </summary>
 		internal void Update()
 		{
-			//Profile.TimeUpdateAudio.BeginMeasure();
-
 			this.UpdateListener();
 
 			for (int i = this.sounds.Count - 1; i >= 0; i--)
@@ -199,10 +191,6 @@ namespace Duality.Audio
 				if (this.sounds[i].IsDisposed) this.sounds.RemoveAt(i);
 			}
 			this.sounds.Sort((obj1, obj2) => obj2.Priority - obj1.Priority);
-
-			//Profile.TimeUpdateAudio.EndMeasure();
-			//Profile.StatNumPlaying2D.Add(this.numPlaying2D);
-			//Profile.StatNumPlaying3D.Add(this.numPlaying3D);
 		}
 		private void UpdateListener()
 		{
@@ -296,10 +284,5 @@ namespace Duality.Audio
 				this.sounds[i].Stop();
 			}
 		}
-
-		//private void DualityApp_AppDataChanged(object sender, EventArgs e)
-		//{
-        //    UpdateWorldSettings();
-        //}
     }
 }

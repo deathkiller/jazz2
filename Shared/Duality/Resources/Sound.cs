@@ -213,11 +213,5 @@ namespace Duality.Resources
                 this.audioData[i].MakeAvailable();
             }
         }
-
-        protected override void OnLoaded()
-        {
-            base.OnLoaded();
-            this.PreloadData();
-        }
     }
 }

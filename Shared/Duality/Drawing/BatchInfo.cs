@@ -268,13 +268,6 @@ namespace Duality.Drawing
 			return null;
 		}
 
-		public override string ToString()
-		{
-			return string.Format("{0}, #{1:X8} ({2})",
-				this.MainTexture.Name, 
-				this.MainColor.ToIntRgba(),
-				this.technique.Name);
-		}
 		public override int GetHashCode()
 		{
 			int hashCode = 17;

@@ -22,11 +22,6 @@ namespace Duality
         /// </summary>
         Resource ResWeak { get; }
         /// <summary>
-        /// [GET] The <see cref="System.Type"/> of the referenced Resource. If currently unavailable, this is determined by
-        /// the Resource file path.
-        /// </summary>
-        Type ResType { get; }
-        /// <summary>
         /// [GET / SET] The path where to look for the Resource, if it is currently unavailable.
         /// </summary>
         string Path { get; set; }
@@ -39,49 +34,10 @@ namespace Duality
         /// </summary>
         bool IsAvailable { get; }
         /// <summary>
-        /// [GET] Returns whether the referenced Resource is currently loaded.
-        /// </summary>
-        bool IsLoaded { get; }
-        /// <summary>
-        /// [GET] Returns whether the referenced Resource is part of Duality's embedded default content.
-        /// </summary>
-        bool IsDefaultContent { get; }
-        /// <summary>
         /// [GET] Returns whether the Resource has been generated at runtime and cannot be retrieved via content path.
         /// </summary>
         bool IsRuntimeResource { get; }
-        /// <summary>
-        /// [GET] The name of the referenced Resource.
-        /// </summary>
-        string Name { get; }
-        /// <summary>
-        /// [GET] The full name of the referenced Resource, including its path but not its file extension
-        /// </summary>
-        string FullName { get; }
-
-        /// <summary>
-        /// Determines if the references Resource's Type is assignable to the specified Type.
-        /// </summary>
-        /// <param name="resType">The Resource Type in question.</param>
-        /// <returns>True, if the referenced Resource is of the specified Type or subclassing it.</returns>
-        bool Is(Type resType);
-        /// <summary>
-        /// Determines if the references Resource's Type is assignable to the specified Type.
-        /// </summary>
-        /// <typeparam name="U">The Resource Type in question.</typeparam>
-        /// <returns>True, if the referenced Resource is of the specified Type or subclassing it.</returns>
-        bool Is<U>() where U : Resource;
-        /// <summary>
-        /// Creates a <see cref="ContentRef{T}"/> of the specified Type, referencing the same Resource.
-        /// </summary>
-        /// <typeparam name="U">The Resource Type to create a reference of.</typeparam>
-        /// <returns>
-        /// A <see cref="ContentRef{T}"/> of the specified Type, referencing the same Resource.
-        /// Returns a null reference if the Resource is not assignable
-        /// to the specified Type.
-        /// </returns>
-        ContentRef<U> As<U>() where U : Resource;
-
+        
         /// <summary>
         /// Loads the associated content as if it was accessed now.
         /// You don't usually need to call this method. It is invoked implicitly by trying to access the ContentRef.

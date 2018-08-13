@@ -147,7 +147,8 @@ namespace Duality.Resources
                 this.fields = this.native.GetFields();
             } catch (Exception e) {
                 this.fields = new ShaderFieldInfo[0];
-                Console.WriteLine("Error loading ShaderProgram {0}:{2}{1}", this.FullName, /*Log.Exception(*/e/*)*/, Environment.NewLine);
+                //Console.WriteLine("Error loading ShaderProgram {0}:{2}{1}", this.FullName, /*Log.Exception(*/e/*)*/, Environment.NewLine);
+                Console.WriteLine("Error loading ShaderProgram:{1}{0}", e, Environment.NewLine);
             }
 
             // Even if we failed, we tried to compile it. Don't do it again and again.
@@ -161,11 +162,6 @@ namespace Duality.Resources
             part.Compile();
         }
 
-        protected override void OnLoaded()
-        {
-            this.Compile();
-            base.OnLoaded();
-        }
         protected override void OnDisposing(bool manually)
         {
             base.OnDisposing(manually);

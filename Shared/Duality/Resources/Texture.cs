@@ -467,11 +467,6 @@ namespace Duality.Resources
                 this.HasMipmaps);
         }
 
-        protected override void OnLoaded()
-        {
-            this.LoadData(this.basePixmap, this.texSizeMode);
-            base.OnLoaded();
-        }
         protected override void OnDisposing(bool manually)
         {
             base.OnDisposing(manually);

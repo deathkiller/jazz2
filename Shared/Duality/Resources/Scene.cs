@@ -173,7 +173,7 @@ namespace Duality.Resources
             if (!switchToScheduled) return false;
 
             // Retrieve the target and reset the scheduled switch
-            string oldName = Scene.Current.FullName;
+            string oldName = Scene.Current.ToString();
             Scene target = switchToTarget.Res;
             switchToTarget = null;
             switchToScheduled = false;
@@ -192,7 +192,7 @@ namespace Duality.Resources
 					"scheduled switch to Scene '{0}', a awitch to Scene '{1}' was immediately scheduled. " +
 					"The second switch will not be performed to avoid entering a loop. Please " +
 					"check when you call Scene.SwitchTo and avoid doing that during object activation.",
-					oldName, Scene.Current.FullName);
+					oldName, Scene.Current.ToString());
             }
 
             return true;
@@ -970,63 +970,6 @@ namespace Duality.Resources
             if (this.IsCurrent) OnComponentRemoving(e);
         }
 
-        protected override void OnSaving(string saveAsPath)
-        {
-            base.OnSaving(saveAsPath);
-
-            // Prepare all components for saving in reverse order, sorted by type
-            List<ICmpInitializable> initList = this.FindComponents<ICmpInitializable>().ToList();
-            for (int i = initList.Count - 1; i >= 0; i--)
-                initList[i].OnShutdown(Component.ShutdownContext.Saving);
-
-            this.serializeObj = this.objectManager.AllObjects.ToArray();
-            this.serializeObj.StableSort(SerializeGameObjectComparison);
-        }
-        protected override void OnSaved(string saveAsPath)
-        {
-            if (this.serializeObj != null)
-                this.serializeObj = null;
-
-            base.OnSaved(saveAsPath);
-
-            // Re-initialize all components after saving, sorted by type
-            List<ICmpInitializable> initList = this.FindComponents<ICmpInitializable>().ToList();
-            for (int i = 0; i < initList.Count; i++)
-                initList[i].OnInit(Component.InitContext.Saved);
-
-            // If this Scene is the current one, but it wasn't saved before, update the current Scenes internal ContentRef
-            if (this.IsCurrent && current.IsRuntimeResource)
-                current = new ContentRef<Scene>(this, saveAsPath);
-        }
-        protected override void OnLoaded()
-        {
-            if (this.visibilityStrategy == null)
-                this.visibilityStrategy = new DefaultRendererVisibilityStrategy();
-
-            if (this.serializeObj != null) {
-                this.UnregisterManagerEvents();
-                foreach (GameObject obj in this.serializeObj) {
-                    obj.EnsureConsistentData();
-                    obj.EnsureComponentOrder();
-                }
-                foreach (GameObject obj in this.serializeObj) {
-                    obj.ParentScene = this;
-                    this.objectManager.AddObject(obj);
-                    this.AddToManagers(obj);
-                }
-                this.RegisterManagerEvents();
-                this.serializeObj = null;
-            }
-
-            base.OnLoaded();
-
-            //this.ApplyPrefabLinks();
-
-            // Initialize all loaded components, sorted by type
-            List<ICmpInitializable> initList = this.FindComponents<ICmpInitializable>().ToList();
-            for (int i = 0; i < initList.Count; i++)
-                initList[i].OnInit(Component.InitContext.Loaded);
-        }
         protected override void OnDisposing(bool manually)
         {
             base.OnDisposing(manually);
