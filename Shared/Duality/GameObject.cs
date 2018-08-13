@@ -174,34 +174,6 @@ namespace Duality
 	        get { return this.compList; }
 	    }
         /// <summary>
-        /// [GET] The <see cref="Duality.Resources.PrefabLink"/> that connects this object to a <see cref="Duality.Resources.Prefab"/>.
-        /// </summary>
-        /// <seealso cref="Duality.Resources.PrefabLink"/>
-        /// <seealso cref="Duality.Resources.Prefab"/>
-        /*public PrefabLink PrefabLink
-		{
-			get { return this.prefabLink; }
-			internal set { this.prefabLink = value; }
-		}*/
-        /// <summary>
-        /// [GET] The <see cref="Duality.Resources.PrefabLink"/> that connects this object or one or its parent GameObjects to a <see cref="Duality.Resources.Prefab"/>.
-        /// </summary>
-        /// <remarks>
-        /// This does not necessarily mean that this GameObject will be affected by the PrefabLink, since it might not be part of
-        /// the linked Prefab. It simply indicates the returned PrefabLink's potential to adjust this GameObject when being applied.
-        /// </remarks>
-        /// <seealso cref="Duality.Resources.PrefabLink"/>
-        /// <seealso cref="Duality.Resources.Prefab"/>
-        /*public PrefabLink AffectedByPrefabLink
-		{
-			get
-			{
-				if (this.prefabLink != null) return this.prefabLink;
-				else if (this.parent != null) return this.parent.AffectedByPrefabLink;
-				else return null;
-			}
-		}*/
-        /// <summary>
         /// [GET] Returns whether this GameObject has been disposed. Disposed GameObjects are not to be used and should
         /// be treated specifically or as null references by your code.
         /// </summary>
@@ -218,13 +190,7 @@ namespace Duality
 		public Transform Transform
 		{
 			get { return this.compTransform; }
-		}
-
-		/*uint IUniqueIdentifyable.PreferredId
-		{
-			get { unchecked { return (uint)this.identifier.GetHashCode(); } }
-		}*/
-		
+		}		
 		
 		/// <summary>
 		/// Fired when this GameObjects parent has changed
@@ -266,65 +232,6 @@ namespace Duality
 			this.Name = name;
 			this.Parent = parent;
 		}
-        /// <summary>
-        /// Creates a GameObject based on a specific <see cref="Duality.Resources.Prefab"/>.
-        /// </summary>
-        /// <param name="prefab">The Prefab that will be applied to this GameObject.</param>
-        /// <seealso cref="Duality.Resources.Prefab"/>
-        /*public GameObject(ContentRef<Prefab> prefab)
-		{
-			if (!prefab.IsAvailable) return;
-			if (DualityApp.ExecContext == DualityApp.ExecutionContext.Game)
-			{
-				prefab.Res.CopyTo(this);
-			}
-			else
-			{
-				this.LinkToPrefab(prefab);
-				this.PrefabLink.Apply();
-			}
-		}*/
-
-        /// <summary>
-        /// Sets or alters this GameObject's <see cref="Duality.Resources.PrefabLink"/> to reference the specified <see cref="Prefab"/>.
-        /// </summary>
-        /// <param name="prefab">The Prefab that will be linked to.</param>
-        /// <seealso cref="Duality.Resources.PrefabLink"/>
-        /// <seealso cref="Duality.Resources.Prefab"/>
-        /*public void LinkToPrefab(ContentRef<Prefab> prefab)
-		{
-			if (this.prefabLink == null)
-			{
-				// Not affected by another (higher) PrefabLink
-				if (this.AffectedByPrefabLink == null)
-				{
-					this.prefabLink = new PrefabLink(this, prefab);
-					// If a nested object is already PrefabLink'ed, add it to the changelist
-					foreach (GameObject child in this.ChildrenDeep)
-					{
-						if (child.PrefabLink != null && child.PrefabLink.ParentLink == this.prefabLink)
-						{
-							this.prefabLink.PushChange(child, ReflectionInfo.Property_GameObject_PrefabLink, child.PrefabLink.Clone());
-						}
-					}
-				}
-				// Already affected by another (higher) PrefabLink
-				else
-				{
-					this.prefabLink = new PrefabLink(this, prefab);
-					this.prefabLink.ParentLink.RelocateChanges(this.prefabLink);
-				}
-			}
-			else
-				this.prefabLink = this.prefabLink.Clone(this, prefab);
-		}
-		/// <summary>
-		/// Breaks this GameObject's <see cref="Duality.Resources.PrefabLink"/>
-		/// </summary>
-		public void BreakPrefabLink()
-		{
-			this.prefabLink = null;
-		}*/
 
 	    /// <summary>
 	    /// Enumerates all GameObjects that are directly or indirectly parented to this object, i.e. its

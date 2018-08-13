@@ -49,7 +49,6 @@ namespace Duality
             Texture.InitDefaultContent();
             Material.InitDefaultContent();
             RenderSetup.InitDefaultContent();
-            //Font.InitDefaultContent();
             AudioData.InitDefaultContent();
             Sound.InitDefaultContent();
 
@@ -60,8 +59,6 @@ namespace Duality
             }
 
             defaultContentInitialized = true;
-            //Log.Core.Write("...done!");
-            //Log.Core.PopIndent();
         }
         /// <summary>
         /// Initializes Dualitys embedded default content.

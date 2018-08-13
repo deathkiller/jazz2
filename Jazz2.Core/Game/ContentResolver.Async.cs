@@ -11,7 +11,6 @@ namespace Jazz2.Game
 {
     public class ResourcesNotReady : Exception
     {
-        // Single purpose exception
         public string Path;
 
         public ResourcesNotReady(string path)
@@ -24,19 +23,19 @@ namespace Jazz2.Game
     {
         public delegate void ResourceReadyDelegate(string path);
 
-        private Dictionary<string, ResourceReadyDelegate> metadataAsyncRequests;
+        private HashSet<string> metadataAsyncRequests;
 
         private Thread asyncThread;
         private AutoResetEvent asyncThreadEvent;
 
-        public Metadata RequestMetadataAsync(string path, ResourceReadyDelegate callback)
+        public event ResourceReadyDelegate ResourceReady;
+
+        public Metadata RequestMetadataAsync(string path)
         {
             Metadata metadata;
             if (!cachedMetadata.TryGetValue(path, out metadata)) {
                 lock (metadataAsyncRequests) {
-                    if (!metadataAsyncRequests.ContainsKey(path)) {
-                        metadataAsyncRequests.Add(path, callback);
-
+                    if (metadataAsyncRequests.Add(path)) {
                         asyncThreadEvent.Set();
                     }
                 }
@@ -108,7 +107,7 @@ namespace Jazz2.Game
 
         private void AllowAsyncLoading()
         {
-            metadataAsyncRequests = new Dictionary<string, ResourceReadyDelegate>();
+            metadataAsyncRequests = new HashSet<string>();
 
             asyncThreadEvent = new AutoResetEvent(false);
 
@@ -138,25 +137,24 @@ namespace Jazz2.Game
                 asyncThreadEvent.WaitOne();
 
                 while (true) {
-                    //string path;
-                    KeyValuePair<string, ResourceReadyDelegate> request;
+                    string path;
                     lock (metadataAsyncRequests) {
-                        request = metadataAsyncRequests.FirstOrDefault();
+                        path = metadataAsyncRequests.FirstOrDefault();
                     }
 
-                    if (request.Key == null) {
+                    if (path == null) {
                         break;
                     }
 
-                    Metadata metadata = RequestMetadataInner(request.Key, true);
+                    Metadata metadata = RequestMetadataInner(path, true);
 
                     lock (metadataAsyncRequests) {
-                        cachedMetadata[request.Key] = metadata;
+                        cachedMetadata[path] = metadata;
 
-                        metadataAsyncRequests.Remove(request.Key);
+                        metadataAsyncRequests.Remove(path);
                     }
 
-                    request.Value(request.Key);
+                    ResourceReady?.Invoke(path);
                 }
             }
         }

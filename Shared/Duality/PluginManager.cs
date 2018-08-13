@@ -10,9 +10,6 @@ namespace Duality
 {
 	public abstract class PluginManager<T> where T : DualityPlugin
 	{
-		//private static readonly Log dummyPluginLog = new Log("Dummy PluginManager Log", "Dummy");
-
-		//private Log                             pluginLog       = dummyPluginLog;
 		private IAssemblyLoader                 assemblyLoader  = null;
 		private Dictionary<string,T>            pluginRegistry  = new Dictionary<string,T>();
 		private List<Assembly>                  lockedPlugins   = new List<Assembly>();

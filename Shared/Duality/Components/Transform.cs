@@ -653,8 +653,7 @@ namespace Duality.Components
 
 		void ICmpInitializable.OnInit(InitContext context)
 		{
-			if (context == InitContext.AddToGameObject ||
-				context == InitContext.Loaded)
+			if (context == InitContext.AddToGameObject)
 			{
 				this.parentTransform = null;
 				if (this.gameobj != null)
@@ -670,12 +669,6 @@ namespace Duality.Components
 					}
 				}
 				this.UpdateRel();
-			}
-
-			// Since we're not serializing rotation dir values, recalculate them on load
-			if (context == InitContext.Loaded)
-			{
-				this.UpdateRotationDirAbs();
 			}
 		}
 		void ICmpInitializable.OnShutdown(ShutdownContext context)

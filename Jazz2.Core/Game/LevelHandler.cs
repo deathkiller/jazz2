@@ -226,6 +226,10 @@ namespace Jazz2.Game
                 player.AttachToHud(null);
             }
 
+            if (eventMap != null) {
+                eventMap.Dispose();
+            }
+
             base.OnDisposing(manually);
         }
 
@@ -683,7 +687,7 @@ namespace Jazz2.Game
 
         public Metadata RequestMetadataAsync(string path)
         {
-            return ContentResolver.Current.RequestMetadataAsync(path, eventMap.OnResourceReadyCallback);
+            return ContentResolver.Current.RequestMetadataAsync(path);
         }
 
         public void PlayCommonSound(string name, ActorBase target, float gain = 1f)

@@ -13,14 +13,6 @@
         public enum InitContext
         {
             /// <summary>
-            /// A saving process has just finished.
-            /// </summary>
-            Saved,
-            /// <summary>
-            /// The Component has been fully loaded.
-            /// </summary>
-            Loaded,
-            /// <summary>
             /// The Component is being activated. This can be the result of activating it,
             /// activating its GameObject, adding itsself or its GameObject to the current 
             /// Scene or entering a <see cref="Scene"/> in which this Component is registered.
@@ -36,10 +28,6 @@
         /// </summary>
         public enum ShutdownContext
         {
-            /// <summary>
-            /// A saving process is about to start
-            /// </summary>
-            Saving,
             /// <summary>
             /// The Component has been deactivated. This can be the result of deactivating it,
             /// deactivating its GameObject, removing itsself or its GameObject from the 
@@ -114,23 +102,6 @@
             }
         }
 
-        /*uint IUniqueIdentifyable.PreferredId
-		{
-			get 
-			{
-				unchecked
-				{
-					int idTemp = this.GetType().GetTypeId().GetHashCode();
-					if (this.gameobj != null)
-					{
-						MathF.CombineHashCode(ref idTemp, this.gameobj.Id.GetHashCode());
-					}
-					return (uint)idTemp;
-				}
-			}
-		}*/
-
-
         /// <summary>
         /// Disposes this Component. You usually don't need this - use <see cref="ExtMethodsIManageableObject.DisposeLater"/> instead.
         /// </summary>
@@ -140,14 +111,6 @@
             // Remove from GameObject
             if (this.gameobj != null)
                 this.gameobj.RemoveComponent(this);
-        }
-
-        public override string ToString()
-        {
-            if (this.gameobj == null)
-                return this.GetType().Name;
-            else
-                return string.Format("{0} in \"{1}\"", this.GetType().Name, this.gameobj.FullName);
         }
 
         private static ComponentRequirementMap requireMap = new ComponentRequirementMap();
