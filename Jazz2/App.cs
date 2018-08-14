@@ -5,13 +5,12 @@ using System.Linq;
 using System.Reflection;
 using Duality;
 using Duality.Backend;
-using Jazz2.Game;
 
-namespace Jazz2
+namespace Jazz2.Game
 {
-    public static class App
+    public partial class App
     {
-        private static Controller controller;
+        private static App current;
 
         public static string AssemblyTitle
         {
@@ -50,8 +49,8 @@ namespace Jazz2
                 RefreshMode = (args.Contains("/nv") ? RefreshMode.NoSync : (args.Contains("/mv") ? RefreshMode.ManualSync : RefreshMode.VSync)),
                 Size = LevelRenderSetup.TargetSize
             })) {
-                controller = new Controller(window);
-                controller.ShowMainMenu();
+                current = new App(window);
+                current.ShowMainMenu();
                 window.Run();
             }
 

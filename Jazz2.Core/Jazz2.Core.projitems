@@ -9,7 +9,7 @@
     <Import_RootNamespace>Jazz2</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\AirboardGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\AirboardGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Collectibles\Stopwatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\AmbientBubbles.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\AmbientSound.cs" />
@@ -67,6 +67,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Enemies\TurtleTube.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Enemies\Witch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\Bomb.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\Copter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\SteamNote.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Eva.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Explosion.cs" />
@@ -141,7 +142,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\Components\CameraController.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Components\LightEmitter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\ContentResolver.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\Controller.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\App.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Events\EventMap.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Events\EventSpawner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Hud.cs" />

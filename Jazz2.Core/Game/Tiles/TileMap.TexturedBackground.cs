@@ -188,9 +188,8 @@ namespace Jazz2.Game.Tiles
                 renderPos.X += 0.5f;
             }
             if (MathF.RoundToInt(device.TargetSize.Y) != (MathF.RoundToInt(device.TargetSize.Y) / 2) * 2) {
-                //renderPos.Y += 0.5f;
                 // AMD Bugfix?
-                renderPos.Y -= 0.001f;
+                renderPos.Y -= 0.004f;
             }
 
             // Reserve the required space for vertex data in our locally cached buffer
@@ -209,10 +208,10 @@ namespace Jazz2.Game.Tiles
             vertexData[2].Pos = new Vector3(renderPos.X + device.TargetSize.X, renderPos.Y + device.TargetSize.Y, renderPos.Z);
             vertexData[3].Pos = new Vector3(renderPos.X, renderPos.Y + device.TargetSize.Y, renderPos.Z);
 
-            vertexData[0].TexCoord = new Vector2(0.0f, 0.0f);
-            vertexData[1].TexCoord = new Vector2(1f, 0.0f);
+            vertexData[0].TexCoord = new Vector2(0f, 0f);
+            vertexData[1].TexCoord = new Vector2(1f, 0f);
             vertexData[2].TexCoord = new Vector2(1f, 1f);
-            vertexData[3].TexCoord = new Vector2(0.0f, 1f);
+            vertexData[3].TexCoord = new Vector2(0f, 1f);
 
             vertexData[0].Color = vertexData[1].Color = vertexData[2].Color = vertexData[3].Color = ColorRgba.White;
 

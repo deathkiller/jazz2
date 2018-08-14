@@ -1,6 +1,5 @@
 ﻿using System;
 using Duality;
-using Duality.Audio;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors
@@ -120,29 +119,100 @@ namespace Jazz2.Actors
             SetAnimation(currentAnimationState);
         }
 
-        public bool AttachToAirboard()
+        public bool SetModifier(Modifier modifier)
         {
-            if (isAirboard) {
+            if (activeModifier == modifier) {
                 return false;
             }
 
-            isAirboard = true;
+            switch (modifier) {
+                case Modifier.Airboard: {
+                    controllable = true;
+                    EndDamagingMove();
+                    collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
-            controllable = true;
-            EndDamagingMove();
-            collisionFlags &= ~CollisionFlags.ApplyGravitation;
+                    speedY = 0f;
+                    externalForceY = 0f;
 
-            speedY = 0f;
-            externalForceY = 0f;
+                    activeModifier = Modifier.Airboard;
 
-            MoveInstantly(new Vector2(0f, -16f), MoveType.Relative);
-            return true;
+                    MoveInstantly(new Vector2(0f, -16f), MoveType.Relative);
+                    return true;
+                }
+                case Modifier.Copter: {
+                    controllable = true;
+                    EndDamagingMove();
+                    collisionFlags &= ~CollisionFlags.ApplyGravitation;
+
+                    speedY = 0f;
+                    externalForceY = 0f;
+
+                    activeModifier = Modifier.Copter;
+
+                    copterFramesLeft = 350;
+                    return true;
+                }
+                case Modifier.LizardCopter: {
+                    controllable = true;
+                    EndDamagingMove();
+                    collisionFlags &= ~CollisionFlags.ApplyGravitation;
+
+                    speedY = 0f;
+                    externalForceY = 0f;
+
+                    activeModifier = Modifier.LizardCopter;
+
+                    copterFramesLeft = 150;
+
+                    CopterDecor copter = new CopterDecor();
+                    copter.OnAttach(new ActorInstantiationDetails {
+                        Api = api
+                    });
+                    copter.Parent = this;
+                    return true;
+                }
+
+                default: {
+                    activeModifier = Modifier.None;
+
+                    CopterDecor copterDecor = GetFirstChild<CopterDecor>();
+                    if (copterDecor != null) {
+                        copterDecor.DecreaseHealth(int.MaxValue);
+                    }
+
+                    collisionFlags |= CollisionFlags.ApplyGravitation;
+                    canJump = true;
+
+                    SetAnimation(AnimState.Fall);
+                    return true;
+                }
+            }
         }
 
         public void SetCheckpoint(Vector2 pos)
         {
             checkpointPos = pos + new Vector2(0f, -20f);
             checkpointLight = api.AmbientLight;
+        }
+
+        public class CopterDecor : ActorBase
+        {
+            public override void OnAttach(ActorInstantiationDetails details)
+            {
+                base.OnAttach(details);
+
+                collisionFlags = CollisionFlags.None;
+
+                health = int.MaxValue;
+
+                RequestMetadata("Enemy/LizardFloat");
+                SetAnimation(AnimState.Activated);
+            }
+
+            protected override void OnUpdate()
+            {
+                Transform.RelativePos = new Vector3(0f, 0f, 4f);
+            }
         }
     }
 }

@@ -23,7 +23,6 @@ namespace Duality
 
 		private		Scene						scene		= null;
 		private		GameObject					parent		= null;
-		private		Guid						identifier	= Guid.NewGuid();
 		private		List<GameObject>			children	= null;
 		private		List<Component>				compList	= new List<Component>();
 		private		Dictionary<Type,Component>	compMap		= new Dictionary<Type,Component>();
@@ -150,14 +149,6 @@ namespace Duality
 		{
 			get { return (this.parent != null) ? this.parent.FullName + '/' + this.name : this.name; }
 		}
-		/// <summary>
-		/// [GET] The GameObjects persistent globally unique identifier.
-		/// </summary>
-		public Guid Id
-		{
-			get { return this.identifier; }
-			internal set { this.identifier = value; }
-		}
 	    /// <summary>
 	    /// [GET] A list of all (direct) child objects of this <see cref="GameObject"/>.
 	    /// </summary>
@@ -232,11 +223,24 @@ namespace Duality
 			this.Parent = parent;
 		}
 
-	    /// <summary>
-	    /// Gathers all GameObjects that are directly or indirectly parented to this object, i.e. its
-	    /// children, grandchildren, etc.
-	    /// </summary>
-	    public void GetChildrenDeep(List<GameObject> resultList)
+        public T GetFirstChild<T>() where T : class
+        {
+            if (this.children == null) return null;
+            for (int i = 0; i < this.children.Count; i++) {
+                T result = this.children[i] as T;
+                if (result != null) {
+                    return result;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Gathers all GameObjects that are directly or indirectly parented to this object, i.e. its
+        /// children, grandchildren, etc.
+        /// </summary>
+        public void GetChildrenDeep(List<GameObject> resultList)
 	    {
 	        if (this.children == null) return;
 	        resultList.AddRange(this.children);

@@ -1,8 +1,8 @@
 ﻿using Android.App;
 
-namespace Jazz2
+namespace Jazz2.Game
 {
-    public static class App
+    public partial class App
     {
         public static string AssemblyTitle
         {

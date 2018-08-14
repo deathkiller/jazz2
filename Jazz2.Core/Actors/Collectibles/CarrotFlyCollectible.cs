@@ -15,9 +15,9 @@
 
         protected override void Collect(Player player)
         {
-            base.Collect(player);
-
-            // ToDo: Implement flying carrots
+            if (player.SetModifier(Player.Modifier.Copter)) {
+                base.Collect(player);
+            }
         }
     }
 }

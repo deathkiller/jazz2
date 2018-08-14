@@ -41,7 +41,7 @@ namespace Jazz2.Actors.Enemies
             SetAnimation(AnimState.Idle);
 
             // Spawn copter
-            Copter copter = new Copter();
+            CopterDecor copter = new CopterDecor();
             copter.OnAttach(new ActorInstantiationDetails {
                 Api = api,
                 Params = details.Params
@@ -131,7 +131,7 @@ namespace Jazz2.Actors.Enemies
             return base.OnPerish(collider);
         }
 
-        public class Copter : ActorBase
+        public class CopterDecor : ActorBase
         {
             public override void OnAttach(ActorInstantiationDetails details)
             {

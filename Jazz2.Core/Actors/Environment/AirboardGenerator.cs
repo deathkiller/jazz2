@@ -1,7 +1,7 @@
 ﻿using Duality;
 using Jazz2.Game.Structs;
 
-namespace Jazz2.Actors
+namespace Jazz2.Actors.Environment
 {
     public class AirboardGenerator : ActorBase
     {
@@ -48,7 +48,7 @@ namespace Jazz2.Actors
         {
             switch (other) {
                 case Player player:
-                    if (active && player.AttachToAirboard()) {
+                    if (active && player.SetModifier(Player.Modifier.Airboard)) {
                         active = false;
                         renderer.Active = false;
 

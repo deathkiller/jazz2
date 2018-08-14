@@ -57,7 +57,7 @@
         "Crouch": {
             "Path": "Jazz/crouch_start.png",
             "Flags": 1,
-            "FrameRate": 34,
+            "FrameRate": 40,
             "States": [ 32 ]
         },
         "Shoot": {

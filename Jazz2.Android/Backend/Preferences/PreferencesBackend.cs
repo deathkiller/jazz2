@@ -5,6 +5,7 @@ using Android.App;
 using Android.Content;
 using Android.Util;
 using Duality.Backend;
+using Jazz2.Game;
 using Jazz2.Storage;
 
 namespace Jazz2.Backend.Android

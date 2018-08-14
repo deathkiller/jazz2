@@ -36,7 +36,7 @@ namespace Jazz2.Game
 
         private const float DefaultGravity = 0.3f;
 
-        private readonly Controller root;
+        private readonly App root;
         private readonly ActorApi api;
 
         protected readonly GameObject rootObject;
@@ -82,7 +82,7 @@ namespace Jazz2.Game
 
         private int waterLevel = int.MaxValue;
 
-        public Controller Root => root;
+        public App Root => root;
         public ActorApi Api => api;
 
         public TileMap TileMap => tileMap;
@@ -121,7 +121,7 @@ namespace Jazz2.Game
             get { return players; }
         }
 
-        public LevelHandler(Controller root, LevelInitialization data)
+        public LevelHandler(App root, LevelInitialization data)
         {
             this.root = root;
 

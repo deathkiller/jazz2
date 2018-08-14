@@ -22,7 +22,7 @@
         },
         "Copter": {
             "Path": "Lizard/xmas_copter.png",
-            "FrameRate": 14,
+            "FrameRate": 20,
             "States": [ 32 ]
         },
         

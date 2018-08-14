@@ -25,7 +25,7 @@ namespace Import
         {
             ConsoleUtils.TryEnableUnicode();
 
-            Console.Title = Jazz2.App.AssemblyTitle;
+            Console.Title = Jazz2.Game.App.AssemblyTitle;
 
             int cursorTop;
             if (!ConsoleUtils.IsOutputRedirected) {
@@ -145,7 +145,7 @@ namespace Import
                 width = Console.BufferWidth;
 
                 // Show version number in the right corner
-                string appVersion = "v" + Jazz2.App.AssemblyVersion;
+                string appVersion = "v" + Jazz2.Game.App.AssemblyVersion;
 
                 int currentCursorTop = Console.CursorTop;
                 Console.SetCursorPosition(width - appVersion.Length - 2, cursorTop + 1);

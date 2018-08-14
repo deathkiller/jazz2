@@ -918,6 +918,9 @@ namespace Jazz2.Compatibility
                 };
             });
 
+            Add(JJ2Event.COPTER, NoParamList(EventType.Copter));
+
+
             Add(JJ2Event.SHIELD_FIRE, ConstantParamList(EventType.PowerUpShield, 1));
             Add(JJ2Event.SHIELD_WATER, ConstantParamList(EventType.PowerUpShield, 2));
             Add(JJ2Event.SHIELD_LIGHTNING, ConstantParamList(EventType.PowerUpShield, 3));

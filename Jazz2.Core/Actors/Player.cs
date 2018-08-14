@@ -28,6 +28,14 @@ namespace Jazz2.Actors
             Sidekick
         }
 
+        public enum Modifier
+        {
+            None,
+            Airboard,
+            Copter,
+            LizardCopter
+        }
+
         private const float MaxDashingSpeed = 9f;
         private const float MaxRunningSpeed = 4f;
         private const float MaxVineSpeed = 2f;
@@ -47,7 +55,8 @@ namespace Jazz2.Actors
         private bool isAttachedToPole;
         private float copterFramesLeft, fireFramesLeft, pushFramesLeft;
         private bool levelExiting;
-        private bool isFreefall, inWater, isAirboard, isLifting, isSpring;
+        private bool isFreefall, inWater, isLifting, isSpring;
+        private Modifier activeModifier;
 
         private bool inIdleTransition, inLedgeTransition;
         private MovingPlatform carryingObject;
@@ -336,6 +345,15 @@ namespace Jazz2.Actors
                 }
             }
 
+            if (activeModifier != Modifier.None) {
+                if (activeModifier == Modifier.Copter || activeModifier == Modifier.LizardCopter) {
+                    copterFramesLeft -= timeMult;
+                    if (copterFramesLeft <= 0) {
+                        SetModifier(Modifier.None);
+                    }
+                }
+            }
+
             // Controls
             // Move
             if (keepRunningTime <= 0f) {
@@ -426,14 +444,14 @@ namespace Jazz2.Actors
                 return;
             }
 
-            if (inWater || isAirboard) {
+            if (inWater || activeModifier != Modifier.None) {
                 bool isDownPressed;
                 if (((isDownPressed = ControlScheme.PlayerActionPressed(index, PlayerActions.Down)) ^ ControlScheme.PlayerActionPressed(index, PlayerActions.Up))) {
                     float mult;
-                    if (isAirboard) {
-                        mult = (isDownPressed ? -1f : 0.2f);
-                    } else {
-                        mult = (isDownPressed ? -1f : 1f);
+                    switch (activeModifier) {
+                        case Modifier.Airboard: mult = (isDownPressed ? -1f : 0.2f); break;
+                        case Modifier.LizardCopter: mult = (isDownPressed ? -2f : 2f); break;
+                        default: mult = (isDownPressed ? -1f : 1f); break;
                     }
 
                     speedY = MathF.Clamp(speedY - Acceleration * timeMult * mult, -MaxRunningSpeed, MaxRunningSpeed);
@@ -673,7 +691,7 @@ namespace Jazz2.Actors
             Vector3 pos = Transform.Pos;
             if (api.EventMap.IsHurting(pos.X, pos.Y + 24)) {
                 TakeDamage(speedX * 0.25f);
-            } else if (!inWater && !isAirboard) {
+            } else if (!inWater && activeModifier == Modifier.None) {
                 if (!canJump) {
                     PlaySound("Land", 0.8f);
 
@@ -823,7 +841,7 @@ namespace Jazz2.Actors
                         externalForceX = externalForceY = internalForceY = 0f;
                         fireFramesLeft = copterFramesLeft = pushFramesLeft = weaponCooldown = 0f;
                         controllable = true;
-                        isAirboard = false;
+                        SetModifier(Modifier.None);
 
                         // Spawn coprse
                         PlayerCorpse corpse = new PlayerCorpse();
@@ -870,8 +888,12 @@ namespace Jazz2.Actors
                 AnimState newState;
                 if (inWater) {
                     newState = AnimState.Swim;
-                } else if (isAirboard) {
+                } else if (activeModifier == Modifier.Airboard) {
                     newState = AnimState.Airboard;
+                } else if (activeModifier == Modifier.Copter) {
+                    newState = AnimState.Copter;
+                } else if (activeModifier == Modifier.LizardCopter) {
+                    newState = AnimState.Hook;
                 } else if (isLifting) {
                     newState = AnimState.Lift;
                 } else if (canJump && isActivelyPushing && pushFramesLeft > 0f) {
@@ -1056,21 +1078,23 @@ namespace Jazz2.Actors
             }
 
             // Copter Ears
-            // ToDo: Is this still needed?
-            bool cancelCopter;
-            if ((currentAnimationState & AnimState.Copter) != 0) {
-                cancelCopter = (canJump || suspendType != SuspendType.None || copterFramesLeft <= 0f);
+            if (activeModifier != Modifier.Copter && activeModifier != Modifier.LizardCopter) {
+                // ToDo: Is this still needed?
+                bool cancelCopter;
+                if ((currentAnimationState & AnimState.Copter) != 0) {
+                    cancelCopter = (canJump || suspendType != SuspendType.None || copterFramesLeft <= 0f);
 
-                copterFramesLeft -= timeMult;
-            } else {
-                cancelCopter = ((currentAnimationState & AnimState.Fall) != 0 && copterFramesLeft > 0f);
-            }
+                    copterFramesLeft -= timeMult;
+                } else {
+                    cancelCopter = ((currentAnimationState & AnimState.Fall) != 0 && copterFramesLeft > 0f);
+                }
 
-            if (cancelCopter) {
-                copterFramesLeft = 0f;
-                SetAnimation(currentAnimationState & ~AnimState.Copter);
-                if (!isAttachedToPole) {
-                    collisionFlags |= CollisionFlags.ApplyGravitation;
+                if (cancelCopter) {
+                    copterFramesLeft = 0f;
+                    SetAnimation(currentAnimationState & ~AnimState.Copter);
+                    if (!isAttachedToPole) {
+                        collisionFlags |= CollisionFlags.ApplyGravitation;
+                    }
                 }
             }
         }
@@ -1367,13 +1391,8 @@ namespace Jazz2.Actors
                     break;
                 }
                 case EventType.AreaFlyOff: {
-                    if (isAirboard) {
-                        isAirboard = false;
-
-                        collisionFlags |= CollisionFlags.ApplyGravitation;
-                        canJump = true;
-
-                        SetAnimation(AnimState.Fall);
+                    if (activeModifier == Modifier.Airboard) {
+                        SetModifier(Modifier.None);
                     }
                     break;
                 }
@@ -1677,7 +1696,7 @@ namespace Jazz2.Actors
                 if (health > 0) {
                     externalForceX = pushForce;
 
-                    if (!inWater && !isAirboard) {
+                    if (!inWater && activeModifier == Modifier.None) {
                         speedY = -6.5f;
 
                         collisionFlags |= CollisionFlags.ApplyGravitation;
@@ -1853,7 +1872,7 @@ namespace Jazz2.Actors
 
         public void SetCarryingPlatform(MovingPlatform platform)
         {
-            if (speedY < 0f || inWater || isAirboard) {
+            if (speedY < 0f || inWater || activeModifier != Modifier.None) {
                 return;
             }
 

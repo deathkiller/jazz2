@@ -8,7 +8,7 @@ namespace Editor
         {
             InitializeComponent();
 
-            Text = Jazz2.App.AssemblyTitle + " v" + Jazz2.App.AssemblyVersion;
+            Text = Jazz2.Game.App.AssemblyTitle + " v" + Jazz2.Game.App.AssemblyVersion;
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)

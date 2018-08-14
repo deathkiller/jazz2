@@ -10,8 +10,7 @@ using Jazz2.Storage;
 
 namespace Jazz2.Game
 {
-    // ToDo: Remove this controller, move this to "App" class?
-    public class Controller
+    public partial class App
     {
         private readonly INativeWindow window;
 
@@ -37,7 +36,7 @@ namespace Jazz2.Game
             }
         }
 
-        public Controller(INativeWindow window)
+        public App(INativeWindow window)
         {
             this.window = window;
         }

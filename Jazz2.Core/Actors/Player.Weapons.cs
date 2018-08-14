@@ -336,7 +336,7 @@ namespace Jazz2.Actors
 
         private bool FireWeaponThunderbolt()
         {
-            if (isActivelyPushing || inWater || isAttachedToPole || !(canJump || isAirboard) || MathF.Abs(speedX) > 0.1f || MathF.Abs(speedY) > 0.1f || MathF.Abs(externalForceX) > 0.1f || MathF.Abs(externalForceY) > 0.1f) {
+            if (isActivelyPushing || inWater || isAttachedToPole || !(canJump || activeModifier != Modifier.None) || MathF.Abs(speedX) > 0.1f || MathF.Abs(speedY) > 0.1f || MathF.Abs(externalForceX) > 0.1f || MathF.Abs(externalForceY) > 0.1f) {
                 return false;
             }
 

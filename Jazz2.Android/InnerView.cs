@@ -13,7 +13,7 @@ namespace Duality.Android
 {
     public partial class InnerView : AndroidGameView
     {
-        private Controller controller;
+        private App current;
         private int viewportWidth, viewportHeight;
 
         private readonly Vibrator vibrator;
@@ -43,8 +43,8 @@ namespace Duality.Android
 
             InitializeInput();
 
-            controller = new Controller(window);
-            controller.ShowMainMenu();
+            current = new App(window);
+            current.ShowMainMenu();
 
             // Run the render loop
             Run();

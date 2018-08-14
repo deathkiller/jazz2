@@ -13,7 +13,7 @@ namespace Jazz2.Game.UI.Menu
 {
     public partial class MainMenu : Scene
     {
-        private readonly Controller root;
+        private readonly App root;
         private readonly GameObject rootObject;
 
         private Stack<MainMenuSection> sectionStack;
@@ -29,7 +29,7 @@ namespace Jazz2.Game.UI.Menu
 
         private static Updater.Release newVersion;
 
-        public MainMenu(Controller root)
+        public MainMenu(App root)
         {
             this.root = root;
 

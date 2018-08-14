@@ -158,5 +158,7 @@
         PowerUpShield = 0x006A,
         Stopwatch = 0x006B,
         SpikeBall = 0x006C,
+
+        Copter = 0x006D,
     }
 }

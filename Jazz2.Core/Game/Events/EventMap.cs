@@ -392,6 +392,8 @@ namespace Jazz2.Game.Events
                                     Y = y
                                 });
                             }
+
+                            Explosion.Create(levelHandler.Api, new Vector3(x * 32 + 16, y * 32 + 16, LevelHandler.MainPlaneZ), Explosion.Generator);
                         }
                     }
                 }

@@ -11,7 +11,7 @@ namespace Jazz2.Game.UI.Menu.I
 {
     public partial class InGameMenu : Scene
     {
-        private readonly Controller root;
+        private readonly App root;
         private readonly GameObject rootObject;
         private readonly LevelHandler levelHandler;
 
@@ -27,7 +27,7 @@ namespace Jazz2.Game.UI.Menu.I
         private Material finalMaterial;
         private float transition;
 
-        public InGameMenu(Controller root, LevelHandler levelHandler)
+        public InGameMenu(App root, LevelHandler levelHandler)
         {
             this.root = root;
             this.levelHandler = levelHandler;
