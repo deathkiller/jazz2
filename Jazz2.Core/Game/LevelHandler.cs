@@ -680,16 +680,6 @@ namespace Jazz2.Game
             }
         }
 
-        public Metadata RequestMetadata(string path)
-        {
-            return ContentResolver.Current.RequestMetadata(path);
-        }
-
-        public Metadata RequestMetadataAsync(string path)
-        {
-            return ContentResolver.Current.RequestMetadataAsync(path);
-        }
-
         public void PlayCommonSound(string name, ActorBase target, float gain = 1f)
         {
             SoundResource resource;

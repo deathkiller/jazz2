@@ -27,6 +27,7 @@ namespace Jazz2.Game
 
         private Thread asyncThread;
         private AutoResetEvent asyncThreadEvent;
+        private AutoResetEvent asyncResourceReadyEvent;
 
         public event ResourceReadyDelegate ResourceReady;
 
@@ -49,6 +50,17 @@ namespace Jazz2.Game
             }
 
             return metadata;
+        }
+
+        public void PreloadAsync(string path)
+        {
+            if (!cachedMetadata.ContainsKey(path)) {
+                lock (metadataAsyncRequests) {
+                    if (metadataAsyncRequests.Add(path)) {
+                        asyncThreadEvent.Set();
+                    }
+                }
+            }
         }
 
         private void FinalizeAsyncLoadedResources(Metadata metadata)
@@ -110,6 +122,7 @@ namespace Jazz2.Game
             metadataAsyncRequests = new HashSet<string>();
 
             asyncThreadEvent = new AutoResetEvent(false);
+            asyncResourceReadyEvent = new AutoResetEvent(false);
 
             asyncThread = new Thread(OnAsyncThread);
             asyncThread.IsBackground = true;
@@ -129,6 +142,7 @@ namespace Jazz2.Game
             }
 
             asyncThreadEvent.Set();
+            asyncResourceReadyEvent.Set();
         }
 
         private void OnAsyncThread()
@@ -149,10 +163,10 @@ namespace Jazz2.Game
                     Metadata metadata = RequestMetadataInner(path, true);
 
                     lock (metadataAsyncRequests) {
-                        cachedMetadata[path] = metadata;
-
                         metadataAsyncRequests.Remove(path);
                     }
+
+                    asyncResourceReadyEvent.Set();
 
                     ResourceReady?.Invoke(path);
                 }

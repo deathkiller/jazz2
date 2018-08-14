@@ -826,14 +826,19 @@ namespace Jazz2.Actors
         {
             Metadata metadata;
             if ((flags & ActorInstantiationFlags.IsCreatedFromEventMap) != 0) {
-                metadata = api.RequestMetadataAsync(path);
+                metadata = ContentResolver.Current.RequestMetadataAsync(path);
             } else {
-                metadata = api.RequestMetadata(path);
+                metadata = ContentResolver.Current.RequestMetadata(path);
             }
 
             boundingBox = metadata.BoundingBox;
             availableAnimations = metadata.Graphics;
             availableSounds = metadata.Sounds;
+        }
+
+        protected void PreloadMetadata(string path)
+        {
+            ContentResolver.Current.PreloadAsync(path);
         }
 
         protected SoundInstance PlaySound(string name, float gain = 1f, float pitch = 1f)

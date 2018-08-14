@@ -72,34 +72,35 @@ namespace Jazz2.Actors.Weapons
 
             Material material = currentAnimation.Material.Res;
             Texture texture = material.MainTexture.Res;
+            if (texture != null) {
+                Vector3 pos = Transform.Pos;
+                float dx = MathF.Rnd.NextFloat(-8f, 8f);
+                float dy = MathF.Rnd.NextFloat(-3f, 3f);
 
-            Vector3 pos = Transform.Pos;
-            float dx = MathF.Rnd.NextFloat(-8f, 8f);
-            float dy = MathF.Rnd.NextFloat(-3f, 3f);
+                const float currentSize = 1f;
+                int currentFrame = renderer.CurrentFrame;
 
-            const float currentSize = 1f;
-            int currentFrame = renderer.CurrentFrame;
+                api.TileMap.CreateDebris(new DestructibleDebris {
+                    Pos = new Vector3(pos.X + dx, pos.Y + dy, pos.Z + 1f),
+                    Size = new Vector2(currentSize, currentSize),
+                    Acceleration = new Vector2(0f, api.Gravity),
 
-            api.TileMap.CreateDebris(new DestructibleDebris {
-                Pos = new Vector3(pos.X + dx, pos.Y + dy, pos.Z + 1f),
-                Size = new Vector2(currentSize, currentSize),
-                Acceleration = new Vector2(0f, api.Gravity),
+                    Scale = 1.2f,
+                    Alpha = 1f,
 
-                Scale = 1.2f,
-                Alpha = 1f,
+                    Time = 300f,
 
-                Time = 300f,
+                    Material = material,
+                    MaterialOffset = new Rect(
+                        (((float)(currentFrame % currentAnimation.Base.FrameConfiguration.X) / currentAnimation.Base.FrameConfiguration.X) + ((float)dx / texture.ContentWidth) + 0.5f) * texture.UVRatio.X,
+                        (((float)(currentFrame / currentAnimation.Base.FrameConfiguration.X) / currentAnimation.Base.FrameConfiguration.Y) + ((float)dy / texture.ContentHeight) + 0.5f) * texture.UVRatio.Y,
+                        (currentSize * texture.UVRatio.X / texture.ContentWidth),
+                        (currentSize * texture.UVRatio.Y / texture.ContentHeight)
+                    ),
 
-                Material = material,
-                MaterialOffset = new Rect(
-                    (((float)(currentFrame % currentAnimation.Base.FrameConfiguration.X) / currentAnimation.Base.FrameConfiguration.X) + ((float)dx / texture.ContentWidth) + 0.5f) * texture.UVRatio.X,
-                    (((float)(currentFrame / currentAnimation.Base.FrameConfiguration.X) / currentAnimation.Base.FrameConfiguration.Y) + ((float)dy / texture.ContentHeight) + 0.5f) * texture.UVRatio.Y,
-                    (currentSize * texture.UVRatio.X / texture.ContentWidth),
-                    (currentSize * texture.UVRatio.Y / texture.ContentHeight)
-                ),
-
-                CollisionAction = DebrisCollisionAction.Disappear
-            });
+                    CollisionAction = DebrisCollisionAction.Disappear
+                });
+            }
 
             if (timeLeft <= 0f) {
                 PlaySound("WallPoof");

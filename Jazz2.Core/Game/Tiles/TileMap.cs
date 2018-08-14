@@ -390,7 +390,12 @@ namespace Jazz2.Game.Tiles
 
         public void SetSolidLimit(int tileLeft, int tileWidth)
         {
-            limitLeft = tileLeft;
+            if (tileLeft <= 0) {
+                limitLeft = 0;
+            } else {
+                limitLeft = tileLeft;
+            }
+            
             if (tileWidth > 0) {
                 limitRight = tileLeft + tileWidth;
             } else {

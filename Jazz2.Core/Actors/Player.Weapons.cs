@@ -30,6 +30,8 @@ namespace Jazz2.Actors
             if (switchTo) {
                 currentWeapon = type;
                 attachedHud?.ChangeCurrentWeapon(currentWeapon, weaponUpgrades[(int)currentWeapon]);
+
+                PreloadMetadata("Weapon/" + currentWeapon);
             }
 
             PlaySound("PickupAmmo");
@@ -58,6 +60,20 @@ namespace Jazz2.Actors
 
             PlaySound("PickupAmmo");
             return true;
+        }
+
+        private void SwitchToNextWeapon()
+        {
+            // Find next available weapon
+            currentWeapon = (WeaponType)((int)(currentWeapon + 1) % (int)WeaponType.Count);
+
+            for (int i = 0; i < (int)WeaponType.Count && weaponAmmo[(int)currentWeapon] == 0; i++) {
+                currentWeapon = (WeaponType)((int)(currentWeapon + 1) % (int)WeaponType.Count);
+            }
+
+            attachedHud?.ChangeCurrentWeapon(currentWeapon, weaponUpgrades[(int)currentWeapon]);
+
+            PreloadMetadata("Weapon/" + currentWeapon);
         }
 
         private void FireWeapon()
@@ -97,12 +113,7 @@ namespace Jazz2.Actors
 
                 // No ammo, switch weapons
                 if (weaponAmmo[(int)currentWeapon] == 0) {
-                    for (int i = 0; i < (int)WeaponType.Count && weaponAmmo[(int)currentWeapon] == 0; i++) {
-                        currentWeapon = (WeaponType)((int)(currentWeapon + 1) % (int)WeaponType.Count);
-                    }
-
-                    attachedHud?.ChangeCurrentWeapon(currentWeapon, weaponUpgrades[(int)currentWeapon]);
-
+                    SwitchToNextWeapon();
                     PlaySound("SwitchAmmo");
                 }
             }

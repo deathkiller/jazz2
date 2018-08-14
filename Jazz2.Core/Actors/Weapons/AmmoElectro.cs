@@ -77,43 +77,45 @@ namespace Jazz2.Actors.Weapons
             light.Brightness += 0.02f * timeMult;
             light.RadiusFar += 0.1f * timeMult;
 
-            for (int i = 0; i < 5; i++) {
-                Material material = currentAnimation.Material.Res;
-                Texture texture = material.MainTexture.Res;
-
+            Material material = currentAnimation.Material.Res;
+            Texture texture = material.MainTexture.Res;
+            if (texture != null) {
                 Vector3 pos = Transform.Pos;
-                float dx = MathF.Rnd.NextFloat(-10f, 10f);
-                float dy = MathF.Rnd.NextFloat(-10f, 10f);
-
-                float currentSizeX = MathF.Rnd.NextFloat(2f, 6f);
-                float currentSizeY = 1f;
                 int currentFrame = renderer.CurrentFrame;
 
-                float sx = MathF.Rnd.NextFloat(-0.6f, 0.6f);
-                float sy = MathF.Rnd.NextFloat(-0.6f, 0.6f);
+                for (int i = 0; i < 5; i++) {
+                    float dx = MathF.Rnd.NextFloat(-10f, 10f);
+                    float dy = MathF.Rnd.NextFloat(-10f, 10f);
 
-                api.TileMap.CreateDebris(new DestructibleDebris {
-                    Pos = new Vector3(pos.X + dx, pos.Y + dy, pos.Z),
-                    Size = new Vector2(currentSizeX, currentSizeY),
-                    Speed = new Vector2(sx, sy),
-                    Acceleration = new Vector2(sx * 0.1f, sy * 0.1f),
+                    float currentSizeX = MathF.Rnd.NextFloat(2f, 6f);
+                    float currentSizeY = 1f;
 
-                    Scale = 1f,
-                    Alpha = 1f,
-                    AlphaSpeed = MathF.Rnd.NextFloat(-0.05f, -0.02f),
+                    float sx = MathF.Rnd.NextFloat(-0.6f, 0.6f);
+                    float sy = MathF.Rnd.NextFloat(-0.6f, 0.6f);
 
-                    Angle = MathF.Atan2(sy, sx),
+                    api.TileMap.CreateDebris(new DestructibleDebris {
+                        Pos = new Vector3(pos.X + dx, pos.Y + dy, pos.Z),
+                        Size = new Vector2(currentSizeX, currentSizeY),
+                        Speed = new Vector2(sx, sy),
+                        Acceleration = new Vector2(sx * 0.1f, sy * 0.1f),
 
-                    Time = 240f,
+                        Scale = 1f,
+                        Alpha = 1f,
+                        AlphaSpeed = MathF.Rnd.NextFloat(-0.05f, -0.02f),
 
-                    Material = material,
-                    MaterialOffset = new Rect(
-                        (((float)(currentFrame % currentAnimation.Base.FrameConfiguration.X) / currentAnimation.Base.FrameConfiguration.X) + ((float)dx / texture.ContentWidth) + 0.5f) * texture.UVRatio.X,
-                        (((float)(currentFrame / currentAnimation.Base.FrameConfiguration.X) / currentAnimation.Base.FrameConfiguration.Y) + ((float)dy / texture.ContentHeight) + 0.5f) * texture.UVRatio.Y,
-                        (currentSizeX * texture.UVRatio.X / texture.ContentWidth),
-                        (currentSizeY * texture.UVRatio.Y / texture.ContentHeight)
-                    )
-                });
+                        Angle = MathF.Atan2(sy, sx),
+
+                        Time = 240f,
+
+                        Material = material,
+                        MaterialOffset = new Rect(
+                            (((float)(currentFrame % currentAnimation.Base.FrameConfiguration.X) / currentAnimation.Base.FrameConfiguration.X) + ((float)dx / texture.ContentWidth) + 0.5f) * texture.UVRatio.X,
+                            (((float)(currentFrame / currentAnimation.Base.FrameConfiguration.X) / currentAnimation.Base.FrameConfiguration.Y) + ((float)dy / texture.ContentHeight) + 0.5f) * texture.UVRatio.Y,
+                            (currentSizeX * texture.UVRatio.X / texture.ContentWidth),
+                            (currentSizeY * texture.UVRatio.Y / texture.ContentHeight)
+                        )
+                    });
+                }
             }
         }
 

@@ -158,6 +158,13 @@ namespace Jazz2.Actors
                     controllable = true;
                 });
             }
+
+            // Preload all weapons
+            for (int i = 0; i < (int)WeaponType.Count; i++) {
+                if (weaponAmmo[(int)currentWeapon] != 0) {
+                    PreloadMetadata("Weapon/" + (WeaponType)i);
+                }
+            }
         }
 
         public PlayerCarryOver PrepareLevelCarryOver()
@@ -677,12 +684,7 @@ namespace Jazz2.Actors
             }
 
             if (ControlScheme.PlayerActionHit(index, PlayerActions.SwitchWeapon)) {
-                // Find next available weapon
-                do {
-                    currentWeapon = (WeaponType)((int)(currentWeapon + 1) % (int)WeaponType.Count);
-                } while (weaponAmmo[(int)currentWeapon] == 0);
-
-                attachedHud?.ChangeCurrentWeapon(currentWeapon, weaponUpgrades[(int)currentWeapon]);
+                SwitchToNextWeapon();
             }
         }
 

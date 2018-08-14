@@ -31,6 +31,15 @@ namespace Jazz2.Actors.Solid
                 case MorphType.Swap3: SetAnimation("Swap3"); break;
                 case MorphType.ToBird: SetAnimation("Bird"); break;
             }
+
+            for (int i = 0; i < api.Players.Count; i++) {
+                PlayerType? playerType = GetTargetType(api.Players[i].PlayerType);
+                switch (playerType) {
+                    case PlayerType.Jazz: PreloadMetadata("Interactive/PlayerJazz"); break;
+                    case PlayerType.Spaz: PreloadMetadata("Interactive/PlayerSpaz"); break;
+                    case PlayerType.Lori: PreloadMetadata("Interactive/PlayerLori"); break;
+                }
+            }
         }
 
         public override void OnHandleCollision(ActorBase other)
@@ -73,20 +82,38 @@ namespace Jazz2.Actors.Solid
 
         public void DestroyAndApplyToPlayer(Player player)
         {
+            PlayerType? playerType = GetTargetType(player.PlayerType);
+            if (playerType.HasValue) {
+                player.MorphTo(playerType.Value);
+
+                DecreaseHealth(int.MaxValue, player);
+                PlaySound("Break");
+            }
+        }
+
+        protected override bool OnPerish(ActorBase collider)
+        {
+            CreateParticleDebris();
+
+            return base.OnPerish(collider);
+        }
+
+        private PlayerType? GetTargetType(PlayerType currentType)
+        {
             PlayerType targetType;
             switch (morphType) {
                 case MorphType.Swap2:
-                    if (player.PlayerType != PlayerType.Jazz) {
+                    if (currentType != PlayerType.Jazz) {
                         targetType = PlayerType.Jazz;
-                    } else  {
+                    } else {
                         targetType = PlayerType.Spaz;
                     }
                     break;
 
                 case MorphType.Swap3:
-                    if (player.PlayerType == PlayerType.Spaz) {
+                    if (currentType == PlayerType.Spaz) {
                         targetType = PlayerType.Lori;
-                    } else if (player.PlayerType == PlayerType.Lori) {
+                    } else if (currentType == PlayerType.Lori) {
                         targetType = PlayerType.Jazz;
                     } else {
                         targetType = PlayerType.Spaz;
@@ -98,20 +125,9 @@ namespace Jazz2.Actors.Solid
                 //    break;
 
                 default:
-                    return;
+                    return null;
             }
-
-            player.MorphTo(targetType);
-
-            DecreaseHealth(int.MaxValue, player);
-            PlaySound("Break");
-        }
-
-        protected override bool OnPerish(ActorBase collider)
-        {
-            CreateParticleDebris();
-
-            return base.OnPerish(collider);
+            return targetType;
         }
     }
 }

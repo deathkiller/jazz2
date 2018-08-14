@@ -85,7 +85,7 @@ namespace Jazz2.Game
 
         private ContentRef<Texture> defaultNormalMap;
 
-        private Dictionary<string, Metadata> cachedMetadata;
+        private ConcurrentDictionary<string, Metadata> cachedMetadata;
         private Dictionary<string, GenericGraphicResource> cachedGraphics;
         private Dictionary<string, ContentRef<DrawTechnique>> cachedShaders;
         //private Dictionary<string, ContentRef<Sound>> cachedSounds;
@@ -106,7 +106,7 @@ namespace Jazz2.Game
 
             defaultNormalMap = new Texture(new Pixmap(new PixelData(2, 2, new ColorRgba(0.5f, 0.5f, 1f))), TextureSizeMode.Default, TextureMagFilter.Nearest, TextureMinFilter.Nearest);
 
-            cachedMetadata = new Dictionary<string, Metadata>();
+            cachedMetadata = new ConcurrentDictionary<string, Metadata>(2, 31);
             cachedGraphics = new Dictionary<string, GenericGraphicResource>();
             cachedShaders = new Dictionary<string, ContentRef<DrawTechnique>>();
             //cachedSounds = new Dictionary<string, ContentRef<Sound>>();
@@ -169,7 +169,27 @@ namespace Jazz2.Game
 
         public Metadata RequestMetadata(string path)
         {
-            Metadata metadata = RequestMetadataInner(path, false);
+            /*Metadata metadata = RequestMetadataInner(path, false);
+
+            if (metadata.AsyncFinalizingRequired) {
+                metadata.AsyncFinalizingRequired = false;
+                FinalizeAsyncLoadedResources(metadata);
+            }
+
+            return metadata;*/
+
+            Metadata metadata;
+            if (!cachedMetadata.TryGetValue(path, out metadata)) {
+                lock (metadataAsyncRequests) {
+                    if (metadataAsyncRequests.Add(path)) {
+                        asyncThreadEvent.Set();
+                    }
+                }
+
+                do {
+                    asyncResourceReadyEvent.WaitOne();
+                } while (!cachedMetadata.TryGetValue(path, out metadata));
+            }
 
             if (metadata.AsyncFinalizingRequired) {
                 metadata.AsyncFinalizingRequired = false;
