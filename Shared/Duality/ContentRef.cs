@@ -17,7 +17,6 @@ namespace Duality
     public struct ContentRef<T> : IEquatable<ContentRef<T>>, IContentRef where T : Resource
     {
         private T contentInstance;
-        private string contentPath;
 
         /// <summary>
         /// [GET / SET] The actual <see cref="Resource"/>. If currently unavailable, it is loaded and then returned.
@@ -32,7 +31,6 @@ namespace Duality
             }
             set
             {
-                this.contentPath = value == null ? null : value.Path;
                 this.contentInstance = value;
             }
         }
@@ -45,26 +43,13 @@ namespace Duality
             get { return (this.contentInstance == null || this.contentInstance.Disposed) ? null : this.contentInstance; }
         }
         /// <summary>
-        /// [GET / SET] The path where to look for the Resource, if it is currently unavailable.
-        /// </summary>
-        public string Path
-        {
-            get { return this.contentPath; }
-            set
-            {
-                this.contentPath = value;
-                if (this.contentInstance != null && this.contentInstance.Path != value)
-                    this.contentInstance = null;
-            }
-        }
-        /// <summary>
         /// [GET] Returns whether this content reference has been explicitly set to null.
         /// </summary>
         public bool IsExplicitNull
         {
             get
             {
-                return this.contentInstance == null && String.IsNullOrEmpty(this.contentPath);
+                return this.contentInstance == null;
             }
         }
         /// <summary>
@@ -79,37 +64,12 @@ namespace Duality
             }
         }
         /// <summary>
-        /// [GET] Returns whether the Resource has been generated at runtime and cannot be retrieved via content path.
-        /// </summary>
-        public bool IsRuntimeResource
-        {
-            get { return this.contentInstance != null && string.IsNullOrEmpty(this.contentPath); }
-        }
-        /// <summary>
-        /// Creates a ContentRef pointing to the specified <see cref="Resource"/>, assuming the
-        /// specified path as its origin, if the Resource itsself is either null or doesn't
-        /// provide a valid <see cref="Resource.Path"/>.
-        /// </summary>
-        /// <param name="res">The Resource to reference.</param>
-        /// <param name="altPath">The referenced Resource's file path.</param>
-        public ContentRef(T res, string requestPath)
-        {
-            this.contentInstance = res;
-            if (!string.IsNullOrEmpty(requestPath))
-                this.contentPath = requestPath;
-            else if (res != null && !string.IsNullOrEmpty(res.Path))
-                this.contentPath = res.Path;
-            else
-                this.contentPath = requestPath;
-        }
-        /// <summary>
         /// Creates a ContentRef pointing to the specified <see cref="Resource"/>.
         /// </summary>
         /// <param name="res">The Resource to reference.</param>
         public ContentRef(T res)
         {
             this.contentInstance = res;
-            this.contentPath = (res != null) ? res.Path : null;
         }
         
         /// <summary>
@@ -138,8 +98,7 @@ namespace Duality
         }
         public override int GetHashCode()
         {
-            if (this.contentPath != null) return this.contentPath.GetHashCode();
-            else if (this.contentInstance != null) return this.contentInstance.GetHashCode();
+            if (this.contentInstance != null) return this.contentInstance.GetHashCode();
             else return 0;
         }
         public bool Equals(ContentRef<T> other)
@@ -187,7 +146,7 @@ namespace Duality
             //    return first.contentPath == second.contentPath;
 
             // Completely identical
-            if (first.contentInstance == second.contentInstance && first.contentPath == second.contentPath)
+            if (first.contentInstance == second.contentInstance)
                 return true;
             // Same instances
             else if (first.contentInstance != null && second.contentInstance != null)
@@ -196,11 +155,12 @@ namespace Duality
             else if (first.IsExplicitNull) return second.IsExplicitNull;
             else if (second.IsExplicitNull) return first.IsExplicitNull;
             // Path comparison
-            else {
-                string firstPath = first.contentInstance != null ? first.contentInstance.Path : first.contentPath;
-                string secondPath = second.contentInstance != null ? second.contentInstance.Path : second.contentPath;
-                return firstPath == secondPath;
-            }
+            //else {
+            //    string firstPath = first.contentInstance != null ? first.contentInstance.Path : first.contentPath;
+            //    string secondPath = second.contentInstance != null ? second.contentInstance.Path : second.contentPath;
+            //    return firstPath == secondPath;
+            //}
+            return false;
         }
         /// <summary>
         /// Compares two ContentRefs for inequality.

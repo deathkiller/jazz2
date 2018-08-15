@@ -119,48 +119,56 @@ namespace Jazz2.Game
 
         public void ResetReferenceFlag()
         {
-            // ToDo: Do this better somehow...
-            /*foreach (var resource in cachedMetadata) {
+            foreach (var resource in cachedMetadata) {
                 resource.Value.Referenced = false;
             }
 
             foreach (var resource in cachedGraphics) {
                 resource.Value.Referenced = false;
-            }*/
+            }
         }
 
         public void ReleaseUnreferencedResources()
         {
-            // ToDo: Do this better somehow...
             // Clear unreferenced resources
-            /*{
-                List<string> unreferenced = new List<string>();
-
+            {
                 // Metadata
+                List<string> unreferenced = new List<string>();
                 foreach (var resource in cachedMetadata) {
                     if (!resource.Value.Referenced) {
                         unreferenced.Add(resource.Key);
                     }
                 }
 
-                foreach (var key in unreferenced) {
-                    cachedMetadata.Remove(key);
+                foreach (string path in unreferenced) {
+                    Metadata metadata;
+                    cachedMetadata.TryRemove(path, out metadata);
+
+                    metadata.Graphics = null;
+                    metadata.Sounds = null;
+
+                    //System.Diagnostics.Debug.WriteLine("Releasing metadata \"" + path + "\"...");
                 }
 
                 // Graphics
+                unreferenced.Clear();
                 foreach (var resource in cachedGraphics) {
                     if (!resource.Value.Referenced) {
                         unreferenced.Add(resource.Key);
+
+                        resource.Value.AsyncFinalize = null;
+
+                        resource.Value.Texture.Res?.DisposeLater();
+                        resource.Value.TextureNormal.Res?.DisposeLater();
                     }
                 }
 
-                foreach (var key in unreferenced) {
-                    cachedGraphics.Remove(key);
+                foreach (string path in unreferenced) {
+                    cachedGraphics.Remove(path);
+
+                    //System.Diagnostics.Debug.WriteLine("Releasing graphics \"" + path + "\"...");
                 }
-            }*/
-            cachedMetadata.Clear();
-            cachedGraphics.Clear();
-            //cachedSounds.Clear();
+            }
 
             // Force GC Collect
             GC.Collect();
@@ -169,15 +177,6 @@ namespace Jazz2.Game
 
         public Metadata RequestMetadata(string path)
         {
-            /*Metadata metadata = RequestMetadataInner(path, false);
-
-            if (metadata.AsyncFinalizingRequired) {
-                metadata.AsyncFinalizingRequired = false;
-                FinalizeAsyncLoadedResources(metadata);
-            }
-
-            return metadata;*/
-
             Metadata metadata;
             if (!cachedMetadata.TryGetValue(path, out metadata)) {
                 lock (metadataAsyncRequests) {
@@ -189,6 +188,8 @@ namespace Jazz2.Game
                 do {
                     asyncResourceReadyEvent.WaitOne();
                 } while (!cachedMetadata.TryGetValue(path, out metadata));
+            } else {
+                MarkAsReferenced(metadata);
             }
 
             if (metadata.AsyncFinalizingRequired) {
@@ -199,146 +200,155 @@ namespace Jazz2.Game
             return metadata;
         }
 
-        public Metadata RequestMetadataInner(string path, bool async)
+        private void MarkAsReferenced(Metadata metadata)
         {
-            Metadata metadata;
-            if (!cachedMetadata.TryGetValue(path, out metadata)) {
+            metadata.Referenced = true;
+
+            if (metadata.Graphics != null) {
+                foreach (var res in metadata.Graphics) {
+                    res.Value.Base.Referenced = true;
+                }
+            }
+        }
+
+        private Metadata RequestMetadataInner(string path, bool async)
+        {
+            //System.Diagnostics.Debug.WriteLine("Loading metadata \"" + path + "\"...");
+
 #if UNCOMPRESSED_CONTENT
-                string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Metadata", path + ".res");
+            string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Metadata", path + ".res");
 #else
-                string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, ".dz", "Metadata", path + ".res");
+            string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, ".dz", "Metadata", path + ".res");
 #endif
 
-                MetadataJson json;
-                using (Stream s = FileOp.Open(pathAbsolute, FileAccessMode.Read)) {
-                    lock (jsonParser) {
-                        json = jsonParser.Parse<MetadataJson>(s);
-                    }
-                }
-
-                metadata = new Metadata();
-                metadata.AsyncFinalizingRequired = async;
-
-                // Pre-load graphics
-                if (json.Animations != null) {
-                    metadata.Graphics = new Dictionary<string, GraphicResource>();
-
-                    foreach (KeyValuePair<string, MetadataJson.AnimationsSection> g in json.Animations) {
-                        if (g.Value.Path == null) {
-                            // No path provided, skip resource...
-                            continue;
-                        }
-
-#if !THROW_ON_MISSING_RESOURCES
-                        try {
-#endif
-
-                            bool isIndexed = (g.Value.Flags & 0x02) != 0x00;
-
-                            ColorRgba color;
-                            if (g.Value.ShaderColor == null || g.Value.ShaderColor.Count < 4) {
-                                color = (isIndexed ? new ColorRgba(0, 255) : ColorRgba.White);
-                            } else {
-                                color = new ColorRgba((byte)g.Value.ShaderColor[0], (byte)g.Value.ShaderColor[1], (byte)g.Value.ShaderColor[2], (byte)g.Value.ShaderColor[3]);
-                            }
-
-                            GenericGraphicResource resBase = RequestGraphicResource(g.Value.Path, async);
-
-                            // Create copy of generic resource
-                            GraphicResource res;
-                            if (async) {
-                                res = GraphicResource.From(resBase, g.Value.Shader, color, isIndexed);
-                            } else {
-                                ContentRef<DrawTechnique> drawTechnique;
-                                if (g.Value.Shader == null) {
-                                    drawTechnique = (isIndexed ? paletteNormal : basicNormal);
-                                } else {
-                                    drawTechnique = RequestShader(g.Value.Shader);
-                                }
-
-                                res = GraphicResource.From(resBase, drawTechnique, color, isIndexed, paletteTexture);
-                            }
-
-                            res.FrameOffset = g.Value.FrameOffset;
-
-                            string raw1, raw2; int raw3;
-                            if ((raw1 = g.Value.FrameCount as string) != null && int.TryParse(raw1, out raw3)) {
-                                res.FrameCount = raw3;
-                            } else {
-                                res.FrameCount -= res.FrameOffset;
-                            }
-                            if ((raw2 = g.Value.FrameRate as string) != null && int.TryParse(raw2, out raw3)) {
-                                res.FrameDuration = (1f / raw3) * 5; // ToDo: I don't know...
-                            }
-
-                            res.OnlyOnce = (g.Value.Flags & 0x01) != 0x00;
-
-                            if (g.Value.States != null) {
-                                res.State = new HashSet<AnimState>();
-                                for (int i = 0; i < g.Value.States.Count; i++) {
-                                    res.State.Add((AnimState)g.Value.States[i]);
-                                }
-                            }
-
-                            metadata.Graphics[g.Key] = res;
-#if !THROW_ON_MISSING_RESOURCES
-                        } catch (Exception ex) {
-                            Console.WriteLine("Can't load animation \"" + g.Key + "\" from metadata \"" + path + "\": " + ex);
-                        }
-#endif
-                    }
-                }
-
-                // Pre-load sounds
-                if (json.Sounds != null) {
-                    metadata.Sounds = new Dictionary<string, SoundResource>();
-
-                    foreach (var s in json.Sounds) {
-                        if (s.Value.Paths == null || s.Value.Paths.Count == 0) {
-                            // No path provided, skip resource...
-                            continue;
-                        }
-
-#if !THROW_ON_MISSING_RESOURCES
-                        try {
-#endif
-                            IList<string> filenames = s.Value.Paths;
-                            ContentRef<AudioData>[] data = new ContentRef<AudioData>[filenames.Count];
-                            for (int i = 0; i < data.Length; i++) {
-#if UNCOMPRESSED_CONTENT
-                                data[i] = new AudioData(FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, "Animations", filenames[i]), FileAccessMode.Read));
-#else
-                                data[i] = new AudioData(FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, ".dz", "Animations", filenames[i]), FileAccessMode.Read));
-#endif
-                            }
-
-                            SoundResource resource = new SoundResource();
-                            resource.Sound = new Sound(data);
-                            metadata.Sounds[s.Key] = resource;
-#if !THROW_ON_MISSING_RESOURCES
-                        } catch (Exception ex) {
-                            Console.WriteLine("Can't load sound \"" + s.Key + "\" from metadata \"" + path + "\": " + ex);
-                        }
-#endif
-                    }
-                }
-
-                // Bounding Box
-                if (json.BoundingBox != null && json.BoundingBox.Count == 2) {
-                    metadata.BoundingBox = new Point2(json.BoundingBox[0], json.BoundingBox[1]);
-                }
-
-                cachedMetadata[path] = metadata;
-
-                // Request children
-                if (json.Preload != null) {
-                    for (int i = 0; i < json.Preload.Count; i++) {
-                        RequestMetadataInner(json.Preload[i], async);
-                    }
+            MetadataJson json;
+            using (Stream s = FileOp.Open(pathAbsolute, FileAccessMode.Read)) {
+                lock (jsonParser) {
+                    json = jsonParser.Parse<MetadataJson>(s);
                 }
             }
 
+            Metadata metadata = new Metadata();
             metadata.Referenced = true;
+            metadata.AsyncFinalizingRequired = async;
+
+            // Pre-load graphics
+            if (json.Animations != null) {
+                metadata.Graphics = new Dictionary<string, GraphicResource>();
+
+                foreach (KeyValuePair<string, MetadataJson.AnimationsSection> g in json.Animations) {
+                    if (g.Value.Path == null) {
+                        // No path provided, skip resource...
+                        continue;
+                    }
+
+#if !THROW_ON_MISSING_RESOURCES
+                    try {
+#endif
+                        bool isIndexed = (g.Value.Flags & 0x02) != 0x00;
+
+                        ColorRgba color;
+                        if (g.Value.ShaderColor == null || g.Value.ShaderColor.Count < 4) {
+                            color = (isIndexed ? new ColorRgba(0, 255) : ColorRgba.White);
+                        } else {
+                            color = new ColorRgba((byte)g.Value.ShaderColor[0], (byte)g.Value.ShaderColor[1], (byte)g.Value.ShaderColor[2], (byte)g.Value.ShaderColor[3]);
+                        }
+
+                        GenericGraphicResource resBase = RequestGraphicResource(g.Value.Path, async);
+
+                        // Create copy of generic resource
+                        GraphicResource res;
+                        if (async) {
+                            res = GraphicResource.From(resBase, g.Value.Shader, color, isIndexed);
+                        } else {
+                            ContentRef<DrawTechnique> drawTechnique;
+                            if (g.Value.Shader == null) {
+                                drawTechnique = (isIndexed ? paletteNormal : basicNormal);
+                            } else {
+                                drawTechnique = RequestShader(g.Value.Shader);
+                            }
+
+                            res = GraphicResource.From(resBase, drawTechnique, color, isIndexed, paletteTexture);
+                        }
+
+                        res.FrameOffset = g.Value.FrameOffset;
+
+                        string raw1, raw2; int raw3;
+                        if ((raw1 = g.Value.FrameCount as string) != null && int.TryParse(raw1, out raw3)) {
+                            res.FrameCount = raw3;
+                        } else {
+                            res.FrameCount -= res.FrameOffset;
+                        }
+                        if ((raw2 = g.Value.FrameRate as string) != null && int.TryParse(raw2, out raw3)) {
+                            res.FrameDuration = (1f / raw3) * 5; // ToDo: I don't know...
+                        }
+
+                        res.OnlyOnce = (g.Value.Flags & 0x01) != 0x00;
+
+                        if (g.Value.States != null) {
+                            res.State = new HashSet<AnimState>();
+                            for (int i = 0; i < g.Value.States.Count; i++) {
+                                res.State.Add((AnimState)g.Value.States[i]);
+                            }
+                        }
+
+                        metadata.Graphics[g.Key] = res;
+#if !THROW_ON_MISSING_RESOURCES
+                    } catch (Exception ex) {
+                        Console.WriteLine("Can't load animation \"" + g.Key + "\" from metadata \"" + path + "\": " + ex);
+                    }
+#endif
+                }
+            }
+
+            // Pre-load sounds
+            if (json.Sounds != null) {
+                metadata.Sounds = new Dictionary<string, SoundResource>();
+
+                foreach (var s in json.Sounds) {
+                    if (s.Value.Paths == null || s.Value.Paths.Count == 0) {
+                        // No path provided, skip resource...
+                        continue;
+                    }
+
+#if !THROW_ON_MISSING_RESOURCES
+                    try {
+#endif
+                        IList<string> filenames = s.Value.Paths;
+                        ContentRef<AudioData>[] data = new ContentRef<AudioData>[filenames.Count];
+                        for (int i = 0; i < data.Length; i++) {
+#if UNCOMPRESSED_CONTENT
+                            data[i] = new AudioData(FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, "Animations", filenames[i]), FileAccessMode.Read));
+#else
+                            data[i] = new AudioData(FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, ".dz", "Animations", filenames[i]), FileAccessMode.Read));
+#endif
+                        }
+
+                        SoundResource resource = new SoundResource();
+                        resource.Sound = new Sound(data);
+                        metadata.Sounds[s.Key] = resource;
+#if !THROW_ON_MISSING_RESOURCES
+                    } catch (Exception ex) {
+                        Console.WriteLine("Can't load sound \"" + s.Key + "\" from metadata \"" + path + "\": " + ex);
+                    }
+#endif
+                }
+            }
+
+            // Bounding Box
+            if (json.BoundingBox != null && json.BoundingBox.Count == 2) {
+                metadata.BoundingBox = new Point2(json.BoundingBox[0], json.BoundingBox[1]);
+            }
+
+            cachedMetadata[path] = metadata;
+
+            // Request children
+            if (json.Preload != null) {
+                for (int i = 0; i < json.Preload.Count; i++) {
+                    RequestMetadataInner(json.Preload[i], async);
+                }
+            }
+
             return metadata;
         }
 

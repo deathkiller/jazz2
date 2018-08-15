@@ -145,7 +145,7 @@ namespace Jazz2.Game.UI.Menu
             int h = layer.Layout.Length / w;
 
             Texture renderTarget;
-            if (cachedTexturedBackground != null) {
+            if (cachedTexturedBackground.IsAvailable) {
                 renderTarget = cachedTexturedBackground.Res;
             } else {
                 renderTarget = new Texture(w * 32, h * 32, TextureSizeMode.NonPowerOfTwo, TextureMagFilter.Linear, TextureMinFilter.Linear, TextureWrapMode.Repeat, TextureWrapMode.Repeat);
@@ -257,7 +257,7 @@ namespace Jazz2.Game.UI.Menu
 
         private void RenderTexturedBackground(IDrawDevice device)
         {
-            if (cachedTexturedBackground == null) {
+            if (!cachedTexturedBackground.IsAvailable) {
                 return;
             }
 

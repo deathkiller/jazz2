@@ -42,6 +42,8 @@ namespace Jazz2.Game
                 }
 
                 throw new ResourcesNotReady(path);
+            } else {
+                MarkAsReferenced(metadata);
             }
 
             if (metadata.AsyncFinalizingRequired) {
@@ -54,12 +56,15 @@ namespace Jazz2.Game
 
         public void PreloadAsync(string path)
         {
-            if (!cachedMetadata.ContainsKey(path)) {
+            Metadata metadata;
+            if (!cachedMetadata.TryGetValue(path, out metadata)) {
                 lock (metadataAsyncRequests) {
                     if (metadataAsyncRequests.Add(path)) {
                         asyncThreadEvent.Set();
                     }
                 }
+            } else {
+                MarkAsReferenced(metadata);
             }
         }
 
@@ -101,7 +106,7 @@ namespace Jazz2.Game
                         Material material = new Material(drawTechnique, res.AsyncFinalize.Color);
 
                         material.SetTexture("mainTex", resBase.Texture);
-                        if (resBase.TextureNormal != null) {
+                        if (resBase.TextureNormal.IsAvailable) {
                             material.SetTexture("normalTex", resBase.TextureNormal);
                         }
 

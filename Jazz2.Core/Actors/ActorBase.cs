@@ -575,8 +575,8 @@ namespace Jazz2.Actors
             GraphicResource res1 = (currentTransitionState != AnimState.Idle ? currentTransition : currentAnimation);
             GraphicResource res2 = (other.currentTransitionState != AnimState.Idle ? other.currentTransition : other.currentAnimation);
 
-            PixelData p1 = res1?.Material.Res?.MainTexture.Res?.BasePixmap.Res.PixelData?[0];
-            PixelData p2 = res2?.Material.Res?.MainTexture.Res?.BasePixmap.Res.PixelData?[0];
+            PixelData p1 = res1?.Material.Res?.MainTexture.Res?.BasePixmap.Res?.PixelData?[0];
+            PixelData p2 = res2?.Material.Res?.MainTexture.Res?.BasePixmap.Res?.PixelData?[0];
             if (p1 == null || p2 == null) {
                 return false;
             }
@@ -707,8 +707,8 @@ namespace Jazz2.Actors
             GraphicResource res1 = (currentTransitionState != AnimState.Idle ? currentTransition : currentAnimation);
             GraphicResource res2 = (other.currentTransitionState != AnimState.Idle ? other.currentTransition : other.currentAnimation);
 
-            PixelData p1 = res1?.Material.Res?.MainTexture.Res?.BasePixmap.Res.PixelData?[0];
-            PixelData p2 = res2?.Material.Res?.MainTexture.Res?.BasePixmap.Res.PixelData?[0];
+            PixelData p1 = res1?.Material.Res?.MainTexture.Res?.BasePixmap.Res?.PixelData?[0];
+            PixelData p2 = res2?.Material.Res?.MainTexture.Res?.BasePixmap.Res?.PixelData?[0];
             if (p1 == null || p2 == null) {
                 return false;
             }

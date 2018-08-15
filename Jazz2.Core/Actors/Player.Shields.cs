@@ -14,14 +14,14 @@ namespace Jazz2.Actors
             Laser
         }
 
-        private ActorBase shieldComponent, shieldComponentFront;
+        private ActorBase shieldDecor, shieldComponentFront;
         private float shieldTime;
 
         public void SetShield(ShieldType shieldType, float secs)
         {
-            if (shieldComponent != null) {
-                ParentScene.RemoveObject(shieldComponent);
-                shieldComponent = null;
+            if (shieldDecor != null) {
+                ParentScene.RemoveObject(shieldDecor);
+                shieldDecor = null;
             }
 
             if (shieldComponentFront != null) {
@@ -38,13 +38,13 @@ namespace Jazz2.Actors
 
             switch (shieldType) {
                 case ShieldType.Fire:
-                    shieldComponent = new ShieldComponent(shieldType, false);
-                    shieldComponent.OnAttach(new ActorInstantiationDetails {
+                    shieldDecor = new ShieldDecor(shieldType, false);
+                    shieldDecor.OnAttach(new ActorInstantiationDetails {
                         Api = api
                     });
-                    shieldComponent.Parent = this;
+                    shieldDecor.Parent = this;
 
-                    shieldComponentFront = new ShieldComponent(shieldType, true);
+                    shieldComponentFront = new ShieldDecor(shieldType, true);
                     shieldComponentFront.OnAttach(new ActorInstantiationDetails {
                         Api = api
                     });
@@ -52,7 +52,7 @@ namespace Jazz2.Actors
                     break;
 
                 case ShieldType.Water:
-                    shieldComponentFront = new ShieldComponent(shieldType, true);
+                    shieldComponentFront = new ShieldDecor(shieldType, true);
                     shieldComponentFront.OnAttach(new ActorInstantiationDetails {
                         Api = api
                     });
@@ -81,12 +81,12 @@ namespace Jazz2.Actors
             return true;
         }
 
-        private class ShieldComponent : ActorBase
+        private class ShieldDecor : ActorBase
         {
             private readonly ShieldType shieldType;
             private readonly bool front;
 
-            public ShieldComponent(ShieldType shieldType, bool front)
+            public ShieldDecor(ShieldType shieldType, bool front)
             {
                 this.shieldType = shieldType;
                 this.front = front;

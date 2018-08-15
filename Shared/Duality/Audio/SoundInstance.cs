@@ -570,7 +570,8 @@ namespace Duality.Audio
             }
 
             // Finish priority calculation
-            this.curPriority = (int)Math.Round(priorityTemp / Math.Sqrt(DualityApp.Sound.GetNumPlaying(this.sound)));
+            //this.curPriority = (int)Math.Round(priorityTemp / Math.Sqrt(DualityApp.Sound.GetNumPlaying(this.sound)));
+            this.curPriority = (int)priorityTemp;
 
             // Initially play the source
             if (this.native.IsInitial && !this.paused) {

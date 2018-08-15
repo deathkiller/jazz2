@@ -20,7 +20,7 @@ namespace Jazz2.Game.Tiles
             cachedTexturedBackgroundAnimated = false;
 
             Texture renderTarget;
-            if (cachedTexturedBackground != null) {
+            if (cachedTexturedBackground.IsAvailable) {
                 renderTarget = cachedTexturedBackground.Res;
             } else {
                 renderTarget = new Texture(w * 32, h * 32, TextureSizeMode.NonPowerOfTwo, TextureMagFilter.Linear, TextureMinFilter.Linear, TextureWrapMode.Repeat, TextureWrapMode.Repeat);
@@ -172,7 +172,7 @@ namespace Jazz2.Game.Tiles
 
         public void RenderTexturedBackground(IDrawDevice device, ref TileMapLayer layer, int cacheIndex, float x, float y)
         {
-            if (cachedTexturedBackground == null || cachedTexturedBackgroundAnimated) {
+            if (!cachedTexturedBackground.IsAvailable || cachedTexturedBackgroundAnimated) {
                 RecreateTexturedBackground(ref layer);
             }
 

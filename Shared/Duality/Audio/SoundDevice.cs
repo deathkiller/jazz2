@@ -13,7 +13,6 @@ namespace Duality.Audio
 		private	bool					disposed		= false;
 		private	GameObject				soundListener	= null;
 		private	List<ISoundInstance>	sounds			= new List<ISoundInstance>();
-		private	Dictionary<string,int>	resPlaying		= new Dictionary<string,int>();
 		private	int						numPlaying2D	= 0;
 		private	int						numPlaying3D	= 0;
 		private	bool					mute			= false;
@@ -140,11 +139,12 @@ namespace Duality.Audio
 		/// <returns>The number of the specified Sounds playing instances.</returns>
 		public int GetNumPlaying(ContentRef<Sound> snd)
 		{
-			int curNumSoundRes;
-			if (!snd.IsAvailable || snd.IsRuntimeResource || !this.resPlaying.TryGetValue(snd.Path, out curNumSoundRes))
-				return 0;
-			else
-				return curNumSoundRes;
+            //int curNumSoundRes;
+            //if (!snd.IsAvailable || snd.IsRuntimeResource || !this.resPlaying.TryGetValue(snd.Path, out curNumSoundRes))
+            //	return 0;
+            //else
+            //	return curNumSoundRes;
+            return 0;
 		}
 		/// <summary>
 		/// Registers a <see cref="Duality.Resources.Sound">Sounds</see> playing instance.
@@ -156,13 +156,13 @@ namespace Duality.Audio
 			if (is3D)	this.numPlaying3D++;
 			else		this.numPlaying2D++;
 
-			if (snd.IsAvailable && !snd.IsRuntimeResource)
-			{
-				if (!this.resPlaying.ContainsKey(snd.Path))
-					this.resPlaying.Add(snd.Path, 1);
-				else
-					this.resPlaying[snd.Path]++;
-			}
+			//if (snd.IsAvailable && !snd.IsRuntimeResource)
+			//{
+			//	if (!this.resPlaying.ContainsKey(snd.Path))
+			//		this.resPlaying.Add(snd.Path, 1);
+			//	else
+			//		this.resPlaying[snd.Path]++;
+			//}
 		}
 		/// <summary>
 		/// Unregisters a <see cref="Duality.Resources.Sound">Sounds</see> playing instance.
@@ -174,8 +174,8 @@ namespace Duality.Audio
 			if (is3D)	this.numPlaying3D--;
 			else		this.numPlaying2D--;
 
-			if (snd.IsAvailable && !snd.IsRuntimeResource)
-				this.resPlaying[snd.Path]--;
+			//if (snd.IsAvailable && !snd.IsRuntimeResource)
+			//	this.resPlaying[snd.Path]--;
 		}
 		
 		/// <summary>

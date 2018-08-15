@@ -22,10 +22,6 @@ namespace Duality
         /// </summary>
         Resource ResWeak { get; }
         /// <summary>
-        /// [GET / SET] The path where to look for the Resource, if it is currently unavailable.
-        /// </summary>
-        string Path { get; set; }
-        /// <summary>
         /// [GET] Returns whether this content reference has been explicitly set to null.
         /// </summary>
         bool IsExplicitNull { get; }
@@ -33,10 +29,6 @@ namespace Duality
         /// [GET] Returns whether this content reference is available in general. This may trigger loading it, if currently unavailable.
         /// </summary>
         bool IsAvailable { get; }
-        /// <summary>
-        /// [GET] Returns whether the Resource has been generated at runtime and cannot be retrieved via content path.
-        /// </summary>
-        bool IsRuntimeResource { get; }
         
         /// <summary>
         /// Loads the associated content as if it was accessed now.

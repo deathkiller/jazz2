@@ -37,7 +37,6 @@ namespace Jazz2.Game.Structs
 
     public class GraphicResource
     {
-        public bool Referenced;
         public GenericGraphicResource Base;
         public GraphicResourceAsyncFinalize AsyncFinalize;
 
@@ -58,7 +57,7 @@ namespace Jazz2.Game.Structs
             Material material = new Material(drawTechnique, color);
 
             material.SetTexture("mainTex", resBase.Texture);
-            if (resBase.TextureNormal != null) {
+            if (resBase.TextureNormal.IsAvailable) {
                 material.SetTexture("normalTex", resBase.TextureNormal);
             }
 

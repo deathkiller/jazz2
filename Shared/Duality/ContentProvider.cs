@@ -27,7 +27,6 @@ namespace Duality
         public const string VirtualContentPath = "Default:";
 
         private static bool defaultContentInitialized = false;
-        private static Dictionary<string, Resource> resLibrary = new Dictionary<string, Resource>();
         private static List<Resource> defaultContent = new List<Resource>();
 
         /// <summary>
@@ -39,8 +38,6 @@ namespace Duality
             Console.WriteLine("Initializing default content...");
             //Log.Core.PushIndent();
 
-            var oldResLib = resLibrary.Values.ToArray();
-
             VertexShader.InitDefaultContent();
             FragmentShader.InitDefaultContent();
             ShaderProgram.InitDefaultContent();
@@ -51,12 +48,6 @@ namespace Duality
             RenderSetup.InitDefaultContent();
             AudioData.InitDefaultContent();
             Sound.InitDefaultContent();
-
-            // Make a list of all default content available
-            foreach (var pair in resLibrary) {
-                if (oldResLib.Contains(pair.Value)) continue;
-                defaultContent.Add(pair.Value);
-            }
 
             defaultContentInitialized = true;
         }
@@ -70,7 +61,6 @@ namespace Duality
             //Log.Core.PushIndent();
 
             foreach (Resource r in defaultContent.ToArray()) {
-                resLibrary.Remove(r.Path);
                 r.Dispose();
             }
             defaultContent.Clear();

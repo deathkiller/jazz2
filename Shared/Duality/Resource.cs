@@ -23,10 +23,6 @@ namespace Duality
         private static List<Resource> finalizeSched = new List<Resource>();
 
         /// <summary>
-        /// The path of this Resource.
-        /// </summary>
-        protected string path = null;
-        /// <summary>
         /// The initialization state of the Resource. Also specifies a disposed-state.
         /// </summary>
         private InitState initState = InitState.Initialized;
@@ -39,23 +35,7 @@ namespace Duality
         {
             get { return this.initState == InitState.Disposed; }
         }
-        /// <summary>
-        /// [GET] The path where this Resource has been originally loaded from or was first saved to.
-        /// It is also the path under which this Resource is registered at the ContentProvider.
-        /// </summary>
-        public string Path
-        {
-            get { return this.path; }
-            internal set { this.path = value; }
-        }
 
-        /// <summary>
-        /// [GET] Returns whether the Resource has been generated at runtime and  cannot be retrieved via content path.
-        /// </summary>
-        public bool IsRuntimeResource
-        {
-            get { return string.IsNullOrEmpty(this.path); }
-        }
         bool IManageableObject.Active
         {
             get { return !this.Disposed; }
