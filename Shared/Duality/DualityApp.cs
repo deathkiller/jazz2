@@ -306,7 +306,7 @@ namespace Duality
         /// </summary>
         public static void InitPostWindow()
         {
-            ContentProvider.InitDefaultContent();
+            DefaultContentProvider.InitDefaultContent();
         }
         /// <summary>
         /// Terminates this DualityApp. This does not end the current Process, but will instruct the engine to
@@ -675,7 +675,7 @@ namespace Duality
             if (ReflectionHelper.CleanEventBindings(typeof(DualityApp),      invalidAssembly)) Console.WriteLine(warningText, typeof(DualityApp));
 			if (ReflectionHelper.CleanEventBindings(typeof(Scene),           invalidAssembly)) Console.WriteLine(warningText, typeof(Scene));
 			if (ReflectionHelper.CleanEventBindings(typeof(Resource),        invalidAssembly)) Console.WriteLine(warningText, typeof(Resource));
-			if (ReflectionHelper.CleanEventBindings(typeof(ContentProvider), invalidAssembly)) Console.WriteLine(warningText, typeof(ContentProvider));
+			//if (ReflectionHelper.CleanEventBindings(typeof(DefaultContentProvider), invalidAssembly)) Console.WriteLine(warningText, typeof(DefaultContentProvider));
 			if (ReflectionHelper.CleanEventBindings(DualityApp.Keyboard,     invalidAssembly)) Console.WriteLine(warningText, typeof(DualityApp) + ".Keyboard");
 			if (ReflectionHelper.CleanEventBindings(DualityApp.Mouse,        invalidAssembly)) Console.WriteLine(warningText, typeof(DualityApp) + ".Mouse");
 			foreach (JoystickInput joystick in DualityApp.Joysticks)

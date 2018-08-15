@@ -589,7 +589,7 @@ namespace Jazz2.Game
 
             currentCarryOver = data;
 
-            levelChangeTimer = (exitType == ExitType.Warp || exitType == ExitType.Bonus ? /*27f*/50f : /*98f*/130f);
+            levelChangeTimer = (exitType == ExitType.Warp || exitType == ExitType.Bonus ? 58f : 134f);
         }
 
         public void HandleGameOver()

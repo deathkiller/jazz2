@@ -5,13 +5,13 @@ namespace Duality
 {
     /// <summary>
     /// This lightweight struct references <see cref="Resource">Resources</see> in an abstract way. It
-    /// is tightly connected to the <see cref="ContentProvider"/> and takes care of keeping or making 
+    /// is tightly connected to the <see cref="DefaultContentProvider"/> and takes care of keeping or making 
     /// the referenced content available when needed. Never store actual Resource references permanently,
     /// instead use a ContentRef to it. However, you may retrieve and store a direct Resource reference
     /// temporarily, although this is only recommended at method-local scope.
     /// </summary>
     /// <seealso cref="Resource"/>
-    /// <seealso cref="ContentProvider"/>
+    /// <seealso cref="DefaultContentProvider"/>
     /// <seealso cref="IContentRef"/>
     [DebuggerTypeProxy(typeof(ContentRef<>.DebuggerTypeProxy))]
     public struct ContentRef<T> : IEquatable<ContentRef<T>>, IContentRef where T : Resource

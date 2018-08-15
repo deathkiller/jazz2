@@ -9,10 +9,10 @@ namespace Duality
 {
     /// <summary>
     /// The abstract Resource class is inherited by any kind of Duality content. Instances of it or one of its subclasses
-    /// are usually handled wrapped inside a <see cref="ContentRef{T}"/> and requested from the <see cref="ContentProvider"/>.
+    /// are usually handled wrapped inside a <see cref="ContentRef{T}"/> and requested from the <see cref="DefaultContentProvider"/>.
     /// </summary>
     /// <seealso cref="ContentRef{T}"/>
-    /// <seealso cref="ContentProvider"/>
+    /// <seealso cref="DefaultContentProvider"/>
     public abstract class Resource : IManageableObject, IDisposable
     {
         /// <summary>
@@ -105,7 +105,7 @@ namespace Duality
         }
         internal static void InitDefaultContent<T>(Func<string, T> resourceCreator) where T : Resource
         {
-            string contentPathBase = ContentProvider.VirtualContentPath + typeof(T).Name + ":";
+            //string contentPathBase = ContentProvider.VirtualContentPath + typeof(T).Name + ":";
 
             TypeInfo resourceType = typeof(T).GetTypeInfo();
             PropertyInfo[] defaultResProps = resourceType
@@ -118,7 +118,7 @@ namespace Duality
 
             for (int i = 0; i < defaultResProps.Length; i++) {
                 string name = defaultResProps[i].Name;
-                string contentPath = contentPathBase + name.Replace('_', ':');
+                //string contentPath = contentPathBase + name.Replace('_', ':');
 
                 T resource = resourceCreator(name);
                 if (resource != null) {

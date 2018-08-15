@@ -6,7 +6,7 @@ namespace Duality
     /// IContentRef is a general interface for <see cref="ContentRef{T}">content references</see> of any <see cref="Resource"/> type.
     /// </summary>
     /// <seealso cref="Resource"/>
-    /// <seealso cref="ContentProvider"/>
+    /// <seealso cref="DefaultContentProvider"/>
     /// <seealso cref="ContentRef{T}"/>
     public interface IContentRef
     {

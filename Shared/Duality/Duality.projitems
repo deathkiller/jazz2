@@ -67,7 +67,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Components\Renderers\SpriteRenderer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\SoundListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\Transform.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ContentProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultContentProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ContentRef.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CorePlugin.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CorePluginManager.cs" />

@@ -190,6 +190,8 @@ namespace Jazz2.Actors
                 //inFreefall = inFreefall || (!canJump && speedY > 14f);
                 SetPlayerTransition(isFreefall ? AnimState.TransitionWarpInFreefall : AnimState.TransitionWarpIn, false, true, SpecialMoveType.None, delegate {
                     renderer.Active = false;
+
+                    attachedHud?.BeginFadeOut();
                 });
                 PlaySound("WarpIn");
                 //});
@@ -198,6 +200,8 @@ namespace Jazz2.Actors
                 //addTimer(255u, false, [this]() {
                 SetPlayerTransition(AnimState.TransitionEndOfLevel, false, true, SpecialMoveType.None, delegate {
                     renderer.Active = false;
+
+                    attachedHud?.BeginFadeOut();
                 });
                 PlaySound("EndOfLevel1");
                 //});

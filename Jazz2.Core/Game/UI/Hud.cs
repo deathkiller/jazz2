@@ -26,6 +26,9 @@ namespace Jazz2.Game.UI
         private string levelText;
         private float levelTextTime;
 
+        private TransitionMode transitionMode = TransitionMode.FadeIn;
+        private float transitionTime = 1f;
+
         private int coins, gems;
         private float coinsTime = -1f;
         private float gemsTime = -1f;
@@ -177,6 +180,26 @@ namespace Jazz2.Game.UI
             DrawLevelText(size, ref charOffset);
             DrawCoins(size, ref charOffset);
             DrawGems(size, ref charOffset);
+
+            if (transitionTime > 0f) {
+                canvas.State.SetMaterial(DrawTechnique.Alpha);
+                canvas.State.ColorTint = new ColorRgba(0, transitionTime);
+                canvas.FillRect(0, 0, size.X, size.Y);
+
+                if (transitionMode == TransitionMode.FadeIn) {
+                    transitionTime -= Time.TimeMult * 0.1f;
+                    if (transitionTime < 0f) {
+                        transitionTime = 0f;
+                        transitionMode = TransitionMode.None;
+                    }
+                } else if (transitionMode == TransitionMode.FadeOut) {
+                    transitionTime += Time.TimeMult * 0.04f;
+                    if (transitionTime > 1f) {
+                        transitionTime = 1f;
+                        transitionMode = TransitionMode.None;
+                    }
+                }
+            }
 
             DrawTouch(size);
 
@@ -504,6 +527,12 @@ namespace Jazz2.Game.UI
                     coinsTime = -1f;
                 }
             }
+        }
+
+        public void BeginFadeOut()
+        {
+            transitionMode = TransitionMode.FadeOut;
+            transitionTime = float.Epsilon;
         }
     }
 }

@@ -198,6 +198,7 @@ namespace Jazz2.Game.UI.Menu
             if (ControlScheme.MenuActionHit(PlayerActions.Fire)) {
                 if (episodes[selectedIndex].IsAvailable) {
                     api.PlaySound("MenuSelect", 0.5f);
+
                     if (episodes[selectedIndex].CanContinue) {
                         if (expanded) {
                             // Restart episode
@@ -220,36 +221,42 @@ namespace Jazz2.Game.UI.Menu
                                 episodes[selectedIndex].Episode.PreviousEpisode
                             ));
                         } else {
-                            string episodeName = episodes[selectedIndex].Episode.Token;
-                            string levelName = Preferences.Get<string>("EpisodeContinue_Level_" + episodeName);
+                            ControlScheme.IsSuspended = true;
 
-                            // Lives, Difficulty and PlayerType is saved in Misc array [Jazz2.Core/Game/Controller.cs: ~146]
-                            byte[] misc = Preferences.Get<byte[]>("EpisodeContinue_Misc_" + episodeName);
+                            api.BeginFadeOut(() => {
+                                ControlScheme.IsSuspended = false;
 
-                            LevelInitialization carryOver = new LevelInitialization(
-                                episodeName,
-                                levelName,
-                                (GameDifficulty)misc[1],
-                                (PlayerType)misc[2]
-                            );
+                                string episodeName = episodes[selectedIndex].Episode.Token;
+                                string levelName = Preferences.Get<string>("EpisodeContinue_Level_" + episodeName);
 
-                            ref PlayerCarryOver player = ref carryOver.PlayerCarryOvers[0];
+                                // Lives, Difficulty and PlayerType is saved in Misc array [Jazz2.Core/Game/Controller.cs: ~146]
+                                byte[] misc = Preferences.Get<byte[]>("EpisodeContinue_Misc_" + episodeName);
 
-                            if (misc[0] > 0) {
-                                player.Lives = misc[0];
-                            }
+                                LevelInitialization carryOver = new LevelInitialization(
+                                    episodeName,
+                                    levelName,
+                                    (GameDifficulty)misc[1],
+                                    (PlayerType)misc[2]
+                                );
 
-                            int[] ammo = Preferences.Get<int[]>("EpisodeContinue_Ammo_" + episodeName);
-                            if (ammo != null) {
-                                player.Ammo = ammo;
-                            }
+                                ref PlayerCarryOver player = ref carryOver.PlayerCarryOvers[0];
 
-                            byte[] upgrades = Preferences.Get<byte[]>("EpisodeContinue_Upgrades_" + episodeName);
-                            if (upgrades != null) {
-                                player.WeaponUpgrades = upgrades;
-                            }
+                                if (misc[0] > 0) {
+                                    player.Lives = misc[0];
+                                }
 
-                            api.SwitchToLevel(carryOver);
+                                int[] ammo = Preferences.Get<int[]>("EpisodeContinue_Ammo_" + episodeName);
+                                if (ammo != null) {
+                                    player.Ammo = ammo;
+                                }
+
+                                byte[] upgrades = Preferences.Get<byte[]>("EpisodeContinue_Upgrades_" + episodeName);
+                                if (upgrades != null) {
+                                    player.WeaponUpgrades = upgrades;
+                                }
+
+                                api.SwitchToLevel(carryOver);
+                            });
                         }
                     } else {
                         // Start the episode from the first level

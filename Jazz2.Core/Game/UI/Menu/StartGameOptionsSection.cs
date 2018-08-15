@@ -141,33 +141,39 @@ namespace Jazz2.Game.UI.Menu
 
             if (ControlScheme.MenuActionHit(PlayerActions.Fire)) {
                 if (selectedIndex == 2) {
+                    ControlScheme.IsSuspended = true;
+
                     api.PlaySound("MenuSelect", 0.5f);
-                    LevelInitialization carryOver = new LevelInitialization(
-                        episodeName,
-                        levelName,
-                        (GameDifficulty.Easy + selectedDifficulty),
-                        (PlayerType.Jazz + selectedPlayerType)
-                    );
+                    api.BeginFadeOut(() => {
+                        ControlScheme.IsSuspended = false;
 
-                    if (!string.IsNullOrEmpty(previousEpisodeName)) {
-                        ref PlayerCarryOver player = ref carryOver.PlayerCarryOvers[0];
+                        LevelInitialization carryOver = new LevelInitialization(
+                            episodeName,
+                            levelName,
+                            (GameDifficulty.Easy + selectedDifficulty),
+                            (PlayerType.Jazz + selectedPlayerType)
+                        );
 
-                        byte lives = Preferences.Get<byte>("EpisodeEnd_Lives_" + previousEpisodeName);
-                        int[] ammo = Preferences.Get<int[]>("EpisodeEnd_Ammo_" + previousEpisodeName);
-                        byte[] upgrades = Preferences.Get<byte[]>("EpisodeEnd_Upgrades_" + previousEpisodeName);
+                        if (!string.IsNullOrEmpty(previousEpisodeName)) {
+                            ref PlayerCarryOver player = ref carryOver.PlayerCarryOvers[0];
 
-                        if (lives > 0) {
-                            player.Lives = lives;
+                            byte lives = Preferences.Get<byte>("EpisodeEnd_Lives_" + previousEpisodeName);
+                            int[] ammo = Preferences.Get<int[]>("EpisodeEnd_Ammo_" + previousEpisodeName);
+                            byte[] upgrades = Preferences.Get<byte[]>("EpisodeEnd_Upgrades_" + previousEpisodeName);
+
+                            if (lives > 0) {
+                                player.Lives = lives;
+                            }
+                            if (ammo != null) {
+                                player.Ammo = ammo;
+                            }
+                            if (upgrades != null) {
+                                player.WeaponUpgrades = upgrades;
+                            }
                         }
-                        if (ammo != null) {
-                            player.Ammo = ammo;
-                        }
-                        if (upgrades != null) {
-                            player.WeaponUpgrades = upgrades;
-                        }
-                    }
 
-                    api.SwitchToLevel(carryOver);
+                        api.SwitchToLevel(carryOver);
+                    });
                 }
             } else if (ControlScheme.MenuActionHit(PlayerActions.Left)) {
                 if (selectedIndex == 0) {

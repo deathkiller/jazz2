@@ -21,6 +21,10 @@ namespace Jazz2.Game.UI.Menu
         private Canvas canvas;
         private BitmapFont fontSmall, fontMedium;
 
+        private TransitionMode transitionMode;
+        private float transitionTime;
+        private Action transitionAction;
+
         private Metadata metadata;
 
         public ContentRef<Material> TopLine, BottomLine, Dim;
@@ -131,6 +135,13 @@ namespace Jazz2.Game.UI.Menu
             }
         }
 
+        public void BeginFadeOut(Action action)
+        {
+            transitionAction = action;
+            transitionMode = TransitionMode.FadeOut;
+            transitionTime = float.Epsilon;
+        }
+
         public void SwitchToLevel(LevelInitialization data)
         {
             root.ChangeLevel(data);
@@ -210,7 +221,8 @@ namespace Jazz2.Game.UI.Menu
 
         private void OnRender(IDrawDevice device)
         {
-            Vector2 center = device.TargetSize * 0.5f;
+            Vector2 size = device.TargetSize;
+            Vector2 center = size * 0.5f;
 
             canvas.Begin(device);
 
@@ -238,7 +250,7 @@ namespace Jazz2.Game.UI.Menu
                 new ColorRgba(0.6f, 0.42f, 0.42f, 0.5f), 0.5f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
 
             // Version
-            Vector2 bottomRight = device.TargetSize;
+            Vector2 bottomRight = size;
             bottomRight.X -= 24f;
             bottomRight.Y -= 10f;
             DrawStringShadow(ref charOffset, "v" + App.AssemblyVersion, bottomRight.X, bottomRight.Y, Alignment.BottomRight,
@@ -262,6 +274,36 @@ namespace Jazz2.Game.UI.Menu
             // Current section
             if (sectionStack.Count > 0) {
                 sectionStack.Peek().OnPaint(canvas);
+            }
+
+            if (transitionTime > 0f) {
+                canvas.State.SetMaterial(DrawTechnique.Alpha);
+                canvas.State.ColorTint = new ColorRgba(0, transitionTime);
+                canvas.FillRect(0, 0, size.X, size.Y);
+
+                if (transitionMode == TransitionMode.FadeIn) {
+                    transitionTime -= Time.TimeMult * 0.1f;
+                    if (transitionTime < 0f) {
+                        transitionTime = 0f;
+                        transitionMode = TransitionMode.None;
+
+                        if (transitionAction != null) {
+                            transitionAction();
+                            transitionAction = null;
+                        }
+                    }
+                } else if (transitionMode == TransitionMode.FadeOut) {
+                    transitionTime += Time.TimeMult * 0.04f;
+                    if (transitionTime > 1f) {
+                        transitionTime = 1f;
+                        transitionMode = TransitionMode.None;
+
+                        if (transitionAction != null) {
+                            transitionAction();
+                            transitionAction = null;
+                        }
+                    }
+                }
             }
 
             DrawTouch(device.TargetSize);
