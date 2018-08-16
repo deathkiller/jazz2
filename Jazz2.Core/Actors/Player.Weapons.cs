@@ -13,7 +13,11 @@ namespace Jazz2.Actors
         private int[] weaponAmmo;
         private byte[] weaponUpgrades;
 
+        public WeaponType CurrentWeapon => currentWeapon;
+
         public int[] WeaponAmmo => weaponAmmo;
+
+        public byte[] WeaponUpgrades => weaponUpgrades;
 
         public bool AddAmmo(WeaponType type, int count)
         {
@@ -29,7 +33,6 @@ namespace Jazz2.Actors
 
             if (switchTo) {
                 currentWeapon = type;
-                attachedHud?.ChangeCurrentWeapon(currentWeapon, weaponUpgrades[(int)currentWeapon]);
 
                 PreloadMetadata("Weapon/" + currentWeapon);
             }
@@ -41,8 +44,6 @@ namespace Jazz2.Actors
         public void AddWeaponUpgrade(WeaponType type, byte upgrade)
         {
             weaponUpgrades[(int)type] |= upgrade;
-
-            attachedHud.ChangeCurrentWeapon(currentWeapon, weaponUpgrades[(int)currentWeapon]);
         }
 
         public bool AddFastFire(int count)
@@ -70,8 +71,6 @@ namespace Jazz2.Actors
             for (int i = 0; i < (int)WeaponType.Count && weaponAmmo[(int)currentWeapon] == 0; i++) {
                 currentWeapon = (WeaponType)((int)(currentWeapon + 1) % (int)WeaponType.Count);
             }
-
-            attachedHud?.ChangeCurrentWeapon(currentWeapon, weaponUpgrades[(int)currentWeapon]);
 
             PreloadMetadata("Weapon/" + currentWeapon);
         }

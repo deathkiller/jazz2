@@ -21,8 +21,7 @@ namespace Jazz2.Game.UI.Menu
         private Canvas canvas;
         private BitmapFont fontSmall, fontMedium;
 
-        private TransitionMode transitionMode;
-        private float transitionTime;
+        private TransitionManager transitionManager;
         private Action transitionAction;
 
         private Metadata metadata;
@@ -138,8 +137,7 @@ namespace Jazz2.Game.UI.Menu
         public void BeginFadeOut(Action action)
         {
             transitionAction = action;
-            transitionMode = TransitionMode.FadeOut;
-            transitionTime = float.Epsilon;
+            transitionManager = new TransitionManager(TransitionMode.FadeOut, MainMenuRenderSetup.TargetSize, true);
         }
 
         public void SwitchToLevel(LevelInitialization data)
@@ -276,32 +274,14 @@ namespace Jazz2.Game.UI.Menu
                 sectionStack.Peek().OnPaint(canvas);
             }
 
-            if (transitionTime > 0f) {
-                canvas.State.SetMaterial(DrawTechnique.Alpha);
-                canvas.State.ColorTint = new ColorRgba(0, transitionTime);
-                canvas.FillRect(0, 0, size.X, size.Y);
+            if (transitionManager != null) {
+                transitionManager.Draw(device, canvas);
+                if (transitionManager.IsCompleted) {
+                    transitionManager = null;
 
-                if (transitionMode == TransitionMode.FadeIn) {
-                    transitionTime -= Time.TimeMult * 0.1f;
-                    if (transitionTime < 0f) {
-                        transitionTime = 0f;
-                        transitionMode = TransitionMode.None;
-
-                        if (transitionAction != null) {
-                            transitionAction();
-                            transitionAction = null;
-                        }
-                    }
-                } else if (transitionMode == TransitionMode.FadeOut) {
-                    transitionTime += Time.TimeMult * 0.04f;
-                    if (transitionTime > 1f) {
-                        transitionTime = 1f;
-                        transitionMode = TransitionMode.None;
-
-                        if (transitionAction != null) {
-                            transitionAction();
-                            transitionAction = null;
-                        }
+                    if (transitionAction != null) {
+                        transitionAction();
+                        transitionAction = null;
                     }
                 }
             }

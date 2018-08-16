@@ -155,6 +155,9 @@ namespace Jazz2.Game
             // Load level
             LoadLevel(levelFileName, episodeName);
 
+            // Create HUD
+            Hud hud = rootObject.AddComponent<Hud>();
+
             // Process carry overs
             if (data.PlayerCarryOvers != null) {
                 for (int i = 0; i < data.PlayerCarryOvers.Length; i++) {
@@ -173,6 +176,10 @@ namespace Jazz2.Game
                         Params = new[] { (ushort)data.PlayerCarryOvers[i].Type, (ushort)i }
                     });
                     AddPlayer(player);
+
+                    if (i == 0) {
+                        player.AttachToHud(hud);
+                    }
 
                     player.ReceiveLevelCarryOver(data.ExitType, ref data.PlayerCarryOvers[i]);
                 }
@@ -195,6 +202,8 @@ namespace Jazz2.Game
                     Params = new[] { (ushort)PlayerType.Jazz, (ushort)0 }
                 });
                 AddPlayer(targetPlayer);
+
+                targetPlayer.AttachToHud(hud);
             }
 
             // Bind camera to player
@@ -207,9 +216,6 @@ namespace Jazz2.Game
             camera.Parent = rootObject;
 
             DualityApp.Sound.Listener = camera;
-
-            // Attach player to UI
-            targetPlayer.AttachToHud(rootObject.AddComponent<Hud>());
 
             // Common sounds
             commonResources = ContentResolver.Current.RequestMetadata("Common/Scenery");

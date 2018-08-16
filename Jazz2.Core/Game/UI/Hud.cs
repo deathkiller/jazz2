@@ -16,18 +16,14 @@ namespace Jazz2.Game.UI
     {
         private Canvas canvas;
         private BitmapFont fontSmall;
-
         private Dictionary<string, GraphicResource> graphics;
 
         private Player owner;
 
-        private WeaponType currentWeapon;
-        private string currentWeaponString;
         private string levelText;
         private float levelTextTime;
 
-        private TransitionMode transitionMode = TransitionMode.FadeIn;
-        private float transitionTime = 1f;
+        private TransitionManager transitionManager;
 
         private int coins, gems;
         private float coinsTime = -1f;
@@ -125,6 +121,9 @@ namespace Jazz2.Game.UI
 
             // Weapon
             {
+                WeaponType weapon = owner.CurrentWeapon;
+                string currentWeaponString = GetCurrentWeapon(weapon);
+
                 GraphicResource res;
                 if (graphics.TryGetValue(currentWeaponString, out res)) {
                     float y = size.Y;
@@ -137,10 +136,10 @@ namespace Jazz2.Game.UI
                 }
 
                 string ammoCount;
-                if (owner.WeaponAmmo[(int)currentWeapon] < 0) {
+                if (owner.WeaponAmmo[(int)weapon] < 0) {
                     ammoCount = "x\x7f";
                 } else {
-                    ammoCount = "x" + owner.WeaponAmmo[(int)currentWeapon].ToString(CultureInfo.InvariantCulture);
+                    ammoCount = "x" + owner.WeaponAmmo[(int)weapon].ToString(CultureInfo.InvariantCulture);
                 }
                 fontSmall.DrawString(ref charOffsetShadow, ammoCount, size.X - 40, size.Y + 1f, Alignment.BottomLeft,
                     new ColorRgba(0f, 0.32f), charSpacing: 0.96f);
@@ -181,23 +180,10 @@ namespace Jazz2.Game.UI
             DrawCoins(size, ref charOffset);
             DrawGems(size, ref charOffset);
 
-            if (transitionTime > 0f) {
-                canvas.State.SetMaterial(DrawTechnique.Alpha);
-                canvas.State.ColorTint = new ColorRgba(0, transitionTime);
-                canvas.FillRect(0, 0, size.X, size.Y);
-
-                if (transitionMode == TransitionMode.FadeIn) {
-                    transitionTime -= Time.TimeMult * 0.1f;
-                    if (transitionTime < 0f) {
-                        transitionTime = 0f;
-                        transitionMode = TransitionMode.None;
-                    }
-                } else if (transitionMode == TransitionMode.FadeOut) {
-                    transitionTime += Time.TimeMult * 0.04f;
-                    if (transitionTime > 1f) {
-                        transitionTime = 1f;
-                        transitionMode = TransitionMode.None;
-                    }
+            if (transitionManager != null) {
+                transitionManager.Draw(device, canvas);
+                if (transitionManager.IsCompleted && transitionManager.Mode != TransitionMode.FadeOut) {
+                    transitionManager = null;
                 }
             }
 
@@ -436,41 +422,35 @@ namespace Jazz2.Game.UI
             }
         }
 
-        public void ChangeCurrentWeapon(WeaponType weapon, byte upgrades)
+        public string GetCurrentWeapon(WeaponType weapon)
         {
-            currentWeapon = weapon;
-
-            if ((upgrades & 0x1) != 0) {
+            if ((owner.WeaponUpgrades[(int)weapon] & 0x1) != 0) {
                 switch (weapon) {
                     case WeaponType.Blaster:
                         if (owner.PlayerType == PlayerType.Spaz) {
-                            currentWeaponString = "WeaponPowerUpBlasterSpaz";
+                            return "WeaponPowerUpBlasterSpaz";
                         } else if (owner.PlayerType == PlayerType.Lori) {
-                            currentWeaponString = "WeaponPowerUpBlasterLori";
+                            return "WeaponPowerUpBlasterLori";
                         } else {
-                            currentWeaponString = "WeaponPowerUpBlasterJazz";
+                            return "WeaponPowerUpBlasterJazz";
                         }
-                        break;
 
                     default:
-                        currentWeaponString = "WeaponPowerUp" + weapon.ToString("G");
-                        break;
+                        return "WeaponPowerUp" + weapon.ToString("G");
                 }
             } else {
-                switch (weapon) {
+                switch (owner.CurrentWeapon) {
                     case WeaponType.Blaster:
                         if (owner.PlayerType == PlayerType.Spaz) {
-                            currentWeaponString = "WeaponBlasterSpaz";
+                            return "WeaponBlasterSpaz";
                         } else if (owner.PlayerType == PlayerType.Lori) {
-                            currentWeaponString = "WeaponBlasterLori";
+                            return "WeaponBlasterLori";
                         } else {
-                            currentWeaponString = "WeaponBlasterJazz";
+                            return "WeaponBlasterJazz";
                         }
-                        break;
 
                     default:
-                        currentWeaponString = "Weapon" + weapon.ToString("G");
-                        break;
+                        return "Weapon" + weapon.ToString("G");
                 }
             }
         }
@@ -529,10 +509,14 @@ namespace Jazz2.Game.UI
             }
         }
 
-        public void BeginFadeOut()
+        public void BeginFadeIn(bool smooth)
         {
-            transitionMode = TransitionMode.FadeOut;
-            transitionTime = float.Epsilon;
+            transitionManager = new TransitionManager(TransitionMode.FadeIn, LevelRenderSetup.TargetSize, smooth);
+        }
+
+        public void BeginFadeOut(bool smooth)
+        {
+            transitionManager = new TransitionManager(TransitionMode.FadeOut, LevelRenderSetup.TargetSize, smooth);
         }
     }
 }

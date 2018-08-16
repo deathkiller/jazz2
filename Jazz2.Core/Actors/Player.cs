@@ -157,6 +157,10 @@ namespace Jazz2.Actors
                     collisionFlags |= CollisionFlags.ApplyGravitation;
                     controllable = true;
                 });
+
+                attachedHud?.BeginFadeIn(false);
+            } else {
+                attachedHud?.BeginFadeIn(true);
             }
 
             // Preload all weapons
@@ -191,7 +195,7 @@ namespace Jazz2.Actors
                 SetPlayerTransition(isFreefall ? AnimState.TransitionWarpInFreefall : AnimState.TransitionWarpIn, false, true, SpecialMoveType.None, delegate {
                     renderer.Active = false;
 
-                    attachedHud?.BeginFadeOut();
+                    attachedHud?.BeginFadeOut(false);
                 });
                 PlaySound("WarpIn");
                 //});
@@ -201,7 +205,7 @@ namespace Jazz2.Actors
                 SetPlayerTransition(AnimState.TransitionEndOfLevel, false, true, SpecialMoveType.None, delegate {
                     renderer.Active = false;
 
-                    attachedHud?.BeginFadeOut();
+                    attachedHud?.BeginFadeOut(true);
                 });
                 PlaySound("EndOfLevel1");
                 //});
@@ -1936,7 +1940,6 @@ namespace Jazz2.Actors
 
             if (attachedHud != null) {
                 attachedHud.Owner = this;
-                attachedHud.ChangeCurrentWeapon(currentWeapon, weaponUpgrades[(int)currentWeapon]);
             }
         }
     }

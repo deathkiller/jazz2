@@ -55,7 +55,7 @@ namespace Jazz2.Actors.Weapons
             Transform.Angle = angle;
 
             SetAnimation(state);
-            PlaySound("Fire");
+            PlaySound("Fire", 0.4f);
         }
 
         protected override void OnUpdate()
@@ -91,7 +91,7 @@ namespace Jazz2.Actors.Weapons
 
             Explosion.Create(api, pos + Speed, Explosion.RF);
 
-            PlaySound("Explode");
+            PlaySound("Explode", 0.6f);
 
             return base.OnPerish(collider);
         }

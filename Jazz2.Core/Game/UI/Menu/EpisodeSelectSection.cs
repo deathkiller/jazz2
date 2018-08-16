@@ -110,63 +110,11 @@ namespace Jazz2.Game.UI.Menu
                 float itemSpacing = contentHeight / (episodes.Count + 1);
 
                 topItem += itemSpacing;
+                float topItemSelected = 0f;
 
                 for (int i = 0; i < episodes.Count; i++) {
                     if (selectedIndex == i) {
-                        float size = 0.5f + Ease.OutElastic(selectAnimation) * 0.5f + (1f - expandedAnimation) * 0.2f;
-
-                        if (episodes[i].IsAvailable) {
-                            if (episodes[i].Logo.IsAvailable) {
-                                api.DrawString(ref charOffset, episodes[i].Episode.Name, center.X, topItem,
-                                    Alignment.Center, new ColorRgba(0.44f, 0.5f * MathF.Max(0f, 1f - selectAnimation * 2f)), 0.9f - selectAnimation * 0.5f);
-
-                                ContentRef<Material> logo = episodes[i].Logo;
-                                Texture texture = logo.Res.MainTexture.Res;
-
-                                Vector2 originPos = new Vector2(center.X, topItem);
-                                Alignment.Center.ApplyTo(ref originPos, new Vector2(texture.InternalWidth * size, texture.InternalHeight * size));
-
-                                canvas.State.SetMaterial(logo);
-                                canvas.State.ColorTint = ColorRgba.White.WithAlpha(1f - expandedAnimation * 0.5f);
-                                canvas.FillRect(originPos.X, originPos.Y, texture.InternalWidth * size, texture.InternalHeight * size);
-                            } else {
-                                api.DrawStringShadow(ref charOffset, episodes[i].Episode.Name, center.X, topItem,
-                                    Alignment.Center, null, size, charSpacing: 0.9f);
-                            }
-
-                            if (episodes[i].CanContinue) {
-                                float moveX = expandedAnimation * -26f;
-
-                                api.DrawString(ref charOffset, ">", center.X + 80f + moveX, topItem,
-                                    Alignment.Right, new ColorRgba(0.5f, 0.5f * MathF.Min(1f, 0.4f + selectAnimation)), 1f, charSpacing: 0.9f);
-
-                                if (expanded) {
-                                    api.DrawStringShadow(ref charOffset, "Restart episode", center.X + 90f + moveX, topItem,
-                                        Alignment.Left, new ColorRgba(0.48f, 0.40f, 0.22f, 0.5f * MathF.Min(1f, 0.4f + expandedAnimation)), 0.8f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.8f);
-                                }
-                            }
-                        } else {
-                            api.DrawString(ref charOffset, episodes[i].Episode.Name, center.X, topItem,
-                                Alignment.Center, new ColorRgba(0.4f, MathF.Max(0.3f, 0.4f - selectAnimation * 0.4f)), MathF.Max(0.7f, 0.9f - selectAnimation * 0.6f));
-
-                            int index = episodes.IndexOfFirst(entry => entry.Episode.Token == episodes[i].Episode.PreviousEpisode);
-                            Episode previousEpisode;
-                            if (index == -1) {
-                                previousEpisode = null;
-                            } else {
-                                previousEpisode = episodes[index].Episode;
-                            }
-
-                            string info;
-                            if (previousEpisode == null) {
-                                info = "Episode is locked!";
-                            } else {
-                                info = "You must complete \"" + previousEpisode.Name + "\" first!";
-                            }
-
-                            api.DrawStringShadow(ref charOffset, info, center.X, topItem,
-                                Alignment.Center, new ColorRgba(0.66f, 0.42f, 0.32f, MathF.Min(0.5f, 0.2f + 2f * selectAnimation)), 0.7f * size, charSpacing: 0.9f);
-                        }
+                        topItemSelected = topItem;
                     } else {
                         if (episodes[i].IsAvailable) {
                             api.DrawString(ref charOffset, episodes[i].Episode.Name, center.X, topItem,
@@ -178,6 +126,62 @@ namespace Jazz2.Game.UI.Menu
                     }
 
                     topItem += itemSpacing;
+                }
+
+                // Selected item last
+                float size = 0.5f + Ease.OutElastic(selectAnimation) * 0.5f + (1f - expandedAnimation) * 0.2f;
+
+                if (episodes[selectedIndex].IsAvailable) {
+                    if (episodes[selectedIndex].Logo.IsAvailable) {
+                        api.DrawString(ref charOffset, episodes[selectedIndex].Episode.Name, center.X, topItemSelected,
+                            Alignment.Center, new ColorRgba(0.44f, 0.5f * MathF.Max(0f, 1f - selectAnimation * 2f)), 0.9f - selectAnimation * 0.5f);
+
+                        ContentRef<Material> logo = episodes[selectedIndex].Logo;
+                        Texture texture = logo.Res.MainTexture.Res;
+
+                        Vector2 originPos = new Vector2(center.X, topItemSelected);
+                        Alignment.Center.ApplyTo(ref originPos, new Vector2(texture.InternalWidth * size, texture.InternalHeight * size));
+
+                        canvas.State.SetMaterial(logo);
+                        canvas.State.ColorTint = ColorRgba.White.WithAlpha(1f - expandedAnimation * 0.5f);
+                        canvas.FillRect(originPos.X, originPos.Y, texture.InternalWidth * size, texture.InternalHeight * size);
+                    } else {
+                        api.DrawStringShadow(ref charOffset, episodes[selectedIndex].Episode.Name, center.X, topItemSelected,
+                            Alignment.Center, null, size, charSpacing: 0.9f);
+                    }
+
+                    if (episodes[selectedIndex].CanContinue) {
+                        float moveX = expandedAnimation * -26f;
+
+                        api.DrawString(ref charOffset, ">", center.X + 80f + moveX, topItemSelected,
+                            Alignment.Right, new ColorRgba(0.5f, 0.5f * MathF.Min(1f, 0.4f + selectAnimation)), 1f, charSpacing: 0.9f);
+
+                        if (expanded) {
+                            api.DrawStringShadow(ref charOffset, "Restart episode", center.X + 90f + moveX, topItemSelected,
+                                Alignment.Left, new ColorRgba(0.48f, 0.40f, 0.22f, 0.5f * MathF.Min(1f, 0.4f + expandedAnimation)), 0.8f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.8f);
+                        }
+                    }
+                } else {
+                    api.DrawString(ref charOffset, episodes[selectedIndex].Episode.Name, center.X, topItemSelected,
+                        Alignment.Center, new ColorRgba(0.4f, MathF.Max(0.3f, 0.4f - selectAnimation * 0.4f)), MathF.Max(0.7f, 0.9f - selectAnimation * 0.6f));
+
+                    int index = episodes.IndexOfFirst(entry => entry.Episode.Token == episodes[selectedIndex].Episode.PreviousEpisode);
+                    Episode previousEpisode;
+                    if (index == -1) {
+                        previousEpisode = null;
+                    } else {
+                        previousEpisode = episodes[index].Episode;
+                    }
+
+                    string info;
+                    if (previousEpisode == null) {
+                        info = "Episode is locked!";
+                    } else {
+                        info = "You must complete \"" + previousEpisode.Name + "\" first!";
+                    }
+
+                    api.DrawStringShadow(ref charOffset, info, center.X, topItemSelected,
+                        Alignment.Center, new ColorRgba(0.66f, 0.42f, 0.32f, MathF.Min(0.5f, 0.2f + 2f * selectAnimation)), 0.7f * size, charSpacing: 0.9f);
                 }
             } else {
                 api.DrawStringShadow(ref charOffset, "No episode found!", center.X, center.Y, Alignment.Center,
