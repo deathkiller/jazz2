@@ -93,7 +93,7 @@ namespace Jazz2.Server
         private static double lastRegisteredToMaster;
         private static int lastGameLoadMs;
 
-        private static string currentLevel = "unknown/battle1";
+        private static string currentLevel = "unknown/battle2";
         private static byte lastPlayerIndex;
 
         private static void Main(string[] args)

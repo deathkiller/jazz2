@@ -36,6 +36,14 @@ namespace Jazz2.Game
             }
         }
 
+        public static void GetAssemblyVersionNumber(out byte major, out byte minor, out byte build)
+        {
+            Version v = Assembly.GetEntryAssembly().GetName().Version;
+            major = (byte)v.Major;
+            minor = (byte)v.Minor;
+            build = (byte)v.Build;
+        }
+
         [STAThread]
         private static void Main(string[] args)
         {

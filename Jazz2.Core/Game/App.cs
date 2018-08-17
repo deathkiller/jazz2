@@ -6,8 +6,11 @@ using Duality.IO;
 using Duality.Resources;
 using Jazz2.Game.Structs;
 using Jazz2.Game.UI.Menu;
-using Jazz2.Networking;
 using Jazz2.Storage;
+
+#if MULTIPLAYER
+using Jazz2.Networking;
+#endif
 
 namespace Jazz2.Game
 {

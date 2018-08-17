@@ -173,6 +173,9 @@ namespace Jazz2.Game.UI.Menu
                             discovery = null;
                         }
                     });
+                } else {
+                    // ToDo: Testing only
+                    api.SwitchToServer(new IPEndPoint(IPAddress.Parse("192.168.2.6"), 10666));
                 }
             } else if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
                 api.PlaySound("MenuSelect", 0.5f);

@@ -39,6 +39,7 @@ namespace Duality.Backend.Android
 
             using (Bitmap bitmap = BitmapFactory.DecodeStream(stream, null, new BitmapFactory.Options {
                     InPremultiplied = false,
+                    InScaled = false
                 })) {
 
                 Bitmap.Config config = bitmap.GetConfig();

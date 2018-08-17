@@ -63,24 +63,21 @@ namespace Duality.Android
 
             // The default GraphicsMode that is set consists of (16, 16, 0, 0, 2, false)
             try {
-                Console.WriteLine("GLView is loading with default settings");
-
                 base.CreateFrameBuffer();
                 return;
             } catch (Exception ex) {
-                Console.WriteLine("GLView.CreateFrameBuffer() threw an exception: " + ex);
+                //Console.WriteLine("GLView.CreateFrameBuffer() threw an exception: " + ex);
             }
 
             // This is a graphics setting that sets everything to the lowest mode possible so
             // the device returns a reliable graphics setting.
             try {
-                Console.WriteLine("GLView is loading with custom Android settings (low-quality mode)");
                 GraphicsMode = new AndroidGraphicsMode(0, 0, 0, 0, 0, false);
 
                 base.CreateFrameBuffer();
                 return;
             } catch (Exception ex) {
-                Console.WriteLine("GLView.CreateFrameBuffer() threw an exception: " + ex);
+                //Console.WriteLine("GLView.CreateFrameBuffer() threw an exception: " + ex);
             }
 
             throw new BackendException("Cannot initialize OpenGL ES 3.0 device");
@@ -106,7 +103,6 @@ namespace Duality.Android
                 } else {
                     (Context as Activity).Finish();
                 }
-
                 return;
             }
 

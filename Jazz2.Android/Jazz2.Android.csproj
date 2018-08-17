@@ -23,7 +23,7 @@
     <DebugType>Full</DebugType>
     <Optimize>False</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET45</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET45 UNSAFE MULTIPLAYER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AndroidUseSharedRuntime>True</AndroidUseSharedRuntime>
@@ -39,7 +39,7 @@
     <DebugSymbols>false</DebugSymbols>
     <Optimize>True</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NET45</DefineConstants>
+    <DefineConstants>TRACE;NET45 UNSAFE MULTIPLAYER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AndroidUseSharedRuntime>False</AndroidUseSharedRuntime>
@@ -72,7 +72,7 @@
     <Compile Include="CrashHandlerActivity.cs" />
     <Compile Include="Game\UI\Hud.Touch.cs" />
     <Compile Include="Game\UI\Menu\I\InGameMenu.Touch.cs" />
-    <Compile Include="DualityActivity.cs" />
+    <Compile Include="MainActivity.cs" />
     <Compile Include="InnerView.cs" />
     <Compile Include="Backend\Drawing\OpenTK\ExtMethodsColorDataElementType.cs" />
     <Compile Include="Backend\Drawing\OpenTK\ExtMethodsColorDataLayout.cs" />
@@ -123,6 +123,7 @@
   <ItemGroup>
     <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher.png" />
   </ItemGroup>
+  <Import Project="..\Shared\Networking\Networking.projitems" Label="Shared" Condition="$(DefineConstants.Contains('MULTIPLAYER'))" />
   <Import Project="..\Jazz2.Core\Jazz2.Core.projitems" Label="Shared" />
   <Import Project="..\Shared\Duality\Duality.projitems" Label="Shared" />
   <Import Project="..\Shared\Primitives\Primitives.projitems" Label="Shared" />

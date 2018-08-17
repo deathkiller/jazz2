@@ -1,12 +1,14 @@
-﻿using Android.App;
+﻿using System;
+using Android.App;
 using Android.Content.PM;
 using Android.Graphics;
 using Android.OS;
 using Android.Views;
+using Jazz2.Android;
 
-namespace Jazz2.Android
+namespace Duality.Android
 {
-    [Activity(//Label = "Jazz² Resurrection",
+    [Activity(
         MainLauncher = true,
         Icon = "@mipmap/ic_launcher",
         ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.KeyboardHidden,
@@ -18,11 +20,26 @@ namespace Jazz2.Android
         )]
     public class MainActivity : Activity
     {
-        private GLView view;
+        private static WeakReference<MainActivity> weakActivity;
+
+        public static MainActivity Current
+        {
+            get
+            {
+                MainActivity activity;
+                weakActivity.TryGetTarget(out activity);
+                return activity;
+            }
+        }
+
+
+        internal InnerView InnerView;
 
         protected override void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
+
+            weakActivity = new WeakReference<MainActivity>(this);
 
             CrashHandlerActivity.Register(this);
 
@@ -34,6 +51,7 @@ namespace Jazz2.Android
                 decorView.SystemUiVisibility |= (StatusBarVisibility)SystemUiFlags.LayoutFullscreen;
                 decorView.SystemUiVisibility |= (StatusBarVisibility)SystemUiFlags.Immersive;
 
+                // Minimal supported SDK is already 18
                 //if ((int)Build.VERSION.SdkInt < 18)
                 //    RequestedOrientation = ScreenOrientation.SensorLandscape;
 
@@ -49,9 +67,9 @@ namespace Jazz2.Android
 #endif
             }
 
-            // Create our OpenGL view, and display it
-            view = new GLView(this);
-            SetContentView(view);
+            // Create our OpenGL view and show it
+            InnerView = new InnerView(this);
+            SetContentView(InnerView);
         }
 
         protected override void OnDestroy()
@@ -62,13 +80,13 @@ namespace Jazz2.Android
         protected override void OnPause()
         {
             base.OnPause();
-            view.Pause();
+            InnerView.Pause();
         }
 
         protected override void OnResume()
         {
             base.OnResume();
-            view.Resume();
+            InnerView.Resume();
         }
     }
 }

@@ -51,10 +51,12 @@ namespace Jazz2.Game.Multiplayer
         public void Connect(IPEndPoint host)
         {
             NetOutgoingMessage message = client.CreateMessage(3);
-            Version v = Assembly.GetEntryAssembly().GetName().Version;
-            message.Write((byte)v.Major);
-            message.Write((byte)v.Minor);
-            message.Write((byte)v.Build);
+
+            byte major, minor, build;
+            App.GetAssemblyVersionNumber(out major, out minor, out build);
+            message.Write((byte)major);
+            message.Write((byte)minor);
+            message.Write((byte)build);
 
             client.Connect(host, message);
         }

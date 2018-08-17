@@ -45,6 +45,10 @@ Global
 		Shared\Primitives\Primitives.projitems*{2dad5df0-99d5-4837-af78-cf189db386a2}*SharedItemsImports = 13
 		Shared\Networking\Networking.projitems*{64f6be65-220b-4de3-82af-80e24d45cc67}*SharedItemsImports = 13
 		Shared\Console\Console.projitems*{742eeb7b-19d1-41b1-8870-02300cc9281f}*SharedItemsImports = 4
+		Jazz2.Core\Jazz2.Core.projitems*{74e972a2-711f-4a9f-8d0b-aaef2f02dd48}*SharedItemsImports = 4
+		Shared\Duality\Duality.projitems*{74e972a2-711f-4a9f-8d0b-aaef2f02dd48}*SharedItemsImports = 4
+		Shared\Networking\Networking.projitems*{74e972a2-711f-4a9f-8d0b-aaef2f02dd48}*SharedItemsImports = 4
+		Shared\Primitives\Primitives.projitems*{74e972a2-711f-4a9f-8d0b-aaef2f02dd48}*SharedItemsImports = 4
 		Jazz2.Core\Jazz2.Core.projitems*{7cc64746-8ba3-49ed-affc-ae4308ac1fa4}*SharedItemsImports = 4
 		Shared\Duality\Duality.projitems*{7cc64746-8ba3-49ed-affc-ae4308ac1fa4}*SharedItemsImports = 4
 		Shared\Networking\Networking.projitems*{7cc64746-8ba3-49ed-affc-ae4308ac1fa4}*SharedItemsImports = 4
