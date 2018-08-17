@@ -133,11 +133,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\ActorApi.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\ContentResolver.Async.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\ContentResolver.Palettes.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\Multiplayer\NetworkLevelHandler.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\Multiplayer\NetworkHandler.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\Multiplayer\Player.Multiplayer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\Multiplayer\RemotePlayer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\Multiplayer\ServerDiscovery.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Structs\Episode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\BitmapFont.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Components\ActorRenderer.cs" />

@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET45</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET45 MULTIPLAYER UNSAFE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -28,7 +28,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>Bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NET45</DefineConstants>
+    <DefineConstants>TRACE;NET45 MULTIPLAYER UNSAFE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -46,10 +46,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
-    <Compile Include="ClientConnectedEventArgs.cs" />
-    <Compile Include="ClientStatusChangedEventArgs.cs" />
-    <Compile Include="DiscoveryRequestEventArgs.cs" />
-    <Compile Include="MessageReceivedEventArgs.cs" />
+    <Compile Include="EventArgs\ClientConnectedEventArgs.cs" />
+    <Compile Include="EventArgs\ClientStatusChangedEventArgs.cs" />
+    <Compile Include="EventArgs\DiscoveryRequestEventArgs.cs" />
+    <Compile Include="EventArgs\MessageReceivedEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerConnection.cs" />
   </ItemGroup>

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Jazz2.Server.EventArgs;
 using Lidgren.Network;
 
 namespace Jazz2.Server
@@ -24,14 +25,13 @@ namespace Jazz2.Server
         public event Action<MessageReceivedEventArgs> MessageReceived;
         public event Action<DiscoveryRequestEventArgs> DiscoveryRequest;
 
-        public ServerConnection(string appId, int port, int maxPlayers = 500)
+        public ServerConnection(string appId, int port, int maxPlayers = 255)
         {
             if (maxPlayers < 0 || maxPlayers >= int.MaxValue)
                 throw new ArgumentOutOfRangeException("Max. number of players must be smaller than " + int.MaxValue);
 
             this.port = port;
             this.maxPlayers = maxPlayers;
-            //this.sessions = new Dictionary<int, Session>(max_sessions + 10);
 
             NetPeerConfiguration config = new NetPeerConfiguration(appId);
             config.Port = port;
@@ -40,9 +40,8 @@ namespace Jazz2.Server
             config.EnableMessageType(NetIncomingMessageType.NatIntroductionSuccess);
             config.EnableUPnP = true;
 
-            //config.SimulatedMinimumLatency = 0.02f;
-            //config.SimulatedMinimumLatency = 0.8f;
-            //config.SimulatedRandomLatency = 0.06f;
+            //config.SimulatedMinimumLatency = 200 / 1000f;
+            //config.SimulatedRandomLatency = 100 / 1000f;
             //config.SimulatedDuplicatesChance = 0.2f;
 
 #if DEBUG

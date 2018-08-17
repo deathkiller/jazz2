@@ -6,6 +6,7 @@ using Duality.IO;
 using Duality.Resources;
 using Jazz2.Game.Structs;
 using Jazz2.Game.UI.Menu;
+using Jazz2.Networking;
 using Jazz2.Storage;
 
 namespace Jazz2.Game
@@ -192,26 +193,35 @@ namespace Jazz2.Game
             }
 
             network = new Multiplayer.NetworkHandler(token);
-            network.RegisterCallback<NetworkPackets.Server.LoadLevel>(OnLoadLevel);
+            network.RegisterCallback<Networking.Packets.Server.LoadLevel>(OnLoadLevel);
             network.Connect(endPoint);
         }
 
-        private void OnLoadLevel(ref NetworkPackets.Server.LoadLevel p)
+        private void OnLoadLevel(ref Networking.Packets.Server.LoadLevel p)
         {
+            string episodeName;
             string levelName = p.LevelName;
-            int playerIndex = p.AssignedPlayerIndex;
+            int i = levelName.IndexOf('/');
+            if (i != -1) {
+                episodeName = levelName.Substring(0, i);
+                levelName = levelName.Substring(i + 1);
+            } else {
+                return;
+            }
+
+            byte playerIndex = p.AssignedPlayerIndex;
 
             DispatchToMainThread(delegate {
                 Multiplayer.NetworkLevelHandler handler = new Multiplayer.NetworkLevelHandler(this, network,
-                    new LevelInitialization("unknown", levelName, GameDifficulty.Default, Actors.PlayerType.Jazz),
+                    new LevelInitialization(episodeName, levelName, GameDifficulty.Default, Actors.PlayerType.Jazz),
                     playerIndex);
 
                 Scene.Current.DisposeLater();
                 Scene.SwitchTo(handler);
 
-                network.Send(new NetworkPackets.Client.LevelReady {
+                network.Send(new Networking.Packets.Client.LevelReady {
                     Index = playerIndex
-                }, 2, Lidgren.Network.NetDeliveryMethod.ReliableSequenced, NetworkPackets.NetworkChannels.Main);
+                }, 2, Lidgren.Network.NetDeliveryMethod.ReliableSequenced, NetworkChannels.Main);
             });
         }
 

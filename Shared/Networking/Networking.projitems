@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>64f6be65-220b-4de3-82af-80e24d45cc67</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Jazz2.Networking</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetBitVector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetBitWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetBuffer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetBuffer.Peek.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetBuffer.Read.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetBuffer.Write.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetConnection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetConnection.Handshake.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetConnection.Latency.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetConnection.MTU.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetConnectionStatistics.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetConnectionStatus.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetConstants.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetDeliveryMethod.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetException.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetFragmentationHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetFragmentationInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetIncomingMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetIncomingMessageType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetMessageType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetNatIntroduction.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetOutgoingMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetPeer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetPeer.Discovery.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetPeer.Fragmentation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetPeer.Internal.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetPeer.LatencySimulation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetPeer.Logging.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetPeer.MessagePools.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetPeer.Send.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetPeerConfiguration.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetPeerStatistics.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetPeerStatus.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetQueue.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetRandom.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetRandom.Implementations.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetRandomSeed.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetReceiverChannelBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetReliableOrderedReceiver.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetReliableSenderChannel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetReliableSequencedReceiver.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetReliableUnorderedReceiver.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetSenderChannelBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetSendResult.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetServer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetStoredReliableMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetTime.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetTuple.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetUnreliableSenderChannel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetUnreliableSequencedReceiver.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetUnreliableUnorderedReceiver.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetUPnP.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\NetUtility.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\Platform\PlatformAndroid.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Base\Platform\PlatformWin32.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\LevelReady.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\UpdateSelf.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\IClientPacket+IServerPacket.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Components\NetworkHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Components\NetworkLevelHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Components\Player.Multiplayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Components\RemotePlayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Components\ServerDiscovery.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NetworkChannels.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\CreateRemotePlayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\DestroyRemotePlayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\LoadLevel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\UpdateRemotePlayer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Packets\" />
+  </ItemGroup>
+</Project>

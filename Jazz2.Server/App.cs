@@ -10,9 +10,10 @@ using System.Reflection;
 using System.Threading;
 using Duality;
 using Jazz2.Game.Structs;
-using Jazz2.NetworkPackets;
-using Jazz2.NetworkPackets.Client;
-using Jazz2.NetworkPackets.Server;
+using Jazz2.Networking;
+using Jazz2.Networking.Packets.Client;
+using Jazz2.Networking.Packets.Server;
+using Jazz2.Server.EventArgs;
 using Lidgren.Network;
 
 namespace Jazz2
@@ -61,7 +62,7 @@ namespace Jazz2.Server
 
         private class Player
         {
-            public int Index;
+            public byte Index;
 
             public Vector3 Pos;
             public Vector3 Speed;
@@ -92,11 +93,13 @@ namespace Jazz2.Server
         private static double lastRegisteredToMaster;
         private static int lastGameLoadMs;
 
-        private static string currentLevel = "battle1";
-        private static int lastPlayerIndex;
+        private static string currentLevel = "unknown/battle1";
+        private static byte lastPlayerIndex;
 
         private static void Main(string[] args)
         {
+            ConsoleUtils.TryEnableUnicode();
+
 #if DEBUG
             if (Console.BufferWidth < 120) {
                 Console.BufferWidth = 120;
@@ -167,7 +170,7 @@ namespace Jazz2.Server
                 Log.PopIndent();
             }
 
-            // Create game loop (~60fps)
+            // Create game loop
             threadGame = new Thread(OnGameLoop);
             threadGame.IsBackground = true;
             threadGame.Start();
@@ -183,6 +186,12 @@ namespace Jazz2.Server
                         case "quit":
                         case "exit":
                             goto Finalize;
+
+                        case "info": {
+                            Log.Write(LogType.Info, "Load: " + lastGameLoadMs + " ms");
+                            break;
+
+                        }
 
                         default:
                             Log.Write(LogType.Warning, "Unknown command: " + command);
@@ -217,6 +226,9 @@ namespace Jazz2.Server
 
         private static void OnGameLoop()
         {
+            //const int TargetFps = 30;
+            const int TargetFps = 15;
+
             Stopwatch sw = new Stopwatch();
 
             while (threadGame != null) {
@@ -251,7 +263,7 @@ namespace Jazz2.Server
                 sw.Stop();
 
                 lastGameLoadMs = (int)sw.ElapsedMilliseconds;
-                int sleepMs = 1000 / 30 - lastGameLoadMs;
+                int sleepMs = 1000 / TargetFps - lastGameLoadMs;
                 if (sleepMs > 0) {
                     Thread.Sleep(sleepMs);
                 }
@@ -634,7 +646,7 @@ namespace Jazz2.Server
 
                     Send(new CreateRemotePlayer {
                         Index = player.Index,
-                        Type = Actors.PlayerType.Spaz,
+                        Type = Actors.PlayerType.Jazz,
                         Pos = Vector3.Zero
                     }, 2 + 1 + 3 * 4, to.Key, NetDeliveryMethod.ReliableSequenced, NetworkChannels.PlayerGeneral);
                 }
@@ -646,7 +658,7 @@ namespace Jazz2.Server
 
                     Send(new CreateRemotePlayer {
                         Index = other.Value.Index,
-                        Type = Actors.PlayerType.Spaz,
+                        Type = Actors.PlayerType.Jazz,
                         Pos = other.Value.Pos
                     }, 2 + 1 + 3 * 4, p.SenderConnection, NetDeliveryMethod.ReliableSequenced, NetworkChannels.PlayerGeneral);
                 }
@@ -683,7 +695,7 @@ public class App
 {
     public static void Main()
     {
-        throw new System.NotSupportedException();
+        throw new System.NotSupportedException("Multiplayer is not supported in this build!");
     }
 }
 

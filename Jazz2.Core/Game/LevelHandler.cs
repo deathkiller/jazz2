@@ -204,6 +204,8 @@ namespace Jazz2.Game
                 AddPlayer(targetPlayer);
 
                 targetPlayer.AttachToHud(hud);
+
+                hud.BeginFadeIn(true);
             }
 
             // Bind camera to player

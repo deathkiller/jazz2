@@ -51,7 +51,10 @@ namespace Jazz2.Game.UI.Menu
         {
             base.OnHide(isRemoved);
 
-            discovery.Dispose();
+            if (discovery != null) {
+                discovery.Dispose();
+                discovery = null;
+            }
         }
 
         public override void OnPaint(Canvas canvas)
@@ -62,7 +65,7 @@ namespace Jazz2.Game.UI.Menu
 
             const float topLine = 96f;
             float bottomLine = device.TargetSize.Y - 42;
-            api.DrawMaterial(c, "MenuDim", center.X, (topLine + bottomLine) * 0.5f, Alignment.Center, ColorRgba.White, 55f, (bottomLine - topLine) * 0.063f, new Rect(0f, 0.3f, 1f, 0.4f));
+            api.DrawMaterial("MenuDim", center.X, (topLine + bottomLine) * 0.5f, Alignment.Center, ColorRgba.White, 55f, (bottomLine - topLine) * 0.063f, new Rect(0f, 0.3f, 1f, 0.4f));
 
             int charOffset = 0;
             if (serverList.Count > 0) {
@@ -100,28 +103,28 @@ namespace Jazz2.Game.UI.Menu
                         float size = 0.7f + easing * 0.1f;
 
                         // Column 2
-                        api.DrawStringShadow(device, ref charOffset, server.CurrentPlayers + " / " + server.MaxPlayers + "  " + server.LatencyMs + " ms", column2, currentItem, Alignment.Left,
+                        api.DrawStringShadow(ref charOffset, server.CurrentPlayers + " / " + server.MaxPlayers + "  " + server.LatencyMs + " ms", column2, currentItem, Alignment.Left,
                             new ColorRgba(0.48f, 0.5f), 0.8f, 0.4f, 1f, 1f, 8f, charSpacing: 0.8f);
 
                         // Column 3
-                        api.DrawStringShadow(device, ref charOffset, server.EndPoint.ToString(), column3, currentItem, Alignment.Left,
+                        api.DrawStringShadow(ref charOffset, server.EndPoint.ToString(), column3, currentItem, Alignment.Left,
                             new ColorRgba(0.48f, 0.5f), 0.8f, 0.4f, 1f, 1f, 8f, charSpacing: 0.8f);
 
                         // Column 1
-                        api.DrawStringShadow(device, ref charOffset, server.Name, x, currentItem, Alignment.Left,
+                        api.DrawStringShadow(ref charOffset, server.Name, x, currentItem, Alignment.Left,
                             null, size, 0.4f, 1f, 1f, 8f, charSpacing: 0.88f);
                         
                     } else {
                         // Column 2
-                        api.DrawString(device, ref charOffset, server.CurrentPlayers + " / " + server.MaxPlayers + "  " + server.LatencyMs + " ms", column2, currentItem, Alignment.Left,
+                        api.DrawString(ref charOffset, server.CurrentPlayers + " / " + server.MaxPlayers + "  " + server.LatencyMs + " ms", column2, currentItem, Alignment.Left,
                             ColorRgba.TransparentBlack, 0.7f);
 
                         // Column 3
-                        api.DrawString(device, ref charOffset, server.EndPoint.ToString(), column3, currentItem, Alignment.Left,
+                        api.DrawString(ref charOffset, server.EndPoint.ToString(), column3, currentItem, Alignment.Left,
                             ColorRgba.TransparentBlack, 0.7f);
 
                         // Column 1
-                        api.DrawString(device, ref charOffset, server.Name, column1, currentItem, Alignment.Left,
+                        api.DrawString(ref charOffset, server.Name, column1, currentItem, Alignment.Left,
                             ColorRgba.TransparentBlack, 0.7f);
                     }
 
@@ -134,19 +137,19 @@ namespace Jazz2.Game.UI.Menu
                     float sy = ((float)xOffset / serverList.Count) * 18f * itemCount + topLine;
                     float sh = ((float)itemCount / serverList.Count) * 16f * itemCount;
 
-                    c.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0f, 0f, 0f, 0.28f)));
-                    c.FillRect(sx + 1f, sy + 1f, sw, sh);
+                    canvas.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0f, 0f, 0f, 0.28f)));
+                    canvas.FillRect(sx + 1f, sy + 1f, sw, sh);
 
-                    c.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0.8f, 0.8f, 0.8f, 0.5f)));
-                    c.FillRect(sx, sy, sw, sh);
+                    canvas.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0.8f, 0.8f, 0.8f, 0.5f)));
+                    canvas.FillRect(sx, sy, sw, sh);
                 }
             } else {
-                api.DrawStringShadow(device, ref charOffset, "Servers not found!", center.X, center.Y, Alignment.Center,
+                api.DrawStringShadow(ref charOffset, "Servers not found!", center.X, center.Y, Alignment.Center,
                     new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f), 0.9f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
             }
 
-            api.DrawMaterial(c, "MenuLine", 0, center.X, topLine, Alignment.Center, ColorRgba.White, 1.6f);
-            api.DrawMaterial(c, "MenuLine", 1, center.X, bottomLine, Alignment.Center, ColorRgba.White, 1.6f);
+            api.DrawMaterial("MenuLine", 0, center.X, topLine, Alignment.Center, ColorRgba.White, 1.6f);
+            api.DrawMaterial("MenuLine", 1, center.X, bottomLine, Alignment.Center, ColorRgba.White, 1.6f);
         }
 
         public override void OnUpdate()
@@ -157,8 +160,19 @@ namespace Jazz2.Game.UI.Menu
 
             if (ControlScheme.MenuActionHit(PlayerActions.Fire)) {
                 if (serverList.Count > 0) {
+                    ControlScheme.IsSuspended = true;
+
                     api.PlaySound("MenuSelect", 0.5f);
-                    api.SwitchToServer(serverList[selectedIndex].EndPoint);
+                    api.BeginFadeOut(() => {
+                        ControlScheme.IsSuspended = false;
+
+                        api.SwitchToServer(serverList[selectedIndex].EndPoint);
+
+                        if (discovery != null) {
+                            discovery.Dispose();
+                            discovery = null;
+                        }
+                    });
                 }
             } else if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
                 api.PlaySound("MenuSelect", 0.5f);
