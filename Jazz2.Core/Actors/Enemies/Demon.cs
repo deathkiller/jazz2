@@ -23,6 +23,11 @@ namespace Jazz2.Actors.Enemies
             IsFacingLeft = MathF.Rnd.NextBool();
         }
 
+        protected override void OnUpdateHitbox()
+        {
+            UpdateHitbox(28, 26);
+        }
+
         protected override void OnUpdate()
         {
             base.OnUpdate();

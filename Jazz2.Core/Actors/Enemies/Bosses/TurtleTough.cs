@@ -39,6 +39,8 @@ namespace Jazz2.Actors.Bosses
         public override void OnBossActivated()
         {
             FollowNearestPlayer(StateWalking1, MathF.Rnd.NextFloat(120, 160));
+
+            PreloadMetadata("Boss/TurtleShellTough");
         }
 
         protected override void OnDeactivated(ShutdownContext context)

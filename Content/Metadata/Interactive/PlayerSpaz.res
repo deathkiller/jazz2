@@ -363,9 +363,5 @@
         "BonusWarpNotEnoughCoins": {
             "Paths": [ "Object/BonusNotEnoughCoins.wav" ]
         }
-    },
-
-    "Preload": [
-        "Weapon/Blaster"
-    ]
+    }
 }

@@ -173,7 +173,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\MenuControlBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\MainMenuSectionWithControls.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\StartGameOptionsSection.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\Structs\FoodType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Tiles\AnimatedTile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Tiles\TileMap.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Tiles\TileMap.Debris.cs" />

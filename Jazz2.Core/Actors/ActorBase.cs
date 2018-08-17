@@ -1026,6 +1026,13 @@ namespace Jazz2.Actors
             }
         }
 
+        protected void ForceCancelTransition()
+        {
+            currentTransitionCancellable = true;
+            currentTransitionCallback = null;
+            currentTransitionState = AnimState.Idle;
+        }
+
         protected virtual void OnAnimationStarted()
         {
             // Could be overriden

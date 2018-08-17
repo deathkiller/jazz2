@@ -68,6 +68,8 @@ namespace Jazz2.Actors.Bosses
                 });
                 api.AddActor(shields[i]);
             }
+
+            PreloadMetadata("Enemy/Crab");
         }
 
         protected override void OnDeactivated(ShutdownContext context)

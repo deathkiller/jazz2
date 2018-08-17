@@ -345,7 +345,7 @@ namespace Jazz2.Game
             // Request children
             if (json.Preload != null) {
                 for (int i = 0; i < json.Preload.Count; i++) {
-                    RequestMetadataInner(json.Preload[i], async);
+                    PreloadAsync(json.Preload[i]);
                 }
             }
 

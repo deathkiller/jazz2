@@ -191,7 +191,6 @@ namespace Jazz2.Actors
             // ToDo: Implement better level transitions
             if (exitType == ExitType.Warp || exitType == ExitType.Bonus) {
                 //addTimer(285u, false, [this]() {
-                //inFreefall = inFreefall || (!canJump && speedY > 14f);
                 SetPlayerTransition(isFreefall ? AnimState.TransitionWarpInFreefall : AnimState.TransitionWarpIn, false, true, SpecialMoveType.None, delegate {
                     renderer.Active = false;
 
@@ -519,6 +518,7 @@ namespace Jazz2.Actors
                             SetAnimation(AnimState.Buttstomp);
                             SetPlayerTransition(AnimState.TransitionButtstompStart, true, false, SpecialMoveType.Buttstomp, delegate {
                                 speedY = 9;
+                                collisionFlags |= CollisionFlags.ApplyGravitation;
                                 SetAnimation(AnimState.Buttstomp);
                                 PlaySound("Buttstomp", 1f, 0.8f);
                                 PlaySound("Buttstomp2");
@@ -669,8 +669,7 @@ namespace Jazz2.Actors
                 if (!isLifting && (currentAnimationState & AnimState.Push) == 0 && pushFramesLeft <= 0f) {
                     if (weaponAmmo[(int)currentWeapon] != 0) {
                         if (currentTransitionState == AnimState.Spring || currentTransitionState == AnimState.TransitionShootToIdle) {
-                            currentTransitionCancellable = true;
-                            CancelTransition();
+                            ForceCancelTransition();
                         }
 
                         SetAnimation(currentAnimationState | AnimState.Shoot);
@@ -832,7 +831,9 @@ namespace Jazz2.Actors
         {
             if (currentTransitionState != AnimState.TransitionDeath) {
                 isInvulnerable = true;
-                currentTransitionCancellable = true;
+
+                ForceCancelTransition();
+
                 SetPlayerTransition(AnimState.TransitionDeath, false, true, SpecialMoveType.None, delegate {
                     if (lives > 1) {
                         lives--;
@@ -842,9 +843,6 @@ namespace Jazz2.Actors
 
                         // Remove fast fires
                         weaponUpgrades[(int)WeaponType.Blaster] = (byte)(weaponUpgrades[(int)WeaponType.Blaster] & 0x1);
-
-                        // Negate all possible movement effects etc.
-                        currentTransitionState = AnimState.Idle;
 
                         canJump = false;
                         speedX = speedY = 0f;
@@ -1689,8 +1687,7 @@ namespace Jazz2.Actors
             if (!isInvulnerable && !levelExiting) {
                 // Cancel active climbing
                 if (currentTransitionState == AnimState.TransitionLedgeClimb) {
-                    currentTransitionCancellable = true;
-                    CancelTransition();
+                    ForceCancelTransition();
 
                     MoveInstantly(new Vector2(IsFacingLeft ? 6f : -6f, 0f), MoveType.Relative, true);
                 }
@@ -1700,6 +1697,7 @@ namespace Jazz2.Actors
                 internalForceY = 0f;
                 speedX = 0f;
                 canJump = false;
+                isAttachedToPole = false;
 
                 fireFramesLeft = copterFramesLeft = pushFramesLeft = 0f;
 
@@ -1741,7 +1739,21 @@ namespace Jazz2.Actors
                     api.WarpCameraToTarget(this);
                 }
             } else {
-                //inFreefall = inFreefall || (!canJump && speedY > 14f);
+                EndDamagingMove();
+                isInvulnerable = true;
+                collisionFlags &= ~CollisionFlags.ApplyGravitation;
+
+                SetAnimation(currentAnimationState & ~(AnimState.Uppercut | AnimState.Buttstomp));
+
+                speedX = speedY = 0f;
+                externalForceX = externalForceY = internalForceY = 0f;
+                fireFramesLeft = copterFramesLeft = pushFramesLeft = 0f;
+
+                // For warping from the water
+                Transform.Angle = 0f;
+
+                PlaySound("WarpIn");
+
                 SetPlayerTransition(isFreefall ? AnimState.TransitionWarpInFreefall : AnimState.TransitionWarpIn, false, true, SpecialMoveType.None, delegate {
                     Vector3 posOld = Transform.Pos;
 
@@ -1759,19 +1771,6 @@ namespace Jazz2.Actors
                         controllable = true;
                     });
                 });
-
-                EndDamagingMove();
-                isInvulnerable = true;
-                collisionFlags &= ~CollisionFlags.ApplyGravitation;
-
-                speedX = speedY = 0f;
-                externalForceX = externalForceY = internalForceY = 0f;
-                fireFramesLeft = copterFramesLeft = pushFramesLeft = 0f;
-
-                // For warping from the water
-                Transform.Angle = 0f;
-
-                PlaySound("WarpIn");
             }
         }
 
@@ -1858,8 +1857,8 @@ namespace Jazz2.Actors
                 } else {
                     MoveInstantly(new Vector2(0, sign * 16), MoveType.Relative, true);
 
-                    speedY = 3 * sign + lastSpeed * 1.2f;
-                    externalForceY = (-1f * sign);
+                    speedY = 4 * sign + lastSpeed * 1.4f;
+                    externalForceY = (-1.3f * sign);
                 }
 
                 collisionFlags |= CollisionFlags.ApplyGravitation;
