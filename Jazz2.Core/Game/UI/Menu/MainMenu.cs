@@ -83,7 +83,7 @@ namespace Jazz2.Game.UI.Menu
             music = DualityApp.Sound.PlaySound(new OpenMptStream(musicPath));
             music.BeginFadeIn(0.5f);
 
-            InitTouch();
+            InitPlatformSpecific();
 
             // Show Begin section
             sectionStack = new Stack<MainMenuSection>();
@@ -286,7 +286,7 @@ namespace Jazz2.Game.UI.Menu
                 }
             }
 
-            DrawTouch(device.TargetSize);
+            DrawPlatformSpecific(size);
 
             canvas.End();
         }
@@ -300,9 +300,9 @@ namespace Jazz2.Game.UI.Menu
             }
         }
 
-        partial void InitTouch();
+        partial void InitPlatformSpecific();
 
-        partial void DrawTouch(Vector2 size);
+        partial void DrawPlatformSpecific(Vector2 size);
 
         private class LocalController : Component, ICmpUpdatable, ICmpRenderer
         {

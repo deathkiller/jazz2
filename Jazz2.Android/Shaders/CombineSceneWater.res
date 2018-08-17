@@ -7,15 +7,15 @@
         uniform vec3 CameraPosition;
         uniform float GameTime;
         
-        uniform sampler2D blurHalfTex;
-        uniform sampler2D blurQuarterTex;
+        //uniform sampler2D blurHalfTex;
+        //uniform sampler2D blurQuarterTex;
 
         uniform sampler2D mainTex;
         uniform sampler2D lightTex;
         uniform sampler2D displacementTex;
         
         uniform float waterLevel;
-        uniform float ambientLight;
+        //uniform float ambientLight;
         uniform vec4 darknessColor;
         
         in vec2 vTexcoord0;
@@ -72,19 +72,21 @@
             )).rgb, vec3(topColorBlendFac));
             main.rgb += vec3(0.2 * isVeryNearTop);
             
-            vec4 blur1 = texture(blurHalfTex, uv);
-            vec4 blur2 = texture(blurQuarterTex, uv);
+            //vec4 blur1 = texture(blurHalfTex, uv);
+            //vec4 blur2 = texture(blurQuarterTex, uv);
             vec4 light = texture(lightTex, uv);
             
-            vec4 blur = (blur1 + blur2) * vec4(0.5);
+            //vec4 blur = (blur1 + blur2) * vec4(0.5);
 
-            float gray = dot(blur.rgb, vec3(0.299, 0.587, 0.114));
-            blur = vec4(gray, gray, gray, blur.a);
+            //float gray = dot(blur.rgb, vec3(0.299, 0.587, 0.114));
+            //blur = vec4(gray, gray, gray, blur.a);
 
-            vFragColor = mix(mix(
-                                  main * (1.0 + light.g),
-                                  blur,
-                                  vec4(clamp((1.0 - light.r) / sqrt(max(ambientLight, 0.35)), 0.0, 1.0))
-                                ), darknessColor, vec4(1.0 - light.r));
+            //vFragColor = mix(mix(
+            //                      main * (1.0 + light.g),
+            //                      blur,
+            //                      vec4(clamp((1.0 - light.r) / sqrt(max(ambientLight, 0.35)), 0.0, 1.0))
+            //                    ), darknessColor, vec4(1.0 - light.r));
+                                
+            vFragColor = mix(main * (1.0 + light.g), darknessColor, vec4(1.0 - light.r));
         }"
 }

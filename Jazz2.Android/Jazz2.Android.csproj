@@ -72,7 +72,7 @@
     <Compile Include="CrashHandlerActivity.cs" />
     <Compile Include="Game\UI\Hud.Touch.cs" />
     <Compile Include="Game\UI\Menu\I\InGameMenu.Touch.cs" />
-    <Compile Include="DualityActivity.cs" />
+    <Compile Include="MainActivity.cs" />
     <Compile Include="InnerView.cs" />
     <Compile Include="Backend\Drawing\OpenTK\ExtMethodsColorDataElementType.cs" />
     <Compile Include="Backend\Drawing\OpenTK\ExtMethodsColorDataLayout.cs" />
@@ -93,8 +93,6 @@
     <AndroidNativeLibrary Include="Libs\armeabi-v7a\libunmo3.so" />
     <AndroidNativeLibrary Include="Libs\x86\libopenmpt.so" />
     <AndroidNativeLibrary Include="Libs\x86\libunmo3.so" />
-    <None Include="Resources\AboutResources.txt" />
-    <None Include="Assets\AboutAssets.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\AndroidManifest.xml">
@@ -122,6 +120,21 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="Assets\fire.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="Assets\jump.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="Assets\run.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="Assets\switch.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="Assets\dpad.png" />
   </ItemGroup>
   <Import Project="..\Jazz2.Core\Jazz2.Core.projitems" Label="Shared" />
   <Import Project="..\Shared\Duality\Duality.projitems" Label="Shared" />

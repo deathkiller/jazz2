@@ -65,7 +65,7 @@ namespace Jazz2.Game.UI.Menu.I
                 finalMaterial = new Material(DrawTechnique.Solid, renderSetup.FinalTexture);
             }
 
-            InitTouch();
+            InitPlatformSpecific();
 
             // Show Begin section
             sectionStack = new Stack<InGameMenuSection>();
@@ -232,14 +232,14 @@ namespace Jazz2.Game.UI.Menu.I
                 sectionStack.Peek().OnPaint(canvas);
             }
 
-            DrawTouch(device.TargetSize);
+            DrawPlatformSpecific(device.TargetSize);
 
             canvas.End();
         }
 
-        partial void InitTouch();
+        partial void InitPlatformSpecific();
 
-        partial void DrawTouch(Vector2 size);
+        partial void DrawPlatformSpecific(Vector2 size);
 
 
         private class LocalController : Component, ICmpUpdatable, ICmpRenderer

@@ -26,7 +26,7 @@ namespace Duality.Backend.Android.OpenTK
         {
             get
             {
-                DualityActivity activity = DualityActivity.Current;
+                MainActivity activity = MainActivity.Current;
                 if (activity != null) {
                     return activity.Title;
                 } else {
@@ -35,7 +35,7 @@ namespace Duality.Backend.Android.OpenTK
             }
             set
             {
-                DualityActivity activity = DualityActivity.Current;
+                MainActivity activity = MainActivity.Current;
                 if (activity != null) {
                     activity.Title = value;
                 }
@@ -53,7 +53,7 @@ namespace Duality.Backend.Android.OpenTK
                     return;
                 }
 
-                DualityActivity activity = DualityActivity.Current;
+                MainActivity activity = MainActivity.Current;
                 if (activity != null) {
                     if ((value & ScreenMode.Immersive) != 0) {
                         activity.Window.ClearFlags(WindowManagerFlags.Fullscreen);

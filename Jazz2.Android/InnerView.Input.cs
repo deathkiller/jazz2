@@ -1,4 +1,5 @@
-﻿using Android.Views;
+﻿using System.IO;
+using Android.Views;
 using Duality.Drawing;
 using Duality.Input;
 using Duality.Resources;
@@ -8,7 +9,7 @@ namespace Duality.Android
 {
     partial class InnerView
     {
-        public class VirtualButton
+        public struct VirtualButton
         {
             public Key KeyCode;
             public float Left;
@@ -18,7 +19,7 @@ namespace Duality.Android
 
             public ContentRef<Material> Material;
 
-            public int CurrentPointerId = -1;
+            public int CurrentPointerId;
         }
 
         internal static bool allowVibrations = true;
@@ -46,37 +47,46 @@ namespace Duality.Android
             const float dpadThresholdX = 0.05f;
             const float dpadThresholdY = 0.09f;
 
-            Material m1 = new Material(DrawTechnique.Alpha, new ColorRgba(1f, 0.2f));
-            Material m2 = new Material(DrawTechnique.Alpha, new ColorRgba(1f, 0.1f));
-            Material m3 = new Material(DrawTechnique.Alpha, new ColorRgba(1f, 0f));
+            IImageCodec imageCodec = ImageCodec.GetRead(ImageCodec.FormatPng);
 
-            Material m4 = new Material(DrawTechnique.Alpha, new ColorRgba(0.95f, 0.68f, 0.62f, 0.3f));
-            Material m5 = new Material(DrawTechnique.Alpha, new ColorRgba(0.62f, 0.83f, 0.94f, 0.3f));
-            Material m6 = new Material(DrawTechnique.Alpha, new ColorRgba(0.74f, 0.94f, 0.63f, 0.3f));
+            Material matDpad, matFire, matJump, matRun, matSwitchWeapon;
+            using (Stream s = Context.Assets.Open("dpad.png")) {
+                matDpad = new Material(DrawTechnique.Alpha, new Texture(new Pixmap(imageCodec.Read(s)), TextureSizeMode.NonPowerOfTwo));
+            }
+            using (Stream s = Context.Assets.Open("fire.png")) {
+                matFire = new Material(DrawTechnique.Alpha, new Texture(new Pixmap(imageCodec.Read(s)), TextureSizeMode.NonPowerOfTwo));
+            }
+            using (Stream s = Context.Assets.Open("jump.png")) {
+                matJump = new Material(DrawTechnique.Alpha, new Texture(new Pixmap(imageCodec.Read(s)), TextureSizeMode.NonPowerOfTwo));
+            }
+            using (Stream s = Context.Assets.Open("run.png")) {
+                matRun = new Material(DrawTechnique.Alpha, new Texture(new Pixmap(imageCodec.Read(s)), TextureSizeMode.NonPowerOfTwo));
+            }
+            using (Stream s = Context.Assets.Open("switch.png")) {
+                matSwitchWeapon = new Material(DrawTechnique.Alpha, new Texture(new Pixmap(imageCodec.Read(s)), TextureSizeMode.NonPowerOfTwo));
+            }
 
-            // ToDo: Add check for invalid Keycode value
-            // ToDo: Rework virtual gamepad
             virtualButtons = new[] {
-                new VirtualButton { Left = dpadLeft, Top = dpadTop, Width = dpadWidth, Height = dpadHeight, Material = m2 },
+                new VirtualButton { Left = dpadLeft, Top = dpadTop, Width = dpadWidth, Height = dpadHeight, Material = matDpad, CurrentPointerId = -1 },
 
-                new VirtualButton { KeyCode = Key.Left, Left = dpadLeft - dpadThresholdX, Top = dpadTop, Width = (dpadWidth / 3) + dpadThresholdX, Height = dpadHeight, Material = m3 },
-                new VirtualButton { KeyCode = Key.Right, Left = (dpadLeft + (dpadWidth * 2 / 3)), Top = dpadTop, Width = (dpadWidth / 3) + dpadThresholdX, Height = dpadHeight, Material = m3 },
-                new VirtualButton { KeyCode = Key.Up, Left = dpadLeft, Top = dpadTop - dpadThresholdY, Width = dpadWidth, Height = (dpadHeight / 3) + dpadThresholdY, Material = m3 },
-                new VirtualButton { KeyCode = Key.Down, Left = dpadLeft, Top = (dpadTop + (dpadHeight * 2 / 3)), Width = dpadWidth, Height = (dpadHeight / 3) + dpadThresholdY, Material = m3 },
+                new VirtualButton { KeyCode = Key.Left, Left = dpadLeft - dpadThresholdX, Top = dpadTop, Width = (dpadWidth / 3) + dpadThresholdX, Height = dpadHeight, CurrentPointerId = -1 },
+                new VirtualButton { KeyCode = Key.Right, Left = (dpadLeft + (dpadWidth * 2 / 3)), Top = dpadTop, Width = (dpadWidth / 3) + dpadThresholdX, Height = dpadHeight, CurrentPointerId = -1 },
+                new VirtualButton { KeyCode = Key.Up, Left = dpadLeft, Top = dpadTop - dpadThresholdY, Width = dpadWidth, Height = (dpadHeight / 3) + dpadThresholdY, CurrentPointerId = -1 },
+                new VirtualButton { KeyCode = Key.Down, Left = dpadLeft, Top = (dpadTop + (dpadHeight * 2 / 3)), Width = dpadWidth, Height = (dpadHeight / 3) + dpadThresholdY, CurrentPointerId = -1 },
 
-                new VirtualButton { KeyCode = Key.Space, Left = 0.68f, Top = 0.79f, Width = 0.094f, Height = 0.17f, Material = m4 },
-                new VirtualButton { KeyCode = Key.V, Left = 0.785f, Top = 0.71f, Width = 0.094f, Height = 0.17f, Material = m5 },
-                new VirtualButton { KeyCode = Key.C, Left = 0.89f, Top = 0.64f, Width = 0.094f, Height = 0.17f, Material = m6 },
-                new VirtualButton { KeyCode = Key.X, Left = 0.83f, Top = 0.57f, Width = 0.055f, Height = 0.096f, Material = m1 },
+                new VirtualButton { KeyCode = Key.Space, Left = 0.68f, Top = 0.79f, Width = 0.094f, Height = 0.168f, Material = matFire, CurrentPointerId = -1 },
+                new VirtualButton { KeyCode = Key.V, Left = 0.785f, Top = 0.71f, Width = 0.094f, Height = 0.168f, Material = matJump, CurrentPointerId = -1 },
+                new VirtualButton { KeyCode = Key.C, Left = 0.89f, Top = 0.64f, Width = 0.094f, Height = 0.168f, Material = matRun, CurrentPointerId = -1 },
+                new VirtualButton { KeyCode = Key.X, Left = 0.83f, Top = 0.57f, Width = 0.055f, Height = 0.096f, Material = matSwitchWeapon, CurrentPointerId = -1 },
 
 #if DEBUG
-                new VirtualButton { KeyCode = Key.D, Left = 0.8f, Top = 0.1f, Width = 0.06f, Height = 0.1f, Material = m2 },
-                new VirtualButton { KeyCode = Key.N, Left = 0.9f, Top = 0.1f, Width = 0.08f, Height = 0.16f, Material = m3 },
+                new VirtualButton { KeyCode = Key.D, Left = 0.8f, Top = 0.1f, Width = 0.06f, Height = 0.1f, CurrentPointerId = -1 },
+                new VirtualButton { KeyCode = Key.N, Left = 0.9f, Top = 0.1f, Width = 0.08f, Height = 0.16f, CurrentPointerId = -1 },
 #endif
 
-                new VirtualButton { KeyCode = Key.Enter, Left = 0.68f, Top = 0.79f, Width = 0.094f, Height = 0.17f },
-                new VirtualButton { KeyCode = Key.Enter, Left = 0.785f, Top = 0.71f, Width = 0.094f, Height = 0.17f },
-                new VirtualButton { KeyCode = Key.Enter, Left = 0.89f, Top = 0.64f, Width = 0.094f, Height = 0.17f },
+                new VirtualButton { KeyCode = Key.Enter, Left = 0.68f, Top = 0.79f, Width = 0.094f, Height = 0.17f, CurrentPointerId = -1 },
+                new VirtualButton { KeyCode = Key.Enter, Left = 0.785f, Top = 0.71f, Width = 0.094f, Height = 0.17f, CurrentPointerId = -1 },
+                new VirtualButton { KeyCode = Key.Enter, Left = 0.89f, Top = 0.64f, Width = 0.094f, Height = 0.17f, CurrentPointerId = -1 },
             };
 
             showVirtualButtons = true;
@@ -98,9 +108,9 @@ namespace Duality.Android
 
                     bool vibrated = false;
                     for (int i = 0; i < virtualButtons.Length; i++) {
-                        VirtualButton button = virtualButtons[i];
+                        ref VirtualButton button = ref virtualButtons[i];
                         if (button.KeyCode != Key.Unknown) {
-                            if (button.CurrentPointerId == -1 && IsOnButton(button, x, y, w, h)) {
+                            if (button.CurrentPointerId == -1 && IsOnButton(ref button, x, y, w, h)) {
                                 int pointerId = e.GetPointerId(pointerIndex);
 
                                 button.CurrentPointerId = pointerId;
@@ -117,18 +127,18 @@ namespace Duality.Android
                     int pointerCount = e.PointerCount;
 
                     for (int i = 0; i < virtualButtons.Length; i++) {
-                        VirtualButton button = virtualButtons[i];
+                        ref VirtualButton button = ref virtualButtons[i];
                         if (button.KeyCode != Key.Unknown) {
                             if (button.CurrentPointerId != -1) {
                                 int pointerIndex = e.FindPointerIndex(button.CurrentPointerId);
 
-                                if (!IsOnButton(button, e.GetX(pointerIndex), e.GetY(pointerIndex), e.GetTouchMajor(pointerIndex) * 0.5f, e.GetTouchMinor(pointerIndex) * 0.5f)) {
+                                if (!IsOnButton(ref button, e.GetX(pointerIndex), e.GetY(pointerIndex), e.GetTouchMajor(pointerIndex) * 0.5f, e.GetTouchMinor(pointerIndex) * 0.5f)) {
                                     button.CurrentPointerId = -1;
                                     pressedButtons[(int)button.KeyCode] = false;
                                 }
                             } else {
                                 for (int j = 0; j < pointerCount; j++) {
-                                    if (IsOnButton(button, e.GetX(j), e.GetY(j), e.GetTouchMajor(j) * 0.5f, e.GetTouchMinor(j) * 0.5f)) {
+                                    if (IsOnButton(ref button, e.GetX(j), e.GetY(j), e.GetTouchMajor(j) * 0.5f, e.GetTouchMinor(j) * 0.5f)) {
                                         int pointerId = e.GetPointerId(j);
 
                                         button.CurrentPointerId = pointerId;
@@ -145,7 +155,7 @@ namespace Duality.Android
                     }
                 } else if (action == MotionEventActions.Up || action == MotionEventActions.Cancel) {
                     for (int i = 0; i < virtualButtons.Length; i++) {
-                        VirtualButton button = virtualButtons[i];
+                        ref VirtualButton button = ref virtualButtons[i];
                         if (button.CurrentPointerId != -1) {
                             button.CurrentPointerId = -1;
                             pressedButtons[(int)button.KeyCode] = false;
@@ -156,7 +166,7 @@ namespace Duality.Android
                     int pointerId = e.GetPointerId(e.ActionIndex);
 
                     for (int i = 0; i < virtualButtons.Length; i++) {
-                        VirtualButton button = virtualButtons[i];
+                        ref VirtualButton button = ref virtualButtons[i];
 
                         if (button.CurrentPointerId == pointerId) {
                             button.CurrentPointerId = -1;
@@ -170,7 +180,7 @@ namespace Duality.Android
             return true;
         }
 
-        private bool IsOnButton(VirtualButton button, float x, float y, float rw, float rh)
+        private bool IsOnButton(ref VirtualButton button, float x, float y, float rw, float rh)
         {
             float left = button.Left * viewportWidth;
             if (x - rw < left)
@@ -199,18 +209,8 @@ namespace Duality.Android
                 else
                     menu.Show();
 
-                Debug.WriteLine("MainActivity :: Menu: " + menu.IsShowing);
                 return true;*/
             } else if (keyCode == Keycode.Back) {
-                /*if (currentCore != null && !(currentCore is None)) {
-                    AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-                    dialog.SetTitle("Ukončit aplikaci");
-                    dialog.SetPositiveButton("Ano", (sender, args) => { FinishAndRemoveTask(); });
-                    dialog.SetNegativeButton("Ne", (sender, args) => { });
-                    dialog.Show();
-
-                    return true;
-                }*/
                 pressedButtons[(int)Key.Escape] = true;
                 return true;
             } else {

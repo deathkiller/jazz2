@@ -76,6 +76,13 @@ namespace Jazz2.Game.UI
             canvas.Begin(device);
 
             Vector2 size = device.TargetSize;
+
+            Rect view = new Rect(size);
+            AdjustVisibleZone(ref view);
+
+            float right = view.X + view.W;
+            float bottom = view.Y + view.H;
+
             int charOffset = 0;
             int charOffsetShadow = 0;
 
@@ -92,29 +99,29 @@ namespace Jazz2.Game.UI
                     currentPlayer = "CharacterJazz";
                 }
 
-                DrawMaterial(currentPlayer, -1, 36, size.Y + 1.6f, Alignment.BottomRight, new ColorRgba(0f, 0.4f));
-                DrawMaterial(currentPlayer, -1, 36, size.Y, Alignment.BottomRight, ColorRgba.White);
+                DrawMaterial(currentPlayer, -1, view.X + 36, bottom + 1.6f, Alignment.BottomRight, new ColorRgba(0f, 0.4f));
+                DrawMaterial(currentPlayer, -1, view.X + 36, bottom, Alignment.BottomRight, ColorRgba.White);
 
                 string healthString = new string('|', owner.Health);
 
                 if (owner.Lives > 0) {
-                    fontSmall.DrawString(ref charOffsetShadow, healthString, 36 - 3 - 0.5f, size.Y - 16 + 0.5f,
+                    fontSmall.DrawString(ref charOffsetShadow, healthString, view.X + 36 - 3 - 0.5f, bottom - 16 + 0.5f,
                         Alignment.BottomLeft, new ColorRgba(0f, 0.42f), 0.7f, charSpacing: 1.1f);
-                    fontSmall.DrawString(ref charOffsetShadow, healthString, 36 - 3 + 0.5f, size.Y - 16 - 0.5f,
+                    fontSmall.DrawString(ref charOffsetShadow, healthString, view.X + 36 - 3 + 0.5f, bottom - 16 - 0.5f,
                         Alignment.BottomLeft, new ColorRgba(0f, 0.42f), 0.7f, charSpacing: 1.1f);
-                    fontSmall.DrawString(ref charOffset, healthString, 36 - 3, size.Y - 16, Alignment.BottomLeft,
+                    fontSmall.DrawString(ref charOffset, healthString, view.X + 36 - 3, bottom - 16, Alignment.BottomLeft,
                         null, 0.7f, charSpacing: 1.1f);
 
-                    fontSmall.DrawString(ref charOffsetShadow, "x" + owner.Lives.ToString(CultureInfo.InvariantCulture), 36 - 4, size.Y + 1f,
+                    fontSmall.DrawString(ref charOffsetShadow, "x" + owner.Lives.ToString(CultureInfo.InvariantCulture), view.X + 36 - 4, bottom + 1f,
                         Alignment.BottomLeft, new ColorRgba(0f, 0.32f));
-                    fontSmall.DrawString(ref charOffset, "x" + owner.Lives.ToString(CultureInfo.InvariantCulture), 36 - 4, size.Y,
+                    fontSmall.DrawString(ref charOffset, "x" + owner.Lives.ToString(CultureInfo.InvariantCulture), view.X + 36 - 4, bottom,
                         Alignment.BottomLeft, ColorRgba.TransparentBlack);
                 } else {
-                    fontSmall.DrawString(ref charOffsetShadow, healthString, 36 - 3 - 0.5f, size.Y - 3 + 0.5f,
+                    fontSmall.DrawString(ref charOffsetShadow, healthString, view.X + 36 - 3 - 0.5f, bottom - 3 + 0.5f,
                         Alignment.BottomLeft, new ColorRgba(0f, 0.42f), 0.7f, charSpacing: 1.1f);
-                    fontSmall.DrawString(ref charOffsetShadow, healthString, 36 - 3 + 0.5f, size.Y - 3 - 0.5f,
+                    fontSmall.DrawString(ref charOffsetShadow, healthString, view.X + 36 - 3 + 0.5f, bottom - 3 - 0.5f,
                         Alignment.BottomLeft, new ColorRgba(0f, 0.42f), 0.7f, charSpacing: 1.1f);
-                    fontSmall.DrawString(ref charOffset, healthString, 36 - 3, size.Y - 3, Alignment.BottomLeft,
+                    fontSmall.DrawString(ref charOffset, healthString, view.X + 36 - 3, bottom - 3, Alignment.BottomLeft,
                         null, 0.7f, charSpacing: 1.1f);
                 }
             }
@@ -126,13 +133,13 @@ namespace Jazz2.Game.UI
 
                 GraphicResource res;
                 if (graphics.TryGetValue(currentWeaponString, out res)) {
-                    float y = size.Y;
+                    float y = bottom;
                     if (res.Base.FrameDimensions.Y < 20) {
                         y -= MathF.Round((20 - res.Base.FrameDimensions.Y) * 0.5f);
                     }
 
-                    DrawMaterial(currentWeaponString, -1, size.X - 40, y + 1.6f, Alignment.BottomRight, new ColorRgba(0f, 0.4f));
-                    DrawMaterial(currentWeaponString, -1, size.X - 40, y, Alignment.BottomRight, ColorRgba.White);
+                    DrawMaterial(currentWeaponString, -1, right - 40, y + 1.6f, Alignment.BottomRight, new ColorRgba(0f, 0.4f));
+                    DrawMaterial(currentWeaponString, -1, right - 40, y, Alignment.BottomRight, ColorRgba.White);
                 }
 
                 string ammoCount;
@@ -141,9 +148,9 @@ namespace Jazz2.Game.UI
                 } else {
                     ammoCount = "x" + owner.WeaponAmmo[(int)weapon].ToString(CultureInfo.InvariantCulture);
                 }
-                fontSmall.DrawString(ref charOffsetShadow, ammoCount, size.X - 40, size.Y + 1f, Alignment.BottomLeft,
+                fontSmall.DrawString(ref charOffsetShadow, ammoCount, right - 40, bottom + 1f, Alignment.BottomLeft,
                     new ColorRgba(0f, 0.32f), charSpacing: 0.96f);
-                fontSmall.DrawString(ref charOffset, ammoCount, size.X - 40, size.Y, Alignment.BottomLeft,
+                fontSmall.DrawString(ref charOffset, ammoCount, right - 40, bottom, Alignment.BottomLeft,
                     ColorRgba.TransparentBlack, charSpacing: 0.96f);
             }
 
@@ -159,10 +166,10 @@ namespace Jazz2.Game.UI
                     }
 
                     y = (TransitionTime - activeBossTime) / 8f;
-                    y = size.Y * 0.1f - (y * y);
+                    y = bottom * 0.1f - (y * y);
                     alpha = MathF.Max(activeBossTime / TransitionTime, 0f);
                 } else {
-                    y = size.Y * 0.1f;
+                    y = bottom * 0.1f;
                     alpha = 1f;
                 }
 
@@ -187,7 +194,7 @@ namespace Jazz2.Game.UI
                 }
             }
 
-            DrawTouch(size);
+            DrawPlatformSpecific(size);
 
 #if !DEBUG && __ANDROID__
             fontSmall.DrawString(ref charOffset, Time.Fps.ToString(), 2, 2, Alignment.TopLeft, ColorRgba.TransparentBlack, 0.8f);
@@ -314,7 +321,9 @@ namespace Jazz2.Game.UI
             }
         }
 
-        partial void DrawTouch(Vector2 size);
+        partial void DrawPlatformSpecific(Vector2 size);
+
+        partial void AdjustVisibleZone(ref Rect view);
 
         [Conditional("DEBUG")]
         public static void ShowDebugText(string text)
