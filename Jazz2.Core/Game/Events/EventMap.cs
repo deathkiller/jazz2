@@ -328,7 +328,7 @@ namespace Jazz2.Game.Events
                 if (!eventLayout[generator.EventPos].IsEventActive) {
                     // Generator is inactive (and recharging)
                     generator.TimeLeft -= Time.TimeMult;
-                } else if (generator.SpawnedActor == null || generator.SpawnedActor.ParentScene == null) {
+                } else if (generator.SpawnedActor == null || generator.SpawnedActor.Scene == null) {
                     if (generator.TimeLeft <= 0f) {
                         // Generator is active and is ready to spawn new actor
                         generator.TimeLeft = generator.Delay * Time.FramesPerSecond;

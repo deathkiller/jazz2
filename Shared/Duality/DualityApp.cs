@@ -269,20 +269,14 @@ namespace Duality
             // Initialize the graphics backend
             InitBackend(out graphicsBack);
 
-            Console.WriteLine("A2");
-
             // Initialize the audio backend
             InitBackend(out audioBack);
-            Console.WriteLine("A2b");
-
             sound = new SoundDevice();
 
             // Initialize all core plugins, this may allocate Resources or establish references between plugins
             pluginManager.InitPlugins();
 
             initialized = true;
-
-            Console.WriteLine("A4");
 
             // Write environment specs as a debug log
             Console.WriteLine(
@@ -313,7 +307,7 @@ namespace Duality
         /// </summary>
         public static void InitPostWindow()
         {
-            DefaultContentProvider.InitDefaultContent();
+            DefaultContent.Init();
         }
         /// <summary>
         /// Terminates this DualityApp. This does not end the current Process, but will instruct the engine to
@@ -338,7 +332,7 @@ namespace Duality
             OnTerminating();
             //}
 
-            DefaultContentProvider.DisposeDefaultContent();
+            DefaultContent.Dispose();
 
             // Discard plugin data (Resources, current Scene) ahead of time. Otherwise, it'll get shut down in ClearPlugins, after the backend is gone.
             pluginManager.DiscardPluginData();
@@ -415,7 +409,7 @@ namespace Duality
 
 				List<ICmpUpdatable> updatables = new List<ICmpUpdatable>();
 				foreach (GameObject obj in updateObjects) {
-					if (obj.ParentScene == Scene.Current)
+					if (obj.Scene == Scene.Current)
 						continue;
 
 					updatables.Clear();

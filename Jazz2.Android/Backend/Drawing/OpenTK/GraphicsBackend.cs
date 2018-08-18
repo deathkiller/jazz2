@@ -33,7 +33,7 @@ namespace Duality.Backend.Android.OpenTK
         private int lastUsedEBO;
         private short[] indexCache;
 
-        private float[] modelViewData = new float[16];
+        private float[] viewData = new float[16];
         private float[] projectionData = new float[16];
 
         public IEnumerable<ScreenResolution> AvailableScreenResolutions
@@ -119,7 +119,7 @@ namespace Duality.Backend.Android.OpenTK
             }
         }
 
-        void IGraphicsBackend.BeginRendering(IDrawDevice device, VertexBatchStore vertexData, RenderOptions options, RenderStats stats)
+        void IGraphicsBackend.BeginRendering(IDrawDevice device, RenderOptions options, RenderStats stats)
         {
             DebugCheckOpenGLErrors();
 
@@ -129,31 +129,6 @@ namespace Duality.Backend.Android.OpenTK
             this.currentDevice = device;
             this.renderOptions = options;
             this.renderStats = stats;
-
-            // Upload all vertex data that we'll need during rendering
-            if (vertexData != null) {
-                this.perVertexTypeVBO.Count = Math.Max(this.perVertexTypeVBO.Count, vertexData.Batches.Count);
-                for (int typeIndex = 0; typeIndex < vertexData.Batches.Count; typeIndex++) {
-                    // Filter out unused vertex types
-                    IVertexBatch vertexBatch = vertexData.Batches[typeIndex];
-                    if (vertexBatch == null) continue;
-                    if (vertexBatch.Count == 0) continue;
-
-                    // Generate a VBO for this vertex type if it didn't exist yet
-                    if (this.perVertexTypeVBO[typeIndex] == 0) {
-                        GL.GenBuffers(1, out this.perVertexTypeVBO.Data[typeIndex]);
-                    }
-                    GL.BindBuffer(BufferTarget.ArrayBuffer, this.perVertexTypeVBO[typeIndex]);
-
-                    // Upload all data of this vertex type as a single block
-                    int vertexDataLength = vertexBatch.Declaration.Size * vertexBatch.Count;
-                    using (PinnedArrayHandle pinned = vertexBatch.Lock()) {
-                        GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)vertexDataLength, IntPtr.Zero, BufferUsage.StreamDraw);
-                        GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)vertexDataLength, pinned.Address, BufferUsage.StreamDraw);
-                    }
-                }
-            }
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
             // Prepare the target surface for rendering
             NativeRenderTarget.Bind(options.Target as NativeRenderTarget);
@@ -182,35 +157,28 @@ namespace Duality.Backend.Android.OpenTK
             GL.Clear(glClearMask);
 
             // Configure Rendering params
-            if (options.RenderMode == RenderMatrix.ScreenSpace) {
-                GL.Enable(EnableCap.ScissorTest);
-                GL.Enable(EnableCap.DepthTest);
-                GL.DepthFunc(DepthFunction.Always);
-            } else {
-                GL.Enable(EnableCap.ScissorTest);
-                GL.Enable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.ScissorTest);
+            GL.Enable(EnableCap.DepthTest);
+            if (options.DepthTest)
                 GL.DepthFunc(DepthFunction.Lequal);
-            }
+            else
+                GL.DepthFunc(DepthFunction.Always);
 
-            Matrix4 modelView = options.ModelViewMatrix;
+            Matrix4 view = options.ViewMatrix;
             Matrix4 projection = options.ProjectionMatrix;
-
             if (NativeRenderTarget.BoundRT != null) {
-                modelView =  Matrix4.CreateScale(new Vector3(1f, -1f, 1f)) * modelView;
-                if (options.RenderMode == RenderMatrix.ScreenSpace) {
-                    modelView = Matrix4.CreateTranslation(new Vector3(0f, -device.TargetSize.Y, 0f)) * modelView;
-                }
+                Matrix4 flipOutput = Matrix4.CreateScale(1.0f, -1.0f, 1.0f);
+                projection = projection * flipOutput;
             }
 
             // Convert matrices to float arrays
-            GetArrayMatrix(ref modelView, ref modelViewData);
-            GetArrayMatrix(ref projection, ref projectionData);
+            GetArrayMatrix(ref view, viewData);
+            GetArrayMatrix(ref projection, projectionData);
 
             // All EBOs can be used again
             lastUsedEBO = 0;
         }
-
-        unsafe void IGraphicsBackend.Render(IReadOnlyList<DrawBatch> batches)
+        void IGraphicsBackend.Render(IReadOnlyList<DrawBatch> batches)
         {
             if (batches.Count == 0) return;
 
@@ -221,9 +189,12 @@ namespace Duality.Backend.Android.OpenTK
             DrawBatch lastRendered = null;
             for (int i = 0; i < batches.Count; i++) {
                 DrawBatch batch = batches[i];
-                VertexDeclaration vertexType = batch.VertexType;
+                VertexDeclaration vertexType = batch.VertexBuffer.VertexType;
 
-                GL.BindBuffer(BufferTarget.ArrayBuffer, this.perVertexTypeVBO[vertexType.TypeIndex]);
+                // Bind the vertex buffer we'll use. Note that this needs to be done
+                // before setting up any vertex format state.
+                NativeGraphicsBuffer vertexBuffer = batch.VertexBuffer.NativeVertex as NativeGraphicsBuffer;
+                NativeGraphicsBuffer.Bind(GraphicsBufferType.Vertex, vertexBuffer);
 
                 bool first = (i == 0);
                 bool sameMaterial =
@@ -233,7 +204,7 @@ namespace Duality.Backend.Android.OpenTK
                 // Setup vertex bindings. Note that the setup differs based on the 
                 // materials shader, so material changes can be vertex binding changes.
                 if (lastRendered != null) {
-                    this.FinishVertexFormat(lastRendered.Material, lastRendered.VertexType);
+                    this.FinishVertexFormat(lastRendered.Material, lastRendered.VertexBuffer.VertexType);
                 }
                 this.SetupVertexFormat(batch.Material, vertexType);
 
@@ -244,89 +215,30 @@ namespace Duality.Backend.Android.OpenTK
                         lastRendered != null ? lastRendered.Material : null);
                 }
 
-                if (batch.VertexMode == VertexMode.Quads) {
-                    VertexDrawRange[] rangeData = batch.VertexRanges.Data;
-                    int rangeCount = batch.VertexRanges.Count;
-
-                    // Compute number of all vertices in batch and resize static cache if necessary
-                    int numberOfVertices = 0;
-                    for (int r = 0; r < rangeCount; r++) {
-                        numberOfVertices += rangeData[r].Count;
-                    }
-
-                    int numberOfIndices = (numberOfVertices / 4) * 6;
-                    if (indexCache == null || indexCache.Length < numberOfIndices) {
-                        indexCache = new short[numberOfIndices];
-                    }
-
-                    // Expand every 1 Quad (4 vertices) to 2 Triangles (2x3 vertices) using IndexBuffer
-                    int destIndex = 0;
-                    for (int r = 0; r < rangeCount; r++) {
-                        int srcIndex = rangeData[r].Index;
-                        int count = rangeData[r].Count;
-
-                        for (int offset = 0; offset < count; offset += 4, destIndex += 6) {
-                            indexCache[destIndex] = (short)(srcIndex + offset);
-                            indexCache[destIndex + 1] = (short)(srcIndex + offset + 1);
-                            indexCache[destIndex + 2] = (short)(srcIndex + offset + 2);
-                            indexCache[destIndex + 3] = (short)(srcIndex + offset);
-                            indexCache[destIndex + 4] = (short)(srcIndex + offset + 2);
-                            indexCache[destIndex + 5] = (short)(srcIndex + offset + 3);
-                        }
-                    }
-
-                    // Find/allocate unused EBO and copy indices to it
-                    uint handle;
-                    if (lastUsedEBO < perBatchEBO.Count) {
-                        handle = perBatchEBO[lastUsedEBO++];
-                    } else {
-                        GL.GenBuffers(1, out handle);
-                        perBatchEBO.Add(handle);
-                    }
-
-                    int bufferSize = numberOfIndices * sizeof(short);
-                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, handle);
-                    GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)bufferSize, IntPtr.Zero, BufferUsage.StreamDraw);
-                    fixed (short* ptr = indexCache) {
-                        GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)bufferSize, (IntPtr)ptr, BufferUsage.StreamDraw);
-                    }
-
-                    // Draw the current batch using indices
-                    GL.DrawElements(
-                        GetOpenTKVertexMode(batch.VertexMode),
-                        numberOfIndices,
-                        DrawElementsType.UnsignedShort,
-                        IntPtr.Zero);
-                } else {
-                    // Draw the current batch
-                    VertexDrawRange[] rangeData = batch.VertexRanges.Data;
-                    int rangeCount = batch.VertexRanges.Count;
-                    for (int r = 0; r < rangeCount; r++) {
-                        GL.DrawArrays(
-                            GetOpenTKVertexMode(batch.VertexMode),
-                            rangeData[r].Index,
-                            rangeData[r].Count);
-                    }
-                }
+                // Draw the current batch
+                this.DrawVertexBatch(
+                    batch.VertexBuffer,
+                    batch.VertexRanges,
+                    batch.VertexMode);
 
                 drawCalls++;
                 lastRendered = batch;
             }
 
             // Cleanup after rendering
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            NativeGraphicsBuffer.Bind(GraphicsBufferType.Vertex, null);
+            NativeGraphicsBuffer.Bind(GraphicsBufferType.Index, null);
             if (lastRendered != null) {
                 this.FinishMaterial(lastRendered.Material);
-                this.FinishVertexFormat(lastRendered.Material, lastRendered.VertexType);
+                this.FinishVertexFormat(lastRendered.Material, lastRendered.VertexBuffer.VertexType);
             }
 
             if (this.renderStats != null) {
                 this.renderStats.DrawCalls += drawCalls;
             }
-            
+
             this.FinishSharedParameters();
         }
-
         void IGraphicsBackend.EndRendering()
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
@@ -338,6 +250,10 @@ namespace Duality.Backend.Android.OpenTK
             DebugCheckOpenGLErrors();
         }
 
+        INativeGraphicsBuffer IGraphicsBackend.CreateBuffer(GraphicsBufferType type)
+        {
+            return new NativeGraphicsBuffer(type);
+        }
         INativeTexture IGraphicsBackend.CreateTexture()
         {
             return new NativeTexture();
@@ -359,38 +275,45 @@ namespace Duality.Backend.Android.OpenTK
             return new NativeWindow(options);
         }
 
-        void IGraphicsBackend.GetOutputPixelData<T>(T[] buffer, ColorDataLayout dataLayout, ColorDataElementType dataElementType, int x, int y, int width, int height)
+        void IGraphicsBackend.GetOutputPixelData(IntPtr buffer, ColorDataLayout dataLayout, ColorDataElementType dataElementType, int x, int y, int width, int height)
         {
-            // Removed thread guards because of performance
             //DefaultOpenTKBackendPlugin.GuardSingleThreadState();
 
             NativeRenderTarget lastRt = NativeRenderTarget.BoundRT;
             NativeRenderTarget.Bind(null);
             {
-                GL.ReadPixels(x, y, width, height, dataLayout.ToOpenTK(), dataElementType.ToOpenTK(), buffer);
+                // Use a temporary local buffer, since the image will be upside-down because
+                // of OpenGL's coordinate system and we'll need to flip it before returning.
+                byte[] byteData = new byte[width * height * 4];
 
-                // The image will be upside-down because of OpenGL's coordinate system. Flip it.
-                int structSize = Marshal.SizeOf(typeof(T));
-                T[] switchLine = new T[width * 4 / structSize];
+                // Retrieve pixel data
+                GL.ReadPixels(x, y, width, height, dataLayout.ToOpenTK(), dataElementType.ToOpenTK(), byteData);
+
+                // Flip the retrieved image vertically
+                int bytesPerLine = width * 4;
+                byte[] switchLine = new byte[width * 4];
                 for (int flipY = 0; flipY < height / 2; flipY++) {
-                    int lineIndex = flipY * width * 4 / structSize;
-                    int lineIndex2 = (height - 1 - flipY) * width * 4 / structSize;
+                    int lineIndex = flipY * width * 4;
+                    int lineIndex2 = (height - 1 - flipY) * width * 4;
 
                     // Copy the current line to the switch buffer
-                    for (int lineX = 0; lineX < width; lineX++) {
-                        switchLine[lineX] = buffer[lineIndex + lineX];
+                    for (int lineX = 0; lineX < bytesPerLine; lineX++) {
+                        switchLine[lineX] = byteData[lineIndex + lineX];
                     }
 
                     // Copy the opposite line to the current line
-                    for (int lineX = 0; lineX < width; lineX++) {
-                        buffer[lineIndex + lineX] = buffer[lineIndex2 + lineX];
+                    for (int lineX = 0; lineX < bytesPerLine; lineX++) {
+                        byteData[lineIndex + lineX] = byteData[lineIndex2 + lineX];
                     }
 
                     // Copy the switch buffer to the opposite line
-                    for (int lineX = 0; lineX < width; lineX++) {
-                        buffer[lineIndex2 + lineX] = switchLine[lineX];
+                    for (int lineX = 0; lineX < bytesPerLine; lineX++) {
+                        byteData[lineIndex2 + lineX] = switchLine[lineX];
                     }
                 }
+
+                // Copy the flipped data to the output buffer
+                Marshal.Copy(byteData, 0, buffer, width * height * 4);
             }
             NativeRenderTarget.Bind(lastRt);
         }
@@ -423,7 +346,7 @@ namespace Duality.Backend.Android.OpenTK
 
             NativeRenderTarget.Bind(oldTarget);
         }*/
-        
+
         /// <summary>
         /// Updates the internal list of active shaders based on the specified rendering batches.
         /// </summary>
@@ -436,8 +359,7 @@ namespace Duality.Backend.Android.OpenTK
                 DrawBatch batch = batches[i];
                 BatchInfo material = batch.Material;
                 DrawTechnique tech = material.Technique.Res ?? DrawTechnique.Solid.Res;
-                ShaderProgram shader = tech.Shader.Res ?? ShaderProgram.Minimal.Res;
-                this.activeShaders.Add(shader.Native as NativeShaderProgram);
+                this.activeShaders.Add(tech.NativeShader as NativeShaderProgram);
             }
         }
         /// <summary>
@@ -458,34 +380,27 @@ namespace Duality.Backend.Android.OpenTK
                 ShaderFieldInfo[] varInfo = shader.Fields;
                 int[] locations = shader.FieldLocations;
 
-                // Setup shared sampler bindings
-                for (int i = 0; i < varInfo.Length; i++)
-                {
-                    if (locations[i] == -1) continue;
-                    if (varInfo[i].Type != ShaderFieldType.Sampler2D) continue;
+                // Setup shared sampler bindings and uniform data
+                for (int i = 0; i < varInfo.Length; i++) {
+                    ref ShaderFieldInfo field = ref varInfo[i];
 
-                    ContentRef<Texture> texRef;
-                    if (!sharedParams.TryGetInternal(varInfo[i].Name, out texRef)) continue;
+                    if (field.Scope == ShaderFieldScope.Attribute) continue;
+                    if (field.Type == ShaderFieldType.Sampler2D) {
+                        ContentRef<Texture> texRef;
+                        if (!sharedParams.TryGetInternal(field.Name, out texRef)) continue;
 
-                    NativeTexture.Bind(texRef, this.sharedSamplerBindings);
-                    GL.Uniform1(locations[i], this.sharedSamplerBindings);
+                        NativeTexture.Bind(texRef, this.sharedSamplerBindings);
+                        GL.Uniform1(locations[i], this.sharedSamplerBindings);
 
-                    this.sharedSamplerBindings++;
-                    this.sharedShaderParameters.Add(varInfo[i].Name);
-                }
+                        this.sharedSamplerBindings++;
+                    } else {
+                        float[] data;
+                        if (!sharedParams.TryGetInternal(field.Name, out data)) continue;
 
-                // Setup shared uniform data
-                for (int i = 0; i < varInfo.Length; i++)
-                {
-                    if (locations[i] == -1) continue;
-                    if (varInfo[i].Type == ShaderFieldType.Sampler2D) continue;
+                        NativeShaderProgram.SetUniform(ref field, locations[i], data);
+                    }
 
-                    float[] data;
-                    if (!sharedParams.TryGetInternal(varInfo[i].Name, out data)) continue;
-        
-                    NativeShaderProgram.SetUniform(ref varInfo[i], locations[i], data);
-
-                    this.sharedShaderParameters.Add(varInfo[i].Name);
+                    this.sharedShaderParameters.Add(field.Name);
                 }
             }
 
@@ -495,14 +410,11 @@ namespace Duality.Backend.Android.OpenTK
         private void SetupVertexFormat(BatchInfo material, VertexDeclaration vertexDeclaration)
         {
             DrawTechnique technique = material.Technique.Res ?? DrawTechnique.Solid.Res;
-            NativeShaderProgram program = (technique.Shader.Res != null ? technique.Shader.Res : ShaderProgram.Minimal.Res).Native as NativeShaderProgram;
-            if (program == null) {
-                return;
-            }
+            NativeShaderProgram nativeProgram = (technique.NativeShader ?? DrawTechnique.Solid.Res.NativeShader) as NativeShaderProgram;
 
             VertexElement[] elements = vertexDeclaration.Elements;
-            ShaderFieldInfo[] varInfo = program.Fields;
-            int[] locations = program.FieldLocations;
+            ShaderFieldInfo[] varInfo = nativeProgram.Fields;
+            int[] locations = nativeProgram.FieldLocations;
 
             bool[] varUsed = new bool[varInfo.Length];
             for (int elementIndex = 0; elementIndex < elements.Length; elementIndex++) {
@@ -538,14 +450,12 @@ namespace Duality.Backend.Android.OpenTK
                     case VertexElementType.Byte: attribType = VertexAttribPointerType.UnsignedByte; break;
                 }
 
-                bool isNormalized = (elements[elementIndex].Role == VertexElementRole.Color);
-
                 GL.EnableVertexAttribArray(locations[selectedVar]);
                 GL.VertexAttribPointer(
                     locations[selectedVar],
                     elements[elementIndex].Count,
                     attribType,
-                    isNormalized,
+                    true,
                     vertexDeclaration.Size,
                     elements[elementIndex].Offset);
             }
@@ -553,58 +463,51 @@ namespace Duality.Backend.Android.OpenTK
 
         private void SetupMaterial(BatchInfo material, BatchInfo lastMaterial)
         {
-            if (material == lastMaterial) return;
             DrawTechnique tech = material.Technique.Res ?? DrawTechnique.Solid.Res;
             DrawTechnique lastTech = lastMaterial != null ? lastMaterial.Technique.Res : null;
 
             // Setup BlendType
             if (lastTech == null || tech.Blending != lastTech.Blending) {
-                this.SetupBlendType(tech.Blending, this.currentDevice.DepthWrite);
+                this.SetupBlendType(tech.Blending);
             }
 
             // Bind Shader
-            ShaderProgram shader = tech.Shader.Res ?? ShaderProgram.Minimal.Res;
-            NativeShaderProgram nativeShader = shader.Native as NativeShaderProgram;
+            NativeShaderProgram nativeShader = tech.NativeShader as NativeShaderProgram;
             NativeShaderProgram.Bind(nativeShader);
 
             // Setup shader data
             ShaderFieldInfo[] varInfo = nativeShader.Fields;
             int[] locations = nativeShader.FieldLocations;
 
-            // Setup sampler bindings automatically
+            // Setup sampler bindings and uniform data
             int curSamplerIndex = this.sharedSamplerBindings;
             for (int i = 0; i < varInfo.Length; i++) {
-                if (locations[i] == -1) continue;
-                if (varInfo[i].Type != ShaderFieldType.Sampler2D) continue;
-                if (this.sharedShaderParameters.Contains(varInfo[i].Name)) continue;
+                ref ShaderFieldInfo field = ref varInfo[i];
 
-                ContentRef<Texture> texRef = material.GetInternalTexture(varInfo[i].Name);
-                NativeTexture.Bind(texRef, curSamplerIndex);
+                if (field.Scope == ShaderFieldScope.Attribute) continue;
+                if (this.sharedShaderParameters.Contains(field.Name)) continue;
 
-                GL.Uniform1(locations[i], curSamplerIndex);
+                if (field.Type == ShaderFieldType.Sampler2D) {
+                    ContentRef<Texture> texRef = material.GetInternalTexture(field.Name);
+                    NativeTexture.Bind(texRef, curSamplerIndex);
+                    GL.Uniform1(locations[i], curSamplerIndex);
 
-                curSamplerIndex++;
+                    curSamplerIndex++;
+                } else {
+                    float[] data;
+                    if (varInfo[i].Name == "ModelView") {
+                        data = viewData;
+                    } else if (varInfo[i].Name == "Projection") {
+                        data = projectionData;
+                    } else {
+                        data = material.GetInternalData(field.Name);
+                        if (data == null) continue;
+                    }
+
+                    NativeShaderProgram.SetUniform(ref varInfo[i], locations[i], data);
+                }
             }
             NativeTexture.ResetBinding(curSamplerIndex);
-
-            // Setup uniform data
-            for (int i = 0; i < varInfo.Length; i++) {
-                if (locations[i] == -1) continue;
-                if (varInfo[i].Type == ShaderFieldType.Sampler2D) continue;
-                if (this.sharedShaderParameters.Contains(varInfo[i].Name)) continue;
-
-                float[] data;
-                if (varInfo[i].Name == "ModelView") {
-                    data = modelViewData;
-                } else if (varInfo[i].Name == "Projection") {
-                    data = projectionData;
-                } else {
-                    data = material.GetInternalData(varInfo[i].Name);
-                    if (data == null) continue;
-                }
-
-                NativeShaderProgram.SetUniform(ref varInfo[i], locations[i], data);
-            }
         }
 
         private void SetupBlendType(BlendMode mode, bool depthWrite = true)
@@ -660,7 +563,115 @@ namespace Duality.Backend.Android.OpenTK
                     break;
             }
         }
-        
+
+        /// <summary>
+        /// Draws the vertices of a single <see cref="DrawBatch"/>, after all other rendering state
+        /// has been set up accordingly outside this method.
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="ranges"></param>
+        /// <param name="mode"></param>
+        private unsafe void DrawVertexBatch(VertexBuffer buffer, RawList<VertexDrawRange> ranges, VertexMode mode)
+        {
+            NativeGraphicsBuffer indexBuffer = (buffer.IndexCount > 0 ? buffer.NativeIndex : null) as NativeGraphicsBuffer;
+            IndexDataElementType indexType = buffer.IndexType;
+
+            // Since the QUADS primitive is deprecated in OpenGL 3.0 and not available in OpenGL ES,
+            // we'll emulate this with an ad-hoc index buffer object that we generate here.
+            if (mode == VertexMode.Quads) {
+                VertexDrawRange[] rangeData = ranges.Data;
+                int rangeCount = ranges.Count;
+
+                // Compute number of all vertices in batch and resize static cache if necessary
+                int numberOfVertices = 0;
+                for (int r = 0; r < rangeCount; r++) {
+                    numberOfVertices += rangeData[r].Count;
+                }
+
+                int numberOfIndices = (numberOfVertices / 4) * 6;
+                if (indexCache == null || indexCache.Length < numberOfIndices) {
+                    indexCache = new short[numberOfIndices];
+                }
+
+                // Expand every 1 quad (4 vertices) to 2 triangles (2x3 vertices) using index buffer
+                int destIndex = 0;
+                for (int r = 0; r < rangeCount; r++) {
+                    int srcIndex = rangeData[r].Index;
+                    int count = rangeData[r].Count;
+
+                    for (int offset = 0; offset < count; offset += 4, destIndex += 6) {
+                        indexCache[destIndex] = (short)(srcIndex + offset);
+                        indexCache[destIndex + 1] = (short)(srcIndex + offset + 1);
+                        indexCache[destIndex + 2] = (short)(srcIndex + offset + 2);
+
+                        indexCache[destIndex + 3] = (short)(srcIndex + offset + 2);
+                        indexCache[destIndex + 4] = (short)(srcIndex + offset + 3);
+                        indexCache[destIndex + 5] = (short)(srcIndex + offset);
+                    }
+                }
+
+                // Find/allocate unused EBO and copy indices to it
+                uint handle;
+                if (lastUsedEBO < perBatchEBO.Count) {
+                    handle = perBatchEBO[lastUsedEBO++];
+                } else {
+                    GL.GenBuffers(1, out handle);
+                    perBatchEBO.Add(handle);
+                }
+
+                int bufferSize = numberOfIndices * sizeof(short);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, handle);
+                GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)bufferSize, IntPtr.Zero, BufferUsage.StreamDraw);
+                fixed (short* ptr = indexCache) {
+                    GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)bufferSize, (IntPtr)ptr, BufferUsage.StreamDraw);
+                }
+
+                // Draw the current batch using indices
+                GL.DrawElements(
+                    BeginMode.Triangles,
+                    numberOfIndices,
+                    DrawElementsType.UnsignedShort,
+                    IntPtr.Zero);
+
+                NativeGraphicsBuffer.RebindIndexBuffer();
+            } else {
+                // Rendering using index buffer
+                if (indexBuffer != null) {
+                    if (ranges != null && ranges.Count > 0) {
+                        Console.WriteLine(
+                            "Rendering {0} instances that use index buffers do not support specifying vertex ranges, " +
+                            "since the two features are mutually exclusive.",
+                            typeof(DrawBatch).Name,
+                            typeof(VertexMode).Name);
+                    }
+
+                    NativeGraphicsBuffer.Bind(GraphicsBufferType.Index, indexBuffer);
+
+                    BeginMode openTkMode = GetOpenTKVertexMode(mode);
+                    DrawElementsType openTkIndexType = GetOpenTKIndexType(indexType);
+                    GL.DrawElements(
+                        openTkMode,
+                        buffer.IndexCount,
+                        openTkIndexType,
+                        IntPtr.Zero);
+                }
+                // Rendering using an array of vertex ranges
+                else {
+                    NativeGraphicsBuffer.Bind(GraphicsBufferType.Index, null);
+
+                    BeginMode openTkMode = GetOpenTKVertexMode(mode);
+                    VertexDrawRange[] rangeData = ranges.Data;
+                    int rangeCount = ranges.Count;
+                    for (int r = 0; r < rangeCount; r++) {
+                        GL.DrawArrays(
+                            openTkMode,
+                            rangeData[r].Index,
+                            rangeData[r].Count);
+                    }
+                }
+            }
+        }
+
         private void FinishSharedParameters()
         {
             NativeTexture.ResetBinding();
@@ -672,15 +683,12 @@ namespace Duality.Backend.Android.OpenTK
         private void FinishVertexFormat(BatchInfo material, VertexDeclaration vertexDeclaration)
         {
             DrawTechnique technique = material.Technique.Res ?? DrawTechnique.Solid.Res;
-            NativeShaderProgram program = (technique.Shader.Res != null ? technique.Shader.Res : ShaderProgram.Minimal.Res).Native as NativeShaderProgram;
-            if (program == null) {
-                return;
-            }
+            NativeShaderProgram nativeProgram = (technique.NativeShader ?? DrawTechnique.Solid.Res.NativeShader) as NativeShaderProgram;
 
             //VertexDeclaration vertexDeclaration = renderBatch.VertexDeclaration;
             //VertexElement[] elements = vertexDeclaration.Elements;
-            ShaderFieldInfo[] varInfo = program.Fields;
-            int[] locations = program.FieldLocations;
+            ShaderFieldInfo[] varInfo = nativeProgram.Fields;
+            int[] locations = nativeProgram.FieldLocations;
 
             for (int varIndex = 0; varIndex < varInfo.Length; varIndex++) {
                 if (locations[varIndex] == -1) continue;
@@ -712,8 +720,15 @@ namespace Duality.Backend.Android.OpenTK
                 case VertexMode.TriangleFan: return BeginMode.TriangleFan;
             }
         }
-
-        private static void GetArrayMatrix(ref Matrix4 source, ref float[] target)
+        private static DrawElementsType GetOpenTKIndexType(IndexDataElementType indexType)
+        {
+            switch (indexType) {
+                default:
+                case IndexDataElementType.UnsignedByte: return DrawElementsType.UnsignedByte;
+                case IndexDataElementType.UnsignedShort: return DrawElementsType.UnsignedShort;
+            }
+        }
+        private static void GetArrayMatrix(ref Matrix4 source, float[] target)
         {
             target[0] = source.M11;
             target[1] = source.M12;

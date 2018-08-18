@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Android.Content.Res;
 using Android.Views;
 using Duality.Drawing;
 using Duality.Input;
@@ -26,7 +27,7 @@ namespace Duality.Android
         internal static bool showVirtualButtons;
         internal static VirtualButton[] virtualButtons;
 
-        private bool[] pressedButtons;
+        private bool[] pressedButtons = new bool[(int)Key.Last + 1];
 
         private void InitializeInput()
         {
@@ -34,8 +35,6 @@ namespace Duality.Android
                 // It's already initialized...
                 return;
             }
-
-            pressedButtons = new bool[(int)Key.Last + 1];
 
             DualityApp.Keyboard.Source = new KeyboardInputSource(this);
             //DualityApp.Gamepads.AddSource(new GamepadInputSource(this));
@@ -48,21 +47,22 @@ namespace Duality.Android
             const float dpadThresholdY = 0.09f;
 
             IImageCodec imageCodec = ImageCodec.GetRead(ImageCodec.FormatPng);
+            AssetManager assets = Context.Assets;
 
             Material matDpad, matFire, matJump, matRun, matSwitchWeapon;
-            using (Stream s = Context.Assets.Open("dpad.png")) {
+            using (Stream s = assets.Open("dpad.png")) {
                 matDpad = new Material(DrawTechnique.Alpha, new Texture(new Pixmap(imageCodec.Read(s)), TextureSizeMode.NonPowerOfTwo));
             }
-            using (Stream s = Context.Assets.Open("fire.png")) {
+            using (Stream s = assets.Open("fire.png")) {
                 matFire = new Material(DrawTechnique.Alpha, new Texture(new Pixmap(imageCodec.Read(s)), TextureSizeMode.NonPowerOfTwo));
             }
-            using (Stream s = Context.Assets.Open("jump.png")) {
+            using (Stream s = assets.Open("jump.png")) {
                 matJump = new Material(DrawTechnique.Alpha, new Texture(new Pixmap(imageCodec.Read(s)), TextureSizeMode.NonPowerOfTwo));
             }
-            using (Stream s = Context.Assets.Open("run.png")) {
+            using (Stream s = assets.Open("run.png")) {
                 matRun = new Material(DrawTechnique.Alpha, new Texture(new Pixmap(imageCodec.Read(s)), TextureSizeMode.NonPowerOfTwo));
             }
-            using (Stream s = Context.Assets.Open("switch.png")) {
+            using (Stream s = assets.Open("switch.png")) {
                 matSwitchWeapon = new Material(DrawTechnique.Alpha, new Texture(new Pixmap(imageCodec.Read(s)), TextureSizeMode.NonPowerOfTwo));
             }
 

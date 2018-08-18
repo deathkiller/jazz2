@@ -107,7 +107,7 @@ namespace Jazz2.Game
 
             // Render steps
             AddRenderStep(RenderStepPosition.Last, new RenderStep {
-                MatrixMode = RenderMatrix.WorldSpace,
+                DefaultProjection = true,
                 VisibilityMask = VisibilityFlag.AllGroups,
                 ClearFlags = ClearFlag.All,
                 DefaultClearColor = true,
@@ -119,7 +119,7 @@ namespace Jazz2.Game
             AddRenderStep(RenderStepPosition.Last, new RenderStep {
                 Id = "CombineScene",
 
-                MatrixMode = RenderMatrix.ScreenSpace,
+                Projection = ProjectionMode.Screen,
                 VisibilityMask = VisibilityFlag.None,
                 ClearFlags = ClearFlag.None,
 
@@ -128,7 +128,7 @@ namespace Jazz2.Game
             });
 
             AddRenderStep(RenderStepPosition.Last, new RenderStep {
-                MatrixMode = RenderMatrix.ScreenSpace,
+                Projection = ProjectionMode.Screen,
                 VisibilityMask = VisibilityFlag.All,
                 ClearFlags = ClearFlag.None,
 
@@ -138,7 +138,7 @@ namespace Jazz2.Game
             AddRenderStep(RenderStepPosition.Last, new RenderStep {
                 Id = "Resize",
 
-                MatrixMode = RenderMatrix.ScreenSpace,
+                Projection = ProjectionMode.Screen,
                 VisibilityMask = VisibilityFlag.None,
                 ClearFlags = ClearFlag.None
             });
@@ -222,8 +222,8 @@ namespace Jazz2.Game
 
             Vector2 viewSize = drawDevice.TargetSize;
             Vector2 viewOffset = new Vector2(
-                drawDevice.RefCoord.X - viewSize.X / 2,
-                drawDevice.RefCoord.Y - viewSize.Y / 2
+                drawDevice.ViewerPos.X - viewSize.X / 2,
+                drawDevice.ViewerPos.Y - viewSize.Y / 2
             );
 
             float ambientLight = levelHandler.AmbientLightCurrent;

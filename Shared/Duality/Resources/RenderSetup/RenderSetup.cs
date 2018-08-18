@@ -6,7 +6,6 @@ using Duality.Drawing;
 
 namespace Duality.Resources
 {
-    [ExplicitResourceReference(typeof(RenderTarget), typeof(Texture), typeof(Material))]
 	public class RenderSetup : Resource
 	{
 		/// <summary>
@@ -20,18 +19,18 @@ namespace Duality.Resources
 			defaultSetup.Steps.Add(new RenderStep
 			{
 				Id = "World",
-				DefaultClearColor = true
+				DefaultClearColor = true,
+				DefaultProjection = true
 			});
 			defaultSetup.Steps.Add(new RenderStep
 			{
 				Id = "ScreenOverlay",
-				MatrixMode = RenderMatrix.ScreenSpace,
+				Projection = ProjectionMode.Screen,
 				ClearFlags = ClearFlag.None,
 				VisibilityMask = VisibilityFlag.AllGroups | VisibilityFlag.ScreenOverlay
 			});
 
-			InitDefaultContent<RenderSetup>(new Dictionary<string,RenderSetup>
-			{
+			DefaultContent.InitType(new Dictionary<string,RenderSetup> {
 				{ "Default", defaultSetup },
 			});
 		}
@@ -165,7 +164,7 @@ namespace Duality.Resources
 			}
 			catch (Exception e)
 			{
-			    Console.WriteLine("There was an error while {0} was rendering {1}: {2}", this, scene, /*LogFormat.Exception(*/e/*)*/);
+				Console.WriteLine("There was an error while {0} was rendering {1}: {2}", this, scene, /*LogFormat.Exception(*/e/*)*/);
 			}
 		}
 		/// <summary>
@@ -179,7 +178,7 @@ namespace Duality.Resources
 		public void RenderPointOfView(Scene scene, DrawDevice drawDevice, Rect viewportRect, Vector2 imageSize)
 		{
 			// Memorize projection matrix settings, so the drawing device can be properly reset later
-			RenderMatrix oldDeviceMatrix = drawDevice.RenderMode;
+			ProjectionMode oldDeviceProjection = drawDevice.Projection;
 			Vector2 oldDeviceTargetSize = drawDevice.TargetSize;
 
 			try
@@ -188,13 +187,12 @@ namespace Duality.Resources
 			}
 			catch (Exception e)
 			{
-			    Console.WriteLine("There was an error while {0} was rendering a point of view in {1}: {2}", this, scene, /*LogFormat.Exception(*/e/*)*/);
+				Console.WriteLine("There was an error while {0} was rendering a point of view in {1}: {2}", this, scene, /*LogFormat.Exception(*/e/*)*/);
 			}
 
 			// Reset matrices for projection calculations to their previous state
-			drawDevice.RenderMode = oldDeviceMatrix;
+			drawDevice.Projection = oldDeviceProjection;
 			drawDevice.TargetSize = oldDeviceTargetSize;
-			drawDevice.UpdateMatrices();
 		}
 
 
@@ -274,8 +272,9 @@ namespace Duality.Resources
 			// Memorize old draw device settings to reset them later
 			VisibilityFlag oldDeviceMask = drawDevice.VisibilityMask;
 			ColorRgba oldDeviceClearColor = drawDevice.ClearColor;
+			ProjectionMode oldDeviceProjection = drawDevice.Projection;
 			ContentRef<RenderTarget> oldDeviceTarget = drawDevice.Target;
-
+			
 			Rect localViewport;
 			Vector2 localTargetSize;
 			ContentRef<RenderTarget> renderTarget;
@@ -302,32 +301,33 @@ namespace Duality.Resources
 			localTargetSize *= step.TargetRect.Size;
 
 			// Set up the draw device with rendering step settings
-			drawDevice.RenderMode = step.MatrixMode;
+			drawDevice.Projection = step.DefaultProjection ? oldDeviceProjection : step.Projection;
 			drawDevice.Target = renderTarget;
 			drawDevice.TargetSize = localTargetSize;
 			drawDevice.ViewportRect = localViewport;
 			drawDevice.ClearFlags = step.ClearFlags;
 			drawDevice.ClearColor = step.DefaultClearColor ? oldDeviceClearColor : step.ClearColor;
 			drawDevice.ClearDepth = step.ClearDepth;
-
+			
 			// ScreenOverlay is a special flag that is set on a per-rendering-step basis
 			// and that shouldn't be affected by overall device settings. Keep it separate.
 			drawDevice.VisibilityMask = 
 				(drawDevice.VisibilityMask & step.VisibilityMask & ~VisibilityFlag.ScreenOverlay) | 
 				(step.VisibilityMask & VisibilityFlag.ScreenOverlay);
-
+			
 			try
 			{
 				this.OnRenderSingleStep(step, scene, drawDevice);
 			}
 			catch (Exception e)
 			{
-			    Console.WriteLine("There was an error while {0} was processing rendering step '{1}': {2}", this, step.Id, /*LogFormat.Exception(*/e/*)*/);
+				Console.WriteLine("There was an error while {0} was processing rendering step '{1}': {2}", this, step.Id, /*LogFormat.Exception(*/e/*)*/);
 			}
 
 			// Restore old draw device state
 			drawDevice.VisibilityMask = oldDeviceMask;
 			drawDevice.ClearColor = oldDeviceClearColor;
+			drawDevice.Projection = oldDeviceProjection;
 			drawDevice.Target = oldDeviceTarget;
 		}
 		/// <summary>
@@ -372,7 +372,7 @@ namespace Duality.Resources
 			}
 			catch (Exception e)
 			{
-			    Console.WriteLine("There was an error while {0} was collecting renderer drawcalls: {1}", this, /*LogFormat.Exception(*/e/*)*/);
+				Console.WriteLine("There was an error while {0} was collecting renderer drawcalls: {1}", this, /*LogFormat.Exception(*/e/*)*/);
 			}
 		}
 		/// <summary>
@@ -381,7 +381,6 @@ namespace Duality.Resources
 		/// </summary>
 		protected void CollectExternalDrawcalls(RenderStep step, DrawDevice drawDevice)
 		{
-			//Profile.TimeCollectDrawcalls.BeginMeasure();
 			try
 			{
 				if (this.eventCollectDrawcalls != null)
@@ -389,9 +388,8 @@ namespace Duality.Resources
 			}
 			catch (Exception e)
 			{
-			    Console.WriteLine("There was an error while {0} was collecting external drawcalls: {1}", this, /*LogFormat.Exception(*/e/*)*/);
+				Console.WriteLine("There was an error while {0} was collecting external drawcalls: {1}", this, /*LogFormat.Exception(*/e/*)*/);
 			}
-			//Profile.TimeCollectDrawcalls.EndMeasure();
 		}
 		/// <summary>
 		/// Collects all drawcalls from both external sources and renderers in the scene.
@@ -441,7 +439,7 @@ namespace Duality.Resources
 					camera.Target = target;
 					isOutputCamera = true;
 				}
-
+				
 				try
 				{
 					camera.Render(cameraViewport, cameraImageSize);
@@ -499,22 +497,10 @@ namespace Duality.Resources
 		/// <param name="renderersSortedByType"></param>
 		protected virtual void OnCollectRendererDrawcalls(DrawDevice drawDevice, RawList<ICmpRenderer> visibleRenderers, bool renderersSortedByType)
 		{
-			Type lastRendererType = null;
-			Type rendererType = null;
 			ICmpRenderer[] data = visibleRenderers.Data;
 			for (int i = 0; i < data.Length; i++)
 			{
 				if (i >= visibleRenderers.Count) break;
-
-				// Manage profilers per Component type
-				if (renderersSortedByType)
-				{
-					rendererType = data[i].GetType();
-					if (rendererType != lastRendererType)
-					{
-						lastRendererType = rendererType;
-					}
-				}
 
 				// Collect Drawcalls from this Component
 				data[i].Draw(drawDevice);

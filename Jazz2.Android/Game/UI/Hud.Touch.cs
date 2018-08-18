@@ -8,6 +8,10 @@ namespace Jazz2.Game.UI
     {
         partial void DrawPlatformSpecific(Vector2 size)
         {
+#if !DEBUG
+            //fontSmall.DrawString(ref charOffset, Time.Fps.ToString(), 2, 2, Alignment.TopLeft, ColorRgba.TransparentBlack, 0.8f);
+#endif
+
             if (!InnerView.showVirtualButtons || InnerView.virtualButtons == null) {
                 return;
             }

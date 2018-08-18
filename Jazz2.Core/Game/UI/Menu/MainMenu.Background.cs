@@ -154,7 +154,7 @@ namespace Jazz2.Game.UI.Menu
 
             using (DrawDevice device = new DrawDevice()) {
                 device.VisibilityMask = VisibilityFlag.AllFlags;
-                device.RenderMode = RenderMatrix.ScreenSpace;
+                device.Projection = ProjectionMode.Screen;
 
                 device.Target = new RenderTarget(AAQuality.Off, false, renderTarget);
                 device.TargetSize = new Vector2(w * 32, h * 32);
@@ -200,8 +200,6 @@ namespace Jazz2.Game.UI.Menu
                         }
 
                         Vector3 renderPos = new Vector3(x * 32, y * 32, 0);
-                        float scale = 1.0f;
-                        device.PreprocessCoords(ref renderPos, ref scale);
 
                         renderPos.X = MathF.Round(renderPos.X);
                         renderPos.Y = MathF.Round(renderPos.Y);

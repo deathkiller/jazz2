@@ -1,9 +1,9 @@
 ﻿namespace Duality.Resources
 {
-    /// <summary>
-    /// Provides information about a <see cref="AbstractShader">shader</see> variable.
-    /// </summary>
-    public struct ShaderFieldInfo
+	/// <summary>
+	/// Provides information about a <see cref="Shader">shader</see> variable.
+	/// </summary>
+	public struct ShaderFieldInfo
 	{
 		/// <summary>
 		/// The default variable name for a materials main texture.

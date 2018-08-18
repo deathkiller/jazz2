@@ -187,18 +187,14 @@ namespace Jazz2.Game.UI
             DrawCoins(size, ref charOffset);
             DrawGems(size, ref charOffset);
 
+            DrawPlatformSpecific(size);
+
             if (transitionManager != null) {
                 transitionManager.Draw(device, canvas);
-                if (transitionManager.IsCompleted && transitionManager.Mode != TransitionMode.FadeOut) {
+                if (transitionManager.IsCompleted && transitionManager.ActiveMode != TransitionManager.Mode.FadeOut) {
                     transitionManager = null;
                 }
             }
-
-            DrawPlatformSpecific(size);
-
-#if !DEBUG && __ANDROID__
-            fontSmall.DrawString(ref charOffset, Time.Fps.ToString(), 2, 2, Alignment.TopLeft, ColorRgba.TransparentBlack, 0.8f);
-#endif
 
             canvas.End();
         }
@@ -379,7 +375,7 @@ namespace Jazz2.Game.UI
                     material.MainColor = new ColorRgba(1f, 0.8f);
                     canvas.State.SetMaterial(material);
 
-                    Vector2 offset = canvas.DrawDevice.TargetSize * 0.5f - canvas.DrawDevice.RefCoord.Xy;
+                    Vector2 offset = canvas.DrawDevice.TargetSize * 0.5f - canvas.DrawDevice.ViewerPos.Xy;
                     for (int i = 0; i < debugRects.Count; i++) {
                         Rect rect = debugRects[i];
                         canvas.DrawRect(rect.X + offset.X, rect.Y + offset.Y, rect.W, rect.H);
@@ -520,12 +516,12 @@ namespace Jazz2.Game.UI
 
         public void BeginFadeIn(bool smooth)
         {
-            transitionManager = new TransitionManager(TransitionMode.FadeIn, LevelRenderSetup.TargetSize, smooth);
+            transitionManager = new TransitionManager(TransitionManager.Mode.FadeIn, LevelRenderSetup.TargetSize, smooth);
         }
 
         public void BeginFadeOut(bool smooth)
         {
-            transitionManager = new TransitionManager(TransitionMode.FadeOut, LevelRenderSetup.TargetSize, smooth);
+            transitionManager = new TransitionManager(TransitionManager.Mode.FadeOut, LevelRenderSetup.TargetSize, smooth);
         }
     }
 }

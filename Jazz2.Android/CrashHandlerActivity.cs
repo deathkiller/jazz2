@@ -5,11 +5,12 @@ using System.Reflection;
 using System.Text;
 using Android.App;
 using Android.Content;
+using Android.Graphics;
 using Android.OS;
 using Android.Runtime;
 using Android.Text;
+using Android.Text.Method;
 using Android.Widget;
-using Duality.Android;
 
 namespace Jazz2.Android
 {
@@ -73,7 +74,7 @@ namespace Jazz2.Android
 
                 // Append additional information
                 sb.AppendLine("</small>");
-                sb.AppendLine("<br><br>Please report this issue to developer (<a>https://github.com/deathkiller/jazz2</a>).");
+                sb.AppendLine("<br><br>Please report this issue to developer.<br><a href=\"https://github.com/deathkiller/jazz2\">https://github.com/deathkiller/jazz2</a>");
 
                 // Start new activity in separate process
                 //Context context = Application.Context;
@@ -186,6 +187,14 @@ namespace Jazz2.Android
         {
             base.OnCreate(savedInstanceState);
 
+            try {
+                if (Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop) {
+                    Window.SetStatusBarColor(new Color(0, 0, 0, 80));
+                }
+            } catch {
+                // Nothing to do...
+            }
+
             // Show simple view with debugging information
             TextView view = new TextView(this);
             view.SetPadding(40, 40, 40, 40);
@@ -202,6 +211,8 @@ namespace Jazz2.Android
                 view.TextFormatted = Html.FromHtml(exceptionData);
                 #pragma warning restore CS0618
             }
+
+            view.MovementMethod = LinkMovementMethod.Instance;
 
             SetContentView(view);
         }

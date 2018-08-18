@@ -49,7 +49,7 @@ namespace Jazz2.Game.UI.Menu.InGame
 
             // Render steps
             AddRenderStep(RenderStepPosition.Last, new RenderStep {
-                MatrixMode = RenderMatrix.ScreenSpace,
+                Projection = ProjectionMode.Screen,
                 VisibilityMask = VisibilityFlag.All,
                 ClearFlags = ClearFlag.None,
 
@@ -59,7 +59,7 @@ namespace Jazz2.Game.UI.Menu.InGame
             AddRenderStep(RenderStepPosition.Last, new RenderStep {
                 Id = "Resize",
 
-                MatrixMode = RenderMatrix.ScreenSpace,
+                Projection = ProjectionMode.Screen,
                 VisibilityMask = VisibilityFlag.None
             });
         }

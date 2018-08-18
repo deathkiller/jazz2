@@ -50,8 +50,8 @@
     <AndroidLinkMode>Full</AndroidLinkMode>
     <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <AotAssemblies>false</AotAssemblies>
-    <EnableLLVM>false</EnableLLVM>
+    <AotAssemblies>true</AotAssemblies>
+    <EnableLLVM>true</EnableLLVM>
     <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
     <EnableProguard>true</EnableProguard>
     <AndroidSupportedAbis>armeabi-v7a;x86;x86_64;arm64-v8a</AndroidSupportedAbis>
@@ -68,6 +68,7 @@
   <ItemGroup>
     <Compile Include="App.cs" />
     <Compile Include="Backend\Drawing\BitmapImageCodec.cs" />
+    <Compile Include="Backend\Drawing\OpenTK\NativeGraphicsBuffer.cs" />
     <Compile Include="Backend\Sound\AudioBackend.cs" />
     <Compile Include="Backend\Sound\NativeAudioBuffer.cs" />
     <Compile Include="Backend\Sound\NativeAudioSource.cs" />

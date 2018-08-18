@@ -20,12 +20,12 @@ namespace Jazz2.Actors
         public void SetShield(ShieldType shieldType, float secs)
         {
             if (shieldDecor != null) {
-                ParentScene.RemoveObject(shieldDecor);
+                Scene.RemoveObject(shieldDecor);
                 shieldDecor = null;
             }
 
             if (shieldComponentFront != null) {
-                ParentScene.RemoveObject(shieldComponentFront);
+                Scene.RemoveObject(shieldComponentFront);
                 shieldComponentFront = null;
             }
 

@@ -70,10 +70,10 @@ Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) (or equiv
 ### Android
 * Build the solution
 * Run `‹Game›/Import.exe "Path to JJ2"` (or drag and drop JJ2 directory on `Import.exe`)
-* Copy `‹Game›/Content` directory to `‹SDCard›/Jazz2.Android/Content` 
-* Copy files from `Jazz2.Android/Shaders` directory to `‹SDCard›/Jazz2.Android/Content/Shaders` 
-* Copy files from `Jazz2.Android/Shaders/Internal` directory to `‹SDCard›/Jazz2.Android/Content/Internal`
-* *Create empty file `.nomedia` in `‹SDCard›/Jazz2.Android` to hide game files in Android Gallery (optimal)*
+* Copy `‹Game›/Content` directory to `‹SDCard›/jazz2.android/Content` 
+* Copy files from `Jazz2.Android/Shaders` directory to `‹SDCard›/jazz2.android/Content/Shaders` 
+* Copy files from `Jazz2.Android/Shaders/Internal` directory to `‹SDCard›/jazz2.android/Content/Internal`
+* *Create empty file `.nomedia` in `‹SDCard›/jazz2.android` to hide game files in Android Gallery (optimal)*
 * Install APK file on Android
 * Run the application
 

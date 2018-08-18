@@ -526,7 +526,7 @@ namespace Jazz2.Game
                     } else if (json.Vertex.StartsWith("#inherit ")) {
                         string parentPath = json.Vertex.Substring(9).Trim();
                         ContentRef<DrawTechnique> parent = RequestShader(parentPath);
-                        vertex = parent.Res.Shader.Res.Vertex;
+                        vertex = parent.Res.Vertex;
                     } else if (json.Vertex.StartsWith("#include ")) {
                         string includePath = Path.Combine(DualityApp.DataDirectory, "Shaders", json.Vertex.Substring(9).Trim());
                         using (Stream s = FileOp.Open(includePath, FileAccessMode.Read))
@@ -543,7 +543,7 @@ namespace Jazz2.Game
                     } else if (json.Fragment.StartsWith("#inherit ")) {
                         string parentPath = json.Fragment.Substring(9).Trim();
                         ContentRef<DrawTechnique> parent = RequestShader(parentPath);
-                        fragment = parent.Res.Shader.Res.Fragment;
+                        fragment = parent.Res.Fragment;
                     } else if (json.Fragment.StartsWith("#include ")) {
                         string includePath = Path.Combine(DualityApp.DataDirectory, "Shaders", json.Fragment.Substring(9).Trim());
                         using (Stream s = FileOp.Open(includePath, FileAccessMode.Read))
@@ -562,7 +562,9 @@ namespace Jazz2.Game
                         default: vertexFormat = null; break;
                     }
 
-                    shader = new DrawTechnique(json.BlendMode, new ShaderProgram(vertex, fragment), vertexFormat);
+                    DrawTechnique result = new DrawTechnique(json.BlendMode, vertex, fragment);
+                    result.PreferredVertexFormat = vertexFormat;
+                    shader = result;
                 }
 
                 cachedShaders[path] = shader;

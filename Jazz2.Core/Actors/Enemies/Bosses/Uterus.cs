@@ -156,7 +156,7 @@ namespace Jazz2.Actors.Bosses
                 if (hasShield) {
                     int shieldCount = 0;
                     for (int i = 0; i < shields.Length; i++) {
-                        if (shields[i].ParentScene != null) {
+                        if (shields[i].Scene != null) {
                             if (shields[i].FallTime <= 0f) {
                                 shields[i].Transform.Pos = pos + new Vector3(MathF.Cos(anglePhase + shields[i].Phase) * 50f, MathF.Sin(anglePhase + shields[i].Phase) * 50f, -2f);
                                 shields[i].Recover(anglePhase + shields[i].Phase);

@@ -30,6 +30,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Dummy\DummyGraphicsBackend.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Dummy\DummyNativeAudioBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Dummy\DummyNativeAudioSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Backend\Dummy\DummyNativeGraphicsBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Dummy\DummyNativeRenderTarget.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Dummy\DummyNativeShaderPart.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Dummy\DummyNativeShaderProgram.cs" />
@@ -37,6 +38,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Dummy\DummyNativeWindow.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Dummy\DummySystemBackend.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Graphics\IGraphicsBackend.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Backend\Graphics\INativeGraphicsBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Graphics\INativeRenderTarget.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Graphics\INativeShaderPart.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Graphics\INativeShaderProgram.cs" />
@@ -67,7 +69,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Components\Renderers\SpriteRenderer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\SoundListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\Transform.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)DefaultContentProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultContent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ContentRef.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CorePlugin.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CorePluginManager.cs" />
@@ -82,9 +84,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\Enums\ColorDataElementType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\Enums\ColorDataLayout.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\Enums\DashPattern.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Drawing\Enums\GraphicsBufferType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\Enums\ImageScaleFilter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Drawing\Enums\PerspectiveMode.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Drawing\Enums\RenderMatrix.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Drawing\Enums\IndexDataElementType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Drawing\Enums\ProjectionMode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\Enums\TextureMagFilter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\Enums\TextureMinFilter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\Enums\TexturePixelFormat.cs" />
@@ -102,6 +105,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\IVertexData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\VertexBatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\VertexBatchStore.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\VertexBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\VertexC1P3.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\VertexC1P3T2.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\VertexData\VertexC1P3T4A1.cs" />
@@ -159,7 +163,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)IO\Streams\SubStreamWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PluginManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Resource.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Resources\AbstractShader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Resources\Shader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Resources\AudioData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Resources\DrawTechnique.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Resources\FragmentShader.cs" />
@@ -177,7 +181,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Resources\ShaderInfo\ShaderFieldScope.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Resources\ShaderInfo\ShaderFieldType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Resources\ShaderInfo\ShaderType.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Resources\ShaderProgram.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Resources\Sound.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Resources\Texture.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Resources\VertexShader.cs" />

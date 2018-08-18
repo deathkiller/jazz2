@@ -1,11 +1,15 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Linq;
 
 namespace Duality.Drawing
 {
-    public class VertexDeclaration
+	/// <summary>
+	/// Describes memory layout and semantics of a vertex type struct.
+	/// </summary>
+	public class VertexDeclaration
 	{
 		private static class Cache<T> where T : struct, IVertexData
 		{
@@ -13,13 +17,38 @@ namespace Duality.Drawing
 		}
 
 		private static int vertexTypeCounter = 0;
+		private static List<VertexDeclaration> delcarationByIndex = new List<VertexDeclaration>();
 		private static MethodInfo genericGetDeclarationMethod = null;
-
-
+		
+		/// <summary>
+		/// Retrieves the <see cref="VertexDeclaration"/> for the vertex type specified
+		/// via generic parameter. This is a very efficient compile-time lookup.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
 		public static VertexDeclaration Get<T>() where T : struct, IVertexData
 		{
 			return Cache<T>.Instance;
 		}
+		/// <summary>
+		/// Retrieves the <see cref="VertexDeclaration"/> for the specified type index.
+		/// Returns null if the type index is not valid.
+		/// </summary>
+		/// <returns></returns>
+		public static VertexDeclaration Get(int typeIndex)
+		{
+			if (typeIndex < 0 || typeIndex >= delcarationByIndex.Count)
+				return null;
+			else
+				return delcarationByIndex[typeIndex];
+		}
+		/// <summary>
+		/// Retrieves the <see cref="VertexDeclaration"/> for the vertex type specified
+		/// via reflection <see cref="Type"/> parameter. Slow and reflection-based. When
+		/// possible, use the generic <see cref="Get{T}()"/> method instead.
+		/// </summary>
+		/// <param name="vertexType"></param>
+		/// <returns></returns>
 		public static VertexDeclaration Get(Type vertexType)
 		{
 			if (vertexType == null) return null;
@@ -46,23 +75,38 @@ namespace Duality.Drawing
 			return declaration;
 		}
 
+
 		private Type dataType;
 		private int typeIndex;
 		private int size;
 		private VertexElement[] elements;
 
+		/// <summary>
+		/// [GET] The vertex type that is described by this <see cref="VertexDeclaration"/>.
+		/// </summary>
 		public Type DataType
 		{
 			get { return this.dataType; }
 		}
+		/// <summary>
+		/// [GET] A unique, but non-persistent type index that represents the described vertex type.
+		/// Type indices start at zero and increase to a maximum of the number of different known
+		/// vertex types.
+		/// </summary>
 		public int TypeIndex
 		{
 			get { return this.typeIndex; }
 		}
+		/// <summary>
+		/// [GET] Size of a single vertex in bytes.
+		/// </summary>
 		public int Size
 		{
 			get { return this.size; }
 		}
+		/// <summary>
+		/// [GET] Descriptions of the vertices individual elements.
+		/// </summary>
 		public VertexElement[] Elements
 		{
 			get { return this.elements; }
@@ -106,8 +150,22 @@ namespace Duality.Drawing
 						fields[i].Name));
 				}
 
-				this.elements[i] = new VertexElement(Marshal.OffsetOf(dataType, fields[i].Name), type, count, role);
+				this.elements[i] = new VertexElement(
+					Marshal.OffsetOf(dataType, fields[i].Name), 
+					type, 
+					count,
+					role);
 			}
+
+			// Add this declaration to the static by-TypeIndex lookup
+			while (delcarationByIndex.Count <= this.typeIndex)
+				delcarationByIndex.Add(null);
+			delcarationByIndex[this.typeIndex] = this;
+		}
+
+		public override string ToString()
+		{
+			return string.Format("{0}", this.dataType.GetTypeCSCodeName(true));
 		}
 
 		private static bool DetermineElement(Type dataType, out VertexElementType type, out int count)

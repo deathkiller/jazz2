@@ -60,7 +60,7 @@ namespace Editor
             Camera cameraInner = camera.AddComponent<Camera>();
             cameraInner.NearZ = LevelHandler.NearZ;
             cameraInner.FarZ = LevelHandler.FarZ;
-            cameraInner.Perspective = PerspectiveMode.Flat;
+            cameraInner.Projection = ProjectionMode.Orthographic;
 
             CameraController cameraController = camera.AddComponent<CameraController>();
 

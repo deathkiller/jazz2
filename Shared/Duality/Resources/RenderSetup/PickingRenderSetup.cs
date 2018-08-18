@@ -6,11 +6,11 @@ using Duality.Drawing;
 
 namespace Duality.Resources
 {
-    /// <summary>
-    /// A specialized <see cref="RenderSetup"/> that will render a lookup texture of the scene in
-    /// order to determine which <see cref="ICmpRenderer"/> is located at a certain screen position.
-    /// </summary>
-    public class PickingRenderSetup : RenderSetup
+	/// <summary>
+	/// A specialized <see cref="RenderSetup"/> that will render a lookup texture of the scene in
+	/// order to determine which <see cref="ICmpRenderer"/> is located at a certain screen position.
+	/// </summary>
+	public class PickingRenderSetup : RenderSetup
 	{
 		private bool renderOverlay = false;
 
@@ -108,11 +108,11 @@ namespace Duality.Resources
 
 					if (rendererId != rendererIdLast)
 					{
-                        if (rendererId - 1 > this.pickingMap.Count) {
-                            Console.WriteLine("Unexpected picking result: {0}", ColorRgba.FromIntArgb(rendererId));
-                        } else if (rendererId != 0 && !(this.pickingMap[rendererId - 1] as Component).Disposed) {
-                            result.Add(this.pickingMap[rendererId - 1]);
-                        }
+						if (rendererId - 1 > this.pickingMap.Count) {
+							Console.WriteLine("Unexpected picking result: {0}", ColorRgba.FromIntArgb(rendererId));
+						} else if (rendererId != 0 && !(this.pickingMap[rendererId - 1] as Component).Disposed) {
+							result.Add(this.pickingMap[rendererId - 1]);
+						}
 						rendererIdLast = rendererId;
 					}
 					offset += 4;
@@ -160,7 +160,7 @@ namespace Duality.Resources
 			// Render the world
 			{
 				drawDevice.VisibilityMask = oldDeviceMask & VisibilityFlag.AllGroups;
-				drawDevice.RenderMode = RenderMatrix.WorldSpace;
+				drawDevice.Projection = ProjectionMode.Orthographic;
 				drawDevice.ClearFlags = ClearFlag.All;
 
 				drawDevice.PrepareForDrawcalls();
@@ -172,7 +172,7 @@ namespace Duality.Resources
 			if (this.renderOverlay)
 			{
 				drawDevice.VisibilityMask = oldDeviceMask;
-				drawDevice.RenderMode = RenderMatrix.ScreenSpace;
+				drawDevice.Projection = ProjectionMode.Screen;
 				drawDevice.ClearFlags = ClearFlag.None;
 
 				drawDevice.PrepareForDrawcalls();

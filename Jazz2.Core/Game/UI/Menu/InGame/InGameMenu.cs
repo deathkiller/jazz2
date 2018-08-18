@@ -43,8 +43,8 @@ namespace Jazz2.Game.UI.Menu.InGame
             camera.AddComponent<Transform>();
 
             Camera cameraInner = camera.AddComponent<Camera>();
-            cameraInner.Perspective = PerspectiveMode.Flat;
-            cameraInner.NearZ = 0;
+            cameraInner.Projection = ProjectionMode.Orthographic;
+            cameraInner.NearZ = 10;
             cameraInner.FarZ = 1000;
 
             cameraInner.RenderingSetup = new MainMenuRenderSetup();

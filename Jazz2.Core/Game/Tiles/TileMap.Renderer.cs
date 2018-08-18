@@ -57,7 +57,7 @@ namespace Jazz2.Game.Tiles
             }
 
             Vector2 viewSize = device.TargetSize;
-            Vector3 viewCenter = device.RefCoord;
+            Vector3 viewCenter = device.ViewerPos;
 
             Point2 tileCount = new Point2(layer.LayoutWidth, layer.Layout.Length / layer.LayoutWidth);
             Vector2 tileSize = new Vector2(tileset.TileSize, tileset.TileSize);
@@ -250,8 +250,6 @@ namespace Jazz2.Game.Tiles
                         }
 
                         Vector3 renderPos = new Vector3(x2, y2, layer.Depth);
-                        float scale = 1.0f;
-                        device.PreprocessCoords(ref renderPos, ref scale);
 
                         renderPos.X = MathF.Round(renderPos.X);
                         renderPos.Y = MathF.Round(renderPos.Y);

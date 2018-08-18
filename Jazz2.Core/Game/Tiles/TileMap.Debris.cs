@@ -290,11 +290,9 @@ namespace Jazz2.Game.Tiles
                 mainColor.A = (byte)(debris.Alpha * 255);
 
                 Vector3 renderPos = debris.Pos;
-                float scale = 1f;
-                device.PreprocessCoords(ref renderPos, ref scale);
 
                 Vector2 xDot, yDot;
-                MathF.GetTransformDotVec(debris.Angle, scale, out xDot, out yDot);
+                MathF.GetTransformDotVec(debris.Angle, 1f, out xDot, out yDot);
 
                 Vector2 edge1 = new Vector2(0, 0);
                 Vector2 edge2 = new Vector2(0, debris.Size.Y * debris.Scale);

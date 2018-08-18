@@ -39,7 +39,7 @@ namespace Jazz2.Game.Tiles
 
             using (DrawDevice device = new DrawDevice()) {
                 device.VisibilityMask = VisibilityFlag.AllFlags;
-                device.RenderMode = RenderMatrix.ScreenSpace;
+                device.Projection = ProjectionMode.Screen;
 
                 device.Target = new RenderTarget(AAQuality.Off, false, renderTarget);
                 device.TargetSize = new Vector2(w * 32, h * 32);
@@ -110,8 +110,6 @@ namespace Jazz2.Game.Tiles
                         }
 
                         Vector3 renderPos = new Vector3(x * 32, y * 32, 0);
-                        float scale = 1.0f;
-                        device.PreprocessCoords(ref renderPos, ref scale);
 
                         renderPos.X = MathF.Round(renderPos.X);
                         renderPos.Y = MathF.Round(renderPos.Y);
@@ -177,9 +175,7 @@ namespace Jazz2.Game.Tiles
             }
 
             // Fit the input material rect to the output size according to rendering step config
-            Vector3 renderPos = new Vector3(device.RefCoord.X - device.TargetSize.X / 2, device.RefCoord.Y - device.TargetSize.Y / 2, layer.Depth);
-            float scale = 1.0f;
-            device.PreprocessCoords(ref renderPos, ref scale);
+            Vector3 renderPos = new Vector3(device.ViewerPos.X - device.TargetSize.X / 2, device.ViewerPos.Y - device.TargetSize.Y / 2, layer.Depth);
 
             // Fit the target rect to actual pixel coordinates to avoid unnecessary filtering offsets
             renderPos.X = MathF.Round(renderPos.X);

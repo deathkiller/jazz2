@@ -2,23 +2,23 @@
 
 namespace Duality.Drawing
 {
-    /// <summary>
-    /// Defines a general interface for drawing devices. Its main duty is to accept and collect parameterized vertex data.
-    /// </summary>
-    public interface IDrawDevice
+	/// <summary>
+	/// Defines a general interface for drawing devices. Its main duty is to accept and collect parameterized vertex data.
+	/// </summary>
+	public interface IDrawDevice
 	{
 		/// <summary>
-		/// [GET] The perspective projection type that is currently active in this drawing device.
+		/// [GET] The projection type that is currently active in this drawing device.
 		/// </summary>
-		PerspectiveMode Perspective { get; }
+		ProjectionMode Projection { get; }
 		/// <summary>
 		/// [GET] Reference coordinate for rendering i.e. the position of the drawing device's virtual camera.
 		/// </summary>
-		Vector3 RefCoord { get; }
+		Vector3 ViewerPos { get; }
 		/// <summary>
 		/// [GET] Reference angle for rendering i.e. the angle of the drawing device's virtual camera.
 		/// </summary>
-		float RefAngle { get; }
+		float ViewerAngle { get; }
 		/// <summary>
 		/// [GET] Reference distance for calculating the perspective effect. An object this far away from
 		/// the camera will appear in its original size.
@@ -37,10 +37,6 @@ namespace Duality.Drawing
 		/// </summary>
 		float FarZ { get; }
 		/// <summary>
-		/// [GET] Returns whether the drawing device allows writing to the depth buffer
-		/// </summary>
-		bool DepthWrite { get; }
-		/// <summary>
 		/// [GET] Returns whether the drawing device is currently performing a visual picking opreation.
 		/// </summary>
 		bool IsPicking { get; }
@@ -54,8 +50,8 @@ namespace Duality.Drawing
 		/// <see cref="DrawDevice"/>.
 		/// </summary>
 		ShaderParameterCollection ShaderParameters { get; }
-
-
+		
+		
 		/// <summary>
 		/// Returns the scale factor of objects that are located at the specified (world space) z-Coordinate.
 		/// </summary>
@@ -63,33 +59,27 @@ namespace Duality.Drawing
 		/// <returns></returns>
 		float GetScaleAtZ(float z);
 		/// <summary>
-		/// Transforms screen space coordinates to world space coordinates. The screen positions Z coordinate is
+		/// Transforms screen space to world space. The screen positions Z coordinate is
 		/// interpreted as the target world Z coordinate.
 		/// </summary>
 		/// <param name="screenPos"></param>
 		/// <returns></returns>
-		Vector3 GetSpaceCoord(Vector3 screenPos);
+		Vector3 GetWorldPos(Vector3 screenPos);
 		/// <summary>
-		/// Transforms world space coordinates to screen space coordinates.
+		/// Transforms world space to screen space.
 		/// </summary>
 		/// <param name="spacePos"></param>
 		/// <returns></returns>
-		Vector3 GetScreenCoord(Vector3 spacePos);
+		Vector2 GetScreenPos(Vector3 spacePos);
 
 		/// <summary>
-		/// Processes the specified world space position and scale values and transforms them to the IDrawDevices view space.
-		/// This usually also applies a perspective effect, if applicable.
+		/// Determines whether a point or sphere is inside the devices viewing frustum,
+		/// given a world space position and radius.
 		/// </summary>
-		/// <param name="pos">The position to process.</param>
-		/// <param name="scale">The scale factor to process.</param>
-		void PreprocessCoords(ref Vector3 pos, ref float scale);
-		/// <summary>
-		/// Returns whether the specified world-space position is visible in the drawing devices view space.
-		/// </summary>
-		/// <param name="c">The position to test.</param>
-		/// <param name="boundRad">The visual bounding radius to assume for the specified position.</param>
-		/// <returns>True, if the position or a portion of its bounding circle is visible, false if not.</returns>
-		bool IsCoordInView(Vector3 c, float boundRad = 1.0f);
+		/// <param name="worldPos">The points world space position.</param>
+		/// <param name="radius">A world space radius around the point.</param>
+		/// <returns></returns>
+		bool IsSphereInView(Vector3 worldPos, float radius = 1.0f);
 
 		/// <summary>
 		/// Rents a temporary material instance which can be used for rendering.
@@ -112,6 +102,11 @@ namespace Duality.Drawing
 		/// </param>
 		/// <param name="vertexCount">The number of vertices to add, from the beginning of the buffer.</param>
 		void AddVertices<T>(BatchInfo material, VertexMode vertexMode, T[] vertexBuffer, int vertexOffset, int vertexCount) where T : struct, IVertexData;
+		/// <summary>
+		/// Adds an already prepared batch to the drawing devices rendering schedule.
+		/// </summary>
+		/// <param name="batch"></param>
+		void AddBatch(DrawBatch batch);
 	}
 
 	/// <summary>
@@ -120,26 +115,26 @@ namespace Duality.Drawing
 	public static class ExtMethodsIDrawDevice
 	{
 		/// <summary>
-		/// Transforms screen space coordinates to world space coordinates.
+		/// Transforms screen space to world space.
 		/// </summary>
 		/// <param name="screenPos"></param>
 		/// <param name="device"></param>
 		/// <returns></returns>
-		public static Vector3 GetSpaceCoord(this IDrawDevice device, Vector2 screenPos)
+		public static Vector3 GetWorldPos(this IDrawDevice device, Vector2 screenPos)
 		{
-			return device.GetSpaceCoord(new Vector3(screenPos));
+			return device.GetWorldPos(new Vector3(screenPos));
 		}
 		/// <summary>
-		/// Transforms world space coordinates to screen space coordinates.
+		/// Transforms world space to screen space.
 		/// </summary>
-		/// <param name="spacePos"></param>
+		/// <param name="worldPos"></param>
 		/// <param name="device"></param>
 		/// <returns></returns>
-		public static Vector3 GetScreenCoord(this IDrawDevice device, Vector2 spacePos)
+		public static Vector2 GetScreenPos(this IDrawDevice device, Vector2 worldPos)
 		{
-			return device.GetScreenCoord(new Vector3(spacePos));
+			return device.GetScreenPos(new Vector3(worldPos));
 		}
-
+		
 		/// <summary>
 		/// Rents a temporary material instance for rendering, based on the specified <see cref="BatchInfo"/>.
 		/// The instance is returned implicitly when the device is done with the current rendering operation.
@@ -186,7 +181,7 @@ namespace Duality.Drawing
 				material.IsAvailable ? material.Res.Info : Material.SolidWhite.Res.Info, 
 				vertexMode, 
 				vertices, 
-                0,
+				0,
 				vertices.Length);
 		}
 		/// <summary>
@@ -207,7 +202,7 @@ namespace Duality.Drawing
 				material, 
 				vertexMode, 
 				vertices, 
-                0,
+				0,
 				vertices.Length);
 		}
 		/// <summary>
@@ -228,8 +223,8 @@ namespace Duality.Drawing
 			device.AddVertices<T>(
 				material.IsAvailable ? material.Res.Info : Material.SolidWhite.Res.Info, 
 				vertexMode, 
-				vertexBuffer, 
-                vertexOffset,
+				vertexBuffer,
+				vertexOffset,
 				vertexCount);
 		}
 	}

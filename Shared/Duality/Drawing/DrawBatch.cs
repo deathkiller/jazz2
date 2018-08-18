@@ -1,30 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-
+﻿
 using Duality.Resources;
-using Duality.Backend;
 
 namespace Duality.Drawing
 {
 	/// <summary>
 	/// Describes a rendering batch that can be executed as a whole without state changes.
 	/// </summary>
-	//[DontSerialize]
 	public class DrawBatch
 	{
-		private VertexDeclaration        vertexType   = null;
+		private VertexBuffer             vertexBuffer = null;
 		private RawList<VertexDrawRange> vertexRanges = null;
 		private VertexMode               vertexMode   = VertexMode.Points;
 		private BatchInfo                material     = null;
 		
 		/// <summary>
-		/// [GET] The vertex type that is used in this batch.
+		/// [GET] The vertex buffer that stores the geometry to be rendered.
 		/// </summary>
-		public VertexDeclaration VertexType
+		public VertexBuffer VertexBuffer
 		{
-			get { return this.vertexType; }
+			get { return this.vertexBuffer; }
 		}
 		/// <summary>
 		/// [GET] A list of continuous vertex ranges / indices to be rendered in this batch.
@@ -49,9 +43,10 @@ namespace Duality.Drawing
 			get { return this.material; }
 		}
 
-		public DrawBatch(VertexDeclaration type, RawList<VertexDrawRange> ranges, VertexMode mode, BatchInfo material)
+		public DrawBatch(VertexBuffer buffer, RawList<VertexDrawRange> ranges, VertexMode mode, Material material) : this(buffer, ranges, mode, material.Info) { }
+		public DrawBatch(VertexBuffer buffer, RawList<VertexDrawRange> ranges, VertexMode mode, BatchInfo material)
 		{
-			this.vertexType = type;
+			this.vertexBuffer = buffer;
 			this.vertexRanges = ranges;
 			this.vertexMode = mode;
 			this.material = material;

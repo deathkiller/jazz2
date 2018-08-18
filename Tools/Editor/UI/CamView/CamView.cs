@@ -283,7 +283,7 @@ namespace Editor.UI.CamView
             this.nativeCamObj.AddComponent<SoundListener>().MakeCurrent();
 
             Camera c = this.nativeCamObj.AddComponent<Camera>();
-            c.Perspective = PerspectiveMode.Flat;
+            c.Projection = ProjectionMode.Orthographic;
             c.ClearColor = ColorRgba.DarkGrey;
             c.FarZ = 1000.0f;
             c.RenderingSetup = RenderSetup.Default;

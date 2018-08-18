@@ -48,8 +48,8 @@ namespace Jazz2.Game.UI.Menu
             camera.AddComponent<Transform>();
 
             Camera cameraInner = camera.AddComponent<Camera>();
-            cameraInner.Perspective = PerspectiveMode.Flat;
-            cameraInner.NearZ = 0;
+            cameraInner.Projection = ProjectionMode.Orthographic;
+            cameraInner.NearZ = 10;
             cameraInner.FarZ = 1000;
 
             cameraInner.RenderingSetup = new MainMenuRenderSetup();
@@ -137,7 +137,7 @@ namespace Jazz2.Game.UI.Menu
         public void BeginFadeOut(Action action)
         {
             transitionAction = action;
-            transitionManager = new TransitionManager(TransitionMode.FadeOut, MainMenuRenderSetup.TargetSize, true);
+            transitionManager = new TransitionManager(TransitionManager.Mode.FadeOut, MainMenuRenderSetup.TargetSize, true);
         }
 
         public void SwitchToLevel(LevelInitialization data)
@@ -274,6 +274,8 @@ namespace Jazz2.Game.UI.Menu
                 sectionStack.Peek().OnPaint(canvas);
             }
 
+            DrawPlatformSpecific(size);
+
             if (transitionManager != null) {
                 transitionManager.Draw(device, canvas);
                 if (transitionManager.IsCompleted) {
@@ -285,8 +287,6 @@ namespace Jazz2.Game.UI.Menu
                     }
                 }
             }
-
-            DrawPlatformSpecific(size);
 
             canvas.End();
         }

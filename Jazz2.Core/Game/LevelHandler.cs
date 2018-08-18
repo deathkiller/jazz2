@@ -26,7 +26,7 @@ namespace Jazz2.Game
 {
     public class LevelHandler : Scene, ILevelHandler
     {
-        public const float NearZ = 0f;
+        public const float NearZ = 10f;
         public const float FarZ = 1000f;
         public const float MainPlaneZ = (NearZ + FarZ) * 0.5f;
         public const float PlayerZ = MainPlaneZ - 10f;
@@ -148,7 +148,7 @@ namespace Jazz2.Game
             Camera cameraInner = camera.AddComponent<Camera>();
             cameraInner.NearZ = NearZ;
             cameraInner.FarZ = FarZ;
-            cameraInner.Perspective = PerspectiveMode.Flat;
+            cameraInner.Projection = ProjectionMode.Orthographic;
 
             CameraController cameraController = camera.AddComponent<CameraController>();
 
@@ -903,7 +903,7 @@ namespace Jazz2.Game
             }
 
             // Active Boss
-            if (activeBoss != null && activeBoss.ParentScene == null) {
+            if (activeBoss != null && activeBoss.Scene == null) {
                 activeBoss = null;
 
                 Hud hud = rootObject.GetComponent<Hud>();

@@ -55,7 +55,7 @@ namespace Jazz2.Actors.Bosses
             base.OnUpdate();
 
             if (activeRobot != null) {
-                if (activeRobot.ParentScene == null) {
+                if (activeRobot.Scene == null) {
                     activeRobot = null;
 
                     health = 0;

@@ -46,6 +46,7 @@
     <Compile Include="Drawing\ExtMethodsColorDataLayout.cs" />
     <Compile Include="Drawing\GraphicsBackend.cs" />
     <Compile Include="Drawing\GraphicsModeComparer.cs" />
+    <Compile Include="Drawing\NativeGraphicsBuffer.cs" />
     <Compile Include="Drawing\NativeRenderTarget.cs" />
     <Compile Include="Drawing\NativeShaderPart.cs" />
     <Compile Include="Drawing\NativeShaderProgram.cs" />
