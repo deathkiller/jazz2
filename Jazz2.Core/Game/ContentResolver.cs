@@ -117,6 +117,23 @@ namespace Jazz2.Game
             AllowAsyncLoading();
         }
 
+        private void OnDualityAppTerminating(object sender, EventArgs e)
+        {
+            DualityApp.Terminating -= OnDualityAppTerminating;
+
+            asyncThread = null;
+
+            lock (metadataAsyncRequests) {
+                metadataAsyncRequests.Clear();
+            }
+
+            asyncThreadEvent.Set();
+            asyncResourceReadyEvent.Set();
+
+            // Release this static instance
+            current = null;
+        }
+
         public void ResetReferenceFlag()
         {
             foreach (var resource in cachedMetadata) {

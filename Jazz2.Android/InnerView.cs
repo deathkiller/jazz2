@@ -34,9 +34,7 @@ namespace Duality.Android
             DualityApp.Init(DualityApp.ExecutionContext.Game, /*new DefaultAssemblyLoader()*/null, null);
 
             DualityApp.WindowSize = new Point2(viewportWidth, viewportHeight);
-            INativeWindow window = DualityApp.OpenWindow(new WindowOptions {
-                ScreenMode = ScreenMode.Window
-            });
+            INativeWindow window = DualityApp.OpenWindow(new WindowOptions());
 
             FocusableInTouchMode = true;
             RequestFocus();
@@ -103,6 +101,7 @@ namespace Duality.Android
                 } else {
                     (Context as Activity).Finish();
                 }
+                System.Environment.Exit(0);
                 return;
             }
 

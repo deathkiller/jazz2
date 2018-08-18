@@ -7,7 +7,7 @@ using Duality.Drawing;
 using Duality.Resources;
 using Jazz2.Game.Structs;
 
-namespace Jazz2.Game.UI.Menu.I
+namespace Jazz2.Game.UI.Menu.InGame
 {
     public partial class InGameMenu : Scene
     {
@@ -164,7 +164,7 @@ namespace Jazz2.Game.UI.Menu.I
             if (metadata.Sounds.TryGetValue(name, out res)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound(res.Sound);
                 // TODO: Hardcoded volume
-                instance.Volume = volume * Settings.SfxVolume;
+                instance.Volume = volume * Jazz2.Settings.SfxVolume;
             }
         }
 

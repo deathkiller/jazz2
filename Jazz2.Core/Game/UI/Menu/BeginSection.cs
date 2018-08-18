@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Duality;
 using Duality.Drawing;
 using Duality.Input;
-using Jazz2.Game.UI.Menu.S;
+using Jazz2.Game.UI.Menu.Settings;
 
 namespace Jazz2.Game.UI.Menu
 {

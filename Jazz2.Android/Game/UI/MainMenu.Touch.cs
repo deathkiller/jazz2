@@ -29,7 +29,7 @@ namespace Jazz2.Game.UI.Menu
             canvas.State.ColorTint = new ColorRgba(0f, 0.2f);
             canvas.FillRect(0, 0, size.X, y);
 
-            canvas.State.ColorTint = new ColorRgba(0.9f, 0.4f);
+            canvas.State.ColorTint = new ColorRgba(0.9f, 0.5f);
             canvas.DrawLine(0, y, size.X, y);
 
             if (!InnerView.showVirtualButtons || InnerView.virtualButtons == null) {

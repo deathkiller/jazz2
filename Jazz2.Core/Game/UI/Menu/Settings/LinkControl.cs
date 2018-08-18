@@ -3,7 +3,7 @@ using Duality.Drawing;
 using Duality.Input;
 using System;
 
-namespace Jazz2.Game.UI.Menu.S
+namespace Jazz2.Game.UI.Menu.Settings
 {
     public class LinkControl : MenuControlBase
     {

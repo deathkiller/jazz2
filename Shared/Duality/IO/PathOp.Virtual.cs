@@ -102,5 +102,17 @@ namespace Duality.IO
                 yield return Combine(prefix, item);
             }
         }
+
+        internal static void UnmountAll()
+        {
+            for (int i = 0; i < virtualFileSystems.Count; i++) {
+                IDisposable disposable = virtualFileSystems[i].FileSystem as IDisposable;
+                if (disposable != null) {
+                    disposable.Dispose();
+                }
+            }
+
+            virtualFileSystems.Clear();
+        }
     }
 }

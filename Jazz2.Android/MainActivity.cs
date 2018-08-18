@@ -74,6 +74,8 @@ namespace Duality.Android
 
         protected override void OnDestroy()
         {
+            weakActivity.SetTarget(null);
+
             base.OnDestroy();
         }
 

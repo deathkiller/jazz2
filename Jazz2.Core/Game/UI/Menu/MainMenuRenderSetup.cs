@@ -16,29 +16,29 @@ namespace Jazz2.Game.UI.Menu
         private Texture finalTexture;
         private RenderTarget finalTarget;
 
-        private Settings.ResizeMode lastResizeMode;
+        private Jazz2.Settings.ResizeMode lastResizeMode;
 
         public MainMenuRenderSetup()
         {
             // Shaders
-            lastResizeMode = Settings.Resize;
+            lastResizeMode = Jazz2.Settings.Resize;
 
             try {
                 switch (lastResizeMode) {
                     default:
-                    case Settings.ResizeMode.None:
+                    case Jazz2.Settings.ResizeMode.None:
                         resizeShader = DrawTechnique.Solid;
                         break;
-                    case Settings.ResizeMode.HQ2x:
+                    case Jazz2.Settings.ResizeMode.HQ2x:
                         resizeShader = ContentResolver.Current.RequestShader("ResizeHQ2x");
                         break;
-                    case Settings.ResizeMode.xBRZ3:
+                    case Jazz2.Settings.ResizeMode.xBRZ3:
                         resizeShader = ContentResolver.Current.RequestShader("Resize3xBRZ");
                         break;
-                    case Settings.ResizeMode.xBRZ4:
+                    case Jazz2.Settings.ResizeMode.xBRZ4:
                         resizeShader = ContentResolver.Current.RequestShader("Resize4xBRZ");
                         break;
-                    case Settings.ResizeMode.CRT:
+                    case Jazz2.Settings.ResizeMode.CRT:
                         resizeShader = ContentResolver.Current.RequestShader("ResizeCRT");
                         break;
                 }
@@ -79,25 +79,25 @@ namespace Jazz2.Game.UI.Menu
         protected override void OnRenderPointOfView(Scene scene, DrawDevice drawDevice, Rect viewportRect, Vector2 imageSize)
         {
             // Switch between resize modes if necessary
-            if (lastResizeMode != Settings.Resize) {
-                lastResizeMode = Settings.Resize;
+            if (lastResizeMode != Jazz2.Settings.Resize) {
+                lastResizeMode = Jazz2.Settings.Resize;
 
                 try {
                     switch (lastResizeMode) {
                         default:
-                        case Settings.ResizeMode.None:
+                        case Jazz2.Settings.ResizeMode.None:
                             resizeShader = DrawTechnique.Solid;
                             break;
-                        case Settings.ResizeMode.HQ2x:
+                        case Jazz2.Settings.ResizeMode.HQ2x:
                             resizeShader = ContentResolver.Current.RequestShader("ResizeHQ2x");
                             break;
-                        case Settings.ResizeMode.xBRZ3:
+                        case Jazz2.Settings.ResizeMode.xBRZ3:
                             resizeShader = ContentResolver.Current.RequestShader("Resize3xBRZ");
                             break;
-                        case Settings.ResizeMode.xBRZ4:
+                        case Jazz2.Settings.ResizeMode.xBRZ4:
                             resizeShader = ContentResolver.Current.RequestShader("Resize4xBRZ");
                             break;
-                        case Settings.ResizeMode.CRT:
+                        case Jazz2.Settings.ResizeMode.CRT:
                             resizeShader = ContentResolver.Current.RequestShader("ResizeCRT");
                             break;
                     }

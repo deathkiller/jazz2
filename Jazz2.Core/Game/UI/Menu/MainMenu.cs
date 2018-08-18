@@ -201,7 +201,7 @@ namespace Jazz2.Game.UI.Menu
             if (metadata.Sounds.TryGetValue(name, out res)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound(res.Sound);
                 // TODO: Hardcoded volume
-                instance.Volume = volume * Settings.SfxVolume;
+                instance.Volume = volume * Jazz2.Settings.SfxVolume;
             }
         }
 

@@ -90,7 +90,6 @@ namespace Jazz2.Android
                 mgr.Set(AlarmType.Rtc, Java.Lang.JavaSystem.CurrentTimeMillis() + 200, pendingIntent);
 
                 // Try to close current activity
-                //DualityActivity activity = DualityActivity.Current;
                 Activity activity = currentActivity;
                 if (activity != null) {
                     activity.Finish();
@@ -197,7 +196,7 @@ namespace Jazz2.Android
             }
 
             if (Build.VERSION.SdkInt >= BuildVersionCodes.N) {
-                view.TextFormatted = Html.FromHtml(exceptionData, FromHtmlOptions.ModeCompact);
+                view.TextFormatted = Html.FromHtml(exceptionData, FromHtmlOptions.ModeLegacy);
             } else {
                 #pragma warning disable CS0618
                 view.TextFormatted = Html.FromHtml(exceptionData);

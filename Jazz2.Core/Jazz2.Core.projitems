@@ -155,10 +155,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\CustomGameSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\CustomLevelSelectSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\EpisodeSelectSection.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\I\InGameBeginSection.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\I\InGameMenu.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\I\InGameMenuRenderSetup.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\I\InGameMenuSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\InGame\InGameBeginSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\InGame\InGameMenu.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\InGame\InGameMenuRenderSetup.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\InGame\InGameMenuSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\MainMenu.Background.cs">
       <DependentUpon>MainMenu.cs</DependentUpon>
     </Compile>
@@ -166,12 +166,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\MainMenuRenderSetup.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\MainMenuSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\MultiplayerServerSelectSection.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\ChoiceControl.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\ControlsSection.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\SettingsSection.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\LinkControl.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\MenuControlBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\MainMenuSectionWithControls.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\ChoiceControl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\ControlsSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\SettingsSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\LinkControl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\MenuControlBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\MainMenuSectionWithControls.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\StartGameOptionsSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Tiles\AnimatedTile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Tiles\TileMap.cs" />

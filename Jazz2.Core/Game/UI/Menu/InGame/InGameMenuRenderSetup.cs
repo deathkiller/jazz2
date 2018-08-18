@@ -2,7 +2,7 @@
 using Duality.Drawing;
 using Duality.Resources;
 
-namespace Jazz2.Game.UI.Menu.I
+namespace Jazz2.Game.UI.Menu.InGame
 {
     public class InGameMenuRenderSetup : RenderSetup
     {
@@ -20,21 +20,21 @@ namespace Jazz2.Game.UI.Menu.I
         {
             // Shaders
             try {
-                switch (Settings.Resize) {
+                switch (Jazz2.Settings.Resize) {
                     default:
-                    case Settings.ResizeMode.None:
+                    case Jazz2.Settings.ResizeMode.None:
                         resizeShader = DrawTechnique.Solid;
                         break;
-                    case Settings.ResizeMode.HQ2x:
+                    case Jazz2.Settings.ResizeMode.HQ2x:
                         resizeShader = ContentResolver.Current.RequestShader("ResizeHQ2x");
                         break;
-                    case Settings.ResizeMode.xBRZ3:
+                    case Jazz2.Settings.ResizeMode.xBRZ3:
                         resizeShader = ContentResolver.Current.RequestShader("Resize3xBRZ");
                         break;
-                    case Settings.ResizeMode.xBRZ4:
+                    case Jazz2.Settings.ResizeMode.xBRZ4:
                         resizeShader = ContentResolver.Current.RequestShader("Resize4xBRZ");
                         break;
-                    case Settings.ResizeMode.CRT:
+                    case Jazz2.Settings.ResizeMode.CRT:
                         resizeShader = ContentResolver.Current.RequestShader("ResizeCRT");
                         break;
                 }

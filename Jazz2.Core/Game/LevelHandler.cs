@@ -20,7 +20,7 @@ using Jazz2.Game.Events;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
 using Jazz2.Game.UI;
-using Jazz2.Game.UI.Menu.I;
+using Jazz2.Game.UI.Menu.InGame;
 
 namespace Jazz2.Game
 {

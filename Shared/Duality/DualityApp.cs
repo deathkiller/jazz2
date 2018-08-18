@@ -6,6 +6,7 @@ using Duality.Audio;
 using Duality.Backend;
 using Duality.Drawing;
 using Duality.Input;
+using Duality.IO;
 using Duality.Resources;
 
 namespace Duality
@@ -268,14 +269,20 @@ namespace Duality
             // Initialize the graphics backend
             InitBackend(out graphicsBack);
 
+            Console.WriteLine("A2");
+
             // Initialize the audio backend
             InitBackend(out audioBack);
+            Console.WriteLine("A2b");
+
             sound = new SoundDevice();
 
             // Initialize all core plugins, this may allocate Resources or establish references between plugins
             pluginManager.InitPlugins();
 
             initialized = true;
+
+            Console.WriteLine("A4");
 
             // Write environment specs as a debug log
             Console.WriteLine(
@@ -331,6 +338,8 @@ namespace Duality
             OnTerminating();
             //}
 
+            DefaultContentProvider.DisposeDefaultContent();
+
             // Discard plugin data (Resources, current Scene) ahead of time. Otherwise, it'll get shut down in ClearPlugins, after the backend is gone.
             pluginManager.DiscardPluginData();
 
@@ -339,6 +348,8 @@ namespace Duality
             ShutdownBackend(ref graphicsBack);
             ShutdownBackend(ref audioBack);
             pluginManager.ClearPlugins();
+
+            PathOp.UnmountAll();
 
             ShutdownBackend(ref systemBack);
 

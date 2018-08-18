@@ -2,7 +2,7 @@
 using Duality.Drawing;
 using Duality.Input;
 
-namespace Jazz2.Game.UI.Menu.S
+namespace Jazz2.Game.UI.Menu.Settings
 {
     public class ChoiceControl : MenuControlBase
     {

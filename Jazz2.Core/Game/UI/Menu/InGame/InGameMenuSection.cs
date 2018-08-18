@@ -1,6 +1,6 @@
 ﻿using Duality.Drawing;
 
-namespace Jazz2.Game.UI.Menu.I
+namespace Jazz2.Game.UI.Menu.InGame
 {
     public abstract class InGameMenuSection
     {

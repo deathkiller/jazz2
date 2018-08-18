@@ -136,20 +136,6 @@ namespace Jazz2.Game
             DualityApp.Terminating += OnDualityAppTerminating;
         }
 
-        private void OnDualityAppTerminating(object sender, EventArgs e)
-        {
-            DualityApp.Terminating -= OnDualityAppTerminating;
-
-            asyncThread = null;
-
-            lock (metadataAsyncRequests) {
-                metadataAsyncRequests.Clear();
-            }
-
-            asyncThreadEvent.Set();
-            asyncResourceReadyEvent.Set();
-        }
-
         private void OnAsyncThread()
         {
             while (asyncThread != null) {

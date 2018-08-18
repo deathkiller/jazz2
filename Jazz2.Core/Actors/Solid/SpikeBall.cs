@@ -90,6 +90,11 @@ namespace Jazz2.Actors.Solid
 
         public Vector3 GetPhasePosition(bool next, int distance, out float scale)
         {
+            if (length == 0) {
+                scale = 1f;
+                return originPos;
+            }
+
             float effectivePhase = phase;
             if (next) {
                 effectivePhase -= speed * Time.TimeMult;

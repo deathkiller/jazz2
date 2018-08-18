@@ -4,7 +4,7 @@ using Duality;
 using Duality.Drawing;
 using Duality.Input;
 
-namespace Jazz2.Game.UI.Menu.I
+namespace Jazz2.Game.UI.Menu.InGame
 {
     public class InGameMenuBeginSection : InGameMenuSection
     {

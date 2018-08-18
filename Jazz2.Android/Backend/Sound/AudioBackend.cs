@@ -88,6 +88,12 @@ namespace Duality.Backend.Android
                 streamWorker = null;
             }
 
+            if (masterTrack != null) {
+                masterTrack.Stop();
+                masterTrack.Dispose();
+                masterTrack = null;
+            }
+
             if (activeInstance == this) {
                 activeInstance = null;
             }

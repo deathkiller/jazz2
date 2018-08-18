@@ -15,8 +15,12 @@
     <AndroidApplication>True</AndroidApplication>
     <AndroidResgenFile>Resources\Resource.Designer.cs</AndroidResgenFile>
     <AndroidUseLatestPlatformSdk>false</AndroidUseLatestPlatformSdk>
-    <TargetFrameworkVersion>v7.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v8.1</TargetFrameworkVersion>
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
+    <AndroidKeyStore>false</AndroidKeyStore>
+    <AndroidSigningKeyStore>
+    </AndroidSigningKeyStore>
+    <AndroidSigningStorePass />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>True</DebugSymbols>
@@ -31,7 +35,7 @@
     <EmbedAssembliesIntoApk>False</EmbedAssembliesIntoApk>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
-    <AndroidSupportedAbis />
+    <AndroidSupportedAbis>armeabi-v7a;x86;x86_64;arm64-v8a</AndroidSupportedAbis>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -50,7 +54,7 @@
     <EnableLLVM>false</EnableLLVM>
     <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
     <EnableProguard>true</EnableProguard>
-    <AndroidSupportedAbis />
+    <AndroidSupportedAbis>armeabi-v7a;x86;x86_64;arm64-v8a</AndroidSupportedAbis>
     <BundleAssemblies>false</BundleAssemblies>
   </PropertyGroup>
   <ItemGroup>
@@ -64,14 +68,14 @@
   <ItemGroup>
     <Compile Include="App.cs" />
     <Compile Include="Backend\Drawing\BitmapImageCodec.cs" />
-    <Compile Include="InnerView.Input.cs" />
-    <Compile Include="Backend\Preferences\PreferencesBackend.cs" />
     <Compile Include="Backend\Sound\AudioBackend.cs" />
     <Compile Include="Backend\Sound\NativeAudioBuffer.cs" />
     <Compile Include="Backend\Sound\NativeAudioSource.cs" />
+    <Compile Include="InnerView.Input.cs" />
+    <Compile Include="Backend\Preferences\PreferencesBackend.cs" />
     <Compile Include="CrashHandlerActivity.cs" />
     <Compile Include="Game\UI\Hud.Touch.cs" />
-    <Compile Include="Game\UI\Menu\I\InGameMenu.Touch.cs" />
+    <Compile Include="Game\UI\InGameMenu.Touch.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="InnerView.cs" />
     <Compile Include="Backend\Drawing\OpenTK\ExtMethodsColorDataElementType.cs" />
@@ -82,7 +86,7 @@
     <Compile Include="Backend\Drawing\OpenTK\NativeShaderProgram.cs" />
     <Compile Include="Backend\Drawing\OpenTK\NativeTexture.cs" />
     <Compile Include="Backend\Drawing\OpenTK\NativeWindow.cs" />
-    <Compile Include="Game\UI\Menu\MainMenu.Touch.cs" />
+    <Compile Include="Game\UI\MainMenu.Touch.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Backend\System\NativeFileSystem.cs" />

@@ -19,7 +19,7 @@ namespace Duality.Backend.Android.OpenTK
 
         void INativeWindow.Run()
         {
-            // DualityActivity runs automatically
+            // Activity runs automatically
         }
 
         string INativeWindow.Title
