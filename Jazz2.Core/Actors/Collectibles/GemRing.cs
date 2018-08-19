@@ -26,7 +26,7 @@ namespace Jazz2.Actors.Collectibles
 
             // Workaround: Some animation have to be loaded for collision detection
             RequestMetadata("Object/GemGiant");
-            SetAnimation(AnimState.Idle);
+            SetAnimation("GemGiant");
 
             renderer.Active = false;
 
