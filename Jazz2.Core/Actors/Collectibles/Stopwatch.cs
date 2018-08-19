@@ -6,6 +6,7 @@
         {
             base.OnAttach(details);
 
+            RequestMetadata("Collectible/Stopwatch");
             SetAnimation("Stopwatch");
 
             SetFacingDirection();

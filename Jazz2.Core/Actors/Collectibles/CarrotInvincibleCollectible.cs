@@ -10,7 +10,8 @@ namespace Jazz2.Actors.Collectibles
 
             scoreValue = 500;
 
-            SetAnimation("CarrotInvincible");
+            RequestMetadata("Collectible/CarrotInvincible");
+            SetAnimation("Carrot");
 
             SetFacingDirection();
         }

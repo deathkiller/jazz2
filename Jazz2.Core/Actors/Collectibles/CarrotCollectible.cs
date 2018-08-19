@@ -12,11 +12,13 @@
 
             if (maxCarrot) {
                 scoreValue = 500;
-                SetAnimation("CarrotFull");
+                RequestMetadata("Collectible/CarrotFull");
             } else {
                 scoreValue = 200;
-                SetAnimation("Carrot");
+                RequestMetadata("Collectible/Carrot");
             }
+
+            SetAnimation("Carrot");
 
             SetFacingDirection();
         }

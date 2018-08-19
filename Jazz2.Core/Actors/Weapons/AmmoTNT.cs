@@ -1,7 +1,4 @@
 ﻿using Duality;
-using Jazz2.Actors.Collectibles;
-using Jazz2.Actors.Enemies;
-using Jazz2.Actors.Solid;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
 
@@ -12,7 +9,7 @@ namespace Jazz2.Actors.Weapons
         private Player owner;
 
         private float lifetime = 80f;
-        private bool exploded;
+        private bool isExploded;
 
         public Player Owner => owner;
 
@@ -25,7 +22,7 @@ namespace Jazz2.Actors.Weapons
         {
             base.OnAttach(details);
 
-            collisionFlags = CollisionFlags.CollideWithOtherActors;
+            collisionFlags = CollisionFlags.None;
 
             RequestMetadata("Weapon/TNT");
             SetAnimation(AnimState.Idle);
@@ -37,8 +34,8 @@ namespace Jazz2.Actors.Weapons
 
             if (lifetime > 0f) {
                 lifetime -= Time.TimeMult;
-            } else if (!exploded) {
-                exploded = true;
+            } else if (!isExploded) {
+                isExploded = true;
 
                 // ToDo: Sound + Animation
                 SetTransition(AnimState.TransitionActivate, false, delegate {
@@ -61,7 +58,7 @@ namespace Jazz2.Actors.Weapons
                     }
                 }
             } else {
-                Transform.Scale += Time.TimeMult * 0.04f;
+                Transform.Scale += Time.TimeMult * 0.02f;
             }
         }
     }

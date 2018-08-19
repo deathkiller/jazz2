@@ -10,6 +10,8 @@
 
             ushort coinType = details.Params[0];
 
+            RequestMetadata("Collectible/Coins");
+
             switch (coinType) {
                 case 0: // Silver
                     coinValue = 1;

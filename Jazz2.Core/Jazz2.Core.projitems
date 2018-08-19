@@ -91,7 +91,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\AmmoCrate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\BarrelContainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\CrateContainer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\DynamicBridge.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\Bridge.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\GemBarrel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\GemCrate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Collectibles\GemGiant.cs" />

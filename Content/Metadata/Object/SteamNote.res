@@ -4,10 +4,9 @@
     },
 
     "Animations": {
-        "Idle": {
+        "SteamNote": {
             "Path": "Common/SteamNote.png",
-            "FrameRate": 4,
-            "States": [ 0 ]
+            "FrameRate": 4
         }
     },
 

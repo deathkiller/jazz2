@@ -161,6 +161,12 @@ namespace Jazz2.Game
                     Metadata metadata;
                     cachedMetadata.TryRemove(path, out metadata);
 
+                    if (metadata.Sounds != null) {
+                        foreach (var sound in metadata.Sounds) {
+                            sound.Value.Sound.Res?.Dispose();
+                        }
+                    }
+
                     metadata.Graphics = null;
                     metadata.Sounds = null;
 

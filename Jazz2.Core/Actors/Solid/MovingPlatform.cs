@@ -48,13 +48,12 @@ namespace Jazz2.Actors.Solid
             IsOneWay = true;
             canBeFrozen = false;
 
-            RequestMetadata("Object/MovingPlatform");
-
-            SetAnimation((AnimState)((int)type << 10));
+            RequestMetadata("MovingPlatform/" + type.ToString("G"));
+            SetAnimation("Platform");
 
             pieces = new ChainPiece[length];
             for (int i = 0; i < length; i++) {
-                pieces[i] = new ChainPiece(api, originPos + new Vector3(0f, 0f, 4f), (AnimState)((int)type << 10) + 16, i);
+                pieces[i] = new ChainPiece(api, originPos + new Vector3(0f, 0f, 4f), type, i);
                 api.AddActor(pieces[i]);
             }
         }
@@ -155,7 +154,7 @@ namespace Jazz2.Actors.Solid
         {
             private int distance;
 
-            public ChainPiece(ActorApi api, Vector3 pos, AnimState animState, int distance)
+            public ChainPiece(ActorApi api, Vector3 pos, PlatformType type, int distance)
             {
                 this.api = api;
                 this.distance = distance;
@@ -165,9 +164,8 @@ namespace Jazz2.Actors.Solid
 
                 collisionFlags = CollisionFlags.None;
 
-                RequestMetadata("Object/MovingPlatform");
-
-                SetAnimation(animState);
+                RequestMetadata("MovingPlatform/" + type.ToString("G"));
+                SetAnimation("Chain");
             }
 
             protected override void OnUpdate()

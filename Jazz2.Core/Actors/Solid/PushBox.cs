@@ -10,12 +10,12 @@
 
             Movable = true;
 
-            RequestMetadata("Object/PushBox");
-
             switch (theme) {
-                case 0: SetAnimation("Rock"); break;
-                case 1: SetAnimation("Crate"); break;
+                case 0: RequestMetadata("Object/PushBoxRock"); break;
+                case 1: RequestMetadata("Object/PushBoxCrate"); break;
             }
+
+            SetAnimation("PushBox");
         }
     }
 }

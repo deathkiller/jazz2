@@ -738,7 +738,7 @@ namespace Import
                     metadataExists = true;
 
                     foreach (string metadata in Directory.EnumerateDirectories(Path.Combine(targetPath, "Content", "Metadata"))) {
-                        foreach (string path in Directory.EnumerateFiles(metadata, "*.res")) {
+                        foreach (string path in Directory.EnumerateFiles(metadata, "*.res", SearchOption.AllDirectories)) {
                             using (Stream s = File.Open(path, FileMode.Open)) {
                                 MetadataJson json = jsonParser.Parse<MetadataJson>(s);
 
@@ -775,7 +775,7 @@ namespace Import
                     IFileSystem fs = new CompressedContent(Path.Combine(targetPath, "Content", ".dz"));
 
                     foreach (string metadata in fs.GetDirectories("Metadata")) {
-                        foreach (string path in fs.GetFiles(metadata)) {
+                        foreach (string path in fs.GetFiles(metadata, true)) {
                             if (!path.EndsWith(".res", StringComparison.OrdinalIgnoreCase)) {
                                 continue;
                             }
@@ -926,7 +926,7 @@ namespace Import
 
                 if (fs.DirectoryExists("Metadata")) {
                     foreach (string metadata in fs.GetDirectories("Metadata")) {
-                        foreach (string path in fs.GetFiles(metadata)) {
+                        foreach (string path in fs.GetFiles(metadata, true)) {
                             if (!path.EndsWith(".res")) {
                                 continue;
                             }

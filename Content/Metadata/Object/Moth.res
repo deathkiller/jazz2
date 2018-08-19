@@ -5,20 +5,16 @@
 
     "Animations": {
         "Gray": {
-            "Path": "Moth/Gray.png",
-            "States": [ 0 ]
+            "Path": "Moth/Gray.png"
         },
         "Green": {
-            "Path": "Moth/Green.png",
-            "States": [ 0 ]
+            "Path": "Moth/Green.png"
         },
         "Pink": {
-            "Path": "Moth/Pink.png",
-            "States": [ 0 ]
+            "Path": "Moth/Pink.png"
         },
         "Purple": {
-            "Path": "Moth/Purple.png",
-            "States": [ 0 ]
+            "Path": "Moth/Purple.png"
         }
     }
 }

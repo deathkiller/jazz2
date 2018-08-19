@@ -94,7 +94,7 @@ namespace Jazz2.Actors.Collectibles
 
                 collisionFlags = CollisionFlags.None;
 
-                RequestMetadata("Object/Collectible");
+                RequestMetadata("Collectible/Gems");
                 SetAnimation("GemRed");
             }
 

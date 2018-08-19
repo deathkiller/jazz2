@@ -47,7 +47,7 @@ namespace Jazz2.Game.Events
 
             // Environment
             RegisterSpawnable<Spring>(EventType.Spring);
-            RegisterSpawnable<DynamicBridge>(EventType.Bridge);
+            RegisterSpawnable<Bridge>(EventType.Bridge);
             RegisterSpawnable<MovingPlatform>(EventType.MovingPlatform);
             RegisterSpawnable<SpikeBall>(EventType.SpikeBall);
             RegisterSpawnable<PushBox>(EventType.PushableBox);

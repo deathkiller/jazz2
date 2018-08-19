@@ -4,9 +4,8 @@
     },
 
     "Animations": {
-        "Sign": {
-            "Path": "Object/ExitSign.png",
-            "States": [ 0 ]
+        "SignEol": {
+            "Path": "Object/ExitSign.png"
         }
     }
 }

@@ -17,7 +17,7 @@ namespace Jazz2.Actors.Solid
 
             collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
 
-            RequestMetadata("Object/PowerUpMonitor");
+            RequestMetadata("Object/PowerUpMonitorShield");
 
             switch (shieldType) {
                 case Player.ShieldType.Fire: SetAnimation("ShieldFire"); break;
@@ -25,7 +25,7 @@ namespace Jazz2.Actors.Solid
                 case Player.ShieldType.Laser: SetAnimation("ShieldLaser"); break;
                 case Player.ShieldType.Lightning: SetAnimation("ShieldLightning"); break;
 
-                default: SetAnimation("Empty"); break;
+                default: DecreaseHealth(int.MaxValue, null); break;
             }
         }
 

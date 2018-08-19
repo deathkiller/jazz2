@@ -8,6 +8,7 @@
 
             scoreValue = 1000;
 
+            RequestMetadata("Collectible/OneUp");
             SetAnimation("OneUp");
         }
 

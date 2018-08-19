@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Duality;
 using Jazz2.Game;
 using Jazz2.Game.Events;
@@ -8,9 +7,9 @@ using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Solid
 {
-    public class DynamicBridge : ActorBase
+    public class Bridge : ActorBase
     {
-        public enum DynamicBridgeType
+        public enum BridgeType
         {
             Rope = 0,
             Stone = 1,
@@ -32,7 +31,7 @@ namespace Jazz2.Actors.Solid
         };
 
         private float originalY;
-        private DynamicBridgeType bridgeType;
+        private BridgeType bridgeType;
         private int bridgeWidth;
         private float heightFactor;
         private List<Piece> bridgePieces;
@@ -45,13 +44,16 @@ namespace Jazz2.Actors.Solid
             base.OnAttach(details);
 
             bridgeWidth = details.Params[0];
-            bridgeType = (DynamicBridgeType)details.Params[1];
-            if (bridgeType > DynamicBridgeType.Lab) {
-                bridgeType = DynamicBridgeType.Rope;
+            bridgeType = (BridgeType)details.Params[1];
+            if (bridgeType > BridgeType.Lab) {
+                bridgeType = BridgeType.Rope;
             }
 
             int toughness = details.Params[2];
             heightFactor = MathF.Sqrt((16 - toughness) * bridgeWidth) * 4f;
+
+            // Request metadata here to allow async loading
+            RequestMetadata("Bridge/" + bridgeType.ToString("G"));
 
             Vector3 pos = Transform.Pos;
             originalY = pos.Y - 6;
@@ -206,22 +208,12 @@ namespace Jazz2.Actors.Solid
             {
                 base.OnAttach(details);
 
-                DynamicBridgeType bridgeType = (DynamicBridgeType)details.Params[0];
+                BridgeType type = (BridgeType)details.Params[0];
 
                 canBeFrozen = false;
 
-                RequestMetadata("Object/BridgePiece");
-
-                switch (bridgeType) {
-                    case DynamicBridgeType.Gem: SetAnimation("Gem"); break;
-                    case DynamicBridgeType.Lab: SetAnimation("Lab"); break;
-                    case DynamicBridgeType.Log: SetAnimation("Log"); break;
-                    default:
-                    case DynamicBridgeType.Rope: SetAnimation("Rope"); break;
-                    case DynamicBridgeType.Stone: SetAnimation("Stone"); break;
-                    case DynamicBridgeType.StoneRed: SetAnimation("StoneRed"); break;
-                    case DynamicBridgeType.Vine: SetAnimation("Vine"); break;
-                }
+                RequestMetadata("Bridge/" + type.ToString("G"));
+                SetAnimation("Piece");
 
                 int variations = currentAnimation.FrameCount;
                 if (variations > 0) {

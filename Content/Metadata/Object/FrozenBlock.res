@@ -4,9 +4,8 @@
     },
 
     "Animations": {
-        "Block": {
-            "Path": "Common/IceBlock.png",
-            "States": [ 0 ]
+        "FrozenBlock": {
+            "Path": "Common/IceBlock.png"
         }
     }
 }
