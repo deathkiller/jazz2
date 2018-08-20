@@ -140,6 +140,7 @@ namespace Jazz2.Actors.Bosses
             speedX = 0f;
             speedY = -2f;
             internalForceY = 0f;
+            frozenTimeLeft = 0f;
 
             collisionFlags = CollisionFlags.None;
 

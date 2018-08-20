@@ -134,11 +134,17 @@ namespace Jazz2.Game.UI.Menu
                     float sy = ((float)xOffset / serverList.Count) * 18f * itemCount + topLine;
                     float sh = ((float)itemCount / serverList.Count) * 16f * itemCount;
 
-                    c.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0f, 0f, 0f, 0.28f)));
-                    c.FillRect(sx + 1f, sy + 1f, sw, sh);
+                    BatchInfo mat1 = device.RentMaterial();
+                    mat1.Technique = DrawTechnique.Alpha;
+                    mat1.MainColor = new ColorRgba(0f, 0f, 0f, 0.28f);
+                    canvas.State.SetMaterial(mat1);
+                    canvas.FillRect(sx + 1f, sy + 1f, sw, sh);
 
-                    c.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0.8f, 0.8f, 0.8f, 0.5f)));
-                    c.FillRect(sx, sy, sw, sh);
+                    BatchInfo mat2 = device.RentMaterial();
+                    mat2.Technique = DrawTechnique.Alpha;
+                    mat2.MainColor = new ColorRgba(0.8f, 0.8f, 0.8f, 0.5f);
+                    canvas.State.SetMaterial(mat2);
+                    canvas.FillRect(sx, sy, sw, sh);
                 }
             } else {
                 api.DrawStringShadow(device, ref charOffset, "Servers not found!", center.X, center.Y, Alignment.Center,

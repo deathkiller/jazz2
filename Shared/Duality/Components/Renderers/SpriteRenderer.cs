@@ -220,7 +220,7 @@ namespace Duality.Components.Renderers
 		    float top = uvRect.Y;
 		    float bottom = uvRect.BottomY;
 
-            if (vertices == null || vertices.Length != 4) vertices = new VertexC1P3T2[4];
+            if (vertices == null /*|| vertices.Length != 4*/) vertices = new VertexC1P3T2[4];
 
 			vertices[0].Pos.X = posTemp.X + edge1.X;
 			vertices[0].Pos.Y = posTemp.Y + edge1.Y;
@@ -310,9 +310,9 @@ namespace Duality.Components.Renderers
             this.GetUVRect(mainTex, /*this.spriteIndex*/-1, out uvRect);
             this.PrepareVertices(ref this.vertices, device, this.colorTint, uvRect);
 			if (this.customMat != null)
-				device.AddVertices(this.customMat, VertexMode.Quads, this.vertices);
+				device.AddVertices(this.customMat, VertexMode.Quads, this.vertices, 0, 4);
 			else
-				device.AddVertices(this.sharedMat, VertexMode.Quads, this.vertices);
+				device.AddVertices(this.sharedMat, VertexMode.Quads, this.vertices, 0, 4);
 		}
 	}
 }

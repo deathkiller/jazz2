@@ -153,7 +153,7 @@
         },
         "HookShootToHook": {
             "Path": "Lori/vine_shoot_end.png",
-            "FrameRate": 20,
+            "FrameRate": 24,
             "States": [ 1073741829 ]
         },
         "CopterShootToCopter": {
@@ -268,6 +268,22 @@
             "Path": "Lori/airboard.png",
             "FrameRate": 6,
             "States": [ 1024 ]
+        },
+        
+        "IdleBored1": {
+            "Path": "Lori/idle_flavor_2.png",
+            "FrameRate": 1,
+            "States": [ 1073741849 ]
+        },
+        "IdleBored2": {
+            "Path": "Lori/idle_flavor_3.png",
+            "FrameRate": 3,
+            "States": [ 1073741849 ]
+        },
+        "IdleBored3": {
+            "Path": "Lori/idle_flavor_4.png",
+            "FrameRate": 2,
+            "States": [ 1073741849 ]
         },
         
         "Corpse": {

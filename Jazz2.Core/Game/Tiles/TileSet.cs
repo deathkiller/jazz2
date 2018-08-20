@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Duality;
@@ -9,7 +10,7 @@ using Jazz2.Game.Structs;
 
 namespace Jazz2.Game.Tiles
 {
-    public class TileSet
+    public class TileSet : IDisposable
     {
         public static ColorRgba[] LoadPalette(string path)
         {
@@ -116,6 +117,19 @@ namespace Jazz2.Game.Tiles
             }
 
             IsValid = true;
+        }
+
+        public void Dispose()
+        {
+            Materials.Clear();
+
+            masks = null;
+            isMaskEmpty = null;
+            isMaskFilled = null;
+
+            isTileFilled = null;
+
+            defaultLayerTiles = null;
         }
 
         public void MergeTiles(string path, int offset, int count)

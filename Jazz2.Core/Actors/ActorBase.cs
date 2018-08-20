@@ -103,6 +103,8 @@ namespace Jazz2.Actors
         protected bool currentTransitionCancellable;
         private Action currentTransitionCallback;
 
+        private List<GraphicResource> cachedCandidates = new List<GraphicResource>();
+
         public Hitbox Hitbox => currentHitbox;
         public CollisionFlags CollisionFlags => collisionFlags;
         public bool IsInvulnerable => isInvulnerable;
@@ -972,7 +974,11 @@ namespace Jazz2.Actors
                 }
 
                 currentAnimationState = state;
-                currentAnimation = candidates[MathF.Rnd.Next() % candidates.Count];
+                if (candidates.Count > 1) {
+                    currentAnimation = candidates[MathF.Rnd.Next() % candidates.Count];
+                } else {
+                    currentAnimation = candidates[0];
+                }
 
                 if (boundingBox.X == 0 || boundingBox.Y == 0) {
                     boundingBox = currentAnimation.Base.FrameDimensions - new Point2(2, 2);
@@ -987,7 +993,6 @@ namespace Jazz2.Actors
         {
             List<GraphicResource> candidates = FindAnimationCandidates(state);
             if (candidates.Count == 0) {
-                // ToDo: Cancel previous transition here?
                 if (callback != null) {
                     callback();
                 }
@@ -1004,7 +1009,11 @@ namespace Jazz2.Actors
 
                 currentTransitionState = state;
                 currentTransitionCancellable = cancellable;
-                currentTransition = candidates[0];
+                if (candidates.Count > 1) {
+                    currentTransition = candidates[MathF.Rnd.Next() % candidates.Count];
+                } else {
+                    currentTransition = candidates[0];
+                }
 
                 RefreshAnimation();
                 return true;
@@ -1055,13 +1064,13 @@ namespace Jazz2.Actors
 
         protected List<GraphicResource> FindAnimationCandidates(AnimState state)
         {
-            List<GraphicResource> candidates = new List<GraphicResource>();
+            cachedCandidates.Clear();
             foreach (var animation in availableAnimations) {
                 if (animation.Value.State != null && animation.Value.State.Contains(state)) {
-                    candidates.Add(animation.Value);
+                    cachedCandidates.Add(animation.Value);
                 }
             }
-            return candidates;
+            return cachedCandidates;
         }
         #endregion
 

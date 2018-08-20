@@ -1,5 +1,4 @@
 ﻿using Duality;
-using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Collectibles
 {

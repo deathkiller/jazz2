@@ -273,7 +273,7 @@ namespace Jazz2.Game.Components
                 edge4.Y = -edge4.Y;
             }
 
-            if (vertices == null || vertices.Length != 4) vertices = new VertexC1P3T4A1[4];
+            if (vertices == null /*|| vertices.Length != 4*/) vertices = new VertexC1P3T4A1[4];
 
             vertices[0].Pos.X = pos.X + edge1.X;
             vertices[0].Pos.Y = pos.Y + edge1.Y;
@@ -370,27 +370,27 @@ namespace Jazz2.Game.Components
             if (!smoothShaderInput) {
                 PrepareVertices(ref vertices, device, this.colorTint, uvRect);
                 if (customMat != null) {
-                    device.AddVertices(customMat, VertexMode.Quads, vertices);
+                    device.AddVertices(customMat, VertexMode.Quads, vertices, 0, 4);
                 } else {
                     if (flipMode == 0) {
-                        device.AddVertices(sharedMat, VertexMode.Quads, vertices);
+                        device.AddVertices(sharedMat, VertexMode.Quads, vertices, 0, 4);
                     } else {
-                        BatchInfo material = new BatchInfo(sharedMat.Res.Info);
+                        BatchInfo material = device.RentMaterial(sharedMat.Res.Info);
                         material.SetValue("normalMultiplier", new Vector2((flipMode & FlipMode.Horizontal) == 0 ? 1 : -1f, (flipMode & FlipMode.Vertical) == 0 ? 1 : -1f));
-                        device.AddVertices(material, VertexMode.Quads, vertices);
+                        device.AddVertices(material, VertexMode.Quads, vertices, 0, 4);
                     }
                 }
             } else {
                 PrepareVerticesSmooth(ref verticesSmooth, device, curAnimFrameFade, this.colorTint, uvRect, uvRectNext);
                 if (customMat != null) {
-                    device.AddVertices(customMat, VertexMode.Quads, verticesSmooth);
+                    device.AddVertices(customMat, VertexMode.Quads, verticesSmooth, 0, 4);
                 } else {
                     if (flipMode == 0) {
-                        device.AddVertices(sharedMat, VertexMode.Quads, verticesSmooth);
+                        device.AddVertices(sharedMat, VertexMode.Quads, verticesSmooth, 0, 4);
                     } else {
-                        BatchInfo material = new BatchInfo(sharedMat.Res.Info);
+                        BatchInfo material = device.RentMaterial(sharedMat.Res.Info);
                         material.SetValue("normalMultiplier", new Vector2((flipMode & FlipMode.Horizontal) == 0 ? 1 : -1f, (flipMode & FlipMode.Vertical) == 0 ? 1 : -1f));
-                        device.AddVertices(material, VertexMode.Quads, verticesSmooth);
+                        device.AddVertices(material, VertexMode.Quads, verticesSmooth, 0, 4);
                     }
                 }
             }

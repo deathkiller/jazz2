@@ -105,6 +105,7 @@ namespace Jazz2.Game
 #endif
 
             defaultNormalMap = new Texture(new Pixmap(new PixelData(2, 2, new ColorRgba(0.5f, 0.5f, 1f))), TextureSizeMode.Default, TextureMagFilter.Nearest, TextureMinFilter.Nearest);
+            defaultNormalMap.Res.DetachPixmap();
 
             cachedMetadata = new ConcurrentDictionary<string, Metadata>(2, 31);
             cachedGraphics = new Dictionary<string, GenericGraphicResource>();
@@ -471,6 +472,8 @@ namespace Jazz2.Game
 
                         resource.TextureNormal = new Texture(new Pixmap(pixelData), TextureSizeMode.NonPowerOfTwo,
                             magFilter, minFilter, json.TextureWrap, json.TextureWrap);
+
+                        resource.TextureNormal.Res.DetachPixmap();
                     } else {
                         resource.TextureNormal = defaultNormalMap;
                     }
@@ -602,10 +605,19 @@ namespace Jazz2.Game
                 }
             });
 
+            ContentRef<Texture> mainTex = new Texture(new Pixmap(texturePixels));
+            ContentRef<Texture> normalTex;
+            if (normalPixels == null) {
+                normalTex = DefaultNormalMap;
+            } else {
+                normalTex = new Texture(new Pixmap(normalPixels));
+                normalTex.Res.DetachPixmap();
+            }
+
             // Create material
             Material material = new Material(RequestShader("BasicNormal"));
-            material.SetTexture("mainTex", new Texture(new Pixmap(texturePixels)));
-            material.SetTexture("normalTex", normalPixels == null ? DefaultNormalMap : new Texture(new Pixmap(normalPixels)));
+            material.SetTexture("mainTex", mainTex);
+            material.SetTexture("normalTex", normalTex);
             material.SetValue("normalMultiplier", Vector2.One);
 
             materialRef = material;

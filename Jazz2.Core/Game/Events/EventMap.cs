@@ -38,7 +38,7 @@ namespace Jazz2.Game.Events
             public int X, Y;
         }
 
-        private readonly LevelHandler levelHandler;
+        private LevelHandler levelHandler;
 
         private EventTile[] eventLayout;
         private int layoutWidth, layoutHeight;
@@ -67,6 +67,8 @@ namespace Jazz2.Game.Events
         protected override void Dispose(bool disposing)
         {
             ContentResolver.Current.ResourceReady -= OnResourceReady;
+
+            levelHandler = null;
         }
 
 #if NET45

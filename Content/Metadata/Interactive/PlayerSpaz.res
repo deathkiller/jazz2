@@ -145,7 +145,7 @@
         },
         "HookShootToHook": {
             "Path": "Spaz/vine_shoot_end.png",
-            "FrameRate": 20,
+            "FrameRate": 24,
             "States": [ 1073741829 ]
         },
         "CopterShootToCopter": {
@@ -271,6 +271,28 @@
             "FrameRate": 8,
             "States": [ 1073741862 ]
         },
+        
+        "IdleBored1": {
+            "Path": "Spaz/idle_flavor_2.png",
+            "FrameRate": 2,
+            "States": [ 1073741849 ]
+        },
+        "IdleBored2": {
+            "Path": "Spaz/idle_flavor_3.png",
+            "FrameRate": 1,
+            "States": [ 1073741849 ]
+        },
+        "IdleBored3": {
+            "Path": "Spaz/idle_flavor_4.png",
+            "FrameRate": 3,
+            "States": [ 1073741849 ]
+        },
+        "IdleBored4": {
+            "Path": "Spaz/idle_flavor_5.png",
+            "FrameRate": 3,
+            "States": [ 1073741849 ]
+        },
+
         
         "Corpse": {
             "Path": "Spaz/corpse.png"

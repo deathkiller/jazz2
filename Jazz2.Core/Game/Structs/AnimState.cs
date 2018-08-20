@@ -67,6 +67,8 @@ namespace Jazz2.Game.Structs
         TransitionWarpInFreefall = 0x40000017,
         TransitionWarpOutFreefall = 0x40000018,
 
+        TransitionIdleBored = 0x40000019,
+
         TransitionDashToIdle = 0x40000020,
         TransitionIdleToShoot = 0x40000021,
         TransitionButtstompEnd = 0x40000022,

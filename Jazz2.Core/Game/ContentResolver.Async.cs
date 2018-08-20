@@ -90,6 +90,8 @@ namespace Jazz2.Game
                         if (resBase.AsyncFinalize.TextureNormalMap != null) {
                             resBase.TextureNormal = new Texture(resBase.AsyncFinalize.TextureNormalMap, TextureSizeMode.NonPowerOfTwo,
                                 magFilter, minFilter, resBase.AsyncFinalize.TextureWrap, resBase.AsyncFinalize.TextureWrap);
+
+                            resBase.TextureNormal.Res.DetachPixmap();
                         }
 
                         resBase.AsyncFinalize = null;

@@ -275,6 +275,32 @@
             "States": [ 1073741862 ]
         },
         
+        "IdleBored1": {
+            "Path": "Jazz/idle_flavor_1.png",
+            "FrameRate": 2,
+            "States": [ 1073741849 ]
+        },
+        "IdleBored2": {
+            "Path": "Jazz/idle_flavor_2.png",
+            "FrameRate": 1,
+            "States": [ 1073741849 ]
+        },
+        "IdleBored3": {
+            "Path": "Jazz/idle_flavor_3.png",
+            "FrameRate": 2,
+            "States": [ 1073741849 ]
+        },
+        "IdleBored4": {
+            "Path": "Jazz/idle_flavor_4.png",
+            "FrameRate": 3,
+            "States": [ 1073741849 ]
+        },
+        "IdleBored5": {
+            "Path": "Jazz/idle_flavor_5.png",
+            "FrameRate": 3,
+            "States": [ 1073741849 ]
+        },
+        
         "Corpse": {
             "Path": "Jazz/corpse.png"
         }

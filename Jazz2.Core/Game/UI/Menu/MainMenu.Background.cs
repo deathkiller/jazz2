@@ -144,19 +144,19 @@ namespace Jazz2.Game.UI.Menu
             int w = layer.LayoutWidth;
             int h = layer.Layout.Length / w;
 
-            Texture renderTarget;
+            Texture targetTexture;
             if (cachedTexturedBackground.IsAvailable) {
-                renderTarget = cachedTexturedBackground.Res;
+                targetTexture = cachedTexturedBackground.Res;
             } else {
-                renderTarget = new Texture(w * 32, h * 32, TextureSizeMode.NonPowerOfTwo, TextureMagFilter.Linear, TextureMinFilter.Linear, TextureWrapMode.Repeat, TextureWrapMode.Repeat);
-                //texturedBackgroundShader = ContentResolver.Current.RequestShader("TexturedBackground");
+                targetTexture = new Texture(w * 32, h * 32, TextureSizeMode.NonPowerOfTwo, TextureMagFilter.Linear, TextureMinFilter.Linear, TextureWrapMode.Repeat, TextureWrapMode.Repeat);
             }
 
             using (DrawDevice device = new DrawDevice()) {
                 device.VisibilityMask = VisibilityFlag.AllFlags;
                 device.Projection = ProjectionMode.Screen;
 
-                device.Target = new RenderTarget(AAQuality.Off, false, renderTarget);
+                RenderTarget target = new RenderTarget(AAQuality.Off, false, targetTexture);
+                device.Target = target;
                 device.TargetSize = new Vector2(w * 32, h * 32);
                 device.ViewportRect = new Rect(device.TargetSize);
 
@@ -168,9 +168,11 @@ namespace Jazz2.Game.UI.Menu
 
                 // Reserve the required space for vertex data in our locally cached buffer
                 int neededVertices = 4 * w * h;
-                VertexC1P3T2[] vertexData = new VertexC1P3T2[neededVertices];
+                if (cachedVertices == null || cachedVertices.Length < neededVertices) {
+                    cachedVertices = new VertexC1P3T2[neededVertices];
+                }
 
-                int vertexBaseIndex = 0;
+                int vertexIndex = 0;
 
                 for (int x = 0; x < w; x++) {
                     for (int y = 0; y < h; y++) {
@@ -213,44 +215,46 @@ namespace Jazz2.Game.UI.Menu
                         Vector2 tileXStep = new Vector2(32, 0);
                         Vector2 tileYStep = new Vector2(0, 32);
 
-                        vertexData[vertexBaseIndex + 0].Pos.X = renderPos.X;
-                        vertexData[vertexBaseIndex + 0].Pos.Y = renderPos.Y;
-                        vertexData[vertexBaseIndex + 0].Pos.Z = renderPos.Z;
-                        vertexData[vertexBaseIndex + 0].TexCoord.X = uvRect.X;
-                        vertexData[vertexBaseIndex + 0].TexCoord.Y = uvRect.Y;
-                        vertexData[vertexBaseIndex + 0].Color = ColorRgba.White;
+                        cachedVertices[vertexIndex + 0].Pos.X = renderPos.X;
+                        cachedVertices[vertexIndex + 0].Pos.Y = renderPos.Y;
+                        cachedVertices[vertexIndex + 0].Pos.Z = renderPos.Z;
+                        cachedVertices[vertexIndex + 0].TexCoord.X = uvRect.X;
+                        cachedVertices[vertexIndex + 0].TexCoord.Y = uvRect.Y;
+                        cachedVertices[vertexIndex + 0].Color = ColorRgba.White;
 
-                        vertexData[vertexBaseIndex + 1].Pos.X = renderPos.X + tileYStep.X;
-                        vertexData[vertexBaseIndex + 1].Pos.Y = renderPos.Y + tileYStep.Y;
-                        vertexData[vertexBaseIndex + 1].Pos.Z = renderPos.Z;
-                        vertexData[vertexBaseIndex + 1].TexCoord.X = uvRect.X;
-                        vertexData[vertexBaseIndex + 1].TexCoord.Y = uvRect.Y + uvRect.H;
-                        vertexData[vertexBaseIndex + 1].Color = ColorRgba.White;
+                        cachedVertices[vertexIndex + 1].Pos.X = renderPos.X + tileYStep.X;
+                        cachedVertices[vertexIndex + 1].Pos.Y = renderPos.Y + tileYStep.Y;
+                        cachedVertices[vertexIndex + 1].Pos.Z = renderPos.Z;
+                        cachedVertices[vertexIndex + 1].TexCoord.X = uvRect.X;
+                        cachedVertices[vertexIndex + 1].TexCoord.Y = uvRect.Y + uvRect.H;
+                        cachedVertices[vertexIndex + 1].Color = ColorRgba.White;
 
-                        vertexData[vertexBaseIndex + 2].Pos.X = renderPos.X + tileXStep.X + tileYStep.X;
-                        vertexData[vertexBaseIndex + 2].Pos.Y = renderPos.Y + tileXStep.Y + tileYStep.Y;
-                        vertexData[vertexBaseIndex + 2].Pos.Z = renderPos.Z;
-                        vertexData[vertexBaseIndex + 2].TexCoord.X = uvRect.X + uvRect.W;
-                        vertexData[vertexBaseIndex + 2].TexCoord.Y = uvRect.Y + uvRect.H;
-                        vertexData[vertexBaseIndex + 2].Color = ColorRgba.White;
+                        cachedVertices[vertexIndex + 2].Pos.X = renderPos.X + tileXStep.X + tileYStep.X;
+                        cachedVertices[vertexIndex + 2].Pos.Y = renderPos.Y + tileXStep.Y + tileYStep.Y;
+                        cachedVertices[vertexIndex + 2].Pos.Z = renderPos.Z;
+                        cachedVertices[vertexIndex + 2].TexCoord.X = uvRect.X + uvRect.W;
+                        cachedVertices[vertexIndex + 2].TexCoord.Y = uvRect.Y + uvRect.H;
+                        cachedVertices[vertexIndex + 2].Color = ColorRgba.White;
 
-                        vertexData[vertexBaseIndex + 3].Pos.X = renderPos.X + tileXStep.X;
-                        vertexData[vertexBaseIndex + 3].Pos.Y = renderPos.Y + tileXStep.Y;
-                        vertexData[vertexBaseIndex + 3].Pos.Z = renderPos.Z;
-                        vertexData[vertexBaseIndex + 3].TexCoord.X = uvRect.X + uvRect.W;
-                        vertexData[vertexBaseIndex + 3].TexCoord.Y = uvRect.Y;
-                        vertexData[vertexBaseIndex + 3].Color = ColorRgba.White;
+                        cachedVertices[vertexIndex + 3].Pos.X = renderPos.X + tileXStep.X;
+                        cachedVertices[vertexIndex + 3].Pos.Y = renderPos.Y + tileXStep.Y;
+                        cachedVertices[vertexIndex + 3].Pos.Z = renderPos.Z;
+                        cachedVertices[vertexIndex + 3].TexCoord.X = uvRect.X + uvRect.W;
+                        cachedVertices[vertexIndex + 3].TexCoord.Y = uvRect.Y;
+                        cachedVertices[vertexIndex + 3].Color = ColorRgba.White;
 
-                        vertexBaseIndex += 4;
+                        vertexIndex += 4;
                     }
                 }
 
-                device.AddVertices(material, VertexMode.Quads, vertexData, 0, vertexBaseIndex);
+                device.AddVertices(material, VertexMode.Quads, cachedVertices, 0, vertexIndex);
 
                 device.Render();
+
+                target.Dispose();
             }
 
-            cachedTexturedBackground = renderTarget;
+            cachedTexturedBackground = targetTexture;
         }
 
         private void RenderTexturedBackground(IDrawDevice device)
@@ -264,7 +268,7 @@ namespace Jazz2.Game.UI.Menu
             backgroundY += timeMult * -0.2f + timeMult * MathF.Sin(backgroundPhase) * 0.6f;
             backgroundPhase += timeMult * 0.001f;
 
-            Vector3 renderPos = new Vector3(0, 0, (device.NearZ + device.FarZ) * 0.5f);
+            Vector3 renderPos = new Vector3(0, 0, 600);
 
             // Fit the target rect to actual pixel coordinates to avoid unnecessary filtering offsets
             renderPos.X = MathF.Round(renderPos.X);
@@ -273,40 +277,37 @@ namespace Jazz2.Game.UI.Menu
                 renderPos.X += 0.5f;
             }
             if (MathF.RoundToInt(device.TargetSize.Y) != (MathF.RoundToInt(device.TargetSize.Y) / 2) * 2) {
-                //renderPos.Y += 0.5f;
                 // AMD Bugfix?
-                renderPos.Y -= 0.001f;
+                renderPos.Y -= 0.004f;
             }
 
             // Reserve the required space for vertex data in our locally cached buffer
-            VertexC1P3T2[] vertexData;
-
             int neededVertices = 4;
             if (cachedVertices == null || cachedVertices.Length < neededVertices) {
-                cachedVertices = vertexData = new VertexC1P3T2[neededVertices];
-            } else {
-                vertexData = cachedVertices;
+                cachedVertices = new VertexC1P3T2[neededVertices];
             }
 
             // Render it as world-space fullscreen quad
-            vertexData[0].Pos = new Vector3(renderPos.X, renderPos.Y, renderPos.Z);
-            vertexData[1].Pos = new Vector3(renderPos.X + device.TargetSize.X, renderPos.Y, renderPos.Z);
-            vertexData[2].Pos = new Vector3(renderPos.X + device.TargetSize.X, renderPos.Y + device.TargetSize.Y, renderPos.Z);
-            vertexData[3].Pos = new Vector3(renderPos.X, renderPos.Y + device.TargetSize.Y, renderPos.Z);
+            cachedVertices[0].Pos = new Vector3(renderPos.X, renderPos.Y, renderPos.Z);
+            cachedVertices[1].Pos = new Vector3(renderPos.X + device.TargetSize.X, renderPos.Y, renderPos.Z);
+            cachedVertices[2].Pos = new Vector3(renderPos.X + device.TargetSize.X, renderPos.Y + device.TargetSize.Y, renderPos.Z);
+            cachedVertices[3].Pos = new Vector3(renderPos.X, renderPos.Y + device.TargetSize.Y, renderPos.Z);
 
-            vertexData[0].TexCoord = new Vector2(0.0f, 0.0f);
-            vertexData[1].TexCoord = new Vector2(1f, 0.0f);
-            vertexData[2].TexCoord = new Vector2(1f, 1f);
-            vertexData[3].TexCoord = new Vector2(0.0f, 1f);
+            cachedVertices[0].TexCoord = new Vector2(0.0f, 0.0f);
+            cachedVertices[1].TexCoord = new Vector2(1f, 0.0f);
+            cachedVertices[2].TexCoord = new Vector2(1f, 1f);
+            cachedVertices[3].TexCoord = new Vector2(0.0f, 1f);
 
-            vertexData[0].Color = vertexData[1].Color = vertexData[2].Color = vertexData[3].Color = ColorRgba.White;
+            cachedVertices[0].Color = cachedVertices[1].Color = cachedVertices[2].Color = cachedVertices[3].Color = ColorRgba.White;
 
             // Setup custom pixel shader
-            BatchInfo material = new BatchInfo(texturedBackgroundShader, cachedTexturedBackground);
+            BatchInfo material = device.RentMaterial();
+            material.Technique = texturedBackgroundShader;
+            material.MainTexture = cachedTexturedBackground;
             material.SetValue("horizonColor", horizonColor);
             material.SetValue("shift", new Vector2(backgroundX, backgroundY));
 
-            device.AddVertices(material, VertexMode.Quads, vertexData);
+            device.AddVertices(material, VertexMode.Quads, cachedVertices, 0, 4);
         }
     }
 }

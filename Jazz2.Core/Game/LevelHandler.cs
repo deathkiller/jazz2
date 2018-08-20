@@ -36,8 +36,8 @@ namespace Jazz2.Game
 
         private const float DefaultGravity = 0.3f;
 
-        private readonly App root;
-        private readonly ActorApi api;
+        private App root;
+        private ActorApi api;
 
         protected readonly GameObject rootObject;
         private readonly GameObject camera;
@@ -234,7 +234,15 @@ namespace Jazz2.Game
 
             if (eventMap != null) {
                 eventMap.Dispose();
+                eventMap = null;
             }
+
+            if (tileMap != null) {
+                tileMap.ReleaseResources();
+                tileMap = null;
+            }
+
+            api = null;
 
             base.OnDisposing(manually);
         }

@@ -47,6 +47,22 @@ namespace Jazz2.Game.Tiles
             triggerState = new BitArray(TriggerCount);
         }
 
+        public void ReleaseResources()
+        {
+            if (tileset != null) {
+                tileset.Dispose();
+                tileset = null;
+            }
+
+            layers = null;
+            animatedTiles = null;
+            activeCollapsingTiles = null;
+
+            debrisList = null;
+
+            levelHandler = null;
+        }
+
         void ICmpUpdatable.OnUpdate()
         {
             float timeMult = Time.TimeMult;

@@ -194,10 +194,16 @@ namespace Jazz2.Game.UI.Menu
                     float sy = ((float)xOffset / levelList.Count) * 18f * itemCount + topLine;
                     float sh = ((float)itemCount / levelList.Count) * 16f * itemCount;
 
-                    canvas.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0f, 0f, 0f, 0.28f)));
+                    BatchInfo mat1 = device.RentMaterial();
+                    mat1.Technique = DrawTechnique.Alpha;
+                    mat1.MainColor = new ColorRgba(0f, 0f, 0f, 0.28f);
+                    canvas.State.SetMaterial(mat1);
                     canvas.FillRect(sx + 1f, sy + 1f, sw, sh);
 
-                    canvas.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0.8f, 0.8f, 0.8f, 0.5f)));
+                    BatchInfo mat2 = device.RentMaterial();
+                    mat2.Technique = DrawTechnique.Alpha;
+                    mat2.MainColor = new ColorRgba(0.8f, 0.8f, 0.8f, 0.5f);
+                    canvas.State.SetMaterial(mat2);
                     canvas.FillRect(sx, sy, sw, sh);
                 }
 
@@ -237,13 +243,19 @@ namespace Jazz2.Game.UI.Menu
 
                     api.DrawMaterial("MenuDim", loadingX + 50f, loadingY, Alignment.Center, new ColorRgba(1f, 0.7f * isLoadingAnimation), 40f, 10f);
 
-                    canvas.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0f, 0.2f * isLoadingAnimation)));
+                    BatchInfo mat1 = device.RentMaterial();
+                    mat1.Technique = DrawTechnique.Alpha;
+                    mat1.MainColor = new ColorRgba(0f, 0.2f * isLoadingAnimation);
+                    canvas.State.SetMaterial(mat1);
                     canvas.DrawCircleSegment(loadingX + 1.6f, loadingY + 1.6f, r1, startAngle, endAngle);
                     canvas.DrawCircleSegment(loadingX + 1.6f, loadingY + 1.6f, r2, startAngle, endAngle);
                     canvas.DrawCircleSegment(loadingX + 1.6f, loadingY + 1.6f, r3, startAngle, endAngle);
                     canvas.DrawCircleSegment(loadingX + 1.6f, loadingY + 1.6f, r4, startAngle, endAngle);
 
-                    canvas.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0.95f, 0.8f * isLoadingAnimation)));
+                    BatchInfo mat2 = device.RentMaterial();
+                    mat2.Technique = DrawTechnique.Alpha;
+                    mat2.MainColor = new ColorRgba(0.95f, 0.8f * isLoadingAnimation);
+                    canvas.State.SetMaterial(mat2);
                     canvas.DrawCircleSegment(loadingX, loadingY, r1, startAngle, endAngle);
                     canvas.DrawCircleSegment(loadingX, loadingY, r2, startAngle, endAngle);
                     canvas.DrawCircleSegment(loadingX, loadingY, r3, startAngle, endAngle);

@@ -39,8 +39,7 @@ namespace Jazz2.Game.Tiles
             public DebrisCollisionAction CollisionAction;
         }
 
-        private readonly RawList<DestructibleDebris> debrisList = new RawList<DestructibleDebris>();
-        private VertexC1P3T2[] debrisVertices;
+        private RawList<DestructibleDebris> debrisList = new RawList<DestructibleDebris>();
 
         public void CreateDebris(DestructibleDebris debris)
         {
@@ -263,13 +262,11 @@ namespace Jazz2.Game.Tiles
             ColorRgba mainColor = ColorRgba.White;
 
             int neededVertices = debrisList.Count * 4;
-            if (debrisVertices == null || debrisVertices.Length < neededVertices) {
-                debrisVertices = new VertexC1P3T2[neededVertices + 80];
+            if (cachedVertices == null || cachedVertices.Length < neededVertices) {
+                cachedVertices = new VertexC1P3T2[neededVertices];
             }
 
-            int vertexOffset = 0;
-            int vertexBaseIndex = 0;
-
+            int vertexIndex = 0;
             for (int i = 0; i < debrisList.Count; i++) {
                 ref DestructibleDebris debris = ref debrisList.Data[i];
 
@@ -277,79 +274,68 @@ namespace Jazz2.Game.Tiles
                     device.AddVertices(
                         material,
                         VertexMode.Quads,
-                        debrisVertices,
-                        vertexOffset,
-                        vertexBaseIndex);
+                        cachedVertices,
+                        0,
+                        vertexIndex);
 
-                    vertexOffset += vertexBaseIndex;
-                    vertexBaseIndex = 0;
+                    vertexIndex = 0;
 
                     material = debris.Material;
                 }
 
                 mainColor.A = (byte)(debris.Alpha * 255);
 
-                Vector3 renderPos = debris.Pos;
+                Vector3 pos = debris.Pos;
+                Vector2 renderPos = new Vector2(MathF.Round(pos.X), MathF.Round(pos.Y));
 
                 Vector2 xDot, yDot;
-                MathF.GetTransformDotVec(debris.Angle, 1f, out xDot, out yDot);
+                MathF.GetTransformDotVec(debris.Angle, debris.Scale, out xDot, out yDot);
 
                 Vector2 edge1 = new Vector2(0, 0);
-                Vector2 edge2 = new Vector2(0, debris.Size.Y * debris.Scale);
-                Vector2 edge3 = new Vector2(debris.Size.Y * debris.Scale, debris.Size.Y * debris.Scale);
-                Vector2 edge4 = new Vector2(debris.Size.X * debris.Scale, 0);
+                Vector2 edge2 = new Vector2(0, debris.Size.Y);
+                Vector2 edge3 = new Vector2(debris.Size.Y, debris.Size.Y);
+                Vector2 edge4 = new Vector2(debris.Size.X, 0);
                 MathF.TransformDotVec(ref edge1, ref xDot, ref yDot);
                 MathF.TransformDotVec(ref edge2, ref xDot, ref yDot);
                 MathF.TransformDotVec(ref edge3, ref xDot, ref yDot);
                 MathF.TransformDotVec(ref edge4, ref xDot, ref yDot);
-                edge1 += new Vector2(MathF.Round(renderPos.X), MathF.Round(renderPos.Y));
-                edge2 += new Vector2(MathF.Round(renderPos.X), MathF.Round(renderPos.Y));
-                edge3 += new Vector2(MathF.Round(renderPos.X), MathF.Round(renderPos.Y));
-                edge4 += new Vector2(MathF.Round(renderPos.X), MathF.Round(renderPos.Y));
+                edge1 += renderPos;
+                edge2 += renderPos;
+                edge3 += renderPos;
+                edge4 += renderPos;
 
-                //renderPos.X = MathF.Round(renderPos.X);
-                //renderPos.Y = MathF.Round(renderPos.Y);
-                //if (MathF.RoundToInt(device.TargetSize.X) != (MathF.RoundToInt(device.TargetSize.X) / 2) * 2) {
-                //    renderPos.X += 0.5f;
-                //}
-                //if (MathF.RoundToInt(device.TargetSize.Y) != (MathF.RoundToInt(device.TargetSize.Y) / 2) * 2) {
-                //    renderPos.Y += 0.5f;
-                //}
+                cachedVertices[vertexIndex].Pos.Xy = edge1;
+                cachedVertices[vertexIndex].Pos.Z = pos.Z;
+                cachedVertices[vertexIndex].TexCoord = debris.MaterialOffset.TopLeft;
+                cachedVertices[vertexIndex].Color = mainColor;
 
-                int vertexIndex = vertexBaseIndex + vertexOffset;
+                cachedVertices[vertexIndex + 1].Pos.Xy = edge2;
+                cachedVertices[vertexIndex + 1].Pos.Z = pos.Z;
+                cachedVertices[vertexIndex + 1].TexCoord = debris.MaterialOffset.BottomLeft;
+                cachedVertices[vertexIndex + 1].Color = mainColor;
 
-                debrisVertices[vertexIndex].Pos.Xy = edge1;
-                debrisVertices[vertexIndex].Pos.Z = renderPos.Z;
-                debrisVertices[vertexIndex].TexCoord = debris.MaterialOffset.TopLeft;
-                debrisVertices[vertexIndex].Color = mainColor;
+                cachedVertices[vertexIndex + 2].Pos.Xy = edge3;
+                cachedVertices[vertexIndex + 2].Pos.Z = pos.Z;
+                cachedVertices[vertexIndex + 2].TexCoord = debris.MaterialOffset.BottomRight;
+                cachedVertices[vertexIndex + 2].Color = mainColor;
 
-                debrisVertices[vertexIndex + 1].Pos.Xy = edge2;
-                debrisVertices[vertexIndex + 1].Pos.Z = renderPos.Z;
-                debrisVertices[vertexIndex + 1].TexCoord = debris.MaterialOffset.BottomLeft;
-                debrisVertices[vertexIndex + 1].Color = mainColor;
+                cachedVertices[vertexIndex + 3].Pos.Xy = edge4;
+                cachedVertices[vertexIndex + 3].Pos.Z = pos.Z;
+                cachedVertices[vertexIndex + 3].TexCoord = debris.MaterialOffset.TopRight;
+                cachedVertices[vertexIndex + 3].Color = mainColor;
 
-                debrisVertices[vertexIndex + 2].Pos.Xy = edge3;
-                debrisVertices[vertexIndex + 2].Pos.Z = renderPos.Z;
-                debrisVertices[vertexIndex + 2].TexCoord = debris.MaterialOffset.BottomRight;
-                debrisVertices[vertexIndex + 2].Color = mainColor;
-
-                debrisVertices[vertexIndex + 3].Pos.Xy = edge4;
-                debrisVertices[vertexIndex + 3].Pos.Z = renderPos.Z;
-                debrisVertices[vertexIndex + 3].TexCoord = debris.MaterialOffset.TopRight;
-                debrisVertices[vertexIndex + 3].Color = mainColor;
-
-                vertexBaseIndex += 4;
+                vertexIndex += 4;
             }
 
             // Submit all the vertices as one draw batch
             device.AddVertices(
                 material,
                 VertexMode.Quads,
-                debrisVertices,
-                vertexOffset,
-                vertexBaseIndex);
+                cachedVertices,
+                0,
+                vertexIndex);
 
-            Hud.ShowDebugText("- Debris: " + debrisList.Count + " (" + neededVertices + "/" + debrisVertices.Length + ")");
+            Hud.ShowDebugText("- Debris: " + debrisList.Count + " (" + neededVertices + "/" + cachedVertices.Length + ")");
         }
     }
 }

@@ -74,6 +74,7 @@ namespace Jazz2.Actors
         private float invulnerableTime;
         private float invulnerableBlinkTime;
 
+        private float idleTime;
         private float keepRunningTime;
         private float lastPoleTime;
         private Point2 lastPolePos;
@@ -880,6 +881,9 @@ namespace Jazz2.Actors
                             // ToDo: Turn off collisions
                         }
                     } else {
+                        controllable = false;
+                        renderer.Active = false;
+
                         api.HandleGameOver();
                     }
                 });
@@ -955,6 +959,21 @@ namespace Jazz2.Actors
 
                     newState = composite;
                 }
+
+                if (newState == AnimState.Idle) {
+                    if (idleTime > 600f) {
+                        idleTime = 0f;
+
+                        if (currentTransitionState == AnimState.Idle) {
+                            SetPlayerTransition(AnimState.TransitionIdleBored, true, false, SpecialMoveType.None);
+                        }
+                    } else {
+                        idleTime += timeMult;
+                    }
+                } else {
+                    idleTime = 0f;
+                }
+
                 SetAnimation(newState);
 
                 switch (oldState) {
@@ -1256,21 +1275,23 @@ namespace Jazz2.Actors
 
                     collisionFlags |= CollisionFlags.ApplyGravitation;
                     canJump = true;
-
                     externalForceY = 0.45f;
-
                     Transform.Angle = 0;
 
                     SetAnimation(AnimState.Jump);
+
+                    Explosion.Create(api, Transform.Pos - new Vector3(0f, 4f, 0f), Explosion.WaterSplash);
+                    api.PlayCommonSound(this, "WaterSplash", 1f);
                 }
             } else {
                 if (Transform.Pos.Y >= api.WaterLevel) {
                     inWater = true;
 
-                    Explosion.Create(api, Transform.Pos - new Vector3(0f, 4f, 0f), Explosion.WaterSplash);
-
                     controllable = true;
                     EndDamagingMove();
+
+                    Explosion.Create(api, Transform.Pos - new Vector3(0f, 4f, 0f), Explosion.WaterSplash);
+                    api.PlayCommonSound(this, "WaterSplash", 0.7f);
                 }
             }
         }

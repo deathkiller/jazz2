@@ -479,5 +479,10 @@ namespace Duality.Resources
 			// Get rid of big data references, so the GC can collect them.
 			this.basePixmap.Detach();
 		}
+
+        public void DetachPixmap()
+        {
+            this.basePixmap.Detach();
+        }
 	}
 }

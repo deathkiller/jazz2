@@ -9,7 +9,7 @@ namespace Jazz2.Game.Tiles
 {
     partial class TileMap : ICmpRenderer
     {
-        private VertexC1P3T2[][] cachedVertices;
+        private VertexC1P3T2[] cachedVertices;
 
         void ICmpRenderer.GetCullingInfo(out CullingInfo info)
         {
@@ -22,10 +22,6 @@ namespace Jazz2.Game.Tiles
         {
             if (tileset == null) {
                 return;
-            }
-
-            if (cachedVertices == null || cachedVertices.Length != this.layers.Count) {
-                cachedVertices = new VertexC1P3T2[this.layers.Count][];
             }
 
             TileMapLayer[] layersRaw = layers.Data;
@@ -160,16 +156,12 @@ namespace Jazz2.Game.Tiles
                 ColorRgba mainColor = ColorRgba.White;
 
                 // Reserve the required space for vertex data in our locally cached buffer
-                VertexC1P3T2[] vertexData;
-
                 int neededVertices = (int)((((x3 - x1) / 32) + 1) * (((y3 - y1) / 32) + 1) * 4);
-                if (cachedVertices[cacheIndex] == null || cachedVertices[cacheIndex].Length < neededVertices) {
-                    cachedVertices[cacheIndex] = vertexData = new VertexC1P3T2[neededVertices];
-                } else {
-                    vertexData = cachedVertices[cacheIndex];
+                if (cachedVertices == null || cachedVertices.Length < neededVertices) {
+                    cachedVertices = new VertexC1P3T2[neededVertices];
                 }
 
-                int vertexBaseIndex = 0;
+                int vertexIndex = 0;
 
                 int tile_xo = -1;
                 for (float x2 = x1; x2 < x3; x2 += 32) {
@@ -222,11 +214,11 @@ namespace Jazz2.Game.Tiles
                             device.AddVertices(
                                 material,
                                 VertexMode.Quads,
-                                vertexData,
+                                cachedVertices,
                                 0,
-                                vertexBaseIndex);
+                                vertexIndex);
 
-                            vertexBaseIndex = 0;
+                            vertexIndex = 0;
 
                             material = tile.Material.Res;
                             texture = material.MainTexture.Res;
@@ -260,35 +252,35 @@ namespace Jazz2.Game.Tiles
                             renderPos.Y += 0.5f;
                         }
 
-                        vertexData[vertexBaseIndex + 0].Pos.X = renderPos.X;
-                        vertexData[vertexBaseIndex + 0].Pos.Y = renderPos.Y;
-                        vertexData[vertexBaseIndex + 0].Pos.Z = renderPos.Z;
-                        vertexData[vertexBaseIndex + 0].TexCoord.X = uvRect.X;
-                        vertexData[vertexBaseIndex + 0].TexCoord.Y = uvRect.Y;
-                        vertexData[vertexBaseIndex + 0].Color = mainColor;
+                        cachedVertices[vertexIndex + 0].Pos.X = renderPos.X;
+                        cachedVertices[vertexIndex + 0].Pos.Y = renderPos.Y;
+                        cachedVertices[vertexIndex + 0].Pos.Z = renderPos.Z;
+                        cachedVertices[vertexIndex + 0].TexCoord.X = uvRect.X;
+                        cachedVertices[vertexIndex + 0].TexCoord.Y = uvRect.Y;
+                        cachedVertices[vertexIndex + 0].Color = mainColor;
 
-                        vertexData[vertexBaseIndex + 1].Pos.X = renderPos.X;
-                        vertexData[vertexBaseIndex + 1].Pos.Y = renderPos.Y + tileSize.Y;
-                        vertexData[vertexBaseIndex + 1].Pos.Z = renderPos.Z;
-                        vertexData[vertexBaseIndex + 1].TexCoord.X = uvRect.X;
-                        vertexData[vertexBaseIndex + 1].TexCoord.Y = uvRect.Y + uvRect.H;
-                        vertexData[vertexBaseIndex + 1].Color = mainColor;
+                        cachedVertices[vertexIndex + 1].Pos.X = renderPos.X;
+                        cachedVertices[vertexIndex + 1].Pos.Y = renderPos.Y + tileSize.Y;
+                        cachedVertices[vertexIndex + 1].Pos.Z = renderPos.Z;
+                        cachedVertices[vertexIndex + 1].TexCoord.X = uvRect.X;
+                        cachedVertices[vertexIndex + 1].TexCoord.Y = uvRect.Y + uvRect.H;
+                        cachedVertices[vertexIndex + 1].Color = mainColor;
 
-                        vertexData[vertexBaseIndex + 2].Pos.X = renderPos.X + tileSize.X;
-                        vertexData[vertexBaseIndex + 2].Pos.Y = renderPos.Y + tileSize.Y;
-                        vertexData[vertexBaseIndex + 2].Pos.Z = renderPos.Z;
-                        vertexData[vertexBaseIndex + 2].TexCoord.X = uvRect.X + uvRect.W;
-                        vertexData[vertexBaseIndex + 2].TexCoord.Y = uvRect.Y + uvRect.H;
-                        vertexData[vertexBaseIndex + 2].Color = mainColor;
+                        cachedVertices[vertexIndex + 2].Pos.X = renderPos.X + tileSize.X;
+                        cachedVertices[vertexIndex + 2].Pos.Y = renderPos.Y + tileSize.Y;
+                        cachedVertices[vertexIndex + 2].Pos.Z = renderPos.Z;
+                        cachedVertices[vertexIndex + 2].TexCoord.X = uvRect.X + uvRect.W;
+                        cachedVertices[vertexIndex + 2].TexCoord.Y = uvRect.Y + uvRect.H;
+                        cachedVertices[vertexIndex + 2].Color = mainColor;
 
-                        vertexData[vertexBaseIndex + 3].Pos.X = renderPos.X + tileSize.X;
-                        vertexData[vertexBaseIndex + 3].Pos.Y = renderPos.Y;
-                        vertexData[vertexBaseIndex + 3].Pos.Z = renderPos.Z;
-                        vertexData[vertexBaseIndex + 3].TexCoord.X = uvRect.X + uvRect.W;
-                        vertexData[vertexBaseIndex + 3].TexCoord.Y = uvRect.Y;
-                        vertexData[vertexBaseIndex + 3].Color = mainColor;
+                        cachedVertices[vertexIndex + 3].Pos.X = renderPos.X + tileSize.X;
+                        cachedVertices[vertexIndex + 3].Pos.Y = renderPos.Y;
+                        cachedVertices[vertexIndex + 3].Pos.Z = renderPos.Z;
+                        cachedVertices[vertexIndex + 3].TexCoord.X = uvRect.X + uvRect.W;
+                        cachedVertices[vertexIndex + 3].TexCoord.Y = uvRect.Y;
+                        cachedVertices[vertexIndex + 3].Color = mainColor;
 
-                        vertexBaseIndex += 4;
+                        vertexIndex += 4;
                     }
                 }
 
@@ -296,9 +288,9 @@ namespace Jazz2.Game.Tiles
                 device.AddVertices(
                     material,
                     VertexMode.Quads,
-                    vertexData,
+                    cachedVertices,
                     0,
-                    vertexBaseIndex);
+                    vertexIndex);
             }
         }
     }
