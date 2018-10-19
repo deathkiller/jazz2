@@ -25,7 +25,7 @@ namespace Jazz2.Game.Tiles
             }
 
             TileMapLayer[] layersRaw = layers.Data;
-            for (int i = this.layers.Count - 1; i >= 0; i--) {
+            for (int i = 0; i < this.layers.Count; i++) {
                 DrawLayer(device, ref layersRaw[i], i);
             }
 

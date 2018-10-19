@@ -9,9 +9,9 @@ namespace Jazz2.Game.Components
     public class ActorRenderer : SpriteRenderer, ICmpUpdatable
     {
         /// <summary>
-		/// Describes the sprite animations loop behaviour.
-		/// </summary>
-		public enum LoopMode
+        /// Describes the sprite animations loop behaviour.
+        /// </summary>
+        public enum LoopMode
         {
             /// <summary>
             /// The animation is played once an then remains in its last frame.

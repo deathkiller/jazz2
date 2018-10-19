@@ -1,26 +1,42 @@
 ﻿using Duality;
 using Duality.Drawing;
 using Jazz2.Storage;
-using static Jazz2.Settings;
+using static Jazz2.SettingsCache;
 
 namespace Jazz2.Game.UI.Menu.Settings
 {
     public class SettingsSection : MainMenuSectionWithControls
     {
+        private ChoiceControl resizeMode;
+        private ChoiceControl vibrations;
+        private SliderControl musicVolume;
+        private SliderControl sfxVolume;
+
         public override void OnShow(MainMenu root)
         {
             base.OnShow(root);
 
-            controls = new MenuControlBase[] {
-                // 3xBRZ shader is not available in OpenGL ES 3.0 version
 #if __ANDROID__
-                new ChoiceControl(api, "Resize Mode", (int)Resize, "None", "HQ2x"),
-                new ChoiceControl(api, "Vibrations", Duality.Android.InnerView.allowVibrations ? 1 : 0, "Disable", "Enable"),
+            // 3xBRZ shader is not available in OpenGL ES 3.0 version
+            resizeMode = new ChoiceControl(api, "Resize Mode", (int)Resize, "None", "HQ2x");
+            vibrations = new ChoiceControl(api, "Vibrations", Duality.Android.InnerView.allowVibrations ? 1 : 0, "Disable", "Enable")
 #else
-                new ChoiceControl(api, "Resize Mode", (int)Resize, "None", "HQ2x", "3xBRZ", "4xBRZ", "CRT"),
+            resizeMode = new ChoiceControl(api, "Resize Mode", (int)Resize, "None", "HQ2x", "3xBRZ", "4xBRZ", "CRT");
 #endif
+            musicVolume = new SliderControl(api, "Music Volume", MusicVolume, 0f, 1f);
+            sfxVolume = new SliderControl(api, "SFX Volume", SfxVolume, 0f, 1f);
+
+#if __ANDROID__
+            controls = new MenuControlBase[] {
+                resizeMode, vibrations, musicVolume, sfxVolume,
                 new LinkControl(api, "Controls", OnControlsPressed)
             };
+#else
+            controls = new MenuControlBase[] {
+                resizeMode, musicVolume, sfxVolume,
+                new LinkControl(api, "Controls", OnControlsPressed)
+            };
+#endif
         }
 
         public override void OnHide(bool isRemoved)
@@ -57,11 +73,16 @@ namespace Jazz2.Game.UI.Menu.Settings
 
         private void Commit()
         {
-            Resize = (ResizeMode)((ChoiceControl)controls[0]).SelectedIndex;
+            Resize = (ResizeMode)resizeMode.SelectedIndex;
+            MusicVolume = musicVolume.CurrentValue;
+            SfxVolume = sfxVolume.CurrentValue;
+
+            Preferences.Set("Resize", (byte)Resize);
+            Preferences.Set("MusicVolume", (byte)(MusicVolume * 100));
+            Preferences.Set("SfxVolume", (byte)(SfxVolume * 100));
 
 #if __ANDROID__
-            Duality.Android.InnerView.allowVibrations = ((ChoiceControl)controls[1]).SelectedIndex == 1;
-
+            Duality.Android.InnerView.allowVibrations = (vibrations.SelectedIndex == 1);
             Preferences.Set("Vibrations", Duality.Android.InnerView.allowVibrations);
 #endif
 

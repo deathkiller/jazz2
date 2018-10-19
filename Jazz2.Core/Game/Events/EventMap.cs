@@ -66,7 +66,9 @@ namespace Jazz2.Game.Events
 
         protected override void Dispose(bool disposing)
         {
-            ContentResolver.Current.ResourceReady -= OnResourceReady;
+            if (DualityApp.ExecContext != DualityApp.ExecutionContext.Terminated) {
+                ContentResolver.Current.ResourceReady -= OnResourceReady;
+            }
 
             levelHandler = null;
         }

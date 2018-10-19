@@ -23,6 +23,7 @@ namespace Jazz2.Game.UI.Menu
 
         private TransitionManager transitionManager;
         private Action transitionAction;
+        private float transitionText = 1f;
 
         private Metadata metadata;
 
@@ -156,6 +157,13 @@ namespace Jazz2.Game.UI.Menu
             float y, Alignment align, ColorRgba? color, float scale = 1f, float angleOffset = 0f, float varianceX = 4f, float varianceY = 4f,
             float speed = 4f, float charSpacing = 1f, float lineSpacing = 1f)
         {
+            if (transitionText > 0f) {
+                angleOffset += 0.5f * transitionText;
+                varianceX += 400f * transitionText;
+                varianceY += 400f * transitionText;
+                speed -= speed * 0.6f * transitionText;
+            }
+
             fontSmall.DrawString(ref charOffset, text, x, y, align,
                 color, scale, angleOffset, varianceX, varianceY, speed, charSpacing, lineSpacing);
         }
@@ -164,6 +172,13 @@ namespace Jazz2.Game.UI.Menu
             float y, Alignment align, ColorRgba? color, float scale = 1f, float angleOffset = 0f, float varianceX = 4f, float varianceY = 4f,
             float speed = 4f, float charSpacing = 1f, float lineSpacing = 1f)
         {
+            if (transitionText > 0f) {
+                angleOffset += 0.5f * transitionText;
+                varianceX += 400f * transitionText;
+                varianceY += 400f * transitionText;
+                speed -= speed * 0.6f * transitionText;
+            }
+
             int charOffsetShadow = charOffset;
             fontSmall.DrawString(ref charOffsetShadow, text, x, y + 2.8f * scale, align,
                 new ColorRgba(0f, 0.29f), scale, angleOffset, varianceX, varianceY, speed, charSpacing, lineSpacing);
@@ -200,8 +215,7 @@ namespace Jazz2.Game.UI.Menu
             SoundResource res;
             if (metadata.Sounds.TryGetValue(name, out res)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound(res.Sound);
-                // TODO: Hardcoded volume
-                instance.Volume = volume * Jazz2.Settings.SfxVolume;
+                instance.Volume = volume * SettingsCache.SfxVolume;
             }
         }
 
@@ -286,6 +300,10 @@ namespace Jazz2.Game.UI.Menu
                         transitionAction = null;
                     }
                 }
+            }
+
+            if (transitionText > 0f) {
+                transitionText -= 0.01f * Time.TimeMult;
             }
 
             canvas.End();

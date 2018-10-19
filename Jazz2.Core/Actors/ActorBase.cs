@@ -849,7 +849,7 @@ namespace Jazz2.Actors
             if (availableSounds.TryGetValue(name, out resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, this);
                 // ToDo: Hardcoded volume
-                instance.Volume = gain * Settings.SfxVolume;
+                instance.Volume = gain * SettingsCache.SfxVolume;
                 instance.Pitch = pitch;
 
                 if (Transform.Pos.Y >= api.WaterLevel) {

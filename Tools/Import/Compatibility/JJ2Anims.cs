@@ -416,12 +416,19 @@ namespace Jazz2.Compatibility
                         version = JJ2Version.BaseGame | JJ2Version.SharewareDemo;
                         Log.Write(LogType.Info, "Detected Jazz Jackrabbit 2 (v1.20/1.23): Shareware Demo.");
                     }
-                } else if (headerLen == 500 && seemsLikeCC) {
-                    version = JJ2Version.CC;
-                    Log.Write(LogType.Info, "Detected Jazz Jackrabbit 2: Christmas Chronicles.");
-                } else if (headerLen == 500 && !seemsLikeCC) {
-                    version = JJ2Version.TSF;
-                    Log.Write(LogType.Info, "Detected Jazz Jackrabbit 2: The Secret Files.");
+                } else if (headerLen == 500) {
+                    if (!isStreamComplete) {
+                        version = JJ2Version.TSF | JJ2Version.SharewareDemo;
+                        Log.Write(LogType.Info, "Detected Jazz Jackrabbit 2: The Secret Files Demo.");
+                        Log.Write(LogType.Error, "Sorry, but this version is not supported yet!");
+                        return;
+                    } else if (seemsLikeCC) {
+                        version = JJ2Version.CC;
+                        Log.Write(LogType.Info, "Detected Jazz Jackrabbit 2: Christmas Chronicles.");
+                    } else {
+                        version = JJ2Version.TSF;
+                        Log.Write(LogType.Info, "Detected Jazz Jackrabbit 2: The Secret Files.");
+                    }
                 } else if (headerLen == 476) {
                     version = JJ2Version.HH;
                     Log.Write(LogType.Info, "Detected Jazz Jackrabbit 2: Holiday Hare '98.");
@@ -583,7 +590,7 @@ namespace Jazz2.Compatibility
                         sourceVersion = "The Secret Files (1.24)";
                         break;
                     case JJ2Version.PlusExtension:
-                        sourceVersion = "Plus";
+                        sourceVersion = "JJ2+";
                         break;
                     default:
                         sourceVersion = "Unknown";

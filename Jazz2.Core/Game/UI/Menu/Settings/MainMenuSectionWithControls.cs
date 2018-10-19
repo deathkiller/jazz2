@@ -2,7 +2,6 @@
 using Duality;
 using Duality.Drawing;
 using Duality.Input;
-using static Jazz2.Settings;
 
 namespace Jazz2.Game.UI.Menu.Settings
 {
@@ -33,7 +32,7 @@ namespace Jazz2.Game.UI.Menu.Settings
             IDrawDevice device = canvas.DrawDevice;
 
             Vector2 center = device.TargetSize * 0.5f;
-            center.Y *= 0.8f;
+            center.Y *= 0.75f;
 
             for (int i = 0; i < controls.Length; i++) {
                 controls[i].OnDraw(canvas, ref center, selectedIndex == i);

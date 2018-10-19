@@ -27,13 +27,54 @@
             float afwidth = length(vec2(dFdx(value), dFdy(value))) * 0.70710678118654757;
             return smoothstep(threshold - afwidth, threshold + afwidth, value); 
         }
+        
+        // Perlin noise
+        vec4 permute(vec4 x) {
+            return mod(34.0 * (x * x) + x, 289.0);
+        }
+
+        vec2 fade(vec2 t) {
+            return 6.0*(t * t * t * t * t)-15.0*(t * t * t * t)+10.0*(t * t * t);
+        }
+
+        float perlinNoise2D(vec2 P) {
+            vec4 Pi = floor(P.xyxy) + vec4(0.0, 0.0, 1.0, 1.0);
+            vec4 Pf = fract(P.xyxy) - vec4(0.0, 0.0, 1.0, 1.0);
+            vec4 ix = Pi.xzxz;
+            vec4 iy = Pi.yyww;
+            vec4 fx = Pf.xzxz;
+            vec4 fy = Pf.yyww;
+            vec4 i = permute(permute(ix) + iy);
+            vec4 gx = fract(i/41.0)*2.0-1.0;
+            vec4 gy = abs(gx)-0.5;
+            vec4 tx = floor(gx+0.5);
+            gx = gx-tx;
+            vec2 g00 = vec2(gx.x, gy.x);
+            vec2 g10 = vec2(gx.y, gy.y);
+            vec2 g01 = vec2(gx.z, gy.z);
+            vec2 g11 = vec2(gx.w, gy.w);
+            vec4 norm = 1.79284291400159 - 0.85373472095314 * vec4(dot(g00,g00),dot(g01,g01),dot(g10,g10),dot(g11,g11));
+            g00 *= norm.x;
+            g01 *= norm.y;
+            g10 *= norm.z;
+            g11 *= norm.w;
+            float n00 = dot(g00, vec2(fx.x,fy.x));
+            float n10 = dot(g10, vec2(fx.y,fy.y));
+            float n01 = dot(g01, vec2(fx.z,fy.z));
+            float n11 = dot(g11, vec2(fx.w,fy.w));
+            vec2 fade_xy = fade(Pf.xy);
+            vec2 n_x = mix(vec2(n00, n01), vec2(n10, n11), fade_xy.x);
+            float n_xy = mix(n_x.x, n_x.y, fade_xy.y);
+            return 2.3 * n_xy;
+        }
 
         void main() {
             vec3 waterColor = vec3(0.4, 0.6, 0.8);
             float time = GameTime * 0.065;
             vec2 viewSizeInv = (1.0 / ViewSize);
 
-            vec2 uvWorld = gl_TexCoord[0].xy + (CameraPosition.xy * viewSizeInv.xy);
+            vec2 uvWorldCenter = (CameraPosition.xy * viewSizeInv.xy);
+            vec2 uvWorld = gl_TexCoord[0].xy + uvWorldCenter;
 
             float waveHeight = wave(uvWorld.x, time);
             float isTexelBelow = aastep(waveHeight, gl_TexCoord[0].y - waterLevel);
@@ -53,6 +94,21 @@
             
             float waterColBlendFac = isTexelBelow * 0.5;
             main.rgb = mix(main.rgb, waterColor * (0.4 + 1.2 * vec3(mainR, main.g, mainB)), vec3(waterColBlendFac));
+            
+            
+            float noisePos = uvWorld.x * 8.0 + uvWorldCenter.y * 0.5;
+            //noisePos += -0.5;
+            //noisePos*=_Size;
+            noisePos += (1.0 - gl_TexCoord[0].y - gl_TexCoord[0].x) * -5.0;
+            //noisePos *= 1.0 / mix(1.0, 10.0, 1.0 - gl_TexCoord[0].y);
+            float rays = perlinNoise2D(vec2(noisePos, time * 10.0 + uvWorldCenter.y)) * 0.5 + 0.4;
+            
+            //val=_Contrast*(val-0.5)+0.5;
+            //rays = rays * i.uv.y;
+            //color.a=clamp(color.a,0.0,1.0);
+            
+            main.rgb += vec3(rays * isTexelBelow * max(1.0 - gl_TexCoord[0].y * 1.4, 0.0) * 0.6);
+            
 
             float topDist = abs(gl_TexCoord[0].y - waterLevel - waveHeight);
             float isNearTop = 1.0 - aastep(viewSizeInv.y * 2.8, topDist);

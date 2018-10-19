@@ -699,8 +699,7 @@ namespace Jazz2.Game
             SoundResource resource;
             if (commonResources.Sounds.TryGetValue(name, out resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, target);
-                // ToDo: Hardcoded volume
-                instance.Volume = gain * Settings.SfxVolume;
+                instance.Volume = gain * SettingsCache.SfxVolume;
 
                 if (target.Transform.Pos.Y >= api.WaterLevel) {
                     instance.Lowpass = 0.2f;
@@ -714,8 +713,7 @@ namespace Jazz2.Game
             SoundResource resource;
             if (commonResources.Sounds.TryGetValue(name, out resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, pos);
-                // ToDo: Hardcoded volume
-                instance.Volume = gain * Settings.SfxVolume;
+                instance.Volume = gain * SettingsCache.SfxVolume;
 
                 if (pos.Y >= api.WaterLevel) {
                     instance.Lowpass = 0.2f;
@@ -925,6 +923,13 @@ namespace Jazz2.Game
 
             if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
                 Scene.SwitchTo(new InGameMenu(root, this));
+            }
+
+
+            if (DualityApp.Keyboard.KeyPressed(Key.E)) {
+                ambientLightTarget -= 0.05f;
+            } else if (DualityApp.Keyboard.KeyPressed(Key.R)) {
+                ambientLightTarget += 0.05f;
             }
 
             Hud.ShowDebugText("- FPS: " + Time.Fps.ToString("N0") + "  (" + Math.Round(Time.UnscaledDeltaTime * 1000, 1).ToString("N1") + " ms)");

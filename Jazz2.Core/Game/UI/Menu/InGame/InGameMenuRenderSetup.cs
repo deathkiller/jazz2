@@ -20,21 +20,21 @@ namespace Jazz2.Game.UI.Menu.InGame
         {
             // Shaders
             try {
-                switch (Jazz2.Settings.Resize) {
+                switch (SettingsCache.Resize) {
                     default:
-                    case Jazz2.Settings.ResizeMode.None:
+                    case SettingsCache.ResizeMode.None:
                         resizeShader = DrawTechnique.Solid;
                         break;
-                    case Jazz2.Settings.ResizeMode.HQ2x:
+                    case SettingsCache.ResizeMode.HQ2x:
                         resizeShader = ContentResolver.Current.RequestShader("ResizeHQ2x");
                         break;
-                    case Jazz2.Settings.ResizeMode.xBRZ3:
+                    case SettingsCache.ResizeMode.xBRZ3:
                         resizeShader = ContentResolver.Current.RequestShader("Resize3xBRZ");
                         break;
-                    case Jazz2.Settings.ResizeMode.xBRZ4:
+                    case SettingsCache.ResizeMode.xBRZ4:
                         resizeShader = ContentResolver.Current.RequestShader("Resize4xBRZ");
                         break;
-                    case Jazz2.Settings.ResizeMode.CRT:
+                    case SettingsCache.ResizeMode.CRT:
                         resizeShader = ContentResolver.Current.RequestShader("ResizeCRT");
                         break;
                 }
@@ -72,7 +72,7 @@ namespace Jazz2.Game.UI.Menu.InGame
             Disposable.Free(ref finalTexture);
         }
 
-        protected override void OnRenderPointOfView(Scene scene, DrawDevice drawDevice, Rect viewportRect, Vector2 imageSize)
+        protected override void OnRenderPointOfView(Scene scene, DrawDevice device, Rect viewportRect, Vector2 imageSize)
         {
             // Check if resolution changed
             if (lastImageSize != imageSize) {
@@ -98,25 +98,25 @@ namespace Jazz2.Game.UI.Menu.InGame
                 ResizeRenderTarget(finalTarget, TargetSize);
             }
 
-            base.OnRenderPointOfView(scene, drawDevice, viewportRect, imageSize);
+            base.OnRenderPointOfView(scene, device, viewportRect, imageSize);
         }
 
-        protected override void OnRenderSingleStep(RenderStep step, Scene scene, DrawDevice drawDevice)
+        protected override void OnRenderSingleStep(RenderStep step, Scene scene, DrawDevice device)
         {
             if (step.Id == "Resize") {
-                ProcessResizeStep(drawDevice);
+                ProcessResizeStep(device);
             } else {
-                base.OnRenderSingleStep(step, scene, drawDevice);
+                base.OnRenderSingleStep(step, scene, device);
             }
         }
 
-        private void ProcessResizeStep(DrawDevice drawDevice)
+        private void ProcessResizeStep(DrawDevice device)
         {
-            BatchInfo material = drawDevice.RentMaterial();
+            BatchInfo material = device.RentMaterial();
             material.Technique = resizeShader;
             material.MainTexture = finalTexture;
             material.SetValue("mainTexSize", new Vector2(finalTexture.ContentWidth, finalTexture.ContentHeight));
-            this.Blit(drawDevice, material, drawDevice.ViewportRect);
+            this.Blit(device, material, device.ViewportRect);
         }
     }
 }

@@ -241,10 +241,10 @@ namespace Duality.Backend.DefaultOpenTK
                 CheckOpenALErrors();
                 string versionString = AL.Get(ALGetString.Version);
                 Console.WriteLine(
-					"OpenAL Version: {0}" + Environment.NewLine +
-					"Vendor: {1}" + Environment.NewLine +
-					"Renderer: {2}" + Environment.NewLine +
-					"Effects: {3}",
+					"  OpenAL Version: {0}" + Environment.NewLine +
+					"  Vendor: {1}" + Environment.NewLine +
+					"  Renderer: {2}" + Environment.NewLine +
+					"  Effects: {3}",
 					versionString,
 					AL.Get(ALGetString.Vendor),
 					AL.Get(ALGetString.Renderer),

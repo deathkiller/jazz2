@@ -1,14 +1,12 @@
 ﻿using Duality;
 using Duality.Drawing;
-using Duality.Input;
 
 namespace Jazz2.Game.UI.Menu.Settings
 {
-    public class ChoiceControl : MenuControlBase
+    public class SliderControl : MenuControlBase
     {
         private string title;
-        private string[] choices;
-        private int selectedIndex;
+        private float currentValue, minValue, maxValue;
         private bool allowWrap;
         private bool enabled = true;
 
@@ -26,13 +24,14 @@ namespace Jazz2.Game.UI.Menu.Settings
 
         public override bool IsInputCaptured => false;
 
-        public int SelectedIndex => selectedIndex;
+        public float CurrentValue => currentValue;
 
-        public ChoiceControl(MainMenu api, string title, int selectedIndex, params string[] choices) : base(api)
+        public SliderControl(MainMenu api, string title, float currentValue, float minValue, float maxValue) : base(api)
         {
             this.title = title;
-            this.choices = choices;
-            this.selectedIndex = selectedIndex;
+            this.currentValue = currentValue;
+            this.minValue = minValue;
+            this.maxValue = maxValue;
         }
 
         public override void OnDraw(Canvas canvas, ref Vector2 pos, bool focused)
@@ -54,35 +53,8 @@ namespace Jazz2.Game.UI.Menu.Settings
                     ColorRgba.TransparentBlack, 0.9f);
             }
 
-            if (choices.Length == 0) {
-                return;
-            }
-
-            float offset, spacing;
-            if (choices.Length == 1) {
-                offset = spacing = 0f;
-            } else if (choices.Length == 2) {
-                offset = 50f;
-                spacing = 100f;
-            } else {
-                //offset = 100f;
-                //spacing = 300f / choices.Length;
-                spacing = 320f / (choices.Length + 1);
-                offset = 120 - spacing * 0.5f;
-            }
-
-            for (int i = 0; i < choices.Length; i++) {
-                float x = pos.X - offset + i * spacing;
-                if (selectedIndex == i) {
-                    api.DrawMaterial("MenuGlow", x, pos.Y + 20f, Alignment.Center, ColorRgba.White.WithAlpha(0.2f), (choices[i].Length + 3) * 0.4f, 2.2f);
-
-                    api.DrawStringShadow(ref charOffset, choices[i], x, pos.Y + 20f, Alignment.Center,
-                        null, 0.9f, 0.4f, 0.55f, 0.55f, 8f, 0.9f);
-                } else {
-                    api.DrawString(ref charOffset, choices[i], x, pos.Y + 20f, Alignment.Center,
-                        ColorRgba.TransparentBlack, 0.8f, charSpacing: 0.9f);
-                }
-            }
+            api.DrawString(ref charOffset, (int)(currentValue * 100) + " %", pos.X, pos.Y + 20f, Alignment.Center,
+                ColorRgba.TransparentBlack, 0.8f, charSpacing: 0.9f);
 
             api.DrawStringShadow(ref charOffset, "<", pos.X - (100f + 40f), pos.Y + 20f, Alignment.Center,
                 ColorRgba.TransparentBlack, 0.7f);
@@ -95,17 +67,11 @@ namespace Jazz2.Game.UI.Menu.Settings
         public override void OnUpdate()
         {
             if (ControlScheme.MenuActionHit(PlayerActions.Left)) {
-                if (selectedIndex > 0) {
-                    selectedIndex--;
-                } else if (allowWrap) {
-                    selectedIndex = choices.Length - 1;
-                }
+                float diff = (maxValue - minValue) * 0.05f;
+                currentValue = MathF.Max(currentValue - diff, minValue);
             } else if (ControlScheme.MenuActionHit(PlayerActions.Right)) {
-                if (selectedIndex < choices.Length - 1) {
-                    selectedIndex++;
-                } else if (allowWrap) {
-                    selectedIndex = 0;
-                }
+                float diff = (maxValue - minValue) * 0.05f;
+                currentValue = MathF.Min(currentValue + diff, maxValue);
             }
         }
     }

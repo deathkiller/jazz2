@@ -146,8 +146,7 @@ namespace Jazz2
         public void Update()
         {
             AudioSourceState nativeState = AudioSourceState.Default;
-            // ToDo: Hardcoded volume
-            nativeState.Volume = Settings.MusicVolume * curFade;
+            nativeState.Volume = SettingsCache.MusicVolume * curFade;
 
             bool fadeOut = this.fadeTarget <= 0.0f;
             if (this.fadeTarget != this.curFade) {

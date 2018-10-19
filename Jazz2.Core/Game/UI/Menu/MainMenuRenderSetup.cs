@@ -16,29 +16,29 @@ namespace Jazz2.Game.UI.Menu
         private Texture finalTexture;
         private RenderTarget finalTarget;
 
-        private Jazz2.Settings.ResizeMode lastResizeMode;
+        private SettingsCache.ResizeMode lastResizeMode;
 
         public MainMenuRenderSetup()
         {
             // Shaders
-            lastResizeMode = Jazz2.Settings.Resize;
+            lastResizeMode = SettingsCache.Resize;
 
             try {
                 switch (lastResizeMode) {
                     default:
-                    case Jazz2.Settings.ResizeMode.None:
+                    case SettingsCache.ResizeMode.None:
                         resizeShader = DrawTechnique.Solid;
                         break;
-                    case Jazz2.Settings.ResizeMode.HQ2x:
+                    case SettingsCache.ResizeMode.HQ2x:
                         resizeShader = ContentResolver.Current.RequestShader("ResizeHQ2x");
                         break;
-                    case Jazz2.Settings.ResizeMode.xBRZ3:
+                    case SettingsCache.ResizeMode.xBRZ3:
                         resizeShader = ContentResolver.Current.RequestShader("Resize3xBRZ");
                         break;
-                    case Jazz2.Settings.ResizeMode.xBRZ4:
+                    case SettingsCache.ResizeMode.xBRZ4:
                         resizeShader = ContentResolver.Current.RequestShader("Resize4xBRZ");
                         break;
-                    case Jazz2.Settings.ResizeMode.CRT:
+                    case SettingsCache.ResizeMode.CRT:
                         resizeShader = ContentResolver.Current.RequestShader("ResizeCRT");
                         break;
                 }
@@ -76,28 +76,28 @@ namespace Jazz2.Game.UI.Menu
             Disposable.Free(ref finalTexture);
         }
 
-        protected override void OnRenderPointOfView(Scene scene, DrawDevice drawDevice, Rect viewportRect, Vector2 imageSize)
+        protected override void OnRenderPointOfView(Scene scene, DrawDevice device, Rect viewportRect, Vector2 imageSize)
         {
             // Switch between resize modes if necessary
-            if (lastResizeMode != Jazz2.Settings.Resize) {
-                lastResizeMode = Jazz2.Settings.Resize;
+            if (lastResizeMode != SettingsCache.Resize) {
+                lastResizeMode = SettingsCache.Resize;
 
                 try {
                     switch (lastResizeMode) {
                         default:
-                        case Jazz2.Settings.ResizeMode.None:
+                        case SettingsCache.ResizeMode.None:
                             resizeShader = DrawTechnique.Solid;
                             break;
-                        case Jazz2.Settings.ResizeMode.HQ2x:
+                        case SettingsCache.ResizeMode.HQ2x:
                             resizeShader = ContentResolver.Current.RequestShader("ResizeHQ2x");
                             break;
-                        case Jazz2.Settings.ResizeMode.xBRZ3:
+                        case SettingsCache.ResizeMode.xBRZ3:
                             resizeShader = ContentResolver.Current.RequestShader("Resize3xBRZ");
                             break;
-                        case Jazz2.Settings.ResizeMode.xBRZ4:
+                        case SettingsCache.ResizeMode.xBRZ4:
                             resizeShader = ContentResolver.Current.RequestShader("Resize4xBRZ");
                             break;
-                        case Jazz2.Settings.ResizeMode.CRT:
+                        case SettingsCache.ResizeMode.CRT:
                             resizeShader = ContentResolver.Current.RequestShader("ResizeCRT");
                             break;
                     }
@@ -130,15 +130,15 @@ namespace Jazz2.Game.UI.Menu
                 ResizeRenderTarget(finalTarget, TargetSize);
             }
 
-            base.OnRenderPointOfView(scene, drawDevice, viewportRect, imageSize);
+            base.OnRenderPointOfView(scene, device, viewportRect, imageSize);
         }
 
-        protected override void OnRenderSingleStep(RenderStep step, Scene scene, DrawDevice drawDevice)
+        protected override void OnRenderSingleStep(RenderStep step, Scene scene, DrawDevice device)
         {
             if (step.Id == "Resize") {
-                ProcessResizeStep(drawDevice);
+                ProcessResizeStep(device);
             } else {
-                base.OnRenderSingleStep(step, scene, drawDevice);
+                base.OnRenderSingleStep(step, scene, device);
             }
         }
 

@@ -769,9 +769,9 @@ namespace Duality.Backend.Es20
                 versionString = GL.GetString(StringName.Version);
                 Console.WriteLine(
                     "OpenGL Version: {0}" + Environment.NewLine +
-                    "Vendor: {1}" + Environment.NewLine +
-                    "Renderer: {2}" + Environment.NewLine +
-                    "Shader Version: {3}",
+                    "  Vendor: {1}" + Environment.NewLine +
+                    "  Renderer: {2}" + Environment.NewLine +
+                    "  Shader Version: {3}",
                     versionString,
                     GL.GetString(StringName.Vendor),
                     GL.GetString(StringName.Renderer),
