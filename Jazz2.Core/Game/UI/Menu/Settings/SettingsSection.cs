@@ -19,7 +19,7 @@ namespace Jazz2.Game.UI.Menu.Settings
 #if __ANDROID__
             // 3xBRZ shader is not available in OpenGL ES 3.0 version
             resizeMode = new ChoiceControl(api, "Resize Mode", (int)Resize, "None", "HQ2x");
-            vibrations = new ChoiceControl(api, "Vibrations", Duality.Android.InnerView.allowVibrations ? 1 : 0, "Disable", "Enable")
+            vibrations = new ChoiceControl(api, "Vibrations", Duality.Android.InnerView.allowVibrations ? 1 : 0, "Disable", "Enable");
 #else
             resizeMode = new ChoiceControl(api, "Resize Mode", (int)Resize, "None", "HQ2x", "3xBRZ", "4xBRZ", "CRT");
 #endif

@@ -146,8 +146,9 @@ namespace Jazz2.Compatibility
                 }
             }
 
-            // Use Windows-1252 (English & Western languages) encoding
-            return Encoding.GetEncoding(1252).GetString(raw, 0, length);
+            // Windows-1252 (English & Western languages) encoding was used, but it's not supported sometimes
+            //return Encoding.GetEncoding(1252).GetString(raw, 0, length);
+            return Encoding.ASCII.GetString(raw, 0, length);
         }
     }
 }
