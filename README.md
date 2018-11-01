@@ -20,12 +20,13 @@ Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** releas
 [![Build Status](https://img.shields.io/appveyor/ci/deathkiller/jazz2.svg?logo=appveyor)](https://ci.appveyor.com/project/deathkiller/jazz2)
 [![Latest Release](https://img.shields.io/github/release/deathkiller/jazz2.svg?logo=dockbit)](https://github.com/deathkiller/jazz2/releases)
 [![License](https://img.shields.io/github/license/deathkiller/jazz2.svg)](https://github.com/deathkiller/jazz2/blob/master/LICENSE)
+[![Lines of Code](https://tokei.rs/b1/github/deathkiller/jazz2)](https://github.com/deathkiller/jazz2/graphs/code-frequency)
 
 Uses parts of [Duality - A 2D GameDev Framework](https://duality.adamslair.net/).
 
 
 ## Preview
-**[Watch gameplay videos](https://www.youtube.com/playlist?list=PLfrN-pyVL7k6n2VJF197F0yVOZq4EPTsP)**
+[**Watch gameplay videos**](https://www.youtube.com/playlist?list=PLfrN-pyVL7k6n2VJF197F0yVOZq4EPTsP)
 
 <div align="center">
     <img src="https://raw.githubusercontent.com/deathkiller/jazz2/master/Docs/Screen1.png" alt="Preview">
@@ -63,9 +64,9 @@ Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) (or equiv
 * Build the solution
 * Copy `Content` directory to `‹Game›/Content`
 * Run `‹Game›/Import.exe "Path to JJ2"` (or drag and drop JJ2 directory on `Import.exe`)
-  * On macOS, you can run `mono Import.exe "Path to JJ2"`
+  * On Linux/macOS, you can run `mono Import.exe "Path to JJ2"`
 * Run `‹Game›/Jazz2.exe`
-  * On macOS, you can run `mono Jazz2.exe`
+  * On Linux/macOS, you can run `mono Jazz2.exe`
 
 *You can run `Import.exe` without parameters to show additional options.*
 

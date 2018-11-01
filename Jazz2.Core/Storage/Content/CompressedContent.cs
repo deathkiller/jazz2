@@ -202,11 +202,11 @@ namespace Jazz2.Storage.Content
 
             if (recursive) {
                 string parentPath;
-                int idx = path.IndexOf(PathOp.DirectorySeparatorChar);
+                int idx = path.LastIndexOf(PathOp.DirectorySeparatorChar);
                 if (idx == -1) {
                     parentPath = string.Empty;
                 } else {
-                    parentPath = path.Substring(idx + 1);
+                    parentPath = path.Substring(0, idx);
                 }
 
                 Queue<Tuple<ContentTree.Node, string>> stack = new Queue<Tuple<ContentTree.Node, string>>();
@@ -239,11 +239,11 @@ namespace Jazz2.Storage.Content
 
             if (recursive) {
                 string parentPath;
-                int idx = path.IndexOf(PathOp.DirectorySeparatorChar);
+                int idx = path.LastIndexOf(PathOp.DirectorySeparatorChar);
                 if (idx == -1) {
                     parentPath = string.Empty;
                 } else {
-                    parentPath = path.Substring(idx + 1);
+                    parentPath = path.Substring(0, idx);
                 }
 
                 Queue<Tuple<ContentTree.Node, string>> stack = new Queue<Tuple<ContentTree.Node, string>>();
