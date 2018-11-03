@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Duality;
 using Duality.Backend;
+using Jazz2.Storage;
 
 namespace Jazz2.Game
 {
@@ -44,10 +45,19 @@ namespace Jazz2.Game
 
             DualityApp.Init(DualityApp.ExecutionContext.Game, new DefaultAssemblyLoader(), args);
 
+            ScreenMode newScreenMode;
+            switch (Preferences.Get<int>("Screen", 0)) {
+                default:
+                case 0: newScreenMode = ScreenMode.Window; break;
+                case 1: newScreenMode = ScreenMode.FullWindow; break;
+                //case 2: newScreenMode = ScreenMode.ChangeResolution; break;
+            }
+
             using (INativeWindow window = DualityApp.OpenWindow(new WindowOptions {
                 Title = AssemblyTitle,
                 RefreshMode = (args.Contains("/nv") ? RefreshMode.NoSync : (args.Contains("/mv") ? RefreshMode.ManualSync : RefreshMode.VSync)),
-                Size = LevelRenderSetup.TargetSize
+                Size = LevelRenderSetup.TargetSize,
+                ScreenMode = newScreenMode
             })) {
                 current = new App(window);
                 current.ShowMainMenu();

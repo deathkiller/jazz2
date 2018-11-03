@@ -42,6 +42,12 @@ namespace Duality.Backend.Android.OpenTK
             }
         }
 
+        Point2 INativeWindow.Size
+        {
+            get { return Point2.Zero; }
+            set { }
+        }
+
         ScreenMode INativeWindow.ScreenMode
         {
             get { return screenMode; }

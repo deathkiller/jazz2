@@ -25,7 +25,7 @@ namespace Jazz2.Game.UI.Menu.Settings
 
         public override bool IsInputCaptured => false;
 
-        public LinkControl(MainMenu api, string title, Action action) : base(api)
+        public LinkControl(IMenuContainer api, string title, Action action) : base(api)
         {
             this.title = title;
             this.action = action;

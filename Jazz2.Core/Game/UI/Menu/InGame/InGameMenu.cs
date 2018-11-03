@@ -9,13 +9,13 @@ using Jazz2.Game.Structs;
 
 namespace Jazz2.Game.UI.Menu.InGame
 {
-    public partial class InGameMenu : Scene
+    public partial class InGameMenu : Scene, IMenuContainer
     {
         private readonly App root;
         private readonly GameObject rootObject;
         private readonly LevelHandler levelHandler;
 
-        private Stack<InGameMenuSection> sectionStack;
+        private Stack<MenuSection> sectionStack;
 
         private Canvas canvas;
         private BitmapFont fontSmall, fontMedium;
@@ -26,6 +26,18 @@ namespace Jazz2.Game.UI.Menu.InGame
 
         private Material finalMaterial;
         private float transition;
+
+        public ScreenMode ScreenMode
+        {
+            get
+            {
+                return root.ScreenMode;
+            }
+            set
+            {
+                root.ScreenMode = value;
+            }
+        }
 
         public InGameMenu(App root, LevelHandler levelHandler)
         {
@@ -68,31 +80,31 @@ namespace Jazz2.Game.UI.Menu.InGame
             InitPlatformSpecific();
 
             // Show Begin section
-            sectionStack = new Stack<InGameMenuSection>();
+            sectionStack = new Stack<MenuSection>();
 
             SwitchToSection(new InGameMenuBeginSection());
 
         }
 
-        public void SwitchToSection(InGameMenuSection section)
+        public void SwitchToSection(MenuSection section)
         {
             if (sectionStack.Count > 0) {
-                sectionStack.Peek().OnHide();
+                sectionStack.Peek().OnHide(false);
             }
 
             sectionStack.Push(section);
             section.OnShow(this);
         }
 
-        public void LeaveSection(InGameMenuSection section)
+        public void LeaveSection(MenuSection section)
         {
             if (sectionStack.Count > 0) {
-                InGameMenuSection activeSection = sectionStack.Pop();
+                MenuSection activeSection = sectionStack.Pop();
                 if (activeSection != section) {
                     throw new InvalidOperationException();
                 }
 
-                activeSection.OnHide();
+                activeSection.OnHide(true);
 
                 if (sectionStack.Count > 0) {
                     sectionStack.Peek().OnShow(this);
@@ -240,6 +252,20 @@ namespace Jazz2.Game.UI.Menu.InGame
 
         partial void DrawPlatformSpecific(Vector2 size);
 
+        public void BeginFadeOut(Action action)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SwitchToLevel(LevelInitialization data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsAnimationPresent(string name)
+        {
+            return metadata.Graphics.ContainsKey(name);
+        }
 
         private class LocalController : Component, ICmpUpdatable, ICmpRenderer
         {

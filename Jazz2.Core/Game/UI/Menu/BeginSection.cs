@@ -7,7 +7,7 @@ using Jazz2.Game.UI.Menu.Settings;
 
 namespace Jazz2.Game.UI.Menu
 {
-    public class BeginSection : MainMenuSection
+    public class BeginSection : MenuSection
     {
         private List<Tuple<string, Action>> items;
 
@@ -25,7 +25,7 @@ namespace Jazz2.Game.UI.Menu
             };
         }
 
-        public override void OnShow(MainMenu root)
+        public override void OnShow(IMenuContainer root)
         {
             animation = 0f;
             base.OnShow(root);

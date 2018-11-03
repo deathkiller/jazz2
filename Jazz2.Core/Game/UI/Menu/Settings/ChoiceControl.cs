@@ -28,7 +28,7 @@ namespace Jazz2.Game.UI.Menu.Settings
 
         public int SelectedIndex => selectedIndex;
 
-        public ChoiceControl(MainMenu api, string title, int selectedIndex, params string[] choices) : base(api)
+        public ChoiceControl(IMenuContainer api, string title, int selectedIndex, params string[] choices) : base(api)
         {
             this.title = title;
             this.choices = choices;

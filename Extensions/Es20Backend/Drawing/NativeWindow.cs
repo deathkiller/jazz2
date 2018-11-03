@@ -60,6 +60,17 @@ namespace Duality.Backend.Es20
         public Point2 Size
         {
             get { return new Point2(this.Width, this.Height); }
+            set
+            {
+                this.internalWindow.ClientSize = new Size(value.X, value.Y);
+
+                Point location = this.internalWindow.Location;
+                if (location.X < 50) location.X = 50;
+                if (location.Y < 50) location.Y = 50;
+                this.internalWindow.Location = location;
+
+                DualityApp.WindowSize = new Point2(this.internalWindow.ClientSize.Width, this.internalWindow.ClientSize.Height);
+            }
         }
 
         public bool IsMultisampled
@@ -78,13 +89,13 @@ namespace Duality.Backend.Es20
             get { return screenMode; }
             set
             {
-                value &= (ScreenMode.FullWindow | ScreenMode.FixedSize);
+                value &= (ScreenMode.FullWindow | ScreenMode.FixedSize | ScreenMode.ChangeResolution);
                 if (screenMode == value)
                 {
                     return;
                 }
 
-                if ((value & ScreenMode.FullWindow) != 0)
+                if ((value & (ScreenMode.FullWindow | ScreenMode.ChangeResolution)) != 0)
                 {
                     this.internalWindow.WindowState = WindowState.Fullscreen;
                     this.internalWindow.WindowBorder = WindowBorder.Hidden;
@@ -114,12 +125,12 @@ namespace Duality.Backend.Es20
                 }
             }
 
-            screenMode = options.ScreenMode & (ScreenMode.FullWindow | ScreenMode.FixedSize);
+            screenMode = options.ScreenMode & (ScreenMode.FullWindow | ScreenMode.FixedSize | ScreenMode.ChangeResolution);
 
             GameWindowFlags windowFlags = GameWindowFlags.Default;
             if ((screenMode & ScreenMode.FixedSize) != 0)
                 windowFlags = GameWindowFlags.FixedWindow;
-            else if ((screenMode & ScreenMode.ChangeResolution) != 0)
+            else if ((screenMode & ScreenMode.FullWindow) != 0)
                 windowFlags = GameWindowFlags.Fullscreen;
 
             VSyncMode vsyncMode;

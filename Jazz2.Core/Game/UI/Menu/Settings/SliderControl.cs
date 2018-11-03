@@ -26,7 +26,7 @@ namespace Jazz2.Game.UI.Menu.Settings
 
         public float CurrentValue => currentValue;
 
-        public SliderControl(MainMenu api, string title, float currentValue, float minValue, float maxValue) : base(api)
+        public SliderControl(IMenuContainer api, string title, float currentValue, float minValue, float maxValue) : base(api)
         {
             this.title = title;
             this.currentValue = currentValue;

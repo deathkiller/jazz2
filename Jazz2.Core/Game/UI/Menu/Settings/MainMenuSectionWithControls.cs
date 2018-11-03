@@ -5,18 +5,18 @@ using Duality.Input;
 
 namespace Jazz2.Game.UI.Menu.Settings
 {
-    public class MainMenuSectionWithControls : MainMenuSection
+    public class MenuSectionWithControls : MenuSection
     {
         protected MenuControlBase[] controls;
 
         private int selectedIndex;
         private float animation;
 
-        public MainMenuSectionWithControls()
+        public MenuSectionWithControls()
         {
         }
 
-        public override void OnShow(MainMenu root)
+        public override void OnShow(IMenuContainer root)
         {
             animation = 0f;
 
@@ -32,7 +32,7 @@ namespace Jazz2.Game.UI.Menu.Settings
             IDrawDevice device = canvas.DrawDevice;
 
             Vector2 center = device.TargetSize * 0.5f;
-            center.Y *= 0.75f;
+            center.Y *= 0.65f;
 
             for (int i = 0; i < controls.Length; i++) {
                 controls[i].OnDraw(canvas, ref center, selectedIndex == i);

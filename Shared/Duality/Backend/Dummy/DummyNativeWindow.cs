@@ -21,7 +21,13 @@ namespace Duality.Backend.Dummy
             set { }
         }
 
-	    public ScreenMode ScreenMode
+        Point2 INativeWindow.Size
+        {
+            get { return Point2.Zero; }
+            set { }
+        }
+
+        public ScreenMode ScreenMode
 	    {
 	        get { return ScreenMode.Window; }
 	        set { }

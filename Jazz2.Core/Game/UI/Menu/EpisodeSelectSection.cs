@@ -12,7 +12,7 @@ using Jazz2.Storage;
 
 namespace Jazz2.Game.UI.Menu
 {
-    public class EpisodeSelectSection : MainMenuSection
+    public class EpisodeSelectSection : MenuSection
     {
         private struct EpisodeEntry
         {
@@ -80,7 +80,7 @@ namespace Jazz2.Game.UI.Menu
             episodes.Sort((x, y) => x.Episode.Position.CompareTo(y.Episode.Position));
         }
 
-        public override void OnShow(MainMenu root)
+        public override void OnShow(IMenuContainer root)
         {
             selectAnimation = 0f;
             base.OnShow(root);

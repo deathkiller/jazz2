@@ -2,11 +2,11 @@
 
 namespace Jazz2.Game.UI.Menu
 {
-    public abstract class MainMenuSection
+    public abstract class MenuSection
     {
-        protected MainMenu api;
+        protected IMenuContainer api;
 
-        public virtual void OnShow(MainMenu api)
+        public virtual void OnShow(IMenuContainer api)
         {
             this.api = api;
         }

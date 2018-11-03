@@ -8,7 +8,7 @@ using Jazz2.Storage;
 
 namespace Jazz2.Game.UI.Menu
 {
-    public class StartGameOptionsSection : MainMenuSection
+    public class StartGameOptionsSection : MenuSection
     {
         private readonly string episodeName, levelName, previousEpisodeName;
 
@@ -32,7 +32,7 @@ namespace Jazz2.Game.UI.Menu
             this.previousEpisodeName = previousEpisodeName;
         }
 
-        public override void OnShow(MainMenu root)
+        public override void OnShow(IMenuContainer root)
         {
             animation = 0f;
             base.OnShow(root);

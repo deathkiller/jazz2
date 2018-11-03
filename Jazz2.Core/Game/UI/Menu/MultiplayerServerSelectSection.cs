@@ -11,7 +11,7 @@ using Jazz2.Game.Multiplayer;
 
 namespace Jazz2.Game.UI.Menu
 {
-    public class MultiplayerServerSelectSection : MainMenuSection
+    public class MultiplayerServerSelectSection : MenuSection
     {
         private class Server
         {
@@ -39,7 +39,7 @@ namespace Jazz2.Game.UI.Menu
             serverList = new List<Server>();
         }
 
-        public override void OnShow(MainMenu root)
+        public override void OnShow(IMenuContainer root)
         {
             base.OnShow(root);
             animation = 0f;

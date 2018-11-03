@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using Duality;
 using Duality.Drawing;
 using Duality.Input;
+using Jazz2.Game.UI.Menu.Settings;
 
 namespace Jazz2.Game.UI.Menu.InGame
 {
-    public class InGameMenuBeginSection : InGameMenuSection
+    public class InGameMenuBeginSection : MenuSection
     {
         private List<Tuple<string, Action>> items;
 
@@ -17,11 +18,12 @@ namespace Jazz2.Game.UI.Menu.InGame
         {
             items = new List<Tuple<string, Action>> {
                 Tuple.Create<string, Action>("Resume", OnPlayStoryPressed),
+                Tuple.Create<string, Action>("Settings", OnSettingsPressed),
                 Tuple.Create<string, Action>("Save & Exit", OnExitPressed),
             };
         }
 
-        public override void OnShow(InGameMenu root)
+        public override void OnShow(IMenuContainer root)
         {
             animation = 0f;
             base.OnShow(root);
@@ -69,7 +71,7 @@ namespace Jazz2.Game.UI.Menu.InGame
                 items[selectedIndex].Item2();
             } else if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
                 api.PlaySound("MenuSelect", 0.5f);
-                api.SwitchToCurrentGame();
+                ((InGameMenu)api).SwitchToCurrentGame();
             } else if (ControlScheme.MenuActionHit(PlayerActions.Up)) {
                 api.PlaySound("MenuSelect", 0.4f);
                 animation = 0f;
@@ -91,12 +93,17 @@ namespace Jazz2.Game.UI.Menu.InGame
 
         private void OnPlayStoryPressed()
         {
-            api.SwitchToCurrentGame();
+            ((InGameMenu)api).SwitchToCurrentGame();
+        }
+
+        private void OnSettingsPressed()
+        {
+            api.SwitchToSection(new SettingsSection());
         }
 
         private void OnExitPressed()
         {
-            api.SwitchToMainMenu();
+            ((InGameMenu)api).SwitchToMainMenu();
         }
     }
 }

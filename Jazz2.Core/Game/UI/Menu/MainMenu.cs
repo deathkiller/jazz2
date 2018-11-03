@@ -11,12 +11,12 @@ using Jazz2.Game.Tiles;
 
 namespace Jazz2.Game.UI.Menu
 {
-    public partial class MainMenu : Scene
+    public partial class MainMenu : Scene, IMenuContainer
     {
         private readonly App root;
         private readonly GameObject rootObject;
 
-        private Stack<MainMenuSection> sectionStack;
+        private Stack<MenuSection> sectionStack;
 
         private Canvas canvas;
         private BitmapFont fontSmall, fontMedium;
@@ -32,6 +32,18 @@ namespace Jazz2.Game.UI.Menu
         private OpenMptStream music;
 
         private static Updater.Release newVersion;
+
+        public ScreenMode ScreenMode
+        {
+            get
+            {
+                return root.ScreenMode;
+            }
+            set
+            {
+                root.ScreenMode = value;
+            }
+        }
 
         public MainMenu(App root)
         {
@@ -87,7 +99,7 @@ namespace Jazz2.Game.UI.Menu
             InitPlatformSpecific();
 
             // Show Begin section
-            sectionStack = new Stack<MainMenuSection>();
+            sectionStack = new Stack<MenuSection>();
 
             SwitchToSection(new BeginSection());
 
@@ -106,7 +118,7 @@ namespace Jazz2.Game.UI.Menu
             base.OnDisposing(manually);
         }
 
-        public void SwitchToSection(MainMenuSection section)
+        public void SwitchToSection(MenuSection section)
         {
             if (sectionStack.Count > 0) {
                 //renderSetup.BeginPageTransition();
@@ -117,10 +129,10 @@ namespace Jazz2.Game.UI.Menu
             section.OnShow(this);
         }
 
-        public void LeaveSection(MainMenuSection section)
+        public void LeaveSection(MenuSection section)
         {
             if (sectionStack.Count > 0) {
-                MainMenuSection activeSection = sectionStack.Pop();
+                MenuSection activeSection = sectionStack.Pop();
                 if (activeSection != section) {
                     throw new InvalidOperationException();
                 }

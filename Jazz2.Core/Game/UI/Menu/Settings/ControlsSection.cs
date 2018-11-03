@@ -6,7 +6,7 @@ using static Jazz2.ControlScheme;
 
 namespace Jazz2.Game.UI.Menu.Settings
 {
-    public class ControlsSection : MainMenuSection
+    public class ControlsSection : MenuSection
     {
         private const int possibleButtons = 3;
 
@@ -19,7 +19,7 @@ namespace Jazz2.Game.UI.Menu.Settings
 
         }
 
-        public override void OnShow(MainMenu root)
+        public override void OnShow(IMenuContainer root)
         {
             animation = 0f;
             base.OnShow(root);

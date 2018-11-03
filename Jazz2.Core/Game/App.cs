@@ -20,6 +20,22 @@ namespace Jazz2.Game
             set { window.Title = App.AssemblyTitle + (string.IsNullOrEmpty(value) ? "" : " - " + value); }
         }
 
+        public ScreenMode ScreenMode
+        {
+            get
+            {
+                return (window.ScreenMode & ~ScreenMode.Immersive);
+            }
+            set
+            {
+                window.ScreenMode = (value & ~ScreenMode.Immersive) | (window.ScreenMode & ScreenMode.Immersive);
+
+                if ((value & (ScreenMode.FullWindow | ScreenMode.ChangeResolution)) == 0) {
+                    window.Size = LevelRenderSetup.TargetSize;
+                }
+            }
+        }
+
         public bool Immersive
         {
             get

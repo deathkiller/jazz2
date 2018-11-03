@@ -5,12 +5,12 @@ namespace Jazz2.Game.UI.Menu.Settings
 {
     public abstract class MenuControlBase
     {
-        protected readonly MainMenu api;
+        protected readonly IMenuContainer api;
 
         public abstract bool IsEnabled { get; set; }
         public abstract bool IsInputCaptured { get; }
 
-        public MenuControlBase(MainMenu api)
+        public MenuControlBase(IMenuContainer api)
         {
             this.api = api;
         }

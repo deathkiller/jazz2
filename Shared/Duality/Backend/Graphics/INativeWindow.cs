@@ -8,6 +8,8 @@ namespace Duality.Backend
 
         string Title { get; set; }
 
+        Point2 Size { get; set; }
+
         ScreenMode ScreenMode { get; set; }
     }
 }

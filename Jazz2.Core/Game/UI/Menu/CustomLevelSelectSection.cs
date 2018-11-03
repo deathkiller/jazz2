@@ -12,7 +12,7 @@ using static Jazz2.Game.LevelHandler;
 
 namespace Jazz2.Game.UI.Menu
 {
-    public class CustomLevelSelectSection : MainMenuSection
+    public class CustomLevelSelectSection : MenuSection
     {
         private class CustomLevel
         {
@@ -113,7 +113,7 @@ namespace Jazz2.Game.UI.Menu
             }, null);
         }
 
-        public override void OnShow(MainMenu root)
+        public override void OnShow(IMenuContainer root)
         {
             base.OnShow(root);
             animation = 0f;

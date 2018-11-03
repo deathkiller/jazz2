@@ -5,7 +5,7 @@ using Duality.Input;
 
 namespace Jazz2.Game.UI.Menu
 {
-    public class AboutSection : MainMenuSection
+    public class AboutSection : MenuSection
     {
         private string libopenmptText;
 

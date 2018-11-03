@@ -25,7 +25,7 @@ namespace Jazz2.Game
         private readonly ContentRef<DrawTechnique> downsampleShader;
         private readonly ContentRef<DrawTechnique> blurShader;
 #endif
-        private readonly ContentRef<DrawTechnique> resizeShader;
+        private ContentRef<DrawTechnique> resizeShader;
 
         private Texture lightingTexture, mainTexture, normalTexture, finalTexture;
         private RenderTarget lightingTarget, mainTarget, finalTarget;
@@ -38,6 +38,8 @@ namespace Jazz2.Game
         private readonly VertexC1P3T4A1[] lightBuffer = new VertexC1P3T4A1[4];
 
         private readonly ContentRef<Texture> noiseTexture;
+
+        private SettingsCache.ResizeMode lastResizeMode;
 
         public Texture FinalTexture
         {
@@ -59,8 +61,10 @@ namespace Jazz2.Game
             combineSceneShader = ContentResolver.Current.RequestShader("CombineScene");
             combineSceneWaterShader = ContentResolver.Current.RequestShader("CombineSceneWater");
 
+            lastResizeMode = SettingsCache.Resize;
+
             try {
-                switch (SettingsCache.Resize) {
+                switch (lastResizeMode) {
                     default:
                     case SettingsCache.ResizeMode.None:
                         resizeShader = DrawTechnique.Solid;
@@ -166,6 +170,34 @@ namespace Jazz2.Game
 
         protected override void OnRenderPointOfView(Scene scene, DrawDevice drawDevice, Rect viewportRect, Vector2 imageSize)
         {
+            // Switch between resize modes if necessary
+            if (lastResizeMode != SettingsCache.Resize) {
+                lastResizeMode = SettingsCache.Resize;
+
+                try {
+                    switch (lastResizeMode) {
+                        default:
+                        case SettingsCache.ResizeMode.None:
+                            resizeShader = DrawTechnique.Solid;
+                            break;
+                        case SettingsCache.ResizeMode.HQ2x:
+                            resizeShader = ContentResolver.Current.RequestShader("ResizeHQ2x");
+                            break;
+                        case SettingsCache.ResizeMode.xBRZ3:
+                            resizeShader = ContentResolver.Current.RequestShader("Resize3xBRZ");
+                            break;
+                        case SettingsCache.ResizeMode.xBRZ4:
+                            resizeShader = ContentResolver.Current.RequestShader("Resize4xBRZ");
+                            break;
+                        case SettingsCache.ResizeMode.CRT:
+                            resizeShader = ContentResolver.Current.RequestShader("ResizeCRT");
+                            break;
+                    }
+                } catch {
+                    resizeShader = DrawTechnique.Solid;
+                }
+            }
+
             // Check if resolution changed
             if (lastImageSize != imageSize) {
                 lastImageSize = imageSize;
