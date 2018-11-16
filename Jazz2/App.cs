@@ -50,7 +50,6 @@ namespace Jazz2.Game
                 default:
                 case 0: newScreenMode = ScreenMode.Window; break;
                 case 1: newScreenMode = ScreenMode.FullWindow; break;
-                //case 2: newScreenMode = ScreenMode.ChangeResolution; break;
             }
 
             using (INativeWindow window = DualityApp.OpenWindow(new WindowOptions {

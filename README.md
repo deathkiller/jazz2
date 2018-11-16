@@ -15,10 +15,10 @@
 
 
 ## Introduction
-Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** released in 1998. Supports various versions of the game (Shareware Demo, Holiday Hare '98, The Secret Files and Christmas Chronicles). Also, it partially supports some features of [JJ2+](http://jj2.plus/) extension and MLLE.
+Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** released in 1998. Supports various versions of the game (Shareware Demo, Holiday Hare '98, The Secret Files and Christmas Chronicles). Also, it partially supports some features of JJ2+ extension and MLLE.
 
 [![Build Status](https://img.shields.io/appveyor/ci/deathkiller/jazz2.svg?logo=appveyor)](https://ci.appveyor.com/project/deathkiller/jazz2)
-[![Latest Release](https://img.shields.io/github/release/deathkiller/jazz2.svg?logo=dockbit)](https://github.com/deathkiller/jazz2/releases)
+[![Latest Release](https://img.shields.io/github/release/deathkiller/jazz2.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMjAgOEg0VjZoMTZ2MnptLTItNkg2djJoMTJWMnptNCAxMHY4YzAgMS4xLS45IDItMiAySDRjLTEuMSAwLTItLjktMi0ydi04YzAtMS4xLjktMiAyLTJoMTZjMS4xIDAgMiAuOSAyIDJ6bS02IDRsLTYtMy4yN3Y2LjUzTDE2IDE2eiIgZmlsbD0iI2RkZCIvPjxwYXRoIGZpbGw9Im5vbmUiIGQ9Ik0wIDBoMjR2MjRIMHoiLz48L3N2Zz4=)](https://github.com/deathkiller/jazz2/releases)
 [![License](https://img.shields.io/github/license/deathkiller/jazz2.svg)](https://github.com/deathkiller/jazz2/blob/master/LICENSE)
 [![Lines of Code](https://tokei.rs/b1/github/deathkiller/jazz2)](https://github.com/deathkiller/jazz2/graphs/code-frequency)
 
@@ -56,7 +56,7 @@ Uses parts of [Duality - A 2D GameDev Framework](https://duality.adamslair.net/)
 * Xamarin
 * [libopenmpt](https://lib.openmpt.org/libopenmpt/download/) (included for *armeabi-v7a* and *x86*)
 
-Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) (or equivalent Mono compiler) to build the solution.
+Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) or newer (or equivalent Mono compiler) to build the solution.
 
 
 ## Running the application
@@ -85,7 +85,7 @@ Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) (or equiv
 
 ## Building the solution
 ### Windows
-* Open the solution in [Microsoft Visual Studio 2017](https://www.visualstudio.com/) and build it
+* Open the solution in [Microsoft Visual Studio 2017](https://www.visualstudio.com/) (or newer) and build it
 * Copy `/Packages/AdamsLair.OpenTK.x.y.z/lib/OpenTK.dll.config` to `/Jazz2/Bin/Debug/OpenTK.dll.config`
 * Copy dependencies to `/Jazz2/Bin/Debug/` or `/Jazz2/Bin/Release/`
 * If you build Release configuration, you have to replace `Debug` with `Release` in paths above
@@ -112,17 +112,17 @@ msbuild
 *Errors about `Jazz2.Android` project can be ignored, if you don't need Android build.*
 
 ### Android
-* Install **Mobile development in .NET** to Microsoft Visual Studio 2017
+* Install **Mobile development in .NET** to Microsoft Visual Studio 2017 (or newer)
 * Open the solution and build `Jazz2.Android` project
 
 
 ## Extensions
 ### OpenGL ES 2.0
-Alternative OpenGL ES 2.0 backend can be built separatelly. It does not contain all features
+Alternative OpenGL ES 2.0 backend can be built separately. It does not contain all features
 that are available in default OpenGL 2.1 backend, but it should run faster on low-end configurations.
-**Don't use it if you have no reason for it!**
+<span style="color:#a22;">Don't use it if you have no reason to do so!</span>
 
-To use it, build `Extensions/Es20Backend` project. It should be copied to
+To use it, build `Extensions/Es20Backend` project. The library will be copied to
 `/Jazz2/Bin/Debug/Extensions/Es20Backend.core.dll` automatically.
 Then copy all files from `Content/_ES20` directory to `/Jazz2/Bin/Debug/Content` and replace them.
 
