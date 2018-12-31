@@ -21,6 +21,7 @@ Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** releas
 [![Latest Release](https://img.shields.io/github/release/deathkiller/jazz2.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMjAgOEg0VjZoMTZ2MnptLTItNkg2djJoMTJWMnptNCAxMHY4YzAgMS4xLS45IDItMiAySDRjLTEuMSAwLTItLjktMi0ydi04YzAtMS4xLjktMiAyLTJoMTZjMS4xIDAgMiAuOSAyIDJ6bS02IDRsLTYtMy4yN3Y2LjUzTDE2IDE2eiIgZmlsbD0iI2RkZCIvPjxwYXRoIGZpbGw9Im5vbmUiIGQ9Ik0wIDBoMjR2MjRIMHoiLz48L3N2Zz4=)](https://github.com/deathkiller/jazz2/releases)
 [![License](https://img.shields.io/github/license/deathkiller/jazz2.svg)](https://github.com/deathkiller/jazz2/blob/master/LICENSE)
 [![Lines of Code](https://tokei.rs/b1/github/deathkiller/jazz2)](https://github.com/deathkiller/jazz2/graphs/code-frequency)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fdeathkiller%2Fjazz2.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fdeathkiller%2Fjazz2?ref=badge_shield)
 
 Uses parts of [Duality - A 2D GameDev Framework](https://duality.adamslair.net/).
 
@@ -131,3 +132,5 @@ Also, you have to remove `/Jazz2/Bin/Debug/Extensions/GL21Backend.core.dll` file
 
 ## License
 This project is licensed under the terms of the [GNU General Public License v3.0](./LICENSE).
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fdeathkiller%2Fjazz2.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fdeathkiller%2Fjazz2?ref=badge_large)
