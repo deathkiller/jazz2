@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Android.Content.Res;
 using Android.Views;
 using Duality.Drawing;
@@ -329,9 +330,11 @@ namespace Duality.Android
 
             public string CharInput => "";
 
-            public string Description => "Android Keyboard Provider";
+            string IUserInputSource.Id => "Android Keyboard Provider";
+            string IUserInputSource.ProductName => "Android Keyboard Provider";
+            Guid IUserInputSource.ProductId => Guid.Empty;
 
-            public bool IsAvailable => true;
+            bool IUserInputSource.IsAvailable => true;
 
             public KeyboardInputSource(InnerView owner)
             {

@@ -11,14 +11,24 @@ namespace Duality.Backend.DefaultOpenTK
     {
         private static List<GlobalGamepadInputSource> cachedDevices = new List<GlobalGamepadInputSource>();
 
+        private Guid productId;
+        private string productName;
         private int deviceIndex;
         private bool hasAxesOrButtons;
         private GamePadState state;
         private GamePadCapabilities caps;
 
-        public string Description
+        public string Id
         {
             get { return string.Format("Gamepad {0}", this.deviceIndex); }
+        }
+        public Guid ProductId
+        {
+            get { return this.productId; }
+        }
+        public string ProductName
+        {
+            get { return this.productName; }
         }
         public bool IsAvailable
         {
@@ -28,7 +38,8 @@ namespace Duality.Backend.DefaultOpenTK
         {
             get
             {
-                switch (button) {
+                switch (button)
+                {
                     case GamepadButton.A: return this.state.Buttons.A == ButtonState.Pressed;
                     case GamepadButton.B: return this.state.Buttons.B == ButtonState.Pressed;
                     case GamepadButton.X: return this.state.Buttons.X == ButtonState.Pressed;
@@ -56,7 +67,8 @@ namespace Duality.Backend.DefaultOpenTK
         {
             get
             {
-                switch (axis) {
+                switch (axis)
+                {
                     case GamepadAxis.LeftTrigger: return MathF.Clamp(this.state.Triggers.Left, 0.0f, 1.0f);
                     case GamepadAxis.LeftThumbstickX: return MathF.Clamp(this.state.ThumbSticks.Left.X, -1.0f, 1.0f);
                     case GamepadAxis.LeftThumbstickY: return MathF.Clamp(this.state.ThumbSticks.Left.Y, -1.0f, 1.0f);
@@ -77,11 +89,16 @@ namespace Duality.Backend.DefaultOpenTK
 
         public void UpdateState()
         {
+            // Retrieve the gamepads hardware GUID from the corresponding joystick device
+            this.productId = Joystick.GetGuid(this.deviceIndex);
+
+            this.productName = GamePad.GetName(this.deviceIndex);
             this.caps = GamePad.GetCapabilities(this.deviceIndex);
             this.state = GamePad.GetState(this.deviceIndex);
 
             // If it's not a well-known gamepad, check the corresponding joystick whether there are any axes or buttons
-            if (!this.caps.IsMapped) {
+            if (!this.caps.IsMapped)
+            {
                 JoystickCapabilities joystickCaps = Joystick.GetCapabilities(this.deviceIndex);
                 this.hasAxesOrButtons = joystickCaps.AxisCount > 0 || joystickCaps.ButtonCount > 0 || joystickCaps.HatCount > 0;
             }
@@ -98,9 +115,11 @@ namespace Duality.Backend.DefaultOpenTK
 
             // Determine which devices are currently active already, so we can skip their indices
             List<int> skipIndices = null;
-            foreach (GamepadInput input in inputManager) {
+            foreach (GamepadInput input in inputManager)
+            {
                 GlobalGamepadInputSource existingDevice = input.Source as GlobalGamepadInputSource;
-                if (existingDevice != null) {
+                if (existingDevice != null)
+                {
                     if (skipIndices == null) skipIndices = new List<int>();
                     skipIndices.Add(existingDevice.deviceIndex);
                 }
@@ -108,23 +127,29 @@ namespace Duality.Backend.DefaultOpenTK
 
             // Iterate over device indices and see what responds
             int deviceIndex = -1;
-            while (deviceIndex < MaxDeviceCheckCount) {
+            while (deviceIndex < MaxDeviceCheckCount)
+            {
                 deviceIndex++;
 
                 if (skipIndices != null && skipIndices.Contains(deviceIndex))
                     continue;
 
-                while (deviceIndex >= cachedDevices.Count) {
+                while (deviceIndex >= cachedDevices.Count)
+                {
                     cachedDevices.Add(new GlobalGamepadInputSource(cachedDevices.Count));
                 }
                 GlobalGamepadInputSource gamepad = cachedDevices[deviceIndex];
                 gamepad.UpdateState();
 
-                if (gamepad.IsAvailable) {
+                if (gamepad.IsAvailable)
+                {
                     inputManager.AddSource(gamepad);
                     Console.WriteLine(
-                        "Detected new Gamepad Input: \"{0}\" at index {1}",
-                        gamepad.Description, deviceIndex);
+                        "Detected new Gamepad Input: \"{0}\" ({1} | {2}) at index {3}",
+                        gamepad.Id,
+                        gamepad.ProductId,
+                        gamepad.ProductName,
+                        deviceIndex);
                 } else if (deviceIndex >= MinDeviceCheckCount)
                     break;
             }

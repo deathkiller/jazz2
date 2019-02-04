@@ -1,23 +1,38 @@
-﻿using System.Text;
+﻿using System;
 using Duality.Input;
+using System.Text;
+
 using OpenTK;
+
+using TKKeyboardKeyEventArgs = OpenTK.Input.KeyboardKeyEventArgs;
+using TKKeyboardState = OpenTK.Input.KeyboardState;
 
 namespace Duality.Backend.DefaultOpenTK
 {
     public class GameWindowKeyboardInputSource : IKeyboardInputSource
     {
-        private GameWindow window;
-        private bool hasFocus;
-        private string charInput;
+        private GameWindow window = null;
+        private bool hasFocus = false;
+        private string charInput = string.Empty;
         private StringBuilder charInputBuffer = new StringBuilder();
+        private TKKeyboardState keyState = default(TKKeyboardState);
+        private TKKeyboardState keyStateBuffer = default(TKKeyboardState);
 
-        public string Description
+        public string Id
+        {
+            get { return "Keyboard"; }
+        }
+        public Guid ProductId
+        {
+            get { return Guid.Empty; }
+        }
+        public string ProductName
         {
             get { return "Keyboard"; }
         }
         public bool IsAvailable
         {
-            get { return this.window != null && this.window.Keyboard != null && this.hasFocus; }
+            get { return this.window != null && this.hasFocus; }
         }
         public string CharInput
         {
@@ -25,18 +40,15 @@ namespace Duality.Backend.DefaultOpenTK
         }
         public bool this[Key key]
         {
-            get { return this.window.Keyboard[GetOpenTKKey(key)]; }
+            get { return this.keyState[GetOpenTKKey(key)]; }
         }
 
         public GameWindowKeyboardInputSource(GameWindow window)
         {
             this.window = window;
             this.window.KeyPress += this.window_KeyPress;
-        }
-
-        private void window_KeyPress(object sender, OpenTK.KeyPressEventArgs e)
-        {
-            this.charInputBuffer.Append(e.KeyChar);
+            this.window.KeyDown += this.window_KeyDown;
+            this.window.KeyUp += this.window_KeyUp;
         }
 
         public void UpdateState()
@@ -44,11 +56,27 @@ namespace Duality.Backend.DefaultOpenTK
             this.hasFocus = this.window.Focused;
             this.charInput = this.charInputBuffer.ToString();
             this.charInputBuffer.Clear();
+            this.keyState = this.keyStateBuffer;
+        }
+
+
+        private void window_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            this.charInputBuffer.Append(e.KeyChar);
+        }
+        private void window_KeyDown(object sender, TKKeyboardKeyEventArgs e)
+        {
+            this.keyStateBuffer = e.Keyboard;
+        }
+        private void window_KeyUp(object sender, TKKeyboardKeyEventArgs e)
+        {
+            this.keyStateBuffer = e.Keyboard;
         }
 
         private static OpenTK.Input.Key GetOpenTKKey(Key key)
         {
-            switch (key) {
+            switch (key)
+            {
                 case Key.Unknown: return OpenTK.Input.Key.Unknown;
 
                 case Key.ShiftLeft: return OpenTK.Input.Key.ShiftLeft;

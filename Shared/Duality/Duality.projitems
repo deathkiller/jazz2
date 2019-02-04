@@ -127,11 +127,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Input\GamepadAxisEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Input\GamepadButton.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Input\GamepadButtonEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Input\JoystickAxis.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Input\JoystickAxisEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Input\JoystickButton.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Input\JoystickButtonEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Input\JoystickHat.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Input\JoystickHatEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Input\JoystickHatPosition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Input\Key.cs" />

@@ -719,9 +719,13 @@ namespace Editor.UI.CamView
             get { return this.inputKeyPressed[(int)key]; }
         }
 
-        string IUserInputSource.Description
+        string IUserInputSource.Id
         {
             get { return "Camera View"; }
+        }
+        Guid IUserInputSource.ProductId
+        {
+            get { return Guid.Empty; }
         }
         bool IUserInputSource.IsAvailable
         {

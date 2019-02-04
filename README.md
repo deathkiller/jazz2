@@ -92,10 +92,8 @@ Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) or newer 
 
 ### Linux
 * Install [Mono 5.0 (or newer)](http://www.mono-project.com/download/#download-lin)
-* Run following commands in directory with the solution file (.sln):
+* Run following command in directory with the solution file (.sln):
 ```bash
-sudo apt install nuget
-nuget restore
 msbuild
 ```
 * Copy `/Packages/AdamsLair.OpenTK.x.y.z/lib/OpenTK.dll.config` to `/Jazz2/Bin/Debug/OpenTK.dll.config`

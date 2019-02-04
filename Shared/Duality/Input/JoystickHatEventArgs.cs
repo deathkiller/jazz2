@@ -2,13 +2,13 @@
 {
     public class JoystickHatEventArgs : UserInputEventArgs
 	{
-		private JoystickHat hat;
+		private int hatIndex;
 		private JoystickHatPosition hatPos;
 		private JoystickHatPosition lastHatPos;
 
-		public JoystickHat Hat
+		public int HatIndex
 		{
-			get { return this.hat; }
+			get { return this.hatIndex; }
 		}
 		public JoystickHatPosition HatPosition
 		{
@@ -19,9 +19,9 @@
 			get { return this.lastHatPos; }
 		}
 
-		public JoystickHatEventArgs(JoystickInput inputChannel, JoystickHat hat, JoystickHatPosition hatPos, JoystickHatPosition lastHatPos) : base(inputChannel)
+		public JoystickHatEventArgs(JoystickInput inputChannel, int hatIndex, JoystickHatPosition hatPos, JoystickHatPosition lastHatPos) : base(inputChannel)
 		{
-			this.hat = hat;
+			this.hatIndex = hatIndex;
 			this.hatPos = hatPos;
 			this.lastHatPos = lastHatPos;
 		}
