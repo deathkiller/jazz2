@@ -5,7 +5,7 @@ namespace Editor
 {
     public static class ExtMethodsColor
 	{
-		public static Color ScaleBrightness(this ref Color c, float ratio)
+		public static Color ScaleBrightness(this Color c, float ratio)
 		{
 			return Color.FromArgb(c.A,
 				(byte)Math.Min(Math.Max((float)c.R * ratio, 0.0f), 255.0f),

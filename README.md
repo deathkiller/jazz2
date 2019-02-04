@@ -92,10 +92,7 @@ Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) or newer 
 
 ### Linux
 * Install [Mono 5.0 (or newer)](http://www.mono-project.com/download/#download-lin)
-* Run following command in directory with the solution file (.sln):
-```bash
-msbuild
-```
+* Run `msbuild` in directory with the solution file (.sln):
 * Copy `/Packages/AdamsLair.OpenTK.x.y.z/lib/OpenTK.dll.config` to `/Jazz2/Bin/Debug/OpenTK.dll.config`
 * Obtain and copy `libopenmpt.so` to `/Jazz2/Bin/Debug/libopenmpt.so` to enable music playback
 * Then you can rebuild the solution only with `msbuild` command
