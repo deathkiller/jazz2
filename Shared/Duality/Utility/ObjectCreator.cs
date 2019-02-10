@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Jazz2.Game;
 
 namespace Duality
 {
@@ -103,7 +104,7 @@ namespace Duality
 
                 // If there were no suitable constructors, log a generic warning.
                 if (constructors.Length == 0) {
-                    Console.WriteLine(
+                    App.Log(
 						"Failed to create object of Type {0}. Make sure there is a trivial constructor.", typeInfo.FullName);
                 }
             }
@@ -119,13 +120,13 @@ namespace Duality
                 if (lastError != null) {
                     // If it's a problem in a static constructor, get the inner exception to know what's actually wrong.
                     if (lastError is TypeInitializationException) {
-                        Console.WriteLine("Failed to initialize Type {0}: {1}",
+                        App.Log("Failed to initialize Type {0}: {1}",
                             typeInfo.FullName,
 							lastError.InnerException);
                     }
                     // Otherwise, just do a regular error log.
                     else {
-                        Console.WriteLine("Failed to create object of Type {0}: {1}",
+                        App.Log("Failed to create object of Type {0}: {1}",
                             typeInfo.FullName,
 							lastError);
                     }

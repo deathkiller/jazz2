@@ -133,7 +133,7 @@ namespace Jazz2.Game.UI.Menu
                     }
                 }
             } catch (Exception ex) {
-                Console.WriteLine("Cannot prerender textured background: " + ex);
+                App.Log("Cannot prerender textured background: " + ex);
 
                 cachedTexturedBackground = new Texture(new Pixmap(new PixelData(2, 2, ColorRgba.Black)));
             }

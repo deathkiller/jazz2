@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Duality.Components;
 using Duality.Drawing;
+using Jazz2.Game;
 
 namespace Duality.Resources
 {
@@ -164,7 +165,7 @@ namespace Duality.Resources
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine("There was an error while {0} was rendering {1}: {2}", this, scene, /*LogFormat.Exception(*/e/*)*/);
+                App.Log("There was an error while {0} was rendering {1}: {2}", this, scene, /*LogFormat.Exception(*/e/*)*/);
 			}
 		}
 		/// <summary>
@@ -187,7 +188,7 @@ namespace Duality.Resources
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine("There was an error while {0} was rendering a point of view in {1}: {2}", this, scene, /*LogFormat.Exception(*/e/*)*/);
+                App.Log("There was an error while {0} was rendering a point of view in {1}: {2}", this, scene, /*LogFormat.Exception(*/e/*)*/);
 			}
 
 			// Reset matrices for projection calculations to their previous state
@@ -321,7 +322,7 @@ namespace Duality.Resources
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine("There was an error while {0} was processing rendering step '{1}': {2}", this, step.Id, /*LogFormat.Exception(*/e/*)*/);
+                App.Log("There was an error while {0} was processing rendering step '{1}': {2}", this, step.Id, /*LogFormat.Exception(*/e/*)*/);
 			}
 
 			// Restore old draw device state
@@ -372,7 +373,7 @@ namespace Duality.Resources
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine("There was an error while {0} was collecting renderer drawcalls: {1}", this, /*LogFormat.Exception(*/e/*)*/);
+                App.Log("There was an error while {0} was collecting renderer drawcalls: {1}", this, /*LogFormat.Exception(*/e/*)*/);
 			}
 		}
 		/// <summary>
@@ -388,7 +389,7 @@ namespace Duality.Resources
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine("There was an error while {0} was collecting external drawcalls: {1}", this, /*LogFormat.Exception(*/e/*)*/);
+                App.Log("There was an error while {0} was collecting external drawcalls: {1}", this, /*LogFormat.Exception(*/e/*)*/);
 			}
 		}
 		/// <summary>

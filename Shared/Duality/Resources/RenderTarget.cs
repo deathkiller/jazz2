@@ -4,6 +4,7 @@ using System.Linq;
 
 using Duality.Drawing;
 using Duality.Backend;
+using Jazz2.Game;
 
 namespace Duality.Resources
 {
@@ -211,8 +212,8 @@ namespace Duality.Resources
 		{
 			foreach (var target in this.targets.Where(t => t != null).Res()) {
 				if (target.ContentWidth == 0 || target.ContentHeight == 0) {
-					//Console.WriteLine("Error initializing '{0}' because '{1}' has a dimension of zero.", this, target);
-					return;
+                    //App.Log("Error initializing '{0}' because '{1}' has a dimension of zero.", this, target);
+                    return;
 				}
 			}
 
@@ -225,7 +226,7 @@ namespace Duality.Resources
 			try {
 				this.native.Setup(targets, this.multisampling, this.depthBuffer);
 			} catch (Exception e) {
-				Console.WriteLine("Error initializing RenderTarget {0}:{1}{2}", this, Environment.NewLine, /*LogFormat.Exception(*/e/*)*/);
+                App.Log("Error initializing RenderTarget {0}:{1}{2}", this, Environment.NewLine, /*LogFormat.Exception(*/e/*)*/);
 			}
 		}
 

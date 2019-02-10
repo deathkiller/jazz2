@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Jazz² Resurrection Server")]
-[assembly: AssemblyCopyright("© 2016-2017 Dan R.")]
+[assembly: AssemblyCopyright("© 2016-2019 Dan R.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

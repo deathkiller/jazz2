@@ -6,6 +6,7 @@ using System.Text;
 using Android.App;
 using Duality.IO;
 using Jazz2.Android;
+using Jazz2.Game;
 using Environment = Android.OS.Environment;
 
 namespace Duality.Backend.Android
@@ -70,7 +71,7 @@ namespace Duality.Backend.Android
                 CrashHandlerActivity.ShowErrorDialog(new DirectoryNotFoundException(sb.ToString()));
             }
 
-            Console.WriteLine("Android Root Path: " + RootPath);
+            App.Log("Android Root Path: " + RootPath);
         }
 
         string IFileSystem.GetFullPath(string path)
@@ -265,7 +266,7 @@ namespace Duality.Backend.Android
                     }
                 }
             } catch {
-                Console.WriteLine("/proc/mounts failed!");
+                App.Log("/proc/mounts failed!");
             }
 
             //foreach (var storage in storages) {

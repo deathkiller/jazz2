@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Jazz2.Game;
 
 namespace Duality
 {
@@ -381,7 +382,7 @@ namespace Duality
 				// If the loops weakest link was an explicit constraint, log a warning
 				if ((int)weakestLink.Priority >= (int)ConstraintPriority.ExplicitWeak)
 				{
-				    Console.WriteLine(
+                    App.Log(
 						"Found a loop in the component execution order constraint graph. Ignoring the weakest constraint " + 
 						"({0} must be executed before {1}). Please check your ExecutionOrder attributes.",
 						weakestLink.FirstType,

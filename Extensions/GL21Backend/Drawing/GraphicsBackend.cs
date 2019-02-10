@@ -9,6 +9,7 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using Duality.Backend.DefaultOpenTK;
 using System.Runtime.InteropServices;
+using Jazz2.Game;
 
 namespace Duality.Backend.GL21
 {
@@ -88,7 +89,7 @@ namespace Duality.Backend.GL21
 			// Initialize OpenTK, if not done yet
 			DefaultOpenTKBackendPlugin.InitOpenTK();
 
-			Console.WriteLine("Active graphics backend: OpenGL 2.1");
+            App.Log("Active graphics backend: OpenGL 2.1");
 
 			// Log information about the available display devices
 			GraphicsBackend.LogDisplayDevices();
@@ -391,7 +392,7 @@ namespace Duality.Backend.GL21
 			if (this.contextCapsRetrieved) return;
 			this.contextCapsRetrieved = true;
 
-			//Console.WriteLine("Determining OpenGL context capabilities...");
+			//App.Log("Determining OpenGL context capabilities...");
 			//Logs.Core.PushIndent();
 
 			// Make sure we're not on a render target, which may override
@@ -413,11 +414,11 @@ namespace Duality.Backend.GL21
 			// actually zero, assume MSAA is driver-disabled.
 			if (targetSamples != actualSamples)
 			{
-				Console.WriteLine("Requested {0} MSAA samples, but got {1} samples instead.", targetSamples, actualSamples);
+                App.Log("Requested {0} MSAA samples, but got {1} samples instead.", targetSamples, actualSamples);
 				if (actualSamples == 0)
 				{
 					this.msaaIsDriverDisabled = true;
-					Console.WriteLine("Assuming MSAA is unavailable. Duality will not use Alpha-to-Coverage masking techniques.");
+                    App.Log("Assuming MSAA is unavailable. Duality will not use Alpha-to-Coverage masking techniques.");
 				}
 			}
 
@@ -709,7 +710,7 @@ namespace Duality.Backend.GL21
             // Rendering using index buffer
             if (indexBuffer != null) {
                 if (ranges != null && ranges.Count > 0) {
-                    Console.WriteLine(
+                    App.Log(
                         "Rendering {0} instances that use index buffers do not support specifying vertex ranges, " +
                         "since the two features are mutually exclusive.",
                         typeof(DrawBatch).Name,
@@ -870,14 +871,14 @@ namespace Duality.Backend.GL21
 
 		public static void LogDisplayDevices()
 		{
-			Console.WriteLine("Available display devices:");
+            App.Log("Available display devices:");
 			//Logs.Core.PushIndent();
 			foreach (DisplayIndex index in new[] { DisplayIndex.First, DisplayIndex.Second, DisplayIndex.Third, DisplayIndex.Fourth, DisplayIndex.Sixth } )
 			{
 				DisplayDevice display = DisplayDevice.GetDisplay(index);
 				if (display == null) continue;
 
-				Console.WriteLine(
+                App.Log(
 					"{0,-6}: {1,4}x{2,4} at {3,3} Hz, {4,2} bpp, pos [{5,4},{6,4}]{7}",
 					index,
 					display.Width,
@@ -900,7 +901,7 @@ namespace Duality.Backend.GL21
 			{
 				CheckOpenGLErrors();
 				versionString = GL.GetString(StringName.Version);
-				Console.WriteLine(
+                App.Log(
 					"OpenGL Version: {0}" + Environment.NewLine +
 					"  Vendor: {1}" + Environment.NewLine +
 					"  Renderer: {2}" + Environment.NewLine +
@@ -913,7 +914,7 @@ namespace Duality.Backend.GL21
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine("Can't determine OpenGL specs, because an error occurred: {0}", /*LogFormat.Exception(*/e/*)*/);
+                App.Log("Can't determine OpenGL specs, because an error occurred: {0}", /*LogFormat.Exception(*/e/*)*/);
 			}
 
 			// Parse the OpenGL version string in order to determine if it's sufficient
@@ -927,7 +928,7 @@ namespace Duality.Backend.GL21
 					{
 						if (version.Major < MinOpenGLVersion.Major || (version.Major == MinOpenGLVersion.Major && version.Minor < MinOpenGLVersion.Minor))
 						{
-							Console.WriteLine(
+                            App.Log(
 								"The detected OpenGL version {0} appears to be lower than the required minimum. Version {1} or higher is required to run Duality applications.",
 								version,
 								MinOpenGLVersion);
@@ -954,7 +955,7 @@ namespace Duality.Backend.GL21
 			{
 				if (!silent)
 				{
-					Console.WriteLine(
+                    App.Log(
 						"Internal OpenGL error, code {0} at {1} in {2}, line {3}.", 
 						error,
 						callerInfoMember,

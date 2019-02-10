@@ -319,7 +319,7 @@ namespace Jazz2.Game
                         metadata.Graphics[g.Key] = res;
 #if !THROW_ON_MISSING_RESOURCES
                     } catch (Exception ex) {
-                        Console.WriteLine("Can't load animation \"" + g.Key + "\" from metadata \"" + path + "\": " + ex.Message);
+                        App.Log("Can't load animation \"" + g.Key + "\" from metadata \"" + path + "\": " + ex.Message);
                     }
 #endif
                 }
@@ -353,7 +353,7 @@ namespace Jazz2.Game
                         metadata.Sounds[s.Key] = resource;
 #if !THROW_ON_MISSING_RESOURCES
                     } catch (Exception ex) {
-                        Console.WriteLine("Can't load sound \"" + s.Key + "\" from metadata \"" + path + "\": " + ex.Message);
+                        App.Log("Can't load sound \"" + s.Key + "\" from metadata \"" + path + "\": " + ex.Message);
                     }
 #endif
                 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Jazz2.Game;
 
 namespace Duality.Backend
 {
@@ -117,7 +118,7 @@ namespace Duality.Backend
 					else if (Environment.OSVersion.Version >= new Version(5, 0, 0))
 						osFriendlyName = "Windows 2000";
 				}
-				Console.WriteLine(
+				App.Log(
 					"Environment Info: " + Environment.NewLine +
 					"  Current Directory: {0}" + Environment.NewLine +
 					"  Command Line: {1}" + Environment.NewLine +
@@ -174,14 +175,14 @@ namespace Duality.Backend
 			{
 				if (args.RequestingAssembly != null)
 				{
-					Console.WriteLine(
+                    App.Log(
 						"Can't resolve Assembly '{0}' (as requested by '{1}'): None of the available assembly paths matches the requested name.",
 						args.Name,
 						args.RequestingAssembly);
 				}
 				else
 				{
-					Console.WriteLine(
+                    App.Log(
 						"Can't resolve Assembly '{0}': None of the available assembly paths matches the requested name.",
 						args.Name);
 				}
@@ -193,7 +194,7 @@ namespace Duality.Backend
 			if (this.AssemblyLoaded != null)
 				this.AssemblyLoaded(this, new AssemblyLoadedEventArgs(args.LoadedAssembly));
 
-		    Console.WriteLine("Assembly loaded: {0}", args.LoadedAssembly);
+            App.Log("Assembly loaded: {0}", args.LoadedAssembly);
 		}
 	}
 }

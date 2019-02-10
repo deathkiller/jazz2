@@ -5,6 +5,7 @@ using Duality;
 using Duality.Audio;
 using Duality.Backend;
 using Duality.IO;
+using Jazz2.Game;
 
 namespace Jazz2
 {
@@ -49,7 +50,7 @@ namespace Jazz2
         public OpenMptStream(string path)
         {
             if (!FileOp.Exists(path)) {
-                Console.WriteLine("Music file \""  + path + "\" not found!");
+                App.Log("Music file \""  + path + "\" not found!");
                 return;
             }
 
@@ -65,7 +66,7 @@ namespace Jazz2
                 // Infinite repeat
                 openmpt_module_set_repeat_count(openmpt_module, -1);
             } catch (Exception ex) {
-                Console.WriteLine("libopenmpt failed to load: " + ex);
+                App.Log("libopenmpt failed to load: " + ex);
                 return;
             }
 

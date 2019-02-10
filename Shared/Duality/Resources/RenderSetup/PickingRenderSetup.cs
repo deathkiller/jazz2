@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Duality.Drawing;
-
+using Jazz2.Game;
 
 namespace Duality.Resources
 {
@@ -54,7 +54,7 @@ namespace Duality.Resources
 				(this.pickingBuffer[baseIndex + 2] << 0);
 			if (rendererId > this.pickingMap.Count)
 			{
-				Console.WriteLine("Unexpected picking result: {0}", ColorRgba.FromIntArgb(rendererId));
+                App.Log("Unexpected picking result: {0}", ColorRgba.FromIntArgb(rendererId));
 				return null;
 			}
 			else if (rendererId != 0)
@@ -109,7 +109,7 @@ namespace Duality.Resources
 					if (rendererId != rendererIdLast)
 					{
 						if (rendererId - 1 > this.pickingMap.Count) {
-							Console.WriteLine("Unexpected picking result: {0}", ColorRgba.FromIntArgb(rendererId));
+                            App.Log("Unexpected picking result: {0}", ColorRgba.FromIntArgb(rendererId));
 						} else if (rendererId != 0 && !(this.pickingMap[rendererId - 1] as Component).Disposed) {
 							result.Add(this.pickingMap[rendererId - 1]);
 						}

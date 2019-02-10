@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("OpenGL 2.1 Backend")]
-[assembly: AssemblyCopyright("© 2016-2018 Dan R.")]
+[assembly: AssemblyCopyright("© 2016-2019 Dan R.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

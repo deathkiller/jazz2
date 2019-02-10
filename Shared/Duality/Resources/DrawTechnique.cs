@@ -4,6 +4,7 @@ using System.Linq;
 
 using Duality.Backend;
 using Duality.Drawing;
+using Jazz2.Game;
 
 namespace Duality.Resources
 {
@@ -248,7 +249,7 @@ namespace Duality.Resources
 				this.shaderFields = this.nativeShader.GetFields();
 			} catch (Exception e) {
 				this.shaderFields = new ShaderFieldInfo[0];
-				Console.WriteLine("Failed to compile DrawTechnique:{1}{0}", e, Environment.NewLine);
+                App.Log("Failed to compile DrawTechnique:{1}{0}", e, Environment.NewLine);
 			}
 
 			// Even if we failed, we tried to compile it. Don't do it again and again.

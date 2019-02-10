@@ -330,7 +330,7 @@ namespace Jazz2.Game
                     throw new NotSupportedException("Version not supported");
                 }
 
-                Console.WriteLine("Loading level \"" + config.Description.Name + "\"...");
+                App.Log("Loading level \"" + config.Description.Name + "\"...");
 
                 root.Title = BitmapFont.StripFormatting(config.Description.Name);
                 root.Immersive = false;

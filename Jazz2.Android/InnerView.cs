@@ -63,8 +63,8 @@ namespace Duality.Android
             try {
                 base.CreateFrameBuffer();
                 return;
-            } catch {
-                //Console.WriteLine("GLView.CreateFrameBuffer() threw an exception: " + ex);
+            } catch (Exception ex) {
+                App.Log("GLView.CreateFrameBuffer() threw an exception: " + ex);
             }
 
             // This is a graphics setting that sets everything to the lowest mode possible so
@@ -74,8 +74,8 @@ namespace Duality.Android
 
                 base.CreateFrameBuffer();
                 return;
-            } catch {
-                //Console.WriteLine("GLView.CreateFrameBuffer() threw an exception: " + ex);
+            } catch (Exception ex) {
+                App.Log("GLView.CreateFrameBuffer() threw an exception: " + ex);
             }
 
             throw new BackendException("Cannot initialize OpenGL ES 3.0 device");
