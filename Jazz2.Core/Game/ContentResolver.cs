@@ -573,6 +573,13 @@ namespace Jazz2.Game
 
                     DrawTechnique result = new DrawTechnique(json.BlendMode, vertex, fragment);
                     result.PreferredVertexFormat = vertexFormat;
+
+#if FAIL_ON_SHADER_COMPILE_ERROR && __ANDROID__
+                    if (result.DeclaredFields.Count == 0) {
+                        Android.CrashHandlerActivity.ShowErrorDialog(new InvalidDataException("Shader \"" + path + "\" cannot be compiled on your device."));
+                    }
+#endif
+
                     shader = result;
                 }
 

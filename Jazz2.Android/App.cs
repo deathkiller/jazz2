@@ -25,7 +25,7 @@ namespace Jazz2.Game
 
         public static void Log(string message, params object[] messageParams)
         {
-            string line = string.Format(message, messageParams);
+            string line = (messageParams != null && messageParams.Length > 0 ? string.Format(message, messageParams) : message);
 
             logBuffer.AppendLine(line);
 

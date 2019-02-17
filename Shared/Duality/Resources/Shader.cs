@@ -66,9 +66,10 @@ namespace Duality.Resources
 			try {
 				this.native.LoadSource(this.source, this.Type);
 			} catch (Exception e) {
-                //Console.WriteLine("Error loading Shader {0}:{2}{1}", this.FullName, /*Log.Exception(*/e/*)*/, Environment.NewLine);
-                App.Log("Error loading Shader: " + e);
-                App.Log("```");
+                App.Log("");
+                App.Log("Error loading Shader:");
+                App.Log(e.ToString());
+                App.Log("```glsl");
                 App.Log(this.source);
                 App.Log("```");
             }

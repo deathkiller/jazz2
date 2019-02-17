@@ -1,4 +1,5 @@
 ﻿using System;
+using Android;
 using Android.App;
 using Android.Content.PM;
 using Android.Graphics;
@@ -67,6 +68,8 @@ namespace Duality.Android
 #endif
             }
 
+            CheckAppPermissions();
+
             // Create our OpenGL view and show it
             InnerView = new InnerView(this);
             SetContentView(InnerView);
@@ -89,6 +92,20 @@ namespace Duality.Android
         {
             base.OnResume();
             InnerView.Resume();
+        }
+
+        private void CheckAppPermissions()
+        {
+            if ((int)Build.VERSION.SdkInt < 23) {
+                return;
+            }
+            
+            if (CheckSelfPermission(Manifest.Permission.ReadExternalStorage) != Permission.Granted
+                && CheckSelfPermission(Manifest.Permission.WriteExternalStorage) != Permission.Granted)
+            {
+                var permissions = new string[] { Manifest.Permission.ReadExternalStorage, Manifest.Permission.WriteExternalStorage };
+                RequestPermissions(permissions, 1);
+            }
         }
     }
 }

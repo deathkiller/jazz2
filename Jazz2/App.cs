@@ -39,7 +39,9 @@ namespace Jazz2.Game
 
         public static void Log(string message, params object[] messageParams)
         {
-            Console.WriteLine(string.Format(message, messageParams));
+            string line = (messageParams != null && messageParams.Length > 0 ? string.Format(message, messageParams) : message);
+
+            Console.WriteLine(line);
         }
 
         [STAThread]
