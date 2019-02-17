@@ -91,6 +91,7 @@ namespace Jazz2.Game
         //private Dictionary<string, ContentRef<Sound>> cachedSounds;
 
         private ContentRef<DrawTechnique> basicNormal, paletteNormal;
+        private int requestShaderNesting;
 
         public ContentRef<Texture> DefaultNormalMap => defaultNormalMap;
 
@@ -516,7 +517,7 @@ namespace Jazz2.Game
                         json = jsonParser.Parse<ShaderJson>(s);
                     }
                 }
-
+                
                 if (json.Fragment == null && json.Vertex == null) {
                     switch (json.BlendMode) {
                         default:
@@ -529,38 +530,44 @@ namespace Jazz2.Game
                         case BlendMode.Invert: shader = DrawTechnique.Invert; break;
                     }
                 } else {
-                    ContentRef<VertexShader> vertex;
-                    if (json.Vertex == null) {
-                        vertex = VertexShader.Minimal;
-                    } else if (json.Vertex.StartsWith("#inherit ")) {
-                        string parentPath = json.Vertex.Substring(9).Trim();
-                        ContentRef<DrawTechnique> parent = RequestShader(parentPath);
-                        vertex = parent.Res.Vertex;
-                    } else if (json.Vertex.StartsWith("#include ")) {
-                        string includePath = Path.Combine(DualityApp.DataDirectory, "Shaders", json.Vertex.Substring(9).Trim());
-                        using (Stream s = FileOp.Open(includePath, FileAccessMode.Read))
-                        using (StreamReader r = new StreamReader(s)) {
-                            vertex = new VertexShader(r.ReadToEnd());
-                        }
-                    } else {
-                        vertex = new VertexShader(json.Vertex);
-                    }
+                    requestShaderNesting++;
 
+                    ContentRef<VertexShader> vertex;
                     ContentRef<FragmentShader> fragment;
-                    if (json.Fragment == null) {
-                        fragment = FragmentShader.Minimal;
-                    } else if (json.Fragment.StartsWith("#inherit ")) {
-                        string parentPath = json.Fragment.Substring(9).Trim();
-                        ContentRef<DrawTechnique> parent = RequestShader(parentPath);
-                        fragment = parent.Res.Fragment;
-                    } else if (json.Fragment.StartsWith("#include ")) {
-                        string includePath = Path.Combine(DualityApp.DataDirectory, "Shaders", json.Fragment.Substring(9).Trim());
-                        using (Stream s = FileOp.Open(includePath, FileAccessMode.Read))
-                        using (StreamReader r = new StreamReader(s)) {
-                            fragment = new FragmentShader(r.ReadToEnd());
+                    try {
+                        if (json.Vertex == null) {
+                            vertex = VertexShader.Minimal;
+                        } else if (json.Vertex.StartsWith("#inherit ")) {
+                            string parentPath = json.Vertex.Substring(9).Trim();
+                            ContentRef<DrawTechnique> parent = RequestShader(parentPath);
+                            vertex = parent.Res.Vertex;
+                        } else if (json.Vertex.StartsWith("#include ")) {
+                            string includePath = Path.Combine(DualityApp.DataDirectory, "Shaders", json.Vertex.Substring(9).Trim());
+                            using (Stream s = FileOp.Open(includePath, FileAccessMode.Read))
+                            using (StreamReader r = new StreamReader(s)) {
+                                vertex = new VertexShader(r.ReadToEnd());
+                            }
+                        } else {
+                            vertex = new VertexShader(json.Vertex);
                         }
-                    } else {
-                        fragment = new FragmentShader(json.Fragment);
+
+                        if (json.Fragment == null) {
+                            fragment = FragmentShader.Minimal;
+                        } else if (json.Fragment.StartsWith("#inherit ")) {
+                            string parentPath = json.Fragment.Substring(9).Trim();
+                            ContentRef<DrawTechnique> parent = RequestShader(parentPath);
+                            fragment = parent.Res.Fragment;
+                        } else if (json.Fragment.StartsWith("#include ")) {
+                            string includePath = Path.Combine(DualityApp.DataDirectory, "Shaders", json.Fragment.Substring(9).Trim());
+                            using (Stream s = FileOp.Open(includePath, FileAccessMode.Read))
+                            using (StreamReader r = new StreamReader(s)) {
+                                fragment = new FragmentShader(r.ReadToEnd());
+                            }
+                        } else {
+                            fragment = new FragmentShader(json.Fragment);
+                        }
+                    } finally {
+                        requestShaderNesting--;
                     }
 
                     VertexDeclaration vertexFormat;
@@ -575,11 +582,10 @@ namespace Jazz2.Game
                     result.PreferredVertexFormat = vertexFormat;
 
 #if FAIL_ON_SHADER_COMPILE_ERROR && __ANDROID__
-                    if (result.DeclaredFields.Count == 0) {
+                    if (requestShaderNesting == 0 && result.DeclaredFields.Count == 0) {
                         Android.CrashHandlerActivity.ShowErrorDialog(new InvalidDataException("Shader \"" + path + "\" cannot be compiled on your device."));
                     }
 #endif
-
                     shader = result;
                 }
 
