@@ -256,10 +256,10 @@ namespace Jazz2.Android
             SetContentView(view);
 
             // Send report
-            new Task(SendReport).Start();
+            new Task(SendReportAsync).Start();
         }
 
-        private async void SendReport()
+        private async void SendReportAsync()
         {
             const string uri = "http://deat.tk/crash-reports/api/report";
             const string secret = "1:2zsfnWzBkPyEIFEhB2MSr2TyTgrLghL7wXYdSTOe";

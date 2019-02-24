@@ -548,7 +548,7 @@ namespace Jazz2.Game
                                 vertex = new VertexShader(r.ReadToEnd());
                             }
                         } else {
-                            vertex = new VertexShader(json.Vertex);
+                            vertex = new VertexShader(json.Vertex.TrimStart());
                         }
 
                         if (json.Fragment == null) {
@@ -564,7 +564,7 @@ namespace Jazz2.Game
                                 fragment = new FragmentShader(r.ReadToEnd());
                             }
                         } else {
-                            fragment = new FragmentShader(json.Fragment);
+                            fragment = new FragmentShader(json.Fragment.TrimStart());
                         }
                     } finally {
                         requestShaderNesting--;

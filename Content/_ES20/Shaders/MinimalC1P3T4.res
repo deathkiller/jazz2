@@ -1,21 +1,22 @@
 {
     "Vertex": "
-        #version 100
-        
-        uniform mat4 ModelView;
-        uniform mat4 Projection;
+#version 100
 
-        attribute vec4 Color;
-        attribute vec3 Position;
-        attribute vec4 TexCoord;
+uniform mat4 ModelView;
+uniform mat4 Projection;
 
-        varying vec4 vTexcoord0;
-        varying vec4 vCornerColor;
+attribute vec4 Color;
+attribute vec3 Position;
+attribute vec4 TexCoord;
 
-        void main() {
-            gl_Position = Projection * (ModelView * vec4(Position, 1.0));
+varying vec4 vTexcoord0;
+varying vec4 vCornerColor;
 
-            vTexcoord0 = TexCoord;
-            vCornerColor = Color;
-        }"
+void main() {
+    gl_Position = Projection * (ModelView * vec4(Position, 1.0));
+
+    vTexcoord0 = TexCoord;
+    vCornerColor = Color;
+}"
+
 }
