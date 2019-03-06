@@ -8,6 +8,7 @@ using Duality.IO;
 using Duality.Resources;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
+using MathF = Duality.MathF;
 
 namespace Jazz2.Game.UI.Menu
 {

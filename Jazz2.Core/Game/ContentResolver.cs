@@ -101,7 +101,7 @@ namespace Jazz2.Game
             imageCodec = ImageCodec.GetRead(ImageCodec.FormatPng);
 
 #if !UNCOMPRESSED_CONTENT
-            string dz = PathOp.Combine(DualityApp.DataDirectory, ".dz");
+            string dz = PathOp.Combine(DualityApp.DataDirectory, "Main.dz");
             PathOp.Mount(dz, new CompressedContent(dz));
 #endif
 
@@ -243,7 +243,7 @@ namespace Jazz2.Game
 #if UNCOMPRESSED_CONTENT
             string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Metadata", path + ".res");
 #else
-            string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, ".dz", "Metadata", path + ".res");
+            string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Metadata", path + ".res");
 #endif
 
             MetadataJson json;
@@ -345,7 +345,7 @@ namespace Jazz2.Game
 #if UNCOMPRESSED_CONTENT
                             data[i] = new AudioData(FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, "Animations", filenames[i]), FileAccessMode.Read));
 #else
-                            data[i] = new AudioData(FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, ".dz", "Animations", filenames[i]), FileAccessMode.Read));
+                            data[i] = new AudioData(FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Animations", filenames[i]), FileAccessMode.Read));
 #endif
                         }
 
@@ -384,7 +384,7 @@ namespace Jazz2.Game
 #if UNCOMPRESSED_CONTENT
                 string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Animations", path);
 #else
-                string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, ".dz", "Animations", path);
+                string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Animations", path);
 #endif
 
                 SpriteJson json;
@@ -508,7 +508,7 @@ namespace Jazz2.Game
 #if UNCOMPRESSED_CONTENT || __ANDROID__
                 string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Shaders", path + ".res");
 #else
-                string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, ".dz", "Shaders", path + ".res");
+                string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Shaders", path + ".res");
 #endif
 
                 ShaderJson json;

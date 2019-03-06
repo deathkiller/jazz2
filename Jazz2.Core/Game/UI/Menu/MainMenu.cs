@@ -8,6 +8,7 @@ using Duality.IO;
 using Duality.Resources;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
+using MathF = Duality.MathF;
 
 namespace Jazz2.Game.UI.Menu
 {
@@ -31,7 +32,7 @@ namespace Jazz2.Game.UI.Menu
 
         private OpenMptStream music;
 
-        private static Updater.Release newVersion;
+        private static string newVersion;
 
         public ScreenMode ScreenMode
         {
@@ -74,7 +75,7 @@ namespace Jazz2.Game.UI.Menu
 #if UNCOMPRESSED_CONTENT
             ColorRgba[] defaultPalette = TileSet.LoadPalette(PathOp.Combine(DualityApp.DataDirectory, "Animations", ".palette"));
 #else
-            ColorRgba[] defaultPalette = TileSet.LoadPalette(PathOp.Combine(DualityApp.DataDirectory, ".dz", "Animations", ".palette"));
+            ColorRgba[] defaultPalette = TileSet.LoadPalette(PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Animations", ".palette"));
 #endif
 
             ContentResolver.Current.ApplyBasePalette(defaultPalette);
@@ -286,12 +287,12 @@ namespace Jazz2.Game.UI.Menu
             DrawStringShadow(ref charOffset, "(c) 2016-" + DateTime.Now.Year + "  Dan R.", bottomLeft.X, bottomLeft.Y, Alignment.BottomLeft,
                 ColorRgba.TransparentBlack, 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
 
-            // New Version
+            // New version available
             if (newVersion != null) {
                 DrawStringShadow(ref charOffset, "New version available!", (bottomLeft.X + bottomRight.X) * 0.5f, bottomLeft.Y - 12, Alignment.Bottom,
                     new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f), 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.9f);
 
-                DrawStringShadow(ref charOffset, newVersion.name, (bottomLeft.X + bottomRight.X) * 0.5f, bottomLeft.Y + 2, Alignment.Bottom,
+                DrawStringShadow(ref charOffset, newVersion, (bottomLeft.X + bottomRight.X) * 0.5f, bottomLeft.Y + 2, Alignment.Bottom,
                     new ColorRgba(0.6f, 0.4f, 0.3f, 0.5f), 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.9f);
             }
 
@@ -321,10 +322,10 @@ namespace Jazz2.Game.UI.Menu
             canvas.End();
         }
 
-        private void OnCheckUpdates(bool newAvailable, Updater.Release release)
+        private void OnCheckUpdates(bool newAvailable, string version)
         {
             if (newAvailable) {
-                newVersion = release;
+                newVersion = version;
             } else {
                 newVersion = null;
             }

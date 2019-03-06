@@ -17,38 +17,15 @@ namespace Duality.Backend.Android
 
         public NativeFileSystem()
         {
-            string packageName = Application.Context.PackageName + "/";
-
-            List<StorageInfo> storages = GetStorageList();
-            for (int i = storages.Count - 1; i >= 0; i--) {
-                string path = Path.Combine(storages[i].Path, "Android", "Data", packageName);
-                if (Directory.Exists(path)) {
-                    RootPath = path;
-                    break;
-                }
-
-                path = Path.Combine(storages[i].Path, packageName);
-                if (Directory.Exists(path)) {
-                    RootPath = path;
-                    break;
-                }
-
-                // ToDo: Remove this in future versions
-                path = Path.Combine(storages[i].Path, "Download", packageName);
-                if (Directory.Exists(path)) {
-                    RootPath = path;
-                    break;
-                }
-            }
+            RootPath = FindRootPath();
 
             if (RootPath == null) {
-                //throw new DirectoryNotFoundException("Content directory was not found");
-
                 StringBuilder sb = new StringBuilder();
                 sb.AppendLine("Content directory was not found!");
                 sb.AppendLine();
                 sb.AppendLine("Searched mount points:");
 
+                List<StorageInfo> storages = GetStorageList();
                 for (int i = storages.Count - 1; i >= 0; i--) {
 
                     sb.Append(" - ");
@@ -73,7 +50,7 @@ namespace Duality.Backend.Android
 
             App.Log("Android Root Path: " + RootPath);
         }
-
+        
         string IFileSystem.GetFullPath(string path)
         {
             string nativePath = this.GetNativePathFormat(path);
@@ -274,6 +251,32 @@ namespace Duality.Backend.Android
             //}
 
             return storages;
+        }
+
+        public static string FindRootPath()
+        {
+            string packageName = Application.Context.PackageName + "/";
+
+            List<StorageInfo> storages = GetStorageList();
+            for (int i = storages.Count - 1; i >= 0; i--) {
+                string path = Path.Combine(storages[i].Path, "Android", "Data", packageName);
+                if (Directory.Exists(path)) {
+                    return path;
+                }
+
+                path = Path.Combine(storages[i].Path, packageName);
+                if (Directory.Exists(path)) {
+                    return path;
+                }
+
+                // ToDo: Remove this in future versions
+                path = Path.Combine(storages[i].Path, "Download", packageName);
+                if (Directory.Exists(path)) {
+                    return path;
+                }
+            }
+
+            return null;
         }
     }
 }

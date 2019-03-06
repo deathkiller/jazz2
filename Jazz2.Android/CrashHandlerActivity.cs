@@ -8,19 +8,25 @@ using System.Text;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
+using Android.Content.PM;
 using Android.Graphics;
 using Android.OS;
 using Android.Provider;
 using Android.Runtime;
 using Android.Text;
 using Android.Text.Method;
+using Android.Views;
 using Android.Widget;
 using Jazz2.Game;
 using AggregateException = System.AggregateException;
 
 namespace Jazz2.Android
 {
-    [Activity(Label = "Jazz² Resurrection Crashed"/*, Process = ":crash_handler"*/)]
+    [Activity(
+        Icon = "@mipmap/ic_launcher",
+        ConfigurationChanges = ConfigChanges.Orientation,
+        ScreenOrientation = ScreenOrientation.UserLandscape
+    )]
     public class CrashHandlerActivity : Activity
     {
         private static Activity currentActivity;
@@ -52,12 +58,6 @@ namespace Jazz2.Android
             try {
                 StringBuilder sb = new StringBuilder();
                 StringBuilder sbStacktrace = new StringBuilder();
-
-                // Append simple header
-                // ToDo: Remove this hardcoded title
-                sb.AppendLine("<big><font color=\"#000000\"><b>" + /*App.AssemblyTitle*/"Jazz² Resurrection" + "</b> has exited unexpectedly!</font></big>");
-                sb.AppendLine("<br><br><hr><small>");
-
                 string title, message;
 
                 // Obtain debugging information
@@ -65,9 +65,9 @@ namespace Jazz2.Android
                 if (innerException != null) {
                     sb.Append("<b>");
                     sb.Append(WebUtility.HtmlEncode(innerException.Message).Replace("\n", "<br>"));
-                    sb.Append("</b> (");
+                    sb.Append("</b><br>");
                     sb.Append(WebUtility.HtmlEncode(ex.Message).Replace("\n", "<br>"));
-                    sb.AppendLine(")<br>");
+                    sb.AppendLine("<br>");
 
                     title = innerException.GetType().FullName + " {[" + ex.GetType().FullName + "]}";
                     message = innerException.Message + " {[" + ex.Message + "]}";
@@ -87,16 +87,7 @@ namespace Jazz2.Android
 
                 ParseStackTrace(sbStacktrace, ex);
 
-                sb.Append(sbStacktrace);
-
-                // Append additional information
-                sb.AppendLine("</small>");
-                //sb.AppendLine("<br><br>Please report this issue to developer.<br><a href=\"https://github.com/deathkiller/jazz2\">https://github.com/deathkiller/jazz2</a>");
-                sb.AppendLine("<br><br>This report was sent to developer. You can check state of the issue on: <a href=\"https://github.com/deathkiller/jazz2\">https://github.com/deathkiller/jazz2</a>");
-
                 // Start new activity in separate process
-                //Context context = Application.Context;
-                //Context context = DualityActivity.Current.ApplicationContext;
                 Context context = currentActivity;
                 Intent intent = new Intent(context, typeof(CrashHandlerActivity));
                 intent.SetFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask | ActivityFlags.ClearTop);
@@ -109,8 +100,6 @@ namespace Jazz2.Android
                 intent.PutExtra("Message", message);
                 intent.PutExtra("Stacktrace", sbStacktrace.ToString());
                 intent.PutExtra("Log", App.GetLogBuffer());
-
-                //context.StartActivity(intent);
 
                 PendingIntent pendingIntent = PendingIntent.GetActivity(context, 0, intent, PendingIntentFlags.OneShot);
 
@@ -127,7 +116,9 @@ namespace Jazz2.Android
                 //android.os.Process.killProcess(android.os.Process.myPid());
                 Java.Lang.JavaSystem.Exit(2);
             } catch (Exception ex2) {
-                Console.WriteLine("CrashHandlerActivity failed: " + ex2);
+#if DEBUG
+                Console.WriteLine("CrashHandlerActivity.ShowErrorDialog() failed: " + ex2);
+#endif
             }
         }
 
@@ -141,7 +132,6 @@ namespace Jazz2.Android
                 StackFrame frame = trace.GetFrame(i);
                 MethodBase method = frame.GetMethod();
                 if (method == null) {
-                    //sb.Append("<font color=\"#666666\"> • Unknown method</font>");
                     continue;
                 }
 
@@ -180,26 +170,12 @@ namespace Jazz2.Android
                         }
                     }
 
-                    // Assembly.GetEntryAssembly() is always null on Android
-                    //bool isEntry = (type != null && type.Assembly == Assembly.GetExecutingAssembly());
-                    bool isEntry = false;
-
-                    sb.Append(" • ");
-
-                    if (isEntry) {
-                        sb.Append("<font color=\"#AF5C08\">");
-                    }
-
-                    sb.Append("<i>");
+                    sb.Append(" • <i>");
 
                     sb.Append(WebUtility.HtmlEncode(type?.FullName));
                     sb.Append(".</i><b>");
                     sb.Append(WebUtility.HtmlEncode(method.Name));
                     sb.Append("</b>");
-
-                    if (isEntry) {
-                        sb.Append("</font>");
-                    }
 
                     sb.Append(" (");
                     sb.Append(frame.GetFileLineNumber());
@@ -217,51 +193,86 @@ namespace Jazz2.Android
         private string stacktrace;
         private string log;
 
+        private VideoView backgroundVideo;
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
 
+            title = Intent.GetStringExtra("Title") ?? "";
+            message = Intent.GetStringExtra("Message") ?? "";
+            stacktrace = Intent.GetStringExtra("Stacktrace") ?? "";
+            log = Intent.GetStringExtra("Log") ?? "";
+
+            string exceptionData = Intent.GetStringExtra("ExceptionData");
+            if (string.IsNullOrEmpty(exceptionData)) {
+                exceptionData = "Cannot receive information about this failure.<br><br><small>If you have any issues, report it to developers.<br><a href=\"https://github.com/deathkiller/jazz2\">https://github.com/deathkiller/jazz2</a></small>";
+            } else {
+                exceptionData += "<br><br><small>This report was sent to developers to help resolve it.<br><a href=\"https://github.com/deathkiller/jazz2\">https://github.com/deathkiller/jazz2</a></small>";
+            }
+
             try {
+                View decorView = Window.DecorView;
+                decorView.SystemUiVisibility |= (StatusBarVisibility)SystemUiFlags.LayoutStable;
+                decorView.SystemUiVisibility |= (StatusBarVisibility)SystemUiFlags.LayoutFullscreen;
+
+                Window.ClearFlags(WindowManagerFlags.TranslucentStatus);
+                Window.AddFlags(WindowManagerFlags.DrawsSystemBarBackgrounds);
+
                 if (Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop) {
-                    Window.SetStatusBarColor(new Color(0, 0, 0, 80));
+                    Window.SetStatusBarColor(new Color(0x30000000));
                 }
             } catch {
                 // Nothing to do...
             }
 
-            title = Intent.GetStringExtra("Title");
-            message = Intent.GetStringExtra("Message");
-            stacktrace = Intent.GetStringExtra("Stacktrace");
-            log = Intent.GetStringExtra("Log");
+            SetContentView(Resource.Layout.activity_info);
 
-            // Show simple view with debugging information
-            TextView view = new TextView(this);
-            view.SetPadding(40, 40, 40, 40);
+            backgroundVideo = FindViewById<VideoView>(Resource.Id.background_video);
+            backgroundVideo.SetVideoURI(global::Android.Net.Uri.Parse("android.resource://" + PackageName + "/raw/logo"));
+            backgroundVideo.Prepared += OnVideoViewPrepared;
+            backgroundVideo.Start();
 
-            string exceptionData = Intent.GetStringExtra("ExceptionData");
-            if (string.IsNullOrEmpty(exceptionData)) {
-                exceptionData = "<i><b>Unknown error</b></i>";
-            }
+            Button closeButton = FindViewById<Button>(Resource.Id.retry_button);
+            closeButton.Visibility = ViewStates.Gone;
 
-            if (Build.VERSION.SdkInt >= BuildVersionCodes.N) {
-                view.TextFormatted = Html.FromHtml(exceptionData, FromHtmlOptions.ModeLegacy);
+            TextView versionView = FindViewById<TextView>(Resource.Id.version);
+            versionView.Text = "v" + App.AssemblyVersion;
+
+            TextView headerView = FindViewById<TextView>(Resource.Id.header);
+            headerView.Text = "Application has exited unexpectedly";
+
+            TextView contentView = FindViewById<TextView>(Resource.Id.content);
+            contentView.MovementMethod = LinkMovementMethod.Instance;
+            if (Build.VERSION.SdkInt >= Build.VERSION_CODES.N) {
+                contentView.TextFormatted = Html.FromHtml(exceptionData, FromHtmlOptions.ModeLegacy);
             } else {
-                #pragma warning disable CS0618
-                view.TextFormatted = Html.FromHtml(exceptionData);
-                #pragma warning restore CS0618
+                contentView.TextFormatted = Html.FromHtml(exceptionData);
             }
-
-            view.MovementMethod = LinkMovementMethod.Instance;
-
-            SetContentView(view);
 
             // Send report
-            new Task(SendReportAsync).Start();
+            if (!string.IsNullOrEmpty(title)) {
+                new Task(SendReportAsync).Start();
+            }
+        }
+
+        protected override void OnResume()
+        {
+            base.OnResume();
+
+            if (backgroundVideo != null) {
+                backgroundVideo.Start();
+            }
+        }
+
+        private void OnVideoViewPrepared(object sender, EventArgs e)
+        {
+            ((global::Android.Media.MediaPlayer)sender).Looping = true;
         }
 
         private async void SendReportAsync()
         {
-            const string uri = "http://deat.tk/crash-reports/api/report";
+            const string url = "http://deat.tk/crash-reports/api/report";
             const string secret = "1:2zsfnWzBkPyEIFEhB2MSr2TyTgrLghL7wXYdSTOe";
 
             string appVersion;
@@ -312,7 +323,7 @@ namespace Jazz2.Android
 
                 var client = new HttpClient();
 
-                var result = await client.PostAsync(uri, content);
+                var result = await client.PostAsync(url, content);
 
 #if DEBUG
                 Console.WriteLine(result.StatusCode);

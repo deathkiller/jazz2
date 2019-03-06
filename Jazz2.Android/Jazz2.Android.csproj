@@ -104,10 +104,10 @@
     <None Include="Properties\AndroidManifest.xml">
       <SubType>Designer</SubType>
     </None>
+    <AndroidResource Include="Resources\raw\logo.webm" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\drawable\" />
-    <Folder Include="Resources\layout\" />
     <Folder Include="Shaders\" />
   </ItemGroup>
   <ItemGroup>
@@ -141,6 +141,15 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidAsset Include="Assets\dpad.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\activity_info.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\values\Colors.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xxhdpi\action_bar_bg.9.png" />
   </ItemGroup>
   <Import Project="..\Jazz2.Core\Jazz2.Core.projitems" Label="Shared" />
   <Import Project="..\Shared\Duality\Duality.projitems" Label="Shared" />

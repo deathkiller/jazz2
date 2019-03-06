@@ -9,6 +9,7 @@ using Duality.Input;
 using Duality.IO;
 using Duality.Resources;
 using static Jazz2.Game.LevelHandler;
+using MathF = Duality.MathF;
 
 namespace Jazz2.Game.UI.Menu
 {

@@ -38,7 +38,7 @@ namespace Jazz2.Game.UI
 #if UNCOMPRESSED_CONTENT
             string png = PathOp.Combine(DualityApp.DataDirectory, "Animations", path + ".png");
 #else
-            string png = PathOp.Combine(DualityApp.DataDirectory, ".dz", "Animations", path + ".png");
+            string png = PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Animations", path + ".png");
 #endif
             string config = png + ".config";
 

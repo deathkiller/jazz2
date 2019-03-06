@@ -3,6 +3,7 @@ using Duality;
 using Duality.Components.Renderers;
 using Duality.Drawing;
 using Duality.Resources;
+using MathF = Duality.MathF;
 
 namespace Jazz2.Game.Components
 {

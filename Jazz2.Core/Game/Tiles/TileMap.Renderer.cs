@@ -4,6 +4,7 @@ using Duality;
 using Duality.Drawing;
 using Duality.Resources;
 using Jazz2.Game.Structs;
+using MathF = Duality.MathF;
 
 namespace Jazz2.Game.Tiles
 {

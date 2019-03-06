@@ -769,10 +769,10 @@ namespace Import
                     }
                 }
 
-                if (File.Exists(Path.Combine(targetPath, "Content", ".dz"))) {
+                if (File.Exists(Path.Combine(targetPath, "Content", "Main.dz"))) {
                     metadataExists = true;
 
-                    IFileSystem fs = new CompressedContent(Path.Combine(targetPath, "Content", ".dz"));
+                    IFileSystem fs = new CompressedContent(Path.Combine(targetPath, "Content", "Main.dz"));
 
                     foreach (string metadata in fs.GetDirectories("Metadata")) {
                         foreach (string path in fs.GetFiles(metadata, true)) {
@@ -909,8 +909,8 @@ namespace Import
             Log.Write(LogType.Info, "Checking \"Animations\" directory for missing files...");
             Log.PushIndent();
 
-            if (File.Exists(Path.Combine(targetPath, "Content", ".dz"))) {
-                IFileSystem fs = new CompressedContent(Path.Combine(targetPath, "Content", ".dz"));
+            if (File.Exists(Path.Combine(targetPath, "Content", "Main.dz"))) {
+                IFileSystem fs = new CompressedContent(Path.Combine(targetPath, "Content", "Main.dz"));
 
                 foreach (string unreferenced in new[] {
                     ".palette", "_custom/noise.png", "UI/font_medium.png", "UI/font_medium.png.res",
@@ -988,7 +988,7 @@ namespace Import
                     Log.Write(LogType.Error, "Directory \"Metadata\" is missing!");
                 }
             } else {
-                Log.Write(LogType.Error, "\".\\Content\\.dz\" does not exist!");
+                Log.Write(LogType.Error, "\".\\Content\\Main.dz\" does not exist!");
             }
 
             Log.PopIndent();
@@ -1002,10 +1002,10 @@ namespace Import
             string animationsPath = Path.Combine(targetPath, "Content", "Animations");
             RecreateDefaultPalette(animationsPath);
 
-            Log.Write(LogType.Info, "Compressing content into \".\\Content\\.dz\" file...");
+            Log.Write(LogType.Info, "Compressing content into \".\\Content\\Main.dz\" file...");
             Log.PushIndent();
 
-            string oldContent = Path.Combine(targetPath, "Content", ".dz");
+            string oldContent = Path.Combine(targetPath, "Content", "Main.dz");
             string newContent = oldContent + ".new";
 
             bool keepOld = false;
@@ -1071,10 +1071,10 @@ namespace Import
 
         private static void MergeToCompressedContent(string targetPath, bool keep)
         {
-            Log.Write(LogType.Info, "Compressing content into \".\\Content\\.dz\" file...");
+            Log.Write(LogType.Info, "Compressing content into \".\\Content\\Main.dz\" file...");
             Log.PushIndent();
 
-            string oldContent = Path.Combine(targetPath, "Content", ".dz");
+            string oldContent = Path.Combine(targetPath, "Content", "Main.dz");
             string newContent = oldContent + ".new";
 
             bool keepOld = false;
@@ -1084,7 +1084,7 @@ namespace Import
                 try {
                     tree = new CompressedContent(oldContent).Tree;
                 } catch {
-                    Log.Write(LogType.Warning, "\".\\Content\\.dz\" is corrupted and cannot be merged!");
+                    Log.Write(LogType.Warning, "\".\\Content\\Main.dz\" is corrupted and cannot be merged!");
 
                     tree = new ContentTree();
                     keepOld = true;
