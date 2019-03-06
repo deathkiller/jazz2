@@ -135,7 +135,7 @@ namespace Duality.Android
 
         private bool CheckAppPermissions()
         {
-            if ((int)Build.VERSION.SdkInt < 23) {
+            if (Build.VERSION.SdkInt < BuildVersionCodes.M) {
                 return true;
             }
             
@@ -182,7 +182,7 @@ namespace Duality.Android
 
             TextView contentView = FindViewById<TextView>(Jazz2.Android.Resource.Id.content);
             contentView.MovementMethod = LinkMovementMethod.Instance;
-            if (Build.VERSION.SdkInt >= Build.VERSION_CODES.N) {
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.N) {
                 contentView.TextFormatted = Html.FromHtml(content, FromHtmlOptions.ModeLegacy);
             } else {
                 contentView.TextFormatted = Html.FromHtml(content);

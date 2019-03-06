@@ -244,7 +244,7 @@ namespace Jazz2.Android
 
             TextView contentView = FindViewById<TextView>(Resource.Id.content);
             contentView.MovementMethod = LinkMovementMethod.Instance;
-            if (Build.VERSION.SdkInt >= Build.VERSION_CODES.N) {
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.N) {
                 contentView.TextFormatted = Html.FromHtml(exceptionData, FromHtmlOptions.ModeLegacy);
             } else {
                 contentView.TextFormatted = Html.FromHtml(exceptionData);
