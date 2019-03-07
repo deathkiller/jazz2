@@ -18,7 +18,7 @@
 Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** released in 1998. Supports various versions of the game (Shareware Demo, Holiday Hare '98, The Secret Files and Christmas Chronicles). Also, it partially supports some features of JJ2+ extension and MLLE.
 
 [![Build Status](https://img.shields.io/appveyor/ci/deathkiller/jazz2.svg?logo=appveyor)](https://ci.appveyor.com/project/deathkiller/jazz2)
-[![Latest Release](https://img.shields.io/github/release/deathkiller/jazz2.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMjAgOEg0VjZoMTZ2MnptLTItNkg2djJoMTJWMnptNCAxMHY4YzAgMS4xLS45IDItMiAySDRjLTEuMSAwLTItLjktMi0ydi04YzAtMS4xLjktMiAyLTJoMTZjMS4xIDAgMiAuOSAyIDJ6bS02IDRsLTYtMy4yN3Y2LjUzTDE2IDE2eiIgZmlsbD0iI2RkZCIvPjxwYXRoIGZpbGw9Im5vbmUiIGQ9Ik0wIDBoMjR2MjRIMHoiLz48L3N2Zz4=)](https://github.com/deathkiller/jazz2/releases)
+[![Latest Release](https://img.shields.io/github/release/deathkiller/jazz2.svg)](https://github.com/deathkiller/jazz2/releases)
 [![License](https://img.shields.io/github/license/deathkiller/jazz2.svg)](https://github.com/deathkiller/jazz2/blob/master/LICENSE)
 [![Lines of Code](https://tokei.rs/b1/github/deathkiller/jazz2)](https://github.com/deathkiller/jazz2/graphs/code-frequency)
 
@@ -61,17 +61,17 @@ Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) or newer 
 
 ## Running the application
 ### Windows / Linux / macOS
-* Build the solution
+* Build the solution (or download release from GitHub)
 * Copy `Content` directory to `‹Game›/Content`
 * Run `‹Game›/Import.exe "Path to JJ2"` (or drag and drop JJ2 directory on `Import.exe`)
   * On Linux/macOS, you can run `mono Import.exe "Path to JJ2"`
 * Run `‹Game›/Jazz2.exe`
   * On Linux/macOS, you can run `mono Jazz2.exe`
 
-*You can run `Import.exe` without parameters to show additional options.*
+*`‹Game›` is path to Jazz² Resurrection. You can run `Import.exe` without parameters to show additional options.*
 
 ### Android
-* Build the solution
+* Build the solution (or download release from GitHub)
 * Run `‹Game›/Import.exe "Path to JJ2"` (or drag and drop JJ2 directory on `Import.exe`)
 * Copy `‹Game›/Content` directory to `‹SDCard›/jazz2.android/Content` 
 * Copy files from `Jazz2.Android/Shaders` directory to `‹SDCard›/jazz2.android/Content/Shaders` 

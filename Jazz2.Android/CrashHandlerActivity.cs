@@ -166,23 +166,21 @@ namespace Jazz2.Android
                     if (i1 != -1) {
                         int i2 = filename.LastIndexOfAny(new[] { '/', '\\' }, i1 - 1);
                         if (i2 != -1) {
-                            filename = "..." + filename.Substring(i2);
+                            int i3 = filename.LastIndexOfAny(new[] { '/', '\\' }, i2 - 1);
+                            if (i3 != -1) {
+                                filename = "…" + filename.Substring(i3);
+                            }
                         }
                     }
 
                     sb.Append(" • <i>");
-
                     sb.Append(WebUtility.HtmlEncode(type?.FullName));
                     sb.Append(".</i><b>");
                     sb.Append(WebUtility.HtmlEncode(method.Name));
-                    sb.Append("</b>");
-
-                    sb.Append(" (");
-                    sb.Append(frame.GetFileLineNumber());
-                    sb.Append(":");
-                    sb.Append(frame.GetFileColumnNumber());
-                    sb.Append(" v ");
+                    sb.Append("</b> (");
                     sb.Append(WebUtility.HtmlEncode(filename));
+                    sb.Append(":");
+                    sb.Append(frame.GetFileLineNumber());
                     sb.Append(")");
                 }
             }
@@ -297,7 +295,13 @@ namespace Jazz2.Android
 
             string deviceId;
             try {
-                deviceId = Settings.Secure.GetString(ContentResolver, Settings.Secure.AndroidId) ?? "";
+                deviceId = Settings.Secure.GetString(ContentResolver, Settings.Secure.AndroidId);
+                if (string.IsNullOrWhiteSpace(deviceId) && Build.Serial != null) {
+                    deviceId = Build.Serial;
+                }
+                if (string.IsNullOrWhiteSpace(deviceId)) {
+                    deviceId = "";
+                }
             } catch {
                 deviceId = "";
             }

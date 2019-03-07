@@ -17,7 +17,8 @@ namespace Duality.Backend.Android
 
         public NativeFileSystem()
         {
-            RootPath = FindRootPath();
+            int storagePathLength;
+            RootPath = FindRootPath(out storagePathLength);
 
             if (RootPath == null) {
                 StringBuilder sb = new StringBuilder();
@@ -253,7 +254,7 @@ namespace Duality.Backend.Android
             return storages;
         }
 
-        public static string FindRootPath()
+        public static string FindRootPath(out int storagePathLength)
         {
             string packageName = Application.Context.PackageName + "/";
 
@@ -261,21 +262,25 @@ namespace Duality.Backend.Android
             for (int i = storages.Count - 1; i >= 0; i--) {
                 string path = Path.Combine(storages[i].Path, "Android", "Data", packageName);
                 if (Directory.Exists(path)) {
+                    storagePathLength = storages[i].Path.Length;
                     return path;
                 }
 
                 path = Path.Combine(storages[i].Path, packageName);
                 if (Directory.Exists(path)) {
+                    storagePathLength = storages[i].Path.Length;
                     return path;
                 }
 
                 // ToDo: Remove this in future versions
                 path = Path.Combine(storages[i].Path, "Download", packageName);
                 if (Directory.Exists(path)) {
+                    storagePathLength = storages[i].Path.Length;
                     return path;
                 }
             }
 
+            storagePathLength = 0;
             return null;
         }
     }

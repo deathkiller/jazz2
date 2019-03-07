@@ -2,14 +2,16 @@
 using Android.App;
 using Android.Content;
 using Android.OS;
+using Duality;
 using Duality.Backend;
 using Jazz2.Game;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Platform.Android;
 using INativeWindow = Duality.Backend.INativeWindow;
+using Vector2 = Duality.Vector2;
 
-namespace Duality.Android
+namespace Jazz2.Android
 {
     public partial class InnerView : AndroidGameView
     {

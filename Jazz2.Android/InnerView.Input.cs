@@ -2,12 +2,13 @@
 using System.IO;
 using Android.Content.Res;
 using Android.Views;
+using Duality;
 using Duality.Drawing;
 using Duality.Input;
 using Duality.Resources;
 using Jazz2.Storage;
 
-namespace Duality.Android
+namespace Jazz2.Android
 {
     partial class InnerView
     {

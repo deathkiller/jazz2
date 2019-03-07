@@ -1,9 +1,9 @@
 ﻿using Android.App;
 using Android.Content.Res;
 using Duality;
-using Duality.Android;
 using Duality.Drawing;
 using Duality.Resources;
+using Jazz2.Android;
 
 namespace Jazz2.Game.UI.Menu
 {

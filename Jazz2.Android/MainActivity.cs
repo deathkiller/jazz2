@@ -9,11 +9,11 @@ using Android.Text;
 using Android.Text.Method;
 using Android.Views;
 using Android.Widget;
-using Jazz2.Android;
+using Duality.Backend.Android;
 using Jazz2.Game;
 using Path = System.IO.Path;
 
-namespace Duality.Android
+namespace Jazz2.Android
 {
     [Activity(
         MainLauncher = true,
@@ -108,9 +108,10 @@ namespace Duality.Android
                 return;
             }
 
-            string rootPath = Backend.Android.NativeFileSystem.FindRootPath();
+            int storagePathLength;
+            string rootPath = NativeFileSystem.FindRootPath(out storagePathLength);
             if (rootPath == null) {
-                var storageList = Backend.Android.NativeFileSystem.GetStorageList();
+                var storageList = NativeFileSystem.GetStorageList();
                 if (storageList.Count == 0) {
                     ShowInfoScreen("Content files not found", "No storage is accessible.");
                     return;
@@ -121,12 +122,12 @@ namespace Duality.Android
                     found = storageList[0];
                 }
 
-                ShowInfoScreen("Content files not found", "Content should be placed in&nbsp;<u>" + Path.Combine(found.Path, "Android", "Data", Application.Context.PackageName, "Content") + "/…</u> or&nbsp;in&nbsp;other compatible path.");
+                ShowInfoScreen("Content files not found", "Content should be placed in&nbsp;" + found.Path + "<b><u>/Android/Data/" + Application.Context.PackageName + "/Content/</u></b>… or&nbsp;in&nbsp;other compatible path.");
                 return;
             }
 
             if (!File.Exists(Path.Combine(rootPath, "Content", "Main.dz"))) {
-                ShowInfoScreen("Content files not found", "Content should be placed in&nbsp;<u>" + Path.Combine(rootPath, "Content") + "/…</u><br>It includes <b>Main.dz</b> file and <b>Episodes</b>, <b>Internal</b>, <b>Music</b>, <b>Shaders</b>, <b>Tilesets</b> directories.");
+                ShowInfoScreen("Content files not found", "Content should be placed in&nbsp;" + rootPath.Substring(0, storagePathLength) + "<b><u>" + rootPath.Substring(storagePathLength) + "Content/</u></b>…<br>It includes <b>Main.dz</b> file and <b>Episodes</b>, <b>Internal</b>, <b>Music</b>, <b>Shaders</b>, <b>Tilesets</b> directories.");
                 return;
             }
 
@@ -163,24 +164,24 @@ namespace Duality.Android
             }
 
             if (backgroundVideo == null || retryButton == null) {
-                SetContentView(Jazz2.Android.Resource.Layout.activity_info);
+                SetContentView(Resource.Layout.activity_info);
 
-                backgroundVideo = FindViewById<VideoView>(Jazz2.Android.Resource.Id.background_video);
+                backgroundVideo = FindViewById<VideoView>(Resource.Id.background_video);
                 backgroundVideo.SetVideoURI(global::Android.Net.Uri.Parse("android.resource://" + PackageName + "/raw/logo"));
                 backgroundVideo.Prepared += OnVideoViewPrepared;
                 backgroundVideo.Start();
 
-                retryButton = FindViewById<Button>(Jazz2.Android.Resource.Id.retry_button);
+                retryButton = FindViewById<Button>(Resource.Id.retry_button);
                 retryButton.Click += OnRetryButtonClick;
 
-                TextView versionView = FindViewById<TextView>(Jazz2.Android.Resource.Id.version);
+                TextView versionView = FindViewById<TextView>(Resource.Id.version);
                 versionView.Text = "v" + App.AssemblyVersion;
             }
 
-            TextView headerView = FindViewById<TextView>(Jazz2.Android.Resource.Id.header);
+            TextView headerView = FindViewById<TextView>(Resource.Id.header);
             headerView.Text = header;
 
-            TextView contentView = FindViewById<TextView>(Jazz2.Android.Resource.Id.content);
+            TextView contentView = FindViewById<TextView>(Resource.Id.content);
             contentView.MovementMethod = LinkMovementMethod.Instance;
             if (Build.VERSION.SdkInt >= BuildVersionCodes.N) {
                 contentView.TextFormatted = Html.FromHtml(content, FromHtmlOptions.ModeLegacy);

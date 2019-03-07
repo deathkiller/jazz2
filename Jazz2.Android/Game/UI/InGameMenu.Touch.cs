@@ -1,6 +1,6 @@
 ﻿using Duality;
-using Duality.Android;
 using Duality.Drawing;
+using Jazz2.Android;
 
 namespace Jazz2.Game.UI.Menu.InGame
 {

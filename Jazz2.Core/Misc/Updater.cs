@@ -25,8 +25,11 @@ namespace Jazz2
                 string deviceId;
 #if __ANDROID__
                 try {
-                    deviceId = global::Android.Provider.Settings.Secure.GetString(Duality.Android.MainActivity.Current.ContentResolver, global::Android.Provider.Settings.Secure.AndroidId);
-                    if (deviceId != null) {
+                    deviceId = global::Android.Provider.Settings.Secure.GetString(Android.MainActivity.Current.ContentResolver, global::Android.Provider.Settings.Secure.AndroidId);
+                    if (string.IsNullOrWhiteSpace(deviceId) && global::Android.OS.Build.Serial != null) {
+                        deviceId = global::Android.OS.Build.Serial;
+                    }
+                    if (!string.IsNullOrWhiteSpace(deviceId)) {
                         deviceId = System.Convert.ToBase64String(Encoding.UTF8.GetBytes(deviceId))
                                     .Replace('+', '-').Replace('/', '_').TrimEnd('=');
                     } else {
@@ -36,7 +39,17 @@ namespace Jazz2
                     deviceId = "";
                 }
 #else
-                deviceId = "";
+                try {
+                    deviceId = System.Environment.MachineName;
+                    if (!string.IsNullOrWhiteSpace(deviceId)) {
+                        deviceId = System.Convert.ToBase64String(Encoding.UTF8.GetBytes(deviceId))
+                                    .Replace('+', '-').Replace('/', '_').TrimEnd('=');
+                    } else {
+                        deviceId = "";
+                    }
+                } catch {
+                    deviceId = "";
+                }
 #endif
 
                 try {

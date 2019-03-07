@@ -1,6 +1,6 @@
 ﻿using System;
 using Android.Views;
-using Duality.Android;
+using Jazz2.Android;
 
 namespace Duality.Backend.Android.OpenTK
 {
