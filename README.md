@@ -35,24 +35,24 @@ Uses parts of [Duality - A 2D GameDev Framework](https://duality.adamslair.net/)
 
 ## Running the application
 ### Windows / Linux / macOS
-* Build the solution (or download release from GitHub)
-* Copy `Content` directory to `‹Game›/Content`
+* Download **Desktop** release from GitHub (or build the solution and copy `Content` directory to `‹Game›/Content`)
 * Run `‹Game›/Import.exe "Path to JJ2"` (or drag and drop JJ2 directory on `Import.exe`)
   * On Linux/macOS, you can run `mono Import.exe "Path to JJ2"`
 * Run `‹Game›/Jazz2.exe`
   * On Linux/macOS, you can run `mono Jazz2.exe`
 
-*`‹Game›` is path to Jazz² Resurrection. You can run `Import.exe` without parameters to show additional options.*
+`‹Game›` *is path to Jazz² Resurrection. You can run* `Import.exe` *without parameters to show additional options.*
 
 ### Android
-* Build the solution (or download release from GitHub)
+* Download **Desktop** and **Android** release from GitHub (or build the solution)
 * Run `‹Game›/Import.exe "Path to JJ2"` (or drag and drop JJ2 directory on `Import.exe`)
 * Copy `‹Game›/Content` directory to `‹SDCard›/jazz2.android/Content` 
-  * Create empty file `.nomedia` in `‹SDCard›/jazz2.android` to hide game files in Android Gallery (optimal)
-* Install APK file on Android
+  * Create empty file `.nomedia` in `‹SDCard›/jazz2.android` to hide files from Android Gallery
+* Install `Jazz2.apk` on Android device
 * Run the application
 
-*Requires device with Android 4.4 (or newer) and OpenGL ES 3.0. `‹SDCard›` could be internal or external storage. The application tries to autodetect correct path. Also, you can use `‹SDCard›/Android/Data/Jazz2.Android` or `‹SDCard›/Download/Jazz2.Android` instead.*
+*Requires device with Android 4.4 (or newer) and OpenGL ES 3.0.* `‹SDCard›` *could be internal or external storage.
+The application tries to autodetect correct path. Also, you can use* `‹SDCard›/Android/Data/Jazz2.Android` *or* `‹SDCard›/Download/Jazz2.Android` *instead.*
 
 
 ## Dependencies
@@ -102,7 +102,7 @@ Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) or newer 
 * Copy `/Packages/AdamsLair.OpenTK.x.y.z/lib/OpenTK.dll.config` to `/Jazz2/Bin/Debug/OpenTK.dll.config`
 * If you build Release configuration, you have to replace `Debug` with `Release` in paths above
 
-*Errors about `Jazz2.Android` project can be ignored, if you don't need Android build.*
+*Errors about* `Jazz2.Android` *project can be ignored, if you don't need Android build.*
 
 ### Android
 * Install **Mobile development in .NET** to Microsoft Visual Studio 2017 (or newer)
