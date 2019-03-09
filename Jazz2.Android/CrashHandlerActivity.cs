@@ -296,9 +296,6 @@ namespace Jazz2.Android
             string deviceId;
             try {
                 deviceId = Settings.Secure.GetString(ContentResolver, Settings.Secure.AndroidId);
-                if (string.IsNullOrWhiteSpace(deviceId) && Build.Serial != null) {
-                    deviceId = Build.Serial;
-                }
                 if (string.IsNullOrWhiteSpace(deviceId)) {
                     deviceId = "";
                 }

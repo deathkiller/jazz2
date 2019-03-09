@@ -8,6 +8,7 @@ using Jazz2.Game;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Platform.Android;
+using ContentResolver = Jazz2.Game.ContentResolver;
 using INativeWindow = Duality.Backend.INativeWindow;
 using Vector2 = Duality.Vector2;
 
@@ -35,8 +36,12 @@ namespace Jazz2.Android
             // ToDo: Create Android-specific AssemblyLoader
             DualityApp.Init(DualityApp.ExecutionContext.Game, /*new DefaultAssemblyLoader()*/null, null);
 
+            ContentResolver.Current.Init();
+
             DualityApp.WindowSize = new Point2(viewportWidth, viewportHeight);
             INativeWindow window = DualityApp.OpenWindow(new WindowOptions());
+
+            ContentResolver.Current.InitPostWindow();
 
             FocusableInTouchMode = true;
             RequestFocus();

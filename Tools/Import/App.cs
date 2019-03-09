@@ -1044,6 +1044,10 @@ namespace Import
                 tree.GetContentFromDirectory(Path.Combine(targetPath, "Content", "Shaders"));
             }
 
+            if (Directory.Exists(Path.Combine(targetPath, "Content", "Shaders.ES30"))) {
+                tree.GetContentFromDirectory(Path.Combine(targetPath, "Content", "Shaders.ES30"));
+            }
+
             Log.PopIndent();
             Log.Write(LogType.Info, "Saving changes...");
 
@@ -1107,6 +1111,10 @@ namespace Import
                 tree.GetContentFromDirectory(Path.Combine(targetPath, "Content", "Shaders"));
             }
 
+            if (Directory.Exists(Path.Combine(targetPath, "Content", "Shaders.ES30"))) {
+                tree.GetContentFromDirectory(Path.Combine(targetPath, "Content", "Shaders.ES30"));
+            }
+
             Log.Write(LogType.Info, "Saving changes...");
 
             tree.RemoveEmptyNodes();
@@ -1141,6 +1149,10 @@ namespace Import
 
                 if (Directory.Exists(Path.Combine(targetPath, "Content", "Shaders"))) {
                     Directory.Delete(Path.Combine(targetPath, "Content", "Shaders"), true);
+                }
+
+                if (Directory.Exists(Path.Combine(targetPath, "Content", "Shaders.ES30"))) {
+                    Directory.Delete(Path.Combine(targetPath, "Content", "Shaders.ES30"), true);
                 }
             }
 

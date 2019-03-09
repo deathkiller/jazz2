@@ -4,7 +4,7 @@
     },
 
     "Animations": {
-        "SpikeBall": {
+        "Platform": {
             "Path": "Object/3d_spike.png"
         },
         "Chain": {

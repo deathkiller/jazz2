@@ -97,6 +97,10 @@ namespace Jazz2.Game
 
         private ContentResolver()
         {
+        }
+
+        public void Init()
+        {
             jsonParser = new JsonParser();
             imageCodec = ImageCodec.GetRead(ImageCodec.FormatPng);
 
@@ -104,7 +108,10 @@ namespace Jazz2.Game
             string dz = PathOp.Combine(DualityApp.DataDirectory, "Main.dz");
             PathOp.Mount(dz, new CompressedContent(dz));
 #endif
+        }
 
+        public void InitPostWindow()
+        {
             defaultNormalMap = new Texture(new Pixmap(new PixelData(2, 2, new ColorRgba(0.5f, 0.5f, 1f))), TextureSizeMode.Default, TextureMagFilter.Nearest, TextureMinFilter.Nearest);
             defaultNormalMap.Res.DetachPixmap();
 
@@ -505,8 +512,10 @@ namespace Jazz2.Game
             if (!cachedShaders.TryGetValue(path, out shader)) {
                 // Shaders for Android are always uncompressed for now, so the compressed
                 // content package can be used in Android version as well.
-#if UNCOMPRESSED_CONTENT || __ANDROID__
+#if UNCOMPRESSED_CONTENT
                 string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Shaders", path + ".res");
+#elif __ANDROID__
+                string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Shaders.ES30", path + ".res");
 #else
                 string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Shaders", path + ".res");
 #endif

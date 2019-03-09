@@ -36,8 +36,8 @@ namespace Jazz2.Actors.Solid
             collisionFlags = CollisionFlags.CollideWithOtherActors;
             canBeFrozen = false;
 
-            RequestMetadata("Object/SpikeBall");
-            SetAnimation("SpikeBall");
+            RequestMetadata("MovingPlatform/SpikeBall");
+            SetAnimation("Platform");
 
             pieces = new ChainPiece[length];
             for (int i = 0; i < length; i++) {
@@ -135,7 +135,7 @@ namespace Jazz2.Actors.Solid
 
                 collisionFlags = CollisionFlags.None;
 
-                RequestMetadata("Object/SpikeBall");
+                RequestMetadata("MovingPlatform/SpikeBall");
                 SetAnimation("Chain");
             }
 

@@ -59,12 +59,16 @@ namespace Jazz2.Game
                 case 1: newScreenMode = ScreenMode.FullWindow; break;
             }
 
+            ContentResolver.Current.Init();
+
             using (INativeWindow window = DualityApp.OpenWindow(new WindowOptions {
                 Title = AssemblyTitle,
                 RefreshMode = (args.Contains("/nv") ? RefreshMode.NoSync : (args.Contains("/mv") ? RefreshMode.ManualSync : RefreshMode.VSync)),
                 Size = LevelRenderSetup.TargetSize,
                 ScreenMode = newScreenMode
             })) {
+                ContentResolver.Current.InitPostWindow();
+
                 current = new App(window);
                 current.ShowMainMenu();
                 window.Run();

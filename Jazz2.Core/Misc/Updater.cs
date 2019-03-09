@@ -26,31 +26,29 @@ namespace Jazz2
 #if __ANDROID__
                 try {
                     deviceId = global::Android.Provider.Settings.Secure.GetString(Android.MainActivity.Current.ContentResolver, global::Android.Provider.Settings.Secure.AndroidId);
-                    if (string.IsNullOrWhiteSpace(deviceId) && global::Android.OS.Build.Serial != null) {
-                        deviceId = global::Android.OS.Build.Serial;
-                    }
-                    if (!string.IsNullOrWhiteSpace(deviceId)) {
-                        deviceId = System.Convert.ToBase64String(Encoding.UTF8.GetBytes(deviceId))
-                                    .Replace('+', '-').Replace('/', '_').TrimEnd('=');
-                    } else {
+                    if (deviceId == null) {
                         deviceId = "";
                     }
                 } catch {
                     deviceId = "";
                 }
+
+                deviceId += "|Android " + global::Android.OS.Build.VERSION.Release;
 #else
                 try {
                     deviceId = System.Environment.MachineName;
-                    if (!string.IsNullOrWhiteSpace(deviceId)) {
-                        deviceId = System.Convert.ToBase64String(Encoding.UTF8.GetBytes(deviceId))
-                                    .Replace('+', '-').Replace('/', '_').TrimEnd('=');
-                    } else {
+                    if (deviceId == null) {
                         deviceId = "";
                     }
                 } catch {
                     deviceId = "";
                 }
+
+                deviceId += "|" + System.Environment.OSVersion.ToString();
 #endif
+
+                deviceId = System.Convert.ToBase64String(Encoding.UTF8.GetBytes(deviceId))
+                                .Replace('+', '-').Replace('/', '_').TrimEnd('=');
 
                 try {
                     string currentVersion = App.AssemblyVersion;

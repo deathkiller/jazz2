@@ -74,9 +74,7 @@ Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) or newer 
 * Build the solution (or download release from GitHub)
 * Run `‹Game›/Import.exe "Path to JJ2"` (or drag and drop JJ2 directory on `Import.exe`)
 * Copy `‹Game›/Content` directory to `‹SDCard›/jazz2.android/Content` 
-* Copy files from `Jazz2.Android/Shaders` directory to `‹SDCard›/jazz2.android/Content/Shaders` 
-* Copy files from `Jazz2.Android/Shaders/Internal` directory to `‹SDCard›/jazz2.android/Content/Internal`
-* *Create empty file `.nomedia` in `‹SDCard›/jazz2.android` to hide game files in Android Gallery (optimal)*
+  * <small>*Create empty file `.nomedia` in `‹SDCard›/jazz2.android` to hide game files in Android Gallery (optimal)*</small>
 * Install APK file on Android
 * Run the application
 
@@ -115,7 +113,7 @@ Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) or newer 
 ### OpenGL ES 2.0
 Alternative OpenGL ES 2.0 backend can be built separately. It does not contain all features
 that are available in default OpenGL 2.1 backend, but it should run faster on low-end configurations.
-<span style="color:#a22;">Don't use it if you have no reason to do so!</span>
+<span color="#aa2222">Don't use it if you have no reason to do so!</span>
 
 To use it, build `Extensions/Es20Backend` project. The library will be copied to
 `/Jazz2/Bin/Debug/Extensions/Es20Backend.core.dll` automatically.

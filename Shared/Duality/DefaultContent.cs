@@ -54,7 +54,14 @@ namespace Duality
 		public static void InitType<T>(string nameExt, Func<Stream, T> resourceCreator) where T : Resource
 		{
 			InitType<T>(name => {
-				using (Stream stream = FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, "Internal", name + nameExt), FileAccessMode.Read)) {
+#if UNCOMPRESSED_CONTENT
+                string path = PathOp.Combine(DualityApp.DataDirectory, "Shaders", name + nameExt);
+#elif __ANDROID__
+                string path = PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Shaders.ES30", name + nameExt);
+#else
+                string path = PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Shaders", name + nameExt);
+#endif
+                using (Stream stream = FileOp.Open(path, FileAccessMode.Read)) {
 					return resourceCreator(stream);
 				}
 			});
