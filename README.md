@@ -33,6 +33,28 @@ Uses parts of [Duality - A 2D GameDev Framework](https://duality.adamslair.net/)
 </div>
 
 
+## Running the application
+### Windows / Linux / macOS
+* Build the solution (or download release from GitHub)
+* Copy `Content` directory to `‹Game›/Content`
+* Run `‹Game›/Import.exe "Path to JJ2"` (or drag and drop JJ2 directory on `Import.exe`)
+  * On Linux/macOS, you can run `mono Import.exe "Path to JJ2"`
+* Run `‹Game›/Jazz2.exe`
+  * On Linux/macOS, you can run `mono Jazz2.exe`
+
+*`‹Game›` is path to Jazz² Resurrection. You can run `Import.exe` without parameters to show additional options.*
+
+### Android
+* Build the solution (or download release from GitHub)
+* Run `‹Game›/Import.exe "Path to JJ2"` (or drag and drop JJ2 directory on `Import.exe`)
+* Copy `‹Game›/Content` directory to `‹SDCard›/jazz2.android/Content` 
+  * Create empty file `.nomedia` in `‹SDCard›/jazz2.android` to hide game files in Android Gallery (optimal)
+* Install APK file on Android
+* Run the application
+
+*Requires device with Android 4.4 (or newer) and OpenGL ES 3.0. `‹SDCard›` could be internal or external storage. The application tries to autodetect correct path. Also, you can use `‹SDCard›/Android/Data/Jazz2.Android` or `‹SDCard›/Download/Jazz2.Android` instead.*
+
+
 ## Dependencies
 ### Windows
 * .NET Framework 4.5.2 (or newer)
@@ -57,28 +79,6 @@ Uses parts of [Duality - A 2D GameDev Framework](https://duality.adamslair.net/)
 * [libopenmpt](https://lib.openmpt.org/libopenmpt/download/) (included for *armeabi-v7a* and *x86*)
 
 Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) or newer (or equivalent Mono compiler) to build the solution.
-
-
-## Running the application
-### Windows / Linux / macOS
-* Build the solution (or download release from GitHub)
-* Copy `Content` directory to `‹Game›/Content`
-* Run `‹Game›/Import.exe "Path to JJ2"` (or drag and drop JJ2 directory on `Import.exe`)
-  * On Linux/macOS, you can run `mono Import.exe "Path to JJ2"`
-* Run `‹Game›/Jazz2.exe`
-  * On Linux/macOS, you can run `mono Jazz2.exe`
-
-*`‹Game›` is path to Jazz² Resurrection. You can run `Import.exe` without parameters to show additional options.*
-
-### Android
-* Build the solution (or download release from GitHub)
-* Run `‹Game›/Import.exe "Path to JJ2"` (or drag and drop JJ2 directory on `Import.exe`)
-* Copy `‹Game›/Content` directory to `‹SDCard›/jazz2.android/Content` 
-  * <small>*Create empty file `.nomedia` in `‹SDCard›/jazz2.android` to hide game files in Android Gallery (optimal)*</small>
-* Install APK file on Android
-* Run the application
-
-*Requires device with Android 4.4 (or newer) and OpenGL ES 3.0. `‹SDCard›` could be internal or external storage. The application tries to autodetect correct path. Also, you can use `‹SDCard›/Android/Data/Jazz2.Android` or `‹SDCard›/Download/Jazz2.Android` instead.*
 
 
 ## Building the solution
@@ -110,10 +110,10 @@ Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) or newer 
 
 
 ## Extensions
-### OpenGL ES 2.0
+### OpenGL ES 2.0 (Experimental)
 Alternative OpenGL ES 2.0 backend can be built separately. It does not contain all features
 that are available in default OpenGL 2.1 backend, but it should run faster on low-end configurations.
-<span color="#aa2222">Don't use it if you have no reason to do so!</span>
+Don't use it if you have no reason to do so!
 
 To use it, build `Extensions/Es20Backend` project. The library will be copied to
 `/Jazz2/Bin/Debug/Extensions/Es20Backend.core.dll` automatically.
