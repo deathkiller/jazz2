@@ -17,10 +17,10 @@
 ## Introduction
 Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** released in 1998. Supports various versions of the game (Shareware Demo, Holiday Hare '98, The Secret Files and Christmas Chronicles). Also, it partially supports some features of JJ2+ extension and MLLE.
 
-[![Build Status](https://img.shields.io/appveyor/ci/deathkiller/jazz2.svg?logo=appveyor)](https://ci.appveyor.com/project/deathkiller/jazz2)
+[![Build Status](https://img.shields.io/appveyor/ci/deathkiller/jazz2.svg?logo=visual-studio-code&logoColor=ffffff)](https://ci.appveyor.com/project/deathkiller/jazz2)
 [![Latest Release](https://img.shields.io/github/release/deathkiller/jazz2.svg)](https://github.com/deathkiller/jazz2/releases)
 [![License](https://img.shields.io/github/license/deathkiller/jazz2.svg)](https://github.com/deathkiller/jazz2/blob/master/LICENSE)
-[![Lines of Code](https://tokei.rs/b1/github/deathkiller/jazz2)](https://github.com/deathkiller/jazz2/graphs/code-frequency)
+[![Discord](https://img.shields.io/discord/355651795390955520.svg?color=839ef7&label=chat&logo=discord&logoColor=ffffff&labelColor=586eb5)](https://discord.gg/Y7SBvkD)
 
 Uses parts of [Duality - A 2D GameDev Framework](https://duality.adamslair.net/).
 
