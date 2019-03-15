@@ -1,5 +1,6 @@
 ﻿using Duality;
 using Duality.Input;
+using System.Runtime.CompilerServices;
 
 namespace Jazz2
 {
@@ -13,8 +14,11 @@ namespace Jazz2
         Jump,
         Run,
         SwitchWeapon,
+        Menu,
 
-        Count
+        Count,
+        
+        None = -1
     }
 
     public static class ControlScheme
@@ -26,6 +30,11 @@ namespace Jazz2
 
             public int GamepadIndex;
             public GamepadButton GamepadButton;
+            
+#if ENABLE_TOUCH
+            public bool TouchPressed;
+            public bool TouchPressedLast;
+#endif
         }
 
         private static Mapping[] mappings;
@@ -47,7 +56,7 @@ namespace Jazz2
                 mappings[i].GamepadIndex = -1;
             }
 
-            // ToDo
+            // ToDo: Default mapping
             mappings[(int)PlayerActions.Left].Key1 = Key.Left;
             mappings[(int)PlayerActions.Right].Key1 = Key.Right;
             mappings[(int)PlayerActions.Up].Key1 = Key.Up;
@@ -56,6 +65,7 @@ namespace Jazz2
             mappings[(int)PlayerActions.Jump].Key1 = Key.V;
             mappings[(int)PlayerActions.Run].Key1 = Key.C;
             mappings[(int)PlayerActions.SwitchWeapon].Key1 = Key.X;
+            mappings[(int)PlayerActions.Menu].Key1 = Key.Escape;
         }
 
         public static ref Mapping GetCurrentMapping(int index, PlayerActions action)
@@ -68,6 +78,12 @@ namespace Jazz2
             if (isSuspended) {
                 return false;
             }
+            
+#if ENABLE_TOUCH
+            if (mappings[(int)action].TouchPressed) {
+                return true;
+            }
+#endif
 
             switch (action) {
                 case PlayerActions.Left: return DualityApp.Keyboard.KeyPressed(Key.Left);
@@ -75,6 +91,7 @@ namespace Jazz2
                 case PlayerActions.Up: return DualityApp.Keyboard.KeyPressed(Key.Up);
                 case PlayerActions.Down: return DualityApp.Keyboard.KeyPressed(Key.Down);
                 case PlayerActions.Fire: return DualityApp.Keyboard.KeyPressed(Key.Enter);
+                case PlayerActions.Menu: return DualityApp.Keyboard.KeyPressed(Key.Escape);
             }
 
             return false;
@@ -85,6 +102,12 @@ namespace Jazz2
             if (isSuspended) {
                 return false;
             }
+            
+#if ENABLE_TOUCH
+            if (mappings[(int)action].TouchPressed && !mappings[(int)action].TouchPressedLast) {
+                return true;
+            }
+#endif
 
             switch (action) {
                 case PlayerActions.Left: return DualityApp.Keyboard.KeyHit(Key.Left);
@@ -92,6 +115,7 @@ namespace Jazz2
                 case PlayerActions.Up: return DualityApp.Keyboard.KeyHit(Key.Up);
                 case PlayerActions.Down: return DualityApp.Keyboard.KeyHit(Key.Down);
                 case PlayerActions.Fire: return DualityApp.Keyboard.KeyHit(Key.Enter);
+                case PlayerActions.Menu: return DualityApp.Keyboard.KeyHit(Key.Escape);
             }
 
             return false;
@@ -102,6 +126,12 @@ namespace Jazz2
             if (isSuspended) {
                 return false;
             }
+
+#if ENABLE_TOUCH
+            if (index == 0 && mappings[(int)action].TouchPressed) {
+                return true;
+            }
+#endif
 
             ref Mapping mapping = ref mappings[index * (int)PlayerActions.Count + (int)action];
 
@@ -122,6 +152,12 @@ namespace Jazz2
                 return false;
             }
 
+#if ENABLE_TOUCH
+            if (index == 0 && mappings[(int)action].TouchPressed && !mappings[(int)action].TouchPressedLast) {
+                return true;
+            }
+#endif
+
             ref Mapping mapping = ref mappings[index * (int)PlayerActions.Count + (int)action];
 
             if (mapping.Key1 != Key.Unknown && DualityApp.Keyboard.KeyHit(mapping.Key1))
@@ -134,5 +170,20 @@ namespace Jazz2
 
             return false;
         }
+        
+#if ENABLE_TOUCH
+        internal static void UpdateTouchActions()
+        {
+            for (int i = 0; i < (int)PlayerActions.Count; i++) {
+                mappings[i].TouchPressedLast = mappings[i].TouchPressed;
+            }
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void InternalTouchAction(PlayerActions action, bool pressed)
+        {
+            mappings[(int)action].TouchPressed = pressed;
+        }
+#endif
     }
 }

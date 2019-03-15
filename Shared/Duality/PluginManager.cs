@@ -223,7 +223,7 @@ namespace Duality
 						pluginType.GetType()));
 
 				plugin.FilePath = pluginFilePath;
-				plugin.FileHash = this.assemblyLoader.GetAssemblyHash(pluginFilePath);
+				//plugin.FileHash = this.assemblyLoader.GetAssemblyHash(pluginFilePath);
 
 				this.pluginRegistry.Add(plugin.AssemblyName, plugin);
 			}

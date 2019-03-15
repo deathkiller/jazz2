@@ -7,7 +7,6 @@ namespace Jazz2.Game.UI.Menu.Settings
     {
         private string title;
         private float currentValue, minValue, maxValue;
-        private bool allowWrap;
         private bool enabled = true;
 
         public override bool IsEnabled
@@ -34,12 +33,12 @@ namespace Jazz2.Game.UI.Menu.Settings
             this.maxValue = maxValue;
         }
 
-        public override void OnDraw(Canvas canvas, ref Vector2 pos, bool focused)
+        public override void OnDraw(Canvas canvas, ref Vector2 pos, bool focused, float animation)
         {
             int charOffset = 0;
 
             if (focused) {
-                float size = 0.5f + /*MainMenu.EaseOutElastic(animation) **/ 0.6f;
+                float size = 0.5f + Ease.OutElastic(animation) * 0.6f;
 
                 api.DrawMaterial("MenuGlow", pos.X, pos.Y, Alignment.Center, ColorRgba.White.WithAlpha(0.4f * size), (title.Length + 3) * 0.5f * size, 4f * size);
 

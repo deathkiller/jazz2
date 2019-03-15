@@ -58,20 +58,22 @@ The application tries to autodetect correct path. Also, you can use* `‹SDCard�
 ## Dependencies
 ### Windows
 * .NET Framework 4.5.2 (or newer)
-* [OpenALSoft](https://github.com/opentk/opentk-dependencies)
+* [OpenALSoft](https://github.com/opentk/opentk-dependencies) (included in release)
   * Copy `x86/openal32.dll` to `‹Game›/Extensions/OpenALSoft.x86.dll`
   * Copy `x64/openal32.dll` to `‹Game›/Extensions/OpenALSoft.x64.dll`
-* [libopenmpt](https://lib.openmpt.org/libopenmpt/download/)
+* [libopenmpt](https://lib.openmpt.org/libopenmpt/download/) (included in release)
   * Copy `libopenmpt.dll` (*x86*, and its dependencies) to `‹Game›` directory
 
 ### Linux
 * [Mono 4.6 (or newer)](http://www.mono-project.com/download/#download-lin)
 * OpenAL
-* [libopenmpt](https://lib.openmpt.org/libopenmpt/download/)
+  * Run `sudo apt install openal1` if it's missing
+* [libopenmpt](https://lib.openmpt.org/libopenmpt/download/) (included in release)
   * Copy `libopenmpt.so` (*x86*, and its dependencies) to `‹Game›` directory
 
 ### macOS
 * [Mono 4.6 (or newer)](http://www.mono-project.com/download/#download-mac)
+* OpenAL should be already installed
 * [libopenmpt](https://lib.openmpt.org/libopenmpt/)
 
 ### Android

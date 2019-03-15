@@ -66,6 +66,7 @@ namespace Jazz2.Game.UI.Menu.Settings
                     case PlayerActions.Jump: name = "Jump"; break;
                     case PlayerActions.Run: name = "Run"; break;
                     case PlayerActions.SwitchWeapon: name = "Switch Weapon"; break;
+                    case PlayerActions.Menu: name = "Menu / Back"; break;
                     default: name = ((PlayerActions)i).ToString(); break;
                 }
 
@@ -129,7 +130,7 @@ namespace Jazz2.Game.UI.Menu.Settings
             }
 
             if (waitForInput) {
-                if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
+                if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
                     api.PlaySound("MenuSelect", 0.5f);
                     waitForInput = false;
                     return;
@@ -176,6 +177,10 @@ namespace Jazz2.Game.UI.Menu.Settings
             }
 
             if (ControlScheme.MenuActionHit(PlayerActions.Fire)) {
+                if ((PlayerActions)selectedIndex == PlayerActions.Menu && selectedColumn == 0) {
+                    return;
+                }
+
                 api.PlaySound("MenuSelect", 0.5f);
                 waitForInput = true;
             } else if (DualityApp.Keyboard.KeyHit(Key.Delete)) {
@@ -187,7 +192,7 @@ namespace Jazz2.Game.UI.Menu.Settings
                     case 1: mapping.Key2 = Key.Unknown; break;
                     case 2:mapping.GamepadIndex = -1; break;
                 }
-            } else if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
+            } else if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
                 api.PlaySound("MenuSelect", 0.5f);
                 api.LeaveSection(this);
             }

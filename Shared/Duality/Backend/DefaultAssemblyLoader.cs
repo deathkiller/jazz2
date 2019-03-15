@@ -10,9 +10,9 @@ namespace Duality.Backend
     public class DefaultAssemblyLoader : IAssemblyLoader
 	{
 		private static readonly Assembly execAssembly = Assembly.GetEntryAssembly() ?? typeof(DualityApp).Assembly;
-		private static readonly string execAssemblyDir = Path.GetFullPath(Path.GetDirectoryName(execAssembly.Location));
+        private static readonly string execAssemblyDir = App.AssemblyPath;
 
-		public event EventHandler<AssemblyResolveEventArgs> AssemblyResolve;
+        public event EventHandler<AssemblyResolveEventArgs> AssemblyResolve;
 		public event EventHandler<AssemblyLoadedEventArgs> AssemblyLoaded;
 
 		public IEnumerable<string> BaseDirectories

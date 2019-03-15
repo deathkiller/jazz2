@@ -28,7 +28,13 @@ namespace Jazz2.Game
             }
             set
             {
-                window.ScreenMode = (value & ~ScreenMode.Immersive) | (window.ScreenMode & ScreenMode.Immersive);
+                ScreenMode previousValue = (window.ScreenMode & ~ScreenMode.Immersive);
+                ScreenMode newValue = (value & ~ScreenMode.Immersive);
+                if (previousValue == newValue) {
+                    return;
+                }
+
+                window.ScreenMode = newValue | (window.ScreenMode & ScreenMode.Immersive);
 
                 if ((value & (ScreenMode.FullWindow | ScreenMode.ChangeResolution)) == 0) {
                     window.Size = LevelRenderSetup.TargetSize;

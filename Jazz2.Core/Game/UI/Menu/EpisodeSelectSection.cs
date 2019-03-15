@@ -3,7 +3,6 @@ using System.IO;
 using System.Text.Json;
 using Duality;
 using Duality.Drawing;
-using Duality.Input;
 using Duality.IO;
 using Duality.Resources;
 using Jazz2.Actors;
@@ -272,7 +271,7 @@ namespace Jazz2.Game.UI.Menu
                         ));
                     }
                 }
-            } else if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
+            } else if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
                 api.PlaySound("MenuSelect", 0.5f);
                 api.LeaveSection(this);
             }

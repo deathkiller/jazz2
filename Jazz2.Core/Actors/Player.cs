@@ -36,6 +36,14 @@ namespace Jazz2.Actors
             Copter,
             LizardCopter
         }
+        
+        public enum LevelExitingState
+        {
+            None,
+            Waiting,
+            Transition,
+            Ready
+        }
 
         private const float MaxDashingSpeed = 9f;
         private const float MaxRunningSpeed = 4f;
@@ -55,7 +63,7 @@ namespace Jazz2.Actors
         private SpecialMoveType currentSpecialMove;
         private bool isAttachedToPole;
         private float copterFramesLeft, fireFramesLeft, pushFramesLeft;
-        private bool levelExiting;
+        private LevelExitingState levelExiting;
         private bool isFreefall, inWater, isLifting, isSpring;
         private Modifier activeModifier;
 
@@ -186,41 +194,78 @@ namespace Jazz2.Actors
             };
         }
 
-        public void OnLevelChanging(ExitType exitType)
+        public bool OnLevelChanging(ExitType exitType)
         {
-            levelExiting = true;
+            if (levelExiting != LevelExitingState.None) {
+                if (levelExiting == LevelExitingState.Waiting) {
+                    if (canJump && speedX < 1f && speedY < 1f) {
+                        levelExiting = LevelExitingState.Transition;
+                    
+                        SetPlayerTransition(AnimState.TransitionEndOfLevel, false, true, SpecialMoveType.None, delegate {
+                            renderer.Active = false;
+                            attachedHud?.BeginFadeOut(true);
+                            levelExiting = LevelExitingState.Ready;
+                        });
+                        PlaySound("EndOfLevel1");
+                        
+                        collisionFlags &= ~CollisionFlags.ApplyGravitation;
+                        speedX = speedY = 0f;
+                        externalForceX = externalForceY = internalForceY = 0f;
+                    } else if (lastPoleTime <= 0f) {
+                        // Waiting timeout - use warp transition instead
+                        levelExiting = LevelExitingState.Transition;
 
-            // ToDo: Implement better level transitions
-            if (exitType == ExitType.Warp || exitType == ExitType.Bonus) {
-                //addTimer(285u, false, [this]() {
+                        SetPlayerTransition(isFreefall ? AnimState.TransitionWarpInFreefall : AnimState.TransitionWarpIn, false, true, SpecialMoveType.None, delegate {
+                            renderer.Active = false;
+                            attachedHud?.BeginFadeOut(false);
+                            levelExiting = LevelExitingState.Ready;
+                        });
+                        PlaySound("WarpIn");
+                        
+                        collisionFlags &= ~CollisionFlags.ApplyGravitation;
+                        speedX = speedY = 0f;
+                        externalForceX = externalForceY = internalForceY = 0f;
+                    }
+                    
+                    return false;
+                }
+            
+                return (levelExiting == LevelExitingState.Ready);
+            }
+        
+            if (exitType == ExitType.Warp || exitType == ExitType.Bonus || inWater) {
+                levelExiting = LevelExitingState.Transition;
+            
                 SetPlayerTransition(isFreefall ? AnimState.TransitionWarpInFreefall : AnimState.TransitionWarpIn, false, true, SpecialMoveType.None, delegate {
                     renderer.Active = false;
-
                     attachedHud?.BeginFadeOut(false);
+                    levelExiting = LevelExitingState.Ready;
                 });
                 PlaySound("WarpIn");
-                //});
+                
+                collisionFlags &= ~CollisionFlags.ApplyGravitation;
+                speedX = speedY = 0f;
+                externalForceX = externalForceY = internalForceY = 0f;
             } else {
-                // ToDo: Sound with timer
-                //addTimer(255u, false, [this]() {
-                SetPlayerTransition(AnimState.TransitionEndOfLevel, false, true, SpecialMoveType.None, delegate {
-                    renderer.Active = false;
+                levelExiting = LevelExitingState.Waiting;
 
-                    attachedHud?.BeginFadeOut(true);
-                });
-                PlaySound("EndOfLevel1");
-                //});
-                //addTimer(335u, false, [this]() {
-                //PlayNonPositionalSound("EndOfLevel2");
-                //});
+                if (suspendType != SuspendType.None) {
+                    MoveInstantly(new Vector2(0f, 10f), MoveType.RelativeTime, true);
+                    suspendType = SuspendType.None;
+                }
+
+                collisionFlags |= CollisionFlags.ApplyGravitation;
             }
-
+            
+            controllable = false;
             IsFacingLeft = false;
             isInvulnerable = true;
-            collisionFlags &= ~CollisionFlags.ApplyGravitation;
-            speedX = speedY = 0f;
-            externalForceX = externalForceY = internalForceY = 0f;
-            fireFramesLeft = copterFramesLeft = pushFramesLeft = 0f;
+            copterFramesLeft = pushFramesLeft = 0f;
+            
+            // Used for waiting timeout
+            lastPoleTime = 300f;
+            
+            return false;
         }
 
         protected override void OnUpdate()
@@ -431,7 +476,7 @@ namespace Jazz2.Actors
             } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.H)) {
                 WarpToPosition(new Vector2(Transform.Pos.X + (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f), Transform.Pos.Y), false);
             } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.N)) {
-                api.InitLevelChange(ExitType.Warp, null);
+                api.InitLevelChange(ExitType.Normal, null);
             } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.J)) {
                 //coins += 5;
                 controllable = true;
@@ -1372,7 +1417,7 @@ namespace Jazz2.Actors
                     break;
                 }
                 case EventType.AreaEndOfLevel: { // ExitType, Fast (No score count, only black screen), TextID, TextOffset, Coins
-                    if (!levelExiting) {
+                    if (levelExiting == LevelExitingState.None) {
                         // ToDo: Implement Fast parameter
                         if (p[4] <= coins) {
                             coins -= p[4];
@@ -1706,7 +1751,7 @@ namespace Jazz2.Actors
 
         public void TakeDamage(float pushForce)
         {
-            if (!isInvulnerable && !levelExiting) {
+            if (!isInvulnerable && levelExiting == LevelExitingState.None) {
                 // Cancel active climbing
                 if (currentTransitionState == AnimState.TransitionLedgeClimb) {
                     ForceCancelTransition();

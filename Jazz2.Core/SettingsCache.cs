@@ -8,7 +8,8 @@
             HQ2x,
             xBRZ3,
             xBRZ4,
-            CRT
+            CRT,
+            GB
         }
 
 #if __ANDROID__

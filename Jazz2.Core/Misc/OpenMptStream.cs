@@ -61,9 +61,10 @@ namespace Jazz2
             stream_callbacks.tell = stream_tell_func;
 
             try {
+                // Load module file
                 openmpt_module = openmpt_module_create(stream_callbacks, IntPtr.Zero, null, IntPtr.Zero, IntPtr.Zero);
 
-                // Infinite repeat
+                // Turn on infinite repeat
                 openmpt_module_set_repeat_count(openmpt_module, -1);
             } catch (Exception ex) {
                 App.Log("libopenmpt failed to load: " + ex);

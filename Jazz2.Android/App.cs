@@ -21,6 +21,14 @@ namespace Jazz2.Game
             }
         }
 
+        public static string AssemblyPath
+        {
+            get
+            {
+                return null;
+            }
+        }
+
         private static StringBuilder logBuffer = new StringBuilder();
 
         public static void Log(string message, params object[] messageParams)

@@ -52,7 +52,6 @@ namespace Jazz2.Game
         private List<Player> players = new List<Player>();
         private List<ActorBase> actors = new List<ActorBase>();
 
-        //private string levelName;
         private string levelFileName;
         private string episodeName;
         private string defaultNextLevel;
@@ -126,7 +125,6 @@ namespace Jazz2.Game
         {
             this.root = root;
 
-            //levelName = data.LevelName;
             levelFileName = data.LevelName;
             episodeName = data.EpisodeName;
             difficulty = data.Difficulty;
@@ -604,7 +602,7 @@ namespace Jazz2.Game
 
             currentCarryOver = data;
 
-            levelChangeTimer = (exitType == ExitType.Warp || exitType == ExitType.Bonus ? 58f : 134f);
+            levelChangeTimer = 50f;
         }
 
         public void HandleGameOver()
@@ -787,12 +785,20 @@ namespace Jazz2.Game
         private void OnUpdate()
         {
             if (currentCarryOver.HasValue) {
-                if (levelChangeTimer > 0) {
-                    levelChangeTimer -= Time.TimeMult;
-                } else {
-                    root.ChangeLevel(currentCarryOver.Value);
-                    currentCarryOver = null;
-                    return;
+                bool playersReady = true;
+                foreach (Player player in players) {
+                    // Exit type is already provided
+                    playersReady &= player.OnLevelChanging(ExitType.None);
+                }
+
+                if (playersReady) {
+                    if (levelChangeTimer > 0) {
+                        levelChangeTimer -= Time.TimeMult;
+                    } else {
+                        root.ChangeLevel(currentCarryOver.Value);
+                        currentCarryOver = null;
+                        return;
+                    }
                 }
             }
 
@@ -922,7 +928,7 @@ namespace Jazz2.Game
                 levelChangeTimer *= 2;
             }
 
-            if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
+            if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
                 Scene.SwitchTo(new InGameMenu(root, this));
             }
 

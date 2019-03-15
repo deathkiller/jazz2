@@ -8,8 +8,8 @@ namespace Jazz2.Game.UI.Menu.Settings
     public class MenuSectionWithControls : MenuSection
     {
         protected MenuControlBase[] controls;
+        protected int selectedIndex;
 
-        private int selectedIndex;
         private float animation;
 
         public MenuSectionWithControls()
@@ -35,7 +35,7 @@ namespace Jazz2.Game.UI.Menu.Settings
             center.Y *= 0.65f;
 
             for (int i = 0; i < controls.Length; i++) {
-                controls[i].OnDraw(canvas, ref center, selectedIndex == i);
+                controls[i].OnDraw(canvas, ref center, selectedIndex == i, animation);
             }
         }
 
@@ -70,7 +70,7 @@ namespace Jazz2.Game.UI.Menu.Settings
                     } else {
                         selectedIndex = 0;
                     }
-                } else if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
+                } else if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
                     api.PlaySound("MenuSelect", 0.5f);
                     api.LeaveSection(this);
                 }

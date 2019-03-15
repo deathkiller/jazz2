@@ -47,10 +47,10 @@ namespace Duality
 		/// </summary>
 		public override void LoadPlugins()
 		{
-			//this.PluginLog.Write("Scanning for core plugins...");
-			//this.PluginLog.PushIndent();
+            //this.PluginLog.Write("Scanning for core plugins...");
+            //this.PluginLog.PushIndent();
 
-			List<string> auxilLibs = new List<string>();
+            List<string> auxilLibs = new List<string>();
 			foreach (string dllPath in this.AssemblyLoader.AvailableAssemblyPaths)
 			{
 				if (!dllPath.EndsWith(".core.dll", StringComparison.OrdinalIgnoreCase))

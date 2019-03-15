@@ -309,6 +309,7 @@ namespace Jazz2.Android
 
                     new KeyValuePair<string, string>("type", "crash"),
                     new KeyValuePair<string, string>("app_version", appVersion),
+                    new KeyValuePair<string, string>("app_target", "android"),
 #if DEBUG
                     new KeyValuePair<string, string>("app_configuration", "debug"),
 #else

@@ -12,6 +12,7 @@ namespace Jazz2.Game
     public partial class App
     {
         private static App current;
+        private static string assemblyPath;
 
         public static string AssemblyTitle
         {
@@ -37,6 +38,26 @@ namespace Jazz2.Game
             }
         }
 
+        public static string AssemblyPath
+        {
+            get
+            {
+                if (assemblyPath == null) {
+#if LINUX_BUNDLE
+                    try {
+                        assemblyPath = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
+                    } catch {
+                        assemblyPath = "";
+                    }
+#else
+                    assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+#endif
+                }
+
+                return assemblyPath;
+            }
+        }
+
         public static void Log(string message, params object[] messageParams)
         {
             string line = (messageParams != null && messageParams.Length > 0 ? string.Format(message, messageParams) : message);
@@ -48,7 +69,11 @@ namespace Jazz2.Game
         private static void Main(string[] args)
         {
             // Override working directory
-            Environment.CurrentDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            try {
+                Environment.CurrentDirectory = AssemblyPath;
+            } catch (Exception ex) {
+                Console.WriteLine("Cannot override current directory: " + ex);
+            }
 
             DualityApp.Init(DualityApp.ExecutionContext.Game, new DefaultAssemblyLoader(), args);
 

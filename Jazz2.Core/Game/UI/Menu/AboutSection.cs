@@ -76,7 +76,7 @@ namespace Jazz2.Game.UI.Menu
 
         public override void OnUpdate()
         {
-            if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
+            if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
                 api.PlaySound("MenuSelect", 0.5f);
                 api.LeaveSection(this);
             }

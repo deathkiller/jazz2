@@ -32,6 +32,7 @@ namespace Jazz2.Game.UI.Menu
             canvas.State.ColorTint = new ColorRgba(0.9f, 0.5f);
             canvas.DrawLine(0, y, size.X, y);
 
+#if ENABLE_TOUCH
             if (!InnerView.showVirtualButtons || InnerView.virtualButtons == null) {
                 return;
             }
@@ -45,6 +46,7 @@ namespace Jazz2.Game.UI.Menu
                     canvas.FillRect(button.Left * size.X, button.Top * size.Y, button.Width * size.X, button.Height * size.Y);
                 }
             }
+#endif
         }
     }
 }

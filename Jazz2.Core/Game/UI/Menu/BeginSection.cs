@@ -65,7 +65,7 @@ namespace Jazz2.Game.UI.Menu
             if (ControlScheme.MenuActionHit(PlayerActions.Fire)) {
                 api.PlaySound("MenuSelect", 0.5f);
                 items[selectedIndex].Item2();
-            } else if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
+            } else if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
                 if (selectedIndex != items.Count - 1) {
                     api.PlaySound("MenuSelect", 0.5f);
                     animation = 0f;

@@ -33,10 +33,10 @@ namespace Duality.Backend.Dummy
 		{
 			return null;
 		}
-		int IAssemblyLoader.GetAssemblyHash(string assemblyPath)
-		{
-			return 0;
-		}
+		//int IAssemblyLoader.GetAssemblyHash(string assemblyPath)
+		//{
+		//	return 0;
+		//}
 		void IAssemblyLoader.Init() { }
 		void IAssemblyLoader.Terminate() { }
 	}

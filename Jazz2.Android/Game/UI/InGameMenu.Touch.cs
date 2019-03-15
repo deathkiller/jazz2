@@ -6,12 +6,9 @@ namespace Jazz2.Game.UI.Menu.InGame
 {
     partial class InGameMenu
     {
-        //partial void InitPlatformSpecific()
-        //{
-        //}
-
         partial void DrawPlatformSpecific(Vector2 size)
         {
+#if ENABLE_TOUCH
             if (!InnerView.showVirtualButtons || InnerView.virtualButtons == null) {
                 return;
             }
@@ -25,6 +22,7 @@ namespace Jazz2.Game.UI.Menu.InGame
                     canvas.FillRect(button.Left * size.X, button.Top * size.Y, button.Width * size.X, button.Height * size.Y);
                 }
             }
+#endif
         }
     }
 }

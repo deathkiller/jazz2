@@ -166,7 +166,7 @@ namespace Jazz2.Game.UI.Menu
                     api.PlaySound("MenuSelect", 0.5f);
                     api.SwitchToServer(serverList[selectedIndex].EndPoint);
                 }
-            } else if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
+            } else if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
                 api.PlaySound("MenuSelect", 0.5f);
                 api.LeaveSection(this);
             }

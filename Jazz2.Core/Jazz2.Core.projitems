@@ -124,6 +124,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\Collisions\TreeNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\ILevelHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\IMenuContainer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\SettingsRescaleSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\SliderControl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\TransitionManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Storage\Content\CompressedContent.cs" />

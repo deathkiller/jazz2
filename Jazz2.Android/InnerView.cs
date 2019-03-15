@@ -9,6 +9,7 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Platform.Android;
 using ContentResolver = Jazz2.Game.ContentResolver;
+using Environment = System.Environment;
 using INativeWindow = Duality.Backend.INativeWindow;
 using Vector2 = Duality.Vector2;
 
@@ -30,24 +31,27 @@ namespace Jazz2.Android
         {
             base.OnLoad(e);
 
-            viewportWidth = Width;
-            viewportHeight = Height;
-
+            // Initialize core
             // ToDo: Create Android-specific AssemblyLoader
-            DualityApp.Init(DualityApp.ExecutionContext.Game, /*new DefaultAssemblyLoader()*/null, null);
+            DualityApp.Init(DualityApp.ExecutionContext.Game, null, null);
 
             ContentResolver.Current.Init();
+            
+            viewportWidth = Width;
+            viewportHeight = Height;
 
             DualityApp.WindowSize = new Point2(viewportWidth, viewportHeight);
             INativeWindow window = DualityApp.OpenWindow(new WindowOptions());
 
             ContentResolver.Current.InitPostWindow();
 
+            // Initialize input
             FocusableInTouchMode = true;
             RequestFocus();
 
             InitializeInput();
 
+            // Initialize the game
             current = new App(window);
             current.ShowMainMenu();
 
@@ -108,11 +112,15 @@ namespace Jazz2.Android
                 } else {
                     (Context as Activity).Finish();
                 }
-                System.Environment.Exit(0);
+                Environment.Exit(0);
                 return;
             }
 
             DualityApp.Update();
+            
+#if ENABLE_TOUCH
+            ControlScheme.UpdateTouchActions();
+#endif
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)

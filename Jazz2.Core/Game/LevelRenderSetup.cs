@@ -81,6 +81,9 @@ namespace Jazz2.Game
                     case SettingsCache.ResizeMode.CRT:
                         resizeShader = ContentResolver.Current.RequestShader("ResizeCRT");
                         break;
+                    case SettingsCache.ResizeMode.GB:
+                        resizeShader = ContentResolver.Current.RequestShader("ResizeGB");
+                        break;
                 }
             } catch {
                 resizeShader = DrawTechnique.Solid;
@@ -191,6 +194,9 @@ namespace Jazz2.Game
                             break;
                         case SettingsCache.ResizeMode.CRT:
                             resizeShader = ContentResolver.Current.RequestShader("ResizeCRT");
+                            break;
+                        case SettingsCache.ResizeMode.GB:
+                            resizeShader = ContentResolver.Current.RequestShader("ResizeGB");
                             break;
                     }
                 } catch {
