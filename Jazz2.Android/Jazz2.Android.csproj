@@ -124,9 +124,6 @@
     <AndroidResource Include="Resources\mipmap-xxhdpi\ic_launcher.png" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher.png" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidAsset Include="Assets\fire.png" />
   </ItemGroup>
   <ItemGroup>
@@ -149,6 +146,15 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable-xxhdpi\action_bar_bg.9.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\mipmap-anydpi-v26\ic_launcher.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\mipmap-xxhdpi\ic_background.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\mipmap-xxhdpi\ic_foreground.png" />
   </ItemGroup>
   <Import Project="..\Jazz2.Core\Jazz2.Core.projitems" Label="Shared" />
   <Import Project="..\Shared\Duality\Duality.projitems" Label="Shared" />
