@@ -27,7 +27,7 @@ namespace Jazz2.Actors.Solid
         private bool isSwing;
 
         private float phase;
-        private Vector3 originPos;
+        private Vector3 originPos, lastPos;
         private ChainPiece[] pieces;
 
         public override void OnAttach(ActorInstantiationDetails details)
@@ -35,6 +35,7 @@ namespace Jazz2.Actors.Solid
             base.OnAttach(details);
 
             originPos = Transform.Pos;
+            lastPos = originPos;
 
             type = (PlatformType)details.Params[0];
             length = details.Params[3];
@@ -68,6 +69,8 @@ namespace Jazz2.Actors.Solid
         protected override void OnUpdate()
         {
             if (length > 0) {
+                lastPos = Transform.Pos;
+
                 phase -= speed * Time.TimeMult;
                 if (phase < 0f) {
                     phase += BaseCycleFrames;
@@ -114,7 +117,7 @@ namespace Jazz2.Actors.Solid
 
         public Vector2 GetLocationDelta()
         {
-            return GetPhasePosition(true, length) - GetPhasePosition(false, length);
+            return Transform.Pos.Xy - lastPos.Xy;
         }
 
         public Vector2 GetPhasePosition(bool next, int distance)
@@ -145,8 +148,8 @@ namespace Jazz2.Actors.Solid
             float multiY = MathF.Sin(effectivePhase / BaseCycleFrames * MathF.TwoPi);
 
             return new Vector2(
-                originPos.X + multiX * distance * 12,
-                originPos.Y + multiY * distance * 12
+                (int)(originPos.X + multiX * distance * 12),
+                (int)(originPos.Y + multiY * distance * 12)
             );
         }
 

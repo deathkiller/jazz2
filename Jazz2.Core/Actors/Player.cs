@@ -1978,22 +1978,14 @@ namespace Jazz2.Actors
                 return;
             }
 
-            if (Math.Abs(speedY) > float.Epsilon || !controllable || (collisionFlags & CollisionFlags.ApplyGravitation) == 0) {
+            if (!canJump || !controllable || (collisionFlags & CollisionFlags.ApplyGravitation) == 0) {
                 carryingObject = null;
             } else {
                 Vector2 delta = carryingObject.GetLocationDelta();
                 delta.Y -= 1f;
 
-                // ToDo: disregard the carrying object itself in this collision check to
-                // eliminate the need of the correction pixel removed from the delta
-                // and to make the ride even smoother (right now the pixel gap is clearly
-                // visible when platforms go down vertically)
-                // ToDo: Player fall off at ~10 o'clock sometimes
-                if (
-                    !MoveInstantly(delta, MoveType.Relative) &&
-                    !MoveInstantly(new Vector2(0f, delta.Y), MoveType.Relative)
-                ) {
-                    carryingObject = null;
+                if (!MoveInstantly(delta, MoveType.Relative)) {
+                    MoveInstantly(new Vector2(0f, delta.Y), MoveType.Relative);
                 }
             }
         }
