@@ -160,5 +160,8 @@
         SpikeBall = 0x006C,
 
         Copter = 0x006D,
+
+        RollingRock = 0x006E,
+        RollingRockTrigger = 0x006F,
     }
 }

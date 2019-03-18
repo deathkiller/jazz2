@@ -641,6 +641,16 @@ namespace Jazz2.Compatibility
 
             Add(JJ2Event.POLE_PSYCH, GetPoleConverter(4));
 
+            Add(JJ2Event.ROTATING_ROCK, ParamIntToParamList(EventType.RollingRock,
+                Pair.Create(JJ2EventParamType.UInt, 8), // ID
+                Pair.Create(JJ2EventParamType.Int, 4),  // X-Speed
+                Pair.Create(JJ2EventParamType.Int, 4)   // Y-Speed
+            ));
+
+            Add(JJ2Event.TRIGGER_ROCK, ParamIntToParamList(EventType.RollingRockTrigger,
+                Pair.Create(JJ2EventParamType.UInt, 8)  // ID
+            ));
+
             // Enemies
             Add(JJ2Event.ENEMY_TURTLE_NORMAL, ConstantParamList(EventType.EnemyTurtle, 0));
             Add(JJ2Event.ENEMY_NORMAL_TURTLE_XMAS, ConstantParamList(EventType.EnemyTurtle, 1));

@@ -755,6 +755,13 @@ namespace Jazz2.Game
             }
         }
 
+        public void BroadcastTriggeredEvent(EventType eventType, ushort[] eventParams)
+        {
+            foreach (ActorBase actor in actors) {
+                actor.OnTriggeredEvent(eventType, eventParams);
+            }
+        }
+
         // ToDo: Move this somewhere
         public enum WeatherType
         {

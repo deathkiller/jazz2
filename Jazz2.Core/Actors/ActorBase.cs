@@ -563,6 +563,11 @@ namespace Jazz2.Actors
 
         }
 
+        public virtual void OnTriggeredEvent(EventType eventType, ushort[] eventParams)
+        {
+
+        }
+
         public bool IsCollidingWith(ActorBase other)
         {
             const byte AlphaThreshold = 40;

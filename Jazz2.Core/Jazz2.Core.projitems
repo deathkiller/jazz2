@@ -68,6 +68,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Enemies\Witch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\Bomb.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\Copter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\RollingRock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\SteamNote.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Eva.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Explosion.cs" />

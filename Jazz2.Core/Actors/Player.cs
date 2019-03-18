@@ -1499,6 +1499,7 @@ namespace Jazz2.Actors
                     }
                     break;
                 }
+
                 case EventType.ModifierDeath: {
                     DecreaseHealth(int.MaxValue);
                     break;
@@ -1510,6 +1511,11 @@ namespace Jazz2.Actors
                 }
                 case EventType.ModifierLimitCameraView: { // Left, Width
                     api.LimitCameraView((p[0] == 0 ? (int)(pos.X / 32) : p[0]) * 32, p[1] * 32);
+                    break;
+                }
+
+                case EventType.RollingRockTrigger: { // Rock ID
+                    api.BroadcastTriggeredEvent(tileEvent, p);
                     break;
                 }
             }
@@ -1982,11 +1988,16 @@ namespace Jazz2.Actors
                 carryingObject = null;
             } else {
                 Vector2 delta = carryingObject.GetLocationDelta();
-                delta.Y -= 1f;
 
-                if (!MoveInstantly(delta, MoveType.Relative)) {
-                    MoveInstantly(new Vector2(0f, delta.Y), MoveType.Relative);
+                // Try to adjust Y, because it collides with carrying platform sometimes
+                for (int i = 0; i < 4; i++) {
+                    delta.Y -= 1f;
+                    if (MoveInstantly(delta, MoveType.Relative)) {
+                        return;
+                    }
                 }
+
+                MoveInstantly(new Vector2(0f, delta.Y), MoveType.Relative);
             }
         }
 
