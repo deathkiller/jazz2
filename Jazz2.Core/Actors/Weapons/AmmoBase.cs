@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Duality;
+﻿using Duality;
 using Jazz2.Actors.Enemies;
 using Jazz2.Actors.Solid;
 using Jazz2.Game.Events;
@@ -18,6 +17,7 @@ namespace Jazz2.Actors.Weapons
         protected int strength;
 
         protected ActorBase lastRicochet;
+        private int lastRicochetFrame;
 
         public Player Owner => owner;
 
@@ -80,9 +80,12 @@ namespace Jazz2.Actors.Weapons
                         ushort[] eventParams = null;
                         switch (events.GetEventByPosition(pos.X + speedX * timeMult, pos.Y + speedY * timeMult, ref eventParams)) {
                             case EventType.ModifierRicochet:
-                                lastRicochet = null;
-                                OnRicochet();
-                                handled = true;
+                                if (lastRicochetFrame + 2 < Time.FrameCount) {
+                                    lastRicochet = null;
+                                    lastRicochetFrame = Time.FrameCount;
+                                    OnRicochet();
+                                    handled = true;
+                                }
                                 break;
                         }
                     }
@@ -107,7 +110,10 @@ namespace Jazz2.Actors.Weapons
             if (other is TriggerCrate || other is BarrelContainer || other is PowerUpWeaponMonitor) {
                 if (lastRicochet != other) {
                     lastRicochet = other;
+                    lastRicochetFrame = Time.FrameCount;
                     OnRicochet();
+                } else if (lastRicochetFrame + 2 >= Time.FrameCount) {
+                    DecreaseHealth(int.MaxValue);
                 }
             } else if (other is EnemyBase || other is SolidObjectBase) {
                 DecreaseHealth(int.MaxValue);

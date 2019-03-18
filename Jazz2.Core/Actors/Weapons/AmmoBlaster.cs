@@ -7,6 +7,9 @@ namespace Jazz2.Actors.Weapons
 {
     public class AmmoBlaster : AmmoBase
     {
+        private Vector2 gunspotPos;
+        private bool fired;
+
         public override WeaponType WeaponType => WeaponType.Blaster;
 
         public override void OnAttach(ActorInstantiationDetails details)
@@ -24,11 +27,13 @@ namespace Jazz2.Actors.Weapons
             light.RadiusFar = 20f;
         }
 
-        public void OnFire(Player owner, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
+        public void OnFire(Player owner, Vector3 gunspotPos, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
         {
             base.owner = owner;
             base.IsFacingLeft = isFacingLeft;
             base.upgrades = upgrades;
+
+            this.gunspotPos = gunspotPos.Xy;
 
             float angleRel = angle * (isFacingLeft ? -1 : 1);
 
@@ -54,6 +59,8 @@ namespace Jazz2.Actors.Weapons
             Transform.Angle = angle;
 
             SetAnimation(state);
+
+            renderer.Active = false;
         }
 
         protected override void OnUpdate()
@@ -70,6 +77,13 @@ namespace Jazz2.Actors.Weapons
 
             if (timeLeft <= 0f) {
                 PlaySound("WallPoof");
+            }
+
+            if (!fired) {
+                fired = true;
+
+                MoveInstantly(gunspotPos, MoveType.Absolute, true);
+                renderer.Active = true;
             }
         }
 

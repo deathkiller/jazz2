@@ -118,39 +118,47 @@ namespace Jazz2.Actors
             }
         }
 
-        private void GetFirePointAndAngle(out Vector3 pos, out float angle)
+        private void GetFirePointAndAngle(out Vector3 initialPos, out Vector3 gunspotPos, out float angle)
         {
-            pos = Transform.Pos;
+            initialPos = Transform.Pos;
+
+            // Spawn bullet behind the player
+            initialPos.Z += 2f;
+
+            gunspotPos = initialPos;
 
             if (inWater) {
                 angle = Transform.Angle;
 
                 int size = (currentAnimation.Base.FrameDimensions.X / 2);
-                pos.X += (MathF.Cos(angle) * size) * (IsFacingLeft ? -1f : 1f);
-                pos.Y += (MathF.Sin(angle) * size) * (IsFacingLeft ? -1f : 1f);
+                gunspotPos.X += (MathF.Cos(angle) * size) * (IsFacingLeft ? -1f : 1f);
+                gunspotPos.Y += (MathF.Sin(angle) * size) * (IsFacingLeft ? -1f : 1f);
             } else {
-                angle = ((currentAnimationState & AnimState.Lookup) > 0 ? MathF.PiOver2 * (IsFacingLeft ? 1 : -1) : 0f);
+                gunspotPos.X += (currentAnimation.Base.Hotspot.X - currentAnimation.Base.Gunspot.X) * (IsFacingLeft ? 1 : -1);
+                gunspotPos.Y -= (currentAnimation.Base.Hotspot.Y - currentAnimation.Base.Gunspot.Y);
 
-                pos.X += (currentAnimation.Base.Hotspot.X - currentAnimation.Base.Gunspot.X) * (IsFacingLeft ? 1 : -1);
-                pos.Y -= (currentAnimation.Base.Hotspot.Y - currentAnimation.Base.Gunspot.Y);
+                if ((currentAnimationState & AnimState.Lookup) > 0) {
+                    initialPos.X = gunspotPos.X;
+                    angle = MathF.PiOver2 * (IsFacingLeft ? 1 : -1);
+                } else {
+                    initialPos.Y = gunspotPos.Y;
+                    angle = 0f;
+                }
             }
-
-            // Spawn bullet behind the player
-            pos.Z += 2f;
         }
 
         private void FireWeaponBlaster()
         {
-            Vector3 pos; float angle;
-            GetFirePointAndAngle(out pos, out angle);
+            Vector3 initialPos, gunspotPos; float angle;
+            GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
 
             AmmoBlaster newAmmo = new AmmoBlaster();
             newAmmo.OnAttach(new ActorInstantiationDetails {
                 Api = api,
-                Pos = pos
+                Pos = initialPos
             });
-            newAmmo.OnFire(this, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
             api.AddActor(newAmmo);
+            newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
 
             PlaySound("WeaponBlaster");
             weaponCooldown = 40f - (weaponUpgrades[(int)WeaponType.Blaster] >> 1) * 2f;
@@ -158,15 +166,15 @@ namespace Jazz2.Actors
 
         private void FireWeaponBouncer()
         {
-            Vector3 pos; float angle;
-            GetFirePointAndAngle(out pos, out angle);
+            Vector3 initialPos, gunspotPos; float angle;
+            GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
 
             AmmoBouncer newAmmo = new AmmoBouncer();
             newAmmo.OnAttach(new ActorInstantiationDetails {
                 Api = api,
-                Pos = pos
+                Pos = initialPos
             });
-            newAmmo.OnFire(this, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
             api.AddActor(newAmmo);
 
             weaponCooldown = 32f - (weaponUpgrades[(int)WeaponType.Blaster] >> 1) * 1.7f;
@@ -174,32 +182,32 @@ namespace Jazz2.Actors
 
         private void FireWeaponFreezer()
         {
-            Vector3 pos; float angle;
-            GetFirePointAndAngle(out pos, out angle);
+            Vector3 initialPos, gunspotPos; float angle;
+            GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
 
             if ((weaponUpgrades[(int)currentWeapon] & 0x1) != 0) {
                 AmmoFreezer newAmmo = new AmmoFreezer();
                 newAmmo.OnAttach(new ActorInstantiationDetails {
                     Api = api,
-                    Pos = pos
+                    Pos = initialPos
                 });
-                newAmmo.OnFire(this, Speed, angle - 0.018f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, gunspotPos, Speed, angle - 0.018f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
                 api.AddActor(newAmmo);
 
                 newAmmo = new AmmoFreezer();
                 newAmmo.OnAttach(new ActorInstantiationDetails {
                     Api = api,
-                    Pos = pos
+                    Pos = initialPos
                 });
-                newAmmo.OnFire(this, Speed, angle + 0.018f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, gunspotPos, Speed, angle + 0.018f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
                 api.AddActor(newAmmo);
             } else {
                 AmmoFreezer newAmmo = new AmmoFreezer();
                 newAmmo.OnAttach(new ActorInstantiationDetails {
                     Api = api,
-                    Pos = pos
+                    Pos = initialPos
                 });
-                newAmmo.OnFire(this, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
                 api.AddActor(newAmmo);
             }
 
@@ -208,15 +216,15 @@ namespace Jazz2.Actors
 
         private void FireWeaponSeeker()
         {
-            Vector3 pos; float angle;
-            GetFirePointAndAngle(out pos, out angle);
+            Vector3 initialPos, gunspotPos; float angle;
+            GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
 
             AmmoSeeker newAmmo = new AmmoSeeker();
             newAmmo.OnAttach(new ActorInstantiationDetails {
                 Api = api,
-                Pos = pos
+                Pos = initialPos
             });
-            newAmmo.OnFire(this, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
             api.AddActor(newAmmo);
 
             weaponCooldown = 46f - (weaponUpgrades[(int)WeaponType.Blaster] >> 1) * 1.4f;
@@ -224,48 +232,48 @@ namespace Jazz2.Actors
 
         private void FireWeaponRF()
         {
-            Vector3 pos; float angle;
-            GetFirePointAndAngle(out pos, out angle);
+            Vector3 initialPos, gunspotPos; float angle;
+            GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
 
             if ((weaponUpgrades[(int)currentWeapon] & 0x1) != 0) {
                 AmmoRF newAmmo = new AmmoRF();
                 newAmmo.OnAttach(new ActorInstantiationDetails {
                     Api = api,
-                    Pos = pos
+                    Pos = initialPos
                 });
-                newAmmo.OnFire(this, Speed, angle - 0.26f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, gunspotPos, Speed, angle - 0.26f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
                 api.AddActor(newAmmo);
 
                 newAmmo = new AmmoRF();
                 newAmmo.OnAttach(new ActorInstantiationDetails {
                     Api = api,
-                    Pos = pos
+                    Pos = initialPos
                 });
-                newAmmo.OnFire(this, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
                 api.AddActor(newAmmo);
 
                 newAmmo = new AmmoRF();
                 newAmmo.OnAttach(new ActorInstantiationDetails {
                     Api = api,
-                    Pos = pos
+                    Pos = initialPos
                 });
-                newAmmo.OnFire(this, Speed, angle + 0.26f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, gunspotPos, Speed, angle + 0.26f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
                 api.AddActor(newAmmo);
             } else {
                 AmmoRF newAmmo = new AmmoRF();
                 newAmmo.OnAttach(new ActorInstantiationDetails {
                     Api = api,
-                    Pos = pos
+                    Pos = initialPos
                 });
-                newAmmo.OnFire(this, Speed, angle - 0.2f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, gunspotPos, Speed, angle - 0.2f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
                 api.AddActor(newAmmo);
 
                 newAmmo = new AmmoRF();
                 newAmmo.OnAttach(new ActorInstantiationDetails {
                     Api = api,
-                    Pos = pos
+                    Pos = initialPos
                 });
-                newAmmo.OnFire(this, Speed, angle + 0.2f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, gunspotPos, Speed, angle + 0.2f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
                 api.AddActor(newAmmo);
             }
 
@@ -274,15 +282,15 @@ namespace Jazz2.Actors
 
         private void FireWeaponToaster()
         {
-            Vector3 pos; float angle;
-            GetFirePointAndAngle(out pos, out angle);
+            Vector3 initialPos, gunspotPos; float angle;
+            GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
 
             AmmoToaster newAmmo = new AmmoToaster();
             newAmmo.OnAttach(new ActorInstantiationDetails {
                 Api = api,
-                Pos = pos
+                Pos = initialPos
             });
-            newAmmo.OnFire(this, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
             api.AddActor(newAmmo);
 
             //PlaySound("WeaponToaster", 0.6f);
@@ -306,23 +314,23 @@ namespace Jazz2.Actors
 
         private void FireWeaponPepper()
         {
-            Vector3 pos; float angle;
-            GetFirePointAndAngle(out pos, out angle);
+            Vector3 initialPos, gunspotPos; float angle;
+            GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
 
             AmmoPepper newAmmo = new AmmoPepper();
             newAmmo.OnAttach(new ActorInstantiationDetails {
                 Api = api,
-                Pos = pos
+                Pos = initialPos
             });
-            newAmmo.OnFire(this, Speed, angle + MathF.Rnd.NextFloat(-0.2f, 0.2f), IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            newAmmo.OnFire(this, gunspotPos, Speed, angle + MathF.Rnd.NextFloat(-0.2f, 0.2f), IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
             api.AddActor(newAmmo);
 
             newAmmo = new AmmoPepper();
             newAmmo.OnAttach(new ActorInstantiationDetails {
                 Api = api,
-                Pos = pos
+                Pos = initialPos
             });
-            newAmmo.OnFire(this, Speed, angle + MathF.Rnd.NextFloat(-0.2f, 0.2f), IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            newAmmo.OnFire(this, gunspotPos, Speed, angle + MathF.Rnd.NextFloat(-0.2f, 0.2f), IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
             api.AddActor(newAmmo);
 
             weaponCooldown = 36f - (weaponUpgrades[(int)WeaponType.Blaster] >> 1) * 1.6f;
@@ -330,15 +338,15 @@ namespace Jazz2.Actors
 
         private void FireWeaponElectro()
         {
-            Vector3 pos; float angle;
-            GetFirePointAndAngle(out pos, out angle);
+            Vector3 initialPos, gunspotPos; float angle;
+            GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
 
             AmmoElectro newAmmo = new AmmoElectro();
             newAmmo.OnAttach(new ActorInstantiationDetails {
                 Api = api,
-                Pos = pos
+                Pos = initialPos
             });
-            newAmmo.OnFire(this, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
             api.AddActor(newAmmo);
 
             weaponCooldown = 32f - (weaponUpgrades[(int)WeaponType.Blaster] >> 1) * 1.2f;
@@ -350,13 +358,13 @@ namespace Jazz2.Actors
                 return false;
             }
 
-            Vector3 pos; float angle;
-            GetFirePointAndAngle(out pos, out angle);
+            Vector3 initialPos, gunspotPos; float angle;
+            GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
 
             AmmoThunderbolt newAmmo = new AmmoThunderbolt();
             newAmmo.OnAttach(new ActorInstantiationDetails {
                 Api = api,
-                Pos = pos
+                Pos = gunspotPos
             });
             newAmmo.OnFire(this, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
             api.AddActor(newAmmo);

@@ -6,6 +6,9 @@ namespace Jazz2.Actors.Weapons
 {
     public class AmmoPepper : AmmoBase
     {
+        private Vector2 gunspotPos;
+        private bool fired;
+
         public override WeaponType WeaponType => WeaponType.Pepper;
 
         public override void OnAttach(ActorInstantiationDetails details)
@@ -19,11 +22,13 @@ namespace Jazz2.Actors.Weapons
             RequestMetadata("Weapon/Pepper");
         }
 
-        public void OnFire(Player owner, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
+        public void OnFire(Player owner, Vector3 gunspotPos, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
         {
             base.owner = owner;
             base.IsFacingLeft = isFacingLeft;
             base.upgrades = upgrades;
+
+            this.gunspotPos = gunspotPos.Xy;
 
             float angleRel = angle * (isFacingLeft ? -1 : 1);
 
@@ -54,6 +59,8 @@ namespace Jazz2.Actors.Weapons
 
             SetAnimation(state);
             PlaySound("Fire");
+
+            renderer.Active = false;
         }
 
         protected override void OnUpdate()
@@ -64,6 +71,13 @@ namespace Jazz2.Actors.Weapons
                 TryMovement(timeMult);
                 OnUpdateHitbox();
                 CheckCollisions(timeMult);
+            }
+
+            if (!fired) {
+                fired = true;
+
+                MoveInstantly(gunspotPos, MoveType.Absolute, true);
+                renderer.Active = true;
             }
 
             base.OnUpdate();

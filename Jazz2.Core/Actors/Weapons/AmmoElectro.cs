@@ -10,6 +10,9 @@ namespace Jazz2.Actors.Weapons
 {
     public class AmmoElectro : AmmoBase
     {
+        private Vector2 gunspotPos;
+        private bool fired;
+
         private LightEmitter light;
 
         private Material material1, material2;
@@ -34,11 +37,13 @@ namespace Jazz2.Actors.Weapons
             light.RadiusFar = 12f;
         }
 
-        public void OnFire(Player owner, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
+        public void OnFire(Player owner, Vector3 gunspotPos, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
         {
             base.owner = owner;
             base.IsFacingLeft = isFacingLeft;
             base.upgrades = upgrades;
+
+            this.gunspotPos = gunspotPos.Xy;
 
             float angleRel = angle * (isFacingLeft ? -1 : 1);
 
@@ -101,39 +106,45 @@ namespace Jazz2.Actors.Weapons
             light.Brightness += 0.02f * timeMult;
             light.RadiusFar += 0.1f * timeMult;
 
-            // Spawn particles
-            Vector3 pos = Transform.Pos;
+            if (!fired) {
+                fired = true;
 
-            for (int i = 0; i < 6; i++) {
-                float angle = (currentStep * 0.3f + i * 0.6f);
-                if (IsFacingLeft) {
-                    angle = -angle;
+                MoveInstantly(gunspotPos, MoveType.Absolute, true);
+            } else {
+                // Spawn particles
+                Vector3 pos = Transform.Pos;
+
+                for (int i = 0; i < 6; i++) {
+                    float angle = (currentStep * 0.3f + i * 0.6f);
+                    if (IsFacingLeft) {
+                        angle = -angle;
+                    }
+
+                    float size = (2f + currentStep * 0.1f);
+                    float dist = (1f + currentStep * 0.01f);
+                    float dx = dist * (float)System.Math.Cos(angle);
+                    float dy = dist * (float)System.Math.Sin(angle);
+
+                    api.TileMap.CreateDebris(new DestructibleDebris {
+                        Pos = new Vector3(pos.X + dx, pos.Y + dy, pos.Z),
+                        Size = new Vector2(size, size),
+
+                        Scale = 1f,
+                        ScaleSpeed = -0.1f,
+                        Alpha = 1f,
+                        AlphaSpeed = -0.2f,
+
+                        Angle = angle,
+
+                        Time = 60f,
+
+                        Material = (MathF.Rnd.NextFloat() < 0.6f ? material1 : material2),
+                        MaterialOffset = new Rect(0, 0, 1, 1)
+                    });
                 }
 
-                float size = (2f + currentStep * 0.1f);
-                float dist = (1f + currentStep * 0.01f);
-                float dx = dist * (float)System.Math.Cos(angle);
-                float dy = dist * (float)System.Math.Sin(angle);
-
-                api.TileMap.CreateDebris(new DestructibleDebris {
-                    Pos = new Vector3(pos.X + dx, pos.Y + dy, pos.Z),
-                    Size = new Vector2(size, size),
-
-                    Scale = 1f,
-                    ScaleSpeed = -0.1f,
-                    Alpha = 1f,
-                    AlphaSpeed = -0.2f,
-
-                    Angle = angle,
-
-                    Time = 60f,
-
-                    Material = (MathF.Rnd.NextFloat() < 0.6f ? material1 : material2),
-                    MaterialOffset = new Rect(0, 0, 1, 1)
-                });
+                currentStep += timeMult;
             }
-
-            currentStep += timeMult;
         }
 
         protected override void OnUpdateHitbox()
