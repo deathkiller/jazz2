@@ -63,19 +63,22 @@ namespace Jazz2.Actors.Weapons
 
         protected override void OnUpdate()
         {
+            float timeMult = Time.TimeMult;
+
+            TryStandardMovement(timeMult);
             OnUpdateHitbox();
-            CheckCollisions();
-            TryStandardMovement(Time.TimeMult);
+            CheckCollisions(timeMult);
+            
 
             base.OnUpdate();
 
             if (hitLimit > 0f) {
-                hitLimit -= Time.TimeMult;
+                hitLimit -= timeMult;
             }
 
             if ((upgrades & 0x1) != 0 && targetSpeedX != 0f) {
                 if (speedX != targetSpeedX) {
-                    float step = Time.TimeMult * 0.2f;
+                    float step = timeMult * 0.2f;
                     if (MathF.Abs(speedX - targetSpeedX) < step) {
                         speedX = targetSpeedX;
                     } else {

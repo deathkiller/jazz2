@@ -41,15 +41,30 @@ namespace Jazz2.Actors.Weapons
             }
         }
 
-        protected void CheckCollisions()
+        protected void TryMovement(float timeMult)
         {
+            speedX = MathF.Clamp(speedX, -16f, 16f);
+            speedY = MathF.Clamp(speedY - (internalForceY + externalForceY) * timeMult, -16f, 16f);
+
+            float effectiveSpeedX, effectiveSpeedY;
+            effectiveSpeedX = speedX + externalForceX * timeMult;
+            effectiveSpeedY = speedY;
+            effectiveSpeedX *= timeMult;
+            effectiveSpeedY *= timeMult;
+
+            MoveInstantly(new Vector2(effectiveSpeedX, effectiveSpeedY), MoveType.Relative, true);
+        }
+
+        protected void CheckCollisions(float timeMult)
+        {
+            if (health <= 0) {
+                return;
+            }
+
             TileMap tiles = api.TileMap;
             if (tiles != null) {
-                float timeMult = Time.TimeMult;
-
-                Hitbox hitbox = currentHitbox + new Vector2(speedX * timeMult, speedY * timeMult);
-
-                if (tiles.CheckWeaponDestructible(ref hitbox, WeaponType, strength) > 0) {
+                Hitbox adjustedHitbox = currentHitbox + new Vector2(speedX * timeMult, speedY * timeMult);
+                if (tiles.CheckWeaponDestructible(ref adjustedHitbox, WeaponType, strength) > 0) {
                     if (WeaponType != WeaponType.Freezer) {
                         if (owner != null) {
                             owner.AddScore(50);
@@ -57,8 +72,9 @@ namespace Jazz2.Actors.Weapons
                     }
 
                     DecreaseHealth(1);
-                } else if (!tiles.IsTileEmpty(ref hitbox, false)) {
+                } else if (!tiles.IsTileEmpty(ref currentHitbox, false)) {
                     EventMap events = api.EventMap;
+                    bool handled = false;
                     if (events != null) {
                         Vector3 pos = Transform.Pos;
                         ushort[] eventParams = null;
@@ -66,8 +82,13 @@ namespace Jazz2.Actors.Weapons
                             case EventType.ModifierRicochet:
                                 lastRicochet = null;
                                 OnRicochet();
+                                handled = true;
                                 break;
                         }
+                    }
+
+                    if (!handled) {
+                        OnHitWallHook();
                     }
                 }
             }
@@ -75,6 +96,8 @@ namespace Jazz2.Actors.Weapons
 
         protected virtual void OnRicochet()
         {
+            MoveInstantly(new Vector2(-speedX, -speedY), MoveType.RelativeTime, true);
+
             speedY = speedY * -0.9f + (MathF.Rnd.Next() % 100 - 50) * 0.1f;
             speedX = speedX * -0.9f + (MathF.Rnd.Next() % 100 - 50) * 0.1f;
         }

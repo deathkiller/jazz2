@@ -72,22 +72,24 @@ namespace Jazz2.Actors.Weapons
 
         protected override void OnUpdate()
         {
+            float timeMult = Time.TimeMult;
+
             OnUpdateHitbox();
-            CheckCollisions();
+            CheckCollisions(timeMult);
             //TryStandardMovement();
 
             //base.OnUpdate();
 
             if (light.Intensity > 0f) {
-                light.Intensity -= Time.TimeMult * 0.05f;
+                light.Intensity -= timeMult * 0.05f;
             }
 
             if (light.Brightness > 0f) {
-                light.Brightness -= Time.TimeMult * 0.05f;
+                light.Brightness -= timeMult * 0.05f;
             }
 
             if (sound != null && sound.Pitch > 0.9f) {
-                sound.Pitch -= Time.TimeMult * 0.04f;
+                sound.Pitch -= timeMult * 0.04f;
             }
 
             if (strength > 0) {
@@ -96,7 +98,7 @@ namespace Jazz2.Actors.Weapons
                 noDamageTimeLeft = 2f;
             } else {
                 if (noDamageTimeLeft > 0f) {
-                    noDamageTimeLeft -= Time.TimeMult;
+                    noDamageTimeLeft -= timeMult;
                 } else {
                     strength = 1;
                 }

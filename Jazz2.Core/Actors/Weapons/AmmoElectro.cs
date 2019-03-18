@@ -53,11 +53,11 @@ namespace Jazz2.Actors.Weapons
 
             ColorRgba color1, color2;
             if ((upgrades & 0x1) != 0) {
-                timeLeft = 44;
+                timeLeft = 55;
                 color1 = new ColorRgba(160, 245, 255, 140);
                 color2 = new ColorRgba(20, 170, 255, 140);
             } else {
-                timeLeft = 44;
+                timeLeft = 55;
                 color1 = new ColorRgba(255, 235, 20, 140);
                 color2 = new ColorRgba(255, 120, 10, 140);
             }
@@ -84,13 +84,17 @@ namespace Jazz2.Actors.Weapons
 
         protected override void OnUpdate()
         {
-            OnUpdateHitbox();
-            CheckCollisions();
-            TryStandardMovement(Time.TimeMult);
+            float timeMult = Time.TimeMult * 0.5f;
+
+            for (int i = 0; i < 2; i++) {
+                TryMovement(timeMult);
+                OnUpdateHitbox();
+                CheckCollisions(timeMult);
+            }
 
             base.OnUpdate();
 
-            float timeMult = Time.TimeMult;
+            timeMult = Time.TimeMult;
 
             // Adjust light
             light.Intensity += 0.016f * timeMult;
@@ -102,6 +106,10 @@ namespace Jazz2.Actors.Weapons
 
             for (int i = 0; i < 6; i++) {
                 float angle = (currentStep * 0.3f + i * 0.6f);
+                if (IsFacingLeft) {
+                    angle = -angle;
+                }
+
                 float size = (2f + currentStep * 0.1f);
                 float dist = (1f + currentStep * 0.01f);
                 float dx = dist * (float)System.Math.Cos(angle);
@@ -133,17 +141,7 @@ namespace Jazz2.Actors.Weapons
             UpdateHitbox(4, 4);
         }
 
-        protected override void OnHitFloorHook()
-        {
-            DecreaseHealth(int.MaxValue);
-        }
-
         protected override void OnHitWallHook()
-        {
-            DecreaseHealth(int.MaxValue);
-        }
-
-        protected override void OnHitCeilingHook()
         {
             DecreaseHealth(int.MaxValue);
         }

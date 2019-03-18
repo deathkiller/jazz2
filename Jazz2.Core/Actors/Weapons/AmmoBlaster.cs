@@ -58,9 +58,13 @@ namespace Jazz2.Actors.Weapons
 
         protected override void OnUpdate()
         {
-            OnUpdateHitbox();
-            CheckCollisions();
-            TryStandardMovement(Time.TimeMult);
+            float timeMult = Time.TimeMult * 0.5f;
+
+            for (int i = 0; i < 2; i++) {
+                TryMovement(timeMult);
+                OnUpdateHitbox();
+                CheckCollisions(timeMult);
+            }
 
             base.OnUpdate();
 
@@ -76,21 +80,7 @@ namespace Jazz2.Actors.Weapons
             return base.OnPerish(collider);
         }
 
-        protected override void OnHitFloorHook()
-        {
-            DecreaseHealth(int.MaxValue);
-
-            PlaySound("WallPoof");
-        }
-
         protected override void OnHitWallHook()
-        {
-            DecreaseHealth(int.MaxValue);
-
-            PlaySound("WallPoof");
-        }
-
-        protected override void OnHitCeilingHook()
         {
             DecreaseHealth(int.MaxValue);
 

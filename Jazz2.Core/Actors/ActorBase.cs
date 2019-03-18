@@ -171,9 +171,9 @@ namespace Jazz2.Actors
 
             Vector3 pos = Transform.Pos;
 
-            float timeMult = Time.TimeMult;
-            pos.X += speedX * timeMult;
-            pos.Y += speedY * timeMult;
+            //float timeMult = Time.TimeMult;
+            //pos.X += speedX * timeMult;
+            //pos.Y += speedY * timeMult;
 
             if (currentAnimation.Base.HasColdspot) {
                 currentHitbox = new Hitbox(

@@ -76,10 +76,10 @@ namespace Jazz2.Actors.Weapons
             TileMap tiles = api.TileMap;
             if (tiles == null || tiles.IsTileEmpty(ref currentHitbox, false)) {
                 MoveInstantly(new Vector2(speedX, speedY), MoveType.RelativeTime, true);
-                CheckCollisions();
+                CheckCollisions(Time.TimeMult);
             } else {
                 MoveInstantly(new Vector2(speedX, speedY), MoveType.RelativeTime, true);
-                CheckCollisions();
+                CheckCollisions(Time.TimeMult);
                 MoveInstantly(new Vector2(-speedX, -speedY), MoveType.RelativeTime, true);
 
                 if ((upgrades & 0x1) == 0) {

@@ -68,9 +68,12 @@ namespace Jazz2.Actors.Weapons
 
         protected override void OnUpdate()
         {
+            float timeMult = Time.TimeMult;
+
+            // Seeker is slow, so it's not neccessary to do two-pass checking
+            TryMovement(timeMult);
             OnUpdateHitbox();
-            CheckCollisions();
-            TryStandardMovement(Time.TimeMult);
+            CheckCollisions(timeMult);
 
             FollowNeareastEnemy();
 
@@ -94,17 +97,7 @@ namespace Jazz2.Actors.Weapons
             return base.OnPerish(collider);
         }
 
-        protected override void OnHitFloorHook()
-        {
-            DecreaseHealth(int.MaxValue);
-        }
-
         protected override void OnHitWallHook()
-        {
-            DecreaseHealth(int.MaxValue);
-        }
-
-        protected override void OnHitCeilingHook()
         {
             DecreaseHealth(int.MaxValue);
         }
