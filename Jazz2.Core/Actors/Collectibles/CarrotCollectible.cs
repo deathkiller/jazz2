@@ -1,4 +1,6 @@
-﻿namespace Jazz2.Actors.Collectibles
+﻿using Duality;
+
+namespace Jazz2.Actors.Collectibles
 {
     public class CarrotCollectible : Collectible
     {
@@ -25,8 +27,14 @@
 
         protected override void Collect(Player player)
         {
-            if (player.AddHealth(maxCarrot ? -1 : 1)) {
+            if (maxCarrot) {
+                player.AddHealth(-1);
+                player.SetInvulnerability(4 * Time.FramesPerSecond, true);
                 base.Collect(player);
+            } else {
+                if (player.AddHealth(1)) {
+                    base.Collect(player);
+                }
             }
         }
     }

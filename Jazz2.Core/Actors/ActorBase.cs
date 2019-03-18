@@ -1038,9 +1038,15 @@ namespace Jazz2.Actors
 
         protected void ForceCancelTransition()
         {
+            if (currentTransitionState == AnimState.Idle) {
+                return;
+            }
+
             currentTransitionCancellable = true;
             currentTransitionCallback = null;
             currentTransitionState = AnimState.Idle;
+
+            RefreshAnimation();
         }
 
         protected virtual void OnAnimationStarted()

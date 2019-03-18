@@ -4,13 +4,9 @@
     },
 
     "Animations": {
-        "Bullet": {
-            "Path": "Weapon/bullet_bladegun.png",
+        "Mask": {
+            "Path": "_custom/electro_mask.png",
             "States": [ 0 ]
-        },
-        "BulletUpgraded": {
-            "Path": "Weapon/bullet_bladegun_alt.png",
-            "States": [ 1 ]
         }
     },
 

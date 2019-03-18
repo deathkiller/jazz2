@@ -18,7 +18,7 @@ namespace Jazz2.Actors.Collectibles
 
         protected override void Collect(Player player)
         {
-            player.SetInvulnerability(30 * Time.FramesPerSecond);
+            player.SetInvulnerability(30 * Time.FramesPerSecond, true);
 
             base.Collect(player);
         }

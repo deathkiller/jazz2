@@ -275,9 +275,18 @@ namespace Jazz2.Actors
             Hud.ShowDebugText("  Force: {" + externalForceX.ToString("F1") + "; " + externalForceY.ToString("F1") + "} " + internalForceY + " | " + ((collisionFlags & CollisionFlags.ApplyGravitation) != 0 ? " G" : "") + (controllable ? " C" : "") + (inWater ? " W" : "") + (canJump ? " J" : ""));
             Hud.ShowDebugText("  A.: " + currentAnimationState + " | T.: " + currentTransitionState + " | S.: " + shieldTime);
 
+            // Process level bounds
+            Vector3 lastPos = Transform.Pos;
+            Rect levelBounds = api.LevelBounds;
+            if (lastPos.X < levelBounds.X) {
+                lastPos.X = levelBounds.X;
+                Transform.Pos = lastPos;
+            } else if (lastPos.X > levelBounds.X + levelBounds.W) {
+                lastPos.X = levelBounds.X + levelBounds.W;
+                Transform.Pos = lastPos;
+            }
 
             float timeMult = Time.TimeMult;
-            Vector3 lastPos = Transform.Pos;
             float lastSpeedX = speedX;
             float lastForceX = externalForceX;
 
@@ -304,7 +313,7 @@ namespace Jazz2.Actors
             }
 
             FollowCarryingPlatform();
-            UpdateSpeedBasedAnimation(timeMult, lastPos.X, lastSpeedX, lastForceX);
+            UpdateAnimation(timeMult, lastPos.X, lastSpeedX, lastForceX);
             
             CheckSuspendedStatus(lastPos);
             CheckDestructibleTiles(timeMult);
@@ -341,7 +350,12 @@ namespace Jazz2.Actors
                     isInvulnerable = false;
 
                     renderer.AnimHidden = false;
-                } else if (currentTransitionState != AnimState.Hurt) {
+
+                    if (currentCircleEffectRenderer != null) {
+                        SetCircleEffect(false);
+                    }
+
+                } else if (currentTransitionState != AnimState.Hurt && currentCircleEffectRenderer == null) {
                     if (invulnerableBlinkTime > 0f) {
                         invulnerableBlinkTime -= timeMult;
                     } else {
@@ -721,7 +735,7 @@ namespace Jazz2.Actors
 
                         SetAnimation(currentAnimationState | AnimState.Shoot);
 
-                        fireFramesLeft = 18f;
+                        fireFramesLeft = 20f;
 
                         if (!wasFirePressed) {
                             wasFirePressed = true;
@@ -937,7 +951,7 @@ namespace Jazz2.Actors
             return false;
         }
 
-        private void UpdateSpeedBasedAnimation(float timeMult, float lastX, float lastSpeedX, float lastForceX)
+        private void UpdateAnimation(float timeMult, float lastX, float lastSpeedX, float lastForceX)
         {
             if (controllable) {
                 float posX = Transform.Pos.X;
@@ -1783,7 +1797,7 @@ namespace Jazz2.Actors
                     SetPlayerTransition(AnimState.Hurt, false, true, SpecialMoveType.None, delegate {
                         controllable = true;
                     });
-                    SetInvulnerability(180f);
+                    SetInvulnerability(180f, false);
 
                     PlaySound("Hurt");
                 } else {
@@ -1984,16 +1998,22 @@ namespace Jazz2.Actors
             }
         }
 
-        public void SetInvulnerability(float time)
+        public void SetInvulnerability(float time, bool withCircleEffect)
         {
             if (time <= 0f) {
                 isInvulnerable = false;
                 invulnerableTime = 0;
+
+                SetCircleEffect(false);
                 return;
             }
 
             isInvulnerable = true;
             invulnerableTime = time;
+
+            if (withCircleEffect) {
+                SetCircleEffect(true);
+            }
         }
 
         public void AttachToHud(Hud hud)

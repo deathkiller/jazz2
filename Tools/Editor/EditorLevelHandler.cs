@@ -126,7 +126,7 @@ namespace Editor
                 }
 
                 CameraController controller = camera.GetComponent<CameraController>();
-                controller.ViewRect = new Rect(tileMap.Size * tileMap.Tileset.TileSize);
+                controller.ViewBounds = new Rect(tileMap.Size * tileMap.Tileset.TileSize);
 
                 // Read events
                 //eventMap = new EventMap(this, tileMap.Size);

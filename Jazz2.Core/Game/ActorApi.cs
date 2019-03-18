@@ -53,6 +53,14 @@ namespace Jazz2.Game
             get { return levelHandler.Gravity; }
         }
 
+        public Rect LevelBounds
+        {
+#if NET45
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+            get { return levelHandler.LevelBounds; }
+        }
+
         public GameDifficulty Difficulty
         {
 #if NET45

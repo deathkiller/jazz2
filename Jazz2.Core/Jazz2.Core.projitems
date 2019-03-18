@@ -80,8 +80,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\PinballBumper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\PinballPaddle.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Player.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Player.Effects.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Player.Interactions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\Player.Shields.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Player.Weapons.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\PlayerCorpse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\Pole.cs" />

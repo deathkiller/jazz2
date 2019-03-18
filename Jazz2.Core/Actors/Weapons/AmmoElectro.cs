@@ -133,13 +133,6 @@ namespace Jazz2.Actors.Weapons
             UpdateHitbox(4, 4);
         }
 
-        protected override bool OnPerish(ActorBase collider)
-        {
-            Explosion.Create(api, Transform.Pos + Speed, Explosion.SmokeGray);
-
-            return base.OnPerish(collider);
-        }
-
         protected override void OnHitFloorHook()
         {
             DecreaseHealth(int.MaxValue);

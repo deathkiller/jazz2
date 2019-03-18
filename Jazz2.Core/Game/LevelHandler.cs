@@ -65,6 +65,7 @@ namespace Jazz2.Game
         private int ambientLightDefault;
         private Vector4 darknessColor;
         private float gravity;
+        private Rect levelBounds;
 
         private BossBase activeBoss;
 
@@ -92,6 +93,8 @@ namespace Jazz2.Game
         public GameDifficulty Difficulty => difficulty;
 
         public float Gravity => gravity;
+
+        public Rect LevelBounds => levelBounds;
 
         public float AmbientLightCurrent
         {
@@ -400,8 +403,10 @@ namespace Jazz2.Game
                     tileMap.ReadAnimatedTiles(animTilesPath);
                 }
 
+                levelBounds = new Rect(tileMap.Size * tileMap.Tileset.TileSize);
+
                 CameraController controller = camera.GetComponent<CameraController>();
-                controller.ViewRect = new Rect(tileMap.Size * tileMap.Tileset.TileSize);
+                controller.ViewBounds = levelBounds;
 
                 // Read events
                 eventMap = new EventMap(this, tileMap.Size);
@@ -652,36 +657,21 @@ namespace Jazz2.Game
 
         public void LimitCameraView(float left, float width)
         {
-            // ToDo: Implement smooth transition
+            levelBounds.X = left;
+
+            if (width > 0f) {
+                levelBounds.W = left;
+            } else {
+                levelBounds.W = (tileMap.Size.X * tileMap.Tileset.TileSize) - left;
+            }
+
             CameraController controller = camera.GetComponent<CameraController>();
             if (controller != null) {
-                Rect currentView = controller.ViewRect;
-                currentView.X = left;
-
-                if (width > 0f) {
-                    currentView.W = width;
-
-                    // ToDo: Quick fix
-                    if (currentView.W < 720) {
-                        currentView.W = 720;
-                    }
-
-                    // Add 1 tile gap to prevent player from stucking
-                    tileMap.SetSolidLimit((int)left / 32 - 1, (int)width / 32 + 2);
+                if (left == 0 && width == 0) {
+                    controller.ViewBounds = levelBounds;
                 } else {
-                    currentView.W = (tileMap.Size.X * tileMap.Tileset.TileSize) - left;
-
-                    // ToDo: Quick fix
-                    if (currentView.W < 720) {
-                        currentView.X -= 720 - currentView.W;
-                        currentView.W = 720;
-                    }
-
-                    // Add 1 tile gap to prevent player from stucking
-                    tileMap.SetSolidLimit((int)left / 32 - 1, 0);
+                    controller.AnimateToBounds(levelBounds);
                 }
-
-                controller.ViewRect = currentView;
             }
         }
 
