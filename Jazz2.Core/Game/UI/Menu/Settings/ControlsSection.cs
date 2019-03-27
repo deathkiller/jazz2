@@ -25,6 +25,15 @@ namespace Jazz2.Game.UI.Menu.Settings
             base.OnShow(root);
         }
 
+        public override void OnHide(bool isRemoved)
+        {
+            if (isRemoved) {
+                Commit();
+            }
+
+            base.OnHide(isRemoved);
+        }
+
         public override void OnPaint(Canvas canvas)
         {
             IDrawDevice device = canvas.DrawDevice;
@@ -230,6 +239,11 @@ namespace Jazz2.Game.UI.Menu.Settings
                     selectedColumn = 0;
                 }
             }
+        }
+
+        private void Commit()
+        {
+            ControlScheme.SaveMappings();
         }
     }
 }

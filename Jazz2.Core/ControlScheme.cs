@@ -1,6 +1,7 @@
-﻿using Duality;
+﻿using System.Runtime.CompilerServices;
+using Duality;
 using Duality.Input;
-using System.Runtime.CompilerServices;
+using Jazz2.Storage;
 
 namespace Jazz2
 {
@@ -56,7 +57,7 @@ namespace Jazz2
                 mappings[i].GamepadIndex = -1;
             }
 
-            // ToDo: Default mapping
+            // Default mappings
             mappings[(int)PlayerActions.Left].Key1 = Key.Left;
             mappings[(int)PlayerActions.Right].Key1 = Key.Right;
             mappings[(int)PlayerActions.Up].Key1 = Key.Up;
@@ -66,6 +67,42 @@ namespace Jazz2
             mappings[(int)PlayerActions.Run].Key1 = Key.C;
             mappings[(int)PlayerActions.SwitchWeapon].Key1 = Key.X;
             mappings[(int)PlayerActions.Menu].Key1 = Key.Escape;
+
+            for (int i = 0; i < maxSupportedPlayers; i++) {
+                int[] controls = Preferences.Get<int[]>("Controls_" + i);
+                if (controls != null && controls.Length == (int)PlayerActions.Count * 4) {
+                    for (int j = 0; j < (int)PlayerActions.Count; j++) {
+                        int offset = i * (int)PlayerActions.Count;
+                        ref Mapping mapping = ref mappings[offset + j];
+
+                        mapping.Key1 = (Key)controls[j * 4 + 0];
+                        mapping.Key2 = (Key)controls[j * 4 + 1];
+                        mapping.GamepadIndex = controls[j * 4 + 2];
+                        mapping.GamepadButton = (GamepadButton)controls[j * 4 + 3];
+                    }
+                }
+            }
+        }
+
+        public static void SaveMappings()
+        {
+            const int maxSupportedPlayers = 1;
+
+            for (int i = 0; i < maxSupportedPlayers; i++) {
+                int[] controls = new int[(int)PlayerActions.Count * 4];
+
+                for (int j = 0; j < (int)PlayerActions.Count; j++) {
+                    int offset = i * (int)PlayerActions.Count;
+                    ref Mapping mapping = ref mappings[offset + j];
+
+                    controls[j * 4 + 0] = (int)mapping.Key1;
+                    controls[j * 4 + 1] = (int)mapping.Key2;
+                    controls[j * 4 + 2] = (int)mapping.GamepadIndex;
+                    controls[j * 4 + 3] = (int)mapping.GamepadButton;
+                }
+
+                Preferences.Set<int[]>("Controls_" + i, controls);
+            }
         }
 
         public static ref Mapping GetCurrentMapping(int index, PlayerActions action)
