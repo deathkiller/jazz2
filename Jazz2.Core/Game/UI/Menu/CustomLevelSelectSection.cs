@@ -8,6 +8,7 @@ using Duality.Drawing;
 using Duality.Input;
 using Duality.IO;
 using Duality.Resources;
+using Jazz2.Storage.Content;
 using static Jazz2.Game.LevelHandler;
 using MathF = Duality.MathF;
 
@@ -56,18 +57,19 @@ namespace Jazz2.Game.UI.Menu
                 try {
                     string path = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "unknown");
                     if (DirectoryOp.Exists(path)) {
-                        foreach (string levelPath in DirectoryOp.GetDirectories(path)) {
+                        foreach (string levelPath in DirectoryOp.GetFiles(path)) {
                             if (api == null) {
                                 break;
                             }
 
-                            string pathAbsolute = PathOp.Combine(levelPath, ".res");
-                            if (!FileOp.Exists(pathAbsolute)) {
+                            if (!levelPath.EndsWith(".level")) {
                                 continue;
                             }
 
+                            IFileSystem levelPackage = new CompressedContent(levelPath);
+
                             using (
-                                Stream s = DualityApp.SystemBackend.FileSystem.OpenFile(pathAbsolute, FileAccessMode.Read)) {
+                                Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
                                 string levelToken = PathOp.GetFileName(levelPath);
 
                                 LevelConfigJson config = json.Parse<LevelConfigJson>(s);

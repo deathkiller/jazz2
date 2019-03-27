@@ -528,6 +528,20 @@ namespace Import
                     Directory.CreateDirectory(targetPathInner);
                     l.Convert(targetPathInner, LevelTokenConversion);
 
+                    // Create package
+                    ContentTree tree = new ContentTree();
+
+                    tree.GetContentFromDirectory(targetPathInner, null, false);
+
+                    CompressedContent.Create(targetPathInner + ".level", tree, (name, flags) => {
+                        if ((flags & CompressedContent.ResourceFlags.HasResource) != 0 && !name.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) {
+                            flags |= CompressedContent.ResourceFlags.Compressed;
+                        }
+                        return flags;
+                    });
+
+                    Utils.DirectoryTryDelete(targetPathInner, true);
+
                     if (l.UnsupportedEvents.Count > 0) {
                         Log.Write(LogType.Warning, "Level \"" + levelToken + "\"" + versionPart + " converted" + (isPlusEnhanced ? " without .j2as" : "") + " with " + l.UnsupportedEvents.Sum(i => i.Value) + " warnings.");
                     } else {
@@ -636,6 +650,21 @@ namespace Import
                     string output = Path.Combine(targetPath, "Content", "Tilesets", token);
                     Directory.CreateDirectory(output);
                     t.Convert(output);
+
+                    // Create package
+                    ContentTree tree = new ContentTree();
+
+                    tree.GetContentFromDirectory(output, null, false);
+
+                    CompressedContent.Create(output + ".set", tree, (name, flags) => {
+                        if ((flags & CompressedContent.ResourceFlags.HasResource) != 0 && !name.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) {
+                            flags |= CompressedContent.ResourceFlags.Compressed;
+                        }
+                        return flags;
+                    });
+
+                    Utils.DirectoryTryDelete(output, true);
+
                 } catch (Exception ex) {
                     Log.Write(LogType.Error, "Tileset \"" + Path.GetFileName(file) + "\" not supported!");
                     Console.WriteLine(ex.ToString());
@@ -668,9 +697,10 @@ namespace Import
                 usedMusic.Add("menu");
 
                 foreach (string episode in Directory.EnumerateDirectories(Path.Combine(targetPath, "Content", "Episodes"))) {
-                    foreach (string level in Directory.EnumerateDirectories(episode)) {
-                        string path = Path.Combine(level, ".res");
-                        using (Stream s = File.Open(path, FileMode.Open)) {
+                    foreach (string level in Directory.EnumerateFiles(episode, "*.level")) {
+                        IFileSystem levelPackage = new CompressedContent(level);
+
+                        using (Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
                             LevelConfigJson json = jsonParser.Parse<LevelConfigJson>(s);
 
                             if (!string.IsNullOrEmpty(json.Description.DefaultMusic)) {
@@ -703,9 +733,9 @@ namespace Import
                 }
 
                 if (Directory.Exists(Path.Combine(targetPath, "Content", "Tilesets"))) {
-                    string[] tilesets = Directory.GetDirectories(Path.Combine(targetPath, "Content", "Tilesets"));
+                    string[] tilesets = Directory.GetFiles(Path.Combine(targetPath, "Content", "Tilesets"), "*.set");
                     foreach (string directory in tilesets) {
-                        if (!usedTilesets.Contains(Path.GetFileName(directory).ToLowerInvariant())) {
+                        if (!usedTilesets.Contains(Path.GetFileNameWithoutExtension(directory).ToLowerInvariant())) {
                             try {
                                 Directory.Delete(directory, true);
                                 if (verbose) {
@@ -813,7 +843,7 @@ namespace Import
                 if (metadataExists) {
 
                     // Default (unreferenced) assets - paths in the set have to be lower-case
-                    usedAnimations.Add(".palette");
+                    usedAnimations.Add("Main.palette");
                     usedAnimations.Add("_custom/noise.png");
                     usedAnimations.Add("ui/font_small.png");
                     usedAnimations.Add("ui/font_medium.png");
@@ -877,9 +907,10 @@ namespace Import
 
             if (Directory.Exists(Path.Combine(targetPath, "Content", "Episodes"))) {
                 foreach (string episode in Directory.EnumerateDirectories(Path.Combine(targetPath, "Content", "Episodes"))) {
-                    foreach (string level in Directory.EnumerateDirectories(episode)) {
-                        string path = Path.Combine(level, ".res");
-                        using (Stream s = File.Open(path, FileMode.Open)) {
+                    foreach (string level in Directory.EnumerateFiles(episode, ".*.level")) {
+                        IFileSystem levelPackage = new CompressedContent(level);
+
+                        using (Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
                             LevelConfigJson json = jsonParser.Parse<LevelConfigJson>(s);
 
                             if (!string.IsNullOrEmpty(json.Description.DefaultMusic)) {
@@ -892,8 +923,8 @@ namespace Import
                                 if (!Directory.Exists(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset)) ||
                                     !Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "tiles.png")) ||
                                     !Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "mask.png")) ||
-                                    !Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "normal.png")) ||
-                                    !Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, ".palette"))) {
+                                    !Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "normals.png")) ||
+                                    !Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "palette.res"))) {
 
                                     Log.Write(LogType.Warning, "\"" + Path.Combine("Tilesets", json.Description.DefaultTileset) + "\" is missing!");
                                 }
@@ -913,7 +944,7 @@ namespace Import
                 IFileSystem fs = new CompressedContent(Path.Combine(targetPath, "Content", "Main.dz"));
 
                 foreach (string unreferenced in new[] {
-                    ".palette", "_custom/noise.png", "UI/font_medium.png", "UI/font_medium.png.res",
+                    "Main.palette", "_custom/noise.png", "UI/font_medium.png", "UI/font_medium.png.res",
                     "UI/font_medium.png.config", "UI/font_small.png", "UI/font_small.png.res",
                     "UI/font_small.png.config"
                 }) {
@@ -1013,7 +1044,7 @@ namespace Import
             ContentTree tree = new ContentTree();
 
             foreach (string unreferenced in new[] {
-                ".palette",
+                "Main.palette",
                 "UI/font_medium.png.config",
                 "UI/font_small.png.config"
             }) {
@@ -1161,7 +1192,7 @@ namespace Import
 
         private static void RecreateDefaultPalette(string animationsPath)
         {
-            string defaultPalettePath = Path.Combine(animationsPath, ".palette");
+            string defaultPalettePath = Path.Combine(animationsPath, "Main.palette");
             if (!File.Exists(defaultPalettePath)) {
                 Log.Write(LogType.Info, "Recreating default palette...");
 

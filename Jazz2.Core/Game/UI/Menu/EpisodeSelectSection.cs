@@ -37,7 +37,7 @@ namespace Jazz2.Game.UI.Menu
             IImageCodec imageCodec = ImageCodec.GetRead(ImageCodec.FormatPng);
 
             foreach (string episode in DirectoryOp.GetDirectories(PathOp.Combine(DualityApp.DataDirectory, "Episodes"))) {
-                string pathAbsolute = PathOp.Combine(episode, ".res");
+                string pathAbsolute = PathOp.Combine(episode, "Episode.res");
                 if (FileOp.Exists(pathAbsolute)) {
                     Episode json;
                     using (Stream s = DualityApp.SystemBackend.FileSystem.OpenFile(pathAbsolute, FileAccessMode.Read)) {
@@ -45,7 +45,7 @@ namespace Jazz2.Game.UI.Menu
                     }
                     json.Token = PathOp.GetFileName(episode);
 
-                    if (!DirectoryOp.Exists(PathOp.Combine(episode, json.FirstLevel))) {
+                    if (!FileOp.Exists(PathOp.Combine(episode, json.FirstLevel + ".level"))) {
                         continue;
                     }
 
@@ -60,7 +60,7 @@ namespace Jazz2.Game.UI.Menu
 
                     entry.CanContinue = Preferences.Get<byte[]>("EpisodeContinue_Misc_" + entry.Episode.Token) != null;
 
-                    string logoPath = PathOp.Combine(episode, ".png");
+                    string logoPath = PathOp.Combine(episode, "Logo.png");
                     if (FileOp.Exists(logoPath)) {
                         PixelData pixelData;
                         using (Stream s = FileOp.Open(logoPath, FileAccessMode.Read)) {
@@ -158,7 +158,7 @@ namespace Jazz2.Game.UI.Menu
 
                         if (expanded) {
                             api.DrawStringShadow(ref charOffset, "Restart episode", center.X + 90f + moveX, topItemSelected,
-                                Alignment.Left, new ColorRgba(0.48f, 0.40f, 0.22f, 0.5f * MathF.Min(1f, 0.4f + expandedAnimation)), 0.8f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.8f);
+                                Alignment.Left, new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f * MathF.Min(1f, 0.4f + expandedAnimation)), 0.8f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.8f);
                         }
                     }
                 } else {
@@ -200,7 +200,7 @@ namespace Jazz2.Game.UI.Menu
             }
 
             if (ControlScheme.MenuActionHit(PlayerActions.Fire)) {
-                if (episodes[selectedIndex].IsAvailable) {
+                if (episodes.Count > 0 && episodes[selectedIndex].IsAvailable) {
                     api.PlaySound("MenuSelect", 0.5f);
 
                     if (episodes[selectedIndex].CanContinue) {
@@ -312,7 +312,7 @@ namespace Jazz2.Game.UI.Menu
                 expanded = false;
                 expandedAnimation = 0f;
             } else if (ControlScheme.MenuActionHit(PlayerActions.Right)) {
-                if (episodes[selectedIndex].CanContinue) {
+                if (episodes.Count > 0 && episodes[selectedIndex].CanContinue) {
                     expanded = true;
                 }
             }

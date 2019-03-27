@@ -646,7 +646,7 @@ namespace Jazz2.Compatibility
 
             WriteResFile(Path.Combine(path, ".res"), levelTokenConversion);
 
-            WritePalette(Path.Combine(path, ".palette"));
+            WritePalette(Path.Combine(path, "Main.palette"));
         }
 
         public void AddLevelTokenTextID(ushort textID)
@@ -897,8 +897,7 @@ namespace Jazz2.Compatibility
             }
 
             using (Stream s = File.Create(path))
-            using (DeflateStream deflate = new DeflateStream(s, CompressionLevel.Optimal))
-            using (BinaryWriter w = new BinaryWriter(deflate)) {
+            using (BinaryWriter w = new BinaryWriter(s)) {
 
                 ushort maxTiles = (ushort)MaxSupportedTiles;
                 ushort lastTilesetTileIndex = (ushort)(maxTiles - animCount);
@@ -968,8 +967,7 @@ namespace Jazz2.Compatibility
             unsupportedEvents = new Dictionary<JJ2Event, int>();
 
             using (Stream s = File.Create(path))
-            using (DeflateStream deflate = new DeflateStream(s, CompressionLevel.Optimal))
-            using (BinaryWriter w = new BinaryWriter(deflate)) {
+            using (BinaryWriter w = new BinaryWriter(s)) {
                 w.Write(width);
                 w.Write(height);
 
@@ -1055,8 +1053,7 @@ namespace Jazz2.Compatibility
             ushort lastTilesetTileIndex = (ushort)(maxTiles - animCount);
 
             using (Stream s = File.Create(path))
-            using (DeflateStream ds = new DeflateStream(s, CompressionLevel.Optimal))
-            using (BinaryWriter w = new BinaryWriter(ds)) {
+            using (BinaryWriter w = new BinaryWriter(s)) {
                 w.Write(animatedTiles.Length);
 
                 for (int i = 0; i < animatedTiles.Length; i++) {

@@ -174,11 +174,9 @@ namespace Jazz2.Game.Events
             targets.Add(new Vector2(32 * x + 16, 32 * y + 16 - 8));
         }
 
-        public void ReadEvents(string filename, uint layoutVersion, GameDifficulty difficulty)
+        public void ReadEvents(Stream s, uint layoutVersion, GameDifficulty difficulty)
         {
-            using (Stream s = FileOp.Open(filename, FileAccessMode.Read))
-            using (DeflateStream ds = new DeflateStream(s, CompressionMode.Decompress))
-            using (BinaryReader r = new BinaryReader(ds)) {
+            using (BinaryReader r = new BinaryReader(s)) {
                 int width = r.ReadInt32();
                 int height = r.ReadInt32();
 

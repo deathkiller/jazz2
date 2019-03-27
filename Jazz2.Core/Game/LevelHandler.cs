@@ -21,6 +21,7 @@ using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
 using Jazz2.Game.UI;
 using Jazz2.Game.UI.Menu.InGame;
+using Jazz2.Storage.Content;
 using MathF = Duality.MathF;
 
 namespace Jazz2.Game
@@ -322,8 +323,9 @@ namespace Jazz2.Game
 
         private void LoadLevel(string level, string episode)
         {
-            string levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", episode, level);
-            using (Stream s = FileOp.Open(PathOp.Combine(levelPath, ".res"), FileAccessMode.Read)) {
+            IFileSystem levelPackage = new CompressedContent(PathOp.Combine(DualityApp.DataDirectory, "Episodes", episode, level + ".level"));
+
+            using (Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
                 // ToDo: Cache parser, move JSON parsing to ContentResolver
                 JsonParser json = new JsonParser();
                 LevelConfigJson config = json.Parse<LevelConfigJson>(s);
@@ -349,22 +351,17 @@ namespace Jazz2.Game
                 }
 
                 // Palette
+                ColorRgba[] tileMapPalette;
                 {
-                    ColorRgba[] tileMapPalette;
-
-                    string levelPalette = PathOp.Combine(levelPath, ".palette");
-                    if (FileOp.Exists(levelPalette)) {
-                        tileMapPalette = TileSet.LoadPalette(levelPalette);
+                    if (levelPackage.FileExists("Main.palette")) {
+                        tileMapPalette = TileSet.LoadPalette(levelPackage.OpenFile("Main.palette", FileAccessMode.Read));
                     } else {
-                        string tilesetPath = PathOp.Combine(DualityApp.DataDirectory, "Tilesets", config.Description.DefaultTileset);
-                        tileMapPalette = TileSet.LoadPalette(PathOp.Combine(tilesetPath, ".palette"));
+                        tileMapPalette = null;
                     }
-
-                    ContentResolver.Current.ApplyBasePalette(tileMapPalette);
                 }
 
                 // Tileset
-                tileMap = new TileMap(this, config.Description.DefaultTileset, (config.Description.Flags & LevelFlags.HasPit) != 0);
+                tileMap = new TileMap(this, config.Description.DefaultTileset, tileMapPalette, (config.Description.Flags & LevelFlags.HasPit) != 0);
 
                 // Additional tilesets
                 if (config.Tilesets != null) {
@@ -394,13 +391,12 @@ namespace Jazz2.Game
                         type = LayerType.Other;
                     }
 
-                    tileMap.ReadLayerConfiguration(type, levelPath, layer.Key, layer.Value);
+                    tileMap.ReadLayerConfiguration(type, levelPackage.OpenFile(layer.Key + ".layer", FileAccessMode.Read), layer.Value);
                 }
 
                 // Read animated tiles
-                string animTilesPath = PathOp.Combine(levelPath, "Animated.tiles");
-                if (FileOp.Exists(animTilesPath)) {
-                    tileMap.ReadAnimatedTiles(animTilesPath);
+                if (levelPackage.FileExists("Animated.tiles")) {
+                    tileMap.ReadAnimatedTiles(levelPackage.OpenFile("Animated.tiles", FileAccessMode.Read));
                 }
 
                 levelBounds = new Rect(tileMap.Size * tileMap.Tileset.TileSize);
@@ -411,9 +407,8 @@ namespace Jazz2.Game
                 // Read events
                 eventMap = new EventMap(this, tileMap.Size);
 
-                string eventsPath = PathOp.Combine(levelPath, "Events.layer");
-                if (FileOp.Exists(animTilesPath)) {
-                    eventMap.ReadEvents(eventsPath, config.Version.LayerFormat, difficulty);
+                if (levelPackage.FileExists("Events.layer")) {
+                    eventMap.ReadEvents(levelPackage.OpenFile("Events.layer", FileAccessMode.Read), config.Version.LayerFormat, difficulty);
                 }
 
                 levelTexts = config.TextEvents ?? new Dictionary<int, string>();

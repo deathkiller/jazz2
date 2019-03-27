@@ -31,14 +31,12 @@ namespace Jazz2.Game.Tiles
         public RawList<TileMapLayer> Layers => layers;
         public int SpriteLayerIndex => sprLayerIndex;
 
-        public TileMap(ILevelHandler levelHandler, string tilesetPath, bool hasPit)
+        public TileMap(ILevelHandler levelHandler, string tilesetPath, ColorRgba[] tileMapPalette, bool hasPit)
         {
             this.levelHandler = levelHandler;
             this.hasPit = hasPit;
 
-            IImageCodec codec = ImageCodec.GetRead(ImageCodec.FormatPng);
-
-            tileset = new TileSet(tilesetPath);
+            tileset = new TileSet(tilesetPath, true, tileMapPalette);
 
             if (!tileset.IsValid) {
                 throw new InvalidDataException("Tileset is corrupted");
@@ -78,11 +76,9 @@ namespace Jazz2.Game.Tiles
             UpdateDebris(timeMult);
         }
 
-        internal void ReadLayerConfiguration(LayerType type, string path, string layerName, LevelHandler.LevelConfigJson.LayerSection layer)
+        internal void ReadLayerConfiguration(LayerType type, Stream s, LevelHandler.LevelConfigJson.LayerSection layer)
         {
-            using (Stream s = FileOp.Open(PathOp.Combine(path, layerName + ".layer"), FileAccessMode.Read))
-            using (DeflateStream deflate = new DeflateStream(s, CompressionMode.Decompress))
-            using (BinaryReader r = new BinaryReader(deflate)) {
+            using (BinaryReader r = new BinaryReader(s)) {
                 int width = r.ReadInt32();
                 int height = r.ReadInt32();
 
@@ -163,11 +159,9 @@ namespace Jazz2.Game.Tiles
             }
         }
 
-        internal void ReadAnimatedTiles(string path)
+        internal void ReadAnimatedTiles(Stream s)
         {
-            using (Stream s = FileOp.Open(path, FileAccessMode.Read))
-            using (DeflateStream deflate = new DeflateStream(s, CompressionMode.Decompress))
-            using (BinaryReader r = new BinaryReader(deflate)) {
+            using (BinaryReader r = new BinaryReader(s)) {
                 int count = r.ReadInt32();
 
                 animatedTiles = new RawList<AnimatedTile>(count);

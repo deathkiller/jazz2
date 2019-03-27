@@ -268,7 +268,7 @@ namespace Jazz2.Game
         {
             JsonParser jsonParser = new JsonParser();
 
-            string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Episodes", name, ".res");
+            string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Episodes", name, "Episode.res");
             if (FileOp.Exists(pathAbsolute)) {
                 Episode json;
                 using (Stream s = FileOp.Open(pathAbsolute, FileAccessMode.Read)) {

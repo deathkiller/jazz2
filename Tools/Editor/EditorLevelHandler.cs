@@ -71,82 +71,79 @@ namespace Editor
 
         private void LoadLevel(string level, string episode)
         {
-            string levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", episode, level);
-            using (Stream s = FileOp.Open(PathOp.Combine(levelPath, ".res"), FileAccessMode.Read)) {
-                // ToDo: Cache parser, move JSON parsing to ContentResolver
-                JsonParser json = new JsonParser();
-                LevelHandler.LevelConfigJson config = json.Parse<LevelHandler.LevelConfigJson>(s);
+            // ToDo: Needs update
+            //string levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", episode, level);
+            //using (Stream s = FileOp.Open(PathOp.Combine(levelPath, ".res"), FileAccessMode.Read)) {
+            //    // ToDo: Cache parser, move JSON parsing to ContentResolver
+            //    JsonParser json = new JsonParser();
+            //    LevelHandler.LevelConfigJson config = json.Parse<LevelHandler.LevelConfigJson>(s);
 
-                //if (config.Version.LayerFormat > LevelHandler.LayerFormatVersion || config.Version.EventSet > LevelHandler.EventSetVersion) {
-                //    throw new NotSupportedException("Version not supported");
-                //}
+            //    //if (config.Version.LayerFormat > LevelHandler.LayerFormatVersion || config.Version.EventSet > LevelHandler.EventSetVersion) {
+            //    //    throw new NotSupportedException("Version not supported");
+            //    //}
 
-                Console.WriteLine("Loading level \"" + config.Description.Name + "\"...");
+            //    Console.WriteLine("Loading level \"" + config.Description.Name + "\"...");
 
-                defaultNextLevel = config.Description.NextLevel;
-                defaultSecretLevel = config.Description.SecretLevel;
-                ambientLightDefault = config.Description.DefaultLight;
-                ambientLightCurrent = ambientLightTarget = ambientLightDefault * 0.01f;
+            //    defaultNextLevel = config.Description.NextLevel;
+            //    defaultSecretLevel = config.Description.SecretLevel;
+            //    ambientLightDefault = config.Description.DefaultLight;
+            //    ambientLightCurrent = ambientLightTarget = ambientLightDefault * 0.01f;
 
-                string tilesetPath = PathOp.Combine(DualityApp.DataDirectory, "Tilesets", config.Description.DefaultTileset);
+            //    string tilesetPath = PathOp.Combine(DualityApp.DataDirectory, "Tilesets", config.Description.DefaultTileset);
 
-                ColorRgba[] tileMapPalette = TileSet.LoadPalette(PathOp.Combine(tilesetPath, ".palette"));
+            //    tileMap = new TileMap(this, config.Description.DefaultTileset, null, (config.Description.Flags & LevelHandler.LevelFlags.HasPit) != 0);
 
-                ContentResolver.Current.ApplyBasePalette(tileMapPalette);
+            //    // Read all layers
+            //    config.Layers.Add("Sprite", new LevelHandler.LevelConfigJson.LayerSection {
+            //        XSpeed = 1,
+            //        YSpeed = 1
+            //    });
 
-                tileMap = new TileMap(this, config.Description.DefaultTileset, (config.Description.Flags & LevelHandler.LevelFlags.HasPit) != 0);
+            //    foreach (var layer in config.Layers.OrderBy(layer => layer.Value.Depth)) {
+            //        LayerType type;
+            //        if (layer.Key == "Sprite") {
+            //            type = LayerType.Sprite;
+            //        } else if (layer.Key == "Sky") {
+            //            type = LayerType.Sky;
 
-                // Read all layers
-                config.Layers.Add("Sprite", new LevelHandler.LevelConfigJson.LayerSection {
-                    XSpeed = 1,
-                    YSpeed = 1
-                });
+            //            if (layer.Value.BackgroundStyle != 0 /*Plain*/ && layer.Value.BackgroundColor != null && layer.Value.BackgroundColor.Count >= 3) {
+            //                camera.GetComponent<Camera>().ClearColor = new ColorRgba((byte)layer.Value.BackgroundColor[0], (byte)layer.Value.BackgroundColor[1], (byte)layer.Value.BackgroundColor[2]);
+            //            }
+            //        } else {
+            //            type = LayerType.Other;
+            //        }
 
-                foreach (var layer in config.Layers.OrderBy(layer => layer.Value.Depth)) {
-                    LayerType type;
-                    if (layer.Key == "Sprite") {
-                        type = LayerType.Sprite;
-                    } else if (layer.Key == "Sky") {
-                        type = LayerType.Sky;
+            //        tileMap.ReadLayerConfiguration(type, levelPath, layer.Key, layer.Value);
+            //    }
 
-                        if (layer.Value.BackgroundStyle != 0 /*Plain*/ && layer.Value.BackgroundColor != null && layer.Value.BackgroundColor.Count >= 3) {
-                            camera.GetComponent<Camera>().ClearColor = new ColorRgba((byte)layer.Value.BackgroundColor[0], (byte)layer.Value.BackgroundColor[1], (byte)layer.Value.BackgroundColor[2]);
-                        }
-                    } else {
-                        type = LayerType.Other;
-                    }
+            //    // Read animated tiles
+            //    string animTilesPath = PathOp.Combine(levelPath, "Animated.tiles");
+            //    if (FileOp.Exists(animTilesPath)) {
+            //        tileMap.ReadAnimatedTiles(animTilesPath);
+            //    }
 
-                    tileMap.ReadLayerConfiguration(type, levelPath, layer.Key, layer.Value);
-                }
+            //    CameraController controller = camera.GetComponent<CameraController>();
+            //    controller.ViewBounds = new Rect(tileMap.Size * tileMap.Tileset.TileSize);
 
-                // Read animated tiles
-                string animTilesPath = PathOp.Combine(levelPath, "Animated.tiles");
-                if (FileOp.Exists(animTilesPath)) {
-                    tileMap.ReadAnimatedTiles(animTilesPath);
-                }
+            //    // Read events
+            //    //eventMap = new EventMap(this, tileMap.Size);
 
-                CameraController controller = camera.GetComponent<CameraController>();
-                controller.ViewBounds = new Rect(tileMap.Size * tileMap.Tileset.TileSize);
+            //    //string eventsPath = PathOp.Combine(levelPath, "Events.layer");
+            //    //if (FileOp.Exists(animTilesPath)) {
+            //    //    eventMap.ReadEvents(eventsPath, config.Version.LayerFormat, difficulty);
+            //    //}
 
-                // Read events
-                //eventMap = new EventMap(this, tileMap.Size);
+            //    levelTexts = config.TextEvents ?? new Dictionary<int, string>();
 
-                //string eventsPath = PathOp.Combine(levelPath, "Events.layer");
-                //if (FileOp.Exists(animTilesPath)) {
-                //    eventMap.ReadEvents(eventsPath, config.Version.LayerFormat, difficulty);
-                //}
+            //    GameObject tilemapHandler = new GameObject("TilemapHandler");
+            //    tilemapHandler.Parent = rootObject;
+            //    tilemapHandler.AddComponent(tileMap);
 
-                levelTexts = config.TextEvents ?? new Dictionary<int, string>();
-
-                GameObject tilemapHandler = new GameObject("TilemapHandler");
-                tilemapHandler.Parent = rootObject;
-                tilemapHandler.AddComponent(tileMap);
-
-                // Load default music
-                //musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", config.Description.DefaultMusic);
-                //music = DualityApp.Sound.PlaySound(new OpenMptStream(musicPath));
-                //music.BeginFadeIn(0.5f);
-            }
+            //    // Load default music
+            //    //musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", config.Description.DefaultMusic);
+            //    //music = DualityApp.Sound.PlaySound(new OpenMptStream(musicPath));
+            //    //music.BeginFadeIn(0.5f);
+            //}
         }
 
         public void AddActor(ActorBase actor)

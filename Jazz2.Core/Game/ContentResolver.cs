@@ -9,6 +9,7 @@ using Duality.Drawing;
 using Duality.IO;
 using Duality.Resources;
 using Jazz2.Game.Structs;
+using Jazz2.Game.Tiles;
 using Jazz2.Storage.Content;
 
 namespace Jazz2.Game
@@ -604,17 +605,37 @@ namespace Jazz2.Game
             return shader;
         }
 
-        public void RequestTileset(string path, out ContentRef<Material> materialRef, out PixelData mask)
+        public void RequestTileset(string path, bool applyPalette, ColorRgba[] customPalette, out ContentRef<Material> materialRef, out PixelData mask)
         {
-            path = PathOp.Combine(DualityApp.DataDirectory, "Tilesets", path);
+            IFileSystem tilesetPackage = new CompressedContent(PathOp.Combine(DualityApp.DataDirectory, "Tilesets", path + ".set"));
+
+            // Palette
+            if (applyPalette) {
+                if (customPalette != null) {
+                    ApplyBasePalette(customPalette);
+                } else if (tilesetPackage.FileExists("Main.palette")) {
+                    ApplyBasePalette(TileSet.LoadPalette(tilesetPackage.OpenFile("Main.palette", FileAccessMode.Read)));
+                }
+            }
 
             // Load textures
-            string texturePath = PathOp.Combine(path, "tiles.png");
-            string maskPath = PathOp.Combine(path, "mask.png");
-            string normalPath = PathOp.Combine(path, "normal.png");
+            PixelData texturePixels;
+            using (Stream s = tilesetPackage.OpenFile("Diffuse.png", FileAccessMode.Read)) {
+                texturePixels = imageCodec.Read(s);
+            }
 
-            PixelData texturePixels = imageCodec.Read(FileOp.Open(texturePath, FileAccessMode.Read));
-            PixelData normalPixels = (FileOp.Exists(normalPath) ? imageCodec.Read(FileOp.Open(normalPath, FileAccessMode.Read)) : null);
+            PixelData normalPixels;
+            if (tilesetPackage.FileExists("Normals.png")) {
+                using (Stream s = tilesetPackage.OpenFile("Normals.png", FileAccessMode.Read)) {
+                    normalPixels = imageCodec.Read(s);
+                }
+            } else {
+                normalPixels = null;
+            }
+
+            using (Stream s = tilesetPackage.OpenFile("Mask.png", FileAccessMode.Read)) {
+                mask = imageCodec.Read(s);
+            }
 
             // Apply palette to tileset
             ColorRgba[] palette = paletteTexture.Res.BasePixmap.Res.PixelData[0].Data;
@@ -643,7 +664,6 @@ namespace Jazz2.Game
             material.SetValue("normalMultiplier", Vector2.One);
 
             materialRef = material;
-            mask = imageCodec.Read(FileOp.Open(maskPath, FileAccessMode.Read));
         }
     }
 }

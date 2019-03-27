@@ -183,7 +183,7 @@ namespace Jazz2.Storage.Content
             return listing;
         }
 
-        public void GetContentFromDirectory(string path, string currentFullPath = null)
+        public void GetContentFromDirectory(string path, string currentFullPath = null, bool includePath = true)
         {
             if (!string.IsNullOrEmpty(currentFullPath)) {
                 if (currentFullPath[currentFullPath.Length - 1] != PathOp.DirectorySeparatorChar) {
@@ -193,7 +193,9 @@ namespace Jazz2.Storage.Content
                 currentFullPath = string.Empty;
             }
 
-            currentFullPath += Path.GetFileName(path);
+            if (includePath) {
+                currentFullPath += Path.GetFileName(path);
+            }
 
             foreach (string file in Directory.EnumerateFiles(path)) {
                 FileInfo info = new FileInfo(file);

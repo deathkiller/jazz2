@@ -207,20 +207,20 @@ namespace Jazz2.Compatibility
                 }
             }
 
-            tilesTexture.Save(Path.Combine(path, "tiles.png"), ImageFormat.Png);
-            masksTexture.Save(Path.Combine(path, "mask.png"), ImageFormat.Png);
+            tilesTexture.Save(Path.Combine(path, "Diffuse.png"), ImageFormat.Png);
+            masksTexture.Save(Path.Combine(path, "Mask.png"), ImageFormat.Png);
 
             // Create normal map
             using (Bitmap normalMap = NormalMapGenerator.FromSprite(tilesTexture,
                     new Point(tilesTexture.Width / TileSize, tilesTexture.Height / TileSize),
                     palette)) {
 
-                normalMap.Save(Path.Combine(path, "normal.png"), ImageFormat.Png);
+                normalMap.Save(Path.Combine(path, "Normals.png"), ImageFormat.Png);
             }
 
             // Save tileset palette
             if (palette != null && palette.Length > 1) {
-                using (FileStream s = File.Open(Path.Combine(path, ".palette"), FileMode.Create, FileAccess.Write))
+                using (FileStream s = File.Open(Path.Combine(path, "Main.palette"), FileMode.Create, FileAccess.Write))
                 using (BinaryWriter w = new BinaryWriter(s)) {
                     w.Write((ushort)palette.Length);
                     w.Write((int)0); // Empty color

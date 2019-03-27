@@ -113,7 +113,7 @@ namespace Jazz2.Compatibility
 
         public void Convert(string path, Func<string, JJ2Level.LevelToken> levelTokenConversion = null, Func<JJ2Episode, string> episodeNameConversion = null, Func<JJ2Episode, Tuple<string, string>> episodePrevNext = null)
         {
-            using (Stream s = File.Create(Path.Combine(path, ".res")))
+            using (Stream s = File.Create(Path.Combine(path, "Episode.res")))
             using (StreamWriter w = new StreamWriter(s, new UTF8Encoding(false))) {
                 w.WriteLine("{");
                 w.WriteLine("    \"Version\": {");
@@ -159,7 +159,7 @@ namespace Jazz2.Compatibility
 
             if (titleLight != null) {
                 using (Bitmap output = ConvertEpisodeLogo(titleLight)) {
-                    output.Save(Path.Combine(path, ".png"), ImageFormat.Png);
+                    output.Save(Path.Combine(path, "Logo.png"), ImageFormat.Png);
                 }
             }
         }

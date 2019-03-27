@@ -12,13 +12,8 @@ namespace Jazz2.Game.Tiles
 {
     public class TileSet : IDisposable
     {
-        public static ColorRgba[] LoadPalette(string path)
+        public static ColorRgba[] LoadPalette(Stream s)
         {
-            if (!FileOp.Exists(path)) {
-                return null;
-            }
-
-            using (Stream s = FileOp.Open(path, FileAccessMode.Read))
             using (BinaryReader r = new BinaryReader(s)) {
                 int n = r.ReadUInt16();
                 ColorRgba[] palette = new ColorRgba[n];
@@ -50,13 +45,13 @@ namespace Jazz2.Game.Tiles
 
         private RawList<LayerTile> defaultLayerTiles;
 
-        public TileSet(string path)
+        public TileSet(string path, bool applyPalette, ColorRgba[] tileMapPalette)
         {
             Materials = new RawList<ContentRef<Material>>();
 
             ContentRef<Material> material;
             PixelData mask;
-            ContentResolver.Current.RequestTileset(path, out material, out mask);
+            ContentResolver.Current.RequestTileset(path, applyPalette, tileMapPalette, out material, out mask);
 
             Materials.Add(material);
 
@@ -136,7 +131,7 @@ namespace Jazz2.Game.Tiles
         {
             ContentRef<Material> material;
             PixelData mask;
-            ContentResolver.Current.RequestTileset(path, out material, out mask);
+            ContentResolver.Current.RequestTileset(path, false, null, out material, out mask);
 
             Materials.Add(material);
 

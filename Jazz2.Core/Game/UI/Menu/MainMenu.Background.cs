@@ -8,6 +8,7 @@ using Duality.IO;
 using Duality.Resources;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
+using Jazz2.Storage.Content;
 using MathF = Duality.MathF;
 
 namespace Jazz2.Game.UI.Menu
@@ -26,20 +27,20 @@ namespace Jazz2.Game.UI.Menu
                 IImageCodec codec = ImageCodec.GetRead(ImageCodec.FormatPng);
 
                 // Try to use "The Secret Files" background
-                string levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "secretf", "01_easter1");
-                if (!DirectoryOp.Exists(levelPath)) {
+                string levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "secretf", "01_easter1.level");
+                if (!FileOp.Exists(levelPath)) {
                     // Try to use "Base Game" background
-                    levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "prince", "03_carrot1");
-                    if (!DirectoryOp.Exists(levelPath)) {
+                    levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "prince", "03_carrot1.level");
+                    if (!FileOp.Exists(levelPath)) {
                         // Try to use "Holiday Hare '98" background
-                        levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "xmas98", "03_xmas3");
-                        if (!DirectoryOp.Exists(levelPath)) {
+                        levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "xmas98", "03_xmas3.level");
+                        if (!FileOp.Exists(levelPath)) {
                             // Try to use "Christmas Chronicles" background
-                            levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "xmas99", "03_xmas3");
-                            if (!DirectoryOp.Exists(levelPath)) {
+                            levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "xmas99", "03_xmas3.level");
+                            if (!FileOp.Exists(levelPath)) {
                                 // Try to use "Shareware Demo" background;
-                                levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "share", "02_share2");
-                                if (!DirectoryOp.Exists(levelPath)) {
+                                levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "share", "02_share2.level");
+                                if (!FileOp.Exists(levelPath)) {
                                     // No usable background found
                                     throw new FileNotFoundException();
                                 }
@@ -49,9 +50,11 @@ namespace Jazz2.Game.UI.Menu
                 }
 
                 // Load metadata
+                IFileSystem levelPackage = new CompressedContent(levelPath);
+
                 JsonParser json = new JsonParser();
                 LevelHandler.LevelConfigJson config;
-                using (Stream s = FileOp.Open(PathOp.Combine(levelPath, ".res"), FileAccessMode.Read)) {
+                using (Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
                     config = json.Parse<LevelHandler.LevelConfigJson>(s);
                 }
 
@@ -74,19 +77,13 @@ namespace Jazz2.Game.UI.Menu
                 }
 
                 // Render background layer to texture
-                string tilesetPath = PathOp.Combine(DualityApp.DataDirectory, "Tilesets", config.Description.DefaultTileset);
-
-                ColorRgba[] tileMapPalette = TileSet.LoadPalette(PathOp.Combine(tilesetPath, ".palette"));
-                ContentResolver.Current.ApplyBasePalette(tileMapPalette);
-
-                TileSet levelTileset = new TileSet(config.Description.DefaultTileset);
+                TileSet levelTileset = new TileSet(config.Description.DefaultTileset, true, null);
                 if (!levelTileset.IsValid) {
                     throw new InvalidDataException();
                 }
 
-                using (Stream s = FileOp.Open(PathOp.Combine(levelPath, "Sky.layer"), FileAccessMode.Read)) {
-                    using (DeflateStream deflate = new DeflateStream(s, CompressionMode.Decompress))
-                    using (BinaryReader r = new BinaryReader(deflate)) {
+                using (Stream s = levelPackage.OpenFile("Sky.layer", FileAccessMode.Read)) {
+                    using (BinaryReader r = new BinaryReader(s)) {
 
                         int width = r.ReadInt32();
                         int height = r.ReadInt32();

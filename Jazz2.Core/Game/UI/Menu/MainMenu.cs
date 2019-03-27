@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using Duality;
 using Duality.Audio;
 using Duality.Components;
@@ -73,12 +74,13 @@ namespace Jazz2.Game.UI.Menu
 
             // Load resources
 #if UNCOMPRESSED_CONTENT
-            ColorRgba[] defaultPalette = TileSet.LoadPalette(PathOp.Combine(DualityApp.DataDirectory, "Animations", ".palette"));
+            using (Stream s = FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, "Animations", "Main.palette"), FileAccessMode.Read))
 #else
-            ColorRgba[] defaultPalette = TileSet.LoadPalette(PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Animations", ".palette"));
+            using (Stream s = FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Animations", "Main.palette"), FileAccessMode.Read))
 #endif
-
-            ContentResolver.Current.ApplyBasePalette(defaultPalette);
+            {
+                ContentResolver.Current.ApplyBasePalette(TileSet.LoadPalette(s));
+            }
 
             fontSmall = new BitmapFont(canvas, "UI/font_small", 17, 18, 15, 32, 256, -2);
             fontMedium = new BitmapFont(canvas, "UI/font_medium", 29, 31, 15, 32, 256, -1);
