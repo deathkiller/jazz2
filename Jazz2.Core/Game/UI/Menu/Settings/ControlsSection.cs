@@ -115,8 +115,15 @@ namespace Jazz2.Game.UI.Menu.Settings
                     if (selectedIndex == i && selectedColumn == j) {
                         float size = 0.5f + Ease.OutElastic(animation) * 0.5f;
 
+                        ColorRgba? color;
+                        if (waitForInput) {
+                            color = new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f);
+                        } else {
+                            color = null;
+                        }
+
                         api.DrawStringShadow(ref charOffset, value, center.X * (0.9f + j * 0.34f), topItem,
-                            Alignment.Center, waitForInput ? new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f) : new ColorRgba(0.48f, 0.5f), size, 0.7f, 1.1f, 1.1f, charSpacing: 0.9f);
+                            Alignment.Center, color, size, 0.7f, 1.1f, 1.1f, charSpacing: 0.9f);
 
                     } else {
                         api.DrawString(ref charOffset, value, center.X * (0.9f + j * 0.34f), topItem,

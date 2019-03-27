@@ -228,7 +228,7 @@ namespace Jazz2.Actors.Bosses
         {
             base.OnHandleCollision(other);
 
-            if (!canJump && state != StateDead) {
+            if (state != StateDead) {
                 // It can only die by collision with spring in the air
                 Spring spring = other as Spring;
                 if (spring != null) {
