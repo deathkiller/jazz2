@@ -261,20 +261,20 @@ namespace Duality.Backend.Android
             List<StorageInfo> storages = GetStorageList();
             for (int i = storages.Count - 1; i >= 0; i--) {
                 string path = Path.Combine(storages[i].Path, "Android", "Data", packageName);
-                if (Directory.Exists(path)) {
+                if (File.Exists(Path.Combine(path, "Content", "Main.dz"))) {
                     storagePathLength = storages[i].Path.Length;
                     return path;
                 }
 
                 path = Path.Combine(storages[i].Path, packageName);
-                if (Directory.Exists(path)) {
+                if (File.Exists(Path.Combine(path, "Content", "Main.dz"))) {
                     storagePathLength = storages[i].Path.Length;
                     return path;
                 }
 
                 // ToDo: Remove this in future versions
                 path = Path.Combine(storages[i].Path, "Download", packageName);
-                if (Directory.Exists(path)) {
+                if (File.Exists(Path.Combine(path, "Content", "Main.dz"))) {
                     storagePathLength = storages[i].Path.Length;
                     return path;
                 }

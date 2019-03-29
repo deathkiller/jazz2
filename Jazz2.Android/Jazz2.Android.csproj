@@ -96,11 +96,11 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidNativeLibrary Include="Libs\armeabi-v7a\libopenmpt.so" />
-    <AndroidNativeLibrary Include="Libs\armeabi-v7a\libunmo3.so" />
     <AndroidNativeLibrary Include="Libs\x86\libopenmpt.so" />
-    <AndroidNativeLibrary Include="Libs\x86\libunmo3.so" />
   </ItemGroup>
   <ItemGroup>
+    <AndroidNativeLibrary Include="Libs\armeabi-v7a\libc++_shared.so" />
+    <AndroidNativeLibrary Include="Libs\x86\libc++_shared.so" />
     <None Include="Properties\AndroidManifest.xml">
       <SubType>Designer</SubType>
     </None>

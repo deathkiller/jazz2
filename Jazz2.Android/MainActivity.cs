@@ -18,12 +18,16 @@ namespace Jazz2.Android
     [Activity(
         MainLauncher = true,
         Icon = "@mipmap/ic_launcher",
-        ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.KeyboardHidden,
+        ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.KeyboardHidden | ConfigChanges.ScreenSize,
         ScreenOrientation = ScreenOrientation.UserLandscape,
-        LaunchMode = LaunchMode.SingleInstance
+        LaunchMode = LaunchMode.SingleInstance,
+        ResizeableActivity = true,
+        Immersive = true
     )]
     public class MainActivity : Activity
     {
+        private const int StoragePermissionsRequest = 1;
+
         private static WeakReference<MainActivity> weakActivity;
 
         public static MainActivity Current
@@ -54,18 +58,16 @@ namespace Jazz2.Android
 
             try {
                 View decorView = Window.DecorView;
-                decorView.SystemUiVisibility |= (StatusBarVisibility)SystemUiFlags.LayoutStable;
-                decorView.SystemUiVisibility |= (StatusBarVisibility)SystemUiFlags.LayoutFullscreen;
-                //decorView.SystemUiVisibility |= (StatusBarVisibility)SystemUiFlags.Immersive;
-
-                // Minimal supported SDK is already 18
-                //if ((int)Build.VERSION.SdkInt < 18)
-                //    RequestedOrientation = ScreenOrientation.SensorLandscape;
+                decorView.SystemUiVisibility |= (StatusBarVisibility)(SystemUiFlags.LayoutStable | SystemUiFlags.LayoutFullscreen | SystemUiFlags.ImmersiveSticky);
 
                 Window.ClearFlags(WindowManagerFlags.TranslucentStatus);
                 Window.AddFlags(WindowManagerFlags.DrawsSystemBarBackgrounds);
+
+                if (Build.VERSION.SdkInt >= BuildVersionCodes.P) {
+                    Window.Attributes.LayoutInDisplayCutoutMode = LayoutInDisplayCutoutMode.ShortEdges;
+                }
             } catch /*(Exception ex)*/ {
-#if DEBUG
+#if !DEBUG
                 throw;
 #endif
             }
@@ -98,6 +100,18 @@ namespace Jazz2.Android
             }
             if (backgroundVideo != null) {
                 backgroundVideo.Start();
+            }
+        }
+
+        public override async void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
+        {
+            switch (requestCode) {
+                case StoragePermissionsRequest: {
+                    if (grantResults.Length > 0 && grantResults[0] == Permission.Granted) {
+                        TryInit();
+                    }
+                    break;
+                }
             }
         }
 
@@ -143,8 +157,8 @@ namespace Jazz2.Android
             if (CheckSelfPermission(Manifest.Permission.ReadExternalStorage) != Permission.Granted
                 && CheckSelfPermission(Manifest.Permission.WriteExternalStorage) != Permission.Granted)
             {
-                var permissions = new string[] { Manifest.Permission.ReadExternalStorage, Manifest.Permission.WriteExternalStorage };
-                RequestPermissions(permissions, 1);
+                RequestPermissions(new string[] { Manifest.Permission.ReadExternalStorage, Manifest.Permission.WriteExternalStorage },
+                    StoragePermissionsRequest);
                 return false;
             } else {
                 return true;

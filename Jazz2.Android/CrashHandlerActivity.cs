@@ -24,8 +24,9 @@ namespace Jazz2.Android
 {
     [Activity(
         Icon = "@mipmap/ic_launcher",
-        ConfigurationChanges = ConfigChanges.Orientation,
-        ScreenOrientation = ScreenOrientation.UserLandscape
+        ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.ScreenSize,
+        ScreenOrientation = ScreenOrientation.UserLandscape,
+        ResizeableActivity = true
     )]
     public class CrashHandlerActivity : Activity
     {
