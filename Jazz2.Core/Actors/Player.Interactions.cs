@@ -87,6 +87,11 @@ namespace Jazz2.Actors
             }
         }
 
+        public void SetDizzyTime(float time)
+        {
+            dizzyTime = time;
+        }
+
         public void ShowLevelText(string text)
         {
             attachedHud?.ShowLevelText(text);

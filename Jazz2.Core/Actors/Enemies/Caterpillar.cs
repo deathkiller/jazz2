@@ -157,7 +157,12 @@ namespace Jazz2.Actors.Enemies
 
             public override void OnHandleCollision(ActorBase other)
             {
-                // ToDo
+                switch (other) {
+                    case Player player: {
+                        player.SetDizzyTime(180f);
+                        break;
+                    }
+                }
             }
         }
     }

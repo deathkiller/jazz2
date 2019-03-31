@@ -13,7 +13,7 @@
         }
 
 #if __ANDROID__
-        public static ResizeMode Resize = ResizeMode.HQ2x;
+        public static ResizeMode Resize = ResizeMode.None;
         public static float MusicVolume = 0.7f;
         public static float SfxVolume = 0.3f;
 #else

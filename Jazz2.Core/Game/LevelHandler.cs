@@ -735,7 +735,7 @@ namespace Jazz2.Game
             }
 
             // ToDo: Hardcoded music file
-            string musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", "Boss" + (musicFile + 1).ToString(CultureInfo.InvariantCulture) + ".j2b");
+            string musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", "boss" + (musicFile + 1).ToString(CultureInfo.InvariantCulture) + ".j2b");
 
             music = DualityApp.Sound.PlaySound(new OpenMptStream(musicPath));
             music.BeginFadeIn(1f);

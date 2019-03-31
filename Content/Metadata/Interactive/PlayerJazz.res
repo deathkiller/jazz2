@@ -60,9 +60,19 @@
             "FrameRate": 40,
             "States": [ 32 ]
         },
+        "DizzyIdle": {
+            "Path": "Jazz/dizzy.png",
+            "FrameRate": 7,
+            "States": [ 128 ]
+        },
+        "DizzyWalk": {
+            "Path": "Jazz/dizzy_walk.png",
+            "FrameRate": 6,
+            "States": [ 129, 145 ]
+        },
         "Shoot": {
             "Path": "Jazz/shoot.png",
-            "States": [ 16 ],
+            "States": [ 16, 144 ],
             "Flags": 1
         },
         "CrouchShoot": {

@@ -25,7 +25,7 @@ namespace Jazz2.Game.Structs
         // the current actor state
         Crouch = 0x00000020,
         Lookup = 0x00000040,
-        IdleAnim = 0x00000080, // ToDo: Not implemented yes
+        Dizzy = 0x00000080,
         Buttstomp = 0x00000100,
         Uppercut = 0x00000200,
         Airboard = 0x00000400,

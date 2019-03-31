@@ -61,10 +61,20 @@
             "FrameRate": 24,
             "States": [ 32 ]
         },
+        "DizzyIdle": {
+            "Path": "Lori/dizzy.png",
+            "FrameRate": 6,
+            "States": [ 128 ]
+        },
+        "DizzyWalk": {
+            "Path": "Lori/dizzy_walk.png",
+            "FrameRate": 6,
+            "States": [ 129, 145 ]
+        },
         "Shoot": {
             "Path": "Lori/shoot.png",
             "FrameRate": 8,
-            "States": [ 16 ],
+            "States": [ 16, 144 ],
             "Flags": 1
         },
         "CrouchShoot": {

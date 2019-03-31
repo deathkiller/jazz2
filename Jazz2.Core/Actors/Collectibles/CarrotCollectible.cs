@@ -33,6 +33,7 @@ namespace Jazz2.Actors.Collectibles
                 base.Collect(player);
             } else {
                 if (player.AddHealth(1)) {
+                    //player.SetInvulnerability(1 * Time.FramesPerSecond, true);
                     base.Collect(player);
                 }
             }
