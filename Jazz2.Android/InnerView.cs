@@ -56,7 +56,7 @@ namespace Jazz2.Android
             current.ShowMainMenu();
 
             // Run the render loop
-            Run();
+            Run(60);
         }
 
         protected override void OnUnload(EventArgs e)
@@ -130,6 +130,34 @@ namespace Jazz2.Android
             DualityApp.Render(null, new Rect(viewportWidth, viewportHeight), new Vector2(viewportWidth, viewportHeight));
 
             SwapBuffers();
+        }
+
+        protected override void OnContextLost(EventArgs e)
+        {
+            base.OnContextLost(e);
+
+            // Reinitialize core
+            DualityApp.Terminate();
+            DualityApp.Init(DualityApp.ExecutionContext.Game, null, null);
+
+            ContentResolver.Current.Init();
+
+            viewportWidth = Width;
+            viewportHeight = Height;
+
+            DualityApp.WindowSize = new Point2(viewportWidth, viewportHeight);
+            INativeWindow window = DualityApp.OpenWindow(new WindowOptions());
+
+            ContentResolver.Current.InitPostWindow();
+
+            // Reinitialize input
+            virtualButtons = null;
+
+            InitializeInput();
+
+            // Reinitialize the game
+            current = new App(window);
+            current.ShowMainMenu();
         }
     }
 }

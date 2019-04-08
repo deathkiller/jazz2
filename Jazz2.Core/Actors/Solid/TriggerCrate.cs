@@ -58,6 +58,10 @@ namespace Jazz2.Actors.Solid
                     }
                     break;
                 }
+
+                default:
+                    // Nothing to do...
+                    break;
             }
 
             base.OnHandleCollision(other);

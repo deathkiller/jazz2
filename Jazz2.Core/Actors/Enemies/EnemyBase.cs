@@ -54,9 +54,13 @@ namespace Jazz2.Actors.Enemies
             switch (api.Difficulty) {
                 case GameDifficulty.Easy: health = (int)MathF.Round(health * 0.6f); break;
                 case GameDifficulty.Hard: health = (int)MathF.Round(health * 1.4f); break;
+                default:
+                    // Nothing to do...
+                    break;
             }
 
-            this.maxHealth = this.health = MathF.Max(health, 1);
+            this.health = MathF.Max(health, 1);
+            this.maxHealth = this.health;
         }
 
         protected bool CanMoveToPosition(float x, float y)
@@ -256,6 +260,10 @@ namespace Jazz2.Actors.Enemies
                         DecreaseHealth(5, collision);
                         break;
                     }
+
+                    default:
+                        // Nothing to do...
+                        break;
                 }
             }
         }

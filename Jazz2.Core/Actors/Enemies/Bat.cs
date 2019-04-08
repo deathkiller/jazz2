@@ -60,7 +60,8 @@ namespace Jazz2.Actors.Enemies
                     if (currentTransitionState != AnimState.Idle)
                         return;
 
-                    speedX = speedY = 0;
+                    speedX = 0;
+                    speedY = 0;
 
                     SetAnimation(AnimState.Walk);
 
@@ -77,7 +78,8 @@ namespace Jazz2.Actors.Enemies
                     if (length < 2f) {
                         attacking = false;
                         Transform.Pos = originPos;
-                        speedX = speedY = 0;
+                        speedX = 0;
+                        speedY = 0;
                         SetAnimation(AnimState.Idle);
                         SetTransition((AnimState)1073741826, false);
                     } else {

@@ -13,6 +13,7 @@
             RequestMetadata("Collectible/Coins");
 
             switch (coinType) {
+                default:
                 case 0: // Silver
                     coinValue = 1;
                     scoreValue = 500;

@@ -10,6 +10,7 @@
             IsFacingLeft = (details.Params[1] != 0);
 
             switch (playerType) {
+                default:
                 case PlayerType.Jazz:
                     RequestMetadata("Interactive/PlayerJazz");
                     break;

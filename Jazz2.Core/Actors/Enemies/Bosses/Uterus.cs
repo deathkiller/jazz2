@@ -140,6 +140,10 @@ namespace Jazz2.Actors.Bosses
                     }
                     break;
                 }
+
+                default:
+                    // Nothing to do...
+                    break;
             }
 
             stateTime -= Time.TimeMult;

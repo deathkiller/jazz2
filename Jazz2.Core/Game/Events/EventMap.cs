@@ -148,7 +148,8 @@ namespace Jazz2.Game.Events
         {
             List<Vector2> targets;
             if (!warpTargets.TryGetValue(id, out targets)) {
-                warpTargets[id] = targets = new List<Vector2>();
+                targets = new List<Vector2>();
+                warpTargets[id] = targets;
             }
 
             targets.Add(new Vector2(x * 32 + 16, y * 32 + 12));
@@ -168,7 +169,8 @@ namespace Jazz2.Game.Events
         {
             List<Vector2> targets;
             if (!spawnPositions.TryGetValue(type, out targets)) {
-                spawnPositions[type] = targets = new List<Vector2>();
+                targets = new List<Vector2>();
+                spawnPositions[type] = targets;
             }
 
             targets.Add(new Vector2(32 * x + 16, 32 * y + 16 - 8));

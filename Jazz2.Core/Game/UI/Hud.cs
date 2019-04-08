@@ -444,7 +444,7 @@ namespace Jazz2.Game.UI
                         return "WeaponPowerUp" + weapon.ToString("G");
                 }
             } else {
-                switch (owner.CurrentWeapon) {
+                switch (weapon) {
                     case WeaponType.Blaster:
                         if (owner.PlayerType == PlayerType.Spaz) {
                             return "WeaponBlasterSpaz";

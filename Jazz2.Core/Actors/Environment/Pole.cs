@@ -40,6 +40,7 @@ namespace Jazz2.Actors.Environment
             //collisionFlags |= CollisionFlags.IsSolidObject;
 
             switch (theme) {
+                default:
                 case 0: RequestMetadata("Pole/Carrotus"); break;
                 case 1: RequestMetadata("Pole/Diamondus"); break;
                 case 2: RequestMetadata("Pole/DiamondusTree"); break;

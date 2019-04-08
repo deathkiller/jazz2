@@ -37,7 +37,8 @@ namespace Jazz2.Actors.Bosses
             canHurtPlayer = false;
             isInvulnerable = true;
             canBeFrozen = false;
-            maxHealth = health = int.MaxValue;
+            health = int.MaxValue;
+            maxHealth = int.MaxValue;
             scoreValue = 0;
 
             lastHealth = health;
@@ -48,6 +49,9 @@ namespace Jazz2.Actors.Bosses
             switch (api.Difficulty) {
                 case GameDifficulty.Easy: stepSize *= 1.3f; break;
                 case GameDifficulty.Hard: stepSize *= 0.7f; break;
+                default:
+                    // Nothing to do...
+                    break;
             }
 
             RequestMetadata("Boss/Queen");
@@ -219,6 +223,10 @@ namespace Jazz2.Actors.Bosses
                     }
                     break;
                 }
+
+                default:
+                    // Nothing to do...
+                    break;
             }
 
             stateTime -= Time.TimeMult;

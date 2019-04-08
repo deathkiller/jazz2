@@ -231,6 +231,10 @@ namespace Jazz2.Game.UI
                                     charSpacing = paramInt * 0.01f;
                                 }
                                 break;
+
+                            default:
+                                // Unknown formatting
+                                break;
                         }
                     }
                     continue;

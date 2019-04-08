@@ -11,6 +11,7 @@
             Movable = true;
 
             switch (theme) {
+                default:
                 case 0: RequestMetadata("Object/PushBoxRock"); break;
                 case 1: RequestMetadata("Object/PushBoxCrate"); break;
             }
