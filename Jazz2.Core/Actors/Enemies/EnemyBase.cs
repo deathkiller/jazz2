@@ -54,9 +54,6 @@ namespace Jazz2.Actors.Enemies
             switch (api.Difficulty) {
                 case GameDifficulty.Easy: health = (int)MathF.Round(health * 0.6f); break;
                 case GameDifficulty.Hard: health = (int)MathF.Round(health * 1.4f); break;
-                default:
-                    // Nothing to do...
-                    break;
             }
 
             this.health = MathF.Max(health, 1);

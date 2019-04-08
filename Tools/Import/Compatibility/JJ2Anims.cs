@@ -608,10 +608,12 @@ namespace Jazz2.Compatibility
                 w.WriteLine("    },");
 
                 int flags = 0x00;
-                if (!data.AllowRealtimePalette && data.Palette == JJ2DefaultPalette.ByIndex)
+                if (!data.AllowRealtimePalette && data.Palette == JJ2DefaultPalette.ByIndex) {
                     flags |= 0x01;
-                if (!data.AllowRealtimePalette) // Use Linear Sampling, only if the palette is applied in pre-processing stage
+                }
+                if (!data.AllowRealtimePalette) {// Use Linear Sampling, only if the palette is applied in pre-processing stage
                     flags |= 0x02;
+                }
 
                 if (flags != 0x00) {
                     w.WriteLine("    \"Flags\": " + flags + ",");

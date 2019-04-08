@@ -54,7 +54,8 @@ namespace Jazz2.Actors.Enemies
                 }
             }
 
-            speedX = speedY = 0;
+            speedX = 0f;
+            speedY = 0f;
         }
 
         protected override bool OnPerish(ActorBase collider)

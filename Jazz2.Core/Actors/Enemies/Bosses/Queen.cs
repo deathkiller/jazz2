@@ -49,9 +49,6 @@ namespace Jazz2.Actors.Bosses
             switch (api.Difficulty) {
                 case GameDifficulty.Easy: stepSize *= 1.3f; break;
                 case GameDifficulty.Hard: stepSize *= 0.7f; break;
-                default:
-                    // Nothing to do...
-                    break;
             }
 
             RequestMetadata("Boss/Queen");

@@ -102,7 +102,8 @@ namespace Jazz2.Actors
         {
             base.OnAttach(details);
 
-            playerType = playerTypeOriginal = (PlayerType)details.Params[0];
+            playerTypeOriginal = (PlayerType)details.Params[0];
+            playerType = playerTypeOriginal;
             index = details.Params[1];
 
             switch (playerType) {
@@ -131,7 +132,8 @@ namespace Jazz2.Actors
 
             collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithSolidObjects | CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation | CollisionFlags.IsSolidObject;
 
-            maxHealth = health = 5;
+            health = 5;
+            maxHealth = health;
             currentWeapon = WeaponType.Toaster;
 
             checkpointPos = details.Pos.Xy;
@@ -211,8 +213,11 @@ namespace Jazz2.Actors
                         PlaySound("EndOfLevel1");
                         
                         collisionFlags &= ~CollisionFlags.ApplyGravitation;
-                        speedX = speedY = 0f;
-                        externalForceX = externalForceY = internalForceY = 0f;
+                        speedX = 0;
+                        speedY = 0;
+                        externalForceX = 0f;
+                        externalForceY = 0f;
+                        internalForceY = 0f;
                     } else if (lastPoleTime <= 0f) {
                         // Waiting timeout - use warp transition instead
                         levelExiting = LevelExitingState.Transition;
@@ -225,8 +230,11 @@ namespace Jazz2.Actors
                         PlaySound("WarpIn");
                         
                         collisionFlags &= ~CollisionFlags.ApplyGravitation;
-                        speedX = speedY = 0f;
-                        externalForceX = externalForceY = internalForceY = 0f;
+                        speedX = 0;
+                        speedY = 0;
+                        externalForceX = 0f;
+                        externalForceY = 0f;
+                        internalForceY = 0f;
                     }
                     
                     return false;
@@ -246,8 +254,11 @@ namespace Jazz2.Actors
                 PlaySound("WarpIn");
                 
                 collisionFlags &= ~CollisionFlags.ApplyGravitation;
-                speedX = speedY = 0f;
-                externalForceX = externalForceY = internalForceY = 0f;
+                speedX = 0;
+                speedY = 0;
+                externalForceX = 0f;
+                externalForceY = 0f;
+                internalForceY = 0f;
             } else {
                 levelExiting = LevelExitingState.Waiting;
 
@@ -262,8 +273,9 @@ namespace Jazz2.Actors
             controllable = false;
             IsFacingLeft = false;
             isInvulnerable = true;
-            copterFramesLeft = pushFramesLeft = 0f;
-            
+            copterFramesLeft = 0f;
+            pushFramesLeft = 0f;
+
             // Used for waiting timeout
             lastPoleTime = 300f;
             
@@ -879,7 +891,9 @@ namespace Jazz2.Actors
                                     canJump = true;
                                     controllable = true;
                                     collisionFlags |= CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithSolidObjects;
-                                    pushFramesLeft = fireFramesLeft = copterFramesLeft = 0f;
+                                    pushFramesLeft = 0f;
+                                    fireFramesLeft = 0f;
+                                    copterFramesLeft = 0f;
 
                                     speedY = 0f;
 
@@ -938,9 +952,15 @@ namespace Jazz2.Actors
                         weaponUpgrades[(int)WeaponType.Blaster] = (byte)(weaponUpgrades[(int)WeaponType.Blaster] & 0x1);
 
                         canJump = false;
-                        speedX = speedY = 0f;
-                        externalForceX = externalForceY = internalForceY = 0f;
-                        fireFramesLeft = copterFramesLeft = pushFramesLeft = weaponCooldown = 0f;
+                        speedX = 0;
+                        speedY = 0;
+                        externalForceX = 0f;
+                        externalForceY = 0f;
+                        internalForceY = 0f;
+                        fireFramesLeft = 0f;
+                        copterFramesLeft = 0f;
+                        pushFramesLeft = 0f;
+                        weaponCooldown = 0f;
                         controllable = true;
                         SetModifier(Modifier.None);
 
@@ -1310,7 +1330,8 @@ namespace Jazz2.Actors
                         PlaySound("HookAttach", 0.8f, 1.2f);
                     }
 
-                    speedY = externalForceY = 0f;
+                    speedY = 0f;
+                    externalForceY = 0f;
                     isFreefall = false;
                     isSpring = false;
                     copterFramesLeft = 0f;
@@ -1867,9 +1888,14 @@ namespace Jazz2.Actors
 
                 SetAnimation(currentAnimationState & ~(AnimState.Uppercut | AnimState.Buttstomp));
 
-                speedX = speedY = 0f;
-                externalForceX = externalForceY = internalForceY = 0f;
-                fireFramesLeft = copterFramesLeft = pushFramesLeft = 0f;
+                speedX = 0f;
+                speedY = 0f;
+                externalForceX = 0f;
+                externalForceY = 0f;
+                internalForceY = 0f;
+                fireFramesLeft = 0f;
+                copterFramesLeft = 0f;
+                pushFramesLeft = 0f;
 
                 // For warping from the water
                 Transform.Angle = 0f;

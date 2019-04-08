@@ -113,8 +113,9 @@ namespace Jazz2.Actors.Weapons
 
             Matrix4 transform =
                 Matrix4.CreateTranslation(new Vector3(-currentAnimation.Base.Hotspot.X, -currentAnimation.Base.Hotspot.Y, 0f));
-            if (IsFacingLeft)
+            if (IsFacingLeft) {
                 transform *= Matrix4.CreateScale(-1f, 1f, 1f);
+            }
             transform *= Matrix4.CreateRotationZ(Transform.Angle) *
                 Matrix4.CreateTranslation(Transform.Pos);
 

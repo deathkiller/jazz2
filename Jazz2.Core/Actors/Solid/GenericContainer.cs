@@ -24,7 +24,8 @@ namespace Jazz2.Actors.Solid
                     fx = MathF.Rnd.NextFloat(-6f, 6f);
                     fy = MathF.Rnd.NextFloat(-2f, 0.2f);
                 } else {
-                    fx = fy = 0f;
+                    fx = 0f;
+                    fy = 0f;
                 }
                 content.Data[i].MoveInstantly(new Vector2(pos.X + fx * (2f + content.Count * 0.1f), pos.Y + fy * (12f + content.Count * 0.2f)), MoveType.Absolute, true);
                 content.Data[i].AddExternalForce(fx, fy);

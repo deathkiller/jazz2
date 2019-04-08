@@ -694,9 +694,13 @@ namespace Jazz2.Actors
                 for (int i = x1; i < x2; i++) {
                     for (int j = y1; j < y2; j++) {
                         int i1 = i - x1s;
-                        if (isFacingLeft) i1 = res1.Base.FrameDimensions.X - i1 - 1;
+                        if (isFacingLeft) {
+                            i1 = res1.Base.FrameDimensions.X - i1 - 1;
+                        }
                         int i2 = i - x2s;
-                        if (other.isFacingLeft) i2 = res2.Base.FrameDimensions.X - i2 - 1;
+                        if (other.isFacingLeft) {
+                            i2 = res2.Base.FrameDimensions.X - i2 - 1;
+                        }
 
                         if (p1[i1 + dx1, j + dy1].A > AlphaThreshold && p2[i2 + dx2, j + dy2].A > AlphaThreshold) {
                             return true;

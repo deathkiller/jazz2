@@ -172,13 +172,16 @@ namespace Jazz2
 
             ref Mapping mapping = ref mappings[index * (int)PlayerActions.Count + (int)action];
 
-            if (mapping.Key1 != Key.Unknown && DualityApp.Keyboard[mapping.Key1])
+            if (mapping.Key1 != Key.Unknown && DualityApp.Keyboard[mapping.Key1]) {
                 return true;
-            if (mapping.Key2 != Key.Unknown && DualityApp.Keyboard[mapping.Key2])
+            }
+            if (mapping.Key2 != Key.Unknown && DualityApp.Keyboard[mapping.Key2]) {
                 return true;
+            }
 
-            if (mapping.GamepadIndex != -1 && DualityApp.Gamepads[mapping.GamepadIndex][mapping.GamepadButton])
+            if (mapping.GamepadIndex != -1 && DualityApp.Gamepads[mapping.GamepadIndex][mapping.GamepadButton]) {
                 return true;
+            }
 
             return false;
         }
@@ -197,13 +200,16 @@ namespace Jazz2
 
             ref Mapping mapping = ref mappings[index * (int)PlayerActions.Count + (int)action];
 
-            if (mapping.Key1 != Key.Unknown && DualityApp.Keyboard.KeyHit(mapping.Key1))
+            if (mapping.Key1 != Key.Unknown && DualityApp.Keyboard.KeyHit(mapping.Key1)) {
                 return true;
-            if (mapping.Key2 != Key.Unknown && DualityApp.Keyboard.KeyHit(mapping.Key2))
+            }
+            if (mapping.Key2 != Key.Unknown && DualityApp.Keyboard.KeyHit(mapping.Key2)) {
                 return true;
+            }
 
-            if (mapping.GamepadIndex != -1 && DualityApp.Gamepads[mapping.GamepadIndex].ButtonHit(mapping.GamepadButton))
+            if (mapping.GamepadIndex != -1 && DualityApp.Gamepads[mapping.GamepadIndex].ButtonHit(mapping.GamepadButton)) {
                 return true;
+            }
 
             return false;
         }

@@ -83,7 +83,8 @@ namespace Jazz2.Game.UI.Menu
 
                     float offset, spacing;
                     if (availableCharacters == 1) {
-                        offset = spacing = 0f;
+                        offset = 0f;
+                        spacing = 0f;
                     } else if (availableCharacters == 2) {
                         offset = 50f;
                         spacing = 100f;

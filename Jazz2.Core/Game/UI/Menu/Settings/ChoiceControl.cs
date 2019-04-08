@@ -60,13 +60,12 @@ namespace Jazz2.Game.UI.Menu.Settings
 
             float offset, spacing;
             if (choices.Length == 1) {
-                offset = spacing = 0f;
+                offset = 0f;
+                spacing = 0f;
             } else if (choices.Length == 2) {
                 offset = 50f;
                 spacing = 100f;
             } else {
-                //offset = 100f;
-                //spacing = 300f / choices.Length;
                 spacing = 320f / (choices.Length + 1);
                 offset = 120 - spacing * 0.5f;
             }

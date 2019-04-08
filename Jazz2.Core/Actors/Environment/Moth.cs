@@ -46,7 +46,9 @@ namespace Jazz2.Actors.Environment
                     IsFacingLeft = (speedX < 0f);
                 }
             } else if (canJump) {
-                speedX = externalForceY = externalForceX = 0f;
+                speedX = 0f;
+                externalForceY = 0f;
+                externalForceX = 0f;
 
                 renderer.AnimTime = 0f;
                 renderer.AnimPaused = true;

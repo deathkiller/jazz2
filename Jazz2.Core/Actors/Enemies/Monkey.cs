@@ -172,7 +172,8 @@ namespace Jazz2.Actors.Enemies
                     soundThrow = null;
                 }
 
-                speedX = speedY = 0f;
+                speedX = 0f;
+                speedY = 0f;
                 collisionFlags = CollisionFlags.None;
 
                 SetTransition((AnimState)1073741829, false, delegate {

@@ -10,7 +10,7 @@ namespace Jazz2.Game.UI.Menu.Settings
         public abstract bool IsEnabled { get; set; }
         public abstract bool IsInputCaptured { get; }
 
-        public MenuControlBase(IMenuContainer api)
+        protected MenuControlBase(IMenuContainer api)
         {
             this.api = api;
         }

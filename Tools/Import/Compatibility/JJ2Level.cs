@@ -943,17 +943,21 @@ namespace Jazz2.Compatibility
                         }
 
                         byte tileFlags = 0;
-                        if (flipX)
+                        if (flipX) {
                             tileFlags |= 0x01;
-                        if (flipY)
+                        }
+                        if (flipY) {
                             tileFlags |= 0x02;
-                        if (animated)
+                        }
+                        if (animated) {
                             tileFlags |= 0x04;
+                        }
 
-                        if (legacyTranslucent)
+                        if (legacyTranslucent) {
                             tileFlags |= 0x10;
-                        else if (invisible)
+                        } else if (invisible) {
                             tileFlags |= 0x20;
+                        }
 
                         w.Write(tileIdx);
                         w.Write(tileFlags);
@@ -1087,15 +1091,18 @@ namespace Jazz2.Compatibility
                             }
 
                             byte tileFlags = 0x00;
-                            if (flipX)
+                            if (flipX) {
                                 tileFlags |= 0x01; // Flip X
-                            if (flipY)
+                            }
+                            if (flipY) {
                                 tileFlags |= 0x02; // Flip Y
+                            }
 
-                            if (staticTiles[frames[j]].Type == 1)
+                            if (staticTiles[frames[j]].Type == 1) {
                                 tileFlags |= 0x10; // Legacy Translucent
-                            else if (staticTiles[frames[j]].Type == 3)
+                            } else if (staticTiles[frames[j]].Type == 3) {
                                 tileFlags |= 0x20; // Invisible
+                            }
 
                             w.Write(tileIdx);
                             w.Write(tileFlags);
