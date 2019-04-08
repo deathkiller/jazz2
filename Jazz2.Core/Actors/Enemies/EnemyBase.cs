@@ -260,10 +260,6 @@ namespace Jazz2.Actors.Enemies
                         DecreaseHealth(5, collision);
                         break;
                     }
-
-                    default:
-                        // Nothing to do...
-                        break;
                 }
             }
         }

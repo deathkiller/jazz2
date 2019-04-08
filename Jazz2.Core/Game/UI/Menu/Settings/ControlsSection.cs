@@ -14,11 +14,6 @@ namespace Jazz2.Game.UI.Menu.Settings
         private float animation;
         private bool waitForInput;
 
-        public ControlsSection()
-        {
-
-        }
-
         public override void OnShow(IMenuContainer root)
         {
             animation = 0f;

@@ -65,8 +65,8 @@ namespace Jazz2.Game.UI.Menu
                     }
 
                     switch ((BackgroundStyle)layer.BackgroundStyle) {
-                        case BackgroundStyle.Sky:
                         default:
+                        case BackgroundStyle.Sky:
                             texturedBackgroundShader = ContentResolver.Current.RequestShader("TexturedBackground");
                             break;
 

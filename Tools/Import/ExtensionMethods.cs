@@ -8,8 +8,9 @@ namespace Import
     {
         public static void DrawImageEx(this Graphics g, Image i, RectangleF r, byte alpha, bool grayscaled)
         {
-            if (alpha == 0)
+            if (alpha == 0) {
                 return;
+            }
 
             PixelOffsetMode oldPOM = g.PixelOffsetMode;
             g.PixelOffsetMode = PixelOffsetMode.Half;

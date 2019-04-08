@@ -38,10 +38,6 @@ namespace Jazz2.Actors
                     }
                     break;
                 }
-
-                default:
-                    // Nothing to do...
-                    break;
             }
         }
     }

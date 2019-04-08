@@ -22,10 +22,10 @@ namespace Jazz2.Game.UI
         private const int BlockSize = 8;
         private const int BlockSizeSmooth = 3;
 
-        private Mode mode;
+        private readonly Mode mode;
+        private readonly int w, h;
         private int blockSize;
         private Block[] blocks;
-        private int w, h;
         private bool isCompleted;
         private float time;
         private VertexC1P3[] vertices;

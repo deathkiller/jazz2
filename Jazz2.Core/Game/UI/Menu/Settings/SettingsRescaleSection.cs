@@ -18,18 +18,18 @@ namespace Jazz2.Game.UI.Menu.Settings
             base.OnShow(root);
 
 #if __ANDROID__
-            availableModes = new ResizeMode[] {
+            availableModes = new[] {
                 ResizeMode.None,
                 ResizeMode.HQ2x,
                 ResizeMode.GB,
             };
-            availableModesNames = new string[] {
+            availableModesNames = new[] {
                 "None / Pixel-perfect",
                 "HQ2x",
                 "GB (limited palette)"
             };
 #else
-            availableModes = new ResizeMode[] {
+            availableModes = new[] {
                 ResizeMode.None,
                 ResizeMode.HQ2x,
                 ResizeMode.xBRZ3,
@@ -37,7 +37,7 @@ namespace Jazz2.Game.UI.Menu.Settings
                 ResizeMode.GB,
                 ResizeMode.CRT
             };
-            availableModesNames = new string[] {
+            availableModesNames = new[] {
                 "None / Pixel-perfect",
                 "HQ2x",
                 "3xBRZ",

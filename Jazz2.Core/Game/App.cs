@@ -177,7 +177,7 @@ namespace Jazz2.Game
                         // Save continue data, if it's not the first level of the episode
                         ref PlayerCarryOver player = ref carryOver.PlayerCarryOvers[0];
 
-                        Preferences.Set("EpisodeContinue_Misc_" + carryOver.EpisodeName, new byte[] { (byte)player.Lives, (byte)carryOver.Difficulty, (byte)player.Type });
+                        Preferences.Set("EpisodeContinue_Misc_" + carryOver.EpisodeName, new[] { (byte)player.Lives, (byte)carryOver.Difficulty, (byte)player.Type });
                         Preferences.Set("EpisodeContinue_Level_" + carryOver.EpisodeName, carryOver.LevelName);
                         if (player.Ammo != null) {
                             Preferences.Set("EpisodeContinue_Ammo_" + carryOver.EpisodeName, player.Ammo);
