@@ -295,14 +295,18 @@ namespace Jazz2.Android
                 //case Keycode.NonUSBackSlash: return Key.NonUSBackSlash;
             }
 
-            if (key >= Keycode.A && key <= Keycode.Z)
+            if (key >= Keycode.A && key <= Keycode.Z) {
                 return key - Keycode.A + Key.A;
-            if (key >= Keycode.F1 && key <= Keycode.F12)
+            }
+            if (key >= Keycode.F1 && key <= Keycode.F12) {
                 return key - Keycode.F1 + Key.F1;
-            if (key >= Keycode.Numpad0 && key <= Keycode.NumpadEnter)
+            }
+            if (key >= Keycode.Numpad0 && key <= Keycode.NumpadEnter) {
                 return key - Keycode.Numpad0 + Key.Keypad0;
-            if (key >= Keycode.Num0 && key <= Keycode.Num9)
+            }
+            if (key >= Keycode.Num0 && key <= Keycode.Num9) {
                 return key - Keycode.Num0 + Key.Number0;
+            }
 
             return Key.Unknown;
         }

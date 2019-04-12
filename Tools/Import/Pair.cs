@@ -45,8 +45,9 @@ namespace Import
 
         public override bool Equals(object obj)
         {
-            if (!(obj is Pair<T1, T2>))
+            if (!(obj is Pair<T1, T2>)) {
                 return false;
+            }
 
             return Equals((Pair<T1, T2>)obj);
         }
@@ -56,8 +57,9 @@ namespace Import
             bool firstEqual = (!t1IsValueType && first == null && other.first == null) ||
                               ((t1IsValueType || (first != null && other.first != null)) &&
                                first.Equals(other.first));
-            if (!firstEqual)
+            if (!firstEqual) {
                 return false;
+            }
 
             bool secondEqual = (!t2IsValueType && second == null && other.second == null) ||
                                ((t2IsValueType || (second != null && other.second != null)) &&

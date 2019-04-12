@@ -96,8 +96,9 @@ namespace Jazz2
 
         public void Stop()
         {
-            if (this.native != null)
+            if (this.native != null) {
                 this.native.Stop();
+            }
         }
 
         /// <summary>

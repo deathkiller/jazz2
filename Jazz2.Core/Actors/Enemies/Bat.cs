@@ -57,8 +57,9 @@ namespace Jazz2.Actors.Enemies
                         PlaySound("Noise");
                     }
                 } else {
-                    if (currentTransitionState != AnimState.Idle)
+                    if (currentTransitionState != AnimState.Idle) {
                         return;
+                    }
 
                     speedX = 0;
                     speedY = 0;

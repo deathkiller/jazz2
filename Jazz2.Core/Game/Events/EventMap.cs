@@ -109,8 +109,9 @@ namespace Jazz2.Game.Events
             int ty = (int)y / 32;
 
             ushort[] eventParams = null;
-            if (GetEventByPosition(tx, ty, ref eventParams) != EventType.ModifierHurt)
+            if (GetEventByPosition(tx, ty, ref eventParams) != EventType.ModifierHurt) {
                 return false;
+            }
 
             return !levelHandler.TileMap.IsTileEmpty(tx, ty);
         }

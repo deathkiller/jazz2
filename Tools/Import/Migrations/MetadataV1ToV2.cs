@@ -108,8 +108,9 @@ namespace Jazz2.Migrations
                         w.Write("            \"Path\": \"" + graphic.Value.filename + "\"");
 
                         int flags = 0;
-                        if (graphic.Value.onlyOnce)
+                        if (graphic.Value.onlyOnce) {
                             flags |= 1;
+                        }
                         if (flags != 0) {
                             w.WriteLine(",");
                             w.Write("            \"Flags\": " + flags + "");

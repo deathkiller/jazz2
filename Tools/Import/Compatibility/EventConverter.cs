@@ -250,8 +250,9 @@ namespace Jazz2.Compatibility
                 };
             });
             Add(JJ2Event.MODIFIER_ACC_BELT_LEFT, (level, jj2Params) => {
-                if (jj2Params == 0)
+                if (jj2Params == 0) {
                     jj2Params = 3;
+                }
 
                 return new ConversionResult {
                     eventType = EventType.AreaHForce,
@@ -259,8 +260,9 @@ namespace Jazz2.Compatibility
                 };
             });
             Add(JJ2Event.MODIFIER_ACC_BELT_RIGHT, (level, jj2Params) => {
-                if (jj2Params == 0)
+                if (jj2Params == 0) {
                     jj2Params = 3;
+                }
 
                 return new ConversionResult {
                     eventType = EventType.AreaHForce,

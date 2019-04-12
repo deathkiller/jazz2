@@ -17,18 +17,13 @@ namespace Jazz2.Actors.Lighting
 
             ushort intensity = details.Params[0];
             ushort brightness = details.Params[1];
-            ushort radiusNear1 = details.Params[2];
-            ushort radiusNear2 = details.Params[3];
-            ushort radiusFar = details.Params[4];
-            ushort speed = details.Params[5];
+            this.radiusNear1 = details.Params[2];
+            this.radiusNear2 = details.Params[3];
+            this.radiusFar = details.Params[4];
+            this.speed = details.Params[5] * 0.6f;
             ushort sync = details.Params[6];
 
             collisionFlags = CollisionFlags.None;
-
-            this.radiusNear1 = radiusNear1;
-            this.radiusNear2 = radiusNear2;
-            this.radiusFar = radiusFar;
-            this.speed = 0.6f * speed;
 
             phase = (BaseCycleFrames - ((float)(Time.GameTimer.TotalMilliseconds % BaseCycleFrames) + sync * 175)) % BaseCycleFrames;
 

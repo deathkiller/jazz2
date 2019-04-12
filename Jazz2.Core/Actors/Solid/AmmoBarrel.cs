@@ -55,7 +55,7 @@ namespace Jazz2.Actors.Solid
 
         protected override bool OnPerish(ActorBase collider)
         {
-            if (content.Count == 0) {
+            if (Content.Count == 0) {
                 HashSet<WeaponType> availableWeapons = new HashSet<WeaponType>();
                 foreach (Player player in api.Players) {
                     for (int i = 1; i < player.WeaponAmmo.Length; i++) {

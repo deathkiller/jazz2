@@ -981,10 +981,18 @@ namespace Jazz2.Compatibility
 
                         int flags = 0;
                         if (tileEvent.Illuminate) flags |= 0x04; // Illuminated
-                        if (tileEvent.Difficulty != 2 /*DIFFICULTY_HARD*/) flags |= 0x10; // Difficulty: Easy
-                        if (tileEvent.Difficulty == 0 /*DIFFICULTY_ALL*/) flags |= 0x20; // Difficulty: Normal
-                        if (tileEvent.Difficulty != 1 /*DIFFICULTY_EASY*/) flags |= 0x40; // Difficulty: Hard
-                        if (tileEvent.Difficulty == 3 /*DIFFICULTY_MULTIPLAYER*/) flags |= 0x80; // Multiplayer Only
+                        if (tileEvent.Difficulty != 2 /*DIFFICULTY_HARD*/) {
+                            flags |= 0x10; // Difficulty: Easy
+                        }
+                        if (tileEvent.Difficulty == 0 /*DIFFICULTY_ALL*/) {
+                            flags |= 0x20; // Difficulty: Normal
+                        }
+                        if (tileEvent.Difficulty != 1 /*DIFFICULTY_EASY*/) {
+                            flags |= 0x40; // Difficulty: Hard
+                        }
+                        if (tileEvent.Difficulty == 3 /*DIFFICULTY_MULTIPLAYER*/) {
+                            flags |= 0x80; // Multiplayer Only
+                        }
 
                         // ToDo: Flag 0x08 not used
 

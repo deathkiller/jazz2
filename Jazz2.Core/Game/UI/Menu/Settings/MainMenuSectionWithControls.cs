@@ -1,7 +1,6 @@
 ﻿using System;
 using Duality;
 using Duality.Drawing;
-using Duality.Input;
 
 namespace Jazz2.Game.UI.Menu.Settings
 {
@@ -11,10 +10,6 @@ namespace Jazz2.Game.UI.Menu.Settings
         protected int selectedIndex;
 
         private float animation;
-
-        public MenuSectionWithControls()
-        {
-        }
 
         public override void OnShow(IMenuContainer root)
         {

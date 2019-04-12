@@ -665,7 +665,9 @@ namespace Jazz2.Actors
                 for (int i = x1; i < x2; i++) {
                     for (int j = y1; j < y2; j++) {
                         int i1 = i - xs;
-                        if (isFacingLeftCurrent) i1 = res.Base.FrameDimensions.X - i1 - 1;
+                        if (isFacingLeftCurrent) {
+                            i1 = res.Base.FrameDimensions.X - i1 - 1;
+                        }
 
                         if (p[i1 + dx, j + dy].A > AlphaThreshold) {
                             return true;
@@ -727,15 +729,17 @@ namespace Jazz2.Actors
 
             Matrix4 transform1 =
                 Matrix4.CreateTranslation(new Vector3(-res1.Base.Hotspot.X, -res1.Base.Hotspot.Y, 0f));
-            if (isFacingLeft)
+            if (isFacingLeft) {
                 transform1 *= Matrix4.CreateScale(-1f, 1f, 1f);
+            }
             transform1 *= Matrix4.CreateRotationZ(Transform.Angle) *
                 Matrix4.CreateTranslation(Transform.Pos);
 
             Matrix4 transform2 =
                 Matrix4.CreateTranslation(new Vector3(-res2.Base.Hotspot.X, -res2.Base.Hotspot.Y, 0f));
-            if (other.isFacingLeft)
+            if (other.isFacingLeft) {
                 transform2 *= Matrix4.CreateScale(-1f, 1f, 1f);
+            }
             transform2 *= Matrix4.CreateRotationZ(other.Transform.Angle) *
                 Matrix4.CreateTranslation(other.Transform.Pos);
 

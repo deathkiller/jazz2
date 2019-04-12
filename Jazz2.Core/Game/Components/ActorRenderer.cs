@@ -86,8 +86,9 @@ namespace Jazz2.Game.Components
 
                 animDuration = MathF.Max(0.0f, value);
 
-                if (lastDuration != 0.0f && animDuration != 0.0f)
+                if (lastDuration != 0.0f && animDuration != 0.0f) {
                     animTime *= animDuration / lastDuration;
+                }
             }
         }
         /// <summary>
@@ -274,7 +275,9 @@ namespace Jazz2.Game.Components
                 edge4.Y = -edge4.Y;
             }
 
-            if (vertices == null /*|| vertices.Length != 4*/) vertices = new VertexC1P3T4A1[4];
+            if (vertices == null /*|| vertices.Length != 4*/) {
+                vertices = new VertexC1P3T4A1[4];
+            }
 
             vertices[0].Pos.X = pos.X + edge1.X;
             vertices[0].Pos.Y = pos.Y + edge1.Y;
