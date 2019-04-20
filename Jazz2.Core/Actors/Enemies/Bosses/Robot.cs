@@ -47,7 +47,7 @@ namespace Jazz2.Actors.Bosses
 
         public void Deactivate()
         {
-            base.OnTileDeactivate(0, 0, -1);
+            base.OnTileDeactivate(int.MinValue, int.MinValue, int.MinValue, int.MinValue);
         }
 
         protected override void OnUpdate()

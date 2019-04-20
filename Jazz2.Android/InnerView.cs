@@ -31,10 +31,6 @@ namespace Jazz2.Android
         {
             base.OnLoad(e);
 
-            // Initialize core
-            // ToDo: Create Android-specific AssemblyLoader
-            DualityApp.Init(DualityApp.ExecutionContext.Game, null, null);
-
             ContentResolver.Current.Init();
             
             viewportWidth = Width;

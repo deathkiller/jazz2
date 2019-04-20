@@ -928,7 +928,7 @@ namespace Jazz2.Actors
             currentHitbox = new Hitbox(pos.X - 11f, pos.Y + 8f - 12f, pos.X + 11f, pos.Y + 8f + 12f);
         }
 
-        public override bool OnTileDeactivate(int x, int y, int tileDistance)
+        public override bool OnTileDeactivate(int tx1, int ty1, int tx2, int ty2)
         {
             // Player can never be deactivated
             return false;

@@ -450,20 +450,22 @@ namespace Jazz2.Actors
             internalForceY = MathF.Max(internalForceY - gravity * 0.33f * timeMult, 0f);
         }
 
-        public virtual bool OnTileDeactivate(int tx, int ty, int tileDistance)
+        public virtual bool OnTileDeactivate(int tx1, int ty1, int tx2, int ty2)
         {
-            if ((flags & (ActorInstantiationFlags.IsCreatedFromEventMap | ActorInstantiationFlags.IsFromGenerator)) != 0 && ((MathF.Abs(tx - originTile.X) > tileDistance) || (MathF.Abs(ty - originTile.Y) > tileDistance))) {
-                EventMap events = api.EventMap;
-                if (events != null) {
-                    if ((flags & ActorInstantiationFlags.IsFromGenerator) != 0) {
-                        events.ResetGenerator(originTile.X, originTile.Y);
+            if ((flags & (ActorInstantiationFlags.IsCreatedFromEventMap | ActorInstantiationFlags.IsFromGenerator)) != 0) {
+                if (originTile.X < tx1 || originTile.Y < ty1 || originTile.X > tx2 || originTile.Y > ty2) {
+                    EventMap events = api.EventMap;
+                    if (events != null) {
+                        if ((flags & ActorInstantiationFlags.IsFromGenerator) != 0) {
+                            events.ResetGenerator(originTile.X, originTile.Y);
+                        }
+
+                        events.Deactivate(originTile.X, originTile.Y);
                     }
 
-                    events.Deactivate(originTile.X, originTile.Y);
+                    api.RemoveActor(this);
+                    return true;
                 }
-
-                api.RemoveActor(this);
-                return true;
             }
 
             return false;

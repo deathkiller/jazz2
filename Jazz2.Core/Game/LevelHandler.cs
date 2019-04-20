@@ -42,7 +42,6 @@ namespace Jazz2.Game
         private ActorApi api;
 
         protected readonly GameObject rootObject;
-        private readonly GameObject camera;
 
         private TileMap tileMap;
         private EventMap eventMap;
@@ -51,6 +50,7 @@ namespace Jazz2.Game
         private int collisionsCountA, collisionsCountB, collisionsCountC;
 
         private List<Player> players = new List<Player>();
+        private List<GameObject> cameras = new List<GameObject>();
         private List<ActorBase> actors = new List<ActorBase>();
 
         private string levelFileName;
@@ -144,17 +144,6 @@ namespace Jazz2.Game
             rootObject.AddComponent(new LocalController(this));
             AddObject(rootObject);
 
-            // Setup camera
-            camera = new GameObject("MainCamera");
-            Transform cameraTransform = camera.AddComponent<Transform>();
-
-            Camera cameraInner = camera.AddComponent<Camera>();
-            cameraInner.NearZ = NearZ;
-            cameraInner.FarZ = FarZ;
-            cameraInner.Projection = ProjectionMode.Orthographic;
-
-            CameraController cameraController = camera.AddComponent<CameraController>();
-
             // Load level
             LoadLevel(levelFileName, episodeName);
 
@@ -209,16 +198,40 @@ namespace Jazz2.Game
                 targetPlayer.AttachToHud(hud);
             }
 
-            // Bind camera to player
-            cameraInner.RenderingSetup = new LevelRenderSetup(this);
+            // Setup all cameras
+            float relativeViewRange = (1f / players.Count);
+            for (int i = 0; i < players.Count; i++) {
+                GameObject camera = new GameObject(/*"MainCamera " + i*/);
+                Transform cameraTransform = camera.AddComponent<Transform>();
 
-            cameraTransform.Pos = new Vector3(targetPlayerPosition.X, targetPlayerPosition.Y, 0);
+                Camera cameraInner = camera.AddComponent<Camera>();
+                cameraInner.NearZ = NearZ;
+                cameraInner.FarZ = FarZ;
+                cameraInner.Projection = ProjectionMode.Orthographic;
+                cameraInner.VisibilityMask = VisibilityFlag.Group0 | VisibilityFlag.ScreenOverlay | (VisibilityFlag)(1 << (i + 1));
+                cameraInner.TargetRect = new Rect(i * relativeViewRange, 0f, relativeViewRange, 1f);
 
-            cameraController.TargetObject = targetPlayer;
-            ((ICmpUpdatable)cameraController).OnUpdate();
-            camera.Parent = rootObject;
+                // Create controller
+                CameraController cameraController = camera.AddComponent<CameraController>();
+                cameraController.ViewBounds = levelBounds;
 
-            DualityApp.Sound.Listener = camera;
+                // Bind camera to player
+                cameraInner.RenderingSetup = new LevelRenderSetup(this);
+
+                Player currentPlayer = players[i];
+                cameraTransform.Pos = new Vector3(currentPlayer.Transform.Pos.Xy, 0);
+                cameraController.TargetObject = currentPlayer;
+
+                ((ICmpUpdatable)cameraController).OnUpdate();
+                camera.Parent = rootObject;
+
+                cameras.Add(camera);
+
+                if (i == 0) {
+                    // First camera is always sound listener
+                    DualityApp.Sound.Listener = camera;
+                }
+            }
 
             // Common sounds
             commonResources = ContentResolver.Current.RequestMetadata("Common/Scenery");
@@ -384,9 +397,9 @@ namespace Jazz2.Game
                     } else if (layer.Key == "Sky") {
                         type = LayerType.Sky;
 
-                        if (layer.Value.BackgroundStyle != 0 /*Plain*/ && layer.Value.BackgroundColor != null && layer.Value.BackgroundColor.Count >= 3) {
-                            camera.GetComponent<Camera>().ClearColor = new ColorRgba((byte)layer.Value.BackgroundColor[0], (byte)layer.Value.BackgroundColor[1], (byte)layer.Value.BackgroundColor[2]);
-                        }
+                        //if (layer.Value.BackgroundStyle != 0 /*Plain*/ && layer.Value.BackgroundColor != null && layer.Value.BackgroundColor.Count >= 3) {
+                        //    camera.GetComponent<Camera>().ClearColor = new ColorRgba((byte)layer.Value.BackgroundColor[0], (byte)layer.Value.BackgroundColor[1], (byte)layer.Value.BackgroundColor[2]);
+                        //}
                     } else {
                         type = LayerType.Other;
                     }
@@ -400,9 +413,6 @@ namespace Jazz2.Game
                 }
 
                 levelBounds = new Rect(tileMap.Size * tileMap.Tileset.TileSize);
-
-                CameraController controller = camera.GetComponent<CameraController>();
-                controller.ViewBounds = levelBounds;
 
                 // Read events
                 eventMap = new EventMap(this, tileMap.Size);
@@ -644,9 +654,11 @@ namespace Jazz2.Game
 
         public void WarpCameraToTarget(ActorBase target)
         {
-            CameraController controller = camera.GetComponent<CameraController>();
-            if (controller != null && controller.TargetObject == target) {
-                controller.TargetObject = target;
+            for (int i = 0; i < cameras.Count; i++) {
+                CameraController controller = cameras[i].GetComponent<CameraController>();
+                if (controller != null && controller.TargetObject == target) {
+                    controller.TargetObject = target;
+                }
             }
         }
 
@@ -660,21 +672,25 @@ namespace Jazz2.Game
                 levelBounds.W = (tileMap.Size.X * tileMap.Tileset.TileSize) - left;
             }
 
-            CameraController controller = camera.GetComponent<CameraController>();
-            if (controller != null) {
-                if (left == 0 && width == 0) {
-                    controller.ViewBounds = levelBounds;
-                } else {
-                    controller.AnimateToBounds(levelBounds);
+            for (int i = 0; i < cameras.Count; i++) {
+                CameraController controller = cameras[i].GetComponent<CameraController>();
+                if (controller != null) {
+                    if (left == 0 && width == 0) {
+                        controller.ViewBounds = levelBounds;
+                    } else {
+                        controller.AnimateToBounds(levelBounds);
+                    }
                 }
             }
         }
 
         public void ShakeCameraView(float duration)
         {
-            CameraController controller = camera.GetComponent<CameraController>();
-            if (controller != null) {
-                controller.Shake(duration);
+            for (int i = 0; i < cameras.Count; i++) {
+                CameraController controller = cameras[i].GetComponent<CameraController>();
+                if (controller != null) {
+                    controller.Shake(duration);
+                }
             }
         }
 
@@ -795,10 +811,28 @@ namespace Jazz2.Game
             }
 
             Vector3 pos = players[0].Transform.Pos;
-            //int tx = (int)(pos.X / 32);
-            //int ty = (int)(pos.Y / 32);
-            int tx = (int)pos.X >> 5;
-            int ty = (int)pos.Y >> 5;
+            int tx1 = (int)pos.X >> 5;
+            int ty1 = (int)pos.Y >> 5;
+            int tx2 = tx1;
+            int ty2 = ty1;
+
+#if ENABLE_SPLITSCREEN
+            for (int i = 1; i < players.Count; i++) {
+                Vector3 pos2 = players[i].Transform.Pos;
+                int tx = (int)pos2.X >> 5;
+                int ty = (int)pos2.Y >> 5;
+                if (tx1 > tx) {
+                    tx1 = tx;
+                } else if (tx2 < tx) {
+                    tx2 = tx;
+                }
+                if (ty1 > ty) {
+                    ty1 = ty;
+                } else if (ty2 < ty) {
+                    ty2 = ty;
+                }
+            }
+#endif
 
             // ToDo: Remove this branching
 #if __ANDROID__
@@ -807,13 +841,18 @@ namespace Jazz2.Game
             const int ActivateTileRange = 26;
 #endif
 
+            tx1 -= ActivateTileRange;
+            ty1 -= ActivateTileRange;
+            tx2 += ActivateTileRange;
+            ty2 += ActivateTileRange;
+
             for (int i = 0; i < actors.Count; i++) {
-                if (actors[i].OnTileDeactivate(tx, ty, ActivateTileRange + 2)) {
+                if (actors[i].OnTileDeactivate(tx1 - 2, ty1 - 2, tx2 + 2, ty2 + 2)) {
                     i--;
                 }
             }
 
-            eventMap.ActivateEvents(tx, ty, ActivateTileRange);
+            eventMap.ActivateEvents(tx1, ty1, tx2, ty2);
 
             eventMap.ProcessGenerators();
 
@@ -831,7 +870,8 @@ namespace Jazz2.Game
 
             // Weather
             if (weatherType != WeatherType.None) {
-                Vector3 viewPos = camera.Transform.Pos;
+                // ToDo: Apply weather effect to all other cameras too
+                Vector3 viewPos = cameras[0].Transform.Pos;
                 for (int i = 0; i < weatherIntensity; i++) {
                     TileMap.DebrisCollisionAction collisionAction;
                     if (weatherOutdoors) {

@@ -49,7 +49,11 @@ namespace Jazz2
 
         static ControlScheme()
         {
+#if ENABLE_SPLITSCREEN
+            const int maxSupportedPlayers = 2;
+#else
             const int maxSupportedPlayers = 1;
+#endif
 
             mappings = new Mapping[maxSupportedPlayers * (int)PlayerActions.Count];
 
@@ -58,6 +62,7 @@ namespace Jazz2
             }
 
             // Default mappings
+            // Player 1
             mappings[(int)PlayerActions.Left].Key1 = Key.Left;
             mappings[(int)PlayerActions.Right].Key1 = Key.Right;
             mappings[(int)PlayerActions.Up].Key1 = Key.Up;
@@ -67,7 +72,19 @@ namespace Jazz2
             mappings[(int)PlayerActions.Run].Key1 = Key.C;
             mappings[(int)PlayerActions.SwitchWeapon].Key1 = Key.X;
             mappings[(int)PlayerActions.Menu].Key1 = Key.Escape;
+#if ENABLE_SPLITSCREEN
+            // Player 2
+            mappings[1 * (int)PlayerActions.Count + (int)PlayerActions.Left].Key1 = Key.Keypad4;
+            mappings[1 * (int)PlayerActions.Count + (int)PlayerActions.Right].Key1 = Key.Keypad6;
+            mappings[1 * (int)PlayerActions.Count + (int)PlayerActions.Up].Key1 = Key.Keypad8;
+            mappings[1 * (int)PlayerActions.Count + (int)PlayerActions.Down].Key1 = Key.Keypad5;
+            mappings[1 * (int)PlayerActions.Count + (int)PlayerActions.Fire].Key1 = Key.KeypadAdd;
+            mappings[1 * (int)PlayerActions.Count + (int)PlayerActions.Jump].Key1 = Key.KeypadSubtract;
+            mappings[1 * (int)PlayerActions.Count + (int)PlayerActions.Run].Key1 = Key.KeypadMultiply;
+            mappings[1 * (int)PlayerActions.Count + (int)PlayerActions.SwitchWeapon].Key1 = Key.KeypadDivide;
+#endif
 
+            // Load saved mappings
             for (int i = 0; i < maxSupportedPlayers; i++) {
                 int[] controls = Preferences.Get<int[]>("Controls_" + i);
                 if (controls != null && controls.Length == (int)PlayerActions.Count * 4) {
@@ -86,7 +103,11 @@ namespace Jazz2
 
         public static void SaveMappings()
         {
+#if ENABLE_SPLITSCREEN
+            const int maxSupportedPlayers = 2;
+#else
             const int maxSupportedPlayers = 1;
+#endif
 
             for (int i = 0; i < maxSupportedPlayers; i++) {
                 int[] controls = new int[(int)PlayerActions.Count * 4];

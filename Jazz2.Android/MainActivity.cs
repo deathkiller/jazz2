@@ -9,7 +9,9 @@ using Android.Text;
 using Android.Text.Method;
 using Android.Views;
 using Android.Widget;
+using Duality;
 using Duality.Backend.Android;
+using Duality.Backend.Dummy;
 using Jazz2.Game;
 using Path = System.IO.Path;
 
@@ -118,7 +120,7 @@ namespace Jazz2.Android
         private void TryInit()
         {
             if (!CheckAppPermissions()) {
-                ShowInfoScreen("Access denied", "You have to grant file access permissions to&nbsp;continue!");
+                ShowInfoScreen("Access denied", "You have to grant file access permissions to&nbsp;continue!", true);
                 return;
             }
 
@@ -127,7 +129,7 @@ namespace Jazz2.Android
             if (rootPath == null) {
                 var storageList = NativeFileSystem.GetStorageList();
                 if (storageList.Count == 0) {
-                    ShowInfoScreen("Content files not found", "No storage is accessible.");
+                    ShowInfoScreen("Content files not found", "No storage is accessible.", true);
                     return;
                 }
 
@@ -136,12 +138,12 @@ namespace Jazz2.Android
                     found = storageList[0];
                 }
 
-                ShowInfoScreen("Content files not found", "Content should be placed in&nbsp;" + found.Path + "<b><u>/Android/Data/" + Application.Context.PackageName + "/Content/</u></b>… or&nbsp;in&nbsp;other compatible path.");
+                ShowInfoScreen("Content files not found", "Content should be placed in&nbsp;" + found.Path + "<b><u>/Android/Data/" + Application.Context.PackageName + "/Content/</u></b>… or&nbsp;in&nbsp;other compatible path.", true);
                 return;
             }
 
             if (!File.Exists(Path.Combine(rootPath, "Content", "Main.dz"))) {
-                ShowInfoScreen("Content files not found", "Content should be placed in&nbsp;" + rootPath.Substring(0, storagePathLength) + "<b><u>" + rootPath.Substring(storagePathLength) + "Content/</u></b>…<br>It includes <b>Main.dz</b> file and <b>Episodes</b>, <b>Music</b>, <b>Tilesets</b> directories.");
+                ShowInfoScreen("Content files not found", "Content should be placed in&nbsp;" + rootPath.Substring(0, storagePathLength) + "<b><u>" + rootPath.Substring(storagePathLength) + "Content/</u></b>…<br>It includes <b>Main.dz</b> file and <b>Episodes</b>, <b>Music</b>, <b>Tilesets</b> directories.", true);
                 return;
             }
 
@@ -165,7 +167,7 @@ namespace Jazz2.Android
             }
         }
         
-        private void ShowInfoScreen(string header, string content)
+        private void ShowInfoScreen(string header, string content, bool showRetry)
         {
             content += "<br><br><small>If you have any issues, report it to developers.<br><a href=\"https://github.com/deathkiller/jazz2\">https://github.com/deathkiller/jazz2</a></small>";
 
@@ -202,6 +204,8 @@ namespace Jazz2.Android
             } else {
                 contentView.TextFormatted = Html.FromHtml(content);
             }
+
+            retryButton.Visibility = (showRetry ? ViewStates.Visible : ViewStates.Gone);
         }
 
         private void OnRetryButtonClick(object sender, EventArgs e)
@@ -231,6 +235,15 @@ namespace Jazz2.Android
             if (retryButton != null) {
                 retryButton.Click -= OnRetryButtonClick;
                 retryButton = null;
+            }
+
+            // Initialize core
+            // ToDo: Create Android-specific AssemblyLoader
+            DualityApp.Init(DualityApp.ExecutionContext.Game, null, null);
+
+            // Check if graphics backend is supported
+            if (DualityApp.GraphicsBackend is DummyGraphicsBackend) {
+                ShowInfoScreen("Graphics backend is not supported by this device", "OpenGL ES 3.0 support is required to&nbsp;run this application.", false);
             }
 
             // Create our OpenGL view and show it

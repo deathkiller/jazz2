@@ -355,7 +355,7 @@ namespace Jazz2.Game.Events
             }
         }
 
-        public void ActivateEvents(int tx, int ty, int tileDistance)
+        public void ActivateEvents(int tx1, int ty1, int tx2, int ty2)
         {
             TileMap tiles = levelHandler.TileMap;
             if (tiles == null) {
@@ -364,10 +364,10 @@ namespace Jazz2.Game.Events
 
             Point2 levelSize = tiles.Size;
 
-            int x1 = MathF.Max(0, tx - tileDistance);
-            int x2 = MathF.Min(levelSize.X - 1, tx + tileDistance);
-            int y1 = MathF.Max(0, ty - tileDistance);
-            int y2 = MathF.Min(levelSize.Y - 1, ty + tileDistance);
+            int x1 = MathF.Max(0, tx1);
+            int x2 = MathF.Min(levelSize.X - 1, tx2);
+            int y1 = MathF.Max(0, ty1);
+            int y2 = MathF.Min(levelSize.Y - 1, ty2);
 
             for (int x = x1; x <= x2; x++) {
                 for (int y = y1; y <= y2; y++) {
