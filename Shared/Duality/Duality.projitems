@@ -47,7 +47,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Graphics\RenderOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Graphics\RenderStats.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Graphics\WindowOptions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Backend\IDualiyBackend.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Backend\IDualityBackend.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\ISystemBackend.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\PluginLoader\AssemblyLoadedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\PluginLoader\AssemblyResolveEventArgs.cs" />
@@ -96,8 +96,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\Enums\VertexMode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\Enums\VisibilityFlag.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\IDrawDevice.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Drawing\IImageCodec.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Drawing\ImageCodec.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\PixelData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\ScreenResolution.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Drawing\ShaderParameterCollection.cs" />

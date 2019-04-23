@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using Duality;
 using Duality.Drawing;
@@ -144,6 +145,110 @@ namespace Jazz2
             c.State.ColorTint = color;
             c.State.TextureCoordinateRect = uv;
             c.FillRect((int)originPos.X, (int)originPos.Y, w, h);
+        }
+
+        // Stream
+        public static void ReadBytes(this Stream s, byte[] buffer, int offset, int count)
+        {
+            while (count > 0) {
+                int bytesRead;
+                if ((bytesRead = s.Read(buffer, offset, count)) == 0) {
+                    throw new EndOfStreamException();
+                }
+                offset += bytesRead;
+                count -= bytesRead;
+            }
+        }
+
+        public static int PeekByte(this Stream s, ref byte[] internalBuffer)
+        {
+            if (internalBuffer == null || internalBuffer.Length < 4) {
+                internalBuffer = new byte[4];
+            }
+
+            if (s.Read(internalBuffer, 0, 1) < 1) {
+                return -1;
+            }
+
+            s.Seek(-1, SeekOrigin.Current);
+            return internalBuffer[0];
+        }
+
+        public static byte ReadUInt8(this Stream s, ref byte[] internalBuffer)
+        {
+            if (internalBuffer == null || internalBuffer.Length < 4) {
+                internalBuffer = new byte[4];
+            }
+
+            if (s.Read(internalBuffer, 0, 1) < 1) {
+                throw new EndOfStreamException();
+            }
+
+            return internalBuffer[0];
+        }
+
+        public static ushort ReadUInt16(this Stream s, ref byte[] internalBuffer)
+        {
+            if (internalBuffer == null || internalBuffer.Length < 4) {
+                internalBuffer = new byte[4];
+            }
+
+            if (s.Read(internalBuffer, 0, 2) < 2) {
+                throw new EndOfStreamException();
+            }
+
+            return BitConverter.ToUInt16(internalBuffer, 0);
+        }
+
+        public static short ReadInt16(this Stream s, ref byte[] internalBuffer)
+        {
+            if (internalBuffer == null || internalBuffer.Length < 4) {
+                internalBuffer = new byte[4];
+            }
+
+            if (s.Read(internalBuffer, 0, 2) < 2) {
+                throw new EndOfStreamException();
+            }
+
+            return BitConverter.ToInt16(internalBuffer, 0);
+        }
+
+        public static uint ReadUInt32(this Stream s, ref byte[] internalBuffer)
+        {
+            if (internalBuffer == null || internalBuffer.Length < 4) {
+                internalBuffer = new byte[4];
+            }
+
+            if (s.Read(internalBuffer, 0, 4) < 4) {
+                throw new EndOfStreamException();
+            }
+
+            return BitConverter.ToUInt32(internalBuffer, 0);
+        }
+
+        public static int ReadInt32(this Stream s, ref byte[] internalBuffer)
+        {
+            if (internalBuffer == null || internalBuffer.Length < 4) {
+                internalBuffer = new byte[4];
+            }
+
+            if (s.Read(internalBuffer, 0, 4) < 4) {
+                throw new EndOfStreamException();
+            }
+
+            return BitConverter.ToInt32(internalBuffer, 0);
+        }
+
+        public static void Write(this Stream s, short value)
+        {
+            byte[] bytes = BitConverter.GetBytes(value);
+            s.Write(bytes, 0, bytes.Length);
+        }
+
+        public static void Write(this Stream s, int value)
+        {
+            byte[] bytes = BitConverter.GetBytes(value);
+            s.Write(bytes, 0, bytes.Length);
         }
     }
 }

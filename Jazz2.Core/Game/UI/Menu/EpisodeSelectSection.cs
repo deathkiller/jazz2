@@ -34,7 +34,6 @@ namespace Jazz2.Game.UI.Menu
         public EpisodeSelectSection()
         {
             JsonParser jsonParser = new JsonParser();
-            IImageCodec imageCodec = ImageCodec.GetRead(ImageCodec.FormatPng);
 
             foreach (string episode in DirectoryOp.GetDirectories(PathOp.Combine(DualityApp.DataDirectory, "Episodes"))) {
                 string pathAbsolute = PathOp.Combine(episode, "Episode.res");
@@ -64,7 +63,7 @@ namespace Jazz2.Game.UI.Menu
                     if (FileOp.Exists(logoPath)) {
                         PixelData pixelData;
                         using (Stream s = FileOp.Open(logoPath, FileAccessMode.Read)) {
-                            pixelData = imageCodec.Read(s);
+                            pixelData = new Png(s).GetPixelData();
                         }
 
                         Texture texture = new Texture(new Pixmap(pixelData), TextureSizeMode.NonPowerOfTwo);

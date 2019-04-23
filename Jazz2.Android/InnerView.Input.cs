@@ -49,14 +49,13 @@ namespace Jazz2.Android
             const float dpadThresholdX = 0.05f;
             const float dpadThresholdY = 0.09f;
 
-            IImageCodec imageCodec = ImageCodec.GetRead(ImageCodec.FormatPng);
             AssetManager assets = Context.Assets;
 
-            Material matDpad = LoadButtonImageFromAssets(assets, imageCodec, "dpad.png");
-            Material matFire = LoadButtonImageFromAssets(assets, imageCodec, "fire.png");
-            Material matJump = LoadButtonImageFromAssets(assets, imageCodec, "jump.png");
-            Material matRun = LoadButtonImageFromAssets(assets, imageCodec, "run.png");
-            Material matSwitchWeapon = LoadButtonImageFromAssets(assets, imageCodec, "switch.png");
+            Material matDpad = LoadButtonImageFromAssets(assets, "dpad.png");
+            Material matFire = LoadButtonImageFromAssets(assets, "fire.png");
+            Material matJump = LoadButtonImageFromAssets(assets, "jump.png");
+            Material matRun = LoadButtonImageFromAssets(assets, "run.png");
+            Material matSwitchWeapon = LoadButtonImageFromAssets(assets, "switch.png");
 
             virtualButtons = new[] {
                 new VirtualButton { Action = PlayerActions.None, Left = dpadLeft, Top = dpadTop, Width = dpadWidth, Height = dpadHeight, Material = matDpad, CurrentPointerId = -1 },
@@ -236,10 +235,15 @@ namespace Jazz2.Android
         }
         
 #if ENABLE_TOUCH
-        private static Material LoadButtonImageFromAssets(AssetManager assets, IImageCodec imageCodec, string filename)
+        private static Material LoadButtonImageFromAssets(AssetManager assets, string filename)
         {
-            using (Stream s = assets.Open(filename)) {
-                return new Material(DrawTechnique.Alpha, new Texture(new Pixmap(imageCodec.Read(s)), TextureSizeMode.NonPowerOfTwo));
+            using (Stream s = assets.Open(filename))
+            using (MemoryStream ms = new MemoryStream()) {
+                // ToDo: Workaround for System.NotSupportedException in Android.Runtime.InputStreamInvoker.Position
+                s.CopyTo(ms);
+                ms.Position = 0;
+
+                return new Material(DrawTechnique.Alpha, new Texture(new Pixmap(new Png(ms).GetPixelData()), TextureSizeMode.NonPowerOfTwo));
             }
         }
 #endif

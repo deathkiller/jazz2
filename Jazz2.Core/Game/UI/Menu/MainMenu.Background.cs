@@ -24,8 +24,6 @@ namespace Jazz2.Game.UI.Menu
         private void PrerenderTexturedBackground()
         {
             try {
-                IImageCodec codec = ImageCodec.GetRead(ImageCodec.FormatPng);
-
                 // Try to use "The Secret Files" background
                 string levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "secretf", "01_easter1.level");
                 if (!FileOp.Exists(levelPath)) {

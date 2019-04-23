@@ -480,7 +480,7 @@ namespace Duality.Resources
 			this.basePixmap.Detach();
 		}
 
-        public void DetachPixmap()
+        public void DetachSource()
         {
             this.basePixmap.Detach();
         }

@@ -82,7 +82,6 @@ namespace Jazz2.Game
         }
 
         private JsonParser jsonParser;
-        private IImageCodec imageCodec;
 
         private ContentRef<Texture> defaultNormalMap;
 
@@ -103,7 +102,6 @@ namespace Jazz2.Game
         public void Init()
         {
             jsonParser = new JsonParser();
-            imageCodec = ImageCodec.GetRead(ImageCodec.FormatPng);
 
 #if !UNCOMPRESSED_CONTENT
             string dz = PathOp.Combine(DualityApp.DataDirectory, "Main.dz");
@@ -114,7 +112,7 @@ namespace Jazz2.Game
         public void InitPostWindow()
         {
             defaultNormalMap = new Texture(new Pixmap(new PixelData(2, 2, new ColorRgba(0.5f, 0.5f, 1f))), TextureSizeMode.Default, TextureMagFilter.Nearest, TextureMinFilter.Nearest);
-            defaultNormalMap.Res.DetachPixmap();
+            defaultNormalMap.Res.DetachSource();
 
             cachedMetadata = new ConcurrentDictionary<string, Metadata>(2, 31);
             cachedGraphics = new Dictionary<string, GenericGraphicResource>();
@@ -420,17 +418,16 @@ namespace Jazz2.Game
 
                 if (json.Gunspot != null) {
                     resource.Gunspot = new Point2(json.Gunspot[0], json.Gunspot[1]);
-                    resource.HasGunspot = true;
                 }
 
                 PixelData pixelData;
                 using (Stream s = FileOp.Open(pathAbsolute, FileAccessMode.Read)) {
-                    pixelData = imageCodec.Read(s);
+                    pixelData = new Png(s).GetPixelData();
                 }
 
                 // Use external palette
                 if ((json.Flags & 0x01) != 0x00) {
-                    ColorRgba[] palette = paletteTexture.Res.BasePixmap.Res.PixelData[0].Data;
+                    ColorRgba[] palette = paletteTexture.Res.BasePixmap.Res.MainLayer.Data;
 
                     ColorRgba[] data = pixelData.Data;
                     Parallel.ForEach(Partitioner.Create(0, data.Length), range => {
@@ -453,12 +450,13 @@ namespace Jazz2.Game
 
                     string filenameNormal = pathAbsolute.Replace(".png", ".n.png");
                     if (FileOp.Exists(filenameNormal)) {
-                        asyncFinalize.TextureNormalMap = new Pixmap(imageCodec.Read(FileOp.Open(filenameNormal, FileAccessMode.Read)));
+                        using (Stream s = FileOp.Open(filenameNormal, FileAccessMode.Read)) {
+                            asyncFinalize.TextureNormalMap = new Pixmap(new Png(s).GetPixelData());
+                        }
                     } else {
                         resource.TextureNormal = defaultNormalMap;
                     }
 
-                    asyncFinalize.TextureWrap = json.TextureWrap;
                     asyncFinalize.LinearSampling = linearSampling;
 
                     resource.AsyncFinalize = asyncFinalize;
@@ -477,12 +475,14 @@ namespace Jazz2.Game
 
                     string filenameNormal = pathAbsolute.Replace(".png", ".n.png");
                     if (FileOp.Exists(filenameNormal)) {
-                        pixelData = imageCodec.Read(FileOp.Open(filenameNormal, FileAccessMode.Read));
+                        using (Stream s = FileOp.Open(filenameNormal, FileAccessMode.Read)) {
+                            pixelData = new Png(s).GetPixelData();
+                        }
 
                         resource.TextureNormal = new Texture(new Pixmap(pixelData), TextureSizeMode.NonPowerOfTwo,
                             magFilter, minFilter, json.TextureWrap, json.TextureWrap);
 
-                        resource.TextureNormal.Res.DetachPixmap();
+                        resource.TextureNormal.Res.DetachSource();
                     } else {
                         resource.TextureNormal = defaultNormalMap;
                     }
@@ -621,24 +621,24 @@ namespace Jazz2.Game
             // Load textures
             PixelData texturePixels;
             using (Stream s = tilesetPackage.OpenFile("Diffuse.png", FileAccessMode.Read)) {
-                texturePixels = imageCodec.Read(s);
+                texturePixels = new Png(s).GetPixelData();
             }
 
             PixelData normalPixels;
             if (tilesetPackage.FileExists("Normals.png")) {
                 using (Stream s = tilesetPackage.OpenFile("Normals.png", FileAccessMode.Read)) {
-                    normalPixels = imageCodec.Read(s);
+                    normalPixels = new Png(s).GetPixelData();
                 }
             } else {
                 normalPixels = null;
             }
 
             using (Stream s = tilesetPackage.OpenFile("Mask.png", FileAccessMode.Read)) {
-                mask = imageCodec.Read(s);
+                mask = new Png(s).GetPixelData();
             }
 
             // Apply palette to tileset
-            ColorRgba[] palette = paletteTexture.Res.BasePixmap.Res.PixelData[0].Data;
+            ColorRgba[] palette = paletteTexture.Res.BasePixmap.Res.MainLayer.Data;
 
             ColorRgba[] data = texturePixels.Data;
             Parallel.ForEach(Partitioner.Create(0, data.Length), range => {
@@ -654,7 +654,7 @@ namespace Jazz2.Game
                 normalTex = DefaultNormalMap;
             } else {
                 normalTex = new Texture(new Pixmap(normalPixels));
-                normalTex.Res.DetachPixmap();
+                normalTex.Res.DetachSource();
             }
 
             // Create material
@@ -667,3 +667,4 @@ namespace Jazz2.Game
         }
     }
 }
+ 

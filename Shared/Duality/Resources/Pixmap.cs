@@ -22,7 +22,7 @@ namespace Duality.Resources
 		}
 
 
-		private List<PixelData> layers = new List<PixelData>();
+        private PixelData mainLayer = null;
 		private List<Rect> atlas = null;
 		private int animCols = 0;
 		private int animRows = 0;
@@ -33,28 +33,11 @@ namespace Duality.Resources
 		/// </summary>
 		public PixelData MainLayer
 		{
-			get { return this.layers.Count > 0 ? this.layers[0] : null; }
+			get { return this.mainLayer; }
 			set
 			{
 				if (value == null) value = new PixelData();
-				if (this.layers.Count > 0)
-					this.layers[0] = value;
-				else
-					this.layers.Add(value);
-			}
-		}
-		/// <summary>
-		/// [GET / SET] A list of <see cref="Duality.Drawing.PixelData"/> layers.
-		/// </summary>
-		public List<PixelData> PixelData
-		{
-			get { return this.layers; }
-			set
-			{
-				if (value == null)
-					this.layers.Clear();
-				else
-					this.layers = value;
+				this.mainLayer = value;
 			}
 		}
 		/// <summary>
@@ -62,14 +45,14 @@ namespace Duality.Resources
 		/// </summary>
 		public int Width
 		{
-			get { return this.MainLayer != null ? this.MainLayer.Width : 0; }
+			get { return this.mainLayer != null ? this.mainLayer.Width : 0; }
 		}
 		/// <summary>
 		/// [GET] The Height of the actual pixel data.
 		/// </summary>
 		public int Height
 		{
-			get { return this.MainLayer != null ? this.MainLayer.Height : 0; }
+			get { return this.mainLayer != null ? this.mainLayer.Height : 0; }
 		}
 		/// <summary>
 		/// [GET / SET] The Pixmaps atlas array, distinguishing different areas in pixel coordinates
@@ -205,8 +188,8 @@ namespace Duality.Resources
 		{
 			base.OnDisposing(manually);
 
-			// Get rid of the big data blob, so the GC can collect it.
-			this.layers.Clear();
+            // Get rid of the big data blob, so the GC can collect it.
+            this.mainLayer = null;
 		}
 	}
 }

@@ -221,6 +221,10 @@ namespace Jazz2.Android
                 if (Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop) {
                     Window.SetStatusBarColor(new Color(0x30000000));
                 }
+
+                if (Build.VERSION.SdkInt >= BuildVersionCodes.P) {
+                    Window.Attributes.LayoutInDisplayCutoutMode = LayoutInDisplayCutoutMode.ShortEdges;
+                }
             } catch {
                 // Nothing to do...
             }

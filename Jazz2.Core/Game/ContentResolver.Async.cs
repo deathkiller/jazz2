@@ -85,13 +85,13 @@ namespace Jazz2.Game
                         }
 
                         resBase.Texture = new Texture(resBase.AsyncFinalize.TextureMap, TextureSizeMode.NonPowerOfTwo,
-                            magFilter, minFilter, resBase.AsyncFinalize.TextureWrap, resBase.AsyncFinalize.TextureWrap);
+                            magFilter, minFilter, TextureWrapMode.Clamp, TextureWrapMode.Clamp);
 
                         if (resBase.AsyncFinalize.TextureNormalMap != null) {
                             resBase.TextureNormal = new Texture(resBase.AsyncFinalize.TextureNormalMap, TextureSizeMode.NonPowerOfTwo,
-                                magFilter, minFilter, resBase.AsyncFinalize.TextureWrap, resBase.AsyncFinalize.TextureWrap);
+                                magFilter, minFilter, TextureWrapMode.Clamp, TextureWrapMode.Clamp);
 
-                            resBase.TextureNormal.Res.DetachPixmap();
+                            resBase.TextureNormal.Res.DetachSource();
                         }
 
                         resBase.AsyncFinalize = null;

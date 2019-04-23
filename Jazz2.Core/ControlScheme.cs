@@ -50,7 +50,7 @@ namespace Jazz2
         static ControlScheme()
         {
 #if ENABLE_SPLITSCREEN
-            const int maxSupportedPlayers = 2;
+            const int maxSupportedPlayers = 4;
 #else
             const int maxSupportedPlayers = 1;
 #endif

@@ -128,6 +128,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\SettingsRescaleSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\SliderControl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\TransitionManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Misc\Png.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Storage\Content\CompressedContent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ControlScheme.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Disposable.cs" />

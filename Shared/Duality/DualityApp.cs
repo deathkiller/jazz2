@@ -649,7 +649,6 @@ namespace Duality
         private static void pluginManager_PluginsRemoved(object sender, DualityPluginEventArgs e)
         {
             // Clean globally cached type data
-            ImageCodec.ClearTypeCache();
             ObjectCreator.ClearTypeCache();
             ReflectionHelper.ClearTypeCache();
             Component.RequireMap.ClearTypeCache();

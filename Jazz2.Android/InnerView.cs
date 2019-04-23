@@ -4,6 +4,7 @@ using Android.Content;
 using Android.OS;
 using Duality;
 using Duality.Backend;
+using Duality.Backend.Dummy;
 using Jazz2.Game;
 using OpenTK;
 using OpenTK.Graphics;
@@ -31,6 +32,19 @@ namespace Jazz2.Android
         {
             base.OnLoad(e);
 
+            // Initialize core
+            // ToDo: Create Android-specific AssemblyLoader
+            DualityApp.Init(DualityApp.ExecutionContext.Game, null, null);
+
+            // Check if graphics backend is supported
+            if (DualityApp.GraphicsBackend is DummyGraphicsBackend) {
+                MainActivity mainActivity = Context as MainActivity;
+                if (mainActivity != null) {
+                    mainActivity.ShowInfoScreen("This device is not powerful enough", "OpenGL ES 3.0 support is required to&nbsp;run this application.", false);
+                }
+                return;
+            }
+            
             ContentResolver.Current.Init();
             
             viewportWidth = Width;

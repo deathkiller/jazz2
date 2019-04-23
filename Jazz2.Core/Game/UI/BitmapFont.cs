@@ -42,11 +42,10 @@ namespace Jazz2.Game.UI
 #endif
             string config = png + ".config";
 
-            IImageCodec imageCodec = ImageCodec.GetRead(ImageCodec.FormatPng);
             using (Stream s = FileOp.Open(png, FileAccessMode.Read)) {
-                PixelData pixelData = imageCodec.Read(s);
+                PixelData pixelData = new Png(s).GetPixelData();
 
-                ColorRgba[] palette = ContentResolver.Current.Palette.Res.BasePixmap.Res.PixelData[0].Data;
+                ColorRgba[] palette = ContentResolver.Current.Palette.Res.BasePixmap.Res.MainLayer.Data;
 
                 ColorRgba[] data = pixelData.Data;
                 Parallel.ForEach(Partitioner.Create(0, data.Length), range => {

@@ -209,7 +209,15 @@ namespace Jazz2.Game
                 cameraInner.FarZ = FarZ;
                 cameraInner.Projection = ProjectionMode.Orthographic;
                 cameraInner.VisibilityMask = VisibilityFlag.Group0 | VisibilityFlag.ScreenOverlay | (VisibilityFlag)(1 << (i + 1));
-                cameraInner.TargetRect = new Rect(i * relativeViewRange, 0f, relativeViewRange, 1f);
+                //cameraInner.TargetRect = new Rect(i * relativeViewRange, 0f, relativeViewRange, 1f);
+
+                switch (players.Count)
+                {
+                    case 1: cameraInner.TargetRect = new Rect(0f, 0f, 1f, 1f); break;
+                    case 2: cameraInner.TargetRect = new Rect(0f, i * relativeViewRange, 1f, relativeViewRange); break;
+                    case 3: cameraInner.TargetRect = new Rect(0f, i * relativeViewRange, 1f, relativeViewRange); break;
+                    case 4: cameraInner.TargetRect = new Rect((i % 2) * 0.5f, (i / 2) * 0.5f, 0.5f, 0.5f); break;
+                }
 
                 // Create controller
                 CameraController cameraController = camera.AddComponent<CameraController>();

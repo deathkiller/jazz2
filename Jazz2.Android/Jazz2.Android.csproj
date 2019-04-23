@@ -68,7 +68,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
-    <Compile Include="Backend\Drawing\BitmapImageCodec.cs" />
     <Compile Include="Backend\Drawing\OpenTK\NativeGraphicsBuffer.cs" />
     <Compile Include="Backend\Sound\AudioBackend.cs" />
     <Compile Include="Backend\Sound\NativeAudioBuffer.cs" />

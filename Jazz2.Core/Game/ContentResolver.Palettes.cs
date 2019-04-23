@@ -34,7 +34,7 @@ namespace Jazz2.Game
                 lastPaletteRow = 2;
             } else {
                 // Palette Texture already exists, update first (base) row
-                ColorRgba[] pixels = paletteTexture.Res.BasePixmap.Res.PixelData[0].Data;
+                ColorRgba[] pixels = paletteTexture.Res.BasePixmap.Res.MainLayer.Data;
 
                 for (int i = 0; i < ColorsPerPalette; i++) {
                     pixels[i] = basePalette[i];
@@ -56,7 +56,7 @@ namespace Jazz2.Game
             // Increment it first, because it points to last reserved palette
             lastPaletteRow++;
 
-            ColorRgba[] palette = paletteTexture.Res.BasePixmap.Res.PixelData[0].Data;
+            ColorRgba[] palette = paletteTexture.Res.BasePixmap.Res.MainLayer.Data;
 
             for (int i = 0; i < /*ColorsPerPalette*/additionalPalette.Length; i++) {
                 palette[i + ColorsPerPalette * lastPaletteRow] = additionalPalette[i];
@@ -79,7 +79,7 @@ namespace Jazz2.Game
                 95, 92, 88, 15, 15
             };
 
-            ColorRgba[] palette = paletteTexture.Res.BasePixmap.Res.PixelData[0].Data;
+            ColorRgba[] palette = paletteTexture.Res.BasePixmap.Res.MainLayer.Data;
 
             // Start to fill palette texture from the second row (right after base palette)
             int src = 0, dst = ColorsPerPalette;

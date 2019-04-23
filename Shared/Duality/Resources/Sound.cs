@@ -186,7 +186,7 @@ namespace Duality.Resources
 		{
 			if (this.audioData == null) return;
 			for (int i = 0; i < this.audioData.Count; i++) {
-				this.audioData[i].MakeAvailable();
+				this.audioData[i].EnsureLoaded();
 			}
 		}
 	}
