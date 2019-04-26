@@ -1,256 +1,353 @@
 ﻿using System;
-using System.Collections.Generic;
+
+using OpenTK.Audio.OpenAL;
 
 namespace Duality.Backend.Android
 {
-    public class NativeAudioSource : INativeAudioSource
-    {
-        private enum StopRequest
-        {
-            None,
-            EndOfStream,
-            Immediately
-        }
+	public class NativeAudioSource : INativeAudioSource
+	{
+		private enum StopRequest
+		{
+			None,
+			EndOfStream,
+			Immediately
+		}
 
-        public const int UnqueuedBuffer = -1;
+		private int                  handle         = 0;
+		private int                  filterHandle   = 0;
+		private	bool                 isInitial      = true;
+		private	bool                 isStreamed     = false;
+		private	bool                 isFirstUpdate  = true;
+		private	AudioSourceState     lastState      = AudioSourceState.Default;
+		private IAudioStreamProvider streamProvider = null;
 
-        private bool isInitial = true;
-        private bool isStreamStarted;
-        private bool isFirstUpdate = true;
+		private object               strLock        = new object();
+		private	StopRequest          strStopReq     = StopRequest.None;
+		private	INativeAudioBuffer[] strAlBuffers   = null;
 
-        private IAudioStreamProvider streamProvider;
-        private StopRequest strStopReq = StopRequest.None;
 
-        internal bool IsStreamed;
-        internal bool IsStopped;
-        internal AudioSourceState LastState = AudioSourceState.Default;
+		public int Handle
+		{
+			get { return this.handle; }
+		}
+		bool INativeAudioSource.IsInitial
+		{
+			get { return this.isInitial; }
+		}
+		bool INativeAudioSource.IsFinished
+		{
+			get
+			{
+				if (this.isInitial) return false;
+				lock (this.strLock)
+				{
+					ALSourceState stateTemp = AL.GetSourceState(this.handle);
 
-        internal NativeAudioBuffer[] AvailableBuffers;
-        internal Queue<int> QueuedBuffers = new Queue<int>();
-        internal int[] QueuedBuffersPos;
+					// Stopped and either not streamed or requesting to end.
+					if (stateTemp == ALSourceState.Stopped && (!this.isStreamed || this.strStopReq != StopRequest.None))
+						return true;
+					// Not even started playing, but requested to end anyway.
+					else if (stateTemp == ALSourceState.Initial && this.strStopReq == StopRequest.Immediately)
+						return true;
+					// Not finished yet.
+					else
+						return false;
+				}
+			}
+		}
 
-        internal float VolumeLeft, VolumeRight;
+		public NativeAudioSource(int handle)
+		{
+			this.handle = handle;
+		}
 
-        bool INativeAudioSource.IsInitial
-        {
-            get { return this.isInitial; }
-        }
+		void INativeAudioSource.Play(INativeAudioBuffer buffer)
+		{
+			lock (this.strLock)
+			{
+				if (!this.isInitial) throw new InvalidOperationException("Native audio source already in use. To re-use an audio source, reset it first.");
+				this.isInitial = false;
 
-        bool INativeAudioSource.IsFinished
-        {
-            get
-            {
-                if (this.isInitial)
-                    return false;
+				AL.SourceQueueBuffer(this.handle, (buffer as NativeAudioBuffer).Handle);
+				AL.SourcePlay(handle);
+			}
+		}
+		void INativeAudioSource.Play(IAudioStreamProvider streamingProvider)
+		{
+			lock (this.strLock)
+			{
+				if (!this.isInitial) throw new InvalidOperationException("Native audio source already in use. To re-use an audio source, reset it first.");
+				this.isInitial = false;
 
-                // Stopped and either not streamed or requesting to end.
-                if (IsStopped &&
-                    (!this.IsStreamed || this.strStopReq != StopRequest.None))
-                    return true;
-                // Not even started playing, but requested to end anyway.
-                else if (IsStopped && this.strStopReq == StopRequest.Immediately)
-                    return true;
-                // Not finished yet.
-                else
-                    return false;
-            }
-        }
+				this.isStreamed = true;
+				this.strStopReq = StopRequest.None;
+				this.streamProvider = streamingProvider;
+				AudioBackend.ActiveInstance.EnqueueForStreaming(this);
+			}
+		}
+		void INativeAudioSource.Stop()
+		{
+			lock (this.strLock)
+			{
+				AL.SourceStop(this.handle);
+				this.strStopReq = StopRequest.Immediately;
+			}
+		}
+		void INativeAudioSource.Reset()
+		{
+			this.ResetLocalState();
+			this.ResetSourceState();
+			this.isInitial = true;
+			this.isFirstUpdate = true;
+		}
+		void INativeAudioSource.ApplyState(ref AudioSourceState state)
+		{
+			lock (this.strLock)
+			{
+				ALSourceState nativeState = AL.GetSourceState(this.handle);
+				bool looped = state.Looped && !this.isStreamed;
 
-        void INativeAudioSource.Play(INativeAudioBuffer buffer)
-        {
-            if (!this.isInitial)
-                throw new InvalidOperationException(
-                    "Native audio source already in use. To re-use an audio source, reset it first.");
-            this.isInitial = false;
-            IsStopped = false;
+				if (this.isFirstUpdate || this.lastState.RelativeToListener != state.RelativeToListener)
+					AL.Source(handle, ALSourceb.SourceRelative, state.RelativeToListener);
+				if (this.isFirstUpdate || this.lastState.Position != state.Position)
+				    AL.Source(handle, ALSource3f.Position, state.Position.X, -state.Position.Y, -state.Position.Z);
+                if (this.isFirstUpdate || this.lastState.Velocity != state.Velocity)
+					AL.Source(handle, ALSource3f.Velocity, state.Velocity.X, -state.Velocity.Y, -state.Velocity.Z);
+				if (this.isFirstUpdate || this.lastState.MaxDistance != state.MaxDistance)
+					AL.Source(handle, ALSourcef.MaxDistance, state.MaxDistance);
+				if (this.isFirstUpdate || this.lastState.MinDistance != state.MinDistance)
+					AL.Source(handle, ALSourcef.ReferenceDistance, state.MinDistance);
+				if (this.isFirstUpdate || this.lastState.Looped != looped)
+					AL.Source(handle, ALSourceb.Looping, looped);
+				if (this.isFirstUpdate || this.lastState.Volume != state.Volume)
+					AL.Source(handle, ALSourcef.Gain, state.Volume);
+				if (this.isFirstUpdate || this.lastState.Pitch != state.Pitch)
+					AL.Source(handle, ALSourcef.Pitch, state.Pitch);
 
-            this.strStopReq = StopRequest.None;
+				// Update lowpass settings requires Effects extension
+				if (this.isFirstUpdate || this.lastState.Lowpass != state.Lowpass)
+				{
+					var fx = AudioBackend.ActiveInstance.EffectsExtension;
+					if (fx != null)
+					{
+						// If there is no filter, create one when required.
+						if (this.filterHandle == 0 && state.Lowpass < 1.0f)
+						{
+							this.filterHandle = fx.GenFilter();
+							fx.Filter(this.filterHandle, EfxFilteri.FilterType, (int)EfxFilterType.Lowpass);
+							fx.Filter(this.filterHandle, EfxFilterf.LowpassGain, 1);
+						}
+						// If there is a filter, keep it up-to-date
+						if (this.filterHandle != 0)
+						{
+							fx.Filter(this.filterHandle, EfxFilterf.LowpassGainHF, MathF.Clamp(state.Lowpass, 0.0f, 1.0f));
+							fx.BindFilterToSource(this.handle, this.filterHandle);
+						}
+					}
+				}
 
-            // All samples are available now (buffer is completed)
-            NativeAudioBuffer newBuffer = buffer as NativeAudioBuffer;
-            AvailableBuffers = new[] { newBuffer };
-            QueuedBuffersPos = new[] { 0 };
-            QueuedBuffers.Enqueue(0);
+				if (state.Paused && nativeState == ALSourceState.Playing)
+					AL.SourcePause(handle);
+				else if (!state.Paused && nativeState == ALSourceState.Paused)
+					AL.SourcePlay(handle);
 
-            AudioBackend.ActiveInstance.EnqueueForStreaming(this);
-        }
+				this.lastState = state;
+				this.lastState.Looped = looped;
+				this.isFirstUpdate = false;
+			}
+		}
+		void IDisposable.Dispose()
+		{
+			lock (this.strLock)
+			{
+				if (this.isStreamed)
+				{
+					this.streamProvider.CloseStream();
+					this.strStopReq = StopRequest.Immediately;
+				}
 
-        void INativeAudioSource.Play(IAudioStreamProvider streamingProvider)
-        {
-            if (!isInitial)
-                throw new InvalidOperationException(
-                    "Native audio source already in use. To re-use an audio source, reset it first.");
-            isInitial = false;
-            IsStopped = false;
+				this.ResetSourceState();
 
-            IsStreamed = true;
-            strStopReq = StopRequest.None;
-            streamProvider = streamingProvider;
-            isStreamStarted = false;
+				if (this.handle != 0)
+				{
+					if (AudioBackend.ActiveInstance != null)
+						AudioBackend.ActiveInstance.FreeSourceHandle(this.handle);
+					this.handle = 0;
+				}
 
-            AudioBackend.ActiveInstance.EnqueueForStreaming(this);
-        }
+				this.ReleaseStreamBuffers();
+			}
+		}
 
-        void INativeAudioSource.Stop()
-        {
-            strStopReq = StopRequest.Immediately;
-        }
+		private void ReleaseStreamBuffers()
+		{
+			lock (this.strLock)
+			{
+				if (this.strAlBuffers != null)
+				{
+					for (int i = 0; i < this.strAlBuffers.Length; i++)
+					{
+						if (this.strAlBuffers[i] != null)
+						{
+							this.strAlBuffers[i].Dispose();
+							this.strAlBuffers[i] = null;
+						}
+					}
+					this.strAlBuffers = null;
+				}
+			}
+		}
+		private void ResetLocalState()
+		{
+			lock (this.strLock)
+			{
+				this.strStopReq = StopRequest.Immediately;
+				this.isStreamed = false;
+				this.streamProvider = null;
 
-        void INativeAudioSource.Reset()
-        {
-            ResetLocalState();
-            ResetSourceState();
-            isInitial = true;
-            isFirstUpdate = true;
-        }
+				this.ReleaseStreamBuffers();
+			}
+		}
+		private void ResetSourceState()
+		{
+			lock (this.strLock)
+			{
+				// Release filters, if present
+				if (this.filterHandle != 0)
+				{
+					var fx = AudioBackend.ActiveInstance.EffectsExtension;
+					if (fx != null)
+					{
+						if (this.handle != 0)
+						{
+							fx.BindFilterToSource(this.handle, 0);
+						}
+						fx.DeleteFilter(this.filterHandle);
+						this.filterHandle = 0;
+					}
+				}
 
-        void INativeAudioSource.ApplyState(ref AudioSourceState state)
-        {
-            // ToDo: Implement velocity
-            // ToDo: Implement pitch
-            // ToDo: Implement lowpass
-            // ToDo: Implement pause
+				// Reset the internal OpenAL source, if present
+				if (this.handle != 0)
+				{
+					// Do not reuse before-streamed sources, since OpenAL doesn't seem to like that.
+					if (this.isStreamed)
+					{
+						AL.DeleteSource(this.handle);
+						this.handle = AL.GenSource();
+					}
+					// Reuse other OpenAL sources
+					else
+					{
+						AL.SourceStop(this.handle);
+						AL.Source(this.handle, ALSourcei.Buffer, 0);
+						AL.SourceRewind(this.handle);
+					}
+				}
+			}
+		}
 
-            if (isFirstUpdate ||
-                LastState.RelativeToListener != state.RelativeToListener ||
-                LastState.Position != state.Position ||
-                LastState.MaxDistance != state.MaxDistance ||
-                LastState.MinDistance != state.MinDistance ||
-                LastState.Volume != state.Volume) {
+		internal bool PerformStreaming()
+		{
+			lock (this.strLock)
+			{
+				if (this.handle == 0) return false;
 
-                Vector3 distance;
-                if (state.RelativeToListener) {
-                    distance = state.Position;
-                } else {
-                    distance = state.Position - AudioBackend.ActiveInstance.ListenerPosition;
-                }
+				ALSourceState stateTemp = AL.GetSourceState(this.handle);
+				if (stateTemp == ALSourceState.Stopped && this.strStopReq != StopRequest.None)
+				{
+					// Stopped due to regular EOF. If strStopReq is NOT set,
+					// the source stopped playing because it reached the end of the buffer
+					// but in fact only because we were too slow inserting new data.
+					return false;
+				}
+				else if (this.strStopReq == StopRequest.Immediately)
+				{
+					// Stopped intentionally due to Stop()
+					AL.SourceStop(handle);
+					return false;
+				}
 
-                float maxDistance = (state.MaxDistance - state.MinDistance);
-                float distanceRatio = (Math.Max(distance.Length - state.MinDistance, 0) / maxDistance);
-                distanceRatio = state.Volume * (1f - distanceRatio * distanceRatio);
+				if (stateTemp == ALSourceState.Initial)
+				{
+					// Initialize streaming
+					PerformStreamingBegin();
 
-                float distanceSideRatio = MathF.Sign(distance.X) * Math.Max(Math.Abs(distance.X) - state.MinDistance * 0.5f, 0) / maxDistance;
-                if (Math.Abs(distanceSideRatio) < 0.00001f) {
-                    VolumeLeft = VolumeRight = 1f;
-                } else {
-                    const float stereoSeparation = 0.5f;
+					// Initially play source
+					AL.SourcePlay(handle);
+					stateTemp = AL.GetSourceState(handle);
+				}
+				else
+				{
+					// Stream new data
+					PerformStreamingUpdate();
 
-                    float ratio = MathF.Clamp(distanceSideRatio * 8f, -stereoSeparation, stereoSeparation);
-                    VolumeLeft = stereoSeparation - ratio;
-                    VolumeRight = stereoSeparation + ratio;
-                }
+					// If the source stopped unintentionally, restart it. (See above)
+					if (stateTemp == ALSourceState.Stopped && this.strStopReq == StopRequest.None)
+					{
+						AL.SourcePlay(handle);
+					}
+				}
+			}
 
-                VolumeLeft *= distanceRatio;
-                VolumeRight *= distanceRatio;
-            }
+			return true;
+		}
+		private void PerformStreamingBegin()
+		{
+			// Generate streaming buffers
+			this.strAlBuffers = new INativeAudioBuffer[3];
+			for (int i = 0; i < this.strAlBuffers.Length; ++i)
+			{
+				this.strAlBuffers[i] = DualityApp.AudioBackend.CreateBuffer();
+			}
 
-            LastState = state;
-            LastState.Looped = state.Looped && !IsStreamed;
-            isFirstUpdate = false;
-        }
+			// Begin streaming
+			this.streamProvider.OpenStream();
 
-        void IDisposable.Dispose()
-        {
-            if (IsStreamed) {
-                streamProvider.CloseStream();
-                strStopReq = StopRequest.Immediately;
-            }
+			// Initially, completely fill all buffers
+			for (int i = 0; i < this.strAlBuffers.Length; ++i)
+			{
+				bool eof = !this.streamProvider.ReadStream(this.strAlBuffers[i]);
+				if (!eof)
+				{
+					AL.SourceQueueBuffer(this.handle, (this.strAlBuffers[i] as NativeAudioBuffer).Handle);
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+		private void PerformStreamingUpdate()
+		{
+			int num;
+			AL.GetSource(this.handle, ALGetSourcei.BuffersProcessed, out num);
+			while (num > 0)
+			{
+				num--;
 
-            this.ResetSourceState();
-        }
+				int unqueuedBufferHandle = AL.SourceUnqueueBuffer(this.handle);
+				INativeAudioBuffer unqueuedBuffer = null;
+				for (int i = 0; i < this.strAlBuffers.Length; i++)
+				{
+					NativeAudioBuffer buffer = this.strAlBuffers[i] as NativeAudioBuffer;
+					if (buffer.Handle == unqueuedBufferHandle)
+					{
+						unqueuedBuffer = buffer;
+						break;
+					}
+				}
 
-        private void ResetLocalState()
-        {
-            strStopReq = StopRequest.Immediately;
-            IsStreamed = false;
-            streamProvider = null;
-            IsStopped = false;
-        }
-
-        private void ResetSourceState()
-        {
-            QueuedBuffers.Clear();
-        }
-
-        internal bool PerformStreaming()
-        {
-            if (IsStopped && strStopReq != StopRequest.None) {
-                // Stopped due to regular EOF. If strStopReq is NOT set,
-                // the source stopped playing because it reached the end of the buffer
-                // but in fact only because we were too slow inserting new data.
-                return false;
-            } else if (strStopReq == StopRequest.Immediately) {
-                // Stopped intentionally due to Stop()
-                IsStopped = true;
-                return false;
-            }
-
-            if (!isStreamStarted) {
-                isStreamStarted = true;
-
-                // Initialize streaming
-                PerformStreamingBegin();
-            } else {
-                // Stream new data
-                PerformStreamingUpdate();
-            }
-
-            return true;
-        }
-
-        private void PerformStreamingBegin()
-        {
-            const int preloadBufferCount = 2;
-
-            // Generate streaming buffers
-            AvailableBuffers = new NativeAudioBuffer[preloadBufferCount];
-            QueuedBuffersPos = new int[preloadBufferCount];
-            for (int i = 0; i < preloadBufferCount; i++) {
-                AvailableBuffers[i] = DualityApp.AudioBackend.CreateBuffer() as NativeAudioBuffer;
-            }
-
-            // Begin streaming
-            streamProvider.OpenStream();
-
-            // Initially, completely fill all buffers
-            for (int i = 0; i < preloadBufferCount; i++) {
-                bool eof = !streamProvider.ReadStream(AvailableBuffers[i]);
-                if (!eof) {
-                    QueuedBuffers.Enqueue(i);
-                } else {
-                    QueuedBuffersPos[i] = UnqueuedBuffer;
-                }
-            }
-        }
-
-        private void PerformStreamingUpdate()
-        {
-            while (true) {
-                int unqueuedBufferIndex = UnqueuedBuffer;
-                for (int i = 0; i < AvailableBuffers.Length; i++) {
-                    NativeAudioBuffer buffer = AvailableBuffers[i];
-                    if (QueuedBuffersPos[i] == UnqueuedBuffer) {
-                        // Buffer was played to the end - rewind it to the start and use it
-                        buffer.Length = 0;
-                        QueuedBuffersPos[i] = 0;
-                        unqueuedBufferIndex = i;
-                        break;
-                    }
-                }
-
-                if (unqueuedBufferIndex == UnqueuedBuffer) {
-                    // No free buffer found, we are done for now...
-                    break;
-                }
-
-                // Stream data to the buffer
-                bool eof = !streamProvider.ReadStream(AvailableBuffers[unqueuedBufferIndex]);
-                if (!eof) {
-                    QueuedBuffers.Enqueue(unqueuedBufferIndex);
-                } else {
-                    strStopReq = StopRequest.EndOfStream;
-                }
-            }
-        }
-    }
+				bool eof = !this.streamProvider.ReadStream(unqueuedBuffer);
+				if (!eof)
+				{
+					AL.SourceQueueBuffer(this.handle, unqueuedBufferHandle);
+				}
+				else
+				{
+					this.strStopReq = StopRequest.EndOfStream;
+				}
+			}
+		}
+	}
 }

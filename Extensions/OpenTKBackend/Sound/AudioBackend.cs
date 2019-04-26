@@ -92,7 +92,7 @@ namespace Duality.Backend.DefaultOpenTK
             // Generate OpenAL source pool
             for (int i = 0; i < 256; i++) {
                 int newSrc = AL.GenSource();
-                if (!Backend.DefaultOpenTK.AudioBackend.CheckOpenALErrors(true))
+                if (!CheckOpenALErrors(true))
                     this.sourcePool.Push(newSrc);
                 else
                     break;

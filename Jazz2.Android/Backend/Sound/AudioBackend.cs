@@ -1,252 +1,295 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading;
-using Android.Media;
+using Jazz2.Game;
+using OpenTK.Audio;
+using OpenTK.Audio.OpenAL;
 
 namespace Duality.Backend.Android
 {
     public class AudioBackend : IAudioBackend
     {
+        private static readonly Version MinOpenALVersion = new Version(0, 0);
+
         private static AudioBackend activeInstance;
         public static AudioBackend ActiveInstance
         {
             get { return activeInstance; }
         }
 
-        private const int DefaultSampleRate = 44100;
-        private const ChannelOut DefaultChannels = ChannelOut.Stereo;
-        private const Encoding DefaultEncoding = Encoding.Pcm16bit;
 
-        private AudioTrack masterTrack;
-        private int bufferSizeSamples;
-        private int samplesWritten;
+        private AudioContext context;
+        private EffectsExtension extFx;
+        private Stack<int> sourcePool = new Stack<int>();
+        private int availSources;
 
         private Thread streamWorker;
-        private RawList<NativeAudioSource> streamWorkerQueue;
+        private List<NativeAudioSource> streamWorkerQueue;
         private AutoResetEvent streamWorkerQueueEvent;
         private bool streamWorkerEnd;
 
-        internal Vector3 ListenerPosition;
-        private bool mute;
 
+        public EffectsExtension EffectsExtension
+        {
+            get { return this.extFx; }
+        }
         int IAudioBackend.AvailableSources
         {
-            get { return 32; }
+            get { return this.sourcePool.Count; }
         }
         int IAudioBackend.MaxSourceCount
         {
-            get { return 32; }
+            get { return this.availSources; }
         }
         string IDualityBackend.Id
         {
-            get { return "AndroidAudioBackend"; }
+            get { return "DefaultOpenTKAudioBackend"; }
         }
         string IDualityBackend.Name
         {
-            get { return "Android AudioTrack Backend"; }
+            get { return "OpenAL (OpenTK)"; }
         }
         int IDualityBackend.Priority
         {
             get { return 0; }
         }
 
+
         bool IDualityBackend.CheckAvailable()
         {
             return true;
         }
-
         void IDualityBackend.Init()
         {
+            App.Log("Available audio devices:" + Environment.NewLine + "{0}",
+            	AudioContext.AvailableDevices.ToString(d => "  " + d + (d == AudioContext.DefaultDevice ? " (Default)" : ""), Environment.NewLine));
+
+            // Create OpenAL audio context
+            this.context = new AudioContext();
+            App.Log("Current device: {0}", this.context.CurrentDevice);
+
+            // Create extension interfaces
+            try {
+                this.extFx = new EffectsExtension();
+                if (!this.extFx.IsInitialized)
+                    this.extFx = null;
+            } catch (Exception) {
+                this.extFx = null;
+            }
+
             activeInstance = this;
 
-            int bufferSize = AudioTrack.GetMinBufferSize(DefaultSampleRate, DefaultChannels, DefaultEncoding);
-            masterTrack = new AudioTrack(Stream.Music, DefaultSampleRate, DefaultChannels, DefaultEncoding, bufferSize, AudioTrackMode.Stream);
-            masterTrack.Play();
+            // Log all OpenAL specs for diagnostic purposes
+            LogOpenALSpecs();
 
-            bufferSizeSamples = bufferSize * sizeof(ushort);
+            // Generate OpenAL source pool
+            for (int i = 0; i < 256; i++) {
+                int newSrc = AL.GenSource();
+                if (!CheckOpenALErrors(true))
+                    this.sourcePool.Push(newSrc);
+                else
+                    break;
+            }
+            this.availSources = this.sourcePool.Count;
+            //Logs.Core.Write("{0} sources available", this.sourcePool.Count);
 
             // Set up the streaming thread
-            streamWorkerEnd = false;
-            streamWorkerQueue = new RawList<NativeAudioSource>();
-            streamWorkerQueueEvent = new AutoResetEvent(false);
-            streamWorker = new Thread(ThreadStreamFunc);
-            streamWorker.IsBackground = true;
-            streamWorker.Start();
+            this.streamWorkerEnd = false;
+            this.streamWorkerQueue = new List<NativeAudioSource>();
+            this.streamWorkerQueueEvent = new AutoResetEvent(false);
+            this.streamWorker = new Thread(ThreadStreamFunc);
+            this.streamWorker.IsBackground = true;
+            this.streamWorker.Start();
         }
-
         void IDualityBackend.Shutdown()
         {
             // Shut down the streaming thread
-            if (streamWorker != null) {
-                streamWorkerEnd = true;
-                if (!streamWorker.Join(1000)) {
-                    streamWorker.Abort();
+            if (this.streamWorker != null) {
+                this.streamWorkerEnd = true;
+                if (!this.streamWorker.Join(1000)) {
+                    this.streamWorker.Abort();
                 }
-                streamWorkerQueueEvent.Dispose();
-                streamWorkerEnd = false;
-                streamWorkerQueueEvent = null;
-                streamWorkerQueue = null;
-                streamWorker = null;
+                this.streamWorkerQueueEvent.Dispose();
+                this.streamWorkerEnd = false;
+                this.streamWorkerQueueEvent = null;
+                this.streamWorkerQueue = null;
+                this.streamWorker = null;
             }
 
-            if (masterTrack != null) {
-                masterTrack.Stop();
-                masterTrack.Dispose();
-                masterTrack = null;
-            }
-
-            if (activeInstance == this) {
+            if (activeInstance == this)
                 activeInstance = null;
+
+            // Clear OpenAL source pool
+            foreach (int alSource in this.sourcePool) {
+                AL.DeleteSource(alSource);
+            }
+
+            // Shut down OpenAL context
+            if (this.context != null) {
+                this.context.Dispose();
+                this.context = null;
             }
         }
 
         void IAudioBackend.UpdateWorldSettings(float speedOfSound, float dopplerFactor)
         {
-            // ToDo: Implement world settigs
+            AL.DistanceModel(ALDistanceModel.LinearDistanceClamped);
+            AL.DopplerFactor(dopplerFactor);
+            AL.SpeedOfSound(speedOfSound);
         }
         void IAudioBackend.UpdateListener(Vector3 position, Vector3 velocity, float angle, bool mute)
         {
-            // ToDo: Implement velocity
-            // ToDo: Implement angle
+            DebugCheckOpenALErrors();
 
-            this.ListenerPosition = position;
-            this.mute = mute;
+            float[] orientation = new float[6];
+            orientation[0] = 0.0f;  // forward vector x value
+            orientation[1] = 0.0f;  // forward vector y value
+            orientation[2] = -1.0f; // forward vector z value
+            orientation[5] = 0.0f;  // up vector z value
+            AL.Listener(ALListener3f.Position, position.X, -position.Y, -position.Z);
+            AL.Listener(ALListener3f.Velocity, velocity.X, -velocity.Y, -velocity.Z);
+            orientation[3] = MathF.Sin(angle);  // up vector x value
+            orientation[4] = MathF.Cos(angle);  // up vector y value
+            AL.Listener(ALListenerfv.Orientation, ref orientation);
+            AL.Listener(ALListenerf.Gain, mute ? 0.0f : 1.0f);
+
+            DebugCheckOpenALErrors();
         }
 
         INativeAudioBuffer IAudioBackend.CreateBuffer()
         {
-            return new NativeAudioBuffer(DefaultSampleRate);
+            return new NativeAudioBuffer();
         }
         INativeAudioSource IAudioBackend.CreateSource()
         {
-            return new NativeAudioSource();
+            if (this.sourcePool.Count == 0)
+                return null;
+            else
+                return new NativeAudioSource(this.sourcePool.Pop());
         }
 
+        internal void FreeSourceHandle(int handle)
+        {
+            this.sourcePool.Push(handle);
+        }
         internal void EnqueueForStreaming(NativeAudioSource source)
         {
-            if (streamWorkerQueue.Contains(source))
-                return;
-
-            streamWorkerQueue.Add(source);
-            streamWorkerQueueEvent.Set();
+            lock (this.streamWorkerQueue) {
+                if (this.streamWorkerQueue.Contains(source)) return;
+                this.streamWorkerQueue.Add(source);
+            }
+            this.streamWorkerQueueEvent.Set();
         }
 
         private void ThreadStreamFunc()
         {
-            short[] buffer = new short[bufferSizeSamples];
-
+            int queueIndex = 0;
             Stopwatch watch = new Stopwatch();
             watch.Restart();
-
-            while (!streamWorkerEnd) {
-                // Process even number of samples (both channels of interleaved stereo)
-                // Fill only small part of the main buffer to lower the latency
-                // Latency is already quite high on Android
-                int samplesPlayed = masterTrack.PlaybackHeadPosition * 2;
-                int samplesNeeded = ((samplesPlayed + bufferSizeSamples - samplesWritten) / 12) & ~1;
-
-                for (int j = 0; j < streamWorkerQueue.Count; j++) {
-                    NativeAudioSource source = streamWorkerQueue[j];
-
-                    // Mix samples into the main buffer
-                    int bufferPos = 0;
-                    while (bufferPos < samplesNeeded && source.QueuedBuffers.Count > 0) {
-                        int bufferIndex = source.QueuedBuffers.Peek();
-                        ref int playbackPos = ref source.QueuedBuffersPos[bufferIndex];
-
-                        NativeAudioBuffer sourceBuffer = source.AvailableBuffers[bufferIndex];
-                        int samplesInBuffer = MathF.Min(sourceBuffer.Length - playbackPos, samplesNeeded - bufferPos);
-                        //int samplesInBuffer = MathF.Min((int)((sourceBuffer.Length - playbackPos) / source.LastState.Pitch), samplesNeeded - bufferPos);
-                        if (!mute) {
-                            //if (MathF.Abs(1f - source.LastState.Pitch) < 0.01f) {
-                            for (int i = 0; i < samplesInBuffer; i += 2) {
-                                int sampleLeft = buffer[bufferPos] + (short)(sourceBuffer.InternalBuffer[playbackPos + i] * source.VolumeLeft);
-                                int sampleRight = buffer[bufferPos + 1] + (short)(sourceBuffer.InternalBuffer[playbackPos + i + 1] * source.VolumeRight);
-
-                                // Fast check to prevent clipping
-                                if (MathF.Abs(sampleLeft) < short.MaxValue &&
-                                    MathF.Abs(sampleRight) < short.MaxValue) {
-                                    buffer[bufferPos] = (short)sampleLeft;
-                                    buffer[bufferPos + 1] = (short)sampleRight;
-                                }
-
-                                bufferPos += 2;
-                            }
-                            //} else {
-                            //    // ToDo: Check this pitch changing...
-                            //    for (int i = 0; i < samplesInBuffer; i += 2) {
-
-                            //        float io = playbackPos + (int)(i * source.LastState.Pitch);
-
-                            //        short sample11 = sourceBuffer.InternalBuffer[(int)io];
-                            //        short sample12 = sourceBuffer.InternalBuffer[MathF.Min((int)io + 2, sourceBuffer.Length - 2)];
-
-                            //        short sampleLeft = (short)((sample11 + (sample12 - sample11) * (io % 1f)) * source.VolumeLeft);
-
-                            //        short sample21 = sourceBuffer.InternalBuffer[MathF.Min((int)io + 1, sourceBuffer.Length - 1)];
-                            //        short sample22 = sourceBuffer.InternalBuffer[MathF.Min((int)io + 3, sourceBuffer.Length - 1)];
-                            //        short sampleRight = (short)((sample21 + (sample22 - sample21) * (io % 1f)) * source.VolumeRight);
-
-                            //        // Fast check to prevent clipping
-                            //        // ToDo: Do this better somehow...
-                            //        if (MathF.Abs(buffer[bufferPos] + sampleLeft) < short.MaxValue &&
-                            //            MathF.Abs(buffer[bufferPos + 1] + sampleRight) < short.MaxValue) {
-                            //            buffer[bufferPos] += sampleLeft;
-                            //            buffer[bufferPos + 1] += sampleRight;
-                            //        }
-
-                            //        bufferPos += 2;
-                            //    }
-                            //}
-                        }
-                        playbackPos += samplesInBuffer;
-                        //playbackPos += (int)(samplesInBuffer * source.LastState.Pitch);
-
-                        if (playbackPos >= sourceBuffer.Length) {
-                            playbackPos = NativeAudioSource.UnqueuedBuffer;
-                            source.QueuedBuffers.Dequeue();
-                        }
-                    }
-
-                    // Perform the necessary streaming operations on the audio source, and remove it when requested
-                    if (source.IsStreamed) {
-                        // Try to stream new data
-                        if (source.IsStopped || !source.PerformStreaming()) {
-                            // End of stream, remove from queue
-                            streamWorkerQueue.RemoveAtFast(j);
-                            j--;
-                        }
+            while (!this.streamWorkerEnd) {
+                // Determine which audio source to update
+                NativeAudioSource source;
+                lock (this.streamWorkerQueue) {
+                    if (this.streamWorkerQueue.Count > 0) {
+                        int count = this.streamWorkerQueue.Count;
+                        queueIndex = (queueIndex + count) % count;
+                        source = this.streamWorkerQueue[queueIndex];
+                        queueIndex = (queueIndex + count - 1) % count;
                     } else {
-                        if (source.QueuedBuffers.Count == 0) {
-                            if (source.LastState.Looped) {
-                                // Enqueue sample again if looping is turned on
-                                source.QueuedBuffers.Enqueue(0);
-                                source.QueuedBuffersPos[0] = 0;
-                            } else {
-                                // End of sample array, remove from queue
-                                streamWorkerQueue.RemoveAtFast(j);
-                                j--;
-                            }
-                        }
+                        source = null;
+                        queueIndex = 0;
                     }
                 }
 
-                // Write used part of the main buffer to Android's Audio Track
-                masterTrack.Write(buffer, 0, samplesNeeded);
-                samplesWritten += samplesNeeded;
+                // If there is no audio source available, wait for a signal of one being added.
+                if (source == null) {
+                    // Timeout of 100 ms to check regularly for requesting the thread to end.
+                    streamWorkerQueueEvent.WaitOne(100);
+                    continue;
+                }
 
-                // Erase buffer to be ready for next batch
-                for (int i = 0; i < samplesNeeded; i++) {
-                    buffer[i] = 0;
+                // Perform the necessary streaming operations on the audio source, and remove it when requested
+                if (!source.PerformStreaming()) {
+                    lock (this.streamWorkerQueue) {
+                        this.streamWorkerQueue.Remove(source);
+                    }
                 }
 
                 // After each roundtrip, sleep a little, don't keep the processor busy for no reason
-                watch.Stop();
-                int roundtripTime = (int)watch.ElapsedMilliseconds;
-                if (roundtripTime <= 1) {
-                    streamWorkerQueueEvent.WaitOne(16);
+                if (queueIndex == 0) {
+                    watch.Stop();
+                    int roundtripTime = (int)watch.ElapsedMilliseconds;
+                    if (roundtripTime <= 1) {
+                        streamWorkerQueueEvent.WaitOne(16);
+                    }
+                    watch.Restart();
                 }
-                watch.Restart();
             }
+        }
+
+        public static void LogOpenALSpecs()
+        {
+            try {
+                CheckOpenALErrors();
+                string versionString = AL.Get(ALGetString.Version);
+                App.Log(
+					"  OpenAL Version: {0}" + Environment.NewLine +
+					"  Vendor: {1}" + Environment.NewLine +
+					"  Renderer: {2}" + Environment.NewLine +
+					"  Effects: {3}",
+					versionString,
+					AL.Get(ALGetString.Vendor),
+					AL.Get(ALGetString.Renderer),
+					ActiveInstance.EffectsExtension != null);
+                CheckOpenALErrors();
+
+                // Parse the OpenGL version string in order to determine if it's sufficient
+                string[] token = versionString.Split(' ');
+                for (int i = 0; i < token.Length; i++) {
+                    Version version;
+                    if (Version.TryParse(token[i], out version)) {
+                        if (version.Major < MinOpenALVersion.Major && version.Minor < MinOpenALVersion.Minor) {
+                            App.Log(
+								"The detected OpenAL version {0} appears to be lower than the required minimum. Version {1} or higher is required to run Duality applications.",
+								version,
+								MinOpenALVersion);
+                        }
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                App.Log("Can't determine OpenAL specs, because an error occurred: {0}", e);
+            }
+        }
+        public static bool CheckOpenALErrors(bool silent = false, [CallerMemberName] string callerInfoMember = null, [CallerFilePath] string callerInfoFile = null, [CallerLineNumber] int callerInfoLine = -1)
+        {
+            ALError error;
+            bool found = false;
+            while ((error = AL.GetError()) != ALError.NoError) {
+                if (!silent) {
+                    App.Log(
+						"Internal OpenAL error, code {0} at {1} in {2}, line {3}.",
+						error,
+						callerInfoMember,
+						callerInfoFile,
+						callerInfoLine);
+                }
+                found = true;
+                if (!silent && System.Diagnostics.Debugger.IsAttached) System.Diagnostics.Debugger.Break();
+            }
+            return found;
+        }
+        /// <summary>
+        /// Checks for OpenAL errors using <see cref="CheckOpenALErrors"/> when both compiled in debug mode and a with an attached debugger.
+        /// </summary>
+        /// <returns></returns>
+        [System.Diagnostics.Conditional("DEBUG")]
+        public static void DebugCheckOpenALErrors([CallerMemberName] string callerInfoMember = null, [CallerFilePath] string callerInfoFile = null, [CallerLineNumber] int callerInfoLine = -1)
+        {
+            if (!System.Diagnostics.Debugger.IsAttached) return;
+            CheckOpenALErrors(false, callerInfoMember, callerInfoFile, callerInfoLine);
         }
     }
 }

@@ -270,12 +270,12 @@ namespace Import
                 }
             }
 
-            string plusPath = Path.Combine(sourcePath, "Plus.j2a");
-            if (Utils.FileResolveCaseInsensitive(ref plusPath)) {
-                JJ2Anims.Convert(plusPath, animationsPath, true);
-            } else {
+            //string plusPath = Path.Combine(sourcePath, "Plus.j2a");
+            //if (Utils.FileResolveCaseInsensitive(ref plusPath)) {
+            //    JJ2Anims.Convert(plusPath, animationsPath, true);
+            //} else {
                 JJ2PlusDownloader.Run(targetPath);
-            }
+            //}
 
             RecreateDefaultPalette(animationsPath);
 

@@ -100,6 +100,8 @@
   <ItemGroup>
     <AndroidNativeLibrary Include="Libs\armeabi-v7a\libc++_shared.so" />
     <AndroidNativeLibrary Include="Libs\x86\libc++_shared.so" />
+    <AndroidNativeLibrary Include="Libs\armeabi-v7a\libopenal32.so" />
+    <AndroidNativeLibrary Include="Libs\x86\libopenal32.so" />
     <None Include="Properties\AndroidManifest.xml">
       <SubType>Designer</SubType>
     </None>

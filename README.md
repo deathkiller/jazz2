@@ -23,7 +23,7 @@ Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** releas
 [![License](https://img.shields.io/github/license/deathkiller/jazz2.svg)](https://github.com/deathkiller/jazz2/blob/master/LICENSE)
 [![Discord](https://img.shields.io/discord/355651795390955520.svg?color=839ef7&label=chat&logo=discord&logoColor=ffffff&labelColor=586eb5)](https://discord.gg/Y7SBvkD)
 
-Uses parts of [Duality - A 2D GameDev Framework](https://duality.adamslair.net/).
+Uses parts of [Duality - A 2D GameDev Framework](https://www.duality2d.net/).
 
 
 ## Preview
@@ -38,28 +38,28 @@ Uses parts of [Duality - A 2D GameDev Framework](https://duality.adamslair.net/)
 ### Windows / Linux / macOS
 * Download **Desktop** release from GitHub (or build the solution and copy `Content` directory to `‹Game›/Content`)
 * Run `‹Game›/Import.exe "Path to JJ2"` (or drag and drop JJ2 directory on `Import.exe`)
-  * On Linux/macOS, you can run `mono Import.exe "Path to JJ2"`
+  * On Linux and macOS, you can run `mono Import.exe "Path to JJ2"`
 * Run `‹Game›/Jazz2.exe`
-  * On Linux/macOS, you can run `mono Jazz2.exe`
+  * On Linux and macOS, you can run `mono Jazz2.exe`
 
 `‹Game›` *is path to Jazz² Resurrection. You can run* `Import.exe` *without parameters to show additional options.*
 
 ### Android
-* Download **Desktop** and **Android** release from GitHub (or build the solution)
+* Download **Desktop** and **Android** release from GitHub (or build the solution and copy `Content` directory to `‹Game›/Content`)
 * Run `‹Game›/Import.exe "Path to JJ2"` (or drag and drop JJ2 directory on `Import.exe`)
 * Copy `‹Game›/Content` directory to `‹SDCard›/jazz2.android/Content` 
   * Create empty file `.nomedia` in `‹SDCard›/jazz2.android` to hide files from Android Gallery
 * Install `Jazz2.apk` on Android device
 * Run the application
 
-*Requires device with Android 4.4 (or newer) and OpenGL ES 3.0.* `‹SDCard›` *could be internal or external storage.
+*Requires device with Android 4.4 (or newer) and OpenGL ES 3.0 support.* `‹SDCard›` *could be internal or external storage.
 The application tries to autodetect correct path. Also, you can use* `‹SDCard›/Android/Data/Jazz2.Android` *or* `‹SDCard›/Download/Jazz2.Android` *instead.*
 
 
 ## Dependencies
 ### Windows
 * .NET Framework 4.5.2 (or newer)
-* [OpenALSoft](https://github.com/opentk/opentk-dependencies) (included in release)
+* [OpenAL Soft](https://github.com/opentk/opentk-dependencies) (included in release)
   * Copy `x86/openal32.dll` to `‹Game›/Extensions/OpenALSoft.x86.dll`
   * Copy `x64/openal32.dll` to `‹Game›/Extensions/OpenALSoft.x64.dll`
 * [libopenmpt](https://lib.openmpt.org/libopenmpt/download/) (included in release)
@@ -74,11 +74,13 @@ The application tries to autodetect correct path. Also, you can use* `‹SDCard�
 
 ### macOS
 * [Mono 4.6 (or newer)](http://www.mono-project.com/download/#download-mac)
-* OpenAL should be already installed
+* OpenAL should be already installed by OS
 * [libopenmpt](https://lib.openmpt.org/libopenmpt/)
-
+  * Copy `libopenmpt.dylib` (*x86*, and its dependencies) to `‹Game›` directory
+  
 ### Android
 * Xamarin
+* [OpenAL Soft](https://github.com/kcat/openal-soft) (included for *armeabi-v7a* and *x86*)
 * [libopenmpt](https://lib.openmpt.org/libopenmpt/download/) (included for *armeabi-v7a* and *x86*)
 
 Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) or newer (or equivalent Mono compiler) to build the solution.
@@ -103,13 +105,15 @@ Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) or newer 
 * Install [Mono 5.0 (or newer)](http://www.mono-project.com/download/#download-mac)
 * Open the solution in [Microsoft Visual Studio for Mac](https://www.visualstudio.com/vs/visual-studio-mac/) and build it
 * Copy `/Packages/AdamsLair.OpenTK.x.y.z/lib/OpenTK.dll.config` to `/Jazz2/Bin/Debug/OpenTK.dll.config`
+* Obtain and copy `libopenmpt.dylib` to `/Jazz2/Bin/Debug/libopenmpt.dylib` to enable music playback
 * If you build Release configuration, you have to replace `Debug` with `Release` in paths above
 
 *Errors about* `Jazz2.Android` *project can be ignored, if you don't need Android build.*
 
 ### Android
-* Install **Mobile development in .NET** to Microsoft Visual Studio 2017 (or newer)
+* Install **Mobile development in .NET** for Microsoft Visual Studio 2017 (or newer)
 * Open the solution and build `Jazz2.Android` project
+* Dependencies are already included for common configurations
 
 
 ## Extensions
