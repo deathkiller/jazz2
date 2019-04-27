@@ -194,7 +194,12 @@ namespace Jazz2.Game.UI.Menu.InGame
 
         private void OnRender(IDrawDevice device)
         {
-            Vector2 center = device.TargetSize * 0.5f;
+            Vector2 size = device.TargetSize;
+
+            Rect view = new Rect(size);
+            AdjustVisibleZone(ref view);
+
+            Vector2 center = size * 0.5f;
 
             canvas.Begin(device);
 
@@ -227,20 +232,20 @@ namespace Jazz2.Game.UI.Menu.InGame
 
             // Version
             Vector2 bottomRight = device.TargetSize;
-            bottomRight.X -= 24f;
+            bottomRight.X = view.X + view.W - 24f;
             bottomRight.Y -= 10f;
             DrawStringShadow(ref charOffset, "v" + App.AssemblyVersion, bottomRight.X, bottomRight.Y, Alignment.BottomRight,
                 new ColorRgba(0.45f, 0.5f), 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
 
             // Copyright
             Vector2 bottomLeft = bottomRight;
-            bottomLeft.X = 24f;
+            bottomLeft.X = view.X + 24f;
             DrawStringShadow(ref charOffset, "(c) 2016-" + DateTime.Now.Year + "  Dan R.", bottomLeft.X, bottomLeft.Y, Alignment.BottomLeft,
                 new ColorRgba(0.45f, 0.5f), 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
 
             // Current section
             if (sectionStack.Count > 0) {
-                sectionStack.Peek().OnPaint(canvas);
+                sectionStack.Peek().OnPaint(canvas, view);
             }
 
             DrawPlatformSpecific(device.TargetSize);
@@ -251,6 +256,8 @@ namespace Jazz2.Game.UI.Menu.InGame
         partial void InitPlatformSpecific();
 
         partial void DrawPlatformSpecific(Vector2 size);
+
+        partial void AdjustVisibleZone(ref Rect view);
 
         public void BeginFadeOut(Action action)
         {

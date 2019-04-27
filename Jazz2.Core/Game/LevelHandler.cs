@@ -972,13 +972,6 @@ namespace Jazz2.Game
                 Scene.SwitchTo(new InGameMenu(root, this));
             }
 
-
-            if (DualityApp.Keyboard.KeyPressed(Key.E)) {
-                ambientLightTarget -= 0.05f;
-            } else if (DualityApp.Keyboard.KeyPressed(Key.R)) {
-                ambientLightTarget += 0.05f;
-            }
-
             Hud.ShowDebugText("- FPS: " + Time.Fps.ToString("N0") + "  (" + Math.Round(Time.UnscaledDeltaTime * 1000, 1).ToString("N1") + " ms)");
             Hud.ShowDebugText("  Diff.: " + difficulty + " | Actors: " + actors.Count.ToString("N0"));
             Hud.ShowDebugText("  Ambient Light: " + ambientLightCurrent.ToString("0.00") + " / " + ambientLightTarget.ToString("0.00"));

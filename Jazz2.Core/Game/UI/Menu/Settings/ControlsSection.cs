@@ -29,7 +29,7 @@ namespace Jazz2.Game.UI.Menu.Settings
             base.OnHide(isRemoved);
         }
 
-        public override void OnPaint(Canvas canvas)
+        public override void OnPaint(Canvas canvas, Rect view)
         {
             IDrawDevice device = canvas.DrawDevice;
 
@@ -74,7 +74,7 @@ namespace Jazz2.Game.UI.Menu.Settings
                     default: name = ((PlayerActions)i).ToString(); break;
                 }
 
-                ref Mapping mapping = ref ControlScheme.GetCurrentMapping(0, (PlayerActions)i);
+                ref Mapping mapping = ref GetCurrentMapping(0, (PlayerActions)i);
 
                 api.DrawString(ref charOffset, name, center.X * 0.3f, topItem,
                     Alignment.Left, ColorRgba.TransparentBlack, 0.8f);
@@ -128,7 +128,6 @@ namespace Jazz2.Game.UI.Menu.Settings
 
                 topItem += itemSpacing;
             }
-
 
             api.DrawMaterial("MenuLine", 0, center.X, topLine, Alignment.Center, ColorRgba.White, 1.6f);
             api.DrawMaterial("MenuLine", 1, center.X, bottomLine, Alignment.Center, ColorRgba.White, 1.6f);
@@ -193,6 +192,7 @@ namespace Jazz2.Game.UI.Menu.Settings
                 }
 
                 api.PlaySound("MenuSelect", 0.5f);
+                animation = 0f;
                 waitForInput = true;
             } else if (DualityApp.Keyboard.KeyHit(Key.Delete)) {
                 api.PlaySound("MenuSelect", 0.5f);

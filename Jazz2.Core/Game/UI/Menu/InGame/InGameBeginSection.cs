@@ -31,7 +31,7 @@ namespace Jazz2.Game.UI.Menu.InGame
             api.PlaySound("MenuSelect", 0.4f);
         }
 
-        public override void OnPaint(Canvas canvas)
+        public override void OnPaint(Canvas canvas, Rect view)
         {
             IDrawDevice device = canvas.DrawDevice;
 

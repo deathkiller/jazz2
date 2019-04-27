@@ -3,6 +3,7 @@
 
     <style name="AppTheme" parent="@android:style/Theme.Material.Light">
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowBackground">@color/light_primary</item>
 
         <item name="android:windowActionBar">false</item>

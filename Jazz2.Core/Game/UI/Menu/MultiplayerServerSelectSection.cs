@@ -54,7 +54,7 @@ namespace Jazz2.Game.UI.Menu
             discovery.Dispose();
         }
 
-        public override void OnPaint(Canvas canvas)
+        public override void OnPaint(Canvas canvas, Rect view)
         {
             IDrawDevice device = canvas.DrawDevice;
 

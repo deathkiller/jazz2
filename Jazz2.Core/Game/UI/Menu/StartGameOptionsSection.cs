@@ -40,7 +40,7 @@ namespace Jazz2.Game.UI.Menu
             availableCharacters = (api.IsAnimationPresent("MenuDifficultyLori") ? 3 : 2);
         }
 
-        public override void OnPaint(Canvas canvas)
+        public override void OnPaint(Canvas canvas, Rect view)
         {
             IDrawDevice device = canvas.DrawDevice;
 

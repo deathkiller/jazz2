@@ -316,9 +316,9 @@ namespace Jazz2.Android
                     new KeyValuePair<string, string>("app_version", appVersion),
                     new KeyValuePair<string, string>("app_target", "android"),
 #if DEBUG
-                    new KeyValuePair<string, string>("app_configuration", "unofficial_debug"),
+                    new KeyValuePair<string, string>("app_configuration", "debug"),
 #else
-                    new KeyValuePair<string, string>("app_configuration", "unofficial_release"),
+                    new KeyValuePair<string, string>("app_configuration", "release"),
 #endif
                     new KeyValuePair<string, string>("title", title),
                     new KeyValuePair<string, string>("message", message),

@@ -83,9 +83,9 @@ namespace Jazz2.Game.UI.Menu.Settings
                 }
             }
 
-            api.DrawStringShadow(ref charOffset, "<", pos.X - (100f + 40f), pos.Y + 20f, Alignment.Center,
+            api.DrawStringShadow(ref charOffset, "<", pos.X - 110f, pos.Y + 20f, Alignment.Center,
                 ColorRgba.TransparentBlack, 0.7f);
-            api.DrawStringShadow(ref charOffset, ">", pos.X + (100f + 40f), pos.Y + 20f, Alignment.Center,
+            api.DrawStringShadow(ref charOffset, ">", pos.X + 110f, pos.Y + 20f, Alignment.Center,
                 ColorRgba.TransparentBlack, 0.7f);
 
             pos.Y += 55f;

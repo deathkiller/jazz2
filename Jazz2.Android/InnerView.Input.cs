@@ -13,7 +13,7 @@ namespace Jazz2.Android
     partial class InnerView
     {
 #if ENABLE_TOUCH
-        public struct VirtualButton
+        public struct TouchButtonInfo
         {
             public PlayerActions Action;
             
@@ -27,9 +27,10 @@ namespace Jazz2.Android
             public int CurrentPointerId;
         }
 
-        internal static bool allowVibrations = true;
-        internal static bool showVirtualButtons;
-        internal static VirtualButton[] virtualButtons;
+        internal static bool AllowVibrations = true;
+        internal static bool ShowTouchButtons;
+        internal static TouchButtonInfo[] TouchButtons;
+        internal static float LeftPadding, RightPadding;
 #endif
 
         private bool[] pressedButtons = new bool[(int)Key.Last + 1];
@@ -37,17 +38,18 @@ namespace Jazz2.Android
         private void InitializeInput()
         {
 #if ENABLE_TOUCH
-            if (virtualButtons != null) {
-                // It's already initialized...
+            if (TouchButtons != null || viewportWidth == 0 || viewportHeight == 0) {
+                // Game is not initialized yet or the buttons were already created
                 return;
             }
 
-            const float dpadLeft = 0.02f;
-            const float dpadTop = 0.58f;
-            const float dpadWidth = 0.2f;
-            const float dpadHeight = 0.37f;
-            const float dpadThresholdX = 0.05f;
-            const float dpadThresholdY = 0.09f;
+            const float DpadLeft = 0.02f;
+            const float DpadBottom = 0.1f;
+            const float DpadThreshold = 0.09f;
+
+            const float DpadSize = 0.37f;
+            const float ButtonSize = 0.172f;
+            const float SmallButtonSize = 0.098f;
 
             AssetManager assets = Context.Assets;
 
@@ -57,22 +59,26 @@ namespace Jazz2.Android
             Material matRun = LoadButtonImageFromAssets(assets, "run.png");
             Material matSwitchWeapon = LoadButtonImageFromAssets(assets, "switch.png");
 
-            virtualButtons = new[] {
-                new VirtualButton { Action = PlayerActions.None, Left = dpadLeft, Top = dpadTop, Width = dpadWidth, Height = dpadHeight, Material = matDpad, CurrentPointerId = -1 },
-
-                new VirtualButton { Action = PlayerActions.Left, Left = dpadLeft - dpadThresholdX, Top = dpadTop, Width = (dpadWidth / 3) + dpadThresholdX, Height = dpadHeight, CurrentPointerId = -1 },
-                new VirtualButton { Action = PlayerActions.Right, Left = (dpadLeft + (dpadWidth * 2 / 3)), Top = dpadTop, Width = (dpadWidth / 3) + dpadThresholdX, Height = dpadHeight, CurrentPointerId = -1 },
-                new VirtualButton { Action = PlayerActions.Up, Left = dpadLeft, Top = dpadTop - dpadThresholdY, Width = dpadWidth, Height = (dpadHeight / 3) + dpadThresholdY, CurrentPointerId = -1 },
-                new VirtualButton { Action = PlayerActions.Down, Left = dpadLeft, Top = (dpadTop + (dpadHeight * 2 / 3)), Width = dpadWidth, Height = (dpadHeight / 3) + dpadThresholdY, CurrentPointerId = -1 },
-
-                new VirtualButton { Action = PlayerActions.Fire, Left = 0.68f, Top = 0.79f, Width = 0.094f, Height = 0.168f, Material = matFire, CurrentPointerId = -1 },
-                new VirtualButton { Action = PlayerActions.Jump, Left = 0.785f, Top = 0.71f, Width = 0.094f, Height = 0.168f, Material = matJump, CurrentPointerId = -1 },
-                new VirtualButton { Action = PlayerActions.Run, Left = 0.89f, Top = 0.64f, Width = 0.094f, Height = 0.168f, Material = matRun, CurrentPointerId = -1 },
-                new VirtualButton { Action = PlayerActions.SwitchWeapon, Left = 0.83f, Top = 0.57f, Width = 0.055f, Height = 0.096f, Material = matSwitchWeapon, CurrentPointerId = -1 }
+            TouchButtons = new[] {
+                // D-pad
+                CreateTouchButton(PlayerActions.None, matDpad, Alignment.BottomLeft, DpadLeft, DpadBottom, DpadSize, DpadSize),
+                // D-pad subsections
+                CreateTouchButton(PlayerActions.Left, null, Alignment.BottomLeft, DpadLeft - DpadThreshold, DpadBottom, (DpadSize / 3) + DpadThreshold, DpadSize),
+                CreateTouchButton(PlayerActions.Right, null, Alignment.BottomLeft, DpadLeft + (DpadSize * 2 / 3), DpadBottom, (DpadSize / 3) + DpadThreshold, DpadSize),
+                CreateTouchButton(PlayerActions.Up, null, Alignment.BottomLeft, DpadLeft, DpadBottom + (DpadSize * 2 / 3), DpadSize, (DpadSize / 3) + DpadThreshold),
+                CreateTouchButton(PlayerActions.Down, null, Alignment.BottomLeft, DpadLeft, DpadBottom - DpadThreshold, DpadSize, (DpadSize / 3) + DpadThreshold),
+                // Action buttons
+                CreateTouchButton(PlayerActions.Fire, matFire, Alignment.BottomRight, (ButtonSize + 0.02f) * 2, 0.04f, ButtonSize, ButtonSize),
+                CreateTouchButton(PlayerActions.Jump, matJump, Alignment.BottomRight, (ButtonSize + 0.02f), 0.04f + 0.08f, ButtonSize, ButtonSize),
+                CreateTouchButton(PlayerActions.Run, matRun, Alignment.BottomRight, 0f, 0.01f + 0.15f, ButtonSize, ButtonSize),
+                CreateTouchButton(PlayerActions.SwitchWeapon, matSwitchWeapon, Alignment.BottomRight, ButtonSize + 0.01f, 0.04f + 0.28f, SmallButtonSize, SmallButtonSize)
             };
 
-            showVirtualButtons = true;
-            allowVibrations = Preferences.Get("Vibrations", true);
+            ShowTouchButtons = true;
+            AllowVibrations = Preferences.Get("Vibrations", true);
+
+            LeftPadding = Preferences.Get("LeftPadding", (byte)20) * 0.001f;
+            RightPadding = Preferences.Get("RightPadding", (byte)70) * 0.001f;
 #endif
 
             DualityApp.Keyboard.Source = new KeyboardInputSource(this);
@@ -81,18 +87,23 @@ namespace Jazz2.Android
         public override bool OnTouchEvent(MotionEvent e)
         {
 #if ENABLE_TOUCH
-            if (virtualButtons != null) {
-                showVirtualButtons = true;
+            if (TouchButtons != null) {
+                ShowTouchButtons = true;
 
                 MotionEventActions action = e.ActionMasked;
                 if (action == MotionEventActions.Down || action == MotionEventActions.PointerDown) {
                     int pointerIndex = e.ActionIndex;
-                    float x = e.GetX(pointerIndex);
-                    float y = e.GetY(pointerIndex);
+                    float x = e.GetX(pointerIndex) / (float)viewportWidth;
+                    float y = e.GetY(pointerIndex) / (float)viewportHeight;
+                    if (x < 0.5f) {
+                        x -= LeftPadding;
+                    } else {
+                        x += RightPadding;
+                    }
 
                     bool vibrated = false;
-                    for (int i = 0; i < virtualButtons.Length; i++) {
-                        ref VirtualButton button = ref virtualButtons[i];
+                    for (int i = 0; i < TouchButtons.Length; i++) {
+                        ref TouchButtonInfo button = ref TouchButtons[i];
                         if (button.Action != PlayerActions.None) {
                             if (button.CurrentPointerId == -1 && IsOnButton(ref button, x, y)) {
                                 int pointerId = e.GetPointerId(pointerIndex);
@@ -100,7 +111,7 @@ namespace Jazz2.Android
                                 button.CurrentPointerId = pointerId;
                                 ControlScheme.InternalTouchAction(button.Action, true);
 
-                                if (allowVibrations && !vibrated) {
+                                if (AllowVibrations && !vibrated) {
                                     vibrator.Vibrate(16);
                                     vibrated = true;
                                 }
@@ -110,13 +121,21 @@ namespace Jazz2.Android
                 } else if (action == MotionEventActions.Move) {
                     int pointerCount = e.PointerCount;
 
-                    for (int i = 0; i < virtualButtons.Length; i++) {
-                        ref VirtualButton button = ref virtualButtons[i];
+                    for (int i = 0; i < TouchButtons.Length; i++) {
+                        ref TouchButtonInfo button = ref TouchButtons[i];
                         if (button.Action != PlayerActions.None) {
                             if (button.CurrentPointerId != -1) {
                                 int pointerIndex = e.FindPointerIndex(button.CurrentPointerId);
 
-                                if (!IsOnButton(ref button, e.GetX(pointerIndex), e.GetY(pointerIndex))) {
+                                float x = e.GetX(pointerIndex) / (float)viewportWidth;
+                                float y = e.GetY(pointerIndex) / (float)viewportHeight;
+                                if (x < 0.5f) {
+                                    x -= LeftPadding;
+                                } else {
+                                    x += RightPadding;
+                                }
+
+                                if (!IsOnButton(ref button, x, y)) {
                                     button.CurrentPointerId = -1;
                                     ControlScheme.InternalTouchAction(button.Action, false);
                                 }
@@ -128,7 +147,7 @@ namespace Jazz2.Android
                                         button.CurrentPointerId = pointerId;
                                         ControlScheme.InternalTouchAction(button.Action, true);
 
-                                        if (allowVibrations) {
+                                        if (AllowVibrations) {
                                             vibrator.Vibrate(11);
                                         }
                                         break;
@@ -138,8 +157,8 @@ namespace Jazz2.Android
                         }
                     }
                 } else if (action == MotionEventActions.Up || action == MotionEventActions.Cancel) {
-                    for (int i = 0; i < virtualButtons.Length; i++) {
-                        ref VirtualButton button = ref virtualButtons[i];
+                    for (int i = 0; i < TouchButtons.Length; i++) {
+                        ref TouchButtonInfo button = ref TouchButtons[i];
                         if (button.CurrentPointerId != -1) {
                             button.CurrentPointerId = -1;
                             ControlScheme.InternalTouchAction(button.Action, false);
@@ -149,8 +168,8 @@ namespace Jazz2.Android
                 } else if (action == MotionEventActions.PointerUp) {
                     int pointerId = e.GetPointerId(e.ActionIndex);
 
-                    for (int i = 0; i < virtualButtons.Length; i++) {
-                        ref VirtualButton button = ref virtualButtons[i];
+                    for (int i = 0; i < TouchButtons.Length; i++) {
+                        ref TouchButtonInfo button = ref TouchButtons[i];
                         if (button.CurrentPointerId == pointerId) {
                             button.CurrentPointerId = -1;
                             ControlScheme.InternalTouchAction(button.Action, false);
@@ -165,18 +184,18 @@ namespace Jazz2.Android
         }
 
 #if ENABLE_TOUCH
-        private bool IsOnButton(ref VirtualButton button, float x, float y)
+        private bool IsOnButton(ref TouchButtonInfo button, float x, float y)
         {
-            float left = button.Left * viewportWidth;
+            float left = button.Left;
             if (x < left) return false;
 
-            float top = button.Top * viewportHeight;
+            float top = button.Top;
             if (y < top) return false;
 
-            float right = left + button.Width * viewportWidth;
+            float right = left + button.Width;
             if (x > right) return false;
 
-            float bottom = top + button.Height * viewportHeight;
+            float bottom = top + button.Height;
             if (y > bottom) return false;
 
             return true;
@@ -191,7 +210,7 @@ namespace Jazz2.Android
                 ControlScheme.InternalTouchAction(PlayerActions.Menu, true);
                 return true;
             } else {
-                showVirtualButtons = false;
+                ShowTouchButtons = false;
                 pressedButtons[(int)ToDuality(keyCode)] = true;
 
                 // ToDo: Remove this... gamepad to keyboard redirection
@@ -233,8 +252,38 @@ namespace Jazz2.Android
 
             return true;
         }
-        
+
 #if ENABLE_TOUCH
+        private TouchButtonInfo CreateTouchButton(PlayerActions action, Material material, Alignment alignment, float x, float y, float w, float h)
+        {
+            float toWidth = ((float)viewportHeight / viewportWidth);
+            float left, top, width, height;
+
+            width = w * toWidth;
+            if ((alignment & Alignment.Right) != 0) {
+                left = 1f - x * toWidth - width;
+            } else {
+                left = x * toWidth;
+            }
+
+            height = h;
+            if ((alignment & Alignment.Bottom) != 0) {
+                top = 1f - y - height;
+            } else {
+                top = y;
+            }
+
+            return new TouchButtonInfo {
+                Action = action,
+                Left = left,
+                Top = top,
+                Width = width,
+                Height = height,
+                Material = material,
+                CurrentPointerId = -1
+            };
+        }
+
         private static Material LoadButtonImageFromAssets(AssetManager assets, string filename)
         {
             using (Stream s = assets.Open(filename))

@@ -110,6 +110,8 @@ namespace Jazz2.Android
             DualityApp.WindowSize = new Point2(viewportWidth, viewportHeight);
 
             MakeCurrent();
+
+            InitializeInput();
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -161,7 +163,7 @@ namespace Jazz2.Android
             ContentResolver.Current.InitPostWindow();
 
             // Reinitialize input
-            virtualButtons = null;
+            TouchButtons = null;
 
             InitializeInput();
 

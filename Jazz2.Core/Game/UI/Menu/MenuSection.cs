@@ -1,4 +1,5 @@
-﻿using Duality.Drawing;
+﻿using Duality;
+using Duality.Drawing;
 
 namespace Jazz2.Game.UI.Menu
 {
@@ -18,6 +19,6 @@ namespace Jazz2.Game.UI.Menu
 
         public abstract void OnUpdate();
 
-        public abstract void OnPaint(Canvas canvas);
+        public abstract void OnPaint(Canvas canvas, Rect view);
     }
 }

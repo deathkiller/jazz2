@@ -59,8 +59,7 @@ namespace Jazz2.Android
             Window.AddFlags(WindowManagerFlags.KeepScreenOn);
 
             try {
-                View decorView = Window.DecorView;
-                decorView.SystemUiVisibility |= (StatusBarVisibility)(SystemUiFlags.LayoutStable | SystemUiFlags.LayoutFullscreen | SystemUiFlags.ImmersiveSticky);
+                Window.DecorView.SystemUiVisibility |= (StatusBarVisibility)(SystemUiFlags.LayoutStable | SystemUiFlags.LayoutFullscreen | SystemUiFlags.LayoutHideNavigation);
 
                 Window.ClearFlags(WindowManagerFlags.TranslucentStatus);
                 Window.AddFlags(WindowManagerFlags.DrawsSystemBarBackgrounds);
@@ -172,8 +171,11 @@ namespace Jazz2.Android
             content += "<br><br><small>If you have any issues, report it to developers.<br><a href=\"https://github.com/deathkiller/jazz2\">https://github.com/deathkiller/jazz2</a></small>";
 
             try {
+                Window.DecorView.SystemUiVisibility &= ~(StatusBarVisibility)SystemUiFlags.LayoutHideNavigation;
+
                 if (Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop) {
                     Window.SetStatusBarColor(new Color(0x30000000));
+                    Window.SetNavigationBarColor(new Color(unchecked((int)0xff000000)));
                 }
             } catch {
                 // Nothing to do...
@@ -221,8 +223,11 @@ namespace Jazz2.Android
         private void RunGame()
         {
             try {
+                Window.DecorView.SystemUiVisibility |= (StatusBarVisibility)SystemUiFlags.LayoutHideNavigation;
+
                 if (Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop) {
                     Window.SetStatusBarColor(new Color(0));
+                    Window.SetNavigationBarColor(new Color(0));
                 }
             } catch {
                 // Nothing to do...

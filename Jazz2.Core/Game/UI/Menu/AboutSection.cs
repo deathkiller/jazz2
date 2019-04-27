@@ -17,14 +17,16 @@ namespace Jazz2.Game.UI.Menu
             }
         }
 
-        public override void OnPaint(Canvas canvas)
+        public override void OnPaint(Canvas canvas, Rect view)
         {
             IDrawDevice device = canvas.DrawDevice;
 
-            Vector2 pos = device.TargetSize * 0.5f;
-            pos.Y *= 0.5f + 0.2f;
+            Vector2 size = device.TargetSize;
 
-            api.DrawMaterial("MenuDim", pos.X, ((pos.Y + 60f) + 420f) * 0.5f, Alignment.Center, ColorRgba.White, 55f, 14.2f, new Rect(0f, 0.3f, 1f, 0.7f));
+            Vector2 pos = size * 0.5f;
+            pos.Y = Math.Max(150f, pos.Y * 0.75f);
+
+            api.DrawMaterial("MenuDim", pos.X, pos.Y + 60f - 2f, Alignment.Top, ColorRgba.White, 55f, 14.2f, new Rect(0f, 0.3f, 1f, 0.7f));
 
             pos.X *= 0.35f;
 
@@ -57,7 +59,7 @@ namespace Jazz2.Game.UI.Menu
 
             y += 40f;
 
-            if (libopenmptText != null) {
+            if (size.Y - 50f > y && libopenmptText != null) {
                 api.DrawStringShadow(ref charOffset, libopenmptText, pos.X, y,
                     Alignment.Left, ColorRgba.TransparentBlack, 0.7f, 0.4f, 0.6f, 0.6f, 7f, 0.9f);
                 api.DrawStringShadow(ref charOffset, "Olivier Lapicque & OpenMPT contributors", pos.X + 25f, y + 16f,
@@ -66,10 +68,12 @@ namespace Jazz2.Game.UI.Menu
                 y += 40f;
             }
 
-            api.DrawStringShadow(ref charOffset, "Uses OpenTK library released under MIT/X11 license.", pos.X, y,
-                Alignment.Left, ColorRgba.TransparentBlack, 0.7f, 0.4f, 0.6f, 0.6f, 7f, 0.9f);
-            api.DrawStringShadow(ref charOffset, "Stefanos Apostolopoulos  <stapostol@gmail.com>", pos.X + 25f, y + 16f,
-                Alignment.Left, ColorRgba.TransparentBlack, 0.8f, 0.4f, 0.7f, 0.7f, 7f, 0.9f);
+            if (size.Y - 50f > y) {
+                api.DrawStringShadow(ref charOffset, "Uses OpenTK library released under MIT/X11 license.", pos.X, y,
+                    Alignment.Left, ColorRgba.TransparentBlack, 0.7f, 0.4f, 0.6f, 0.6f, 7f, 0.9f);
+                api.DrawStringShadow(ref charOffset, "Stefanos Apostolopoulos  <stapostol@gmail.com>", pos.X + 25f, y + 16f,
+                    Alignment.Left, ColorRgba.TransparentBlack, 0.8f, 0.4f, 0.7f, 0.7f, 7f, 0.9f);
+            }
 
             api.DrawMaterial("MenuLine", 0, /*center.X*/device.TargetSize.X * 0.5f, pos.Y + 60f, Alignment.Center, ColorRgba.White, 1.6f);
         }

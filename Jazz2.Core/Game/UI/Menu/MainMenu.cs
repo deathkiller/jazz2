@@ -249,6 +249,10 @@ namespace Jazz2.Game.UI.Menu
         private void OnRender(IDrawDevice device)
         {
             Vector2 size = device.TargetSize;
+
+            Rect view = new Rect(size);
+            AdjustVisibleZone(ref view);
+
             Vector2 center = size * 0.5f;
 
             canvas.Begin(device);
@@ -278,14 +282,14 @@ namespace Jazz2.Game.UI.Menu
 
             // Version
             Vector2 bottomRight = size;
-            bottomRight.X -= 24f;
+            bottomRight.X = view.X + view.W - 24f;
             bottomRight.Y -= 10f;
             DrawStringShadow(ref charOffset, "v" + App.AssemblyVersion, bottomRight.X, bottomRight.Y, Alignment.BottomRight,
                 ColorRgba.TransparentBlack, 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
 
             // Copyright
             Vector2 bottomLeft = bottomRight;
-            bottomLeft.X = 24f;
+            bottomLeft.X = view.X + 24f;
             DrawStringShadow(ref charOffset, "(c) 2016-" + DateTime.Now.Year + "  Dan R.", bottomLeft.X, bottomLeft.Y, Alignment.BottomLeft,
                 ColorRgba.TransparentBlack, 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
 
@@ -300,7 +304,7 @@ namespace Jazz2.Game.UI.Menu
 
             // Current section
             if (sectionStack.Count > 0) {
-                sectionStack.Peek().OnPaint(canvas);
+                sectionStack.Peek().OnPaint(canvas, view);
             }
 
             DrawPlatformSpecific(size);
@@ -336,6 +340,8 @@ namespace Jazz2.Game.UI.Menu
         partial void InitPlatformSpecific();
 
         partial void DrawPlatformSpecific(Vector2 size);
+
+        partial void AdjustVisibleZone(ref Rect view);
 
         private class LocalController : Component, ICmpUpdatable, ICmpRenderer
         {
