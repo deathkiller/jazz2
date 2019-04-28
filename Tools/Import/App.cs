@@ -734,16 +734,16 @@ namespace Import
 
                 if (Directory.Exists(Path.Combine(targetPath, "Content", "Tilesets"))) {
                     string[] tilesets = Directory.GetFiles(Path.Combine(targetPath, "Content", "Tilesets"), "*.set");
-                    foreach (string directory in tilesets) {
-                        if (!usedTilesets.Contains(Path.GetFileNameWithoutExtension(directory).ToLowerInvariant())) {
+                    foreach (string tileset in tilesets) {
+                        if (!usedTilesets.Contains(Path.GetFileNameWithoutExtension(tileset).ToLowerInvariant())) {
                             try {
-                                Directory.Delete(directory, true);
+                                File.Delete(tileset);
                                 if (verbose) {
-                                    Log.Write(LogType.Verbose, "Tileset \"" + Path.GetFileName(directory) + "\" removed.");
+                                    Log.Write(LogType.Verbose, "Tileset \"" + Path.GetFileName(tileset) + "\" removed.");
                                 }
                                 removedCount++;
                             } catch {
-                                Log.Write(LogType.Warning, "Tileset \"" + Path.GetFileName(directory) + "\" cannot be removed.");
+                                Log.Write(LogType.Warning, "Tileset \"" + Path.GetFileName(tileset) + "\" cannot be removed.");
                             }
 
                         }

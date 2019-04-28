@@ -27,11 +27,11 @@ Uses parts of [Duality - A 2D GameDev Framework](https://www.duality2d.net/).
 
 
 ## Preview
-[**Watch gameplay videos**](https://www.youtube.com/playlist?list=PLfrN-pyVL7k6n2VJF197F0yVOZq4EPTsP)
-
 <div align="center">
-    <img src="https://raw.githubusercontent.com/deathkiller/jazz2/master/Docs/Screen1.png" alt="Preview">
+    <img src="https://raw.githubusercontent.com/deathkiller/jazz2/master/Docs/Screen2.gif" alt="Preview">
 </div>
+
+[:tv: Watch gameplay videos](https://www.youtube.com/playlist?list=PLfrN-pyVL7k6n2VJF197F0yVOZq4EPTsP)
 
 
 ## Running the application
