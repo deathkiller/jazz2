@@ -95,6 +95,8 @@ namespace Jazz2.Game.UI
                     currentPlayer = "CharacterSpaz";
                 } else if (owner.PlayerType == PlayerType.Lori) {
                     currentPlayer = "CharacterLori";
+                } else if (owner.PlayerType == PlayerType.Frog) {
+                    currentPlayer = "CharacterFrog";
                 } else {
                     currentPlayer = "CharacterJazz";
                 }

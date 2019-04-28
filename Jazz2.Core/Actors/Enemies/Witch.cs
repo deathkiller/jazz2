@@ -23,6 +23,8 @@ namespace Jazz2.Actors.Enemies
 
             RequestMetadata("Enemy/Witch");
             SetAnimation(AnimState.Idle);
+
+            PreloadMetadata("Interactive/PlayerFrog");
         }
 
         protected override void OnUpdate()
@@ -167,10 +169,12 @@ namespace Jazz2.Actors.Enemies
                 }
 
                 foreach (ActorBase collision in api.FindCollisionActors(this)) {
-                    if (collision is Player) {
+                    Player player = collision as Player;
+                    if (player != null) {
                         DecreaseHealth(int.MaxValue);
                         owner.OnPlayerHit();
-                        // ToDo: Frog
+
+                        player.MorphTo(PlayerType.Frog);
                     }
                 }
             }

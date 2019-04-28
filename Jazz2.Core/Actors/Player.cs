@@ -16,7 +16,8 @@ namespace Jazz2.Actors
     {
         Jazz,
         Spaz,
-        Lori
+        Lori,
+        Frog
     }
 
     public partial class Player : ActorBase
@@ -479,19 +480,24 @@ namespace Jazz2.Actors
 
                     isActivelyPushing = wasActivelyPushing = true;
 
-                    if (dizzyTime > 0f) {
+                    if (dizzyTime > 0f || playerType == PlayerType.Frog) {
                         speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxDizzySpeed, MaxDizzySpeed);
                     } else {
                         bool isDashPressed = ControlScheme.PlayerActionPressed(index, PlayerActions.Run);
-                        if (suspendType == SuspendType.None && isDashPressed) {
+                        if (suspendType == SuspendType.None && isDashPressed)
+                        {
                             speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxDashingSpeed, MaxDashingSpeed);
-                        } else if (suspendType == SuspendType.Vine) {
-                            if (wasFirePressed) {
+                        } else if (suspendType == SuspendType.Vine)
+                        {
+                            if (wasFirePressed)
+                            {
                                 speedX = 0f;
-                            } else {
+                            } else
+                            {
                                 speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxVineSpeed, MaxVineSpeed);
                             }
-                        } else if (suspendType != SuspendType.Hook) {
+                        } else if (suspendType != SuspendType.Hook)
+                        {
                             speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxRunningSpeed, MaxRunningSpeed);
                         }
                     }
@@ -610,7 +616,7 @@ namespace Jazz2.Actors
 
                                 SetAnimation(AnimState.Crouch);
                             }
-                        } else {
+                        } else if (playerType != PlayerType.Frog) {
                             wasDownPressed = true;
 
                             controllable = false;
@@ -705,6 +711,7 @@ namespace Jazz2.Actors
 
                                             internalForceY = 1.15f;
                                             speedY = -2f - MathF.Max(0f, (MathF.Abs(speedX) - 4f) * 0.3f);
+                                            speedX *= 0.4f;
 
                                             PlaySound("DoubleJump");
 
@@ -772,7 +779,18 @@ namespace Jazz2.Actors
             // Fire
             if (ControlScheme.PlayerActionPressed(index, PlayerActions.Fire)) {
                 if (!isLifting && (currentAnimationState & AnimState.Push) == 0 && pushFramesLeft <= 0f) {
-                    if (weaponAmmo[(int)currentWeapon] != 0) {
+                    if (playerType == PlayerType.Frog) {
+                        if (currentTransitionState == AnimState.Idle) {
+                            PlaySound("Tongue");
+
+                            controllable = false;
+                            controllableTimeout = 100f;
+                            SetTransition(currentAnimationState | AnimState.Shoot, false, delegate {
+                                controllable = true;
+                                controllableTimeout = 0f;
+                            });
+                        }
+                    } else if (weaponAmmo[(int)currentWeapon] != 0) {
                         if (currentTransitionState == AnimState.Spring || currentTransitionState == AnimState.TransitionShootToIdle) {
                             ForceCancelTransition();
                         }

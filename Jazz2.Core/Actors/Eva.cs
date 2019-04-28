@@ -1,5 +1,4 @@
-﻿using Duality;
-using Jazz2.Game.Structs;
+﻿using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors
 {
@@ -15,6 +14,16 @@ namespace Jazz2.Actors
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
         }
 
-        // ToDo: Implement this
+        public override void OnHandleCollision(ActorBase other)
+        {
+            switch (other) {
+                case Player player: {
+                    if (player.PlayerType == PlayerType.Frog) {
+                        player.MorphToOriginal();
+                    }
+                    break;
+                }
+            }
+        }
     }
 }

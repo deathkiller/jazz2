@@ -99,13 +99,17 @@ namespace Jazz2.Actors
 
         public void MorphTo(PlayerType type)
         {
+            PlayerType playerTypePrevious = playerType;
+
             playerType = type;
 
-            Explosion.Create(api, Transform.Pos + new Vector3(-12f, -6f, -4f), Explosion.SmokeBrown);
-            Explosion.Create(api, Transform.Pos + new Vector3(-8f, 28f, -4f), Explosion.SmokeBrown);
-            Explosion.Create(api, Transform.Pos + new Vector3(12f, 10f, -4f), Explosion.SmokeBrown);
-
-            Explosion.Create(api, Transform.Pos + new Vector3(0f, 12f, -6f), Explosion.SmokePoof);
+            //if (playerTypePrevious == PlayerType.Frog) {
+            //    switch (playerType) {
+            //        case PlayerType.Jazz: SetTransition((AnimState)0x60000003, false); break;
+            //        case PlayerType.Spaz: SetTransition((AnimState)0x60000004, false); break;
+            //        case PlayerType.Lori: SetTransition((AnimState)0x60000005, false); break;
+            //    }
+            //}
 
             // Load new metadata
             switch (playerType) {
@@ -118,11 +122,40 @@ namespace Jazz2.Actors
                 case PlayerType.Lori:
                     RequestMetadata("Interactive/PlayerLori");
                     break;
+                case PlayerType.Frog:
+                    RequestMetadata("Interactive/PlayerFrog");
+                    break;
             }
 
             // Refresh animation state
-            currentAnimation = null;
-            SetAnimation(currentAnimationState);
+            //if (playerTypePrevious != PlayerType.Frog) {
+                currentAnimation = null;
+                SetAnimation(currentAnimationState);
+            //}
+
+            // Set transition
+            if (type == PlayerType.Frog) {
+                PlaySound("Transform");
+
+                switch (playerTypePrevious) {
+                    case PlayerType.Jazz: SetTransition((AnimState)0x60000000, false); break;
+                    case PlayerType.Spaz: SetTransition((AnimState)0x60000001, false); break;
+                    case PlayerType.Lori: SetTransition((AnimState)0x60000002, false); break;
+                }
+            //} else if (playerTypePrevious == PlayerType.Frog) {
+            //    // Transition was already set
+            } else {
+                Explosion.Create(api, Transform.Pos + new Vector3(-12f, -6f, -4f), Explosion.SmokeBrown);
+                Explosion.Create(api, Transform.Pos + new Vector3(-8f, 28f, -4f), Explosion.SmokeBrown);
+                Explosion.Create(api, Transform.Pos + new Vector3(12f, 10f, -4f), Explosion.SmokeBrown);
+
+                Explosion.Create(api, Transform.Pos + new Vector3(0f, 12f, -6f), Explosion.SmokePoof);
+            }
+        }
+
+        public void MorphToOriginal()
+        {
+            MorphTo(playerTypeOriginal);
         }
 
         public bool SetModifier(Modifier modifier)
