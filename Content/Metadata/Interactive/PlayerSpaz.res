@@ -303,9 +303,18 @@
             "States": [ 1073741849 ]
         },
 
+        "TransformFromFrog": {
+            "Path": "Spaz/transform_frog_end.png",
+            "States": [ 1073741888 ],
+            "FrameRate": 3
+        },
         
         "Corpse": {
             "Path": "Spaz/corpse.png"
+        },
+
+        "SugarRush": {
+            "Path": "Common/SugarRushStars.png"
         }
     },
 

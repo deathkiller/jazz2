@@ -336,8 +336,8 @@ namespace Jazz2.Game
             if (json.Sounds != null) {
                 metadata.Sounds = new Dictionary<string, SoundResource>();
 
-                foreach (var s in json.Sounds) {
-                    if (s.Value.Paths == null || s.Value.Paths.Count == 0) {
+                foreach (var sound in json.Sounds) {
+                    if (sound.Value.Paths == null || sound.Value.Paths.Count == 0) {
                         // No path provided, skip resource...
                         continue;
                     }
@@ -345,22 +345,25 @@ namespace Jazz2.Game
 #if !THROW_ON_MISSING_RESOURCES
                     try {
 #endif
-                        IList<string> filenames = s.Value.Paths;
+                        IList<string> filenames = sound.Value.Paths;
                         ContentRef<AudioData>[] data = new ContentRef<AudioData>[filenames.Count];
                         for (int i = 0; i < data.Length; i++) {
 #if UNCOMPRESSED_CONTENT
-                            data[i] = new AudioData(FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, "Animations", filenames[i]), FileAccessMode.Read));
+                            using (Stream s = FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, "Animations", filenames[i]), FileAccessMode.Read))
 #else
-                            data[i] = new AudioData(FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Animations", filenames[i]), FileAccessMode.Read));
+                            using (Stream s = FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Animations", filenames[i]), FileAccessMode.Read))
 #endif
+                            {
+                                data[i] = new AudioData(s);
+                            }
                         }
 
                         SoundResource resource = new SoundResource();
                         resource.Sound = new Sound(data);
-                        metadata.Sounds[s.Key] = resource;
+                        metadata.Sounds[sound.Key] = resource;
 #if !THROW_ON_MISSING_RESOURCES
                     } catch (Exception ex) {
-                        App.Log("Can't load sound \"" + s.Key + "\" from metadata \"" + path + "\": " + ex.Message);
+                        App.Log("Can't load sound \"" + sound.Key + "\" from metadata \"" + path + "\": " + ex.Message);
                     }
 #endif
                 }

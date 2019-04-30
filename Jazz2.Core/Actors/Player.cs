@@ -1,5 +1,7 @@
 ﻿using System;
 using Duality;
+using Duality.Drawing;
+using Duality.Resources;
 using Jazz2.Actors.Enemies;
 using Jazz2.Actors.Environment;
 using Jazz2.Actors.Solid;
@@ -73,10 +75,11 @@ namespace Jazz2.Actors
         private MovingPlatform carryingObject;
         private bool canDoubleJump = true;
 
-        private bool isSugarRush;
-        private int lives, score, coins;
+        private int lives, score, coins, foodEaten;
         private Vector2 checkpointPos;
         private float checkpointLight;
+
+        private float sugarRushLeft, sugarRushStarsTime;
 
         private int gems, gemsPitch;
         private float gemsTimer;
@@ -97,7 +100,7 @@ namespace Jazz2.Actors
         public int Lives => lives;
         public PlayerType PlayerType => playerType;
 
-        public bool CanBreakSolidObjects => (currentSpecialMove != SpecialMoveType.None || isSugarRush);
+        public bool CanBreakSolidObjects => (currentSpecialMove != SpecialMoveType.None || sugarRushLeft > 0f);
 
         public override void OnAttach(ActorInstantiationDetails details)
         {
@@ -145,6 +148,7 @@ namespace Jazz2.Actors
         {
             lives = carryOver.Lives;
             score = carryOver.Score;
+            foodEaten = carryOver.FoodEaten;
             currentWeapon = carryOver.CurrentWeapon;
 
             if (carryOver.Ammo != null) {
@@ -193,6 +197,7 @@ namespace Jazz2.Actors
 
                 Lives = lives,
                 Score = score,
+                FoodEaten = foodEaten,
                 CurrentWeapon = currentWeapon,
                 Ammo = weaponAmmo,
                 WeaponUpgrades = weaponUpgrades
@@ -456,6 +461,52 @@ namespace Jazz2.Actors
                 dizzyTime -= timeMult;
             }
 
+            if (sugarRushLeft > 0f) {
+                sugarRushLeft -= timeMult;
+
+                if (sugarRushLeft > 0f) {
+                    if (sugarRushStarsTime > 0f) {
+                        sugarRushStarsTime -= timeMult;
+                    } else {
+                        sugarRushStarsTime = MathF.Rnd.NextFloat(2f, 8f);
+
+                        TileMap tilemap = api.TileMap;
+                        if (tilemap != null) {
+                            GraphicResource res;
+                            if (availableAnimations.TryGetValue("SugarRush", out res)) {
+                                Vector3 pos = Transform.Pos;
+                                pos.Z -= 30f;
+
+                                Material material = res.Material.Res;
+                                Texture texture = material.MainTexture.Res;
+
+                                float speedX = MathF.Rnd.NextFloat(-1f, 1f) * MathF.Rnd.NextFloat(0.4f, 4f);
+                                tilemap.CreateDebris(new TileMap.DestructibleDebris {
+                                    Pos = pos,
+                                    Size = res.Base.FrameDimensions,
+                                    Speed = new Vector2(speedX, -1f * MathF.Rnd.NextFloat(2.2f, 4f)),
+                                    Acceleration = new Vector2(0f, 0.2f),
+
+                                    Scale = MathF.Rnd.NextFloat(0.1f, 0.5f),
+                                    ScaleSpeed = -0.002f,
+                                    Angle = MathF.Rnd.NextFloat(MathF.TwoPi),
+                                    AngleSpeed = speedX * 0.04f,
+                                    Alpha = 1f,
+                                    AlphaSpeed = -0.018f,
+
+                                    Time = 160f,
+
+                                    Material = material,
+                                    MaterialOffset = texture.LookupAtlas(res.FrameOffset + MathF.Rnd.Next(res.FrameCount))
+                                });
+                            }
+                        }
+                    }
+                } else {
+                    OnAnimationStarted();
+                }
+            }
+
             if (activeModifier != Modifier.None) {
                 if (activeModifier == Modifier.Copter || activeModifier == Modifier.LizardCopter) {
                     copterFramesLeft -= timeMult;
@@ -468,8 +519,10 @@ namespace Jazz2.Actors
             // Controls
             // Move
             if (keepRunningTime <= 0f) {
+                bool canWalk = (controllable && !isLifting && (playerType != PlayerType.Frog || !ControlScheme.PlayerActionPressed(index, PlayerActions.Fire)));
+
                 bool isRightPressed;
-                if (!isLifting && controllable && ((isRightPressed = ControlScheme.PlayerActionPressed(index, PlayerActions.Right)) ^ ControlScheme.PlayerActionPressed(index, PlayerActions.Left))) {
+                if (canWalk && ((isRightPressed = ControlScheme.PlayerActionPressed(index, PlayerActions.Right)) ^ ControlScheme.PlayerActionPressed(index, PlayerActions.Left))) {
                     SetAnimation(currentAnimationState & ~(AnimState.Lookup | AnimState.Crouch));
 
                     if (dizzyTime > 0f) {
@@ -553,9 +606,9 @@ namespace Jazz2.Actors
                     }
                 }
             } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.I)) {
-                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add FastFire");
+                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Sugar Rush");
 
-                AddFastFire(1);
+                BeginSugarRush();
             } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.O)) {
                 attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add all PowerUps");
 
@@ -780,11 +833,12 @@ namespace Jazz2.Actors
             if (ControlScheme.PlayerActionPressed(index, PlayerActions.Fire)) {
                 if (!isLifting && (currentAnimationState & AnimState.Push) == 0 && pushFramesLeft <= 0f) {
                     if (playerType == PlayerType.Frog) {
-                        if (currentTransitionState == AnimState.Idle) {
-                            PlaySound("Tongue");
+                        if (currentTransitionState == AnimState.Idle && MathF.Abs(speedX) < 0.1f && MathF.Abs(speedY) < 0.1f && MathF.Abs(externalForceX) < 0.1f && MathF.Abs(externalForceY) < 0.1f) {
+                            PlaySound("Tongue", 0.8f);
 
                             controllable = false;
-                            controllableTimeout = 100f;
+                            controllableTimeout = 120f;
+
                             SetTransition(currentAnimationState | AnimState.Shoot, false, delegate {
                                 controllable = true;
                                 controllableTimeout = 0f;
@@ -813,7 +867,7 @@ namespace Jazz2.Actors
                 weaponCooldown = 0f;
             }
 
-            if (ControlScheme.PlayerActionHit(index, PlayerActions.SwitchWeapon)) {
+            if (playerType != PlayerType.Frog && ControlScheme.PlayerActionHit(index, PlayerActions.SwitchWeapon)) {
                 SwitchToNextWeapon();
             }
         }
@@ -1019,6 +1073,20 @@ namespace Jazz2.Actors
                 });
             }
             return false;
+        }
+
+        protected override void OnAnimationStarted()
+        {
+            if (sugarRushLeft <= 0f) {
+                // Reset renderer
+                renderer.CustomMaterial = null;
+            } else {
+                // Refresh temporary material
+                BatchInfo blinkMaterial = new BatchInfo(renderer.SharedMaterial.Res.Info);
+                blinkMaterial.Technique = ContentResolver.Current.RequestShader("Colorize");
+                blinkMaterial.MainColor = new ColorRgba(0.7f, 0.5f);
+                renderer.CustomMaterial = blinkMaterial;
+            }
         }
 
         private void UpdateAnimation(float timeMult, float lastX, float lastSpeedX, float lastForceX)
@@ -1269,7 +1337,7 @@ namespace Jazz2.Actors
             Hitbox tileCollisionHitbox = currentHitbox + new Vector2((speedX + externalForceX) * 2f * timeMult, (speedY - externalForceY) * 2f * timeMult);
 
             // Buttstomp/etc. tiles checking
-            if (currentSpecialMove != SpecialMoveType.None || isSugarRush) {
+            if (currentSpecialMove != SpecialMoveType.None || sugarRushLeft > 0f) {
                 int destroyedCount = tiles.CheckSpecialDestructible(ref tileCollisionHitbox);
                 AddScore(destroyedCount * 50);
 
@@ -1282,9 +1350,9 @@ namespace Jazz2.Actors
             //tileCollisionHitbox = currentHitbox.Extend(MathF.Abs(speedX), MathF.Abs(speedY)).Extend(3f);
 
             // Speed tiles checking
-            if (MathF.Abs(speedX) > float.Epsilon || MathF.Abs(speedY) > float.Epsilon || isSugarRush) {
+            if (MathF.Abs(speedX) > float.Epsilon || MathF.Abs(speedY) > float.Epsilon || sugarRushLeft > 0f) {
                 int destroyedCount = tiles.CheckSpecialSpeedDestructible(ref tileCollisionHitbox,
-                    isSugarRush ? 64f : MathF.Max(MathF.Abs(speedX), MathF.Abs(speedY)));
+                    sugarRushLeft > 0f ? 64f : MathF.Max(MathF.Abs(speedX), MathF.Abs(speedY)));
 
                 AddScore(destroyedCount * 50);
             }
@@ -1338,7 +1406,7 @@ namespace Jazz2.Actors
                 }
             }
 
-            if (newSuspendState != SuspendType.None) {
+            if (newSuspendState != SuspendType.None && playerType != PlayerType.Frog) {
                 if (currentSpecialMove != SpecialMoveType.Uppercut) {
 
                     suspendType = newSuspendState;
@@ -1657,7 +1725,7 @@ namespace Jazz2.Actors
 
             switch (other) {
                 case TurtleShell collider: {
-                    if (currentSpecialMove != SpecialMoveType.None || isSugarRush) {
+                    if (currentSpecialMove != SpecialMoveType.None || sugarRushLeft > 0f) {
                         collider.DecreaseHealth(int.MaxValue, this);
 
                         if ((currentAnimationState & AnimState.Buttstomp) != 0) {
@@ -1670,13 +1738,13 @@ namespace Jazz2.Actors
                 }
 
                 case EnemyBase collider: {
-                    if (currentSpecialMove != SpecialMoveType.None || isSugarRush || shieldTime > 0f) {
+                    if (currentSpecialMove != SpecialMoveType.None || sugarRushLeft > 0f || shieldTime > 0f) {
                         if (!collider.IsInvulnerable) {
                             collider.DecreaseHealth(4, this);
 
                             Explosion.Create(api, collider.Transform.Pos, Explosion.Small);
 
-                            if (isSugarRush) {
+                            if (sugarRushLeft > 0f) {
                                 if (canJump) {
                                     speedY = 3;
                                     canJump = false;
@@ -1942,7 +2010,7 @@ namespace Jazz2.Actors
 
         private void InitialPoleStage(bool horizontal)
         {
-            if (isAttachedToPole) {
+            if (isAttachedToPole || playerType == PlayerType.Frog) {
                 return;
             }
 

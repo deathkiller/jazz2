@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using Duality.Drawing;
 using Import;
 
 namespace Jazz2.Compatibility
@@ -21,7 +22,7 @@ namespace Jazz2.Compatibility
 
         private string name;
         private JJ2Version version;
-        private Color[] palette;
+        private ColorRgba[] palette;
         private TilesetTileSection[] tiles;
         private int tileCount;
 
@@ -90,14 +91,14 @@ namespace Jazz2.Compatibility
 
         private void LoadMetadata(JJ2Block block)
         {
-            palette = new Color[256];
+            palette = new ColorRgba[256];
 
             for (int i = 0; i < 256; i++) {
                 byte red = block.ReadByte();
                 byte green = block.ReadByte();
                 byte blue = block.ReadByte();
                 byte alpha = block.ReadByte();
-                palette[i] = Color.FromArgb(255 - alpha, red, green, blue);
+                palette[i] = new ColorRgba(red, green, blue, (byte)(255 - alpha));
             }
 
             tileCount = block.ReadInt32();
@@ -146,7 +147,7 @@ namespace Jazz2.Compatibility
                 byte[] alphaMaskData = alphaBlock.ReadRawBytes(128, tile.AlphaDataOffset);
                 for (int j = 0; j < (BlockSize * BlockSize); j++) {
                     byte idx = imageData[j];
-                    Color color;
+                    ColorRgba color;
                     if (alphaMaskData.Length > 0 && ((alphaMaskData[j / 8] >> (j % 8)) & 0x01) == 0x00) {
                         //color = Color.Transparent;
                         color = JJ2DefaultPalette.ByIndex[0];
@@ -155,7 +156,7 @@ namespace Jazz2.Compatibility
                         color = JJ2DefaultPalette.ByIndex[idx];
                     }
 
-                    tile.Image.SetPixel(j % BlockSize, j / BlockSize, color);
+                    tile.Image.SetPixel(j % BlockSize, j / BlockSize, Color.FromArgb(color.A, color.R, color.G, color.B));
                 }
             }
         }
@@ -190,8 +191,8 @@ namespace Jazz2.Compatibility
             const int TilesPerRow = 30;
 
             // Save tiles and mask
-            Bitmap tilesTexture = new Bitmap(TileSize * TilesPerRow, ((tileCount - 1) / TilesPerRow + 1) * TileSize);
-            Bitmap masksTexture = new Bitmap(TileSize * TilesPerRow, ((tileCount - 1) / TilesPerRow + 1) * TileSize);
+            Bitmap tilesTexture = new Bitmap(TileSize * TilesPerRow, ((tileCount - 1) / TilesPerRow + 1) * TileSize, PixelFormat.Format32bppArgb);
+            Bitmap masksTexture = new Bitmap(TileSize * TilesPerRow, ((tileCount - 1) / TilesPerRow + 1) * TileSize, PixelFormat.Format32bppArgb);
 
             using (Graphics tilesTextureG = Graphics.FromImage(tilesTexture))
             using (Graphics masksTextureG = Graphics.FromImage(masksTexture)) {
@@ -207,16 +208,18 @@ namespace Jazz2.Compatibility
                 }
             }
 
-            tilesTexture.Save(Path.Combine(path, "Diffuse.png"), ImageFormat.Png);
-            masksTexture.Save(Path.Combine(path, "Mask.png"), ImageFormat.Png);
+            PngWriter tilesTextureWriter = new PngWriter(tilesTexture);
+            PngWriter masksTextureWriter = new PngWriter(masksTexture);
+
+            tilesTextureWriter.Save(Path.Combine(path, "Diffuse.png"));
+            masksTextureWriter.Save(Path.Combine(path, "Mask.png"));
 
             // Create normal map
-            using (Bitmap normalMap = NormalMapGenerator.FromSprite(tilesTexture,
+            PngWriter normalMap = NormalMapGenerator.FromSprite(tilesTextureWriter,
                     new Point(tilesTexture.Width / TileSize, tilesTexture.Height / TileSize),
-                    palette)) {
+                    palette);
 
-                normalMap.Save(Path.Combine(path, "Normals.png"), ImageFormat.Png);
-            }
+            normalMap.Save(Path.Combine(path, "Normals.png"));
 
             // Save tileset palette
             if (palette != null && palette.Length > 1) {

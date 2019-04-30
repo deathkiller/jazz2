@@ -38,5 +38,10 @@
             "Path": "Caterpillar/smoke.png",
             "FrameRate": 5
         }
+    },
+    "Sounds": {
+        "Dizzy": {
+            "Paths": [ "Caterpillar/dizzy.wav" ]
+        }
     }
 }

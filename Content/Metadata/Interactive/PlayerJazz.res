@@ -311,8 +311,18 @@
             "States": [ 1073741849 ]
         },
         
+        "TransformFromFrog": {
+            "Path": "Jazz/transform_frog_end.png",
+            "States": [ 1073741888 ],
+            "FrameRate": 3
+        },
+        
         "Corpse": {
             "Path": "Jazz/corpse.png"
+        },
+
+        "SugarRush": {
+            "Path": "Common/SugarRushStars.png"
         }
     },
 

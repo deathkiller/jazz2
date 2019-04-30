@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Drawing;
+using Duality.Drawing;
 using Import;
 
 namespace Jazz2.Compatibility
@@ -11,7 +11,7 @@ namespace Jazz2.Compatibility
             public string Category;
             public string Name;
 
-            public Color[] Palette;
+            public ColorRgba[] Palette;
             public bool SkipNormalMap;
             public int AddBorder;
             public bool AllowRealtimePalette;
@@ -1991,7 +1991,7 @@ namespace Jazz2.Compatibility
             }
         }
 
-        private void Add(JJ2Version appliesTo, string category, string name, Color[] palette = null, bool skipNormalMap = false, int addBorder = 0, bool allowRealtimePalette = false) {
+        private void Add(JJ2Version appliesTo, string category, string name, ColorRgba[] palette = null, bool skipNormalMap = false, int addBorder = 0, bool allowRealtimePalette = false) {
             if ((version & appliesTo) != 0) {
                 entries.Add(Pair.Create(currentSet, currentItem), new Entry {
                     Category = category,
@@ -2005,7 +2005,7 @@ namespace Jazz2.Compatibility
             }
         }
 
-        private void Add(string category, string name, Color[] palette = null, bool skipNormalMap = false, int addBorder = 0, bool allowRealtimePalette = false)
+        private void Add(string category, string name, ColorRgba[] palette = null, bool skipNormalMap = false, int addBorder = 0, bool allowRealtimePalette = false)
         {
             entries.Add(Pair.Create(currentSet, currentItem), new Entry {
                 Category = category,

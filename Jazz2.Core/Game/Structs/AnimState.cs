@@ -81,6 +81,9 @@ namespace Jazz2.Game.Structs
 
         TransitionFallShootToFall = 0x40000030,
 
+        TransitionFromFrog = 0x40000040,
+
+
         // Aliases for object states overlapping player states
         Activated = 0x00000020,
         TransitionActivate = 0x4F000000,

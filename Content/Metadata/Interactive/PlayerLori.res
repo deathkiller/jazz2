@@ -6,7 +6,7 @@
     "Animations": {
         "Idle": {
             "Path": "Lori/idle.png",
-            "FrameRate": 6,
+            "FrameRate": 5,
             "States": [ 0 ]
         },
         "Walk": {
@@ -296,8 +296,18 @@
             "States": [ 1073741849 ]
         },
         
+        "TransformFromFrog": {
+            "Path": "Lori/transform_frog_end.png",
+            "States": [ 1073741888 ],
+            "FrameRate": 3
+        },
+        
         "Corpse": {
             "Path": "Lori/corpse.png"
+        },
+
+        "SugarRush": {
+            "Path": "Common/SugarRushStars.png"
         }
     },
 

@@ -1,4 +1,5 @@
 ﻿using Duality;
+using Duality.Audio;
 using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
 
@@ -159,7 +160,11 @@ namespace Jazz2.Actors.Enemies
             {
                 switch (other) {
                     case Player player: {
-                        player.SetDizzyTime(180f);
+                        if (player.SetDizzyTime(180f)) {
+                            SoundInstance sound = PlaySound("Dizzy");
+                            sound.Looped = true;
+                            sound.FadeOut(2.4f);
+                        }
                         break;
                     }
                 }

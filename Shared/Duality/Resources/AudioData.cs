@@ -27,22 +27,22 @@ namespace Duality.Resources
 				return this.native;
 			}
 		}
-		/// <summary>
-		/// [GET / SET] A data chunk representing Ogg Vorbis compressed
-		/// audio data.
-		/// </summary>
-		public byte[] OggVorbisData
-		{
-			get { return this.data; }
-			set
-			{
-				if (this.data != value) {
-					this.data = value;
-					this.DisposeNativeBuffer();
-					this.SetupNativeBuffer();
-				}
-			}
-		}
+		///// <summary>
+		///// [GET / SET] A data chunk representing raw audio data
+		///// audio data.
+		///// </summary>
+		//public byte[] Data
+		//{
+		//	get { return this.data; }
+		//	set
+		//	{
+		//		if (this.data != value) {
+		//			this.data = value;
+		//			this.DisposeNativeBuffer();
+		//			this.SetupNativeBuffer();
+		//		}
+		//	}
+		//}
 		/// <summary>
 		/// [GET / SET] If set to true, when playing a <see cref="Duality.Resources.Sound"/> that refers to this
 		/// AudioData, it is forced to be played streamed. Normally, streaming kicks in automatically when playing
@@ -67,30 +67,23 @@ namespace Duality.Resources
 		public AudioData() { }
 
 		/// <summary>
-		/// Creates a new AudioData based on an Ogg Vorbis memory chunk.
+		/// Creates a new AudioData based on an audio memory chunk.
 		/// </summary>
-		/// <param name="oggVorbisData">An Ogg Vorbis memory chunk</param>
-		public AudioData(byte[] oggVorbisData)
+		/// <param name="data">An audio memory chunk</param>
+		public AudioData(byte[] data)
 		{
-			this.data = oggVorbisData;
+			this.data = data;
 			this.SetupNativeBuffer();
 		}
 
 		/// <summary>
-		/// Creates a new AudioData based on a <see cref="System.IO.Stream"/> containing Ogg Vorbis data.
+		/// Creates a new AudioData based on a <see cref="System.IO.Stream"/> containing audio data.
 		/// </summary>
-		/// <param name="oggVorbisDataStream">A <see cref="System.IO.Stream"/> containing Ogg Vorbis data</param>
-		public AudioData(Stream oggVorbisDataStream)
+		/// <param name="stream">A <see cref="System.IO.Stream"/> containing audio data</param>
+		public AudioData(Stream stream)
 		{
-			if (oggVorbisDataStream.CanSeek) {
-				this.data = new byte[oggVorbisDataStream.Length];
-				oggVorbisDataStream.Read(this.data, 0, (int)oggVorbisDataStream.Length);
-			} else {
-				using (MemoryStream ms = new MemoryStream()) {
-					oggVorbisDataStream.CopyTo(ms);
-					this.data = ms.ToArray();
-				}
-			}
+			this.data = new byte[stream.Length];
+			stream.Read(this.data, 0, (int)stream.Length);
 
 			this.SetupNativeBuffer();
 		}
@@ -109,7 +102,7 @@ namespace Duality.Resources
 
 		/// <summary>
 		/// Sets up a new native buffer for this AudioData. This will result in decompressing
-		/// the Ogg Vorbis data and uploading it to OpenAL, unless the AudioData is streamed.
+		/// the audio data and uploading it to OpenAL, unless the AudioData is streamed.
 		/// </summary>
 		private void SetupNativeBuffer()
 		{

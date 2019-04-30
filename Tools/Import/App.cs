@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -9,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Duality.Drawing;
 using Duality.IO;
 using Import.Downloaders;
 using Jazz2;
@@ -1198,7 +1198,7 @@ namespace Import
 
                 using (FileStream s = File.Open(defaultPalettePath, FileMode.Create, FileAccess.Write))
                 using (BinaryWriter w = new BinaryWriter(s)) {
-                    Color[] palette = JJ2DefaultPalette.Sprite;
+                    ColorRgba[] palette = JJ2DefaultPalette.Sprite;
 
                     w.Write((ushort)palette.Length);
                     w.Write((int)0); // Empty color
@@ -1255,59 +1255,59 @@ namespace Import
             int diffMax = 0, diffSum = 0;
             bool[] usedIndices = new bool[256];
 
-            using (FileStream s = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-                using (Bitmap b = new Bitmap(s)) {
+            using (FileStream s = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (Bitmap source = new Bitmap(s)) {
+                PngWriter img = new PngWriter(source);
 
-                    if (frameConfiguration.X == 0 || frameConfiguration.Y == 0) {
-                        Log.Write(LogType.Info, "Generating normal map (" + frameConfiguration.X + "x" + frameConfiguration.Y + " frames)...");
+                if (frameConfiguration.X == 0 || frameConfiguration.Y == 0) {
+                    Log.Write(LogType.Info, "Generating normal map (" + frameConfiguration.X + "x" + frameConfiguration.Y + " frames)...");
 
-                        using (Bitmap normalMap = NormalMapGenerator.FromSprite(b, frameConfiguration, null)) {
-                            normalMap.Save(Path.ChangeExtension(path, ".n.new" + Path.GetExtension(path)), ImageFormat.Png);
-                        }
-                    }
+                    PngWriter normalMap = NormalMapGenerator.FromSprite(img, frameConfiguration, null);
+                    normalMap.Save(Path.ChangeExtension(path, ".n.new" + Path.GetExtension(path)));
+                }
 
-                    for (int x = 0; x < b.Width; x++) {
-                        for (int y = 0; y < b.Height; y++) {
-                            Color color = b.GetPixel(x, y);
+                for (int x = 0; x < img.Width; x++) {
+                    for (int y = 0; y < img.Height; y++) {
+                        ColorRgba color = img.GetPixel(x, y);
 
-                            int bestMatchIndex = 0;
-                            int bestMatchIndex2 = 0;
-                            int bestMatchDiff = int.MaxValue;
-                            // Use only usable indices from the default palette
-                            for (int p = 0; p < UsableIndexRanges.Length; p += 2) {
-                                for (int i = UsableIndexRanges[p]; i <= UsableIndexRanges[p + 1]; i++) {
-                                    Color current = JJ2DefaultPalette.Sprite[i];
-                                    int currentDiff = Math.Abs(color.R - current.R) + Math.Abs(color.G - current.G) + Math.Abs(color.B - current.B) + Math.Abs(color.A - current.A);
-                                    if (currentDiff < bestMatchDiff) {
-                                        bestMatchIndex2 = bestMatchIndex;
-                                        bestMatchIndex = i;
-                                        bestMatchDiff = currentDiff;
-                                    }
+                        int bestMatchIndex = 0;
+                        int bestMatchIndex2 = 0;
+                        int bestMatchDiff = int.MaxValue;
+                        // Use only usable indices from the default palette
+                        for (int p = 0; p < UsableIndexRanges.Length; p += 2) {
+                            for (int i = UsableIndexRanges[p]; i <= UsableIndexRanges[p + 1]; i++) {
+                                ColorRgba current = JJ2DefaultPalette.Sprite[i];
+                                int currentDiff = Math.Abs(color.R - current.R) + Math.Abs(color.G - current.G) + Math.Abs(color.B - current.B) + Math.Abs(color.A - current.A);
+                                if (currentDiff < bestMatchDiff) {
+                                    bestMatchIndex2 = bestMatchIndex;
+                                    bestMatchIndex = i;
+                                    bestMatchDiff = currentDiff;
                                 }
                             }
-
-                            if (r.Next(100) < noise && Math.Abs(color.A - JJ2DefaultPalette.Sprite[bestMatchIndex2].A) < 20) {
-                                bestMatchIndex = bestMatchIndex2;
-                            }
-
-                            usedIndices[bestMatchIndex] = true;
-
-                            Color bestMatch;
-                            if (apply) {
-                                bestMatch = Color.FromArgb(color.A, JJ2DefaultPalette.Sprite[bestMatchIndex]);
-                            } else {
-                                bestMatch = Color.FromArgb(color.A, bestMatchIndex, bestMatchIndex, bestMatchIndex);
-                            }
-
-                            b.SetPixel(x, y, bestMatch);
-
-                            diffMax = Math.Max(diffMax, bestMatchDiff);
-                            diffSum += bestMatchDiff;
                         }
-                    }
 
-                    b.Save(Path.ChangeExtension(path, ".new" + Path.GetExtension(path)), ImageFormat.Png);
+                        if (r.Next(100) < noise && Math.Abs(color.A - JJ2DefaultPalette.Sprite[bestMatchIndex2].A) < 20) {
+                            bestMatchIndex = bestMatchIndex2;
+                        }
+
+                        usedIndices[bestMatchIndex] = true;
+
+                        ColorRgba bestMatch;
+                        if (apply) {
+                            bestMatch = JJ2DefaultPalette.Sprite[bestMatchIndex];
+                        } else {
+                            bestMatch = new ColorRgba((byte)bestMatchIndex, (byte)bestMatchIndex, (byte)bestMatchIndex);
+                        }
+                        bestMatch.A = color.A;
+
+                        img.SetPixel(x, y, bestMatch);
+
+                        diffMax = Math.Max(diffMax, bestMatchDiff);
+                        diffSum += bestMatchDiff;
+                    }
                 }
+
+                img.Save(Path.ChangeExtension(path, ".new" + Path.GetExtension(path)));
             }
 
             Log.Write(LogType.Verbose, "Max. difference:    " + diffMax.ToString("N0"));

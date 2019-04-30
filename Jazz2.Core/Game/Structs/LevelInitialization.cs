@@ -29,7 +29,7 @@ namespace Jazz2.Game.Structs
         public int[] Ammo;
         public byte[] WeaponUpgrades;
         public int Score;
-        //public int FoodCounter;
+        public int FoodEaten;
         public WeaponType CurrentWeapon;
     }
 

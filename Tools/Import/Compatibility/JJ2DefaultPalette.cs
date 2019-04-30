@@ -1,1044 +1,1044 @@
-﻿using System.Drawing;
+﻿using Duality.Drawing;
 
 namespace Jazz2.Compatibility
 {
     public static class JJ2DefaultPalette
     {
-        public static readonly Color[] Sprite = {
-            Color.FromArgb(0, 0, 0, 0), // 0
-            Color.FromArgb(255, 0, 0, 1), // 1
-            Color.FromArgb(255, 0, 1, 0), // 2
-            Color.FromArgb(255, 1, 0, 0), // 3
-            Color.FromArgb(255, 0, 1, 1), // 4
-            Color.FromArgb(255, 1, 0, 1), // 5
-            Color.FromArgb(255, 1, 1, 0), // 6
-            Color.FromArgb(255, 1, 1, 1), // 7
-            Color.FromArgb(255, 0, 0, 2), // 8
-            Color.FromArgb(255, 0, 1, 2), // 9
-            Color.FromArgb(255, 255, 67, 195), // 10
-            Color.FromArgb(255, 174, 176, 188), // 11
-            Color.FromArgb(255, 63, 237, 224), // 12
-            Color.FromArgb(255, 160, 153, 218), // 13
-            Color.FromArgb(255, 36, 38, 50), // 14
-            Color.FromArgb(255, 255, 255, 254), // 15
-            Color.FromArgb(255, 199, 255, 0), // 16
-            Color.FromArgb(255, 147, 223, 0), // 17
-            Color.FromArgb(255, 107, 191, 0), // 18
-            Color.FromArgb(255, 71, 163, 0), // 19
-            Color.FromArgb(255, 43, 131, 0), // 20
-            Color.FromArgb(255, 19, 103, 0), // 21
-            Color.FromArgb(255, 7, 55, 0), // 22
-            Color.FromArgb(255, 0, 12, 0), // 23
-            Color.FromArgb(255, 255, 0, 0), // 24
-            Color.FromArgb(255, 227, 0, 0), // 25
-            Color.FromArgb(255, 199, 0, 0), // 26
-            Color.FromArgb(255, 171, 0, 0), // 27
-            Color.FromArgb(255, 143, 0, 0), // 28
-            Color.FromArgb(255, 115, 0, 0), // 29
-            Color.FromArgb(255, 63, 0, 0), // 30
-            Color.FromArgb(255, 12, 0, 0), // 31
-            Color.FromArgb(255, 187, 227, 255), // 32
-            Color.FromArgb(255, 123, 199, 255), // 33
-            Color.FromArgb(255, 59, 171, 255), // 34
-            Color.FromArgb(255, 0, 139, 255), // 35
-            Color.FromArgb(255, 0, 107, 203), // 36
-            Color.FromArgb(255, 0, 79, 151), // 37
-            Color.FromArgb(255, 0, 47, 79), // 38
-            Color.FromArgb(255, 0, 7, 11), // 39
-            Color.FromArgb(255, 255, 255, 0), // 40
-            Color.FromArgb(255, 255, 199, 0), // 41
-            Color.FromArgb(255, 255, 147, 0), // 42
-            Color.FromArgb(255, 255, 95, 0), // 43
-            Color.FromArgb(255, 203, 55, 0), // 44
-            Color.FromArgb(255, 155, 27, 0), // 45
-            Color.FromArgb(255, 83, 7, 0), // 46
-            Color.FromArgb(255, 11, 0, 0), // 47
-            Color.FromArgb(255, 251, 139, 183), // 48
-            Color.FromArgb(255, 247, 91, 151), // 49
-            Color.FromArgb(255, 243, 43, 123), // 50
-            Color.FromArgb(255, 239, 0, 99), // 51
-            Color.FromArgb(255, 191, 0, 75), // 52
-            Color.FromArgb(255, 147, 0, 55), // 53
-            Color.FromArgb(255, 99, 0, 35), // 54
-            Color.FromArgb(255, 55, 0, 19), // 55
-            Color.FromArgb(255, 56, 176, 181), // 56
-            Color.FromArgb(255, 78, 219, 201), // 57
-            Color.FromArgb(255, 202, 198, 245), // 58
-            Color.FromArgb(255, 219, 195, 0), // 59
-            Color.FromArgb(255, 187, 147, 0), // 60
-            Color.FromArgb(255, 155, 107, 0), // 61
-            Color.FromArgb(255, 83, 55, 0), // 62
-            Color.FromArgb(255, 11, 7, 0), // 63
-            Color.FromArgb(255, 255, 243, 211), // 64
-            Color.FromArgb(255, 219, 207, 175), // 65
-            Color.FromArgb(255, 187, 175, 147), // 66
-            Color.FromArgb(255, 155, 139, 115), // 67
-            Color.FromArgb(255, 119, 107, 87), // 68
-            Color.FromArgb(255, 87, 75, 63), // 69
-            Color.FromArgb(255, 47, 35, 31), // 70
-            Color.FromArgb(255, 11, 7, 7), // 71
-            Color.FromArgb(255, 211, 231, 255), // 72
-            Color.FromArgb(255, 171, 195, 219), // 73
-            Color.FromArgb(255, 139, 159, 187), // 74
-            Color.FromArgb(255, 107, 127, 155), // 75
-            Color.FromArgb(255, 75, 95, 119), // 76
-            Color.FromArgb(255, 51, 63, 87), // 77
-            Color.FromArgb(255, 27, 31, 47), // 78
-            Color.FromArgb(255, 7, 7, 11), // 79
-            Color.FromArgb(255, 0, 255, 163), // 80
-            Color.FromArgb(255, 0, 227, 127), // 81
-            Color.FromArgb(255, 7, 199, 95), // 82
-            Color.FromArgb(255, 7, 171, 67), // 83
-            Color.FromArgb(255, 11, 143, 47), // 84
-            Color.FromArgb(255, 11, 119, 31), // 85
-            Color.FromArgb(255, 0, 63, 7), // 86
-            Color.FromArgb(255, 0, 11, 0), // 87
-            Color.FromArgb(255, 219, 99, 255), // 88
-            Color.FromArgb(255, 207, 47, 255), // 89
-            Color.FromArgb(255, 199, 0, 255), // 90
-            Color.FromArgb(255, 159, 0, 207), // 91
-            Color.FromArgb(255, 119, 0, 159), // 92
-            Color.FromArgb(255, 83, 0, 111), // 93
-            Color.FromArgb(255, 47, 0, 63), // 94
-            Color.FromArgb(255, 11, 0, 15), // 95
-            Color.FromArgb(255, 207, 0, 143), // 96
-            Color.FromArgb(255, 191, 0, 131), // 97
-            Color.FromArgb(255, 175, 0, 123), // 98
-            Color.FromArgb(255, 163, 7, 111), // 99
-            Color.FromArgb(255, 147, 7, 103), // 100
-            Color.FromArgb(255, 135, 7, 91), // 101
-            Color.FromArgb(255, 119, 7, 83), // 102
-            Color.FromArgb(255, 103, 7, 71), // 103
-            Color.FromArgb(255, 91, 7, 63), // 104
-            Color.FromArgb(255, 79, 7, 55), // 105
-            Color.FromArgb(255, 67, 0, 51), // 106
-            Color.FromArgb(255, 55, 0, 43), // 107
-            Color.FromArgb(255, 43, 0, 35), // 108
-            Color.FromArgb(255, 31, 0, 27), // 109
-            Color.FromArgb(255, 19, 0, 15), // 110
-            Color.FromArgb(255, 7, 0, 7), // 111
-            Color.FromArgb(255, 211, 59, 255), // 112
-            Color.FromArgb(255, 183, 43, 239), // 113
-            Color.FromArgb(255, 159, 31, 223), // 114
-            Color.FromArgb(255, 135, 23, 207), // 115
-            Color.FromArgb(255, 111, 11, 191), // 116
-            Color.FromArgb(255, 91, 7, 175), // 117
-            Color.FromArgb(255, 71, 0, 159), // 118
-            Color.FromArgb(255, 55, 0, 143), // 119
-            Color.FromArgb(255, 39, 0, 127), // 120
-            Color.FromArgb(255, 31, 0, 111), // 121
-            Color.FromArgb(255, 19, 0, 95), // 122
-            Color.FromArgb(255, 11, 0, 79), // 123
-            Color.FromArgb(255, 7, 0, 63), // 124
-            Color.FromArgb(255, 0, 0, 47), // 125
-            Color.FromArgb(255, 0, 0, 31), // 126
-            Color.FromArgb(255, 0, 0, 15), // 127
-            Color.FromArgb(255, 0, 255, 247), // 128
-            Color.FromArgb(255, 0, 231, 223), // 129
-            Color.FromArgb(255, 0, 207, 203), // 130
-            Color.FromArgb(255, 0, 183, 179), // 131
-            Color.FromArgb(255, 0, 159, 155), // 132
-            Color.FromArgb(255, 0, 135, 131), // 133
-            Color.FromArgb(255, 0, 111, 111), // 134
-            Color.FromArgb(255, 0, 99, 99), // 135
-            Color.FromArgb(255, 0, 87, 87), // 136
-            Color.FromArgb(255, 0, 79, 79), // 137
-            Color.FromArgb(255, 0, 67, 67), // 138
-            Color.FromArgb(255, 0, 55, 56), // 139
-            Color.FromArgb(255, 0, 47, 47), // 140
-            Color.FromArgb(255, 0, 35, 35), // 141
-            Color.FromArgb(255, 0, 23, 23), // 142
-            Color.FromArgb(255, 0, 15, 15), // 143
-            Color.FromArgb(255, 119, 27, 199), // 144
-            Color.FromArgb(255, 103, 23, 187), // 145
-            Color.FromArgb(255, 87, 19, 175), // 146
-            Color.FromArgb(255, 71, 15, 167), // 147
-            Color.FromArgb(255, 59, 15, 155), // 148
-            Color.FromArgb(255, 47, 11, 147), // 149
-            Color.FromArgb(255, 35, 11, 135), // 150
-            Color.FromArgb(255, 27, 7, 123), // 151
-            Color.FromArgb(255, 15, 7, 115), // 152
-            Color.FromArgb(255, 7, 7, 103), // 153
-            Color.FromArgb(255, 0, 0, 95), // 154
-            Color.FromArgb(255, 0, 7, 83), // 155
-            Color.FromArgb(255, 0, 7, 71), // 156
-            Color.FromArgb(255, 0, 11, 63), // 157
-            Color.FromArgb(255, 0, 11, 51), // 158
-            Color.FromArgb(255, 0, 12, 43), // 159
-            Color.FromArgb(255, 0, 139, 175), // 160
-            Color.FromArgb(255, 0, 131, 163), // 161
-            Color.FromArgb(255, 0, 127, 151), // 162
-            Color.FromArgb(255, 0, 119, 143), // 163
-            Color.FromArgb(255, 0, 111, 131), // 164
-            Color.FromArgb(255, 0, 103, 119), // 165
-            Color.FromArgb(255, 0, 95, 111), // 166
-            Color.FromArgb(255, 0, 87, 99), // 167
-            Color.FromArgb(255, 0, 79, 87), // 168
-            Color.FromArgb(255, 0, 71, 79), // 169
-            Color.FromArgb(255, 0, 63, 67), // 170
-            Color.FromArgb(255, 0, 55, 55), // 171
-            Color.FromArgb(255, 95, 183, 183), // 172
-            Color.FromArgb(255, 141, 131, 214), // 173
-            Color.FromArgb(255, 207, 177, 28), // 174
-            Color.FromArgb(255, 65, 168, 179), // 175
-            Color.FromArgb(255, 107, 71, 251), // 176
-            Color.FromArgb(255, 99, 67, 243), // 177
-            Color.FromArgb(255, 95, 67, 239), // 178
-            Color.FromArgb(255, 91, 63, 231), // 179
-            Color.FromArgb(255, 83, 59, 227), // 180
-            Color.FromArgb(255, 79, 55, 219), // 181
-            Color.FromArgb(255, 71, 55, 211), // 182
-            Color.FromArgb(255, 67, 51, 207), // 183
-            Color.FromArgb(255, 63, 51, 199), // 184
-            Color.FromArgb(255, 59, 47, 195), // 185
-            Color.FromArgb(255, 55, 43, 187), // 186
-            Color.FromArgb(255, 51, 43, 183), // 187
-            Color.FromArgb(255, 43, 39, 175), // 188
-            Color.FromArgb(255, 43, 39, 171), // 189
-            Color.FromArgb(255, 39, 35, 163), // 190
-            Color.FromArgb(255, 35, 35, 159), // 191
-            Color.FromArgb(255, 31, 31, 151), // 192
-            Color.FromArgb(255, 31, 31, 147), // 193
-            Color.FromArgb(255, 27, 31, 139), // 194
-            Color.FromArgb(255, 27, 31, 135), // 195
-            Color.FromArgb(255, 23, 31, 127), // 196
-            Color.FromArgb(255, 23, 31, 123), // 197
-            Color.FromArgb(255, 19, 31, 111), // 198
-            Color.FromArgb(255, 15, 27, 103), // 199
-            Color.FromArgb(255, 11, 23, 91), // 200
-            Color.FromArgb(255, 7, 19, 79), // 201
-            Color.FromArgb(255, 7, 19, 71), // 202
-            Color.FromArgb(255, 0, 15, 63), // 203
-            Color.FromArgb(255, 0, 11, 55), // 204
-            Color.FromArgb(255, 0, 11, 43), // 205
-            Color.FromArgb(255, 0, 7, 35), // 206
-            Color.FromArgb(255, 0, 7, 27), // 207
+        public static readonly ColorRgba[] Sprite = {
+            new ColorRgba(0, 0, 0, 0), // 0
+            new ColorRgba(0, 0, 1, 255), // 1
+            new ColorRgba(0, 1, 0, 255), // 2
+            new ColorRgba(1, 0, 0, 255), // 3
+            new ColorRgba(0, 1, 1, 255), // 4
+            new ColorRgba(1, 0, 1, 255), // 5
+            new ColorRgba(1, 1, 0, 255), // 6
+            new ColorRgba(1, 1, 1, 255), // 7
+            new ColorRgba(0, 0, 2, 255), // 8
+            new ColorRgba(0, 1, 2, 255), // 9
+            new ColorRgba(255, 67, 195, 255), // 10
+            new ColorRgba(174, 176, 188, 255), // 11
+            new ColorRgba(63, 237, 224, 255), // 12
+            new ColorRgba(160, 153, 218, 255), // 13
+            new ColorRgba(36, 38, 50, 255), // 14
+            new ColorRgba(255, 255, 254, 255), // 15
+            new ColorRgba(199, 255, 0, 255), // 16
+            new ColorRgba(147, 223, 0, 255), // 17
+            new ColorRgba(107, 191, 0, 255), // 18
+            new ColorRgba(71, 163, 0, 255), // 19
+            new ColorRgba(43, 131, 0, 255), // 20
+            new ColorRgba(19, 103, 0, 255), // 21
+            new ColorRgba(7, 55, 0, 255), // 22
+            new ColorRgba(0, 12, 0, 255), // 23
+            new ColorRgba(255, 0, 0, 255), // 24
+            new ColorRgba(227, 0, 0, 255), // 25
+            new ColorRgba(199, 0, 0, 255), // 26
+            new ColorRgba(171, 0, 0, 255), // 27
+            new ColorRgba(143, 0, 0, 255), // 28
+            new ColorRgba(115, 0, 0, 255), // 29
+            new ColorRgba(63, 0, 0, 255), // 30
+            new ColorRgba(12, 0, 0, 255), // 31
+            new ColorRgba(187, 227, 255, 255), // 32
+            new ColorRgba(123, 199, 255, 255), // 33
+            new ColorRgba(59, 171, 255, 255), // 34
+            new ColorRgba(0, 139, 255, 255), // 35
+            new ColorRgba(0, 107, 203, 255), // 36
+            new ColorRgba(0, 79, 151, 255), // 37
+            new ColorRgba(0, 47, 79, 255), // 38
+            new ColorRgba(0, 7, 11, 255), // 39
+            new ColorRgba(255, 255, 0, 255), // 40
+            new ColorRgba(255, 199, 0, 255), // 41
+            new ColorRgba(255, 147, 0, 255), // 42
+            new ColorRgba(255, 95, 0, 255), // 43
+            new ColorRgba(203, 55, 0, 255), // 44
+            new ColorRgba(155, 27, 0, 255), // 45
+            new ColorRgba(83, 7, 0, 255), // 46
+            new ColorRgba(11, 0, 0, 255), // 47
+            new ColorRgba(251, 139, 183, 255), // 48
+            new ColorRgba(247, 91, 151, 255), // 49
+            new ColorRgba(243, 43, 123, 255), // 50
+            new ColorRgba(239, 0, 99, 255), // 51
+            new ColorRgba(191, 0, 75, 255), // 52
+            new ColorRgba(147, 0, 55, 255), // 53
+            new ColorRgba(99, 0, 35, 255), // 54
+            new ColorRgba(55, 0, 19, 255), // 55
+            new ColorRgba(56, 176, 181, 255), // 56
+            new ColorRgba(78, 219, 201, 255), // 57
+            new ColorRgba(202, 198, 245, 255), // 58
+            new ColorRgba(219, 195, 0, 255), // 59
+            new ColorRgba(187, 147, 0, 255), // 60
+            new ColorRgba(155, 107, 0, 255), // 61
+            new ColorRgba(83, 55, 0, 255), // 62
+            new ColorRgba(11, 7, 0, 255), // 63
+            new ColorRgba(255, 243, 211, 255), // 64
+            new ColorRgba(219, 207, 175, 255), // 65
+            new ColorRgba(187, 175, 147, 255), // 66
+            new ColorRgba(155, 139, 115, 255), // 67
+            new ColorRgba(119, 107, 87, 255), // 68
+            new ColorRgba(87, 75, 63, 255), // 69
+            new ColorRgba(47, 35, 31, 255), // 70
+            new ColorRgba(11, 7, 7, 255), // 71
+            new ColorRgba(211, 231, 255, 255), // 72
+            new ColorRgba(171, 195, 219, 255), // 73
+            new ColorRgba(139, 159, 187, 255), // 74
+            new ColorRgba(107, 127, 155, 255), // 75
+            new ColorRgba(75, 95, 119, 255), // 76
+            new ColorRgba(51, 63, 87, 255), // 77
+            new ColorRgba(27, 31, 47, 255), // 78
+            new ColorRgba(7, 7, 11, 255), // 79
+            new ColorRgba(0, 255, 163, 255), // 80
+            new ColorRgba(0, 227, 127, 255), // 81
+            new ColorRgba(7, 199, 95, 255), // 82
+            new ColorRgba(7, 171, 67, 255), // 83
+            new ColorRgba(11, 143, 47, 255), // 84
+            new ColorRgba(11, 119, 31, 255), // 85
+            new ColorRgba(0, 63, 7, 255), // 86
+            new ColorRgba(0, 11, 0, 255), // 87
+            new ColorRgba(219, 99, 255, 255), // 88
+            new ColorRgba(207, 47, 255, 255), // 89
+            new ColorRgba(199, 0, 255, 255), // 90
+            new ColorRgba(159, 0, 207, 255), // 91
+            new ColorRgba(119, 0, 159, 255), // 92
+            new ColorRgba(83, 0, 111, 255), // 93
+            new ColorRgba(47, 0, 63, 255), // 94
+            new ColorRgba(11, 0, 15, 255), // 95
+            new ColorRgba(207, 0, 143, 255), // 96
+            new ColorRgba(191, 0, 131, 255), // 97
+            new ColorRgba(175, 0, 123, 255), // 98
+            new ColorRgba(163, 7, 111, 255), // 99
+            new ColorRgba(147, 7, 103, 255), // 100
+            new ColorRgba(135, 7, 91, 255), // 101
+            new ColorRgba(119, 7, 83, 255), // 102
+            new ColorRgba(103, 7, 71, 255), // 103
+            new ColorRgba(91, 7, 63, 255), // 104
+            new ColorRgba(79, 7, 55, 255), // 105
+            new ColorRgba(67, 0, 51, 255), // 106
+            new ColorRgba(55, 0, 43, 255), // 107
+            new ColorRgba(43, 0, 35, 255), // 108
+            new ColorRgba(31, 0, 27, 255), // 109
+            new ColorRgba(19, 0, 15, 255), // 110
+            new ColorRgba(7, 0, 7, 255), // 111
+            new ColorRgba(211, 59, 255, 255), // 112
+            new ColorRgba(183, 43, 239, 255), // 113
+            new ColorRgba(159, 31, 223, 255), // 114
+            new ColorRgba(135, 23, 207, 255), // 115
+            new ColorRgba(111, 11, 191, 255), // 116
+            new ColorRgba(91, 7, 175, 255), // 117
+            new ColorRgba(71, 0, 159, 255), // 118
+            new ColorRgba(55, 0, 143, 255), // 119
+            new ColorRgba(39, 0, 127, 255), // 120
+            new ColorRgba(31, 0, 111, 255), // 121
+            new ColorRgba(19, 0, 95, 255), // 122
+            new ColorRgba(11, 0, 79, 255), // 123
+            new ColorRgba(7, 0, 63, 255), // 124
+            new ColorRgba(0, 0, 47, 255), // 125
+            new ColorRgba(0, 0, 31, 255), // 126
+            new ColorRgba(0, 0, 15, 255), // 127
+            new ColorRgba(0, 255, 247, 255), // 128
+            new ColorRgba(0, 231, 223, 255), // 129
+            new ColorRgba(0, 207, 203, 255), // 130
+            new ColorRgba(0, 183, 179, 255), // 131
+            new ColorRgba(0, 159, 155, 255), // 132
+            new ColorRgba(0, 135, 131, 255), // 133
+            new ColorRgba(0, 111, 111, 255), // 134
+            new ColorRgba(0, 99, 99, 255), // 135
+            new ColorRgba(0, 87, 87, 255), // 136
+            new ColorRgba(0, 79, 79, 255), // 137
+            new ColorRgba(0, 67, 67, 255), // 138
+            new ColorRgba(0, 55, 56, 255), // 139
+            new ColorRgba(0, 47, 47, 255), // 140
+            new ColorRgba(0, 35, 35, 255), // 141
+            new ColorRgba(0, 23, 23, 255), // 142
+            new ColorRgba(0, 15, 15, 255), // 143
+            new ColorRgba(119, 27, 199, 255), // 144
+            new ColorRgba(103, 23, 187, 255), // 145
+            new ColorRgba(87, 19, 175, 255), // 146
+            new ColorRgba(71, 15, 167, 255), // 147
+            new ColorRgba(59, 15, 155, 255), // 148
+            new ColorRgba(47, 11, 147, 255), // 149
+            new ColorRgba(35, 11, 135, 255), // 150
+            new ColorRgba(27, 7, 123, 255), // 151
+            new ColorRgba(15, 7, 115, 255), // 152
+            new ColorRgba(7, 7, 103, 255), // 153
+            new ColorRgba(0, 0, 95, 255), // 154
+            new ColorRgba(0, 7, 83, 255), // 155
+            new ColorRgba(0, 7, 71, 255), // 156
+            new ColorRgba(0, 11, 63, 255), // 157
+            new ColorRgba(0, 11, 51, 255), // 158
+            new ColorRgba(0, 12, 43, 255), // 159
+            new ColorRgba(0, 139, 175, 255), // 160
+            new ColorRgba(0, 131, 163, 255), // 161
+            new ColorRgba(0, 127, 151, 255), // 162
+            new ColorRgba(0, 119, 143, 255), // 163
+            new ColorRgba(0, 111, 131, 255), // 164
+            new ColorRgba(0, 103, 119, 255), // 165
+            new ColorRgba(0, 95, 111, 255), // 166
+            new ColorRgba(0, 87, 99, 255), // 167
+            new ColorRgba(0, 79, 87, 255), // 168
+            new ColorRgba(0, 71, 79, 255), // 169
+            new ColorRgba(0, 63, 67, 255), // 170
+            new ColorRgba(0, 55, 55, 255), // 171
+            new ColorRgba(95, 183, 183, 255), // 172
+            new ColorRgba(141, 131, 214, 255), // 173
+            new ColorRgba(207, 177, 28, 255), // 174
+            new ColorRgba(65, 168, 179, 255), // 175
+            new ColorRgba(107, 71, 251, 255), // 176
+            new ColorRgba(99, 67, 243, 255), // 177
+            new ColorRgba(95, 67, 239, 255), // 178
+            new ColorRgba(91, 63, 231, 255), // 179
+            new ColorRgba(83, 59, 227, 255), // 180
+            new ColorRgba(79, 55, 219, 255), // 181
+            new ColorRgba(71, 55, 211, 255), // 182
+            new ColorRgba(67, 51, 207, 255), // 183
+            new ColorRgba(63, 51, 199, 255), // 184
+            new ColorRgba(59, 47, 195, 255), // 185
+            new ColorRgba(55, 43, 187, 255), // 186
+            new ColorRgba(51, 43, 183, 255), // 187
+            new ColorRgba(43, 39, 175, 255), // 188
+            new ColorRgba(43, 39, 171, 255), // 189
+            new ColorRgba(39, 35, 163, 255), // 190
+            new ColorRgba(35, 35, 159, 255), // 191
+            new ColorRgba(31, 31, 151, 255), // 192
+            new ColorRgba(31, 31, 147, 255), // 193
+            new ColorRgba(27, 31, 139, 255), // 194
+            new ColorRgba(27, 31, 135, 255), // 195
+            new ColorRgba(23, 31, 127, 255), // 196
+            new ColorRgba(23, 31, 123, 255), // 197
+            new ColorRgba(19, 31, 111, 255), // 198
+            new ColorRgba(15, 27, 103, 255), // 199
+            new ColorRgba(11, 23, 91, 255), // 200
+            new ColorRgba(7, 19, 79, 255), // 201
+            new ColorRgba(7, 19, 71, 255), // 202
+            new ColorRgba(0, 15, 63, 255), // 203
+            new ColorRgba(0, 11, 55, 255), // 204
+            new ColorRgba(0, 11, 43, 255), // 205
+            new ColorRgba(0, 7, 35, 255), // 206
+            new ColorRgba(0, 7, 27, 255), // 207
 
-            Color.FromArgb(255, 120, 226, 220), // 208
-            Color.FromArgb(255, 82, 205, 193), // 209
-            Color.FromArgb(255, 98, 100, 112), // 210
-            Color.FromArgb(255, 60, 251, 232), // 211
-            Color.FromArgb(255, 96, 187, 169), // 212
-            Color.FromArgb(255, 191, 255, 255), // 213
-            Color.FromArgb(255, 209, 255, 255), // 214
-            Color.FromArgb(255, 64, 152, 152), // 215
-            Color.FromArgb(255, 203, 255, 255), // 216
-            Color.FromArgb(255, 121, 147, 218), // 217
-            Color.FromArgb(255, 209, 158, 33), // 218
-            Color.FromArgb(255, 113, 106, 171), // 219
-            Color.FromArgb(255, 152, 154, 166), // 220
-            Color.FromArgb(255, 115, 144, 197), // 221
-            Color.FromArgb(255, 214, 255, 255), // 222
-            Color.FromArgb(255, 182, 190, 11), // 223
-            Color.FromArgb(255, 197, 211, 252), // 224
-            Color.FromArgb(255, 26, 146, 151), // 225
-            Color.FromArgb(255, 207, 255, 255), // 226
-            Color.FromArgb(255, 75, 71, 118), // 227
-            Color.FromArgb(255, 158, 125, 250), // 228
-            Color.FromArgb(255, 123, 155, 190), // 229
-            Color.FromArgb(255, 126, 214, 214), // 230
-            Color.FromArgb(255, 197, 199, 211), // 231
-            Color.FromArgb(255, 33, 168, 185), // 232
-            Color.FromArgb(255, 85, 75, 158), // 233
-            Color.FromArgb(255, 47, 138, 120), // 234
-            Color.FromArgb(255, 101, 174, 162), // 235
-            Color.FromArgb(255, 67, 93, 164), // 236
-            Color.FromArgb(255, 27, 201, 188), // 237
-            Color.FromArgb(255, 124, 129, 224), // 238
-            Color.FromArgb(255, 86, 56, 163), // 239
-            Color.FromArgb(255, 30, 133, 144), // 240
-            Color.FromArgb(255, 182, 193, 252), // 241
-            Color.FromArgb(255, 89, 195, 189), // 242
-            Color.FromArgb(255, 173, 255, 255), // 243
-            Color.FromArgb(255, 86, 100, 141), // 244
-            Color.FromArgb(255, 222, 116, 25), // 245
-            Color.FromArgb(255, 0, 2, 1), // 246
-            Color.FromArgb(255, 0, 2, 2), // 247
-            Color.FromArgb(255, 1, 0, 2), // 248
-            Color.FromArgb(255, 2, 0, 1), // 249
-            Color.FromArgb(255, 2, 0, 2), // 250
-            Color.FromArgb(255, 1, 2, 0), // 251
-            Color.FromArgb(255, 2, 1, 0), // 252
-            Color.FromArgb(255, 2, 2, 0), // 253
-            Color.FromArgb(255, 1, 1, 2), // 254
-            Color.FromArgb(255, 254, 255, 255) // 255
+            new ColorRgba(120, 226, 220, 255), // 208
+            new ColorRgba(82, 205, 193, 255), // 209
+            new ColorRgba(98, 100, 112, 255), // 210
+            new ColorRgba(60, 251, 232, 255), // 211
+            new ColorRgba(96, 187, 169, 255), // 212
+            new ColorRgba(191, 255, 255, 255), // 213
+            new ColorRgba(209, 255, 255, 255), // 214
+            new ColorRgba(64, 152, 152, 255), // 215
+            new ColorRgba(203, 255, 255, 255), // 216
+            new ColorRgba(121, 147, 218, 255), // 217
+            new ColorRgba(209, 158, 33, 255), // 218
+            new ColorRgba(113, 106, 171, 255), // 219
+            new ColorRgba(152, 154, 166, 255), // 220
+            new ColorRgba(115, 144, 197, 255), // 221
+            new ColorRgba(214, 255, 255, 255), // 222
+            new ColorRgba(182, 190, 11, 255), // 223
+            new ColorRgba(197, 211, 252, 255), // 224
+            new ColorRgba(26, 146, 151, 255), // 225
+            new ColorRgba(207, 255, 255, 255), // 226
+            new ColorRgba(75, 71, 118, 255), // 227
+            new ColorRgba(158, 125, 250, 255), // 228
+            new ColorRgba(123, 155, 190, 255), // 229
+            new ColorRgba(126, 214, 214, 255), // 230
+            new ColorRgba(197, 199, 211, 255), // 231
+            new ColorRgba(33, 168, 185, 255), // 232
+            new ColorRgba(85, 75, 158, 255), // 233
+            new ColorRgba(47, 138, 120, 255), // 234
+            new ColorRgba(101, 174, 162, 255), // 235
+            new ColorRgba(67, 93, 164, 255), // 236
+            new ColorRgba(27, 201, 188, 255), // 237
+            new ColorRgba(124, 129, 224, 255), // 238
+            new ColorRgba(86, 56, 163, 255), // 239
+            new ColorRgba(30, 133, 144, 255), // 240
+            new ColorRgba(182, 193, 252, 255), // 241
+            new ColorRgba(89, 195, 189, 255), // 242
+            new ColorRgba(173, 255, 255, 255), // 243
+            new ColorRgba(86, 100, 141, 255), // 244
+            new ColorRgba(222, 116, 25, 255), // 245
+            new ColorRgba(0, 2, 1, 255), // 246
+            new ColorRgba(0, 2, 2, 255), // 247
+            new ColorRgba(1, 0, 2, 255), // 248
+            new ColorRgba(2, 0, 1, 255), // 249
+            new ColorRgba(2, 0, 2, 255), // 250
+            new ColorRgba(1, 2, 0, 255), // 251
+            new ColorRgba(2, 1, 0, 255), // 252
+            new ColorRgba(2, 2, 0, 255), // 253
+            new ColorRgba(1, 1, 2, 255), // 254
+            new ColorRgba(254, 255, 255, 255) // 255
         };
 
-        public static readonly Color[] Menu = {
-            Color.FromArgb(0, 0, 0, 0), // 0
-            Color.FromArgb(255, 0, 0, 1), // 1
-            Color.FromArgb(255, 0, 1, 0), // 2
-            Color.FromArgb(255, 1, 0, 0), // 3
-            Color.FromArgb(255, 0, 1, 1), // 4
-            Color.FromArgb(255, 1, 0, 1), // 5
-            Color.FromArgb(255, 1, 1, 0), // 6
-            Color.FromArgb(255, 1, 1, 1), // 7
-            Color.FromArgb(255, 0, 0, 2), // 8
-            Color.FromArgb(255, 0, 1, 2), // 9
-            Color.FromArgb(255, 127, 115, 95), // 10
-            Color.FromArgb(255, 159, 143, 119), // 11
-            Color.FromArgb(255, 191, 175, 151), // 12
-            Color.FromArgb(255, 223, 207, 179), // 13
-            Color.FromArgb(255, 255, 243, 211), // 14
-            Color.FromArgb(255, 255, 255, 254), // 15
-            Color.FromArgb(255, 247, 255, 223), // 16
-            Color.FromArgb(255, 235, 255, 183), // 17
-            Color.FromArgb(255, 227, 255, 147), // 18
-            Color.FromArgb(255, 219, 255, 111), // 19
-            Color.FromArgb(255, 199, 255, 0), // 20
-            Color.FromArgb(255, 163, 231, 0), // 21
-            Color.FromArgb(255, 127, 207, 0), // 22
-            Color.FromArgb(255, 99, 183, 0), // 23
-            Color.FromArgb(255, 75, 159, 0), // 24
-            Color.FromArgb(255, 39, 139, 0), // 25
-            Color.FromArgb(255, 11, 119, 0), // 26
-            Color.FromArgb(255, 0, 99, 7), // 27
-            Color.FromArgb(255, 0, 79, 19), // 28
-            Color.FromArgb(255, 0, 59, 23), // 29
-            Color.FromArgb(255, 0, 39, 23), // 30
-            Color.FromArgb(255, 0, 19, 16), // 31
-            Color.FromArgb(255, 251, 255, 235), // 32
-            Color.FromArgb(255, 251, 255, 215), // 33
-            Color.FromArgb(255, 251, 255, 199), // 34
-            Color.FromArgb(255, 255, 247, 183), // 35
-            Color.FromArgb(255, 255, 239, 167), // 36
-            Color.FromArgb(255, 255, 227, 151), // 37
-            Color.FromArgb(255, 255, 211, 135), // 38
-            Color.FromArgb(255, 255, 195, 119), // 39
-            Color.FromArgb(255, 223, 179, 115), // 40
-            Color.FromArgb(255, 195, 167, 107), // 41
-            Color.FromArgb(255, 163, 147, 95), // 42
-            Color.FromArgb(255, 135, 123, 87), // 43
-            Color.FromArgb(255, 107, 99, 71), // 44
-            Color.FromArgb(255, 75, 75, 55), // 45
-            Color.FromArgb(255, 47, 47, 35), // 46
-            Color.FromArgb(255, 19, 19, 15), // 47
-            Color.FromArgb(255, 235, 239, 255), // 48
-            Color.FromArgb(255, 191, 207, 251), // 49
-            Color.FromArgb(255, 155, 179, 247), // 50
-            Color.FromArgb(255, 115, 155, 243), // 51
-            Color.FromArgb(255, 79, 131, 239), // 52
-            Color.FromArgb(255, 43, 115, 235), // 53
-            Color.FromArgb(255, 19, 103, 219), // 54
-            Color.FromArgb(255, 0, 91, 203), // 55
-            Color.FromArgb(255, 0, 83, 179), // 56
-            Color.FromArgb(255, 0, 75, 159), // 57
-            Color.FromArgb(255, 0, 71, 135), // 58
-            Color.FromArgb(255, 0, 63, 115), // 59
-            Color.FromArgb(255, 0, 51, 95), // 60
-            Color.FromArgb(255, 0, 43, 71), // 61
-            Color.FromArgb(255, 0, 31, 51), // 62
-            Color.FromArgb(255, 0, 20, 31), // 63
-            Color.FromArgb(255, 255, 223, 223), // 64
-            Color.FromArgb(255, 255, 183, 183), // 65
-            Color.FromArgb(255, 255, 147, 147), // 66
-            Color.FromArgb(255, 255, 111, 111), // 67
-            Color.FromArgb(255, 255, 71, 71), // 68
-            Color.FromArgb(255, 255, 35, 35), // 69
-            Color.FromArgb(255, 255, 0, 0), // 70
-            Color.FromArgb(255, 227, 0, 11), // 71
-            Color.FromArgb(255, 199, 0, 35), // 72
-            Color.FromArgb(255, 175, 0, 55), // 73
-            Color.FromArgb(255, 147, 0, 71), // 74
-            Color.FromArgb(255, 123, 0, 75), // 75
-            Color.FromArgb(255, 95, 0, 71), // 76
-            Color.FromArgb(255, 71, 0, 63), // 77
-            Color.FromArgb(255, 39, 0, 43), // 78
-            Color.FromArgb(255, 15, 0, 19), // 79
-            Color.FromArgb(255, 255, 251, 223), // 80
-            Color.FromArgb(255, 255, 243, 147), // 81
-            Color.FromArgb(255, 255, 239, 71), // 82
-            Color.FromArgb(255, 255, 215, 59), // 83
-            Color.FromArgb(255, 255, 195, 47), // 84
-            Color.FromArgb(255, 255, 167, 35), // 85
-            Color.FromArgb(255, 255, 143, 23), // 86
-            Color.FromArgb(255, 235, 115, 47), // 87
-            Color.FromArgb(255, 219, 103, 67), // 88
-            Color.FromArgb(255, 203, 95, 87), // 89
-            Color.FromArgb(255, 171, 83, 59), // 90
-            Color.FromArgb(255, 139, 71, 39), // 91
-            Color.FromArgb(255, 111, 59, 23), // 92
-            Color.FromArgb(255, 79, 47, 11), // 93
-            Color.FromArgb(255, 47, 35, 0), // 94
-            Color.FromArgb(255, 19, 15, 0), // 95
-            Color.FromArgb(255, 0, 255, 67), // 96
-            Color.FromArgb(255, 0, 235, 75), // 97
-            Color.FromArgb(255, 0, 215, 83), // 98
-            Color.FromArgb(255, 0, 199, 87), // 99
-            Color.FromArgb(255, 0, 179, 91), // 100
-            Color.FromArgb(255, 0, 163, 91), // 101
-            Color.FromArgb(255, 0, 147, 87), // 102
-            Color.FromArgb(255, 0, 131, 79), // 103
-            Color.FromArgb(255, 0, 119, 75), // 104
-            Color.FromArgb(255, 0, 103, 67), // 105
-            Color.FromArgb(255, 0, 91, 59), // 106
-            Color.FromArgb(255, 0, 75, 51), // 107
-            Color.FromArgb(255, 0, 59, 43), // 108
-            Color.FromArgb(255, 0, 47, 35), // 109
-            Color.FromArgb(255, 0, 31, 23), // 110
-            Color.FromArgb(255, 0, 19, 15), // 111
-            Color.FromArgb(255, 251, 223, 255), // 112
-            Color.FromArgb(255, 243, 175, 255), // 113
-            Color.FromArgb(255, 235, 131, 255), // 114
-            Color.FromArgb(255, 231, 87, 255), // 115
-            Color.FromArgb(255, 223, 43, 255), // 116
-            Color.FromArgb(255, 215, 0, 255), // 117
-            Color.FromArgb(255, 191, 0, 231), // 118
-            Color.FromArgb(255, 171, 0, 207), // 119
-            Color.FromArgb(255, 151, 0, 183), // 120
-            Color.FromArgb(255, 131, 0, 159), // 121
-            Color.FromArgb(255, 111, 0, 135), // 122
-            Color.FromArgb(255, 91, 0, 111), // 123
-            Color.FromArgb(255, 71, 0, 87), // 124
-            Color.FromArgb(255, 51, 0, 63), // 125
-            Color.FromArgb(255, 31, 0, 43), // 126
-            Color.FromArgb(255, 16, 0, 19), // 127
-            Color.FromArgb(255, 247, 251, 255), // 128
-            Color.FromArgb(255, 215, 227, 235), // 129
-            Color.FromArgb(255, 183, 203, 219), // 130
-            Color.FromArgb(255, 159, 179, 203), // 131
-            Color.FromArgb(255, 135, 159, 183), // 132
-            Color.FromArgb(255, 111, 139, 167), // 133
-            Color.FromArgb(255, 91, 123, 151), // 134
-            Color.FromArgb(255, 75, 107, 139), // 135
-            Color.FromArgb(255, 59, 95, 127), // 136
-            Color.FromArgb(255, 47, 83, 115), // 137
-            Color.FromArgb(255, 35, 71, 103), // 138
-            Color.FromArgb(255, 27, 63, 91), // 139
-            Color.FromArgb(255, 15, 51, 75), // 140
-            Color.FromArgb(255, 7, 39, 59), // 141
-            Color.FromArgb(255, 0, 27, 43), // 142
-            Color.FromArgb(255, 0, 19, 31), // 143
-            Color.FromArgb(255, 223, 0, 255), // 144
-            Color.FromArgb(255, 215, 0, 247), // 145
-            Color.FromArgb(255, 207, 0, 243), // 146
-            Color.FromArgb(255, 199, 0, 235), // 147
-            Color.FromArgb(255, 191, 0, 227), // 148
-            Color.FromArgb(255, 183, 0, 223), // 149
-            Color.FromArgb(255, 175, 0, 215), // 150
-            Color.FromArgb(255, 167, 0, 211), // 151
-            Color.FromArgb(255, 159, 1, 203), // 152
-            Color.FromArgb(255, 155, 0, 199), // 153
-            Color.FromArgb(255, 147, 0, 191), // 154
-            Color.FromArgb(255, 143, 0, 187), // 155
-            Color.FromArgb(255, 135, 0, 179), // 156
-            Color.FromArgb(255, 127, 0, 171), // 157
-            Color.FromArgb(255, 123, 0, 167), // 158
-            Color.FromArgb(255, 115, 0, 159), // 159
-            Color.FromArgb(255, 111, 1, 155), // 160
-            Color.FromArgb(255, 103, 0, 147), // 161
-            Color.FromArgb(255, 99, 0, 143), // 162
-            Color.FromArgb(255, 91, 0, 135), // 163
-            Color.FromArgb(255, 87, 0, 131), // 164
-            Color.FromArgb(255, 83, 0, 123), // 165
-            Color.FromArgb(255, 75, 0, 119), // 166
-            Color.FromArgb(255, 71, 0, 111), // 167
-            Color.FromArgb(255, 67, 0, 103), // 168
-            Color.FromArgb(255, 59, 0, 99), // 169
-            Color.FromArgb(255, 55, 0, 91), // 170
-            Color.FromArgb(255, 51, 0, 87), // 171
-            Color.FromArgb(255, 47, 0, 79), // 172
-            Color.FromArgb(255, 43, 0, 75), // 173
-            Color.FromArgb(255, 39, 0, 67), // 174
-            Color.FromArgb(255, 35, 0, 63), // 175
-            Color.FromArgb(255, 215, 39, 203), // 176
-            Color.FromArgb(255, 199, 35, 187), // 177
-            Color.FromArgb(255, 183, 31, 175), // 178
-            Color.FromArgb(255, 171, 31, 163), // 179
-            Color.FromArgb(255, 155, 27, 147), // 180
-            Color.FromArgb(255, 143, 23, 135), // 181
-            Color.FromArgb(255, 127, 23, 119), // 182
-            Color.FromArgb(255, 115, 19, 107), // 183
-            Color.FromArgb(255, 99, 15, 95), // 184
-            Color.FromArgb(255, 83, 15, 79), // 185
-            Color.FromArgb(255, 71, 11, 67), // 186
-            Color.FromArgb(255, 55, 7, 51), // 187
-            Color.FromArgb(255, 43, 7, 39), // 188
-            Color.FromArgb(255, 31, 0, 27), // 189
-            Color.FromArgb(255, 19, 0, 15), // 190
-            Color.FromArgb(255, 7, 0, 7), // 191
-            Color.FromArgb(255, 255, 254, 255), // 192
-            Color.FromArgb(255, 255, 255, 215), // 193
-            Color.FromArgb(255, 255, 255, 179), // 194
-            Color.FromArgb(255, 255, 255, 143), // 195
-            Color.FromArgb(255, 255, 255, 107), // 196
-            Color.FromArgb(255, 255, 255, 71), // 197
-            Color.FromArgb(255, 255, 255, 35), // 198
-            Color.FromArgb(255, 255, 255, 0), // 199
-            Color.FromArgb(255, 247, 247, 0), // 200
-            Color.FromArgb(255, 239, 239, 0), // 201
-            Color.FromArgb(255, 231, 231, 0), // 202
-            Color.FromArgb(255, 223, 223, 0), // 203
-            Color.FromArgb(255, 215, 215, 0), // 204
-            Color.FromArgb(255, 207, 207, 0), // 205
-            Color.FromArgb(255, 199, 199, 0), // 206
-            Color.FromArgb(255, 191, 191, 0), // 207
-            Color.FromArgb(255, 35, 0, 87), // 208
-            Color.FromArgb(255, 39, 0, 95), // 209
-            Color.FromArgb(255, 43, 0, 99), // 210
-            Color.FromArgb(255, 47, 0, 107), // 211
-            Color.FromArgb(255, 51, 0, 115), // 212
-            Color.FromArgb(255, 59, 0, 123), // 213
-            Color.FromArgb(255, 63, 0, 131), // 214
-            Color.FromArgb(255, 67, 0, 139), // 215
-            Color.FromArgb(255, 75, 0, 147), // 216
-            Color.FromArgb(255, 79, 0, 155), // 217
-            Color.FromArgb(255, 87, 0, 163), // 218
-            Color.FromArgb(255, 91, 0, 171), // 219
-            Color.FromArgb(255, 99, 0, 179), // 220
-            Color.FromArgb(255, 103, 0, 187), // 221
-            Color.FromArgb(255, 111, 0, 195), // 222
-            Color.FromArgb(255, 119, 0, 203), // 223
-            Color.FromArgb(255, 51, 1, 87), // 224
-            Color.FromArgb(255, 55, 0, 95), // 225
-            Color.FromArgb(255, 63, 0, 99), // 226
-            Color.FromArgb(255, 67, 0, 107), // 227
-            Color.FromArgb(255, 75, 0, 115), // 228
-            Color.FromArgb(255, 79, 0, 123), // 229
-            Color.FromArgb(255, 88, 0, 131), // 230
-            Color.FromArgb(255, 95, 0, 139), // 231
-            Color.FromArgb(255, 104, 0, 147), // 232
-            Color.FromArgb(255, 111, 0, 155), // 233
-            Color.FromArgb(255, 115, 0, 163), // 234
-            Color.FromArgb(255, 123, 0, 171), // 235
-            Color.FromArgb(255, 131, 0, 179), // 236
-            Color.FromArgb(255, 139, 0, 187), // 237
-            Color.FromArgb(255, 151, 0, 195), // 238
-            Color.FromArgb(255, 159, 0, 203), // 239
-            Color.FromArgb(255, 0, 255, 195), // 240
-            Color.FromArgb(255, 0, 227, 167), // 241
-            Color.FromArgb(255, 0, 199, 143), // 242
-            Color.FromArgb(255, 0, 171, 123), // 243
-            Color.FromArgb(255, 0, 143, 99), // 244
-            Color.FromArgb(255, 0, 115, 79), // 245
-            Color.FromArgb(255, 247, 211, 255), // 246
-            Color.FromArgb(255, 247, 212, 255), // 247
-            Color.FromArgb(255, 248, 211, 255), // 248
-            Color.FromArgb(255, 248, 212, 255), // 249
-            Color.FromArgb(255, 246, 211, 255), // 250
-            Color.FromArgb(255, 246, 212, 255), // 251
-            Color.FromArgb(255, 246, 210, 255), // 252
-            Color.FromArgb(255, 247, 210, 255), // 253
-            Color.FromArgb(255, 248, 210, 255), // 254
-            Color.FromArgb(255, 254, 255, 255) // 255
+        public static readonly ColorRgba[] Menu = {
+            new ColorRgba(0, 0, 0, 0), // 0
+            new ColorRgba(0, 0, 1, 255), // 1
+            new ColorRgba(0, 1, 0, 255), // 2
+            new ColorRgba(1, 0, 0, 255), // 3
+            new ColorRgba(0, 1, 1, 255), // 4
+            new ColorRgba(1, 0, 1, 255), // 5
+            new ColorRgba(1, 1, 0, 255), // 6
+            new ColorRgba(1, 1, 1, 255), // 7
+            new ColorRgba(0, 0, 2, 255), // 8
+            new ColorRgba(0, 1, 2, 255), // 9
+            new ColorRgba(127, 115, 95, 255), // 10
+            new ColorRgba(159, 143, 119, 255), // 11
+            new ColorRgba(191, 175, 151, 255), // 12
+            new ColorRgba(223, 207, 179, 255), // 13
+            new ColorRgba(255, 243, 211, 255), // 14
+            new ColorRgba(255, 255, 254, 255), // 15
+            new ColorRgba(247, 255, 223, 255), // 16
+            new ColorRgba(235, 255, 183, 255), // 17
+            new ColorRgba(227, 255, 147, 255), // 18
+            new ColorRgba(219, 255, 111, 255), // 19
+            new ColorRgba(199, 255, 0, 255), // 20
+            new ColorRgba(163, 231, 0, 255), // 21
+            new ColorRgba(127, 207, 0, 255), // 22
+            new ColorRgba(99, 183, 0, 255), // 23
+            new ColorRgba(75, 159, 0, 255), // 24
+            new ColorRgba(39, 139, 0, 255), // 25
+            new ColorRgba(11, 119, 0, 255), // 26
+            new ColorRgba(0, 99, 7, 255), // 27
+            new ColorRgba(0, 79, 19, 255), // 28
+            new ColorRgba(0, 59, 23, 255), // 29
+            new ColorRgba(0, 39, 23, 255), // 30
+            new ColorRgba(0, 19, 16, 255), // 31
+            new ColorRgba(251, 255, 235, 255), // 32
+            new ColorRgba(251, 255, 215, 255), // 33
+            new ColorRgba(251, 255, 199, 255), // 34
+            new ColorRgba(255, 247, 183, 255), // 35
+            new ColorRgba(255, 239, 167, 255), // 36
+            new ColorRgba(255, 227, 151, 255), // 37
+            new ColorRgba(255, 211, 135, 255), // 38
+            new ColorRgba(255, 195, 119, 255), // 39
+            new ColorRgba(223, 179, 115, 255), // 40
+            new ColorRgba(195, 167, 107, 255), // 41
+            new ColorRgba(163, 147, 95, 255), // 42
+            new ColorRgba(135, 123, 87, 255), // 43
+            new ColorRgba(107, 99, 71, 255), // 44
+            new ColorRgba(75, 75, 55, 255), // 45
+            new ColorRgba(47, 47, 35, 255), // 46
+            new ColorRgba(19, 19, 15, 255), // 47
+            new ColorRgba(235, 239, 255, 255), // 48
+            new ColorRgba(191, 207, 251, 255), // 49
+            new ColorRgba(155, 179, 247, 255), // 50
+            new ColorRgba(115, 155, 243, 255), // 51
+            new ColorRgba(79, 131, 239, 255), // 52
+            new ColorRgba(43, 115, 235, 255), // 53
+            new ColorRgba(19, 103, 219, 255), // 54
+            new ColorRgba(0, 91, 203, 255), // 55
+            new ColorRgba(0, 83, 179, 255), // 56
+            new ColorRgba(0, 75, 159, 255), // 57
+            new ColorRgba(0, 71, 135, 255), // 58
+            new ColorRgba(0, 63, 115, 255), // 59
+            new ColorRgba(0, 51, 95, 255), // 60
+            new ColorRgba(0, 43, 71, 255), // 61
+            new ColorRgba(0, 31, 51, 255), // 62
+            new ColorRgba(0, 20, 31, 255), // 63
+            new ColorRgba(255, 223, 223, 255), // 64
+            new ColorRgba(255, 183, 183, 255), // 65
+            new ColorRgba(255, 147, 147, 255), // 66
+            new ColorRgba(255, 111, 111, 255), // 67
+            new ColorRgba(255, 71, 71, 255), // 68
+            new ColorRgba(255, 35, 35, 255), // 69
+            new ColorRgba(255, 0, 0, 255), // 70
+            new ColorRgba(227, 0, 11, 255), // 71
+            new ColorRgba(199, 0, 35, 255), // 72
+            new ColorRgba(175, 0, 55, 255), // 73
+            new ColorRgba(147, 0, 71, 255), // 74
+            new ColorRgba(123, 0, 75, 255), // 75
+            new ColorRgba(95, 0, 71, 255), // 76
+            new ColorRgba(71, 0, 63, 255), // 77
+            new ColorRgba(39, 0, 43, 255), // 78
+            new ColorRgba(15, 0, 19, 255), // 79
+            new ColorRgba(255, 251, 223, 255), // 80
+            new ColorRgba(255, 243, 147, 255), // 81
+            new ColorRgba(255, 239, 71, 255), // 82
+            new ColorRgba(255, 215, 59, 255), // 83
+            new ColorRgba(255, 195, 47, 255), // 84
+            new ColorRgba(255, 167, 35, 255), // 85
+            new ColorRgba(255, 143, 23, 255), // 86
+            new ColorRgba(235, 115, 47, 255), // 87
+            new ColorRgba(219, 103, 67, 255), // 88
+            new ColorRgba(203, 95, 87, 255), // 89
+            new ColorRgba(171, 83, 59, 255), // 90
+            new ColorRgba(139, 71, 39, 255), // 91
+            new ColorRgba(111, 59, 23, 255), // 92
+            new ColorRgba(79, 47, 11, 255), // 93
+            new ColorRgba(47, 35, 0, 255), // 94
+            new ColorRgba(19, 15, 0, 255), // 95
+            new ColorRgba(0, 255, 67, 255), // 96
+            new ColorRgba(0, 235, 75, 255), // 97
+            new ColorRgba(0, 215, 83, 255), // 98
+            new ColorRgba(0, 199, 87, 255), // 99
+            new ColorRgba(0, 179, 91, 255), // 100
+            new ColorRgba(0, 163, 91, 255), // 101
+            new ColorRgba(0, 147, 87, 255), // 102
+            new ColorRgba(0, 131, 79, 255), // 103
+            new ColorRgba(0, 119, 75, 255), // 104
+            new ColorRgba(0, 103, 67, 255), // 105
+            new ColorRgba(0, 91, 59, 255), // 106
+            new ColorRgba(0, 75, 51, 255), // 107
+            new ColorRgba(0, 59, 43, 255), // 108
+            new ColorRgba(0, 47, 35, 255), // 109
+            new ColorRgba(0, 31, 23, 255), // 110
+            new ColorRgba(0, 19, 15, 255), // 111
+            new ColorRgba(251, 223, 255, 255), // 112
+            new ColorRgba(243, 175, 255, 255), // 113
+            new ColorRgba(235, 131, 255, 255), // 114
+            new ColorRgba(231, 87, 255, 255), // 115
+            new ColorRgba(223, 43, 255, 255), // 116
+            new ColorRgba(215, 0, 255, 255), // 117
+            new ColorRgba(191, 0, 231, 255), // 118
+            new ColorRgba(171, 0, 207, 255), // 119
+            new ColorRgba(151, 0, 183, 255), // 120
+            new ColorRgba(131, 0, 159, 255), // 121
+            new ColorRgba(111, 0, 135, 255), // 122
+            new ColorRgba(91, 0, 111, 255), // 123
+            new ColorRgba(71, 0, 87, 255), // 124
+            new ColorRgba(51, 0, 63, 255), // 125
+            new ColorRgba(31, 0, 43, 255), // 126
+            new ColorRgba(16, 0, 19, 255), // 127
+            new ColorRgba(247, 251, 255, 255), // 128
+            new ColorRgba(215, 227, 235, 255), // 129
+            new ColorRgba(183, 203, 219, 255), // 130
+            new ColorRgba(159, 179, 203, 255), // 131
+            new ColorRgba(135, 159, 183, 255), // 132
+            new ColorRgba(111, 139, 167, 255), // 133
+            new ColorRgba(91, 123, 151, 255), // 134
+            new ColorRgba(75, 107, 139, 255), // 135
+            new ColorRgba(59, 95, 127, 255), // 136
+            new ColorRgba(47, 83, 115, 255), // 137
+            new ColorRgba(35, 71, 103, 255), // 138
+            new ColorRgba(27, 63, 91, 255), // 139
+            new ColorRgba(15, 51, 75, 255), // 140
+            new ColorRgba(7, 39, 59, 255), // 141
+            new ColorRgba(0, 27, 43, 255), // 142
+            new ColorRgba(0, 19, 31, 255), // 143
+            new ColorRgba(223, 0, 255, 255), // 144
+            new ColorRgba(215, 0, 247, 255), // 145
+            new ColorRgba(207, 0, 243, 255), // 146
+            new ColorRgba(199, 0, 235, 255), // 147
+            new ColorRgba(191, 0, 227, 255), // 148
+            new ColorRgba(183, 0, 223, 255), // 149
+            new ColorRgba(175, 0, 215, 255), // 150
+            new ColorRgba(167, 0, 211, 255), // 151
+            new ColorRgba(159, 1, 203, 255), // 152
+            new ColorRgba(155, 0, 199, 255), // 153
+            new ColorRgba(147, 0, 191, 255), // 154
+            new ColorRgba(143, 0, 187, 255), // 155
+            new ColorRgba(135, 0, 179, 255), // 156
+            new ColorRgba(127, 0, 171, 255), // 157
+            new ColorRgba(123, 0, 167, 255), // 158
+            new ColorRgba(115, 0, 159, 255), // 159
+            new ColorRgba(111, 1, 155, 255), // 160
+            new ColorRgba(103, 0, 147, 255), // 161
+            new ColorRgba(99, 0, 143, 255), // 162
+            new ColorRgba(91, 0, 135, 255), // 163
+            new ColorRgba(87, 0, 131, 255), // 164
+            new ColorRgba(83, 0, 123, 255), // 165
+            new ColorRgba(75, 0, 119, 255), // 166
+            new ColorRgba(71, 0, 111, 255), // 167
+            new ColorRgba(67, 0, 103, 255), // 168
+            new ColorRgba(59, 0, 99, 255), // 169
+            new ColorRgba(55, 0, 91, 255), // 170
+            new ColorRgba(51, 0, 87, 255), // 171
+            new ColorRgba(47, 0, 79, 255), // 172
+            new ColorRgba(43, 0, 75, 255), // 173
+            new ColorRgba(39, 0, 67, 255), // 174
+            new ColorRgba(35, 0, 63, 255), // 175
+            new ColorRgba(215, 39, 203, 255), // 176
+            new ColorRgba(199, 35, 187, 255), // 177
+            new ColorRgba(183, 31, 175, 255), // 178
+            new ColorRgba(171, 31, 163, 255), // 179
+            new ColorRgba(155, 27, 147, 255), // 180
+            new ColorRgba(143, 23, 135, 255), // 181
+            new ColorRgba(127, 23, 119, 255), // 182
+            new ColorRgba(115, 19, 107, 255), // 183
+            new ColorRgba(99, 15, 95, 255), // 184
+            new ColorRgba(83, 15, 79, 255), // 185
+            new ColorRgba(71, 11, 67, 255), // 186
+            new ColorRgba(55, 7, 51, 255), // 187
+            new ColorRgba(43, 7, 39, 255), // 188
+            new ColorRgba(31, 0, 27, 255), // 189
+            new ColorRgba(19, 0, 15, 255), // 190
+            new ColorRgba(7, 0, 7, 255), // 191
+            new ColorRgba(255, 254, 255, 255), // 192
+            new ColorRgba(255, 255, 215, 255), // 193
+            new ColorRgba(255, 255, 179, 255), // 194
+            new ColorRgba(255, 255, 143, 255), // 195
+            new ColorRgba(255, 255, 107, 255), // 196
+            new ColorRgba(255, 255, 71, 255), // 197
+            new ColorRgba(255, 255, 35, 255), // 198
+            new ColorRgba(255, 255, 0, 255), // 199
+            new ColorRgba(247, 247, 0, 255), // 200
+            new ColorRgba(239, 239, 0, 255), // 201
+            new ColorRgba(231, 231, 0, 255), // 202
+            new ColorRgba(223, 223, 0, 255), // 203
+            new ColorRgba(215, 215, 0, 255), // 204
+            new ColorRgba(207, 207, 0, 255), // 205
+            new ColorRgba(199, 199, 0, 255), // 206
+            new ColorRgba(191, 191, 0, 255), // 207
+            new ColorRgba(35, 0, 87, 255), // 208
+            new ColorRgba(39, 0, 95, 255), // 209
+            new ColorRgba(43, 0, 99, 255), // 210
+            new ColorRgba(47, 0, 107, 255), // 211
+            new ColorRgba(51, 0, 115, 255), // 212
+            new ColorRgba(59, 0, 123, 255), // 213
+            new ColorRgba(63, 0, 131, 255), // 214
+            new ColorRgba(67, 0, 139, 255), // 215
+            new ColorRgba(75, 0, 147, 255), // 216
+            new ColorRgba(79, 0, 155, 255), // 217
+            new ColorRgba(87, 0, 163, 255), // 218
+            new ColorRgba(91, 0, 171, 255), // 219
+            new ColorRgba(99, 0, 179, 255), // 220
+            new ColorRgba(103, 0, 187, 255), // 221
+            new ColorRgba(111, 0, 195, 255), // 222
+            new ColorRgba(119, 0, 203, 255), // 223
+            new ColorRgba(51, 1, 87, 255), // 224
+            new ColorRgba(55, 0, 95, 255), // 225
+            new ColorRgba(63, 0, 99, 255), // 226
+            new ColorRgba(67, 0, 107, 255), // 227
+            new ColorRgba(75, 0, 115, 255), // 228
+            new ColorRgba(79, 0, 123, 255), // 229
+            new ColorRgba(88, 0, 131, 255), // 230
+            new ColorRgba(95, 0, 139, 255), // 231
+            new ColorRgba(104, 0, 147, 255), // 232
+            new ColorRgba(111, 0, 155, 255), // 233
+            new ColorRgba(115, 0, 163, 255), // 234
+            new ColorRgba(123, 0, 171, 255), // 235
+            new ColorRgba(131, 0, 179, 255), // 236
+            new ColorRgba(139, 0, 187, 255), // 237
+            new ColorRgba(151, 0, 195, 255), // 238
+            new ColorRgba(159, 0, 203, 255), // 239
+            new ColorRgba(0, 255, 195, 255), // 240
+            new ColorRgba(0, 227, 167, 255), // 241
+            new ColorRgba(0, 199, 143, 255), // 242
+            new ColorRgba(0, 171, 123, 255), // 243
+            new ColorRgba(0, 143, 99, 255), // 244
+            new ColorRgba(0, 115, 79, 255), // 245
+            new ColorRgba(247, 211, 255, 255), // 246
+            new ColorRgba(247, 212, 255, 255), // 247
+            new ColorRgba(248, 211, 255, 255), // 248
+            new ColorRgba(248, 212, 255, 255), // 249
+            new ColorRgba(246, 211, 255, 255), // 250
+            new ColorRgba(246, 212, 255, 255), // 251
+            new ColorRgba(246, 210, 255, 255), // 252
+            new ColorRgba(247, 210, 255, 255), // 253
+            new ColorRgba(248, 210, 255, 255), // 254
+            new ColorRgba(254, 255, 255, 255) // 255
         };
 
-        public static readonly Color[] Snow = {
-            Color.FromArgb(0, 87, 0, 203), // 0
-            Color.FromArgb(255, 87, 0, 203), // 1
-            Color.FromArgb(255, 87, 0, 203), // 2
-            Color.FromArgb(255, 87, 0, 203), // 3
-            Color.FromArgb(255, 87, 0, 203), // 4
-            Color.FromArgb(255, 87, 0, 203), // 5
-            Color.FromArgb(255, 87, 0, 203), // 6
-            Color.FromArgb(255, 87, 0, 203), // 7
-            Color.FromArgb(255, 87, 0, 203), // 8
-            Color.FromArgb(255, 87, 0, 203), // 9
-            Color.FromArgb(255, 87, 0, 203), // 10
-            Color.FromArgb(255, 87, 0, 203), // 11
-            Color.FromArgb(255, 87, 0, 203), // 12
-            Color.FromArgb(255, 87, 0, 203), // 13
-            Color.FromArgb(255, 87, 0, 203), // 14
-            Color.FromArgb(255, 87, 0, 203), // 15
-            Color.FromArgb(255, 87, 0, 203), // 16
-            Color.FromArgb(255, 87, 0, 203), // 17
-            Color.FromArgb(255, 87, 0, 203), // 18
-            Color.FromArgb(255, 87, 0, 203), // 19
-            Color.FromArgb(255, 87, 0, 203), // 20
-            Color.FromArgb(255, 87, 0, 203), // 21
-            Color.FromArgb(255, 87, 0, 203), // 22
-            Color.FromArgb(255, 87, 0, 203), // 23
-            Color.FromArgb(255, 87, 0, 203), // 24
-            Color.FromArgb(255, 87, 0, 203), // 25
-            Color.FromArgb(255, 87, 0, 203), // 26
-            Color.FromArgb(255, 87, 0, 203), // 27
-            Color.FromArgb(255, 87, 0, 203), // 28
-            Color.FromArgb(255, 87, 0, 203), // 29
-            Color.FromArgb(255, 87, 0, 203), // 30
-            Color.FromArgb(255, 87, 0, 203), // 31
-            Color.FromArgb(255, 87, 0, 203), // 32
-            Color.FromArgb(255, 87, 0, 203), // 33
-            Color.FromArgb(255, 87, 0, 203), // 34
-            Color.FromArgb(255, 87, 0, 203), // 35
-            Color.FromArgb(255, 87, 0, 203), // 36
-            Color.FromArgb(255, 87, 0, 203), // 37
-            Color.FromArgb(255, 87, 0, 203), // 38
-            Color.FromArgb(255, 87, 0, 203), // 39
-            Color.FromArgb(255, 87, 0, 203), // 40
-            Color.FromArgb(255, 87, 0, 203), // 41
-            Color.FromArgb(255, 87, 0, 203), // 42
-            Color.FromArgb(255, 87, 0, 203), // 43
-            Color.FromArgb(255, 87, 0, 203), // 44
-            Color.FromArgb(255, 87, 0, 203), // 45
-            Color.FromArgb(255, 87, 0, 203), // 46
-            Color.FromArgb(255, 87, 0, 203), // 47
-            Color.FromArgb(255, 87, 0, 203), // 48
-            Color.FromArgb(255, 87, 0, 203), // 49
-            Color.FromArgb(255, 87, 0, 203), // 50
-            Color.FromArgb(255, 87, 0, 203), // 51
-            Color.FromArgb(255, 87, 0, 203), // 52
-            Color.FromArgb(255, 87, 0, 203), // 53
-            Color.FromArgb(255, 87, 0, 203), // 54
-            Color.FromArgb(255, 87, 0, 203), // 55
-            Color.FromArgb(255, 87, 0, 203), // 56
-            Color.FromArgb(255, 87, 0, 203), // 57
-            Color.FromArgb(255, 87, 0, 203), // 58
-            Color.FromArgb(255, 87, 0, 203), // 59
-            Color.FromArgb(255, 87, 0, 203), // 60
-            Color.FromArgb(255, 87, 0, 203), // 61
-            Color.FromArgb(255, 87, 0, 203), // 62
-            Color.FromArgb(255, 87, 0, 203), // 63
-            Color.FromArgb(255, 87, 0, 203), // 64
-            Color.FromArgb(255, 87, 0, 203), // 65
-            Color.FromArgb(255, 87, 0, 203), // 66
-            Color.FromArgb(255, 87, 0, 203), // 67
-            Color.FromArgb(255, 87, 0, 203), // 68
-            Color.FromArgb(255, 87, 0, 203), // 69
-            Color.FromArgb(255, 87, 0, 203), // 70
-            Color.FromArgb(255, 87, 0, 203), // 71
-            Color.FromArgb(255, 87, 0, 203), // 72
-            Color.FromArgb(255, 87, 0, 203), // 73
-            Color.FromArgb(255, 87, 0, 203), // 74
-            Color.FromArgb(255, 87, 0, 203), // 75
-            Color.FromArgb(255, 87, 0, 203), // 76
-            Color.FromArgb(255, 87, 0, 203), // 77
-            Color.FromArgb(255, 87, 0, 203), // 78
-            Color.FromArgb(255, 87, 0, 203), // 79
-            Color.FromArgb(255, 87, 0, 203), // 80
-            Color.FromArgb(255, 87, 0, 203), // 81
-            Color.FromArgb(255, 87, 0, 203), // 82
-            Color.FromArgb(255, 87, 0, 203), // 83
-            Color.FromArgb(255, 87, 0, 203), // 84
-            Color.FromArgb(255, 87, 0, 203), // 85
-            Color.FromArgb(255, 87, 0, 203), // 86
-            Color.FromArgb(255, 87, 0, 203), // 87
-            Color.FromArgb(255, 87, 0, 203), // 88
-            Color.FromArgb(255, 87, 0, 203), // 89
-            Color.FromArgb(255, 87, 0, 203), // 90
-            Color.FromArgb(255, 87, 0, 203), // 91
-            Color.FromArgb(255, 87, 0, 203), // 92
-            Color.FromArgb(255, 87, 0, 203), // 93
-            Color.FromArgb(255, 87, 0, 203), // 94
-            Color.FromArgb(255, 87, 0, 203), // 95
-            Color.FromArgb(255, 87, 0, 203), // 96
-            Color.FromArgb(255, 87, 0, 203), // 97
-            Color.FromArgb(255, 87, 0, 203), // 98
-            Color.FromArgb(255, 87, 0, 203), // 99
-            Color.FromArgb(255, 87, 0, 203), // 100
-            Color.FromArgb(255, 87, 0, 203), // 101
-            Color.FromArgb(255, 87, 0, 203), // 102
-            Color.FromArgb(255, 87, 0, 203), // 103
-            Color.FromArgb(255, 87, 0, 203), // 104
-            Color.FromArgb(255, 87, 0, 203), // 105
-            Color.FromArgb(255, 87, 0, 203), // 106
-            Color.FromArgb(255, 87, 0, 203), // 107
-            Color.FromArgb(255, 87, 0, 203), // 108
-            Color.FromArgb(255, 87, 0, 203), // 109
-            Color.FromArgb(255, 87, 0, 203), // 110
-            Color.FromArgb(255, 87, 0, 203), // 111
-            Color.FromArgb(255, 87, 0, 203), // 112
-            Color.FromArgb(255, 87, 0, 203), // 113
-            Color.FromArgb(255, 87, 0, 203), // 114
-            Color.FromArgb(255, 87, 0, 203), // 115
-            Color.FromArgb(255, 87, 0, 203), // 116
-            Color.FromArgb(255, 87, 0, 203), // 117
-            Color.FromArgb(255, 87, 0, 203), // 118
-            Color.FromArgb(255, 87, 0, 203), // 119
-            Color.FromArgb(255, 87, 0, 203), // 120
-            Color.FromArgb(255, 87, 0, 203), // 121
-            Color.FromArgb(255, 87, 0, 203), // 122
-            Color.FromArgb(255, 87, 0, 203), // 123
-            Color.FromArgb(255, 87, 0, 203), // 124
-            Color.FromArgb(255, 87, 0, 203), // 125
-            Color.FromArgb(255, 87, 0, 203), // 126
-            Color.FromArgb(255, 87, 0, 203), // 127
-            Color.FromArgb(255, 224, 224, 255), // 128
-            Color.FromArgb(255, 208, 208, 239), // 129
-            Color.FromArgb(255, 192, 192, 223), // 130
-            Color.FromArgb(255, 176, 176, 207), // 131
-            Color.FromArgb(255, 160, 160, 191), // 132
-            Color.FromArgb(255, 144, 144, 175), // 133
-            Color.FromArgb(255, 128, 128, 159), // 134
-            Color.FromArgb(255, 112, 112, 143), // 135
-            Color.FromArgb(255, 96, 96, 128), // 136
-            Color.FromArgb(255, 87, 0, 203), // 137
-            Color.FromArgb(255, 87, 0, 203), // 138
-            Color.FromArgb(255, 87, 0, 203), // 139
-            Color.FromArgb(255, 87, 0, 203), // 140
-            Color.FromArgb(255, 87, 0, 203), // 141
-            Color.FromArgb(255, 87, 0, 203), // 142
-            Color.FromArgb(255, 87, 0, 203), // 143
-            Color.FromArgb(255, 87, 0, 203), // 144
-            Color.FromArgb(255, 87, 0, 203), // 145
-            Color.FromArgb(255, 87, 0, 203), // 146
-            Color.FromArgb(255, 87, 0, 203), // 147
-            Color.FromArgb(255, 87, 0, 203), // 148
-            Color.FromArgb(255, 87, 0, 203), // 149
-            Color.FromArgb(255, 87, 0, 203), // 150
-            Color.FromArgb(255, 87, 0, 203), // 151
-            Color.FromArgb(255, 87, 0, 203), // 152
-            Color.FromArgb(255, 87, 0, 203), // 153
-            Color.FromArgb(255, 87, 0, 203), // 154
-            Color.FromArgb(255, 87, 0, 203), // 155
-            Color.FromArgb(255, 87, 0, 203), // 156
-            Color.FromArgb(255, 87, 0, 203), // 157
-            Color.FromArgb(255, 87, 0, 203), // 158
-            Color.FromArgb(255, 87, 0, 203), // 159
-            Color.FromArgb(255, 87, 0, 203), // 160
-            Color.FromArgb(255, 87, 0, 203), // 161
-            Color.FromArgb(255, 87, 0, 203), // 162
-            Color.FromArgb(255, 87, 0, 203), // 163
-            Color.FromArgb(255, 87, 0, 203), // 164
-            Color.FromArgb(255, 87, 0, 203), // 165
-            Color.FromArgb(255, 87, 0, 203), // 166
-            Color.FromArgb(255, 87, 0, 203), // 167
-            Color.FromArgb(255, 87, 0, 203), // 168
-            Color.FromArgb(255, 87, 0, 203), // 169
-            Color.FromArgb(255, 87, 0, 203), // 170
-            Color.FromArgb(255, 87, 0, 203), // 171
-            Color.FromArgb(255, 87, 0, 203), // 172
-            Color.FromArgb(255, 87, 0, 203), // 173
-            Color.FromArgb(255, 87, 0, 203), // 174
-            Color.FromArgb(255, 87, 0, 203), // 175
-            Color.FromArgb(255, 87, 0, 203), // 176
-            Color.FromArgb(255, 87, 0, 203), // 177
-            Color.FromArgb(255, 87, 0, 203), // 178
-            Color.FromArgb(255, 87, 0, 203), // 179
-            Color.FromArgb(255, 87, 0, 203), // 180
-            Color.FromArgb(255, 87, 0, 203), // 181
-            Color.FromArgb(255, 87, 0, 203), // 182
-            Color.FromArgb(255, 87, 0, 203), // 183
-            Color.FromArgb(255, 87, 0, 203), // 184
-            Color.FromArgb(255, 87, 0, 203), // 185
-            Color.FromArgb(255, 87, 0, 203), // 186
-            Color.FromArgb(255, 87, 0, 203), // 187
-            Color.FromArgb(255, 87, 0, 203), // 188
-            Color.FromArgb(255, 87, 0, 203), // 189
-            Color.FromArgb(255, 87, 0, 203), // 190
-            Color.FromArgb(255, 87, 0, 203), // 191
-            Color.FromArgb(255, 87, 0, 203), // 192
-            Color.FromArgb(255, 87, 0, 203), // 193
-            Color.FromArgb(255, 87, 0, 203), // 194
-            Color.FromArgb(255, 87, 0, 203), // 195
-            Color.FromArgb(255, 87, 0, 203), // 196
-            Color.FromArgb(255, 87, 0, 203), // 197
-            Color.FromArgb(255, 87, 0, 203), // 198
-            Color.FromArgb(255, 87, 0, 203), // 199
-            Color.FromArgb(255, 87, 0, 203), // 200
-            Color.FromArgb(255, 64, 80, 96), // 201
-            Color.FromArgb(255, 87, 0, 203), // 202
-            Color.FromArgb(255, 87, 0, 203), // 203
-            Color.FromArgb(255, 87, 0, 203), // 204
-            Color.FromArgb(255, 87, 0, 203), // 205
-            Color.FromArgb(255, 87, 0, 203), // 206
-            Color.FromArgb(255, 87, 0, 203), // 207
-            Color.FromArgb(255, 87, 0, 203), // 208
-            Color.FromArgb(255, 87, 0, 203), // 209
-            Color.FromArgb(255, 87, 0, 203), // 210
-            Color.FromArgb(255, 87, 0, 203), // 211
-            Color.FromArgb(255, 87, 0, 203), // 212
-            Color.FromArgb(255, 87, 0, 203), // 213
-            Color.FromArgb(255, 87, 0, 203), // 214
-            Color.FromArgb(255, 87, 0, 203), // 215
-            Color.FromArgb(255, 87, 0, 203), // 216
-            Color.FromArgb(255, 87, 0, 203), // 217
-            Color.FromArgb(255, 87, 0, 203), // 218
-            Color.FromArgb(255, 87, 0, 203), // 219
-            Color.FromArgb(255, 87, 0, 203), // 220
-            Color.FromArgb(255, 87, 0, 203), // 221
-            Color.FromArgb(255, 87, 0, 203), // 222
-            Color.FromArgb(255, 87, 0, 203), // 223
-            Color.FromArgb(255, 87, 0, 203), // 224
-            Color.FromArgb(255, 87, 0, 203), // 225
-            Color.FromArgb(255, 87, 0, 203), // 226
-            Color.FromArgb(255, 87, 0, 203), // 227
-            Color.FromArgb(255, 87, 0, 203), // 228
-            Color.FromArgb(255, 87, 0, 203), // 229
-            Color.FromArgb(255, 87, 0, 203), // 230
-            Color.FromArgb(255, 87, 0, 203), // 231
-            Color.FromArgb(255, 87, 0, 203), // 232
-            Color.FromArgb(255, 87, 0, 203), // 233
-            Color.FromArgb(255, 87, 0, 203), // 234
-            Color.FromArgb(255, 87, 0, 203), // 235
-            Color.FromArgb(255, 87, 0, 203), // 236
-            Color.FromArgb(255, 87, 0, 203), // 237
-            Color.FromArgb(255, 87, 0, 203), // 238
-            Color.FromArgb(255, 87, 0, 203), // 239
-            Color.FromArgb(255, 87, 0, 203), // 240
-            Color.FromArgb(255, 87, 0, 203), // 241
-            Color.FromArgb(255, 87, 0, 203), // 242
-            Color.FromArgb(255, 87, 0, 203), // 243
-            Color.FromArgb(255, 87, 0, 203), // 244
-            Color.FromArgb(255, 87, 0, 203), // 245
-            Color.FromArgb(255, 87, 0, 203), // 246
-            Color.FromArgb(255, 87, 0, 203), // 247
-            Color.FromArgb(255, 87, 0, 203), // 248
-            Color.FromArgb(255, 87, 0, 203), // 249
-            Color.FromArgb(255, 87, 0, 203), // 250
-            Color.FromArgb(255, 87, 0, 203), // 251
-            Color.FromArgb(255, 87, 0, 203), // 252
-            Color.FromArgb(255, 87, 0, 203), // 253
-            Color.FromArgb(255, 87, 0, 203), // 254
-            Color.FromArgb(255, 87, 0, 203) // 255
+        public static readonly ColorRgba[] Snow = {
+            new ColorRgba(87, 0, 203, 0), // 0
+            new ColorRgba(87, 0, 203, 255), // 1
+            new ColorRgba(87, 0, 203, 255), // 2
+            new ColorRgba(87, 0, 203, 255), // 3
+            new ColorRgba(87, 0, 203, 255), // 4
+            new ColorRgba(87, 0, 203, 255), // 5
+            new ColorRgba(87, 0, 203, 255), // 6
+            new ColorRgba(87, 0, 203, 255), // 7
+            new ColorRgba(87, 0, 203, 255), // 8
+            new ColorRgba(87, 0, 203, 255), // 9
+            new ColorRgba(87, 0, 203, 255), // 10
+            new ColorRgba(87, 0, 203, 255), // 11
+            new ColorRgba(87, 0, 203, 255), // 12
+            new ColorRgba(87, 0, 203, 255), // 13
+            new ColorRgba(87, 0, 203, 255), // 14
+            new ColorRgba(87, 0, 203, 255), // 15
+            new ColorRgba(87, 0, 203, 255), // 16
+            new ColorRgba(87, 0, 203, 255), // 17
+            new ColorRgba(87, 0, 203, 255), // 18
+            new ColorRgba(87, 0, 203, 255), // 19
+            new ColorRgba(87, 0, 203, 255), // 20
+            new ColorRgba(87, 0, 203, 255), // 21
+            new ColorRgba(87, 0, 203, 255), // 22
+            new ColorRgba(87, 0, 203, 255), // 23
+            new ColorRgba(87, 0, 203, 255), // 24
+            new ColorRgba(87, 0, 203, 255), // 25
+            new ColorRgba(87, 0, 203, 255), // 26
+            new ColorRgba(87, 0, 203, 255), // 27
+            new ColorRgba(87, 0, 203, 255), // 28
+            new ColorRgba(87, 0, 203, 255), // 29
+            new ColorRgba(87, 0, 203, 255), // 30
+            new ColorRgba(87, 0, 203, 255), // 31
+            new ColorRgba(87, 0, 203, 255), // 32
+            new ColorRgba(87, 0, 203, 255), // 33
+            new ColorRgba(87, 0, 203, 255), // 34
+            new ColorRgba(87, 0, 203, 255), // 35
+            new ColorRgba(87, 0, 203, 255), // 36
+            new ColorRgba(87, 0, 203, 255), // 37
+            new ColorRgba(87, 0, 203, 255), // 38
+            new ColorRgba(87, 0, 203, 255), // 39
+            new ColorRgba(87, 0, 203, 255), // 40
+            new ColorRgba(87, 0, 203, 255), // 41
+            new ColorRgba(87, 0, 203, 255), // 42
+            new ColorRgba(87, 0, 203, 255), // 43
+            new ColorRgba(87, 0, 203, 255), // 44
+            new ColorRgba(87, 0, 203, 255), // 45
+            new ColorRgba(87, 0, 203, 255), // 46
+            new ColorRgba(87, 0, 203, 255), // 47
+            new ColorRgba(87, 0, 203, 255), // 48
+            new ColorRgba(87, 0, 203, 255), // 49
+            new ColorRgba(87, 0, 203, 255), // 50
+            new ColorRgba(87, 0, 203, 255), // 51
+            new ColorRgba(87, 0, 203, 255), // 52
+            new ColorRgba(87, 0, 203, 255), // 53
+            new ColorRgba(87, 0, 203, 255), // 54
+            new ColorRgba(87, 0, 203, 255), // 55
+            new ColorRgba(87, 0, 203, 255), // 56
+            new ColorRgba(87, 0, 203, 255), // 57
+            new ColorRgba(87, 0, 203, 255), // 58
+            new ColorRgba(87, 0, 203, 255), // 59
+            new ColorRgba(87, 0, 203, 255), // 60
+            new ColorRgba(87, 0, 203, 255), // 61
+            new ColorRgba(87, 0, 203, 255), // 62
+            new ColorRgba(87, 0, 203, 255), // 63
+            new ColorRgba(87, 0, 203, 255), // 64
+            new ColorRgba(87, 0, 203, 255), // 65
+            new ColorRgba(87, 0, 203, 255), // 66
+            new ColorRgba(87, 0, 203, 255), // 67
+            new ColorRgba(87, 0, 203, 255), // 68
+            new ColorRgba(87, 0, 203, 255), // 69
+            new ColorRgba(87, 0, 203, 255), // 70
+            new ColorRgba(87, 0, 203, 255), // 71
+            new ColorRgba(87, 0, 203, 255), // 72
+            new ColorRgba(87, 0, 203, 255), // 73
+            new ColorRgba(87, 0, 203, 255), // 74
+            new ColorRgba(87, 0, 203, 255), // 75
+            new ColorRgba(87, 0, 203, 255), // 76
+            new ColorRgba(87, 0, 203, 255), // 77
+            new ColorRgba(87, 0, 203, 255), // 78
+            new ColorRgba(87, 0, 203, 255), // 79
+            new ColorRgba(87, 0, 203, 255), // 80
+            new ColorRgba(87, 0, 203, 255), // 81
+            new ColorRgba(87, 0, 203, 255), // 82
+            new ColorRgba(87, 0, 203, 255), // 83
+            new ColorRgba(87, 0, 203, 255), // 84
+            new ColorRgba(87, 0, 203, 255), // 85
+            new ColorRgba(87, 0, 203, 255), // 86
+            new ColorRgba(87, 0, 203, 255), // 87
+            new ColorRgba(87, 0, 203, 255), // 88
+            new ColorRgba(87, 0, 203, 255), // 89
+            new ColorRgba(87, 0, 203, 255), // 90
+            new ColorRgba(87, 0, 203, 255), // 91
+            new ColorRgba(87, 0, 203, 255), // 92
+            new ColorRgba(87, 0, 203, 255), // 93
+            new ColorRgba(87, 0, 203, 255), // 94
+            new ColorRgba(87, 0, 203, 255), // 95
+            new ColorRgba(87, 0, 203, 255), // 96
+            new ColorRgba(87, 0, 203, 255), // 97
+            new ColorRgba(87, 0, 203, 255), // 98
+            new ColorRgba(87, 0, 203, 255), // 99
+            new ColorRgba(87, 0, 203, 255), // 100
+            new ColorRgba(87, 0, 203, 255), // 101
+            new ColorRgba(87, 0, 203, 255), // 102
+            new ColorRgba(87, 0, 203, 255), // 103
+            new ColorRgba(87, 0, 203, 255), // 104
+            new ColorRgba(87, 0, 203, 255), // 105
+            new ColorRgba(87, 0, 203, 255), // 106
+            new ColorRgba(87, 0, 203, 255), // 107
+            new ColorRgba(87, 0, 203, 255), // 108
+            new ColorRgba(87, 0, 203, 255), // 109
+            new ColorRgba(87, 0, 203, 255), // 110
+            new ColorRgba(87, 0, 203, 255), // 111
+            new ColorRgba(87, 0, 203, 255), // 112
+            new ColorRgba(87, 0, 203, 255), // 113
+            new ColorRgba(87, 0, 203, 255), // 114
+            new ColorRgba(87, 0, 203, 255), // 115
+            new ColorRgba(87, 0, 203, 255), // 116
+            new ColorRgba(87, 0, 203, 255), // 117
+            new ColorRgba(87, 0, 203, 255), // 118
+            new ColorRgba(87, 0, 203, 255), // 119
+            new ColorRgba(87, 0, 203, 255), // 120
+            new ColorRgba(87, 0, 203, 255), // 121
+            new ColorRgba(87, 0, 203, 255), // 122
+            new ColorRgba(87, 0, 203, 255), // 123
+            new ColorRgba(87, 0, 203, 255), // 124
+            new ColorRgba(87, 0, 203, 255), // 125
+            new ColorRgba(87, 0, 203, 255), // 126
+            new ColorRgba(87, 0, 203, 255), // 127
+            new ColorRgba(224, 224, 255, 255), // 128
+            new ColorRgba(208, 208, 239, 255), // 129
+            new ColorRgba(192, 192, 223, 255), // 130
+            new ColorRgba(176, 176, 207, 255), // 131
+            new ColorRgba(160, 160, 191, 255), // 132
+            new ColorRgba(144, 144, 175, 255), // 133
+            new ColorRgba(128, 128, 159, 255), // 134
+            new ColorRgba(112, 112, 143, 255), // 135
+            new ColorRgba(96, 96, 128, 255), // 136
+            new ColorRgba(87, 0, 203, 255), // 137
+            new ColorRgba(87, 0, 203, 255), // 138
+            new ColorRgba(87, 0, 203, 255), // 139
+            new ColorRgba(87, 0, 203, 255), // 140
+            new ColorRgba(87, 0, 203, 255), // 141
+            new ColorRgba(87, 0, 203, 255), // 142
+            new ColorRgba(87, 0, 203, 255), // 143
+            new ColorRgba(87, 0, 203, 255), // 144
+            new ColorRgba(87, 0, 203, 255), // 145
+            new ColorRgba(87, 0, 203, 255), // 146
+            new ColorRgba(87, 0, 203, 255), // 147
+            new ColorRgba(87, 0, 203, 255), // 148
+            new ColorRgba(87, 0, 203, 255), // 149
+            new ColorRgba(87, 0, 203, 255), // 150
+            new ColorRgba(87, 0, 203, 255), // 151
+            new ColorRgba(87, 0, 203, 255), // 152
+            new ColorRgba(87, 0, 203, 255), // 153
+            new ColorRgba(87, 0, 203, 255), // 154
+            new ColorRgba(87, 0, 203, 255), // 155
+            new ColorRgba(87, 0, 203, 255), // 156
+            new ColorRgba(87, 0, 203, 255), // 157
+            new ColorRgba(87, 0, 203, 255), // 158
+            new ColorRgba(87, 0, 203, 255), // 159
+            new ColorRgba(87, 0, 203, 255), // 160
+            new ColorRgba(87, 0, 203, 255), // 161
+            new ColorRgba(87, 0, 203, 255), // 162
+            new ColorRgba(87, 0, 203, 255), // 163
+            new ColorRgba(87, 0, 203, 255), // 164
+            new ColorRgba(87, 0, 203, 255), // 165
+            new ColorRgba(87, 0, 203, 255), // 166
+            new ColorRgba(87, 0, 203, 255), // 167
+            new ColorRgba(87, 0, 203, 255), // 168
+            new ColorRgba(87, 0, 203, 255), // 169
+            new ColorRgba(87, 0, 203, 255), // 170
+            new ColorRgba(87, 0, 203, 255), // 171
+            new ColorRgba(87, 0, 203, 255), // 172
+            new ColorRgba(87, 0, 203, 255), // 173
+            new ColorRgba(87, 0, 203, 255), // 174
+            new ColorRgba(87, 0, 203, 255), // 175
+            new ColorRgba(87, 0, 203, 255), // 176
+            new ColorRgba(87, 0, 203, 255), // 177
+            new ColorRgba(87, 0, 203, 255), // 178
+            new ColorRgba(87, 0, 203, 255), // 179
+            new ColorRgba(87, 0, 203, 255), // 180
+            new ColorRgba(87, 0, 203, 255), // 181
+            new ColorRgba(87, 0, 203, 255), // 182
+            new ColorRgba(87, 0, 203, 255), // 183
+            new ColorRgba(87, 0, 203, 255), // 184
+            new ColorRgba(87, 0, 203, 255), // 185
+            new ColorRgba(87, 0, 203, 255), // 186
+            new ColorRgba(87, 0, 203, 255), // 187
+            new ColorRgba(87, 0, 203, 255), // 188
+            new ColorRgba(87, 0, 203, 255), // 189
+            new ColorRgba(87, 0, 203, 255), // 190
+            new ColorRgba(87, 0, 203, 255), // 191
+            new ColorRgba(87, 0, 203, 255), // 192
+            new ColorRgba(87, 0, 203, 255), // 193
+            new ColorRgba(87, 0, 203, 255), // 194
+            new ColorRgba(87, 0, 203, 255), // 195
+            new ColorRgba(87, 0, 203, 255), // 196
+            new ColorRgba(87, 0, 203, 255), // 197
+            new ColorRgba(87, 0, 203, 255), // 198
+            new ColorRgba(87, 0, 203, 255), // 199
+            new ColorRgba(87, 0, 203, 255), // 200
+            new ColorRgba(64, 80, 96, 255), // 201
+            new ColorRgba(87, 0, 203, 255), // 202
+            new ColorRgba(87, 0, 203, 255), // 203
+            new ColorRgba(87, 0, 203, 255), // 204
+            new ColorRgba(87, 0, 203, 255), // 205
+            new ColorRgba(87, 0, 203, 255), // 206
+            new ColorRgba(87, 0, 203, 255), // 207
+            new ColorRgba(87, 0, 203, 255), // 208
+            new ColorRgba(87, 0, 203, 255), // 209
+            new ColorRgba(87, 0, 203, 255), // 210
+            new ColorRgba(87, 0, 203, 255), // 211
+            new ColorRgba(87, 0, 203, 255), // 212
+            new ColorRgba(87, 0, 203, 255), // 213
+            new ColorRgba(87, 0, 203, 255), // 214
+            new ColorRgba(87, 0, 203, 255), // 215
+            new ColorRgba(87, 0, 203, 255), // 216
+            new ColorRgba(87, 0, 203, 255), // 217
+            new ColorRgba(87, 0, 203, 255), // 218
+            new ColorRgba(87, 0, 203, 255), // 219
+            new ColorRgba(87, 0, 203, 255), // 220
+            new ColorRgba(87, 0, 203, 255), // 221
+            new ColorRgba(87, 0, 203, 255), // 222
+            new ColorRgba(87, 0, 203, 255), // 223
+            new ColorRgba(87, 0, 203, 255), // 224
+            new ColorRgba(87, 0, 203, 255), // 225
+            new ColorRgba(87, 0, 203, 255), // 226
+            new ColorRgba(87, 0, 203, 255), // 227
+            new ColorRgba(87, 0, 203, 255), // 228
+            new ColorRgba(87, 0, 203, 255), // 229
+            new ColorRgba(87, 0, 203, 255), // 230
+            new ColorRgba(87, 0, 203, 255), // 231
+            new ColorRgba(87, 0, 203, 255), // 232
+            new ColorRgba(87, 0, 203, 255), // 233
+            new ColorRgba(87, 0, 203, 255), // 234
+            new ColorRgba(87, 0, 203, 255), // 235
+            new ColorRgba(87, 0, 203, 255), // 236
+            new ColorRgba(87, 0, 203, 255), // 237
+            new ColorRgba(87, 0, 203, 255), // 238
+            new ColorRgba(87, 0, 203, 255), // 239
+            new ColorRgba(87, 0, 203, 255), // 240
+            new ColorRgba(87, 0, 203, 255), // 241
+            new ColorRgba(87, 0, 203, 255), // 242
+            new ColorRgba(87, 0, 203, 255), // 243
+            new ColorRgba(87, 0, 203, 255), // 244
+            new ColorRgba(87, 0, 203, 255), // 245
+            new ColorRgba(87, 0, 203, 255), // 246
+            new ColorRgba(87, 0, 203, 255), // 247
+            new ColorRgba(87, 0, 203, 255), // 248
+            new ColorRgba(87, 0, 203, 255), // 249
+            new ColorRgba(87, 0, 203, 255), // 250
+            new ColorRgba(87, 0, 203, 255), // 251
+            new ColorRgba(87, 0, 203, 255), // 252
+            new ColorRgba(87, 0, 203, 255), // 253
+            new ColorRgba(87, 0, 203, 255), // 254
+            new ColorRgba(87, 0, 203, 255) // 255
         };
 
-        public static readonly Color[] ByIndex = {
-            Color.FromArgb(0, 0, 0, 0), // 0 (Transparent)
-            Color.FromArgb(255, 1, 1, 1), // 1
-            Color.FromArgb(255, 2, 2, 2), // 2
-            Color.FromArgb(255, 3, 3, 3), // 3
-            Color.FromArgb(255, 4, 4, 4), // 4
-            Color.FromArgb(255, 5, 5, 5), // 5
-            Color.FromArgb(255, 6, 6, 6), // 6
-            Color.FromArgb(255, 7, 7, 7), // 7
-            Color.FromArgb(255, 8, 8, 8), // 8
-            Color.FromArgb(255, 9, 9, 9), // 9
-            Color.FromArgb(255, 10, 10, 10), // 10
-            Color.FromArgb(255, 11, 11, 11), // 11
-            Color.FromArgb(255, 12, 12, 12), // 12
-            Color.FromArgb(255, 13, 13, 13), // 13
-            Color.FromArgb(255, 14, 14, 14), // 14
-            Color.FromArgb(255, 15, 15, 15), // 15
-            Color.FromArgb(255, 16, 16, 16), // 16
-            Color.FromArgb(255, 17, 17, 17), // 17
-            Color.FromArgb(255, 18, 18, 18), // 18
-            Color.FromArgb(255, 19, 19, 19), // 19
-            Color.FromArgb(255, 20, 20, 20), // 20
-            Color.FromArgb(255, 21, 21, 21), // 21
-            Color.FromArgb(255, 22, 22, 22), // 22
-            Color.FromArgb(255, 23, 23, 23), // 23
-            Color.FromArgb(255, 24, 24, 24), // 24
-            Color.FromArgb(255, 25, 25, 25), // 25
-            Color.FromArgb(255, 26, 26, 26), // 26
-            Color.FromArgb(255, 27, 27, 27), // 27
-            Color.FromArgb(255, 28, 28, 28), // 28
-            Color.FromArgb(255, 29, 29, 29), // 29
-            Color.FromArgb(255, 30, 30, 30), // 30
-            Color.FromArgb(255, 31, 31, 31), // 31
-            Color.FromArgb(255, 32, 32, 32), // 32
-            Color.FromArgb(255, 33, 33, 33), // 33
-            Color.FromArgb(255, 34, 34, 34), // 34
-            Color.FromArgb(255, 35, 35, 35), // 35
-            Color.FromArgb(255, 36, 36, 36), // 36
-            Color.FromArgb(255, 37, 37, 37), // 37
-            Color.FromArgb(255, 38, 38, 38), // 38
-            Color.FromArgb(255, 39, 39, 39), // 39
-            Color.FromArgb(255, 40, 40, 40), // 40
-            Color.FromArgb(255, 41, 41, 41), // 41
-            Color.FromArgb(255, 42, 42, 42), // 42
-            Color.FromArgb(255, 43, 43, 43), // 43
-            Color.FromArgb(255, 44, 44, 44), // 44
-            Color.FromArgb(255, 45, 45, 45), // 45
-            Color.FromArgb(255, 46, 46, 46), // 46
-            Color.FromArgb(255, 47, 47, 47), // 47
-            Color.FromArgb(255, 48, 48, 48), // 48
-            Color.FromArgb(255, 49, 49, 49), // 49
-            Color.FromArgb(255, 50, 50, 50), // 50
-            Color.FromArgb(255, 51, 51, 51), // 51
-            Color.FromArgb(255, 52, 52, 52), // 52
-            Color.FromArgb(255, 53, 53, 53), // 53
-            Color.FromArgb(255, 54, 54, 54), // 54
-            Color.FromArgb(255, 55, 55, 55), // 55
-            Color.FromArgb(255, 56, 56, 56), // 56
-            Color.FromArgb(255, 57, 57, 57), // 57
-            Color.FromArgb(255, 58, 58, 58), // 58
-            Color.FromArgb(255, 59, 59, 59), // 59
-            Color.FromArgb(255, 60, 60, 60), // 60
-            Color.FromArgb(255, 61, 61, 61), // 61
-            Color.FromArgb(255, 62, 62, 62), // 62
-            Color.FromArgb(255, 63, 63, 63), // 63
-            Color.FromArgb(255, 64, 64, 64), // 64
-            Color.FromArgb(255, 65, 65, 65), // 65
-            Color.FromArgb(255, 66, 66, 66), // 66
-            Color.FromArgb(255, 67, 67, 67), // 67
-            Color.FromArgb(255, 68, 68, 68), // 68
-            Color.FromArgb(255, 69, 69, 69), // 69
-            Color.FromArgb(255, 70, 70, 70), // 70
-            Color.FromArgb(255, 71, 71, 71), // 71
-            Color.FromArgb(255, 72, 72, 72), // 72
-            Color.FromArgb(255, 73, 73, 73), // 73
-            Color.FromArgb(255, 74, 74, 74), // 74
-            Color.FromArgb(255, 75, 75, 75), // 75
-            Color.FromArgb(255, 76, 76, 76), // 76
-            Color.FromArgb(255, 77, 77, 77), // 77
-            Color.FromArgb(255, 78, 78, 78), // 78
-            Color.FromArgb(255, 79, 79, 79), // 79
-            Color.FromArgb(255, 80, 80, 80), // 80
-            Color.FromArgb(255, 81, 81, 81), // 81
-            Color.FromArgb(255, 82, 82, 82), // 82
-            Color.FromArgb(255, 83, 83, 83), // 83
-            Color.FromArgb(255, 84, 84, 84), // 84
-            Color.FromArgb(255, 85, 85, 85), // 85
-            Color.FromArgb(255, 86, 86, 86), // 86
-            Color.FromArgb(255, 87, 87, 87), // 87
-            Color.FromArgb(255, 88, 88, 88), // 88
-            Color.FromArgb(255, 89, 89, 89), // 89
-            Color.FromArgb(255, 90, 90, 90), // 90
-            Color.FromArgb(255, 91, 91, 91), // 91
-            Color.FromArgb(255, 92, 92, 92), // 92
-            Color.FromArgb(255, 93, 93, 93), // 93
-            Color.FromArgb(255, 94, 94, 94), // 94
-            Color.FromArgb(255, 95, 95, 95), // 95
-            Color.FromArgb(255, 96, 96, 96), // 96
-            Color.FromArgb(255, 97, 97, 97), // 97
-            Color.FromArgb(255, 98, 98, 98), // 98
-            Color.FromArgb(255, 99, 99, 99), // 99
-            Color.FromArgb(255, 100, 100, 100), // 100
-            Color.FromArgb(255, 101, 101, 101), // 101
-            Color.FromArgb(255, 102, 102, 102), // 102
-            Color.FromArgb(255, 103, 103, 103), // 103
-            Color.FromArgb(255, 104, 104, 104), // 104
-            Color.FromArgb(255, 105, 105, 105), // 105
-            Color.FromArgb(255, 106, 106, 106), // 106
-            Color.FromArgb(255, 107, 107, 107), // 107
-            Color.FromArgb(255, 108, 108, 108), // 108
-            Color.FromArgb(255, 109, 109, 109), // 109
-            Color.FromArgb(255, 110, 110, 110), // 110
-            Color.FromArgb(255, 111, 111, 111), // 111
-            Color.FromArgb(255, 112, 112, 112), // 112
-            Color.FromArgb(255, 113, 113, 113), // 113
-            Color.FromArgb(255, 114, 114, 114), // 114
-            Color.FromArgb(255, 115, 115, 115), // 115
-            Color.FromArgb(255, 116, 116, 116), // 116
-            Color.FromArgb(255, 117, 117, 117), // 117
-            Color.FromArgb(255, 118, 118, 118), // 118
-            Color.FromArgb(255, 119, 119, 119), // 119
-            Color.FromArgb(255, 120, 120, 120), // 120
-            Color.FromArgb(255, 121, 121, 121), // 121
-            Color.FromArgb(255, 122, 122, 122), // 122
-            Color.FromArgb(255, 123, 123, 123), // 123
-            Color.FromArgb(255, 124, 124, 124), // 124
-            Color.FromArgb(255, 125, 125, 125), // 125
-            Color.FromArgb(255, 126, 126, 126), // 126
-            Color.FromArgb(255, 127, 127, 127), // 127
-            Color.FromArgb(255, 128, 128, 128), // 128
-            Color.FromArgb(255, 129, 129, 129), // 129
-            Color.FromArgb(255, 130, 130, 130), // 130
-            Color.FromArgb(255, 131, 131, 131), // 131
-            Color.FromArgb(255, 132, 132, 132), // 132
-            Color.FromArgb(255, 133, 133, 133), // 133
-            Color.FromArgb(255, 134, 134, 134), // 134
-            Color.FromArgb(255, 135, 135, 135), // 135
-            Color.FromArgb(255, 136, 136, 136), // 136
-            Color.FromArgb(255, 137, 137, 137), // 137
-            Color.FromArgb(255, 138, 138, 138), // 138
-            Color.FromArgb(255, 139, 139, 139), // 139
-            Color.FromArgb(255, 140, 140, 140), // 140
-            Color.FromArgb(255, 141, 141, 141), // 141
-            Color.FromArgb(255, 142, 142, 142), // 142
-            Color.FromArgb(255, 143, 143, 143), // 143
-            Color.FromArgb(255, 144, 144, 144), // 144
-            Color.FromArgb(255, 145, 145, 145), // 145
-            Color.FromArgb(255, 146, 146, 146), // 146
-            Color.FromArgb(255, 147, 147, 147), // 147
-            Color.FromArgb(255, 148, 148, 148), // 148
-            Color.FromArgb(255, 149, 149, 149), // 149
-            Color.FromArgb(255, 150, 150, 150), // 150
-            Color.FromArgb(255, 151, 151, 151), // 151
-            Color.FromArgb(255, 152, 152, 152), // 152
-            Color.FromArgb(255, 153, 153, 153), // 153
-            Color.FromArgb(255, 154, 154, 154), // 154
-            Color.FromArgb(255, 155, 155, 155), // 155
-            Color.FromArgb(255, 156, 156, 156), // 156
-            Color.FromArgb(255, 157, 157, 157), // 157
-            Color.FromArgb(255, 158, 158, 158), // 158
-            Color.FromArgb(255, 159, 159, 159), // 159
-            Color.FromArgb(255, 160, 160, 160), // 160
-            Color.FromArgb(255, 161, 161, 161), // 161
-            Color.FromArgb(255, 162, 162, 162), // 162
-            Color.FromArgb(255, 163, 163, 163), // 163
-            Color.FromArgb(255, 164, 164, 164), // 164
-            Color.FromArgb(255, 165, 165, 165), // 165
-            Color.FromArgb(255, 166, 166, 166), // 166
-            Color.FromArgb(255, 167, 167, 167), // 167
-            Color.FromArgb(255, 168, 168, 168), // 168
-            Color.FromArgb(255, 169, 169, 169), // 169
-            Color.FromArgb(255, 170, 170, 170), // 170
-            Color.FromArgb(255, 171, 171, 171), // 171
-            Color.FromArgb(255, 172, 172, 172), // 172
-            Color.FromArgb(255, 173, 173, 173), // 173
-            Color.FromArgb(255, 174, 174, 174), // 174
-            Color.FromArgb(255, 175, 175, 175), // 175
-            Color.FromArgb(255, 176, 176, 176), // 176
-            Color.FromArgb(255, 177, 177, 177), // 177
-            Color.FromArgb(255, 178, 178, 178), // 178
-            Color.FromArgb(255, 179, 179, 179), // 179
-            Color.FromArgb(255, 180, 180, 180), // 180
-            Color.FromArgb(255, 181, 181, 181), // 181
-            Color.FromArgb(255, 182, 182, 182), // 182
-            Color.FromArgb(255, 183, 183, 183), // 183
-            Color.FromArgb(255, 184, 184, 184), // 184
-            Color.FromArgb(255, 185, 185, 185), // 185
-            Color.FromArgb(255, 186, 186, 186), // 186
-            Color.FromArgb(255, 187, 187, 187), // 187
-            Color.FromArgb(255, 188, 188, 188), // 188
-            Color.FromArgb(255, 189, 189, 189), // 189
-            Color.FromArgb(255, 190, 190, 190), // 190
-            Color.FromArgb(255, 191, 191, 191), // 191
-            Color.FromArgb(255, 192, 192, 192), // 192
-            Color.FromArgb(255, 193, 193, 193), // 193
-            Color.FromArgb(255, 194, 194, 194), // 194
-            Color.FromArgb(255, 195, 195, 195), // 195
-            Color.FromArgb(255, 196, 196, 196), // 196
-            Color.FromArgb(255, 197, 197, 197), // 197
-            Color.FromArgb(255, 198, 198, 198), // 198
-            Color.FromArgb(255, 199, 199, 199), // 199
-            Color.FromArgb(255, 200, 200, 200), // 200
-            Color.FromArgb(255, 201, 201, 201), // 201
-            Color.FromArgb(255, 202, 202, 202), // 202
-            Color.FromArgb(255, 203, 203, 203), // 203
-            Color.FromArgb(255, 204, 204, 204), // 204
-            Color.FromArgb(255, 205, 205, 205), // 205
-            Color.FromArgb(255, 206, 206, 206), // 206
-            Color.FromArgb(255, 207, 207, 207), // 207
-            Color.FromArgb(255, 208, 208, 208), // 208
-            Color.FromArgb(255, 209, 209, 209), // 209
-            Color.FromArgb(255, 210, 210, 210), // 210
-            Color.FromArgb(255, 211, 211, 211), // 211
-            Color.FromArgb(255, 212, 212, 212), // 212
-            Color.FromArgb(255, 213, 213, 213), // 213
-            Color.FromArgb(255, 214, 214, 214), // 214
-            Color.FromArgb(255, 215, 215, 215), // 215
-            Color.FromArgb(255, 216, 216, 216), // 216
-            Color.FromArgb(255, 217, 217, 217), // 217
-            Color.FromArgb(255, 218, 218, 218), // 218
-            Color.FromArgb(255, 219, 219, 219), // 219
-            Color.FromArgb(255, 220, 220, 220), // 220
-            Color.FromArgb(255, 221, 221, 221), // 221
-            Color.FromArgb(255, 222, 222, 222), // 222
-            Color.FromArgb(255, 223, 223, 223), // 223
-            Color.FromArgb(255, 224, 224, 224), // 224
-            Color.FromArgb(255, 225, 225, 225), // 225
-            Color.FromArgb(255, 226, 226, 226), // 226
-            Color.FromArgb(255, 227, 227, 227), // 227
-            Color.FromArgb(255, 228, 228, 228), // 228
-            Color.FromArgb(255, 229, 229, 229), // 229
-            Color.FromArgb(255, 230, 230, 230), // 230
-            Color.FromArgb(255, 231, 231, 231), // 231
-            Color.FromArgb(255, 232, 232, 232), // 232
-            Color.FromArgb(255, 233, 233, 233), // 233
-            Color.FromArgb(255, 234, 234, 234), // 234
-            Color.FromArgb(255, 235, 235, 235), // 235
-            Color.FromArgb(255, 236, 236, 236), // 236
-            Color.FromArgb(255, 237, 237, 237), // 237
-            Color.FromArgb(255, 238, 238, 238), // 238
-            Color.FromArgb(255, 239, 239, 239), // 239
-            Color.FromArgb(255, 240, 240, 240), // 240
-            Color.FromArgb(255, 241, 241, 241), // 241
-            Color.FromArgb(255, 242, 242, 242), // 242
-            Color.FromArgb(255, 243, 243, 243), // 243
-            Color.FromArgb(255, 244, 244, 244), // 244
-            Color.FromArgb(255, 245, 245, 245), // 245
-            Color.FromArgb(255, 246, 246, 246), // 246
-            Color.FromArgb(255, 247, 247, 247), // 247
-            Color.FromArgb(255, 248, 248, 248), // 248
-            Color.FromArgb(255, 249, 249, 249), // 249
-            Color.FromArgb(255, 250, 250, 250), // 250
-            Color.FromArgb(255, 251, 251, 251), // 251
-            Color.FromArgb(255, 252, 252, 252), // 252
-            Color.FromArgb(255, 253, 253, 253), // 253
-            Color.FromArgb(255, 254, 254, 254), // 254
-            Color.FromArgb(255, 255, 255, 255), // 255
+        public static readonly ColorRgba[] ByIndex = {
+            new ColorRgba(0, 0, 0, 0), // 0 (Transparent)
+            new ColorRgba(1, 1, 1, 255), // 1
+            new ColorRgba(2, 2, 2, 255), // 2
+            new ColorRgba(3, 3, 3, 255), // 3
+            new ColorRgba(4, 4, 4, 255), // 4
+            new ColorRgba(5, 5, 5, 255), // 5
+            new ColorRgba(6, 6, 6, 255), // 6
+            new ColorRgba(7, 7, 7, 255), // 7
+            new ColorRgba(8, 8, 8, 255), // 8
+            new ColorRgba(9, 9, 9, 255), // 9
+            new ColorRgba(10, 10, 10, 255), // 10
+            new ColorRgba(11, 11, 11, 255), // 11
+            new ColorRgba(12, 12, 12, 255), // 12
+            new ColorRgba(13, 13, 13, 255), // 13
+            new ColorRgba(14, 14, 14, 255), // 14
+            new ColorRgba(15, 15, 15, 255), // 15
+            new ColorRgba(16, 16, 16, 255), // 16
+            new ColorRgba(17, 17, 17, 255), // 17
+            new ColorRgba(18, 18, 18, 255), // 18
+            new ColorRgba(19, 19, 19, 255), // 19
+            new ColorRgba(20, 20, 20, 255), // 20
+            new ColorRgba(21, 21, 21, 255), // 21
+            new ColorRgba(22, 22, 22, 255), // 22
+            new ColorRgba(23, 23, 23, 255), // 23
+            new ColorRgba(24, 24, 24, 255), // 24
+            new ColorRgba(25, 25, 25, 255), // 25
+            new ColorRgba(26, 26, 26, 255), // 26
+            new ColorRgba(27, 27, 27, 255), // 27
+            new ColorRgba(28, 28, 28, 255), // 28
+            new ColorRgba(29, 29, 29, 255), // 29
+            new ColorRgba(30, 30, 30, 255), // 30
+            new ColorRgba(31, 31, 31, 255), // 31
+            new ColorRgba(32, 32, 32, 255), // 32
+            new ColorRgba(33, 33, 33, 255), // 33
+            new ColorRgba(34, 34, 34, 255), // 34
+            new ColorRgba(35, 35, 35, 255), // 35
+            new ColorRgba(36, 36, 36, 255), // 36
+            new ColorRgba(37, 37, 37, 255), // 37
+            new ColorRgba(38, 38, 38, 255), // 38
+            new ColorRgba(39, 39, 39, 255), // 39
+            new ColorRgba(40, 40, 40, 255), // 40
+            new ColorRgba(41, 41, 41, 255), // 41
+            new ColorRgba(42, 42, 42, 255), // 42
+            new ColorRgba(43, 43, 43, 255), // 43
+            new ColorRgba(44, 44, 44, 255), // 44
+            new ColorRgba(45, 45, 45, 255), // 45
+            new ColorRgba(46, 46, 46, 255), // 46
+            new ColorRgba(47, 47, 47, 255), // 47
+            new ColorRgba(48, 48, 48, 255), // 48
+            new ColorRgba(49, 49, 49, 255), // 49
+            new ColorRgba(50, 50, 50, 255), // 50
+            new ColorRgba(51, 51, 51, 255), // 51
+            new ColorRgba(52, 52, 52, 255), // 52
+            new ColorRgba(53, 53, 53, 255), // 53
+            new ColorRgba(54, 54, 54, 255), // 54
+            new ColorRgba(55, 55, 55, 255), // 55
+            new ColorRgba(56, 56, 56, 255), // 56
+            new ColorRgba(57, 57, 57, 255), // 57
+            new ColorRgba(58, 58, 58, 255), // 58
+            new ColorRgba(59, 59, 59, 255), // 59
+            new ColorRgba(60, 60, 60, 255), // 60
+            new ColorRgba(61, 61, 61, 255), // 61
+            new ColorRgba(62, 62, 62, 255), // 62
+            new ColorRgba(63, 63, 63, 255), // 63
+            new ColorRgba(64, 64, 64, 255), // 64
+            new ColorRgba(65, 65, 65, 255), // 65
+            new ColorRgba(66, 66, 66, 255), // 66
+            new ColorRgba(67, 67, 67, 255), // 67
+            new ColorRgba(68, 68, 68, 255), // 68
+            new ColorRgba(69, 69, 69, 255), // 69
+            new ColorRgba(70, 70, 70, 255), // 70
+            new ColorRgba(71, 71, 71, 255), // 71
+            new ColorRgba(72, 72, 72, 255), // 72
+            new ColorRgba(73, 73, 73, 255), // 73
+            new ColorRgba(74, 74, 74, 255), // 74
+            new ColorRgba(75, 75, 75, 255), // 75
+            new ColorRgba(76, 76, 76, 255), // 76
+            new ColorRgba(77, 77, 77, 255), // 77
+            new ColorRgba(78, 78, 78, 255), // 78
+            new ColorRgba(79, 79, 79, 255), // 79
+            new ColorRgba(80, 80, 80, 255), // 80
+            new ColorRgba(81, 81, 81, 255), // 81
+            new ColorRgba(82, 82, 82, 255), // 82
+            new ColorRgba(83, 83, 83, 255), // 83
+            new ColorRgba(84, 84, 84, 255), // 84
+            new ColorRgba(85, 85, 85, 255), // 85
+            new ColorRgba(86, 86, 86, 255), // 86
+            new ColorRgba(87, 87, 87, 255), // 87
+            new ColorRgba(88, 88, 88, 255), // 88
+            new ColorRgba(89, 89, 89, 255), // 89
+            new ColorRgba(90, 90, 90, 255), // 90
+            new ColorRgba(91, 91, 91, 255), // 91
+            new ColorRgba(92, 92, 92, 255), // 92
+            new ColorRgba(93, 93, 93, 255), // 93
+            new ColorRgba(94, 94, 94, 255), // 94
+            new ColorRgba(95, 95, 95, 255), // 95
+            new ColorRgba(96, 96, 96, 255), // 96
+            new ColorRgba(97, 97, 97, 255), // 97
+            new ColorRgba(98, 98, 98, 255), // 98
+            new ColorRgba(99, 99, 99, 255), // 99
+            new ColorRgba(100, 100, 100, 255), // 100
+            new ColorRgba(101, 101, 101, 255), // 101
+            new ColorRgba(102, 102, 102, 255), // 102
+            new ColorRgba(103, 103, 103, 255), // 103
+            new ColorRgba(104, 104, 104, 255), // 104
+            new ColorRgba(105, 105, 105, 255), // 105
+            new ColorRgba(106, 106, 106, 255), // 106
+            new ColorRgba(107, 107, 107, 255), // 107
+            new ColorRgba(108, 108, 108, 255), // 108
+            new ColorRgba(109, 109, 109, 255), // 109
+            new ColorRgba(110, 110, 110, 255), // 110
+            new ColorRgba(111, 111, 111, 255), // 111
+            new ColorRgba(112, 112, 112, 255), // 112
+            new ColorRgba(113, 113, 113, 255), // 113
+            new ColorRgba(114, 114, 114, 255), // 114
+            new ColorRgba(115, 115, 115, 255), // 115
+            new ColorRgba(116, 116, 116, 255), // 116
+            new ColorRgba(117, 117, 117, 255), // 117
+            new ColorRgba(118, 118, 118, 255), // 118
+            new ColorRgba(119, 119, 119, 255), // 119
+            new ColorRgba(120, 120, 120, 255), // 120
+            new ColorRgba(121, 121, 121, 255), // 121
+            new ColorRgba(122, 122, 122, 255), // 122
+            new ColorRgba(123, 123, 123, 255), // 123
+            new ColorRgba(124, 124, 124, 255), // 124
+            new ColorRgba(125, 125, 125, 255), // 125
+            new ColorRgba(126, 126, 126, 255), // 126
+            new ColorRgba(127, 127, 127, 255), // 127
+            new ColorRgba(128, 128, 128, 255), // 128
+            new ColorRgba(129, 129, 129, 255), // 129
+            new ColorRgba(130, 130, 130, 255), // 130
+            new ColorRgba(131, 131, 131, 255), // 131
+            new ColorRgba(132, 132, 132, 255), // 132
+            new ColorRgba(133, 133, 133, 255), // 133
+            new ColorRgba(134, 134, 134, 255), // 134
+            new ColorRgba(135, 135, 135, 255), // 135
+            new ColorRgba(136, 136, 136, 255), // 136
+            new ColorRgba(137, 137, 137, 255), // 137
+            new ColorRgba(138, 138, 138, 255), // 138
+            new ColorRgba(139, 139, 139, 255), // 139
+            new ColorRgba(140, 140, 140, 255), // 140
+            new ColorRgba(141, 141, 141, 255), // 141
+            new ColorRgba(142, 142, 142, 255), // 142
+            new ColorRgba(143, 143, 143, 255), // 143
+            new ColorRgba(144, 144, 144, 255), // 144
+            new ColorRgba(145, 145, 145, 255), // 145
+            new ColorRgba(146, 146, 146, 255), // 146
+            new ColorRgba(147, 147, 147, 255), // 147
+            new ColorRgba(148, 148, 148, 255), // 148
+            new ColorRgba(149, 149, 149, 255), // 149
+            new ColorRgba(150, 150, 150, 255), // 150
+            new ColorRgba(151, 151, 151, 255), // 151
+            new ColorRgba(152, 152, 152, 255), // 152
+            new ColorRgba(153, 153, 153, 255), // 153
+            new ColorRgba(154, 154, 154, 255), // 154
+            new ColorRgba(155, 155, 155, 255), // 155
+            new ColorRgba(156, 156, 156, 255), // 156
+            new ColorRgba(157, 157, 157, 255), // 157
+            new ColorRgba(158, 158, 158, 255), // 158
+            new ColorRgba(159, 159, 159, 255), // 159
+            new ColorRgba(160, 160, 160, 255), // 160
+            new ColorRgba(161, 161, 161, 255), // 161
+            new ColorRgba(162, 162, 162, 255), // 162
+            new ColorRgba(163, 163, 163, 255), // 163
+            new ColorRgba(164, 164, 164, 255), // 164
+            new ColorRgba(165, 165, 165, 255), // 165
+            new ColorRgba(166, 166, 166, 255), // 166
+            new ColorRgba(167, 167, 167, 255), // 167
+            new ColorRgba(168, 168, 168, 255), // 168
+            new ColorRgba(169, 169, 169, 255), // 169
+            new ColorRgba(170, 170, 170, 255), // 170
+            new ColorRgba(171, 171, 171, 255), // 171
+            new ColorRgba(172, 172, 172, 255), // 172
+            new ColorRgba(173, 173, 173, 255), // 173
+            new ColorRgba(174, 174, 174, 255), // 174
+            new ColorRgba(175, 175, 175, 255), // 175
+            new ColorRgba(176, 176, 176, 255), // 176
+            new ColorRgba(177, 177, 177, 255), // 177
+            new ColorRgba(178, 178, 178, 255), // 178
+            new ColorRgba(179, 179, 179, 255), // 179
+            new ColorRgba(180, 180, 180, 255), // 180
+            new ColorRgba(181, 181, 181, 255), // 181
+            new ColorRgba(182, 182, 182, 255), // 182
+            new ColorRgba(183, 183, 183, 255), // 183
+            new ColorRgba(184, 184, 184, 255), // 184
+            new ColorRgba(185, 185, 185, 255), // 185
+            new ColorRgba(186, 186, 186, 255), // 186
+            new ColorRgba(187, 187, 187, 255), // 187
+            new ColorRgba(188, 188, 188, 255), // 188
+            new ColorRgba(189, 189, 189, 255), // 189
+            new ColorRgba(190, 190, 190, 255), // 190
+            new ColorRgba(191, 191, 191, 255), // 191
+            new ColorRgba(192, 192, 192, 255), // 192
+            new ColorRgba(193, 193, 193, 255), // 193
+            new ColorRgba(194, 194, 194, 255), // 194
+            new ColorRgba(195, 195, 195, 255), // 195
+            new ColorRgba(196, 196, 196, 255), // 196
+            new ColorRgba(197, 197, 197, 255), // 197
+            new ColorRgba(198, 198, 198, 255), // 198
+            new ColorRgba(199, 199, 199, 255), // 199
+            new ColorRgba(200, 200, 200, 255), // 200
+            new ColorRgba(201, 201, 201, 255), // 201
+            new ColorRgba(202, 202, 202, 255), // 202
+            new ColorRgba(203, 203, 203, 255), // 203
+            new ColorRgba(204, 204, 204, 255), // 204
+            new ColorRgba(205, 205, 205, 255), // 205
+            new ColorRgba(206, 206, 206, 255), // 206
+            new ColorRgba(207, 207, 207, 255), // 207
+            new ColorRgba(208, 208, 208, 255), // 208
+            new ColorRgba(209, 209, 209, 255), // 209
+            new ColorRgba(210, 210, 210, 255), // 210
+            new ColorRgba(211, 211, 211, 255), // 211
+            new ColorRgba(212, 212, 212, 255), // 212
+            new ColorRgba(213, 213, 213, 255), // 213
+            new ColorRgba(214, 214, 214, 255), // 214
+            new ColorRgba(215, 215, 215, 255), // 215
+            new ColorRgba(216, 216, 216, 255), // 216
+            new ColorRgba(217, 217, 217, 255), // 217
+            new ColorRgba(218, 218, 218, 255), // 218
+            new ColorRgba(219, 219, 219, 255), // 219
+            new ColorRgba(220, 220, 220, 255), // 220
+            new ColorRgba(221, 221, 221, 255), // 221
+            new ColorRgba(222, 222, 222, 255), // 222
+            new ColorRgba(223, 223, 223, 255), // 223
+            new ColorRgba(224, 224, 224, 255), // 224
+            new ColorRgba(225, 225, 225, 255), // 225
+            new ColorRgba(226, 226, 226, 255), // 226
+            new ColorRgba(227, 227, 227, 255), // 227
+            new ColorRgba(228, 228, 228, 255), // 228
+            new ColorRgba(229, 229, 229, 255), // 229
+            new ColorRgba(230, 230, 230, 255), // 230
+            new ColorRgba(231, 231, 231, 255), // 231
+            new ColorRgba(232, 232, 232, 255), // 232
+            new ColorRgba(233, 233, 233, 255), // 233
+            new ColorRgba(234, 234, 234, 255), // 234
+            new ColorRgba(235, 235, 235, 255), // 235
+            new ColorRgba(236, 236, 236, 255), // 236
+            new ColorRgba(237, 237, 237, 255), // 237
+            new ColorRgba(238, 238, 238, 255), // 238
+            new ColorRgba(239, 239, 239, 255), // 239
+            new ColorRgba(240, 240, 240, 255), // 240
+            new ColorRgba(241, 241, 241, 255), // 241
+            new ColorRgba(242, 242, 242, 255), // 242
+            new ColorRgba(243, 243, 243, 255), // 243
+            new ColorRgba(244, 244, 244, 255), // 244
+            new ColorRgba(245, 245, 245, 255), // 245
+            new ColorRgba(246, 246, 246, 255), // 246
+            new ColorRgba(247, 247, 247, 255), // 247
+            new ColorRgba(248, 248, 248, 255), // 248
+            new ColorRgba(249, 249, 249, 255), // 249
+            new ColorRgba(250, 250, 250, 255), // 250
+            new ColorRgba(251, 251, 251, 255), // 251
+            new ColorRgba(252, 252, 252, 255), // 252
+            new ColorRgba(253, 253, 253, 255), // 253
+            new ColorRgba(254, 254, 254, 255), // 254
+            new ColorRgba(255, 255, 255, 255), // 255
         };
 
         // Fixed palette indices for Toaster PowerUp Monitor

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Duality;
 using Duality.Drawing;
@@ -163,7 +164,7 @@ namespace Jazz2
                         using (var ms = new MemoryStream(data.Data)) {
                             ms.Position += 2;
 
-                            using (var ds = new DeflateStream(ms, CompressionMode.Decompress)) {
+                            using (var ds = new DeflateStream(ms, CompressionMode.Decompress, true)) {
                                 int pxStride = (isPaletted ? 1 : (is24Bit ? 3 : 4));
                                 int srcStride = Width * pxStride;
                                 int dstStride = Width * (isPaletted ? 1 : 4);
@@ -174,10 +175,6 @@ namespace Jazz2
                                 for (var y = 0; y < Height; y++) {
                                     // Read filter
                                     PngFilter filter = (PngFilter)ds.ReadUInt8(ref internalBuffer);
-                                    if (filter != PngFilter.None)
-                                    {
-                                        ;
-                                    }
 
                                     // Read data
                                     ds.Read(buffer, 0, srcStride);
@@ -196,7 +193,7 @@ namespace Jazz2
                                             Data[y * dstStride + 4 * i + 3] = 255;
                                         }
                                     } else {
-                                        Buffer.BlockCopy(buffer, 0, Data, y * dstStride, buffer.Length);
+                                        Buffer.BlockCopy(buffer, 0, Data, y * dstStride, srcStride);
                                     }
 
                                     bufferPrev = buffer;
@@ -235,6 +232,9 @@ namespace Jazz2
             return pixelData;
         }
 
+#if NET45
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         private static byte UnapplyFilter(PngFilter filter, byte x, byte a, byte b, byte c)
         {
             switch (filter) {
@@ -247,6 +247,9 @@ namespace Jazz2
             }
         }
 
+#if NET45
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         private static byte UnapplyFilterPaeth(byte a, byte b, byte c)
         {
             int p = a + b - c;

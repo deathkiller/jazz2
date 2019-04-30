@@ -129,7 +129,7 @@ namespace Jazz2.Game.UI
             }
 
             // Weapon
-            {
+            if (owner.PlayerType != PlayerType.Frog) {
                 WeaponType weapon = owner.CurrentWeapon;
                 string currentWeaponString = GetCurrentWeapon(weapon);
 

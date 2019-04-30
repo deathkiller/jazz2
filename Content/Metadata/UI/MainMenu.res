@@ -18,6 +18,9 @@
             "Path": "_custom/glow.png",
             "Shader": "Add"
         },
+        "EpisodeComplete": {
+            "Path": "_custom/episode_complete.png"
+        },
         "MenuDifficultyJazz": {
             "Path": "UI/character_art_difficulty_jazz.png"
         },
@@ -26,10 +29,6 @@
         },
         "MenuDifficultyLori": {
             "Path": "UI/character_art_difficulty_lori.png"
-        },
-        
-        "MenuSettingsStorage": {
-            "Path": "_custom/storage.png"
         }
     },
 

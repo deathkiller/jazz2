@@ -3,12 +3,12 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Duality;
+using Duality.Drawing;
 using Import;
 
 namespace Jazz2.Compatibility
@@ -487,9 +487,8 @@ namespace Jazz2.Compatibility
                             currentAnim.FrameConfigurationY = 1;
                         }
 
-                        Bitmap img = new Bitmap(sizeX * currentAnim.FrameConfigurationX,
-                            sizeY * currentAnim.FrameConfigurationY,
-                            PixelFormat.Format32bppArgb);
+                        PngWriter img = new PngWriter(sizeX * currentAnim.FrameConfigurationX,
+                            sizeY * currentAnim.FrameConfigurationY);
 
                         // ToDo: Hardcoded name
                         bool applyToasterPowerUpFix = (data.Category == "Object" && data.Name == "powerup_upgrade_toaster");
@@ -520,11 +519,11 @@ namespace Jazz2.Compatibility
                                         }
                                     }
 
-                                    Color color = data.Palette[colorIdx];
+                                    ColorRgba color = data.Palette[colorIdx];
 
                                     // Apply transparency
                                     if (frame.DrawTransparent) {
-                                        color = Color.FromArgb(Math.Min(/*127*/140, (int)color.A), color);
+                                        color.A = Math.Min((byte)/*127*/140, color.A);
                                     }
 
                                     img.SetPixel(targetX, targetY, color);
@@ -545,15 +544,14 @@ namespace Jazz2.Compatibility
                         }
                         filename = Path.Combine(targetPath, filename);
 
-                        img.Save(filename, ImageFormat.Png);
+                        img.Save(filename);
 
                         if (!string.IsNullOrEmpty(data.Name) && !data.SkipNormalMap) {
-                            using (Bitmap normalMap = NormalMapGenerator.FromSprite(img,
+                            PngWriter normalMap = NormalMapGenerator.FromSprite(img,
                                     new Point(currentAnim.FrameConfigurationX, currentAnim.FrameConfigurationY),
-                                    !data.AllowRealtimePalette && data.Palette == JJ2DefaultPalette.ByIndex ? JJ2DefaultPalette.Sprite : null)) {
+                                    !data.AllowRealtimePalette && data.Palette == JJ2DefaultPalette.ByIndex ? JJ2DefaultPalette.Sprite : null);
 
-                                normalMap.Save(filename.Replace(".png", ".n.png"), ImageFormat.Png);
-                            }
+                            normalMap.Save(filename.Replace(".png", ".n.png"));
                         }
 
                         CreateAnimationMetadataFile(filename, currentAnim, data, version, sizeX, sizeY);
