@@ -116,13 +116,13 @@ namespace Jazz2.Actors
         public Vector3 ExternalForce => new Vector3(externalForceX, externalForceY, 0f);
         public Vector3 InternalForce => new Vector3(0, internalForceY, 0f);
 
-        protected bool IsFacingLeft
+        public bool IsFacingLeft
         {
             get
             {
                 return isFacingLeft;
             }
-            set
+            protected set
             {
                 if (isFacingLeft == value) {
                     return;

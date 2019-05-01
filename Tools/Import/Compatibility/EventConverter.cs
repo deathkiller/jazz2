@@ -874,7 +874,7 @@ namespace Jazz2.Compatibility
                     Pair.Create(JJ2EventParamType.Bool, 1)); // Chuck (Yellow)
 
                 return new ConversionResult {
-                    eventType = EventType.BirdyCage,
+                    eventType = EventType.BirdCage,
                     eventParams = new ushort[] { eventParams[0], 0 }
                 };
             });

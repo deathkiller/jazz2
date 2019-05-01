@@ -9,11 +9,12 @@
     <Import_RootNamespace>Jazz2</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Bird.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\AirboardGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Collectibles\Stopwatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\AmbientBubbles.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\AmbientSound.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\BirdyCage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\BirdCage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\BonusWarp.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Enemies\Bosses\Bilsy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Enemies\Bosses\Bolly.cs" />
