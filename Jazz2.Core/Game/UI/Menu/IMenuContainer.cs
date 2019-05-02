@@ -7,6 +7,8 @@ namespace Jazz2.Game.UI.Menu
 {
     public interface IMenuContainer
     {
+        RefreshMode RefreshMode { get; set; }
+
         ScreenMode ScreenMode { get; set; }
 
         void SwitchToSection(MenuSection section);

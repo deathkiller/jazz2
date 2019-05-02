@@ -12,6 +12,7 @@ namespace Jazz2.Game.UI.Menu.Settings
         private SliderControl rightPadding;
 #else
         private ChoiceControl screenMode;
+        private ChoiceControl refreshMode;
 #endif
         private SliderControl musicVolume;
         private SliderControl sfxVolume;
@@ -29,6 +30,9 @@ namespace Jazz2.Game.UI.Menu.Settings
                 screenModeValue = 0;
             }
             screenMode = new ChoiceControl(api, "Screen Mode", screenModeValue, "Window", "Fullscreen");
+
+            int refreshModeValue = (int)api.RefreshMode;
+            refreshMode = new ChoiceControl(api, "Frame Rate Limit", refreshModeValue, "None (Not Recommended)", "60 fps", "V-Sync", "Adaptive V-Sync");
 #endif
             musicVolume = new SliderControl(api, "Music Volume", MusicVolume, 0f, 1f);
             sfxVolume = new SliderControl(api, "SFX Volume", SfxVolume, 0f, 1f);
@@ -48,7 +52,7 @@ namespace Jazz2.Game.UI.Menu.Settings
 #else
             controls = new MenuControlBase[] {
                 new LinkControl(api, "Rescale Mode", OnRescaleModePressed),
-                screenMode, musicVolume, sfxVolume,
+                screenMode, refreshMode, musicVolume, sfxVolume,
                 new LinkControl(api, "Controls", OnControlsPressed)
             };
 #endif
@@ -88,8 +92,10 @@ namespace Jazz2.Game.UI.Menu.Settings
                 case 1: newScreenMode = ScreenMode.FullWindow; break;
             }
             api.ScreenMode = newScreenMode;
-
             Preferences.Set("Screen", screenMode.SelectedIndex);
+
+            api.RefreshMode = (RefreshMode)refreshMode.SelectedIndex;
+            Preferences.Set("RefreshMode", refreshMode.SelectedIndex);
 #endif
 
             Preferences.Commit();

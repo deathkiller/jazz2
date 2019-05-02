@@ -85,6 +85,36 @@ namespace Duality.Backend.Es20
             set { this.internalWindow.Title = value; }
         }
 
+        public RefreshMode RefreshMode
+        {
+            get { return refreshMode; }
+            set
+            {
+                if (refreshMode == value) {
+                    return;
+                }
+
+                VSyncMode vsyncMode;
+                switch (value) {
+                    default:
+                    case RefreshMode.NoSync:
+                    case RefreshMode.ManualSync:
+                        vsyncMode = VSyncMode.Off;
+                        break;
+                    case RefreshMode.VSync:
+                        vsyncMode = VSyncMode.On;
+                        break;
+                    case RefreshMode.AdaptiveVSync:
+                        vsyncMode = VSyncMode.Adaptive;
+                        break;
+                }
+
+                this.internalWindow.VSync = vsyncMode;
+
+                refreshMode = value;
+            }
+        }
+
         public ScreenMode ScreenMode
         {
             get { return screenMode; }
@@ -116,10 +146,8 @@ namespace Duality.Backend.Es20
 
         public NativeWindow(GraphicsMode mode, WindowOptions options)
         {
-            if ((options.ScreenMode & (ScreenMode.ChangeResolution | ScreenMode.FullWindow)) != 0)
-            {
-                if (DisplayDevice.Default != null)
-                {
+            if ((options.ScreenMode & (ScreenMode.ChangeResolution | ScreenMode.FullWindow)) != 0) {
+                if (DisplayDevice.Default != null) {
                     options.Size = new Point2(
                         DisplayDevice.Default.Width,
                         DisplayDevice.Default.Height);
@@ -135,8 +163,7 @@ namespace Duality.Backend.Es20
                 windowFlags = GameWindowFlags.Fullscreen;
 
             VSyncMode vsyncMode;
-            switch (options.RefreshMode)
-            {
+            switch (options.RefreshMode) {
                 default:
                 case RefreshMode.NoSync:
                 case RefreshMode.ManualSync:
@@ -200,8 +227,7 @@ namespace Duality.Backend.Es20
 
             // Retrieve icon from executable file and set it as window icon
             string executablePath = null;
-            try
-            {
+            try {
                 Assembly entryAssembly = Assembly.GetEntryAssembly();
                 if (entryAssembly != null)
                 {
@@ -215,8 +241,7 @@ namespace Duality.Backend.Es20
             // As described in issue 301 (https://github.com/AdamsLair/duality/issues/301), the
             // icon extraction can fail with an exception under certain circumstances. Don't fail
             // just because of an icon. Log the error and continue.
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 App.Log(
                     "There was an exception while trying to extract the " +
                     "window icon from the game's main executable '{0}'. This is " +
@@ -243,8 +268,7 @@ namespace Duality.Backend.Es20
         void IDisposable.Dispose()
         {
             this.UnhookFromDuality();
-            if (this.internalWindow != null)
-            {
+            if (this.internalWindow != null) {
                 this.internalWindow.Dispose();
                 this.internalWindow = null;
             }
@@ -272,17 +296,14 @@ namespace Duality.Backend.Es20
 
         private void OnUpdateFrame(FrameEventArgs e)
         {
-            if (DualityApp.ExecContext == DualityApp.ExecutionContext.Terminated)
-            {
+            if (DualityApp.ExecContext == DualityApp.ExecutionContext.Terminated) {
                 this.internalWindow.Close();
                 return;
             }
 
             // Give the processor a rest if we have the time, don't use 100% CPU even without VSync
-            if (this.frameLimiterWatch.IsRunning && this.refreshMode == RefreshMode.ManualSync)
-            {
-                while (this.frameLimiterWatch.Elapsed.TotalMilliseconds < Time.MillisecondsPerFrame)
-                {
+            if (this.frameLimiterWatch.IsRunning && this.refreshMode == RefreshMode.ManualSync) {
+                while (this.frameLimiterWatch.Elapsed.TotalMilliseconds < Time.MillisecondsPerFrame) {
                     // Enough leftover time? Risk a short sleep, don't burn CPU waiting.
                     if (this.frameLimiterWatch.Elapsed.TotalMilliseconds < Time.MillisecondsPerFrame * 0.75f)
                         System.Threading.Thread.Sleep(0);

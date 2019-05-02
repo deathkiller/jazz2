@@ -10,6 +10,8 @@ namespace Duality.Backend
 
         Point2 Size { get; set; }
 
+        RefreshMode RefreshMode { get; set; }
+
         ScreenMode ScreenMode { get; set; }
     }
 }

@@ -20,6 +20,18 @@ namespace Jazz2.Game
             set { window.Title = App.AssemblyTitle + (string.IsNullOrEmpty(value) ? "" : " - " + value); }
         }
 
+        public RefreshMode RefreshMode
+        {
+            get
+            {
+                return window.RefreshMode;
+            }
+            set
+            {
+                window.RefreshMode = value;
+            }
+        }
+
         public ScreenMode ScreenMode
         {
             get

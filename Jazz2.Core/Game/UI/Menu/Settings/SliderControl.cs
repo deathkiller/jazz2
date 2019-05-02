@@ -68,9 +68,11 @@ namespace Jazz2.Game.UI.Menu.Settings
             if (ControlScheme.MenuActionHit(PlayerActions.Left)) {
                 float diff = (maxValue - minValue) * 0.05f;
                 currentValue = MathF.Max(currentValue - diff, minValue);
+                api.PlaySound("MenuSelect", 0.3f);
             } else if (ControlScheme.MenuActionHit(PlayerActions.Right)) {
                 float diff = (maxValue - minValue) * 0.05f;
                 currentValue = MathF.Min(currentValue + diff, maxValue);
+                api.PlaySound("MenuSelect", 0.3f);
             }
         }
     }

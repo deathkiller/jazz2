@@ -27,6 +27,18 @@ namespace Jazz2.Game.UI.Menu.InGame
         private Material finalMaterial;
         private float transition;
 
+        public RefreshMode RefreshMode
+        {
+            get
+            {
+                return root.RefreshMode;
+            }
+            set
+            {
+                root.RefreshMode = value;
+            }
+        }
+
         public ScreenMode ScreenMode
         {
             get

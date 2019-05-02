@@ -110,6 +110,36 @@ namespace Duality.Backend.GL21
             }
         }
 
+        public RefreshMode RefreshMode
+        {
+            get { return refreshMode; }
+            set
+            {
+                if (refreshMode == value) {
+                    return;
+                }
+
+                VSyncMode vsyncMode;
+                switch (value) {
+                    default:
+                    case RefreshMode.NoSync:
+                    case RefreshMode.ManualSync:
+                        vsyncMode = VSyncMode.Off;
+                        break;
+                    case RefreshMode.VSync:
+                        vsyncMode = VSyncMode.On;
+                        break;
+                    case RefreshMode.AdaptiveVSync:
+                        vsyncMode = VSyncMode.Adaptive;
+                        break;
+                }
+
+                this.internalWindow.VSync = vsyncMode;
+
+                refreshMode = value;
+            }
+        }
+
         public NativeWindow(GraphicsMode mode, WindowOptions options)
         {
             if ((options.ScreenMode & (ScreenMode.ChangeResolution | ScreenMode.FullWindow)) != 0) {
@@ -230,7 +260,6 @@ namespace Duality.Backend.GL21
         {
             DualityApp.Mouse.Source = new GameWindowMouseInputSource(this.internalWindow);
             DualityApp.Keyboard.Source = new GameWindowKeyboardInputSource(this.internalWindow);
-            //DualityApp.UserDataChanged += this.OnUserDataChanged;
         }
 
         internal void UnhookFromDuality()
@@ -239,56 +268,8 @@ namespace Duality.Backend.GL21
                 DualityApp.Mouse.Source = null;
             if (DualityApp.Keyboard.Source is GameWindowKeyboardInputSource)
                 DualityApp.Keyboard.Source = null;
-            //DualityApp.UserDataChanged -= this.OnUserDataChanged;
         }
 
-        //private void OnUserDataChanged(object sender, EventArgs e)
-        //{
-        //    // Early-out, if no display is connected / available anyway
-        //    if (DisplayDevice.Default == null) return;
-        //
-        //    // Determine the target state for our window
-        //    //MouseCursor targetCursor = DualityApp.UserData.SystemCursorVisible ? MouseCursor.Default : MouseCursor.Empty;
-        //    MouseCursor targetCursor = MouseCursor.Default;
-        //    WindowState targetWindowState = this.internalWindow.WindowState;
-        //    WindowBorder targetWindowBorder = this.internalWindow.WindowBorder;
-        //    Size targetSize = this.internalWindow.ClientSize;
-        //    /*switch (DualityApp.UserData.WindowMode) {
-        //        case ScreenMode.Window:*/
-        //            targetWindowState = WindowState.Normal;
-        //            targetWindowBorder = WindowBorder.Resizable;
-        //            /*targetSize = new Size(DualityApp.UserData.WindowSize.X, DualityApp.UserData.WindowSize.Y);
-        //            break;
-        //
-        //        case ScreenMode.FixedWindow:
-        //            targetWindowState = WindowState.Normal;
-        //            targetWindowBorder = WindowBorder.Fixed;
-        //            targetSize = new Size(DualityApp.UserData.WindowSize.X, DualityApp.UserData.WindowSize.Y);
-        //            break;
-        //
-        //        case ScreenMode.FullWindow:
-        //        case ScreenMode.Fullscreen:
-        //            targetWindowState = WindowState.Fullscreen;
-        //            targetWindowBorder = WindowBorder.Hidden;
-        //            targetSize = new Size(DisplayDevice.Default.Width, DisplayDevice.Default.Height);
-        //            break;
-        //
-        //        default:
-        //            throw new ArgumentOutOfRangeException();
-        //    }*/
-        //
-        //    // Apply the target state to the game window wherever values changed
-        //    if (this.internalWindow.WindowState != targetWindowState)
-        //        this.internalWindow.WindowState = targetWindowState;
-        //    if (this.internalWindow.WindowBorder != targetWindowBorder)
-        //        this.internalWindow.WindowBorder = targetWindowBorder;
-        //    if (this.internalWindow.ClientSize != targetSize)
-        //        this.internalWindow.ClientSize = targetSize;
-        //    if (this.internalWindow.Cursor != targetCursor)
-        //        this.internalWindow.Cursor = targetCursor;
-        //
-        //    DualityApp.WindowSize = new Point2(this.internalWindow.ClientSize.Width, this.internalWindow.ClientSize.Height);
-        //}
         private void OnResize(EventArgs e)
         {
             DualityApp.WindowSize = this.Size;

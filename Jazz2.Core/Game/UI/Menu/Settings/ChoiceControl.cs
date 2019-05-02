@@ -9,7 +9,6 @@ namespace Jazz2.Game.UI.Menu.Settings
         private string title;
         private string[] choices;
         private int selectedIndex;
-        private bool allowWrap;
         private bool enabled = true;
 
         public override bool IsEnabled
@@ -58,28 +57,32 @@ namespace Jazz2.Game.UI.Menu.Settings
                 return;
             }
 
-            float offset, spacing;
-            if (choices.Length == 1) {
-                offset = 0f;
-                spacing = 0f;
-            } else if (choices.Length == 2) {
-                offset = 50f;
-                spacing = 100f;
+            if (choices.Length > 2) {
+                api.DrawMaterial("MenuGlow", pos.X, pos.Y + 20f, Alignment.Center, ColorRgba.White.WithAlpha(0.2f), (choices[selectedIndex].Length + 3) * 0.4f, 2.2f);
+
+                api.DrawStringShadow(ref charOffset, choices[selectedIndex], pos.X, pos.Y + 20f, Alignment.Center,
+                    null, 0.9f, 0.4f, 0.55f, 0.55f, 8f, 0.9f);
             } else {
-                spacing = 320f / (choices.Length + 1);
-                offset = 120 - spacing * 0.5f;
-            }
-
-            for (int i = 0; i < choices.Length; i++) {
-                float x = pos.X - offset + i * spacing;
-                if (selectedIndex == i) {
-                    api.DrawMaterial("MenuGlow", x, pos.Y + 20f, Alignment.Center, ColorRgba.White.WithAlpha(0.2f), (choices[i].Length + 3) * 0.4f, 2.2f);
-
-                    api.DrawStringShadow(ref charOffset, choices[i], x, pos.Y + 20f, Alignment.Center,
-                        null, 0.9f, 0.4f, 0.55f, 0.55f, 8f, 0.9f);
+                float offset, spacing;
+                if (choices.Length == 1) {
+                    offset = 0f;
+                    spacing = 0f;
                 } else {
-                    api.DrawString(ref charOffset, choices[i], x, pos.Y + 20f, Alignment.Center,
-                        ColorRgba.TransparentBlack, 0.8f, charSpacing: 0.9f);
+                    offset = 50f;
+                    spacing = 100f;
+                }
+
+                for (int i = 0; i < choices.Length; i++) {
+                    float x = pos.X - offset + i * spacing;
+                    if (selectedIndex == i) {
+                        api.DrawMaterial("MenuGlow", x, pos.Y + 20f, Alignment.Center, ColorRgba.White.WithAlpha(0.2f), (choices[i].Length + 3) * 0.4f, 2.2f);
+
+                        api.DrawStringShadow(ref charOffset, choices[i], x, pos.Y + 20f, Alignment.Center,
+                            null, 0.9f, 0.4f, 0.55f, 0.55f, 8f, 0.9f);
+                    } else {
+                        api.DrawString(ref charOffset, choices[i], x, pos.Y + 20f, Alignment.Center,
+                            ColorRgba.TransparentBlack, 0.8f, charSpacing: 0.9f);
+                    }
                 }
             }
 
@@ -96,15 +99,17 @@ namespace Jazz2.Game.UI.Menu.Settings
             if (ControlScheme.MenuActionHit(PlayerActions.Left)) {
                 if (selectedIndex > 0) {
                     selectedIndex--;
-                } else if (allowWrap) {
+                } else {
                     selectedIndex = choices.Length - 1;
                 }
+                api.PlaySound("MenuSelect", 0.3f);
             } else if (ControlScheme.MenuActionHit(PlayerActions.Right)) {
                 if (selectedIndex < choices.Length - 1) {
                     selectedIndex++;
-                } else if (allowWrap) {
+                } else {
                     selectedIndex = 0;
                 }
+                api.PlaySound("MenuSelect", 0.3f);
             }
         }
     }

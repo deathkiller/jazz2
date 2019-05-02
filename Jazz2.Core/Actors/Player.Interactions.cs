@@ -241,7 +241,7 @@ namespace Jazz2.Actors
 
         public void SpawnBird(ushort type, Vector3 pos)
         {
-            pos.Z = Transform.Pos.Z - 50f;
+            pos.Z = Transform.Pos.Z - 100f;
 
             Bird bird = new Bird();
             bird.OnAttach(new ActorInstantiationDetails {

@@ -10,7 +10,7 @@ namespace Duality.Backend.Android.OpenTK
 
         public NativeWindow(WindowOptions options)
         {
-            ((INativeWindow)this).ScreenMode = options.ScreenMode;
+            this.ScreenMode = options.ScreenMode;
         }
 
         void IDisposable.Dispose()
@@ -22,7 +22,7 @@ namespace Duality.Backend.Android.OpenTK
             // Activity runs automatically
         }
 
-        string INativeWindow.Title
+        public string Title
         {
             get
             {
@@ -42,13 +42,27 @@ namespace Duality.Backend.Android.OpenTK
             }
         }
 
-        Point2 INativeWindow.Size
+        public Point2 Size
         {
             get { return Point2.Zero; }
             set { }
         }
 
-        ScreenMode INativeWindow.ScreenMode
+        public RefreshMode RefreshMode
+        {
+            get { return RefreshMode.VSync; }
+            set
+            {
+                // Only VSync is supported on Android
+                if (value == RefreshMode.VSync) {
+                    return;
+                }
+                
+                throw new NotSupportedException();
+            }
+        }
+        
+        public ScreenMode ScreenMode
         {
             get { return screenMode; }
             set

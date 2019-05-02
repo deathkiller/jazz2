@@ -35,6 +35,18 @@ namespace Jazz2.Game.UI.Menu
 
         private static string newVersion;
 
+        public RefreshMode RefreshMode
+        {
+            get
+            {
+                return root.RefreshMode;
+            }
+            set
+            {
+                root.RefreshMode = value;
+            }
+        }
+
         public ScreenMode ScreenMode
         {
             get

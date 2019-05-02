@@ -16,7 +16,6 @@ namespace Jazz2.Actors.Environment
             base.OnAttach(details);
 
             type = details.Params[0];
-            type = 1;
             activated = (details.Params[1] != 0);
 
             switch (type) {

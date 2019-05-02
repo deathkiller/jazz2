@@ -108,7 +108,7 @@ namespace Jazz2.Actors
             int playerHealth = owner.Health;
             if (playerHealth < lastPlayerHealth) {
                 flyAway = true;
-                fireCooldown = 500f;
+                fireCooldown = 300f;
 
                 if (attackTime > 0f) {
                     SetAnimation(AnimState.Idle);
