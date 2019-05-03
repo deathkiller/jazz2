@@ -65,6 +65,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Base\NetUtility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Base\Platform\PlatformAndroid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Base\Platform\PlatformWin32.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Components\MultiplayerLevelType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\LevelReady.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\UpdateSelf.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\IClientPacket+IServerPacket.cs" />

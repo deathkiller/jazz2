@@ -18,9 +18,9 @@ namespace Jazz2.Game.Multiplayer
         public event Action OnDisconnected;
         public event Action<NetIncomingMessage> OnUpdateAllPlayers;
 
-        public bool IsConnected => (client.ConnectionStatus != NetConnectionStatus.Disconnected && client.ConnectionStatus != NetConnectionStatus.Disconnecting);
+        public bool IsConnected => (client != null && client.ConnectionStatus != NetConnectionStatus.Disconnected && client.ConnectionStatus != NetConnectionStatus.Disconnecting);
 
-        public float AverageRoundtripTime => client.ServerConnection.AverageRoundtripTime;
+        public float AverageRoundtripTime => (client != null && client.ServerConnection != null ? client.ServerConnection.AverageRoundtripTime : 0);
 
         public NetworkHandler(string appId)
         {
@@ -53,7 +53,8 @@ namespace Jazz2.Game.Multiplayer
 
         public void Connect(IPEndPoint host)
         {
-            NetOutgoingMessage message = client.CreateMessage(3);
+            NetOutgoingMessage message = client.CreateMessage(4);
+            message.Write((byte)0); // Flags
 
             byte major, minor, build;
             App.GetAssemblyVersionNumber(out major, out minor, out build);

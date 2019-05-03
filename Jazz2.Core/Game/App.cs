@@ -88,6 +88,7 @@ namespace Jazz2.Game
         {
 #if MULTIPLAYER
             if (network != null) {
+                network.OnDisconnected -= OnNetworkDisconnected;
                 network.Close();
                 network = null;
             }
@@ -231,15 +232,24 @@ namespace Jazz2.Game
             const string token = "J²";
 
             if (network != null) {
+                network.OnDisconnected -= OnNetworkDisconnected;
                 network.Close();
             }
 
             network = new Multiplayer.NetworkHandler(token);
-            network.RegisterCallback<Networking.Packets.Server.LoadLevel>(OnLoadLevel);
+            network.OnDisconnected += OnNetworkDisconnected;
+            network.RegisterCallback<Networking.Packets.Server.LoadLevel>(OnNetworkLoadLevel);
             network.Connect(endPoint);
         }
 
-        private void OnLoadLevel(ref Networking.Packets.Server.LoadLevel p)
+        private void OnNetworkDisconnected()
+        {
+            DispatchToMainThread(delegate {
+                ShowMainMenu();
+            });
+        }
+
+        private void OnNetworkLoadLevel(ref Networking.Packets.Server.LoadLevel p)
         {
             string episodeName;
             string levelName = p.LevelName;

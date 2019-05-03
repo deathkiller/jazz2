@@ -88,6 +88,31 @@ namespace Jazz2.Game.UI.Menu
 
                     ServerDiscovery.Server server = serverList[idx];
 
+                    string infoText = server.CurrentPlayers + " / " + server.MaxPlayers + "   ";
+                    ColorRgba infoColor;
+                    if (server.LatencyMs < 0) {
+                        infoText += "- ms";
+                        infoColor = new ColorRgba(0.48f, 0.5f);
+                    } else if (server.LatencyMs > 10000) {
+                        infoText = "Unreachable";
+                        infoColor = new ColorRgba(0.45f, 0.27f, 0.22f, 0.5f);
+                    } else {
+                        infoText += server.LatencyMs + " ms";
+
+                        float playersRatio = (float)(server.CurrentPlayers / server.MaxPlayers);
+                        if (server.LatencyMs < 50 && playersRatio < 0.9f) {
+                            infoColor = new ColorRgba(0.2f, 0.45f, 0.2f, 0.5f);
+                        } else if (server.LatencyMs < 100 && playersRatio < 0.9f) {
+                            infoColor = new ColorRgba(0.45f, 0.45f, 0.21f, 0.5f);
+                        } else if (server.LatencyMs < 200 && playersRatio < 0.95f) {
+                            infoColor = new ColorRgba(0.5f, 0.4f, 0.2f, 0.5f);
+                        } else if (server.LatencyMs < 400 && playersRatio < 0.99f) {
+                            infoColor = new ColorRgba(0.47f, 0.35f, 0.3f, 0.5f);
+                        } else {
+                            infoColor = new ColorRgba(0.45f, 0.27f, 0.22f, 0.5f);
+                        }
+                    }
+
                     if (selectedIndex == idx) {
                         charOffset = 0;
 
@@ -97,8 +122,8 @@ namespace Jazz2.Game.UI.Menu
                         float size = 0.7f + easing * 0.1f;
 
                         // Column 2
-                        api.DrawStringShadow(ref charOffset, server.CurrentPlayers + " / " + server.MaxPlayers + "  " + (server.LatencyMs < 0 ? "-" : server.LatencyMs.ToString()) + " ms", column2, currentItem, Alignment.Left,
-                            new ColorRgba(0.48f, 0.5f), 0.8f, 0.4f, 1f, 1f, 8f, charSpacing: 0.8f);
+                        api.DrawStringShadow(ref charOffset, infoText, column2, currentItem, Alignment.Left,
+                            infoColor, 0.8f, 0.4f, 1f, 1f, 8f, charSpacing: 0.8f);
 
                         // Column 3
                         api.DrawStringShadow(ref charOffset, server.EndPointName, column3, currentItem, Alignment.Left,
@@ -110,8 +135,8 @@ namespace Jazz2.Game.UI.Menu
                         
                     } else {
                         // Column 2
-                        api.DrawString(ref charOffset, server.CurrentPlayers + " / " + server.MaxPlayers + "  " + (server.LatencyMs < 0 ? "-" : server.LatencyMs.ToString()) + " ms", column2, currentItem, Alignment.Left,
-                            ColorRgba.TransparentBlack, 0.7f);
+                        api.DrawString(ref charOffset, infoText, column2, currentItem, Alignment.Left,
+                            infoColor, 0.7f);
 
                         // Column 3
                         api.DrawString(ref charOffset, server.EndPointName, column3, currentItem, Alignment.Left,
@@ -159,7 +184,7 @@ namespace Jazz2.Game.UI.Menu
             }
 
             if (ControlScheme.MenuActionHit(PlayerActions.Fire)) {
-                if (serverList.Count > 0) {
+                if (selectedIndex < serverList.Count && serverList[selectedIndex].LatencyMs <= 10000) {
                     ControlScheme.IsSuspended = true;
 
                     api.PlaySound("MenuSelect", 0.5f);
@@ -173,9 +198,6 @@ namespace Jazz2.Game.UI.Menu
                             discovery = null;
                         }
                     });
-                } else {
-                    // ToDo: Testing only
-                    api.SwitchToServer(new IPEndPoint(IPAddress.Parse("192.168.2.6"), 10666));
                 }
             } else if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
                 api.PlaySound("MenuSelect", 0.5f);

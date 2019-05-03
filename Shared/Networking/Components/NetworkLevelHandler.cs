@@ -27,20 +27,14 @@ namespace Jazz2.Game.Multiplayer
             this.network = network;
             this.localPlayerIndex = playerIndex;
 
-            network.OnDisconnected += OnDisconnected;
             network.OnUpdateAllPlayers += OnUpdateAllPlayers;
             network.RegisterCallback<CreateRemotePlayer>(OnCreateRemotePlayer);
             network.RegisterCallback<DestroyRemotePlayer>(OnDestroyRemotePlayer);
-
-            if (!network.IsConnected) {
-                OnDisconnected();
-            }
         }
 
         protected override void OnDisposing(bool manually)
         {
             if (network != null) {
-                network.OnDisconnected -= OnDisconnected;
                 network.OnUpdateAllPlayers -= OnUpdateAllPlayers;
                 network.RemoveCallback<CreateRemotePlayer>();
                 network.RemoveCallback<DestroyRemotePlayer>();
@@ -64,18 +58,12 @@ namespace Jazz2.Game.Multiplayer
 
             lastUpdate = 0f;
 
-            Player player = Players[0];
-            UpdateSelf updateSelfPacket = player.CreateUpdatePacket();
+            UpdateSelf updateSelfPacket = Players[0].CreateUpdatePacket();
             updateSelfPacket.Index = localPlayerIndex;
             updateSelfPacket.UpdateTime = (long)(NetTime.Now * 1000);
             network.Send(updateSelfPacket, 29, NetDeliveryMethod.Unreliable, PacketChannels.Main);
-        }
 
-        private void OnDisconnected()
-        {
-            Root.DispatchToMainThread(delegate {
-                Root.ShowMainMenu();
-            });
+            base.OnUpdate();
         }
 
         private void OnUpdateAllPlayers(NetIncomingMessage msg)
@@ -132,7 +120,8 @@ namespace Jazz2.Game.Multiplayer
             int index = p.Index;
 
             if (remotePlayers[index] != null) {
-                throw new InvalidOperationException();
+                //throw new InvalidOperationException();
+                return;
             }
 
             PlayerType type = p.Type;

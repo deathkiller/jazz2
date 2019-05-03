@@ -12,7 +12,7 @@ namespace Jazz2.Game.UI.Menu
 
             controls = new MenuControlBase[] {
                 new LinkControl(api, "Single Player", OnSinglePlayerPressed),
-                new LinkControl(api, "Party Mode [Alpha]", OnPartyModePressed)
+                new LinkControl(api, "Party Mode", OnPartyModePressed)
             };
         }
 

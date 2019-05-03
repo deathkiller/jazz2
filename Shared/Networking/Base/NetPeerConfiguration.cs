@@ -48,7 +48,6 @@ namespace Lidgren.Network
         private IPAddress m_localAddress;
         private IPAddress m_broadcastAddress;
         internal bool m_acceptIncomingConnections;
-        //internal int m_maximumConnections;
         internal int m_defaultOutgoingMessageCapacity;
         internal float m_pingInterval;
         internal bool m_useMessageRecycling;
