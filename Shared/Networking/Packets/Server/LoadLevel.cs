@@ -1,5 +1,4 @@
-﻿using Jazz2.Networking.Components;
-using Lidgren.Network;
+﻿using Lidgren.Network;
 
 namespace Jazz2.Networking.Packets.Server
 {

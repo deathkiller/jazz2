@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using Duality;
+using Jazz2.Actors;
 using Jazz2.Game.Structs;
 using Jazz2.Networking.Packets;
 using Lidgren.Network;
@@ -24,7 +25,11 @@ namespace Jazz2.Server
             public float AnimTime;
             public bool IsFacingLeft;
 
-            public bool IsReady;
+            public bool HasLevelLoaded;
+
+            public PlayerType PlayerType;
+            public int Lives, Coins, Gems, FoodEaten;
+            public float InvulnerableTime;
         }
 
 
@@ -51,7 +56,7 @@ namespace Jazz2.Server
                         Player player = pair.Value;
                         m.Write((byte)player.Index); // Player Index
 
-                        if (!player.IsReady) {
+                        if (!player.HasLevelLoaded) {
                             m.Write((byte)0); // Flags - None
                             continue;
                         }

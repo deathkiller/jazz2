@@ -4,7 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Net;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using Jazz2.Networking.Packets;
 using Jazz2.Networking.Packets.Client;
@@ -45,12 +47,13 @@ namespace Jazz2.Server
 {
     internal static partial class App
     {
-        private const string token = "J²";
+        private const string Token = "J²";
+        private const string ServerListUrl = "http://deat.tk/jazz2/servers/";
 
         private static string name;
         private static int port, maxPlayers;
 
-        private static Thread threadGame;
+        private static Thread threadGame, threadPublishToServerList;
         private static ServerConnection server;
         private static byte neededMajor, neededMinor, neededBuild;
 
@@ -106,7 +109,7 @@ namespace Jazz2.Server
             players = new Dictionary<NetConnection, Player>();
             playerConnections = new List<NetConnection>();
 
-            server = new ServerConnection(token, port, maxPlayers);
+            server = new ServerConnection(Token, port, maxPlayers);
             server.MessageReceived += OnMessageReceived;
             server.DiscoveryRequest += OnDiscoveryRequest;
             server.ClientConnected += OnClientConnected;
@@ -121,6 +124,15 @@ namespace Jazz2.Server
             threadGame = new Thread(OnGameLoop);
             threadGame.IsBackground = true;
             threadGame.Start();
+
+            // Publish to server list
+            if (!TryRemoveArg(ref args, "/private")) {
+                Log.Write(LogType.Info, "Publishing to server list...");
+
+                threadPublishToServerList = new Thread(OnPublishToServerList);
+                threadPublishToServerList.IsBackground = true;
+                threadPublishToServerList.Start();
+            }
 
             Log.Write(LogType.Info, "Ready!");
             Console.WriteLine();
@@ -274,6 +286,42 @@ namespace Jazz2.Server
                 Console.Write((progress + "%").PadLeft(5) + " ");
                 Console.ForegroundColor = ConsoleColor.Gray;
                 Console.WriteLine(text);
+            }
+        }
+
+        private static void OnPublishToServerList()
+        {
+            while (threadPublishToServerList != null) {
+                try {
+                    string currentVersion = Jazz2.App.AssemblyVersion;
+                    IPAddress mask;
+                    string endpoint = NetUtility.GetMyAddress(out mask).ToString() + ":" + port;
+
+                    string dataString = "0|" + endpoint + "|" + currentVersion + "|" + players.Count + "|" + maxPlayers + "|" + name;
+                    string data = "add=" + Convert.ToBase64String(Encoding.UTF8.GetBytes(dataString))
+                                .Replace('+', '-').Replace('/', '_').TrimEnd('=');
+
+                    WebClient client = new WebClient();
+                    client.Encoding = Encoding.UTF8;
+                    client.Headers["User-Agent"] = Jazz2.App.AssemblyTitle;
+                    client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
+
+                    string content = client.UploadString(ServerListUrl, data);
+                    if (content.Contains("\"r\":false")) {
+                        if (content.Contains("\"e\":1")) {
+                            Log.Write(LogType.Warning, "Cannot publish server with private IP address!");
+                        } else if (content.Contains("\"e\":2")) {
+                            Log.Write(LogType.Warning, "Access to server list is denied!");
+                        } else {
+                            Log.Write(LogType.Warning, "Server cannot be published to server list!");
+                        }
+                        return;
+                    }
+                } catch {
+                    // Nothing to do... try it again later
+                }
+
+                Thread.Sleep(300000); // 5 minutes
             }
         }
     }

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using Duality;
+using Jazz2.Actors;
 using Jazz2.Networking.Packets;
 using Jazz2.Networking.Packets.Client;
 using Jazz2.Networking.Packets.Server;
@@ -20,30 +21,31 @@ namespace Jazz2.Server
                     throw new InvalidOperationException();
                 }
 
-                player.IsReady = true;
+                player.PlayerType = PlayerType.Jazz;
+                player.HasLevelLoaded = true;
 
                 playerConnections.Add(p.SenderConnection);
 
                 foreach (KeyValuePair<NetConnection, Player> pair in players) {
-                    if (pair.Key == p.SenderConnection || !pair.Value.IsReady) {
+                    if (pair.Key == p.SenderConnection || !pair.Value.HasLevelLoaded) {
                         continue;
                     }
 
                     Send(new CreateRemotePlayer {
                         Index = player.Index,
-                        Type = Actors.PlayerType.Jazz,
-                        Pos = Vector3.Zero
+                        Type = player.PlayerType,
+                        Pos = player.Pos
                     }, 3 + 3 * 4, pair.Key, NetDeliveryMethod.ReliableSequenced, PacketChannels.Main);
                 }
 
                 foreach (KeyValuePair<NetConnection, Player> pair in players) {
-                    if (pair.Key == p.SenderConnection || !pair.Value.IsReady) {
+                    if (pair.Key == p.SenderConnection || !pair.Value.HasLevelLoaded) {
                         continue;
                     }
 
                     Send(new CreateRemotePlayer {
                         Index = pair.Value.Index,
-                        Type = Actors.PlayerType.Jazz,
+                        Type = pair.Value.PlayerType,
                         Pos = pair.Value.Pos
                     }, 3 + 3 * 4, p.SenderConnection, NetDeliveryMethod.ReliableSequenced, PacketChannels.Main);
                 }

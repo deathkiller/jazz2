@@ -36,7 +36,7 @@ namespace Lidgren.Network
             {
                 if (adapter.NetworkInterfaceType == NetworkInterfaceType.Loopback || adapter.NetworkInterfaceType == NetworkInterfaceType.Unknown)
                     continue;
-                if (!adapter.Supports(NetworkInterfaceComponent.IPv4))
+                if (!adapter.Supports(NetworkInterfaceComponent.IPv4) && !adapter.Supports(NetworkInterfaceComponent.IPv6))
                     continue;
                 if (best == null)
                     best = adapter;
@@ -100,7 +100,7 @@ namespace Lidgren.Network
         }
 
         /// <summary>
-        /// Gets my local IPv4 address (not necessarily external) and subnet mask
+        /// Gets my local IPv4 or IPv6 address (not necessarily external) and subnet mask
         /// </summary>
         public static IPAddress GetMyAddress(out IPAddress mask)
         {
@@ -117,6 +117,15 @@ namespace Lidgren.Network
                 if (unicastAddress != null && unicastAddress.Address != null && unicastAddress.Address.AddressFamily == AddressFamily.InterNetwork)
                 {
                     mask = unicastAddress.IPv4Mask;
+                    return unicastAddress.Address;
+                }
+            }
+
+            foreach (UnicastIPAddressInformation unicastAddress in properties.UnicastAddresses)
+            {
+                if (unicastAddress != null && unicastAddress.Address != null && unicastAddress.Address.AddressFamily == AddressFamily.InterNetworkV6)
+                {
+                    mask = null;
                     return unicastAddress.Address;
                 }
             }

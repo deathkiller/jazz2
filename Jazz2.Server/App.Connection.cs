@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using Jazz2.Networking;
-using Jazz2.Networking.Components;
 using Jazz2.Networking.Packets;
 using Jazz2.Networking.Packets.Server;
 using Jazz2.Server.EventArgs;
@@ -33,7 +32,7 @@ namespace Jazz2.Server
             args.Allow = true;
 
             players[args.Message.SenderConnection] = new Player {
-                IsReady = false
+                HasLevelLoaded = false
             };
         }
 
@@ -80,8 +79,8 @@ namespace Jazz2.Server
                 }
 
                 string identifier = args.Message.ReadString();
-                if (identifier != token) {
-                    Console.WriteLine("        - " + "Bad identifier!");
+                if (identifier != Token) {
+                    Console.WriteLine("        - Bad identifier!");
                     return;
                 }
 
@@ -109,7 +108,7 @@ namespace Jazz2.Server
             NetOutgoingMessage msg = server.CreateMessage(64);
 
             // Header for unconnected message
-            msg.Write(token);
+            msg.Write(Token);
             msg.Write(neededMajor);
             msg.Write(neededMinor);
             msg.Write(neededBuild);
@@ -138,11 +137,6 @@ namespace Jazz2.Server
         {
             byte type = (new T().Type);
             callbacks.Remove(type);
-        }
-
-        private static void ClearCallbacks()
-        {
-            callbacks.Clear();
         }
 
         private static void ProcessCallback<T>(NetIncomingMessage msg, bool isUnconnected, PacketCallback<T> callback) where T : struct, IClientPacket

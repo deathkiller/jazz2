@@ -174,7 +174,7 @@ namespace Lidgren.Network
             {
                 if (ipAddress.AddressFamily == AddressFamily.InterNetwork || ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
                     return ipAddress;
-                throw new ArgumentException("This method will not currently resolve other than ipv4 addresses");
+                throw new ArgumentException("This method will not currently resolve other than IPv4 and IPv6 addresses");
             }
 
             // ok must be a host name
