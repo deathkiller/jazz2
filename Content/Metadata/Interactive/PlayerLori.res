@@ -6,7 +6,7 @@
     "Animations": {
         "Idle": {
             "Path": "Lori/idle.png",
-            "FrameRate": 6,
+            "FrameRate": 5,
             "States": [ 0 ]
         },
         "Walk": {
@@ -61,10 +61,20 @@
             "FrameRate": 24,
             "States": [ 32 ]
         },
+        "DizzyIdle": {
+            "Path": "Lori/dizzy.png",
+            "FrameRate": 6,
+            "States": [ 128 ]
+        },
+        "DizzyWalk": {
+            "Path": "Lori/dizzy_walk.png",
+            "FrameRate": 6,
+            "States": [ 129, 145 ]
+        },
         "Shoot": {
             "Path": "Lori/shoot.png",
             "FrameRate": 8,
-            "States": [ 16 ],
+            "States": [ 16, 144 ],
             "Flags": 1
         },
         "CrouchShoot": {
@@ -153,7 +163,7 @@
         },
         "HookShootToHook": {
             "Path": "Lori/vine_shoot_end.png",
-            "FrameRate": 20,
+            "FrameRate": 24,
             "States": [ 1073741829 ]
         },
         "CopterShootToCopter": {
@@ -270,8 +280,34 @@
             "States": [ 1024 ]
         },
         
+        "IdleBored1": {
+            "Path": "Lori/idle_flavor_2.png",
+            "FrameRate": 1,
+            "States": [ 1073741849 ]
+        },
+        "IdleBored2": {
+            "Path": "Lori/idle_flavor_3.png",
+            "FrameRate": 3,
+            "States": [ 1073741849 ]
+        },
+        "IdleBored3": {
+            "Path": "Lori/idle_flavor_4.png",
+            "FrameRate": 2,
+            "States": [ 1073741849 ]
+        },
+        
+        "TransformFromFrog": {
+            "Path": "Lori/transform_frog_end.png",
+            "States": [ 1073741888 ],
+            "FrameRate": 3
+        },
+        
         "Corpse": {
             "Path": "Lori/corpse.png"
+        },
+
+        "SugarRush": {
+            "Path": "Common/SugarRushStars.png"
         }
     },
 

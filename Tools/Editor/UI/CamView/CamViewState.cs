@@ -130,7 +130,7 @@ namespace Editor.UI.CamView
                 // the actual rendered world in order to make custom gizmos more visible.
                 this.camPassBg = new RenderStep {
                     Id = "EditorGizmoBackground",
-                    MatrixMode = RenderMatrix.ScreenSpace,
+                    Projection = ProjectionMode.Screen,
                     ClearFlags = ClearFlag.None,
                     VisibilityMask = VisibilityFlag.ScreenOverlay
                 };
@@ -158,7 +158,7 @@ namespace Editor.UI.CamView
                 // direct cursor feedback.
                 this.camPassEdScreen = new RenderStep {
                     Id = "EditorGizmoScreenOverlay",
-                    MatrixMode = RenderMatrix.ScreenSpace,
+                    Projection = ProjectionMode.Screen,
                     ClearFlags = ClearFlag.None,
                     VisibilityMask = VisibilityFlag.ScreenOverlay
                 };

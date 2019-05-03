@@ -646,7 +646,7 @@ namespace Jazz2.Compatibility
 
             WriteResFile(Path.Combine(path, ".res"), levelTokenConversion);
 
-            WritePalette(Path.Combine(path, ".palette"));
+            WritePalette(Path.Combine(path, "Main.palette"));
         }
 
         public void AddLevelTokenTextID(ushort textID)
@@ -897,8 +897,7 @@ namespace Jazz2.Compatibility
             }
 
             using (Stream s = File.Create(path))
-            using (DeflateStream deflate = new DeflateStream(s, CompressionLevel.Optimal))
-            using (BinaryWriter w = new BinaryWriter(deflate)) {
+            using (BinaryWriter w = new BinaryWriter(s)) {
 
                 ushort maxTiles = (ushort)MaxSupportedTiles;
                 ushort lastTilesetTileIndex = (ushort)(maxTiles - animCount);
@@ -944,17 +943,21 @@ namespace Jazz2.Compatibility
                         }
 
                         byte tileFlags = 0;
-                        if (flipX)
+                        if (flipX) {
                             tileFlags |= 0x01;
-                        if (flipY)
+                        }
+                        if (flipY) {
                             tileFlags |= 0x02;
-                        if (animated)
+                        }
+                        if (animated) {
                             tileFlags |= 0x04;
+                        }
 
-                        if (legacyTranslucent)
+                        if (legacyTranslucent) {
                             tileFlags |= 0x10;
-                        else if (invisible)
+                        } else if (invisible) {
                             tileFlags |= 0x20;
+                        }
 
                         w.Write(tileIdx);
                         w.Write(tileFlags);
@@ -968,8 +971,7 @@ namespace Jazz2.Compatibility
             unsupportedEvents = new Dictionary<JJ2Event, int>();
 
             using (Stream s = File.Create(path))
-            using (DeflateStream deflate = new DeflateStream(s, CompressionLevel.Optimal))
-            using (BinaryWriter w = new BinaryWriter(deflate)) {
+            using (BinaryWriter w = new BinaryWriter(s)) {
                 w.Write(width);
                 w.Write(height);
 
@@ -979,10 +981,18 @@ namespace Jazz2.Compatibility
 
                         int flags = 0;
                         if (tileEvent.Illuminate) flags |= 0x04; // Illuminated
-                        if (tileEvent.Difficulty != 2 /*DIFFICULTY_HARD*/) flags |= 0x10; // Difficulty: Easy
-                        if (tileEvent.Difficulty == 0 /*DIFFICULTY_ALL*/) flags |= 0x20; // Difficulty: Normal
-                        if (tileEvent.Difficulty != 1 /*DIFFICULTY_EASY*/) flags |= 0x40; // Difficulty: Hard
-                        if (tileEvent.Difficulty == 3 /*DIFFICULTY_MULTIPLAYER*/) flags |= 0x80; // Multiplayer Only
+                        if (tileEvent.Difficulty != 2 /*DIFFICULTY_HARD*/) {
+                            flags |= 0x10; // Difficulty: Easy
+                        }
+                        if (tileEvent.Difficulty == 0 /*DIFFICULTY_ALL*/) {
+                            flags |= 0x20; // Difficulty: Normal
+                        }
+                        if (tileEvent.Difficulty != 1 /*DIFFICULTY_EASY*/) {
+                            flags |= 0x40; // Difficulty: Hard
+                        }
+                        if (tileEvent.Difficulty == 3 /*DIFFICULTY_MULTIPLAYER*/) {
+                            flags |= 0x80; // Multiplayer Only
+                        }
 
                         // ToDo: Flag 0x08 not used
 
@@ -1055,8 +1065,7 @@ namespace Jazz2.Compatibility
             ushort lastTilesetTileIndex = (ushort)(maxTiles - animCount);
 
             using (Stream s = File.Create(path))
-            using (DeflateStream ds = new DeflateStream(s, CompressionLevel.Optimal))
-            using (BinaryWriter w = new BinaryWriter(ds)) {
+            using (BinaryWriter w = new BinaryWriter(s)) {
                 w.Write(animatedTiles.Length);
 
                 for (int i = 0; i < animatedTiles.Length; i++) {
@@ -1090,15 +1099,18 @@ namespace Jazz2.Compatibility
                             }
 
                             byte tileFlags = 0x00;
-                            if (flipX)
+                            if (flipX) {
                                 tileFlags |= 0x01; // Flip X
-                            if (flipY)
+                            }
+                            if (flipY) {
                                 tileFlags |= 0x02; // Flip Y
+                            }
 
-                            if (staticTiles[frames[j]].Type == 1)
+                            if (staticTiles[frames[j]].Type == 1) {
                                 tileFlags |= 0x10; // Legacy Translucent
-                            else if (staticTiles[frames[j]].Type == 3)
+                            } else if (staticTiles[frames[j]].Type == 3) {
                                 tileFlags |= 0x20; // Invisible
+                            }
 
                             w.Write(tileIdx);
                             w.Write(tileFlags);

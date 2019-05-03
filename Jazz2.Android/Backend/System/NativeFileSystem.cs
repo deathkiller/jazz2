@@ -6,6 +6,7 @@ using System.Text;
 using Android.App;
 using Duality.IO;
 using Jazz2.Android;
+using Jazz2.Game;
 using Environment = Android.OS.Environment;
 
 namespace Duality.Backend.Android
@@ -16,38 +17,16 @@ namespace Duality.Backend.Android
 
         public NativeFileSystem()
         {
-            string packageName = Application.Context.PackageName + "/";
-
-            List<StorageInfo> storages = GetStorageList();
-            for (int i = storages.Count - 1; i >= 0; i--) {
-                string path = Path.Combine(storages[i].Path, "Android", "Data", packageName);
-                if (Directory.Exists(path)) {
-                    RootPath = path;
-                    break;
-                }
-
-                path = Path.Combine(storages[i].Path, packageName);
-                if (Directory.Exists(path)) {
-                    RootPath = path;
-                    break;
-                }
-
-                // ToDo: Remove this in future versions
-                path = Path.Combine(storages[i].Path, "Download", packageName);
-                if (Directory.Exists(path)) {
-                    RootPath = path;
-                    break;
-                }
-            }
+            int storagePathLength;
+            RootPath = FindRootPath(out storagePathLength);
 
             if (RootPath == null) {
-                //throw new DirectoryNotFoundException("Content directory was not found");
-
                 StringBuilder sb = new StringBuilder();
                 sb.AppendLine("Content directory was not found!");
                 sb.AppendLine();
                 sb.AppendLine("Searched mount points:");
 
+                List<StorageInfo> storages = GetStorageList();
                 for (int i = storages.Count - 1; i >= 0; i--) {
 
                     sb.Append(" - ");
@@ -70,9 +49,9 @@ namespace Duality.Backend.Android
                 CrashHandlerActivity.ShowErrorDialog(new DirectoryNotFoundException(sb.ToString()));
             }
 
-            Console.WriteLine("Android Root Path: " + RootPath);
+            App.Log("Android Root Path: " + RootPath);
         }
-
+        
         string IFileSystem.GetFullPath(string path)
         {
             string nativePath = this.GetNativePathFormat(path);
@@ -265,7 +244,7 @@ namespace Duality.Backend.Android
                     }
                 }
             } catch {
-                Console.WriteLine("/proc/mounts failed!");
+                App.Log("/proc/mounts failed!");
             }
 
             //foreach (var storage in storages) {
@@ -273,6 +252,36 @@ namespace Duality.Backend.Android
             //}
 
             return storages;
+        }
+
+        public static string FindRootPath(out int storagePathLength)
+        {
+            string packageName = Application.Context.PackageName + "/";
+
+            List<StorageInfo> storages = GetStorageList();
+            for (int i = storages.Count - 1; i >= 0; i--) {
+                string path = Path.Combine(storages[i].Path, "Android", "Data", packageName);
+                if (File.Exists(Path.Combine(path, "Content", "Main.dz"))) {
+                    storagePathLength = storages[i].Path.Length;
+                    return path;
+                }
+
+                path = Path.Combine(storages[i].Path, packageName);
+                if (File.Exists(Path.Combine(path, "Content", "Main.dz"))) {
+                    storagePathLength = storages[i].Path.Length;
+                    return path;
+                }
+
+                // ToDo: Remove this in future versions
+                path = Path.Combine(storages[i].Path, "Download", packageName);
+                if (File.Exists(Path.Combine(path, "Content", "Main.dz"))) {
+                    storagePathLength = storages[i].Path.Length;
+                    return path;
+                }
+            }
+
+            storagePathLength = 0;
+            return null;
         }
     }
 }

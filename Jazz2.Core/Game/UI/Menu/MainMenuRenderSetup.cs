@@ -16,30 +16,33 @@ namespace Jazz2.Game.UI.Menu
         private Texture finalTexture;
         private RenderTarget finalTarget;
 
-        private Settings.ResizeMode lastResizeMode;
+        private SettingsCache.ResizeMode lastResizeMode;
 
         public MainMenuRenderSetup()
         {
             // Shaders
-            lastResizeMode = Settings.Resize;
+            lastResizeMode = SettingsCache.Resize;
 
             try {
                 switch (lastResizeMode) {
                     default:
-                    case Settings.ResizeMode.None:
+                    case SettingsCache.ResizeMode.None:
                         resizeShader = DrawTechnique.Solid;
                         break;
-                    case Settings.ResizeMode.HQ2x:
+                    case SettingsCache.ResizeMode.HQ2x:
                         resizeShader = ContentResolver.Current.RequestShader("ResizeHQ2x");
                         break;
-                    case Settings.ResizeMode.xBRZ3:
+                    case SettingsCache.ResizeMode.xBRZ3:
                         resizeShader = ContentResolver.Current.RequestShader("Resize3xBRZ");
                         break;
-                    case Settings.ResizeMode.xBRZ4:
+                    case SettingsCache.ResizeMode.xBRZ4:
                         resizeShader = ContentResolver.Current.RequestShader("Resize4xBRZ");
                         break;
-                    case Settings.ResizeMode.CRT:
+                    case SettingsCache.ResizeMode.CRT:
                         resizeShader = ContentResolver.Current.RequestShader("ResizeCRT");
+                        break;
+                    case SettingsCache.ResizeMode.GB:
+                        resizeShader = ContentResolver.Current.RequestShader("ResizeGB");
                         break;
                 }
             } catch {
@@ -53,7 +56,7 @@ namespace Jazz2.Game.UI.Menu
 
             // Render steps
             AddRenderStep(RenderStepPosition.Last, new RenderStep {
-                MatrixMode = RenderMatrix.ScreenSpace,
+                Projection = ProjectionMode.Screen,
                 VisibilityMask = VisibilityFlag.All,
                 ClearFlags = ClearFlag.None,
 
@@ -63,7 +66,7 @@ namespace Jazz2.Game.UI.Menu
             AddRenderStep(RenderStepPosition.Last, new RenderStep {
                 Id = "Resize",
 
-                MatrixMode = RenderMatrix.ScreenSpace,
+                Projection = ProjectionMode.Screen,
                 VisibilityMask = VisibilityFlag.None
             });
         }
@@ -76,29 +79,32 @@ namespace Jazz2.Game.UI.Menu
             Disposable.Free(ref finalTexture);
         }
 
-        protected override void OnRenderPointOfView(Scene scene, DrawDevice drawDevice, Rect viewportRect, Vector2 imageSize)
+        protected override void OnRenderPointOfView(Scene scene, DrawDevice device, Rect viewportRect, Vector2 imageSize)
         {
             // Switch between resize modes if necessary
-            if (lastResizeMode != Settings.Resize) {
-                lastResizeMode = Settings.Resize;
+            if (lastResizeMode != SettingsCache.Resize) {
+                lastResizeMode = SettingsCache.Resize;
 
                 try {
                     switch (lastResizeMode) {
                         default:
-                        case Settings.ResizeMode.None:
+                        case SettingsCache.ResizeMode.None:
                             resizeShader = DrawTechnique.Solid;
                             break;
-                        case Settings.ResizeMode.HQ2x:
+                        case SettingsCache.ResizeMode.HQ2x:
                             resizeShader = ContentResolver.Current.RequestShader("ResizeHQ2x");
                             break;
-                        case Settings.ResizeMode.xBRZ3:
+                        case SettingsCache.ResizeMode.xBRZ3:
                             resizeShader = ContentResolver.Current.RequestShader("Resize3xBRZ");
                             break;
-                        case Settings.ResizeMode.xBRZ4:
+                        case SettingsCache.ResizeMode.xBRZ4:
                             resizeShader = ContentResolver.Current.RequestShader("Resize4xBRZ");
                             break;
-                        case Settings.ResizeMode.CRT:
+                        case SettingsCache.ResizeMode.CRT:
                             resizeShader = ContentResolver.Current.RequestShader("ResizeCRT");
+                            break;
+                        case SettingsCache.ResizeMode.GB:
+                            resizeShader = ContentResolver.Current.RequestShader("ResizeGB");
                             break;
                     }
                 } catch {
@@ -130,15 +136,15 @@ namespace Jazz2.Game.UI.Menu
                 ResizeRenderTarget(finalTarget, TargetSize);
             }
 
-            base.OnRenderPointOfView(scene, drawDevice, viewportRect, imageSize);
+            base.OnRenderPointOfView(scene, device, viewportRect, imageSize);
         }
 
-        protected override void OnRenderSingleStep(RenderStep step, Scene scene, DrawDevice drawDevice)
+        protected override void OnRenderSingleStep(RenderStep step, Scene scene, DrawDevice device)
         {
             if (step.Id == "Resize") {
-                ProcessResizeStep(drawDevice);
+                ProcessResizeStep(device);
             } else {
-                base.OnRenderSingleStep(step, scene, drawDevice);
+                base.OnRenderSingleStep(step, scene, device);
             }
         }
 

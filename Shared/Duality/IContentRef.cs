@@ -6,7 +6,7 @@ namespace Duality
     /// IContentRef is a general interface for <see cref="ContentRef{T}">content references</see> of any <see cref="Resource"/> type.
     /// </summary>
     /// <seealso cref="Resource"/>
-    /// <seealso cref="DefaultContentProvider"/>
+    /// <seealso cref="DefaultContent"/>
     /// <seealso cref="ContentRef{T}"/>
     public interface IContentRef
     {
@@ -34,7 +34,7 @@ namespace Duality
         /// Loads the associated content as if it was accessed now.
         /// You don't usually need to call this method. It is invoked implicitly by trying to access the ContentRef.
         /// </summary>
-        void MakeAvailable();
+        void EnsureLoaded();
         /// <summary>
         /// Discards the resolved content reference cache to allow garbage-collecting the Resource
         /// without losing its reference. Accessing it will result in reloading the Resource.

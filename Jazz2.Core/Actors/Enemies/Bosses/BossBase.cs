@@ -25,7 +25,7 @@ namespace Jazz2.Actors.Bosses
         {
         }
 
-        public override bool OnTileDeactivate(int tx, int ty, int tileDistance)
+        public override bool OnTileDeactivate(int tx1, int ty1, int tx2, int ty2)
         {
             return false;
         }

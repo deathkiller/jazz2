@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using Duality.Backend;
 using Duality.IO;
+using Jazz2.Game;
 using Jazz2.Storage;
 
 namespace Jazz2.Backend
@@ -99,7 +100,7 @@ namespace Jazz2.Backend
                     }
                 }
             } catch (Exception ex) {
-                Console.WriteLine("Can't load preferences: " + ex);
+                App.Log("Can't load preferences: " + ex);
             }
         }
 
@@ -221,13 +222,13 @@ namespace Jazz2.Backend
                             }
 
                             default:
-                                Console.WriteLine("Unknown preference type: " + pair.Value.GetType().FullName);
+                                App.Log("Unknown preference type: " + pair.Value.GetType().FullName);
                                 break;
                         }
                     }
                 }
             } catch (Exception ex) {
-                Console.WriteLine("Can't save preferences: " + ex);
+                App.Log("Can't save preferences: " + ex);
             }
         }
 

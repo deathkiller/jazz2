@@ -47,7 +47,7 @@ namespace Jazz2.Game.Events
 
             // Environment
             RegisterSpawnable<Spring>(EventType.Spring);
-            RegisterSpawnable<DynamicBridge>(EventType.Bridge);
+            RegisterSpawnable<Bridge>(EventType.Bridge);
             RegisterSpawnable<MovingPlatform>(EventType.MovingPlatform);
             RegisterSpawnable<SpikeBall>(EventType.SpikeBall);
             RegisterSpawnable<PushBox>(EventType.PushableBox);
@@ -125,10 +125,12 @@ namespace Jazz2.Game.Events
             RegisterSpawnable<GemRing>(EventType.GemRing);
 
             RegisterSpawnable<PowerUpMorphMonitor>(EventType.PowerUpMorph);
-            RegisterSpawnable<BirdyCage>(EventType.BirdyCage);
+            RegisterSpawnable<BirdCage>(EventType.BirdCage);
 
             RegisterSpawnable<AirboardGenerator>(EventType.AirboardGenerator);
             RegisterSpawnable<Copter>(EventType.Copter);
+
+            RegisterSpawnable<RollingRock>(EventType.RollingRock);
 
             RegisterSpawnable<PowerUpShieldMonitor>(EventType.PowerUpShield);
             RegisterSpawnable<Stopwatch>(EventType.Stopwatch);

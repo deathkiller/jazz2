@@ -8,11 +8,13 @@ using Duality.Drawing;
 using Duality.Input;
 using Duality.IO;
 using Duality.Resources;
+using Jazz2.Storage.Content;
 using static Jazz2.Game.LevelHandler;
+using MathF = Duality.MathF;
 
 namespace Jazz2.Game.UI.Menu
 {
-    public class CustomLevelSelectSection : MainMenuSection
+    public class CustomLevelSelectSection : MenuSection
     {
         private class CustomLevel
         {
@@ -30,12 +32,12 @@ namespace Jazz2.Game.UI.Menu
             }
         }
 
-        private int itemCount = 15;
+        private int maxVisibleItems = 15;
 
         private List<CustomLevel> levelList;
 
         private int selectedIndex;
-        private int xOffset;
+        private int scrollOffset;
         private float animation;
         private int pressedCount;
 
@@ -55,19 +57,20 @@ namespace Jazz2.Game.UI.Menu
                 try {
                     string path = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "unknown");
                     if (DirectoryOp.Exists(path)) {
-                        foreach (string levelPath in DirectoryOp.GetDirectories(path)) {
+                        foreach (string levelPath in DirectoryOp.GetFiles(path)) {
                             if (api == null) {
                                 break;
                             }
 
-                            string pathAbsolute = PathOp.Combine(levelPath, ".res");
-                            if (!FileOp.Exists(pathAbsolute)) {
+                            if (!levelPath.EndsWith(".level")) {
                                 continue;
                             }
 
+                            IFileSystem levelPackage = new CompressedContent(levelPath);
+
                             using (
-                                Stream s = DualityApp.SystemBackend.FileSystem.OpenFile(pathAbsolute, FileAccessMode.Read)) {
-                                string levelToken = PathOp.GetFileName(levelPath);
+                                Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
+                                string levelToken = PathOp.GetFileNameWithoutExtension(levelPath);
 
                                 LevelConfigJson config = json.Parse<LevelConfigJson>(s);
 
@@ -113,13 +116,13 @@ namespace Jazz2.Game.UI.Menu
             }, null);
         }
 
-        public override void OnShow(MainMenu root)
+        public override void OnShow(IMenuContainer root)
         {
             base.OnShow(root);
             animation = 0f;
         }
 
-        public override void OnPaint(Canvas canvas)
+        public override void OnPaint(Canvas canvas, Rect view)
         {
             IDrawDevice device = canvas.DrawDevice;
 
@@ -131,57 +134,60 @@ namespace Jazz2.Game.UI.Menu
 
             int charOffset = 0;
             if (levelList.Count > 0) {
-                float topItem = topLine;
-                float bottomItem = bottomLine;
-                float contentHeight = bottomItem - topItem;
                 const float itemSpacing = 17f;
-                itemCount = (int)(contentHeight / itemSpacing);
 
-                float currentItem = topItem + itemSpacing;
+                float topItem = topLine - 4f;
+                float bottomItem = bottomLine - 10f;
+                float contentHeight = bottomItem - topItem;
+
+                float maxVisibleItemsFloat = (contentHeight / itemSpacing);
+                maxVisibleItems = (int)maxVisibleItemsFloat;
+
+                float currentItem = topItem + itemSpacing + (maxVisibleItemsFloat - maxVisibleItems) * 0.5f * itemSpacing;
+
 
                 // ToDo: ...
                 float column2 = device.TargetSize.X * 0.55f;
                 float sx = column2 * 1.52f;
-                float column1 = column2;
-                column1 *= 0.36f;
+                float column1 = column2 * 0.36f + view.X;
                 column2 *= 1.1f;
 
-                for (int i_ = 0; i_ < itemCount; i_++) {
-                    int i = xOffset + i_;
-                    if (i >= levelList.Count) {
+                for (int i = 0; i < maxVisibleItems; i++) {
+                    int idx = i + scrollOffset;
+                    if (idx >= levelList.Count) {
                         break;
                     }
 
-                    if (selectedIndex == i) {
+                    if (selectedIndex == idx) {
                         charOffset = 0;
 
-                        float xMultiplier = levelList[i].DisplayName.Length * 0.5f;
+                        float xMultiplier = levelList[idx].DisplayName.Length * 0.5f;
                         float easing = Ease.OutElastic(animation);
                         float x = column1 + xMultiplier - easing * xMultiplier;
                         float size = 0.7f + easing * 0.12f;
 
                         // Column 2
-                        api.DrawStringShadow(ref charOffset, levelList[i].LevelName, column2, currentItem, Alignment.Left,
+                        api.DrawStringShadow(ref charOffset, levelList[idx].LevelName, column2, currentItem, Alignment.Left,
                             new ColorRgba(0.48f, 0.5f), 0.8f, 0.4f, 1f, 1f, 8f, charSpacing: 0.88f);
 
                         // Column 1
-                        api.DrawStringShadow(ref charOffset, levelList[i].DisplayName, x, currentItem, Alignment.Left,
+                        api.DrawStringShadow(ref charOffset, levelList[idx].DisplayName, x, currentItem, Alignment.Left,
                             null, size, 0.4f, 1f, 1f, 8f, charSpacing: 0.88f);
 
                         // Column 0
-                        api.DrawStringShadow(ref charOffset, levelList[i].Icon, column1 - 16f, currentItem, Alignment.Right,
+                        api.DrawStringShadow(ref charOffset, levelList[idx].Icon, column1 - 16f, currentItem, Alignment.Right,
                             new ColorRgba(0.48f, 0.5f), size, 0.4f, 1f, 1f, 8f, charSpacing: 0.68f);
                     } else {
                         // Column 2
-                        api.DrawString(ref charOffset, levelList[i].LevelName, column2, currentItem, Alignment.Left,
+                        api.DrawString(ref charOffset, levelList[idx].LevelName, column2, currentItem, Alignment.Left,
                             ColorRgba.TransparentBlack, 0.7f);
 
                         // Column 1
-                        api.DrawString(ref charOffset, levelList[i].DisplayName, column1, currentItem, Alignment.Left,
+                        api.DrawString(ref charOffset, levelList[idx].DisplayName, column1, currentItem, Alignment.Left,
                             ColorRgba.TransparentBlack, 0.7f);
 
                         // Column 0
-                        api.DrawString(ref charOffset, levelList[i].Icon, column1 - 16f, currentItem, Alignment.Right,
+                        api.DrawString(ref charOffset, levelList[idx].Icon, column1 - 16f, currentItem, Alignment.Right,
                             ColorRgba.TransparentBlack, 0.7f, charSpacing: 0.7f);
                     }
 
@@ -189,15 +195,21 @@ namespace Jazz2.Game.UI.Menu
                 }
 
                 // Scrollbar
-                if (levelList.Count > itemCount) {
+                if (levelList.Count > maxVisibleItems) {
                     const float sw = 3f;
-                    float sy = ((float)xOffset / levelList.Count) * 18f * itemCount + topLine;
-                    float sh = ((float)itemCount / levelList.Count) * 16f * itemCount;
+                    float sy = ((float)scrollOffset / levelList.Count) * 18f * maxVisibleItems + topLine;
+                    float sh = ((float)maxVisibleItems / levelList.Count) * 16f * maxVisibleItems;
 
-                    canvas.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0f, 0f, 0f, 0.28f)));
+                    BatchInfo mat1 = device.RentMaterial();
+                    mat1.Technique = DrawTechnique.Alpha;
+                    mat1.MainColor = new ColorRgba(0f, 0f, 0f, 0.28f);
+                    canvas.State.SetMaterial(mat1);
                     canvas.FillRect(sx + 1f, sy + 1f, sw, sh);
 
-                    canvas.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0.8f, 0.8f, 0.8f, 0.5f)));
+                    BatchInfo mat2 = device.RentMaterial();
+                    mat2.Technique = DrawTechnique.Alpha;
+                    mat2.MainColor = new ColorRgba(0.8f, 0.8f, 0.8f, 0.5f);
+                    canvas.State.SetMaterial(mat2);
                     canvas.FillRect(sx, sy, sw, sh);
                 }
 
@@ -237,13 +249,19 @@ namespace Jazz2.Game.UI.Menu
 
                     api.DrawMaterial("MenuDim", loadingX + 50f, loadingY, Alignment.Center, new ColorRgba(1f, 0.7f * isLoadingAnimation), 40f, 10f);
 
-                    canvas.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0f, 0.2f * isLoadingAnimation)));
+                    BatchInfo mat1 = device.RentMaterial();
+                    mat1.Technique = DrawTechnique.Alpha;
+                    mat1.MainColor = new ColorRgba(0f, 0.2f * isLoadingAnimation);
+                    canvas.State.SetMaterial(mat1);
                     canvas.DrawCircleSegment(loadingX + 1.6f, loadingY + 1.6f, r1, startAngle, endAngle);
                     canvas.DrawCircleSegment(loadingX + 1.6f, loadingY + 1.6f, r2, startAngle, endAngle);
                     canvas.DrawCircleSegment(loadingX + 1.6f, loadingY + 1.6f, r3, startAngle, endAngle);
                     canvas.DrawCircleSegment(loadingX + 1.6f, loadingY + 1.6f, r4, startAngle, endAngle);
 
-                    canvas.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0.95f, 0.8f * isLoadingAnimation)));
+                    BatchInfo mat2 = device.RentMaterial();
+                    mat2.Technique = DrawTechnique.Alpha;
+                    mat2.MainColor = new ColorRgba(0.95f, 0.8f * isLoadingAnimation);
+                    canvas.State.SetMaterial(mat2);
                     canvas.DrawCircleSegment(loadingX, loadingY, r1, startAngle, endAngle);
                     canvas.DrawCircleSegment(loadingX, loadingY, r2, startAngle, endAngle);
                     canvas.DrawCircleSegment(loadingX, loadingY, r3, startAngle, endAngle);
@@ -272,39 +290,39 @@ namespace Jazz2.Game.UI.Menu
                     api.PlaySound("MenuSelect", 0.5f);
                     api.SwitchToSection(new StartGameOptionsSection(levelList[selectedIndex].EpisodeName, levelList[selectedIndex].LevelName, null));
                 }
-            } else if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
+            } else if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
                 api.PlaySound("MenuSelect", 0.5f);
                 api.LeaveSection(this);
             }
 
             if (levelList.Count > 1) {
                 if (ControlScheme.MenuActionPressed(PlayerActions.Up)) {
-                    if (animation >= 1f - (pressedCount * 0.05f) || DualityApp.Keyboard.KeyHit(Key.Up)) {
+                    if (animation >= 1f - (pressedCount * 0.05f) || ControlScheme.MenuActionHit(PlayerActions.Up)) {
                         api.PlaySound("MenuSelect", 0.4f);
                         animation = 0f;
                         if (selectedIndex > 0) {
                             selectedIndex--;
-                            if (selectedIndex < xOffset) {
-                                xOffset = selectedIndex;
+                            if (selectedIndex < scrollOffset) {
+                                scrollOffset = selectedIndex;
                             }
                         } else {
                             selectedIndex = levelList.Count - 1;
-                            xOffset = Math.Max(0, selectedIndex - (itemCount - 1));
+                            scrollOffset = Math.Max(0, selectedIndex - (maxVisibleItems - 1));
                         }
                         pressedCount = Math.Min(pressedCount + 4, 19);
                     }
                 } else if (ControlScheme.MenuActionPressed(PlayerActions.Down)) {
-                    if (animation >= 1f - (pressedCount * 0.05f) || DualityApp.Keyboard.KeyHit(Key.Down)) {
+                    if (animation >= 1f - (pressedCount * 0.05f) || ControlScheme.MenuActionHit(PlayerActions.Down)) {
                         api.PlaySound("MenuSelect", 0.4f);
                         animation = 0f;
                         if (selectedIndex < levelList.Count - 1) {
                             selectedIndex++;
-                            if (selectedIndex >= xOffset + itemCount) {
-                                xOffset = selectedIndex - (itemCount - 1);
+                            if (selectedIndex >= scrollOffset + maxVisibleItems) {
+                                scrollOffset = selectedIndex - (maxVisibleItems - 1);
                             }
                         } else {
                             selectedIndex = 0;
-                            xOffset = 0;
+                            scrollOffset = 0;
                         }
                         pressedCount = Math.Min(pressedCount + 4, 19);
                     }
@@ -316,17 +334,17 @@ namespace Jazz2.Game.UI.Menu
                     api.PlaySound("MenuSelect", 0.4f);
                     animation = 0f;
 
-                    selectedIndex = MathF.Max(0, selectedIndex - itemCount);
-                    if (selectedIndex < xOffset) {
-                        xOffset = selectedIndex;
+                    selectedIndex = MathF.Max(0, selectedIndex - maxVisibleItems);
+                    if (selectedIndex < scrollOffset) {
+                        scrollOffset = selectedIndex;
                     }
-                } else if(DualityApp.Keyboard.KeyHit(Key.PageDown)) {
+                } else if (DualityApp.Keyboard.KeyHit(Key.PageDown)) {
                     api.PlaySound("MenuSelect", 0.4f);
                     animation = 0f;
 
-                    selectedIndex = MathF.Min(levelList.Count - 1, selectedIndex + itemCount);
-                    if (selectedIndex >= xOffset + itemCount) {
-                        xOffset = selectedIndex - (itemCount - 1);
+                    selectedIndex = MathF.Min(levelList.Count - 1, selectedIndex + maxVisibleItems);
+                    if (selectedIndex >= scrollOffset + maxVisibleItems) {
+                        scrollOffset = selectedIndex - (maxVisibleItems - 1);
                     }
                 }
             }

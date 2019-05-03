@@ -21,8 +21,7 @@ namespace Editor.UI.Controls
             device.ClearFlags |= ClearFlag.All;
             device.FarZ = 1000;
             device.NearZ = 0;
-            device.Perspective = PerspectiveMode.Flat;
-            device.RenderMode = RenderMatrix.ScreenSpace;
+            device.Projection = ProjectionMode.Screen;
             device.VisibilityMask = VisibilityFlag.All;
 
             canvas = new Canvas();

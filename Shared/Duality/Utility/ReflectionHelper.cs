@@ -8,10 +8,10 @@ using System.Text.RegularExpressions;
 
 namespace Duality
 {
-    /// <summary>
-    /// Provides reflection-related helper methods.
-    /// </summary>
-    public static class ReflectionHelper
+	/// <summary>
+	/// Provides reflection-related helper methods.
+	/// </summary>
+	public static class ReflectionHelper
 	{
 		private static class StaticLookup<T>
 		{
@@ -139,149 +139,6 @@ namespace Duality
 		}
 
 		/// <summary>
-		/// Visits all fields of an object and all its sub-objects in order to find and / or adjust values of a certain Type. This is likely to be a very expensive operation.
-		/// </summary>
-		/// <typeparam name="T">The value type that is searched for.</typeparam>
-		/// <param name="obj">The root object where the search begins.</param>
-		/// <param name="visitor">An object field visitor. Returns a new value for the visited object.</param>
-		/// <param name="stopAtTarget">If true, visited objects of the target type won't be investigated deeply. If false, even target objects are unwrapped in order to check their sub-objects.</param>
-		public static void VisitObjectsDeep<T>(object obj, Func<T,T> visitor, bool stopAtTarget = true)
-		{
-			VisitObjectsDeep<T>(obj, visitor, stopAtTarget, new HashSet<object>(), new Dictionary<Type,bool>());
-		}
-		private static object VisitObjectsDeep<T>(object obj, Func<T,T> visitor, bool stopAtTarget, HashSet<object> visitedGraph, Dictionary<Type,bool> exploreTypeCache)
-		{
-			if (obj == null) return obj;
-			if (visitedGraph.Contains(obj)) return obj;
-
-			Type objType = obj.GetType();
-			TypeInfo objTypeInfo = objType.GetTypeInfo();
-			TypeInfo targetTypeInfo = typeof(T).GetTypeInfo();
-
-			// Visit object
-			if (objTypeInfo.IsClass) visitedGraph.Add(obj);
-			if (obj is T)
-			{
-				obj = visitor((T)obj);
-				if (stopAtTarget) return obj;
-			}
-
-			// Check if object type should be explored
-			bool explore = false;
-			if (!exploreTypeCache.TryGetValue(objType, out explore))
-			{
-				explore = VisitObjectsDeep_ExploreType(typeof(T), objType, exploreTypeCache);
-				exploreTypeCache[objType] = explore;
-			}
-			if (!explore) return obj;
-
-			// Arrays
-			if (objType.IsArray)
-			{
-				Array baseArray = (Array)obj;
-				Type elemType = objType.GetElementType();
-				TypeInfo elemTypeInfo = elemType.GetTypeInfo();
-				int length = baseArray.Length;
-
-				// Explore elements
-				if (!elemTypeInfo.IsClass || targetTypeInfo.IsAssignableFrom(elemTypeInfo))
-				{
-					for (int i = 0; i < length; ++i)
-					{
-						object val = baseArray.GetValue(i);
-						val = VisitObjectsDeep<T>(val, visitor, stopAtTarget, visitedGraph, exploreTypeCache);
-						baseArray.SetValue(val, i);
-					}
-				}
-				else
-				{
-					for (int i = 0; i < length; ++i)
-					{
-						object val = baseArray.GetValue(i);
-						VisitObjectsDeep<T>(val, visitor, stopAtTarget, visitedGraph, exploreTypeCache);
-					}
-				}
-			}
-			// Complex objects
-			else
-			{
-				// Explore fields
-				var fields = objTypeInfo.DeclaredFieldsDeep();
-				foreach (FieldInfo field in fields)
-				{
-					if (field.IsStatic) continue;
-					TypeInfo fieldTypeInfo = field.FieldType.GetTypeInfo();
-
-					object val = field.GetValue(obj);
-
-					val = VisitObjectsDeep<T>(val, visitor, stopAtTarget, visitedGraph, exploreTypeCache);
-
-					if (!objTypeInfo.IsClass || targetTypeInfo.IsAssignableFrom(fieldTypeInfo))
-						field.SetValue(obj, val);
-				}
-			}
-
-			return obj;
-		}
-		private static bool VisitObjectsDeep_ExploreType(Type searchForType, Type variableType, Dictionary<Type,bool> exploreTypeCache)
-		{
-			// Check the cache and calculate the value, if we missed
-			bool explore = false;
-			if (!exploreTypeCache.TryGetValue(variableType, out explore))
-			{
-				TypeInfo searchForTypeInfo = searchForType.GetTypeInfo();
-				TypeInfo variableTypeInfo = variableType.GetTypeInfo();
-
-				// Found a variable of the searched type? Done.
-				if (searchForTypeInfo.IsAssignableFrom(variableTypeInfo))
-					explore = true;
-
-				// Don't explore primitives
-				else if (variableTypeInfo.IsPrimitive)
-					explore = false;
-				else if (variableTypeInfo.IsEnum)
-					explore = false;
-
-				// Some hardcoded early-outs for well known types
-				else if (variableType == typeof(decimal))
-					explore = false;
-				else if (variableType == typeof(string))
-					explore = false;
-				else if (typeof(MemberInfo).GetTypeInfo().IsAssignableFrom(variableTypeInfo))
-					explore = false;
-				else if (typeof(Delegate).GetTypeInfo().IsAssignableFrom(variableTypeInfo))
-					explore = false;
-
-				// We also need to explore (for example) all "object" variables, because they could contain anything
-				else if (variableTypeInfo.IsAssignableFrom(searchForTypeInfo))
-					explore = true;
-
-				// Perform a deep check unless trivially true
-				else
-				{
-					// Don't get trapped in circles: Assume false, until we found out otherwise
-					exploreTypeCache[variableType] = explore;
-				
-					// Check element type
-					if (variableType.IsArray)
-					{
-						explore = VisitObjectsDeep_ExploreType(searchForType, variableType.GetElementType(), exploreTypeCache);
-					}
-					// Check referred fields
-					else
-					{
-						explore = variableType.GetTypeInfo().DeclaredFieldsDeep().Any(f => 
-							!f.IsStatic &&
-							!string.Equals(f.Name, "_syncRoot", StringComparison.OrdinalIgnoreCase) && 
-							VisitObjectsDeep_ExploreType(searchForType, f.FieldType, exploreTypeCache));
-					}
-				}
-				exploreTypeCache[variableType] = explore;
-			}
-			return explore;
-		}
-
-		/// <summary>
 		/// Cleans the specified object instance from event bindings that lead to a specific invalid Assembly.
 		/// This method is used to sweep forgotten event bindings upon plugin reload.
 		/// </summary>
@@ -349,51 +206,6 @@ namespace Duality
 				return Delegate.Combine(oldInvokeList.Where(e => e.GetMethodInfo().DeclaringType.GetTypeInfo().Assembly != invalidAssembly).ToArray());
 			}
 			return del;
-		}
-
-		/// <summary>
-		/// Returns whether a certain <see cref="Duality.Resource"/> Type is able to reference another specific <see cref="Duality.Resource"/> Type.
-		/// This is a pure optimization method that doesn't guarantee exact information in all cases - returns true, when in doubt.
-		/// </summary>
-		/// <param name="sourceResType"></param>
-		/// <param name="targetResType"></param>
-		/// <returns></returns>
-		public static bool CanReferenceResource(Type sourceResType, Type targetResType)
-		{
-			bool result;
-			if (!resRefCache.TryGetValue(new KeyValuePair<Type,Type>(sourceResType, targetResType), out result))
-			{
-				resRefCache[new KeyValuePair<Type,Type>(sourceResType, targetResType)] = false;
-				
-				TypeInfo resourceTypeInfo = typeof(Resource).GetTypeInfo();
-				TypeInfo sourceResTypeInfo = sourceResType.GetTypeInfo();
-				TypeInfo targetResTypeInfo = targetResType.GetTypeInfo();
-
-				if (!resourceTypeInfo.IsAssignableFrom(sourceResTypeInfo)) throw new ArgumentException("Only Resource Types are valid.", "sourceResType");
-				if (!resourceTypeInfo.IsAssignableFrom(targetResTypeInfo)) throw new ArgumentException("Only Resource Types are valid.", "targetResType");
-
-				bool foundIt = false;
-				bool foundAny = false;
-				foreach (ExplicitResourceReferenceAttribute refAttrib in sourceResTypeInfo.GetAttributesCached<ExplicitResourceReferenceAttribute>())
-				{
-					foundAny = true;
-					foreach (Type refType in refAttrib.ReferencedTypes)
-					{
-						TypeInfo refTypeInfo = refType.GetTypeInfo();
-						if (refTypeInfo.IsAssignableFrom(targetResTypeInfo) || CanReferenceResource(refType, targetResType))
-						{
-							foundIt = true;
-							break;
-						}
-					}
-					if (foundIt) break;
-				}
-
-				result = foundIt || !foundAny;
-				resRefCache[new KeyValuePair<Type,Type>(sourceResType, targetResType)] = result;
-			}
-
-			return result;
 		}
 		
 		/// <summary>

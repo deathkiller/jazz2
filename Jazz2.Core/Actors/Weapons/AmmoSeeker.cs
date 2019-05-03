@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Duality;
+﻿using Duality;
 using Jazz2.Actors.Enemies;
 using Jazz2.Game;
 using Jazz2.Game.Structs;
@@ -10,6 +9,9 @@ namespace Jazz2.Actors.Weapons
 
     public class AmmoSeeker : AmmoBase
     {
+        private Vector2 gunspotPos;
+        private bool fired;
+
         private float defaultRecomputeTime;
 
         private float followRecomputeTime;
@@ -31,11 +33,13 @@ namespace Jazz2.Actors.Weapons
             light.RadiusFar = 8f;
         }
 
-        public void OnFire(Player owner, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
+        public void OnFire(Player owner, Vector3 gunspotPos, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
         {
             base.owner = owner;
             //base.isFacingLeft = isFacingLeft;
             base.upgrades = upgrades;
+
+            this.gunspotPos = gunspotPos.Xy;
 
             float angleRel = angle * (isFacingLeft ? -1 : 1);
 
@@ -64,15 +68,27 @@ namespace Jazz2.Actors.Weapons
 
             SetAnimation(state);
             PlaySound("Fire");
+
+            renderer.Active = false;
         }
 
         protected override void OnUpdate()
         {
+            float timeMult = Time.TimeMult;
+
+            // Seeker is slow, so it's not neccessary to do two-pass checking
+            TryMovement(timeMult);
             OnUpdateHitbox();
-            CheckCollisions();
-            TryStandardMovement(Time.TimeMult);
+            CheckCollisions(timeMult);
 
             FollowNeareastEnemy();
+
+            if (!fired) {
+                fired = true;
+
+                MoveInstantly(gunspotPos, MoveType.Absolute, true);
+                renderer.Active = true;
+            }
 
             base.OnUpdate();
         }
@@ -94,17 +110,7 @@ namespace Jazz2.Actors.Weapons
             return base.OnPerish(collider);
         }
 
-        protected override void OnHitFloorHook()
-        {
-            DecreaseHealth(int.MaxValue);
-        }
-
         protected override void OnHitWallHook()
-        {
-            DecreaseHealth(int.MaxValue);
-        }
-
-        protected override void OnHitCeilingHook()
         {
             DecreaseHealth(int.MaxValue);
         }

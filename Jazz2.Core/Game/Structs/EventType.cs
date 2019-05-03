@@ -151,7 +151,7 @@
         BarrelGem = 0x0066,
 
         PowerUpMorph = 0x0067,
-        BirdyCage = 0x0068,
+        BirdCage = 0x0068,
 
         AirboardGenerator = 0x0069,
 
@@ -160,5 +160,8 @@
         SpikeBall = 0x006C,
 
         Copter = 0x006D,
+
+        RollingRock = 0x006E,
+        RollingRockTrigger = 0x006F,
     }
 }

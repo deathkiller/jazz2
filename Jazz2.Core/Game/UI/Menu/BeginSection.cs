@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using Duality;
 using Duality.Drawing;
 using Duality.Input;
-using Jazz2.Game.UI.Menu.S;
+using Jazz2.Game.UI.Menu.Settings;
 
 namespace Jazz2.Game.UI.Menu
 {
-    public class BeginSection : MainMenuSection
+    public class BeginSection : MenuSection
     {
         private List<Tuple<string, Action>> items;
 
@@ -25,13 +25,13 @@ namespace Jazz2.Game.UI.Menu
             };
         }
 
-        public override void OnShow(MainMenu root)
+        public override void OnShow(IMenuContainer root)
         {
             animation = 0f;
             base.OnShow(root);
         }
 
-        public override void OnPaint(Canvas canvas)
+        public override void OnPaint(Canvas canvas, Rect view)
         {
             IDrawDevice device = canvas.DrawDevice;
 
@@ -65,7 +65,7 @@ namespace Jazz2.Game.UI.Menu
             if (ControlScheme.MenuActionHit(PlayerActions.Fire)) {
                 api.PlaySound("MenuSelect", 0.5f);
                 items[selectedIndex].Item2();
-            } else if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
+            } else if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
                 if (selectedIndex != items.Count - 1) {
                     api.PlaySound("MenuSelect", 0.5f);
                     animation = 0f;

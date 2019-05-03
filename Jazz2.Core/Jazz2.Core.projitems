@@ -9,11 +9,12 @@
     <Import_RootNamespace>Jazz2</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Bird.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\AirboardGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Collectibles\Stopwatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\AmbientBubbles.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\AmbientSound.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\BirdyCage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\BirdCage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\BonusWarp.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Enemies\Bosses\Bilsy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Enemies\Bosses\Bolly.cs" />
@@ -68,6 +69,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Enemies\Witch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\Bomb.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\Copter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\RollingRock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\SteamNote.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Eva.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Explosion.cs" />
@@ -80,8 +82,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\PinballBumper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\PinballPaddle.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Player.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Player.Effects.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Player.Interactions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\Player.Shields.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Player.Weapons.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\PlayerCorpse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\Pole.cs" />
@@ -91,7 +93,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\AmmoCrate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\BarrelContainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\CrateContainer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\DynamicBridge.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\Bridge.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\GemBarrel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\GemCrate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Collectibles\GemGiant.cs" />
@@ -123,8 +125,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\Collisions\Pair.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Collisions\TreeNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\ILevelHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\IMenuContainer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\SettingsRescaleSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\SliderControl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\TransitionManager.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\TransitionMode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Misc\Png.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Storage\Content\CompressedContent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ControlScheme.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Disposable.cs" />
@@ -150,23 +155,22 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\CustomGameSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\CustomLevelSelectSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\EpisodeSelectSection.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\I\InGameBeginSection.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\I\InGameMenu.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\I\InGameMenuRenderSetup.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\I\InGameMenuSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\InGame\InGameBeginSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\InGame\InGameMenu.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\InGame\InGameMenuRenderSetup.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\MainMenu.Background.cs">
       <DependentUpon>MainMenu.cs</DependentUpon>
     </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\MainMenu.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\MainMenuRenderSetup.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\MainMenuSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\MenuSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\MultiplayerServerSelectSection.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\ChoiceControl.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\ControlsSection.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\SettingsSection.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\LinkControl.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\MenuControlBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\S\MainMenuSectionWithControls.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\ChoiceControl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\ControlsSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\SettingsSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\LinkControl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\MenuControlBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\MainMenuSectionWithControls.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\StartGameOptionsSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Tiles\AnimatedTile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Tiles\TileMap.cs" />
@@ -191,7 +195,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Storage\Dummy\DummyPreferencesBackend.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Storage\IPreferencesBackend.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Storage\Preferences.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Settings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SettingsCache.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Misc\Updater.cs" />
   </ItemGroup>
 </Project>

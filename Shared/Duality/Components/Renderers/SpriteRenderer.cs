@@ -184,11 +184,9 @@ namespace Duality.Components.Renderers
 		protected void PrepareVertices(ref VertexC1P3T2[] vertices, IDrawDevice device, ColorRgba mainClr, Rect uvRect)
 		{
 			Vector3 posTemp = this.gameobj.Transform.Pos;
-			float scaleTemp = 1.0f;
-			device.PreprocessCoords(ref posTemp, ref scaleTemp);
 
 			Vector2 xDot, yDot;
-			MathF.GetTransformDotVec(this.GameObj.Transform.Angle, scaleTemp, out xDot, out yDot);
+			MathF.GetTransformDotVec(this.GameObj.Transform.Angle, this.gameobj.Transform.Scale, out xDot, out yDot);
 
 			Rect rectTemp = this.rect.Transformed(this.gameobj.Transform.Scale, this.gameobj.Transform.Scale);
 
@@ -222,7 +220,7 @@ namespace Duality.Components.Renderers
 		    float top = uvRect.Y;
 		    float bottom = uvRect.BottomY;
 
-            if (vertices == null || vertices.Length != 4) vertices = new VertexC1P3T2[4];
+            if (vertices == null /*|| vertices.Length != 4*/) vertices = new VertexC1P3T2[4];
 
 			vertices[0].Pos.X = posTemp.X + edge1.X;
 			vertices[0].Pos.Y = posTemp.Y + edge1.Y;
@@ -312,9 +310,9 @@ namespace Duality.Components.Renderers
             this.GetUVRect(mainTex, /*this.spriteIndex*/-1, out uvRect);
             this.PrepareVertices(ref this.vertices, device, this.colorTint, uvRect);
 			if (this.customMat != null)
-				device.AddVertices(this.customMat, VertexMode.Quads, this.vertices);
+				device.AddVertices(this.customMat, VertexMode.Quads, this.vertices, 0, 4);
 			else
-				device.AddVertices(this.sharedMat, VertexMode.Quads, this.vertices);
+				device.AddVertices(this.sharedMat, VertexMode.Quads, this.vertices, 0, 4);
 		}
 	}
 }

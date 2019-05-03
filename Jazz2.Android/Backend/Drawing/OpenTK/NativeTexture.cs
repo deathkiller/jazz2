@@ -136,7 +136,7 @@ namespace Duality.Backend.Android.OpenTK
 
             if (lastTexId != this.handle) GL.BindTexture(TextureTarget.Texture2D, lastTexId);
         }
-        void INativeTexture.LoadData<T>(TexturePixelFormat format, int width, int height, T[] data, ColorDataLayout dataLayout, ColorDataElementType dataElementType)
+        void INativeTexture.LoadData(TexturePixelFormat format, int width, int height, IntPtr data, ColorDataLayout dataLayout, ColorDataElementType dataElementType)
         {
             // Removed thread guards because of performance
             //DefaultOpenTKBackendPlugin.GuardSingleThreadState();
@@ -160,7 +160,7 @@ namespace Duality.Backend.Android.OpenTK
             GL.BindTexture(TextureTarget.Texture2D, lastTexId);
         }
 
-        void INativeTexture.GetData<T>(T[] target, ColorDataLayout dataLayout, ColorDataElementType dataElementType)
+        void INativeTexture.GetData(IntPtr target, ColorDataLayout dataLayout, ColorDataElementType dataElementType)
         {
             // ToDo: Add similar code for OpenGL ES
             throw new NotSupportedException();

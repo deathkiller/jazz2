@@ -6,6 +6,9 @@ namespace Jazz2.Actors.Weapons
 {
     public class AmmoPepper : AmmoBase
     {
+        private Vector2 gunspotPos;
+        private bool fired;
+
         public override WeaponType WeaponType => WeaponType.Pepper;
 
         public override void OnAttach(ActorInstantiationDetails details)
@@ -19,11 +22,13 @@ namespace Jazz2.Actors.Weapons
             RequestMetadata("Weapon/Pepper");
         }
 
-        public void OnFire(Player owner, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
+        public void OnFire(Player owner, Vector3 gunspotPos, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
         {
             base.owner = owner;
             base.IsFacingLeft = isFacingLeft;
             base.upgrades = upgrades;
+
+            this.gunspotPos = gunspotPos.Xy;
 
             float angleRel = angle * (isFacingLeft ? -1 : 1);
 
@@ -54,13 +59,26 @@ namespace Jazz2.Actors.Weapons
 
             SetAnimation(state);
             PlaySound("Fire");
+
+            renderer.Active = false;
         }
 
         protected override void OnUpdate()
         {
-            OnUpdateHitbox();
-            CheckCollisions();
-            TryStandardMovement(Time.TimeMult);
+            float timeMult = Time.TimeMult * 0.5f;
+
+            for (int i = 0; i < 2; i++) {
+                TryMovement(timeMult);
+                OnUpdateHitbox();
+                CheckCollisions(timeMult);
+            }
+
+            if (!fired) {
+                fired = true;
+
+                MoveInstantly(gunspotPos, MoveType.Absolute, true);
+                renderer.Active = true;
+            }
 
             base.OnUpdate();
         }
@@ -72,17 +90,7 @@ namespace Jazz2.Actors.Weapons
             return base.OnPerish(collider);
         }
 
-        protected override void OnHitFloorHook()
-        {
-            DecreaseHealth(int.MaxValue);
-        }
-
         protected override void OnHitWallHook()
-        {
-            DecreaseHealth(int.MaxValue);
-        }
-
-        protected override void OnHitCeilingHook()
         {
             DecreaseHealth(int.MaxValue);
         }

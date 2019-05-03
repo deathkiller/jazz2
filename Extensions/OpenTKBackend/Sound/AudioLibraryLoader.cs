@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using Jazz2.Game;
 
 namespace Duality.Backend.DefaultOpenTK
 {
@@ -70,7 +71,7 @@ namespace Duality.Backend.DefaultOpenTK
 		[System.Diagnostics.DebuggerNonUserCode]
 		private static void InstallSoftwareFallback(string sourceFilePath32, string sourceFilePath64, string targetFilePath)
 		{
-			Console.WriteLine("OpenAL Drivers not found. Using {0} software fallback.", Environment.Is64BitProcess ? "64 Bit" : "32 Bit");
+            App.Log("OpenAL Drivers not found. Using {0} software fallback.", Environment.Is64BitProcess ? "64 Bit" : "32 Bit");
 			if (Environment.Is64BitProcess)
 			{
 				if (!File.Exists(sourceFilePath64)) return;

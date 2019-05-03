@@ -91,6 +91,10 @@
             "Path": "UI/icon_lori.png",
             "FrameRate": 2
         },
+        "CharacterFrog": {
+            "Path": "UI/icon_frog.png",
+            "FrameRate": 2
+        },
 
         "PickupGem": {
             "Path": "Pickup/Gem.png",

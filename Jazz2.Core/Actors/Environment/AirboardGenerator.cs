@@ -17,7 +17,7 @@ namespace Jazz2.Actors.Environment
             delay = details.Params[0];
 
             RequestMetadata("Object/Airboard");
-            SetAnimation(AnimState.Idle);
+            SetAnimation("Airboard");
 
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
 

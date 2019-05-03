@@ -8,6 +8,9 @@ namespace Jazz2.Actors.Weapons
 {
     public class AmmoFreezer : AmmoBase
     {
+        private Vector2 gunspotPos;
+        private bool fired;
+
         public override WeaponType WeaponType => WeaponType.Freezer;
 
         public float FrozenDuration => ((upgrades & 0x1) != 0 ? 280f : 180f);
@@ -28,11 +31,13 @@ namespace Jazz2.Actors.Weapons
             light.RadiusFar = 20f;
         }
 
-        public void OnFire(Player owner, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
+        public void OnFire(Player owner, Vector3 gunspotPos, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
         {
             base.owner = owner;
             base.IsFacingLeft = isFacingLeft;
             base.upgrades = upgrades;
+
+            this.gunspotPos = gunspotPos.Xy;
 
             float angleRel = angle * (isFacingLeft ? -1 : 1);
 
@@ -60,13 +65,19 @@ namespace Jazz2.Actors.Weapons
             Transform.Angle = angle;
 
             SetAnimation(state);
+
+            renderer.Active = false;
         }
 
         protected override void OnUpdate()
         {
-            OnUpdateHitbox();
-            CheckCollisions();
-            TryStandardMovement(Time.TimeMult);
+            float timeMult = Time.TimeMult * 0.5f;
+
+            for (int i = 0; i < 2; i++) {
+                TryMovement(timeMult);
+                OnUpdateHitbox();
+                CheckCollisions(timeMult);
+            }
 
             base.OnUpdate();
 
@@ -105,6 +116,13 @@ namespace Jazz2.Actors.Weapons
             if (timeLeft <= 0f) {
                 PlaySound("WallPoof");
             }
+
+            if (!fired) {
+                fired = true;
+
+                MoveInstantly(gunspotPos, MoveType.Absolute, true);
+                renderer.Active = true;
+            }
         }
 
         protected override bool OnPerish(ActorBase collider)
@@ -114,21 +132,7 @@ namespace Jazz2.Actors.Weapons
             return base.OnPerish(collider);
         }
 
-        protected override void OnHitFloorHook()
-        {
-            DecreaseHealth(int.MaxValue);
-
-            PlaySound("WallPoof");
-        }
-
         protected override void OnHitWallHook()
-        {
-            DecreaseHealth(int.MaxValue);
-
-            PlaySound("WallPoof");
-        }
-
-        protected override void OnHitCeilingHook()
         {
             DecreaseHealth(int.MaxValue);
 

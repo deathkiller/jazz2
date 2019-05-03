@@ -119,10 +119,14 @@ namespace Jazz2
         private static bool IsHighlightLine(string line)
         {
             // If it's an indented line, don't highlight it
-            if (indent != 0) return false;
+            if (indent != 0) {
+                return false;
+            }
 
             // If the line ends with three dots, assume that it's the header of a series of actions
-            if (line.EndsWith("...")) return true;
+            if (line.EndsWith("...")) {
+                return true;
+            }
 
             return false;
         }

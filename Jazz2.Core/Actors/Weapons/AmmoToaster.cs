@@ -7,6 +7,9 @@ namespace Jazz2.Actors.Weapons
 {
     public class AmmoToaster : AmmoBase
     {
+        private Vector2 gunspotPos;
+        private bool fired;
+
         public override WeaponType WeaponType => WeaponType.Toaster;
 
         public override void OnAttach(ActorInstantiationDetails details)
@@ -26,11 +29,13 @@ namespace Jazz2.Actors.Weapons
             light.RadiusFar = 30f;
         }
 
-        public void OnFire(Player owner, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
+        public void OnFire(Player owner, Vector3 gunspotPos, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
         {
             base.owner = owner;
             base.IsFacingLeft = isFacingLeft;
             base.upgrades = upgrades;
+
+            this.gunspotPos = gunspotPos.Xy;
 
             float ax = MathF.Cos(angle);
             float ay = MathF.Sin(angle);
@@ -60,6 +65,8 @@ namespace Jazz2.Actors.Weapons
             }
 
             SetAnimation(state);
+
+            renderer.Active = false;
         }
 
         protected override void OnUpdate()
@@ -76,15 +83,22 @@ namespace Jazz2.Actors.Weapons
             TileMap tiles = api.TileMap;
             if (tiles == null || tiles.IsTileEmpty(ref currentHitbox, false)) {
                 MoveInstantly(new Vector2(speedX, speedY), MoveType.RelativeTime, true);
-                CheckCollisions();
+                CheckCollisions(Time.TimeMult);
             } else {
                 MoveInstantly(new Vector2(speedX, speedY), MoveType.RelativeTime, true);
-                CheckCollisions();
+                CheckCollisions(Time.TimeMult);
                 MoveInstantly(new Vector2(-speedX, -speedY), MoveType.RelativeTime, true);
 
                 if ((upgrades & 0x1) == 0) {
                     DecreaseHealth(int.MaxValue);
                 }
+            }
+
+            if (!fired) {
+                fired = true;
+
+                MoveInstantly(gunspotPos, MoveType.Absolute, true);
+                renderer.Active = true;
             }
 
             base.OnUpdate();

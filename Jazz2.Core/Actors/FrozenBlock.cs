@@ -1,6 +1,5 @@
 ﻿using Duality;
 using Jazz2.Actors.Solid;
-using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors
 {
@@ -16,7 +15,7 @@ namespace Jazz2.Actors
             canBeFrozen = false;
 
             RequestMetadata("Object/FrozenBlock");
-            SetAnimation(AnimState.Idle);
+            SetAnimation("FrozenBlock");
         }
 
         protected override void OnUpdate()

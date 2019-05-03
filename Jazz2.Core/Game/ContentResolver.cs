@@ -9,6 +9,7 @@ using Duality.Drawing;
 using Duality.IO;
 using Duality.Resources;
 using Jazz2.Game.Structs;
+using Jazz2.Game.Tiles;
 using Jazz2.Storage.Content;
 
 namespace Jazz2.Game
@@ -81,7 +82,6 @@ namespace Jazz2.Game
         }
 
         private JsonParser jsonParser;
-        private IImageCodec imageCodec;
 
         private ContentRef<Texture> defaultNormalMap;
 
@@ -91,20 +91,28 @@ namespace Jazz2.Game
         //private Dictionary<string, ContentRef<Sound>> cachedSounds;
 
         private ContentRef<DrawTechnique> basicNormal, paletteNormal;
+        private int requestShaderNesting;
 
         public ContentRef<Texture> DefaultNormalMap => defaultNormalMap;
 
         private ContentResolver()
         {
+        }
+
+        public void Init()
+        {
             jsonParser = new JsonParser();
-            imageCodec = ImageCodec.GetRead(ImageCodec.FormatPng);
 
 #if !UNCOMPRESSED_CONTENT
-            string dz = PathOp.Combine(DualityApp.DataDirectory, ".dz");
+            string dz = PathOp.Combine(DualityApp.DataDirectory, "Main.dz");
             PathOp.Mount(dz, new CompressedContent(dz));
 #endif
+        }
 
+        public void InitPostWindow()
+        {
             defaultNormalMap = new Texture(new Pixmap(new PixelData(2, 2, new ColorRgba(0.5f, 0.5f, 1f))), TextureSizeMode.Default, TextureMagFilter.Nearest, TextureMinFilter.Nearest);
+            defaultNormalMap.Res.DetachSource();
 
             cachedMetadata = new ConcurrentDictionary<string, Metadata>(2, 31);
             cachedGraphics = new Dictionary<string, GenericGraphicResource>();
@@ -115,6 +123,23 @@ namespace Jazz2.Game
             paletteNormal = RequestShader("PaletteNormal");
 
             AllowAsyncLoading();
+        }
+
+        private void OnDualityAppTerminating(object sender, EventArgs e)
+        {
+            DualityApp.Terminating -= OnDualityAppTerminating;
+
+            asyncThread = null;
+
+            lock (metadataAsyncRequests) {
+                metadataAsyncRequests.Clear();
+            }
+
+            asyncThreadEvent.Set();
+            asyncResourceReadyEvent.Set();
+
+            // Release this static instance
+            current = null;
         }
 
         public void ResetReferenceFlag()
@@ -143,6 +168,12 @@ namespace Jazz2.Game
                 foreach (string path in unreferenced) {
                     Metadata metadata;
                     cachedMetadata.TryRemove(path, out metadata);
+
+                    if (metadata.Sounds != null) {
+                        foreach (var sound in metadata.Sounds) {
+                            sound.Value.Sound.Res?.Dispose();
+                        }
+                    }
 
                     metadata.Graphics = null;
                     metadata.Sounds = null;
@@ -218,7 +249,7 @@ namespace Jazz2.Game
 #if UNCOMPRESSED_CONTENT
             string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Metadata", path + ".res");
 #else
-            string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, ".dz", "Metadata", path + ".res");
+            string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Metadata", path + ".res");
 #endif
 
             MetadataJson json;
@@ -295,7 +326,7 @@ namespace Jazz2.Game
                         metadata.Graphics[g.Key] = res;
 #if !THROW_ON_MISSING_RESOURCES
                     } catch (Exception ex) {
-                        Console.WriteLine("Can't load animation \"" + g.Key + "\" from metadata \"" + path + "\": " + ex);
+                        App.Log("Can't load animation \"" + g.Key + "\" from metadata \"" + path + "\": " + ex.Message);
                     }
 #endif
                 }
@@ -305,8 +336,8 @@ namespace Jazz2.Game
             if (json.Sounds != null) {
                 metadata.Sounds = new Dictionary<string, SoundResource>();
 
-                foreach (var s in json.Sounds) {
-                    if (s.Value.Paths == null || s.Value.Paths.Count == 0) {
+                foreach (var sound in json.Sounds) {
+                    if (sound.Value.Paths == null || sound.Value.Paths.Count == 0) {
                         // No path provided, skip resource...
                         continue;
                     }
@@ -314,22 +345,25 @@ namespace Jazz2.Game
 #if !THROW_ON_MISSING_RESOURCES
                     try {
 #endif
-                        IList<string> filenames = s.Value.Paths;
+                        IList<string> filenames = sound.Value.Paths;
                         ContentRef<AudioData>[] data = new ContentRef<AudioData>[filenames.Count];
                         for (int i = 0; i < data.Length; i++) {
 #if UNCOMPRESSED_CONTENT
-                            data[i] = new AudioData(FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, "Animations", filenames[i]), FileAccessMode.Read));
+                            using (Stream s = FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, "Animations", filenames[i]), FileAccessMode.Read))
 #else
-                            data[i] = new AudioData(FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, ".dz", "Animations", filenames[i]), FileAccessMode.Read));
+                            using (Stream s = FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Animations", filenames[i]), FileAccessMode.Read))
 #endif
+                            {
+                                data[i] = new AudioData(s);
+                            }
                         }
 
                         SoundResource resource = new SoundResource();
                         resource.Sound = new Sound(data);
-                        metadata.Sounds[s.Key] = resource;
+                        metadata.Sounds[sound.Key] = resource;
 #if !THROW_ON_MISSING_RESOURCES
                     } catch (Exception ex) {
-                        Console.WriteLine("Can't load sound \"" + s.Key + "\" from metadata \"" + path + "\": " + ex);
+                        App.Log("Can't load sound \"" + sound.Key + "\" from metadata \"" + path + "\": " + ex.Message);
                     }
 #endif
                 }
@@ -359,7 +393,7 @@ namespace Jazz2.Game
 #if UNCOMPRESSED_CONTENT
                 string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Animations", path);
 #else
-                string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, ".dz", "Animations", path);
+                string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Animations", path);
 #endif
 
                 SpriteJson json;
@@ -387,17 +421,16 @@ namespace Jazz2.Game
 
                 if (json.Gunspot != null) {
                     resource.Gunspot = new Point2(json.Gunspot[0], json.Gunspot[1]);
-                    resource.HasGunspot = true;
                 }
 
                 PixelData pixelData;
                 using (Stream s = FileOp.Open(pathAbsolute, FileAccessMode.Read)) {
-                    pixelData = imageCodec.Read(s);
+                    pixelData = new Png(s).GetPixelData();
                 }
 
                 // Use external palette
                 if ((json.Flags & 0x01) != 0x00) {
-                    ColorRgba[] palette = paletteTexture.Res.BasePixmap.Res.PixelData[0].Data;
+                    ColorRgba[] palette = paletteTexture.Res.BasePixmap.Res.MainLayer.Data;
 
                     ColorRgba[] data = pixelData.Data;
                     Parallel.ForEach(Partitioner.Create(0, data.Length), range => {
@@ -420,12 +453,13 @@ namespace Jazz2.Game
 
                     string filenameNormal = pathAbsolute.Replace(".png", ".n.png");
                     if (FileOp.Exists(filenameNormal)) {
-                        asyncFinalize.TextureNormalMap = new Pixmap(imageCodec.Read(FileOp.Open(filenameNormal, FileAccessMode.Read)));
+                        using (Stream s = FileOp.Open(filenameNormal, FileAccessMode.Read)) {
+                            asyncFinalize.TextureNormalMap = new Pixmap(new Png(s).GetPixelData());
+                        }
                     } else {
                         resource.TextureNormal = defaultNormalMap;
                     }
 
-                    asyncFinalize.TextureWrap = json.TextureWrap;
                     asyncFinalize.LinearSampling = linearSampling;
 
                     resource.AsyncFinalize = asyncFinalize;
@@ -444,10 +478,14 @@ namespace Jazz2.Game
 
                     string filenameNormal = pathAbsolute.Replace(".png", ".n.png");
                     if (FileOp.Exists(filenameNormal)) {
-                        pixelData = imageCodec.Read(FileOp.Open(filenameNormal, FileAccessMode.Read));
+                        using (Stream s = FileOp.Open(filenameNormal, FileAccessMode.Read)) {
+                            pixelData = new Png(s).GetPixelData();
+                        }
 
                         resource.TextureNormal = new Texture(new Pixmap(pixelData), TextureSizeMode.NonPowerOfTwo,
                             magFilter, minFilter, json.TextureWrap, json.TextureWrap);
+
+                        resource.TextureNormal.Res.DetachSource();
                     } else {
                         resource.TextureNormal = defaultNormalMap;
                     }
@@ -478,10 +516,12 @@ namespace Jazz2.Game
             if (!cachedShaders.TryGetValue(path, out shader)) {
                 // Shaders for Android are always uncompressed for now, so the compressed
                 // content package can be used in Android version as well.
-#if UNCOMPRESSED_CONTENT || __ANDROID__
+#if UNCOMPRESSED_CONTENT
                 string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Shaders", path + ".res");
+#elif __ANDROID__
+                string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Shaders.ES30", path + ".res");
 #else
-                string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, ".dz", "Shaders", path + ".res");
+                string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Shaders", path + ".res");
 #endif
 
                 ShaderJson json;
@@ -490,7 +530,7 @@ namespace Jazz2.Game
                         json = jsonParser.Parse<ShaderJson>(s);
                     }
                 }
-
+                
                 if (json.Fragment == null && json.Vertex == null) {
                     switch (json.BlendMode) {
                         default:
@@ -503,38 +543,44 @@ namespace Jazz2.Game
                         case BlendMode.Invert: shader = DrawTechnique.Invert; break;
                     }
                 } else {
-                    ContentRef<VertexShader> vertex;
-                    if (json.Vertex == null) {
-                        vertex = VertexShader.Minimal;
-                    } else if (json.Vertex.StartsWith("#inherit ")) {
-                        string parentPath = json.Vertex.Substring(9).Trim();
-                        ContentRef<DrawTechnique> parent = RequestShader(parentPath);
-                        vertex = parent.Res.Shader.Res.Vertex;
-                    } else if (json.Vertex.StartsWith("#include ")) {
-                        string includePath = Path.Combine(DualityApp.DataDirectory, "Shaders", json.Vertex.Substring(9).Trim());
-                        using (Stream s = FileOp.Open(includePath, FileAccessMode.Read))
-                        using (StreamReader r = new StreamReader(s)) {
-                            vertex = new VertexShader(r.ReadToEnd());
-                        }
-                    } else {
-                        vertex = new VertexShader(json.Vertex);
-                    }
+                    requestShaderNesting++;
 
+                    ContentRef<VertexShader> vertex;
                     ContentRef<FragmentShader> fragment;
-                    if (json.Fragment == null) {
-                        fragment = FragmentShader.Minimal;
-                    } else if (json.Fragment.StartsWith("#inherit ")) {
-                        string parentPath = json.Fragment.Substring(9).Trim();
-                        ContentRef<DrawTechnique> parent = RequestShader(parentPath);
-                        fragment = parent.Res.Shader.Res.Fragment;
-                    } else if (json.Fragment.StartsWith("#include ")) {
-                        string includePath = Path.Combine(DualityApp.DataDirectory, "Shaders", json.Fragment.Substring(9).Trim());
-                        using (Stream s = FileOp.Open(includePath, FileAccessMode.Read))
-                        using (StreamReader r = new StreamReader(s)) {
-                            fragment = new FragmentShader(r.ReadToEnd());
+                    try {
+                        if (json.Vertex == null) {
+                            vertex = VertexShader.Minimal;
+                        } else if (json.Vertex.StartsWith("#inherit ")) {
+                            string parentPath = json.Vertex.Substring(9).Trim();
+                            ContentRef<DrawTechnique> parent = RequestShader(parentPath);
+                            vertex = parent.Res.Vertex;
+                        } else if (json.Vertex.StartsWith("#include ")) {
+                            string includePath = Path.Combine(DualityApp.DataDirectory, "Shaders", json.Vertex.Substring(9).Trim());
+                            using (Stream s = FileOp.Open(includePath, FileAccessMode.Read))
+                            using (StreamReader r = new StreamReader(s)) {
+                                vertex = new VertexShader(r.ReadToEnd());
+                            }
+                        } else {
+                            vertex = new VertexShader(json.Vertex.TrimStart());
                         }
-                    } else {
-                        fragment = new FragmentShader(json.Fragment);
+
+                        if (json.Fragment == null) {
+                            fragment = FragmentShader.Minimal;
+                        } else if (json.Fragment.StartsWith("#inherit ")) {
+                            string parentPath = json.Fragment.Substring(9).Trim();
+                            ContentRef<DrawTechnique> parent = RequestShader(parentPath);
+                            fragment = parent.Res.Fragment;
+                        } else if (json.Fragment.StartsWith("#include ")) {
+                            string includePath = Path.Combine(DualityApp.DataDirectory, "Shaders", json.Fragment.Substring(9).Trim());
+                            using (Stream s = FileOp.Open(includePath, FileAccessMode.Read))
+                            using (StreamReader r = new StreamReader(s)) {
+                                fragment = new FragmentShader(r.ReadToEnd());
+                            }
+                        } else {
+                            fragment = new FragmentShader(json.Fragment.TrimStart());
+                        }
+                    } finally {
+                        requestShaderNesting--;
                     }
 
                     VertexDeclaration vertexFormat;
@@ -545,7 +591,15 @@ namespace Jazz2.Game
                         default: vertexFormat = null; break;
                     }
 
-                    shader = new DrawTechnique(json.BlendMode, new ShaderProgram(vertex, fragment), vertexFormat);
+                    DrawTechnique result = new DrawTechnique(json.BlendMode, vertex, fragment);
+                    result.PreferredVertexFormat = vertexFormat;
+
+#if FAIL_ON_SHADER_COMPILE_ERROR && __ANDROID__
+                    if (requestShaderNesting == 0 && result.DeclaredFields.Count == 0) {
+                        Android.CrashHandlerActivity.ShowErrorDialog(new InvalidDataException("Shader \"" + path + "\" cannot be compiled on your device."));
+                    }
+#endif
+                    shader = result;
                 }
 
                 cachedShaders[path] = shader;
@@ -554,20 +608,40 @@ namespace Jazz2.Game
             return shader;
         }
 
-        public void RequestTileset(string path, out ContentRef<Material> materialRef, out PixelData mask)
+        public void RequestTileset(string path, bool applyPalette, ColorRgba[] customPalette, out ContentRef<Material> materialRef, out PixelData mask)
         {
-            path = PathOp.Combine(DualityApp.DataDirectory, "Tilesets", path);
+            IFileSystem tilesetPackage = new CompressedContent(PathOp.Combine(DualityApp.DataDirectory, "Tilesets", path + ".set"));
+
+            // Palette
+            if (applyPalette) {
+                if (customPalette != null) {
+                    ApplyBasePalette(customPalette);
+                } else if (tilesetPackage.FileExists("Main.palette")) {
+                    ApplyBasePalette(TileSet.LoadPalette(tilesetPackage.OpenFile("Main.palette", FileAccessMode.Read)));
+                }
+            }
 
             // Load textures
-            string texturePath = PathOp.Combine(path, "tiles.png");
-            string maskPath = PathOp.Combine(path, "mask.png");
-            string normalPath = PathOp.Combine(path, "normal.png");
+            PixelData texturePixels;
+            using (Stream s = tilesetPackage.OpenFile("Diffuse.png", FileAccessMode.Read)) {
+                texturePixels = new Png(s).GetPixelData();
+            }
 
-            PixelData texturePixels = imageCodec.Read(FileOp.Open(texturePath, FileAccessMode.Read));
-            PixelData normalPixels = (FileOp.Exists(normalPath) ? imageCodec.Read(FileOp.Open(normalPath, FileAccessMode.Read)) : null);
+            PixelData normalPixels;
+            if (tilesetPackage.FileExists("Normals.png")) {
+                using (Stream s = tilesetPackage.OpenFile("Normals.png", FileAccessMode.Read)) {
+                    normalPixels = new Png(s).GetPixelData();
+                }
+            } else {
+                normalPixels = null;
+            }
+
+            using (Stream s = tilesetPackage.OpenFile("Mask.png", FileAccessMode.Read)) {
+                mask = new Png(s).GetPixelData();
+            }
 
             // Apply palette to tileset
-            ColorRgba[] palette = paletteTexture.Res.BasePixmap.Res.PixelData[0].Data;
+            ColorRgba[] palette = paletteTexture.Res.BasePixmap.Res.MainLayer.Data;
 
             ColorRgba[] data = texturePixels.Data;
             Parallel.ForEach(Partitioner.Create(0, data.Length), range => {
@@ -577,14 +651,23 @@ namespace Jazz2.Game
                 }
             });
 
+            ContentRef<Texture> mainTex = new Texture(new Pixmap(texturePixels));
+            ContentRef<Texture> normalTex;
+            if (normalPixels == null) {
+                normalTex = DefaultNormalMap;
+            } else {
+                normalTex = new Texture(new Pixmap(normalPixels));
+                normalTex.Res.DetachSource();
+            }
+
             // Create material
             Material material = new Material(RequestShader("BasicNormal"));
-            material.SetTexture("mainTex", new Texture(new Pixmap(texturePixels)));
-            material.SetTexture("normalTex", normalPixels == null ? DefaultNormalMap : new Texture(new Pixmap(normalPixels)));
+            material.SetTexture("mainTex", mainTex);
+            material.SetTexture("normalTex", normalTex);
             material.SetValue("normalMultiplier", Vector2.One);
 
             materialRef = material;
-            mask = imageCodec.Read(FileOp.Open(maskPath, FileAccessMode.Read));
         }
     }
 }
+ 

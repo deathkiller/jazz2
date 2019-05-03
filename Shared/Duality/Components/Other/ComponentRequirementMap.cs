@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Jazz2.Game;
 
 namespace Duality
 {
@@ -59,7 +60,7 @@ namespace Duality
 				if (this.initRequirements == RecursiveInit.Initialized) return;
 				if (this.initRequirements == RecursiveInit.InProgress)
 				{
-					Console.WriteLine(
+                    App.Log(
 						"Detected a cyclic Component requirement in {0}. Requirements can not be ensured for cyclic dependencies.", 
 						this.Component);
 					return;
@@ -74,7 +75,7 @@ namespace Duality
 				if (this.initCreationChain == RecursiveInit.Initialized) return;
 				if (this.initCreationChain == RecursiveInit.InProgress)
 				{
-				    Console.WriteLine(
+                    App.Log(
 						"Detected a cyclic Component requirement in {0}. Requirements can not be ensured for cyclic dependencies.", 
 						this.Component);
 					return;

@@ -1,5 +1,4 @@
-﻿using Duality;
-using Jazz2.Game.Structs;
+﻿using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Environment
 {
@@ -18,8 +17,7 @@ namespace Jazz2.Actors.Environment
             canBeFrozen = false;
 
             RequestMetadata("Object/SignEol");
-
-            SetAnimation(AnimState.Idle);
+            SetAnimation("SignEol");
         }
 
         protected override void OnUpdateHitbox()

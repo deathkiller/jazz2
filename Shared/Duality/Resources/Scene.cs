@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Duality.Components;
+using Jazz2.Game;
 
 namespace Duality.Resources
 {
@@ -151,7 +152,7 @@ namespace Duality.Resources
             if (switchToScheduled) {
                 switchToTarget = null;
                 switchToScheduled = false;
-                Console.WriteLine(
+                App.Log(
 					"Potential Scene redirect loop detected: When performing previously " +
 					"scheduled switch to Scene '{0}', a awitch to Scene '{1}' was immediately scheduled. " +
 					"The second switch will not be performed to avoid entering a loop. Please " +
@@ -547,7 +548,7 @@ namespace Duality.Resources
         /// <param name="obj"></param>
         public void AddObject(GameObject obj)
         {
-            if (obj.ParentScene != null && obj.ParentScene != this) obj.ParentScene.RemoveObject(obj);
+            if (obj.Scene != null && obj.Scene != this) obj.Scene.RemoveObject(obj);
             this.objectManager.AddObject(obj);
         }
         /// <summary>
@@ -557,8 +558,8 @@ namespace Duality.Resources
         public void AddObjects(IEnumerable<GameObject> objEnum)
         {
             foreach (GameObject obj in objEnum) {
-                if (obj.ParentScene == null || obj.ParentScene == this) continue;
-                obj.ParentScene.RemoveObject(obj);
+                if (obj.Scene == null || obj.Scene == this) continue;
+                obj.Scene.RemoveObject(obj);
             }
             this.objectManager.AddObjects(objEnum);
         }
@@ -568,8 +569,8 @@ namespace Duality.Resources
         /// <param name="obj"></param>
         public void RemoveObject(GameObject obj)
         {
-            if (obj.ParentScene != this) return;
-            if (obj.Parent != null && obj.Parent.ParentScene == this) {
+            if (obj.Scene != this) return;
+            if (obj.Parent != null && obj.Parent.Scene == this) {
                 obj.Parent = null;
             }
             this.objectManager.RemoveObject(obj);
@@ -580,10 +581,10 @@ namespace Duality.Resources
         /// <param name="objEnum"></param>
         public void RemoveObjects(IEnumerable<GameObject> objEnum)
         {
-            objEnum = objEnum.Where(o => o.ParentScene == this);
+            objEnum = objEnum.Where(o => o.Scene == this);
             foreach (GameObject obj in objEnum) {
                 if (obj.Parent == null) continue;
-                if (obj.Parent.ParentScene != this) continue;
+                if (obj.Parent.Scene != this) continue;
                 obj.Parent = null;
             }
             this.objectManager.RemoveObjects(objEnum);
@@ -788,7 +789,7 @@ namespace Duality.Resources
         {
             foreach (GameObject obj in e.Objects) {
                 this.AddToManagers(obj);
-                obj.ParentScene = this;
+                obj.Scene = this;
             }
             if (this.IsCurrent) OnGameObjectsAdded(e);
         }
@@ -796,7 +797,7 @@ namespace Duality.Resources
         {
             foreach (GameObject obj in e.Objects) {
                 this.RemoveFromManagers(obj);
-                obj.ParentScene = null;
+                obj.Scene = null;
             }
             if (this.IsCurrent) OnGameObjectsRemoved(e);
         }

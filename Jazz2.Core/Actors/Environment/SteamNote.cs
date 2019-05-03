@@ -1,5 +1,4 @@
 ﻿using Duality;
-using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Environment
 {
@@ -19,7 +18,7 @@ namespace Jazz2.Actors.Environment
             collisionFlags = CollisionFlags.None;
 
             RequestMetadata("Object/SteamNote");
-            SetAnimation(AnimState.Idle);
+            SetAnimation("SteamNote");
 
             PlaySound("Appear", 0.4f);
         }

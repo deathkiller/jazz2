@@ -3,22 +3,23 @@ using System.IO;
 using System.Text.Json;
 using Duality;
 using Duality.Drawing;
-using Duality.Input;
 using Duality.IO;
 using Duality.Resources;
 using Jazz2.Actors;
 using Jazz2.Game.Structs;
 using Jazz2.Storage;
+using MathF = Duality.MathF;
 
 namespace Jazz2.Game.UI.Menu
 {
-    public class EpisodeSelectSection : MainMenuSection
+    public class EpisodeSelectSection : MenuSection
     {
         private struct EpisodeEntry
         {
             public Episode Episode;
 
             public bool IsAvailable;
+            public bool IsComplete;
             public bool CanContinue;
             public ContentRef<Material> Logo;
         }
@@ -34,10 +35,9 @@ namespace Jazz2.Game.UI.Menu
         public EpisodeSelectSection()
         {
             JsonParser jsonParser = new JsonParser();
-            IImageCodec imageCodec = ImageCodec.GetRead(ImageCodec.FormatPng);
 
             foreach (string episode in DirectoryOp.GetDirectories(PathOp.Combine(DualityApp.DataDirectory, "Episodes"))) {
-                string pathAbsolute = PathOp.Combine(episode, ".res");
+                string pathAbsolute = PathOp.Combine(episode, "Episode.res");
                 if (FileOp.Exists(pathAbsolute)) {
                     Episode json;
                     using (Stream s = DualityApp.SystemBackend.FileSystem.OpenFile(pathAbsolute, FileAccessMode.Read)) {
@@ -45,7 +45,7 @@ namespace Jazz2.Game.UI.Menu
                     }
                     json.Token = PathOp.GetFileName(episode);
 
-                    if (!DirectoryOp.Exists(PathOp.Combine(episode, json.FirstLevel))) {
+                    if (!FileOp.Exists(PathOp.Combine(episode, json.FirstLevel + ".level"))) {
                         continue;
                     }
 
@@ -58,13 +58,20 @@ namespace Jazz2.Game.UI.Menu
                         entry.IsAvailable = true;
                     }
 
+                    if (entry.IsAvailable) {
+                        int time = Preferences.Get<int>("EpisodeEnd_Time_" + entry.Episode.Token);
+                        entry.IsComplete = (time > 0);
+                    } else {
+                        entry.IsComplete = false;
+                    }
+
                     entry.CanContinue = Preferences.Get<byte[]>("EpisodeContinue_Misc_" + entry.Episode.Token) != null;
 
-                    string logoPath = PathOp.Combine(episode, ".png");
+                    string logoPath = PathOp.Combine(episode, "Logo.png");
                     if (FileOp.Exists(logoPath)) {
                         PixelData pixelData;
                         using (Stream s = FileOp.Open(logoPath, FileAccessMode.Read)) {
-                            pixelData = imageCodec.Read(s);
+                            pixelData = new Png(s).GetPixelData();
                         }
 
                         Texture texture = new Texture(new Pixmap(pixelData), TextureSizeMode.NonPowerOfTwo);
@@ -80,13 +87,13 @@ namespace Jazz2.Game.UI.Menu
             episodes.Sort((x, y) => x.Episode.Position.CompareTo(y.Episode.Position));
         }
 
-        public override void OnShow(MainMenu root)
+        public override void OnShow(IMenuContainer root)
         {
             selectAnimation = 0f;
             base.OnShow(root);
         }
 
-        public override void OnPaint(Canvas canvas)
+        public override void OnPaint(Canvas canvas, Rect view)
         {
             IDrawDevice device = canvas.DrawDevice;
 
@@ -129,7 +136,10 @@ namespace Jazz2.Game.UI.Menu
                 }
 
                 // Selected item last
-                float size = 0.5f + Ease.OutElastic(selectAnimation) * 0.5f + (1f - expandedAnimation) * 0.2f;
+                float expandedAnimation2 = Math.Min(expandedAnimation * 6f, 1f);
+                float expandedAnimation3 = (expandedAnimation2 * expandedAnimation2 * (3.0f - 2.0f * expandedAnimation2));
+
+                float size = 0.5f + Ease.OutElastic(selectAnimation) * 0.5f + (1f - expandedAnimation3) * 0.2f;
 
                 if (episodes[selectedIndex].IsAvailable) {
                     if (episodes[selectedIndex].Logo.IsAvailable) {
@@ -140,26 +150,35 @@ namespace Jazz2.Game.UI.Menu
                         Texture texture = logo.Res.MainTexture.Res;
 
                         Vector2 originPos = new Vector2(center.X, topItemSelected);
-                        Alignment.Center.ApplyTo(ref originPos, new Vector2(texture.InternalWidth * size, texture.InternalHeight * size));
+                        Vector2 logoSize = new Vector2(texture.InternalWidth * size, texture.InternalHeight * size);
+                        Alignment.Center.ApplyTo(ref originPos, logoSize);
+
+                        ColorRgba logoColor = ColorRgba.White.WithAlpha(1f - expandedAnimation3 * 0.5f);
 
                         canvas.State.SetMaterial(logo);
-                        canvas.State.ColorTint = ColorRgba.White.WithAlpha(1f - expandedAnimation * 0.5f);
+                        canvas.State.ColorTint = logoColor;
                         canvas.FillRect(originPos.X, originPos.Y, texture.InternalWidth * size, texture.InternalHeight * size);
+
+                        if (episodes[selectedIndex].IsComplete) {
+                            api.DrawMaterial("EpisodeComplete", originPos.X + logoSize.X * 0.7f, originPos.Y + logoSize.Y * 0.4f, Alignment.TopLeft, logoColor, size, size);
+                        }
+
+                        if (episodes[selectedIndex].CanContinue) {
+                            float moveX = expandedAnimation3 * -24f;
+
+                            api.DrawString(ref charOffset, ">", center.X + 80f + moveX, topItemSelected,
+                                Alignment.Right, new ColorRgba(0.5f, 0.5f * MathF.Min(1f, 0.4f + selectAnimation)), 0.8f, charSpacing: 0.9f);
+
+                            if (expanded) {
+                                float expandedAnimation4 = Ease.OutElastic(expandedAnimation) * 0.8f;
+
+                                api.DrawStringShadow(ref charOffset, "Restart episode", center.X + 110f, topItemSelected,
+                                    Alignment.Center, new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f * MathF.Min(1f, 0.4f + expandedAnimation3)), expandedAnimation4, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.8f);
+                            }
+                        }
                     } else {
                         api.DrawStringShadow(ref charOffset, episodes[selectedIndex].Episode.Name, center.X, topItemSelected,
                             Alignment.Center, null, size, charSpacing: 0.9f);
-                    }
-
-                    if (episodes[selectedIndex].CanContinue) {
-                        float moveX = expandedAnimation * -26f;
-
-                        api.DrawString(ref charOffset, ">", center.X + 80f + moveX, topItemSelected,
-                            Alignment.Right, new ColorRgba(0.5f, 0.5f * MathF.Min(1f, 0.4f + selectAnimation)), 1f, charSpacing: 0.9f);
-
-                        if (expanded) {
-                            api.DrawStringShadow(ref charOffset, "Restart episode", center.X + 90f + moveX, topItemSelected,
-                                Alignment.Left, new ColorRgba(0.48f, 0.40f, 0.22f, 0.5f * MathF.Min(1f, 0.4f + expandedAnimation)), 0.8f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.8f);
-                        }
                     }
                 } else {
                     api.DrawString(ref charOffset, episodes[selectedIndex].Episode.Name, center.X, topItemSelected,
@@ -196,11 +215,11 @@ namespace Jazz2.Game.UI.Menu
             }
 
             if (expanded && expandedAnimation < 1f) {
-                expandedAnimation = Math.Min(expandedAnimation + Time.TimeMult * 0.06f, 1f);
+                expandedAnimation = Math.Min(expandedAnimation + Time.TimeMult * 0.016f, 1f);
             }
 
             if (ControlScheme.MenuActionHit(PlayerActions.Fire)) {
-                if (episodes[selectedIndex].IsAvailable) {
+                if (episodes.Count > 0 && episodes[selectedIndex].IsAvailable) {
                     api.PlaySound("MenuSelect", 0.5f);
 
                     if (episodes[selectedIndex].CanContinue) {
@@ -271,7 +290,7 @@ namespace Jazz2.Game.UI.Menu
                         ));
                     }
                 }
-            } else if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
+            } else if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
                 api.PlaySound("MenuSelect", 0.5f);
                 api.LeaveSection(this);
             }
@@ -312,7 +331,7 @@ namespace Jazz2.Game.UI.Menu
                 expanded = false;
                 expandedAnimation = 0f;
             } else if (ControlScheme.MenuActionHit(PlayerActions.Right)) {
-                if (episodes[selectedIndex].CanContinue) {
+                if (episodes.Count > 0 && episodes[selectedIndex].CanContinue) {
                     expanded = true;
                 }
             }

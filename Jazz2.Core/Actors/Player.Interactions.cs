@@ -1,6 +1,7 @@
 ﻿using System;
 using Duality;
 using Jazz2.Game.Structs;
+using MathF = Duality.MathF;
 
 namespace Jazz2.Actors
 {
@@ -62,28 +63,26 @@ namespace Jazz2.Actors
 
         public void ConsumeFood(bool isDrinkable)
         {
-            // ToDo: Implement Sugar Rush (+ HUD)
-            /*foodCounter += 1;
-            if (foodCounter >= SUGAR_RUSH_THRESHOLD) {
-                foodCounter = foodCounter % SUGAR_RUSH_THRESHOLD;
-                if (!isSugarRush) {
-                    api->pauseMusic();
-                    playNonPositionalSound("PLAYER_SUGAR_RUSH");
-
-                    isSugarRush = true;
-                    osd->setSugarRushActive();
-                    addTimer(21.548 * 70.0, false, [this]() {
-                        isSugarRush = false;
-                        api->resumeMusic();
-                    });
-                }
-            }*/
-
             if (isDrinkable) {
                 PlaySound("PickupDrink");
             } else {
                 PlaySound("PickupFood");
             }
+
+            foodEaten++;
+            if (foodEaten >= 100) {
+                foodEaten = foodEaten % 100;
+                BeginSugarRush();
+            }
+        }
+
+        public bool SetDizzyTime(float time)
+        {
+            bool wasNotDizzy = (dizzyTime <= 0f);
+
+            dizzyTime = time;
+
+            return wasNotDizzy;
         }
 
         public void ShowLevelText(string text)
@@ -93,13 +92,13 @@ namespace Jazz2.Actors
 
         public void MorphTo(PlayerType type)
         {
+            if (playerType == type) {
+                return;
+            }
+
+            PlayerType playerTypePrevious = playerType;
+
             playerType = type;
-
-            Explosion.Create(api, Transform.Pos + new Vector3(-12f, -6f, -4f), Explosion.SmokeBrown);
-            Explosion.Create(api, Transform.Pos + new Vector3(-8f, 28f, -4f), Explosion.SmokeBrown);
-            Explosion.Create(api, Transform.Pos + new Vector3(12f, 10f, -4f), Explosion.SmokeBrown);
-
-            Explosion.Create(api, Transform.Pos + new Vector3(0f, 12f, -6f), Explosion.SmokePoof);
 
             // Load new metadata
             switch (playerType) {
@@ -112,11 +111,62 @@ namespace Jazz2.Actors
                 case PlayerType.Lori:
                     RequestMetadata("Interactive/PlayerLori");
                     break;
+                case PlayerType.Frog:
+                    RequestMetadata("Interactive/PlayerFrog");
+                    break;
             }
 
             // Refresh animation state
             currentAnimation = null;
             SetAnimation(currentAnimationState);
+
+            // Set transition
+            if (type == PlayerType.Frog) {
+                PlaySound("Transform");
+
+                controllable = false;
+                controllableTimeout = 120f;
+
+                switch (playerTypePrevious) {
+                    case PlayerType.Jazz:
+                        SetTransition((AnimState)0x60000000, false, delegate {
+                            controllable = true;
+                            controllableTimeout = 0f;
+                        });
+                        break;
+                    case PlayerType.Spaz:
+                        SetTransition((AnimState)0x60000001, false, delegate {
+                            controllable = true;
+                            controllableTimeout = 0f;
+                        });
+                        break;
+                    case PlayerType.Lori:
+                        SetTransition((AnimState)0x60000002, false, delegate {
+                            controllable = true;
+                            controllableTimeout = 0f;
+                        });
+                        break;
+                }
+            } else if (playerTypePrevious == PlayerType.Frog) {
+                controllable = false;
+                controllableTimeout = 120f;
+
+                SetTransition(AnimState.TransitionFromFrog, false, delegate {
+                    controllable = true;
+                    controllableTimeout = 0f;
+                });
+            } else {
+                Explosion.Create(api, Transform.Pos + new Vector3(-12f, -6f, -4f), Explosion.SmokeBrown);
+                Explosion.Create(api, Transform.Pos + new Vector3(-8f, 28f, -4f), Explosion.SmokeBrown);
+                Explosion.Create(api, Transform.Pos + new Vector3(12f, 10f, -4f), Explosion.SmokeBrown);
+
+                Explosion.Create(api, Transform.Pos + new Vector3(0f, 12f, -6f), Explosion.SmokePoof);
+            }
+        }
+
+        public void MorphToOriginal()
+        {
+            MorphTo(playerTypeOriginal);
         }
 
         public bool SetModifier(Modifier modifier)
@@ -189,10 +239,48 @@ namespace Jazz2.Actors
             }
         }
 
+        public void SpawnBird(ushort type, Vector3 pos)
+        {
+            pos.Z = Transform.Pos.Z - 100f;
+
+            Bird bird = new Bird();
+            bird.OnAttach(new ActorInstantiationDetails {
+                Api = api,
+                Pos = pos,
+                Params = new ushort[] { type }
+            });
+            bird.OnLinkWithPlayer(this);
+            api.AddActor(bird);
+        }
+
+        public bool DisableControllableWithTimeout(float timeout)
+        {
+            if (!controllable) {
+                return false;
+            }
+
+            controllable = false;
+            controllableTimeout = timeout;
+
+            SetAnimation(AnimState.Idle);
+            return true;
+        }
+
         public void SetCheckpoint(Vector2 pos)
         {
             checkpointPos = pos + new Vector2(0f, -20f);
             checkpointLight = api.AmbientLight;
+        }
+
+        public void BeginSugarRush()
+        {
+            if (sugarRushLeft > 0f) {
+                return;
+            }
+
+            sugarRushLeft = 1200f;
+
+            OnAnimationStarted();
         }
 
         public class CopterDecor : ActorBase

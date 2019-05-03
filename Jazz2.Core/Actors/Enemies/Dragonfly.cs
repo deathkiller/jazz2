@@ -57,7 +57,8 @@ namespace Jazz2.Actors.Enemies
                     if (length < 320f && targetPos.Y < api.WaterLevel) {
                         direction.Normalize();
 
-                        speedX = speedY = 0f;
+                        speedX = 0f;
+                        speedY = 0f;
                         IsFacingLeft = (direction.X < 0f);
                         state = StateAttacking;
 
@@ -125,7 +126,8 @@ namespace Jazz2.Actors.Enemies
         {
             base.OnHitWallHook();
 
-            speedX = speedY = 0f;
+            speedX = 0f;
+            speedY = 0f;
 
             if (noise != null) {
                 noise.FadeOut(0.4f);
@@ -137,7 +139,8 @@ namespace Jazz2.Actors.Enemies
         {
             base.OnHitFloorHook();
 
-            speedX = speedY = 0f;
+            speedX = 0f;
+            speedY = 0f;
 
             if (noise != null) {
                 noise.FadeOut(0.4f);
@@ -149,7 +152,8 @@ namespace Jazz2.Actors.Enemies
         {
             base.OnHitCeilingHook();
 
-            speedX = speedY = 0f;
+            speedX = 0f;
+            speedY = 0f;
 
             if (noise != null) {
                 noise.FadeOut(0.4f);

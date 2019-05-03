@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using Duality;
 using Duality.Audio;
 using Duality.Components;
@@ -8,21 +9,23 @@ using Duality.IO;
 using Duality.Resources;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
+using MathF = Duality.MathF;
 
 namespace Jazz2.Game.UI.Menu
 {
-    public partial class MainMenu : Scene
+    public partial class MainMenu : Scene, IMenuContainer
     {
         private readonly App root;
         private readonly GameObject rootObject;
 
-        private Stack<MainMenuSection> sectionStack;
+        private Stack<MenuSection> sectionStack;
 
         private Canvas canvas;
         private BitmapFont fontSmall, fontMedium;
 
         private TransitionManager transitionManager;
         private Action transitionAction;
+        private float transitionText = 1f;
 
         private Metadata metadata;
 
@@ -30,7 +33,31 @@ namespace Jazz2.Game.UI.Menu
 
         private OpenMptStream music;
 
-        private static Updater.Release newVersion;
+        private static string newVersion;
+
+        public RefreshMode RefreshMode
+        {
+            get
+            {
+                return root.RefreshMode;
+            }
+            set
+            {
+                root.RefreshMode = value;
+            }
+        }
+
+        public ScreenMode ScreenMode
+        {
+            get
+            {
+                return root.ScreenMode;
+            }
+            set
+            {
+                root.ScreenMode = value;
+            }
+        }
 
         public MainMenu(App root)
         {
@@ -48,8 +75,8 @@ namespace Jazz2.Game.UI.Menu
             camera.AddComponent<Transform>();
 
             Camera cameraInner = camera.AddComponent<Camera>();
-            cameraInner.Perspective = PerspectiveMode.Flat;
-            cameraInner.NearZ = 0;
+            cameraInner.Projection = ProjectionMode.Orthographic;
+            cameraInner.NearZ = 10;
             cameraInner.FarZ = 1000;
 
             cameraInner.RenderingSetup = new MainMenuRenderSetup();
@@ -59,12 +86,13 @@ namespace Jazz2.Game.UI.Menu
 
             // Load resources
 #if UNCOMPRESSED_CONTENT
-            ColorRgba[] defaultPalette = TileSet.LoadPalette(PathOp.Combine(DualityApp.DataDirectory, "Animations", ".palette"));
+            using (Stream s = FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, "Animations", "Main.palette"), FileAccessMode.Read))
 #else
-            ColorRgba[] defaultPalette = TileSet.LoadPalette(PathOp.Combine(DualityApp.DataDirectory, ".dz", "Animations", ".palette"));
+            using (Stream s = FileOp.Open(PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Animations", "Main.palette"), FileAccessMode.Read))
 #endif
-
-            ContentResolver.Current.ApplyBasePalette(defaultPalette);
+            {
+                ContentResolver.Current.ApplyBasePalette(TileSet.LoadPalette(s));
+            }
 
             fontSmall = new BitmapFont(canvas, "UI/font_small", 17, 18, 15, 32, 256, -2);
             fontMedium = new BitmapFont(canvas, "UI/font_medium", 29, 31, 15, 32, 256, -1);
@@ -83,10 +111,10 @@ namespace Jazz2.Game.UI.Menu
             music = DualityApp.Sound.PlaySound(new OpenMptStream(musicPath));
             music.BeginFadeIn(0.5f);
 
-            InitTouch();
+            InitPlatformSpecific();
 
             // Show Begin section
-            sectionStack = new Stack<MainMenuSection>();
+            sectionStack = new Stack<MenuSection>();
 
             SwitchToSection(new BeginSection());
 
@@ -105,7 +133,7 @@ namespace Jazz2.Game.UI.Menu
             base.OnDisposing(manually);
         }
 
-        public void SwitchToSection(MainMenuSection section)
+        public void SwitchToSection(MenuSection section)
         {
             if (sectionStack.Count > 0) {
                 //renderSetup.BeginPageTransition();
@@ -116,10 +144,10 @@ namespace Jazz2.Game.UI.Menu
             section.OnShow(this);
         }
 
-        public void LeaveSection(MainMenuSection section)
+        public void LeaveSection(MenuSection section)
         {
             if (sectionStack.Count > 0) {
-                MainMenuSection activeSection = sectionStack.Pop();
+                MenuSection activeSection = sectionStack.Pop();
                 if (activeSection != section) {
                     throw new InvalidOperationException();
                 }
@@ -137,7 +165,7 @@ namespace Jazz2.Game.UI.Menu
         public void BeginFadeOut(Action action)
         {
             transitionAction = action;
-            transitionManager = new TransitionManager(TransitionMode.FadeOut, MainMenuRenderSetup.TargetSize, true);
+            transitionManager = new TransitionManager(TransitionManager.Mode.FadeOut, MainMenuRenderSetup.TargetSize, true);
         }
 
         public void SwitchToLevel(LevelInitialization data)
@@ -156,6 +184,13 @@ namespace Jazz2.Game.UI.Menu
             float y, Alignment align, ColorRgba? color, float scale = 1f, float angleOffset = 0f, float varianceX = 4f, float varianceY = 4f,
             float speed = 4f, float charSpacing = 1f, float lineSpacing = 1f)
         {
+            if (transitionText > 0f) {
+                angleOffset += 0.5f * transitionText;
+                varianceX += 400f * transitionText;
+                varianceY += 400f * transitionText;
+                speed -= speed * 0.6f * transitionText;
+            }
+
             fontSmall.DrawString(ref charOffset, text, x, y, align,
                 color, scale, angleOffset, varianceX, varianceY, speed, charSpacing, lineSpacing);
         }
@@ -164,6 +199,13 @@ namespace Jazz2.Game.UI.Menu
             float y, Alignment align, ColorRgba? color, float scale = 1f, float angleOffset = 0f, float varianceX = 4f, float varianceY = 4f,
             float speed = 4f, float charSpacing = 1f, float lineSpacing = 1f)
         {
+            if (transitionText > 0f) {
+                angleOffset += 0.5f * transitionText;
+                varianceX += 400f * transitionText;
+                varianceY += 400f * transitionText;
+                speed -= speed * 0.6f * transitionText;
+            }
+
             int charOffsetShadow = charOffset;
             fontSmall.DrawString(ref charOffsetShadow, text, x, y + 2.8f * scale, align,
                 new ColorRgba(0f, 0.29f), scale, angleOffset, varianceX, varianceY, speed, charSpacing, lineSpacing);
@@ -200,8 +242,7 @@ namespace Jazz2.Game.UI.Menu
             SoundResource res;
             if (metadata.Sounds.TryGetValue(name, out res)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound(res.Sound);
-                // TODO: Hardcoded volume
-                instance.Volume = volume * Settings.SfxVolume;
+                instance.Volume = volume * SettingsCache.SfxVolume;
             }
         }
 
@@ -220,6 +261,10 @@ namespace Jazz2.Game.UI.Menu
         private void OnRender(IDrawDevice device)
         {
             Vector2 size = device.TargetSize;
+
+            Rect view = new Rect(size);
+            AdjustVisibleZone(ref view);
+
             Vector2 center = size * 0.5f;
 
             canvas.Begin(device);
@@ -249,30 +294,32 @@ namespace Jazz2.Game.UI.Menu
 
             // Version
             Vector2 bottomRight = size;
-            bottomRight.X -= 24f;
+            bottomRight.X = view.X + view.W - 24f;
             bottomRight.Y -= 10f;
             DrawStringShadow(ref charOffset, "v" + App.AssemblyVersion, bottomRight.X, bottomRight.Y, Alignment.BottomRight,
                 ColorRgba.TransparentBlack, 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
 
             // Copyright
             Vector2 bottomLeft = bottomRight;
-            bottomLeft.X = 24f;
+            bottomLeft.X = view.X + 24f;
             DrawStringShadow(ref charOffset, "(c) 2016-" + DateTime.Now.Year + "  Dan R.", bottomLeft.X, bottomLeft.Y, Alignment.BottomLeft,
                 ColorRgba.TransparentBlack, 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
 
-            // New Version
+            // New version available
             if (newVersion != null) {
                 DrawStringShadow(ref charOffset, "New version available!", (bottomLeft.X + bottomRight.X) * 0.5f, bottomLeft.Y - 12, Alignment.Bottom,
                     new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f), 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.9f);
 
-                DrawStringShadow(ref charOffset, newVersion.name, (bottomLeft.X + bottomRight.X) * 0.5f, bottomLeft.Y + 2, Alignment.Bottom,
+                DrawStringShadow(ref charOffset, newVersion, (bottomLeft.X + bottomRight.X) * 0.5f, bottomLeft.Y + 2, Alignment.Bottom,
                     new ColorRgba(0.6f, 0.4f, 0.3f, 0.5f), 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.9f);
             }
 
             // Current section
             if (sectionStack.Count > 0) {
-                sectionStack.Peek().OnPaint(canvas);
+                sectionStack.Peek().OnPaint(canvas, view);
             }
+
+            DrawPlatformSpecific(size);
 
             if (transitionManager != null) {
                 transitionManager.Draw(device, canvas);
@@ -288,23 +335,27 @@ namespace Jazz2.Game.UI.Menu
                 }
             }
 
-            DrawTouch(device.TargetSize);
+            if (transitionText > 0f) {
+                transitionText -= 0.01f * Time.TimeMult;
+            }
 
             canvas.End();
         }
 
-        private void OnCheckUpdates(bool newAvailable, Updater.Release release)
+        private void OnCheckUpdates(bool newAvailable, string version)
         {
             if (newAvailable) {
-                newVersion = release;
+                newVersion = version;
             } else {
                 newVersion = null;
             }
         }
 
-        partial void InitTouch();
+        partial void InitPlatformSpecific();
 
-        partial void DrawTouch(Vector2 size);
+        partial void DrawPlatformSpecific(Vector2 size);
+
+        partial void AdjustVisibleZone(ref Rect view);
 
         private class LocalController : Component, ICmpUpdatable, ICmpRenderer
         {

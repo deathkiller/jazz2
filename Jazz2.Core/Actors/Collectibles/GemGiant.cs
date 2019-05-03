@@ -13,7 +13,7 @@ namespace Jazz2.Actors.Collectibles
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
             RequestMetadata("Object/GemGiant");
-            SetAnimation(AnimState.Idle);
+            SetAnimation("GemGiant");
         }
 
         protected override bool OnPerish(ActorBase collider)

@@ -20,13 +20,15 @@ using Jazz2.Game.Events;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
 using Jazz2.Game.UI;
-using Jazz2.Game.UI.Menu.I;
+using Jazz2.Game.UI.Menu.InGame;
+using Jazz2.Storage.Content;
+using MathF = Duality.MathF;
 
 namespace Jazz2.Game
 {
     public class LevelHandler : Scene, ILevelHandler
     {
-        public const float NearZ = 0f;
+        public const float NearZ = 10f;
         public const float FarZ = 1000f;
         public const float MainPlaneZ = (NearZ + FarZ) * 0.5f;
         public const float PlayerZ = MainPlaneZ - 10f;
@@ -36,11 +38,10 @@ namespace Jazz2.Game
 
         private const float DefaultGravity = 0.3f;
 
-        private readonly App root;
-        private readonly ActorApi api;
+        private App root;
+        private ActorApi api;
 
         protected readonly GameObject rootObject;
-        private readonly GameObject camera;
 
         private TileMap tileMap;
         private EventMap eventMap;
@@ -49,9 +50,9 @@ namespace Jazz2.Game
         private int collisionsCountA, collisionsCountB, collisionsCountC;
 
         private List<Player> players = new List<Player>();
+        private List<GameObject> cameras = new List<GameObject>();
         private List<ActorBase> actors = new List<ActorBase>();
 
-        //private string levelName;
         private string levelFileName;
         private string episodeName;
         private string defaultNextLevel;
@@ -65,6 +66,7 @@ namespace Jazz2.Game
         private int ambientLightDefault;
         private Vector4 darknessColor;
         private float gravity;
+        private Rect levelBounds;
 
         private BossBase activeBoss;
 
@@ -92,6 +94,8 @@ namespace Jazz2.Game
         public GameDifficulty Difficulty => difficulty;
 
         public float Gravity => gravity;
+
+        public Rect LevelBounds => levelBounds;
 
         public float AmbientLightCurrent
         {
@@ -125,7 +129,6 @@ namespace Jazz2.Game
         {
             this.root = root;
 
-            //levelName = data.LevelName;
             levelFileName = data.LevelName;
             episodeName = data.EpisodeName;
             difficulty = data.Difficulty;
@@ -140,17 +143,6 @@ namespace Jazz2.Game
             rootObject = new GameObject("LevelManager");
             rootObject.AddComponent(new LocalController(this));
             AddObject(rootObject);
-
-            // Setup camera
-            camera = new GameObject("MainCamera");
-            Transform cameraTransform = camera.AddComponent<Transform>();
-
-            Camera cameraInner = camera.AddComponent<Camera>();
-            cameraInner.NearZ = NearZ;
-            cameraInner.FarZ = FarZ;
-            cameraInner.Perspective = PerspectiveMode.Flat;
-
-            CameraController cameraController = camera.AddComponent<CameraController>();
 
             // Load level
             LoadLevel(levelFileName, episodeName);
@@ -208,16 +200,48 @@ namespace Jazz2.Game
                 hud.BeginFadeIn(true);
             }
 
-            // Bind camera to player
-            cameraInner.RenderingSetup = new LevelRenderSetup(this);
+            // Setup all cameras
+            float relativeViewRange = (1f / players.Count);
+            for (int i = 0; i < players.Count; i++) {
+                GameObject camera = new GameObject(/*"MainCamera " + i*/);
+                Transform cameraTransform = camera.AddComponent<Transform>();
 
-            cameraTransform.Pos = new Vector3(targetPlayerPosition.X, targetPlayerPosition.Y, 0);
+                Camera cameraInner = camera.AddComponent<Camera>();
+                cameraInner.NearZ = NearZ;
+                cameraInner.FarZ = FarZ;
+                cameraInner.Projection = ProjectionMode.Orthographic;
+                cameraInner.VisibilityMask = VisibilityFlag.Group0 | VisibilityFlag.ScreenOverlay | (VisibilityFlag)(1 << (i + 1));
+                //cameraInner.TargetRect = new Rect(i * relativeViewRange, 0f, relativeViewRange, 1f);
 
-            cameraController.TargetObject = targetPlayer;
-            ((ICmpUpdatable)cameraController).OnUpdate();
-            camera.Parent = rootObject;
+                switch (players.Count)
+                {
+                    case 1: cameraInner.TargetRect = new Rect(0f, 0f, 1f, 1f); break;
+                    case 2: cameraInner.TargetRect = new Rect(0f, i * relativeViewRange, 1f, relativeViewRange); break;
+                    case 3: cameraInner.TargetRect = new Rect(0f, i * relativeViewRange, 1f, relativeViewRange); break;
+                    case 4: cameraInner.TargetRect = new Rect((i % 2) * 0.5f, (i / 2) * 0.5f, 0.5f, 0.5f); break;
+                }
 
-            DualityApp.Sound.Listener = camera;
+                // Create controller
+                CameraController cameraController = camera.AddComponent<CameraController>();
+                cameraController.ViewBounds = levelBounds;
+
+                // Bind camera to player
+                cameraInner.RenderingSetup = new LevelRenderSetup(this);
+
+                Player currentPlayer = players[i];
+                cameraTransform.Pos = new Vector3(currentPlayer.Transform.Pos.Xy, 0);
+                cameraController.TargetObject = currentPlayer;
+
+                ((ICmpUpdatable)cameraController).OnUpdate();
+                camera.Parent = rootObject;
+
+                cameras.Add(camera);
+
+                if (i == 0) {
+                    // First camera is always sound listener
+                    DualityApp.Sound.Listener = camera;
+                }
+            }
 
             // Common sounds
             commonResources = ContentResolver.Current.RequestMetadata("Common/Scenery");
@@ -236,7 +260,15 @@ namespace Jazz2.Game
 
             if (eventMap != null) {
                 eventMap.Dispose();
+                eventMap = null;
             }
+
+            if (tileMap != null) {
+                tileMap.ReleaseResources();
+                tileMap = null;
+            }
+
+            api = null;
 
             base.OnDisposing(manually);
         }
@@ -314,8 +346,9 @@ namespace Jazz2.Game
 
         private void LoadLevel(string level, string episode)
         {
-            string levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", episode, level);
-            using (Stream s = FileOp.Open(PathOp.Combine(levelPath, ".res"), FileAccessMode.Read)) {
+            IFileSystem levelPackage = new CompressedContent(PathOp.Combine(DualityApp.DataDirectory, "Episodes", episode, level + ".level"));
+
+            using (Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
                 // ToDo: Cache parser, move JSON parsing to ContentResolver
                 JsonParser json = new JsonParser();
                 LevelConfigJson config = json.Parse<LevelConfigJson>(s);
@@ -324,7 +357,7 @@ namespace Jazz2.Game
                     throw new NotSupportedException("Version not supported");
                 }
 
-                Console.WriteLine("Loading level \"" + config.Description.Name + "\"...");
+                App.Log("Loading level \"" + config.Description.Name + "\"...");
 
                 root.Title = BitmapFont.StripFormatting(config.Description.Name);
                 root.Immersive = false;
@@ -341,22 +374,17 @@ namespace Jazz2.Game
                 }
 
                 // Palette
+                ColorRgba[] tileMapPalette;
                 {
-                    ColorRgba[] tileMapPalette;
-
-                    string levelPalette = PathOp.Combine(levelPath, ".palette");
-                    if (FileOp.Exists(levelPalette)) {
-                        tileMapPalette = TileSet.LoadPalette(levelPalette);
+                    if (levelPackage.FileExists("Main.palette")) {
+                        tileMapPalette = TileSet.LoadPalette(levelPackage.OpenFile("Main.palette", FileAccessMode.Read));
                     } else {
-                        string tilesetPath = PathOp.Combine(DualityApp.DataDirectory, "Tilesets", config.Description.DefaultTileset);
-                        tileMapPalette = TileSet.LoadPalette(PathOp.Combine(tilesetPath, ".palette"));
+                        tileMapPalette = null;
                     }
-
-                    ContentResolver.Current.ApplyBasePalette(tileMapPalette);
                 }
 
                 // Tileset
-                tileMap = new TileMap(this, config.Description.DefaultTileset, (config.Description.Flags & LevelFlags.HasPit) != 0);
+                tileMap = new TileMap(this, config.Description.DefaultTileset, tileMapPalette, (config.Description.Flags & LevelFlags.HasPit) != 0);
 
                 // Additional tilesets
                 if (config.Tilesets != null) {
@@ -379,31 +407,28 @@ namespace Jazz2.Game
                     } else if (layer.Key == "Sky") {
                         type = LayerType.Sky;
 
-                        if (layer.Value.BackgroundStyle != 0 /*Plain*/ && layer.Value.BackgroundColor != null && layer.Value.BackgroundColor.Count >= 3) {
-                            camera.GetComponent<Camera>().ClearColor = new ColorRgba((byte)layer.Value.BackgroundColor[0], (byte)layer.Value.BackgroundColor[1], (byte)layer.Value.BackgroundColor[2]);
-                        }
+                        //if (layer.Value.BackgroundStyle != 0 /*Plain*/ && layer.Value.BackgroundColor != null && layer.Value.BackgroundColor.Count >= 3) {
+                        //    camera.GetComponent<Camera>().ClearColor = new ColorRgba((byte)layer.Value.BackgroundColor[0], (byte)layer.Value.BackgroundColor[1], (byte)layer.Value.BackgroundColor[2]);
+                        //}
                     } else {
                         type = LayerType.Other;
                     }
 
-                    tileMap.ReadLayerConfiguration(type, levelPath, layer.Key, layer.Value);
+                    tileMap.ReadLayerConfiguration(type, levelPackage.OpenFile(layer.Key + ".layer", FileAccessMode.Read), layer.Value);
                 }
 
                 // Read animated tiles
-                string animTilesPath = PathOp.Combine(levelPath, "Animated.tiles");
-                if (FileOp.Exists(animTilesPath)) {
-                    tileMap.ReadAnimatedTiles(animTilesPath);
+                if (levelPackage.FileExists("Animated.tiles")) {
+                    tileMap.ReadAnimatedTiles(levelPackage.OpenFile("Animated.tiles", FileAccessMode.Read));
                 }
 
-                CameraController controller = camera.GetComponent<CameraController>();
-                controller.ViewRect = new Rect(tileMap.Size * tileMap.Tileset.TileSize);
+                levelBounds = new Rect(tileMap.Size * tileMap.Tileset.TileSize);
 
                 // Read events
                 eventMap = new EventMap(this, tileMap.Size);
 
-                string eventsPath = PathOp.Combine(levelPath, "Events.layer");
-                if (FileOp.Exists(animTilesPath)) {
-                    eventMap.ReadEvents(eventsPath, config.Version.LayerFormat, difficulty);
+                if (levelPackage.FileExists("Events.layer")) {
+                    eventMap.ReadEvents(levelPackage.OpenFile("Events.layer", FileAccessMode.Read), config.Version.LayerFormat, difficulty);
                 }
 
                 levelTexts = config.TextEvents ?? new Dictionary<int, string>();
@@ -597,7 +622,7 @@ namespace Jazz2.Game
 
             currentCarryOver = data;
 
-            levelChangeTimer = (exitType == ExitType.Warp || exitType == ExitType.Bonus ? 58f : 134f);
+            levelChangeTimer = 50f;
         }
 
         public void HandleGameOver()
@@ -639,52 +664,43 @@ namespace Jazz2.Game
 
         public void WarpCameraToTarget(ActorBase target)
         {
-            CameraController controller = camera.GetComponent<CameraController>();
-            if (controller != null && controller.TargetObject == target) {
-                controller.TargetObject = target;
+            for (int i = 0; i < cameras.Count; i++) {
+                CameraController controller = cameras[i].GetComponent<CameraController>();
+                if (controller != null && controller.TargetObject == target) {
+                    controller.TargetObject = target;
+                }
             }
         }
 
         public void LimitCameraView(float left, float width)
         {
-            // ToDo: Implement smooth transition
-            CameraController controller = camera.GetComponent<CameraController>();
-            if (controller != null) {
-                Rect currentView = controller.ViewRect;
-                currentView.X = left;
+            levelBounds.X = left;
 
-                if (width > 0f) {
-                    currentView.W = width;
+            if (width > 0f) {
+                levelBounds.W = left;
+            } else {
+                levelBounds.W = (tileMap.Size.X * tileMap.Tileset.TileSize) - left;
+            }
 
-                    // ToDo: Quick fix
-                    if (currentView.W < 720) {
-                        currentView.W = 720;
+            for (int i = 0; i < cameras.Count; i++) {
+                CameraController controller = cameras[i].GetComponent<CameraController>();
+                if (controller != null) {
+                    if (left == 0 && width == 0) {
+                        controller.ViewBounds = levelBounds;
+                    } else {
+                        controller.AnimateToBounds(levelBounds);
                     }
-
-                    // Add 1 tile gap to prevent player from stucking
-                    tileMap.SetSolidLimit((int)left / 32 - 1, (int)width / 32 + 2);
-                } else {
-                    currentView.W = (tileMap.Size.X * tileMap.Tileset.TileSize) - left;
-
-                    // ToDo: Quick fix
-                    if (currentView.W < 720) {
-                        currentView.X -= 720 - currentView.W;
-                        currentView.W = 720;
-                    }
-
-                    // Add 1 tile gap to prevent player from stucking
-                    tileMap.SetSolidLimit((int)left / 32 - 1, 0);
                 }
-
-                controller.ViewRect = currentView;
             }
         }
 
         public void ShakeCameraView(float duration)
         {
-            CameraController controller = camera.GetComponent<CameraController>();
-            if (controller != null) {
-                controller.Shake(duration);
+            for (int i = 0; i < cameras.Count; i++) {
+                CameraController controller = cameras[i].GetComponent<CameraController>();
+                if (controller != null) {
+                    controller.Shake(duration);
+                }
             }
         }
 
@@ -693,8 +709,7 @@ namespace Jazz2.Game
             SoundResource resource;
             if (commonResources.Sounds.TryGetValue(name, out resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, target);
-                // ToDo: Hardcoded volume
-                instance.Volume = gain * Settings.SfxVolume;
+                instance.Volume = gain * SettingsCache.SfxVolume;
 
                 if (target.Transform.Pos.Y >= api.WaterLevel) {
                     instance.Lowpass = 0.2f;
@@ -708,8 +723,7 @@ namespace Jazz2.Game
             SoundResource resource;
             if (commonResources.Sounds.TryGetValue(name, out resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, pos);
-                // ToDo: Hardcoded volume
-                instance.Volume = gain * Settings.SfxVolume;
+                instance.Volume = gain * SettingsCache.SfxVolume;
 
                 if (pos.Y >= api.WaterLevel) {
                     instance.Lowpass = 0.2f;
@@ -747,7 +761,7 @@ namespace Jazz2.Game
             }
 
             // ToDo: Hardcoded music file
-            string musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", "Boss" + (musicFile + 1).ToString(CultureInfo.InvariantCulture) + ".j2b");
+            string musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", "boss" + (musicFile + 1).ToString(CultureInfo.InvariantCulture) + ".j2b");
 
             music = DualityApp.Sound.PlaySound(new OpenMptStream(musicPath));
             music.BeginFadeIn(1f);
@@ -759,6 +773,13 @@ namespace Jazz2.Game
         {
             foreach (Player player in players) {
                 player.ShowLevelText(text);
+            }
+        }
+
+        public void BroadcastTriggeredEvent(EventType eventType, ushort[] eventParams)
+        {
+            foreach (ActorBase actor in actors) {
+                actor.OnTriggeredEvent(eventType, eventParams);
             }
         }
 
@@ -782,20 +803,46 @@ namespace Jazz2.Game
         private void OnUpdate()
         {
             if (currentCarryOver.HasValue) {
-                if (levelChangeTimer > 0) {
-                    levelChangeTimer -= Time.TimeMult;
-                } else {
-                    root.ChangeLevel(currentCarryOver.Value);
-                    currentCarryOver = null;
-                    return;
+                bool playersReady = true;
+                foreach (Player player in players) {
+                    // Exit type is already provided
+                    playersReady &= player.OnLevelChanging(ExitType.None);
+                }
+
+                if (playersReady) {
+                    if (levelChangeTimer > 0) {
+                        levelChangeTimer -= Time.TimeMult;
+                    } else {
+                        root.ChangeLevel(currentCarryOver.Value);
+                        currentCarryOver = null;
+                        return;
+                    }
                 }
             }
 
             Vector3 pos = players[0].Transform.Pos;
-            //int tx = (int)(pos.X / 32);
-            //int ty = (int)(pos.Y / 32);
-            int tx = (int)pos.X >> 5;
-            int ty = (int)pos.Y >> 5;
+            int tx1 = (int)pos.X >> 5;
+            int ty1 = (int)pos.Y >> 5;
+            int tx2 = tx1;
+            int ty2 = ty1;
+
+#if ENABLE_SPLITSCREEN
+            for (int i = 1; i < players.Count; i++) {
+                Vector3 pos2 = players[i].Transform.Pos;
+                int tx = (int)pos2.X >> 5;
+                int ty = (int)pos2.Y >> 5;
+                if (tx1 > tx) {
+                    tx1 = tx;
+                } else if (tx2 < tx) {
+                    tx2 = tx;
+                }
+                if (ty1 > ty) {
+                    ty1 = ty;
+                } else if (ty2 < ty) {
+                    ty2 = ty;
+                }
+            }
+#endif
 
             // ToDo: Remove this branching
 #if __ANDROID__
@@ -804,13 +851,18 @@ namespace Jazz2.Game
             const int ActivateTileRange = 26;
 #endif
 
+            tx1 -= ActivateTileRange;
+            ty1 -= ActivateTileRange;
+            tx2 += ActivateTileRange;
+            ty2 += ActivateTileRange;
+
             for (int i = 0; i < actors.Count; i++) {
-                if (actors[i].OnTileDeactivate(tx, ty, ActivateTileRange + 2)) {
+                if (actors[i].OnTileDeactivate(tx1 - 2, ty1 - 2, tx2 + 2, ty2 + 2)) {
                     i--;
                 }
             }
 
-            eventMap.ActivateEvents(tx, ty, ActivateTileRange);
+            eventMap.ActivateEvents(tx1, ty1, tx2, ty2);
 
             eventMap.ProcessGenerators();
 
@@ -828,7 +880,8 @@ namespace Jazz2.Game
 
             // Weather
             if (weatherType != WeatherType.None) {
-                Vector3 viewPos = camera.Transform.Pos;
+                // ToDo: Apply weather effect to all other cameras too
+                Vector3 viewPos = cameras[0].Transform.Pos;
                 for (int i = 0; i < weatherIntensity; i++) {
                     TileMap.DebrisCollisionAction collisionAction;
                     if (weatherOutdoors) {
@@ -905,7 +958,7 @@ namespace Jazz2.Game
             }
 
             // Active Boss
-            if (activeBoss != null && activeBoss.ParentScene == null) {
+            if (activeBoss != null && activeBoss.Scene == null) {
                 activeBoss = null;
 
                 Hud hud = rootObject.GetComponent<Hud>();
@@ -917,7 +970,7 @@ namespace Jazz2.Game
                 levelChangeTimer *= 2;
             }
 
-            if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
+            if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
                 Scene.SwitchTo(new InGameMenu(root, this));
             }
 

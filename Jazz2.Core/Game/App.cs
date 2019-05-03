@@ -24,6 +24,40 @@ namespace Jazz2.Game
             set { window.Title = App.AssemblyTitle + (string.IsNullOrEmpty(value) ? "" : " - " + value); }
         }
 
+        public RefreshMode RefreshMode
+        {
+            get
+            {
+                return window.RefreshMode;
+            }
+            set
+            {
+                window.RefreshMode = value;
+            }
+        }
+
+        public ScreenMode ScreenMode
+        {
+            get
+            {
+                return (window.ScreenMode & ~ScreenMode.Immersive);
+            }
+            set
+            {
+                ScreenMode previousValue = (window.ScreenMode & ~ScreenMode.Immersive);
+                ScreenMode newValue = (value & ~ScreenMode.Immersive);
+                if (previousValue == newValue) {
+                    return;
+                }
+
+                window.ScreenMode = newValue | (window.ScreenMode & ScreenMode.Immersive);
+
+                if ((value & (ScreenMode.FullWindow | ScreenMode.ChangeResolution)) == 0) {
+                    window.Size = LevelRenderSetup.TargetSize;
+                }
+            }
+        }
+
         public bool Immersive
         {
             get
@@ -43,6 +77,11 @@ namespace Jazz2.Game
         public App(INativeWindow window)
         {
             this.window = window;
+
+            // Load settings to cache
+            SettingsCache.Resize = (SettingsCache.ResizeMode)Preferences.Get<byte>("Resize", (byte)SettingsCache.Resize);
+            SettingsCache.MusicVolume = Preferences.Get<byte>("MusicVolume", (byte)(SettingsCache.MusicVolume * 100)) * 0.01f;
+            SettingsCache.SfxVolume = Preferences.Get<byte>("SfxVolume", (byte)(SettingsCache.SfxVolume * 100)) * 0.01f;
         }
 
         public void ShowMainMenu()
@@ -154,7 +193,7 @@ namespace Jazz2.Game
                         // Save continue data, if it's not the first level of the episode
                         ref PlayerCarryOver player = ref carryOver.PlayerCarryOvers[0];
 
-                        Preferences.Set("EpisodeContinue_Misc_" + carryOver.EpisodeName, new byte[] { (byte)player.Lives, (byte)carryOver.Difficulty, (byte)player.Type });
+                        Preferences.Set("EpisodeContinue_Misc_" + carryOver.EpisodeName, new[] { (byte)player.Lives, (byte)carryOver.Difficulty, (byte)player.Type });
                         Preferences.Set("EpisodeContinue_Level_" + carryOver.EpisodeName, carryOver.LevelName);
                         if (player.Ammo != null) {
                             Preferences.Set("EpisodeContinue_Ammo_" + carryOver.EpisodeName, player.Ammo);
@@ -254,7 +293,7 @@ namespace Jazz2.Game
         {
             JsonParser jsonParser = new JsonParser();
 
-            string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Episodes", name, ".res");
+            string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Episodes", name, "Episode.res");
             if (FileOp.Exists(pathAbsolute)) {
                 Episode json;
                 using (Stream s = FileOp.Open(pathAbsolute, FileAccessMode.Read)) {

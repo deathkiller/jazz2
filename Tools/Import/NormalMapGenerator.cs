@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 using Duality;
-using Jazz2.Compatibility;
+using Duality.Drawing;
 
 namespace Import
 {
@@ -10,16 +9,17 @@ namespace Import
     {
         private struct Sampler
         {
-            public Bitmap Source, Target;
+            public PngWriter Source;
+            public PngWriter Target;
             public Point FrameSize, FrameConfiguration;
             public Point CurrentFrame;
         }
 
-        public static Bitmap FromSprite(Bitmap sprite, Point frameConfiguration, Color[] palette)
+        public static PngWriter FromSprite(PngWriter sprite, Point frameConfiguration, ColorRgba[] palette)
         {
             Point frameSize = new Point(sprite.Width / frameConfiguration.X, sprite.Height / frameConfiguration.Y);
 
-            Bitmap normalMap = new Bitmap(sprite.Width, sprite.Height, PixelFormat.Format32bppArgb);
+            PngWriter normalMap = new PngWriter(sprite.Width, sprite.Height);
             Sampler sampler = new Sampler {
                 Source = sprite,
                 Target = normalMap,
@@ -79,17 +79,17 @@ namespace Import
             return normalMap;
         }
 
-        private static Vector4 Texture2D(Sampler sampler, Vector2 coords, Color[] palette)
+        private static Vector4 Texture2D(Sampler sampler, Vector2 coords, ColorRgba[] palette)
         {
             // Nearest neighbour sampling
             int x = MathF.Clamp((int)Math.Round(coords.X * sampler.FrameSize.X), 0, sampler.FrameSize.X - 1) + sampler.CurrentFrame.X * sampler.FrameSize.X;
             int y = MathF.Clamp((int)Math.Round(coords.Y * sampler.FrameSize.Y), 0, sampler.FrameSize.Y - 1) + sampler.CurrentFrame.Y * sampler.FrameSize.Y;
 
-            Color color = sampler.Source.GetPixel(x, y);
+            ColorRgba color = sampler.Source.GetPixel(x, y);
             if (palette != null) {
                 int alpha = color.A;
                 color = palette[color.R];
-                color = Color.FromArgb((int)(color.A * alpha / 255f), color);
+                color.A = (byte)(color.A * alpha / 255f);
             }
 
             // Convert to grayscale
@@ -104,9 +104,9 @@ namespace Import
 
             if (color.W == 0f) {
                 // PNG optimization
-                sampler.Target.SetPixel(x, y, Color.FromArgb(0, 0, 0, 0));
+                sampler.Target.SetPixel(x, y, new ColorRgba(0));
             } else {
-                sampler.Target.SetPixel(x, y, Color.FromArgb((int)(color.W * 255), (int)(color.X * 255), (int)(color.Y * 255), (int)(color.Z * 255)));
+                sampler.Target.SetPixel(x, y, new ColorRgba(color.X, color.Y, color.Z, color.W));
             }
         }
     }

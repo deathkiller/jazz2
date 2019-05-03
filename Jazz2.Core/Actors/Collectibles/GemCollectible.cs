@@ -10,7 +10,10 @@
 
             gemType = (ushort)(details.Params[0] & 0x3);
 
+            RequestMetadata("Collectible/Gems");
+
             switch (gemType) {
+                default:
                 case 0: // Red (+1)
                     scoreValue = 100;
                     SetAnimation("GemRed");

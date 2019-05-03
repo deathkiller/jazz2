@@ -8,7 +8,8 @@
 
             scoreValue = 500;
 
-            SetAnimation("CarrotFly");
+            RequestMetadata("Collectible/CarrotFly");
+            SetAnimation("Carrot");
 
             SetFacingDirection();
         }

@@ -44,7 +44,8 @@ namespace Jazz2.Actors.Enemies
                     PlaySound("Attack");
 
                     SetTransition(AnimState.TransitionAttack, false, delegate {
-                        speedX = speedY = 0;
+                        speedX = 0f;
+                        speedY = 0f;
                     });
 
                     stateTime = MathF.Rnd.NextFloat(180f, 300f);

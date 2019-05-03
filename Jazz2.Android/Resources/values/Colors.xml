@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="light_primary">#fff5f5f5</color>
+
+    <color name="body_text_1">#ff000000</color>
+    <color name="body_text_2">#88000000</color>
+    <color name="body_text_3">#55000000</color>
+
+    <color name="link_text">#ff884400</color>
+
+</resources>

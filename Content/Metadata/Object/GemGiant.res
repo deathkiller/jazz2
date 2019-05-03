@@ -4,9 +4,8 @@
     },
 
     "Animations": {
-        "Idle": {
+        "GemGiant": {
             "Path": "Object/GemSuper.png",
-            "States": [ 0 ],
             "Flags": 2,
             "ShaderColor": [ 1, 128, 255, 190 ]
         }

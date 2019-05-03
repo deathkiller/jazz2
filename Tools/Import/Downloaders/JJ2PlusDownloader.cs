@@ -13,7 +13,7 @@ namespace Import.Downloaders
         //private const string Url = "https://get.jj2.plus/";
 
         // Older version without installer
-        private const string Url = "https://www.jazz2online.com/jj2plus/old/plus-2016-12-06.zip";
+        private const string Url = "http://deat.tk/public/jazz2/jj2plus.zip";
 
         public static bool Run(string targetPath)
         {

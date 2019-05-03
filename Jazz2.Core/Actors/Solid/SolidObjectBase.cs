@@ -7,7 +7,7 @@ namespace Jazz2.Actors.Solid
         public bool Movable { get; protected set; }
         public bool IsOneWay { get; protected set; }
 
-        public SolidObjectBase()
+        protected SolidObjectBase()
         {
             collisionFlags |= CollisionFlags.CollideWithSolidObjects | CollisionFlags.IsSolidObject;
         }

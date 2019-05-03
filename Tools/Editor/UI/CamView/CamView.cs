@@ -283,7 +283,7 @@ namespace Editor.UI.CamView
             this.nativeCamObj.AddComponent<SoundListener>().MakeCurrent();
 
             Camera c = this.nativeCamObj.AddComponent<Camera>();
-            c.Perspective = PerspectiveMode.Flat;
+            c.Projection = ProjectionMode.Orthographic;
             c.ClearColor = ColorRgba.DarkGrey;
             c.FarZ = 1000.0f;
             c.RenderingSetup = RenderSetup.Default;
@@ -719,9 +719,13 @@ namespace Editor.UI.CamView
             get { return this.inputKeyPressed[(int)key]; }
         }
 
-        string IUserInputSource.Description
+        string IUserInputSource.Id
         {
             get { return "Camera View"; }
+        }
+        Guid IUserInputSource.ProductId
+        {
+            get { return Guid.Empty; }
         }
         bool IUserInputSource.IsAvailable
         {

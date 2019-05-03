@@ -29,7 +29,7 @@ namespace Jazz2.Game.Structs
         public int[] Ammo;
         public byte[] WeaponUpgrades;
         public int Score;
-        //public int FoodCounter;
+        public int FoodEaten;
         public WeaponType CurrentWeapon;
     }
 
@@ -59,6 +59,25 @@ namespace Jazz2.Game.Structs
                     Lives = 3
                 }
             };
+
+            LastEpisodeName = null;
+        }
+
+        public LevelInitialization(string episode, string level, GameDifficulty difficulty, params PlayerType[] playerTypes)
+        {
+            LevelName = level;
+            EpisodeName = episode;
+            Difficulty = difficulty;
+
+            ExitType = ExitType.None;
+
+            PlayerCarryOvers = new PlayerCarryOver[playerTypes.Length];
+            for (int i = 0; i < playerTypes.Length; i++) {
+                PlayerCarryOvers[i] = new PlayerCarryOver {
+                    Type = playerTypes[i],
+                    Lives = 3
+                };
+            }
 
             LastEpisodeName = null;
         }

@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
-using Duality.Backend;
+
 using Duality.Resources;
+using Duality.Backend;
 
 namespace Duality.Drawing
 {
-    public class DrawDevice : IDrawDevice, IDisposable
+	public class DrawDevice : IDrawDevice, IDisposable
 	{
 		/// <summary>
 		/// Represents a drawing input from <see cref="AddVertices"/> using 
@@ -14,10 +16,29 @@ namespace Duality.Drawing
 		/// </summary>
 		private struct VertexDrawItem
 		{
-			public VertexDeclaration Type;
-			public int Offset;
-			public int Count;
+			/// <summary>
+			/// The offset in the shared vertex buffer where this drawing items vertex data begins.
+			/// </summary>
+			public ushort Offset;
+			/// <summary>
+			/// The number of vertices that are rendered by this drawing item.
+			/// </summary>
+			public ushort Count;
+			/// <summary>
+			/// The index of the vertex buffer that is used by this drawing item.
+			/// </summary>
+			public byte BufferIndex;
+			/// <summary>
+			/// The <see cref="VertexDeclaration"/> type index that describes the vertices used by this drawing item.
+			/// </summary>
+			public byte TypeIndex;
+			/// <summary>
+			/// The <see cref="VertexMode"/> that describes how the vertices are assembled into geometry.
+			/// </summary>
 			public VertexMode Mode;
+			/// <summary>
+			/// The material / <see cref="BatchInfo"/> that describes how the vertices will be rendered.
+			/// </summary>
 			public BatchInfo Material;
 
 			/// <summary>
@@ -30,7 +51,8 @@ namespace Duality.Drawing
 			{
 				return
 					this.Mode == other.Mode &&
-					this.Type == other.Type &&
+					this.TypeIndex == other.TypeIndex &&
+					this.BufferIndex == other.BufferIndex &&
 					this.Material.Equals(other.Material);
 			}
 			/// <summary>
@@ -43,15 +65,17 @@ namespace Duality.Drawing
 				return
 					this.Offset + this.Count == other.Offset &&
 					this.Mode == other.Mode &&
-					this.Type == other.Type &&
+					this.TypeIndex == other.TypeIndex &&
+					this.BufferIndex == other.BufferIndex &&
 					this.Material.Equals(other.Material);
 			}
 
 			public override string ToString()
 			{
+				VertexDeclaration declaration = VertexDeclaration.Get(this.TypeIndex);
 				return string.Format(
 					"{0}[{1}@{2}] as {3}, '{4}'",
-					this.Type.DataType.Name,
+					declaration.DataType.Name,
 					this.Count,
 					this.Offset,
 					this.Mode,
@@ -113,16 +137,16 @@ namespace Duality.Drawing
 					this.SortDepth);
 			}
 		}
-
-
+		
+		
 		/// <summary>
 		/// The default reference distance for perspective rendering.
 		/// </summary>
 		public const float DefaultFocusDist	= 500.0f;
 
-
+		
 		private bool                      disposed         = false;
-		private float                     nearZ            = 0.0f;
+		private float                     nearZ            = 50.0f;
 		private float                     farZ             = 10000.0f;
 		private float                     focusDist        = DefaultFocusDist;
 		private ClearFlag                 clearFlags       = ClearFlag.All;
@@ -130,51 +154,67 @@ namespace Duality.Drawing
 		private float                     clearDepth       = 1.0f;
 		private Vector2                   targetSize       = Vector2.Zero;
 		private Rect                      viewportRect     = Rect.Empty;
-		private Vector3                   refPos           = Vector3.Zero;
-		private float                     refAngle         = 0.0f;
+		private Vector3                   viewerPos        = Vector3.Zero;
+		private float                     viewerAngle      = 0.0f;
 		private ContentRef<RenderTarget>  renderTarget     = null;
-		private RenderMatrix              renderMode       = RenderMatrix.ScreenSpace;
-		private PerspectiveMode           perspective      = PerspectiveMode.Parallax;
-		private Matrix4                   matModelView     = Matrix4.Identity;
+		private ProjectionMode            projection       = ProjectionMode.Perspective;
+		private Matrix4                   matView          = Matrix4.Identity;
 		private Matrix4                   matProjection    = Matrix4.Identity;
 		private Matrix4                   matFinal         = Matrix4.Identity;
+		private Matrix4                   matFinalInv      = Matrix4.Identity;
 		private VisibilityFlag            visibilityMask   = VisibilityFlag.All;
 		private int                       pickingIndex     = 0;
 		private ShaderParameterCollection shaderParameters = new ShaderParameterCollection();
 
-		private RenderOptions                renderOptions      = new RenderOptions();
-		private RenderStats                  renderStats        = new RenderStats();
-		private List<BatchInfo>              tempMaterialPool   = new List<BatchInfo>();
-		private int                          tempMaterialIndex  = 0;
-		private VertexBatchStore             drawVertices       = new VertexBatchStore();
-		private RawList<VertexDrawItem>      drawBuffer         = new RawList<VertexDrawItem>();
-		private RawList<SortItem>            sortBufferSolid    = new RawList<SortItem>();
-		private RawList<SortItem>            sortBufferBlended  = new RawList<SortItem>();
-		private RawList<SortItem>            sortBufferTemp     = new RawList<SortItem>();
-		private RawList<DrawBatch>           batchBufferSolid   = new RawList<DrawBatch>();
-		private RawList<DrawBatch>           batchBufferBlended = new RawList<DrawBatch>();
-		private RawListPool<VertexDrawRange> batchIndexPool     = new RawListPool<VertexDrawRange>();
-		private int                          numRawBatches      = 0;
+		private RenderOptions                  renderOptions      = new RenderOptions();
+		private RenderStats                    renderStats        = new RenderStats();
+		private List<BatchInfo>                tempMaterialPool   = new List<BatchInfo>();
+		private int                            tempMaterialIndex  = 0;
+		private VertexBatchStore               drawVertices       = new VertexBatchStore(ushort.MaxValue);
+		private RawList<VertexDrawItem>        drawBuffer         = new RawList<VertexDrawItem>();
+		private RawList<SortItem>              sortBufferSolid    = new RawList<SortItem>();
+		private RawList<SortItem>              sortBufferBlended  = new RawList<SortItem>();
+		private RawList<SortItem>              sortBufferTemp     = new RawList<SortItem>();
+		private RawList<DrawBatch>             batchBufferSolid   = new RawList<DrawBatch>();
+		private RawList<DrawBatch>             batchBufferBlended = new RawList<DrawBatch>();
+		private RawListPool<VertexDrawRange>   batchIndexPool     = new RawListPool<VertexDrawRange>();
+		private RawList<RawList<VertexBuffer>> vertexBuffers      = new RawList<RawList<VertexBuffer>>();
+		private int                            numRawBatches      = 0;
 
 
 		public bool Disposed
 		{
 			get { return this.disposed; }
 		}
-		public Vector3 RefCoord
+		public Vector3 ViewerPos
 		{
-			get { return this.refPos; }
-			set { this.refPos = value; }
+			get { return this.viewerPos; }
+			set
+			{
+				if (this.viewerPos == value) return;
+				this.viewerPos = value;
+				this.UpdateMatrices();
+			}
 		}
-		public float RefAngle
+		public float ViewerAngle
 		{
-			get { return this.refAngle; }
-			set { this.refAngle = value; }
+			get { return this.viewerAngle; }
+			set
+			{
+				if (this.viewerAngle == value) return;
+				this.viewerAngle = value;
+				this.UpdateMatrices();
+			}
 		}
 		public float FocusDist
 		{
 			get { return this.focusDist; }
-			set { this.focusDist = value; }
+			set
+			{
+				if (this.focusDist == value) return;
+				this.focusDist = value;
+				this.UpdateMatrices();
+			}
 		}
 		public VisibilityFlag VisibilityMask
 		{
@@ -184,12 +224,22 @@ namespace Duality.Drawing
 		public float NearZ
 		{
 			get { return this.nearZ; }
-			set { this.nearZ = value; }
+			set
+			{
+				if (this.nearZ == value) return;
+				this.nearZ = value;
+				this.UpdateMatrices();
+			}
 		}
 		public float FarZ
 		{
 			get { return this.farZ; }
-			set { this.farZ = value; }
+			set
+			{
+				if (this.farZ == value) return;
+				this.farZ = value;
+				this.UpdateMatrices();
+			}
 		}
 		/// <summary>
 		/// [GET / SET] The clear color to apply when clearing the color buffer.
@@ -216,12 +266,17 @@ namespace Duality.Drawing
 			set { this.clearFlags = value; }
 		}
 		/// <summary>
-		/// [GET / SET] Specified the perspective effect that is applied when rendering the world.
+		/// [GET / SET] Specified the projection that is applied when rendering the world.
 		/// </summary>
-		public PerspectiveMode Perspective
+		public ProjectionMode Projection
 		{
-			get { return this.perspective; }
-			set { this.perspective = value; }
+			get { return this.projection; }
+			set
+			{
+				if (this.projection == value) return;
+				this.projection = value;
+				this.UpdateMatrices();
+			}
 		}
 		public ContentRef<RenderTarget> Target
 		{
@@ -237,11 +292,6 @@ namespace Duality.Drawing
 		{
 			get { return this.pickingIndex != 0; }
 		}
-		public RenderMatrix RenderMode
-		{
-			get { return this.renderMode; }
-			set { this.renderMode = value; }
-		}
 		public Rect ViewportRect
 		{
 			get { return this.viewportRect; }
@@ -250,11 +300,12 @@ namespace Duality.Drawing
 		public Vector2 TargetSize
 		{
 			get { return this.targetSize; }
-			set { this.targetSize = value; }
-		}
-		public bool DepthWrite
-		{
-			get { return this.renderMode != RenderMatrix.ScreenSpace; }
+			set
+			{
+				if (this.targetSize == value) return;
+				this.targetSize = value;
+				this.UpdateMatrices();
+			}
 		}
 		/// <summary>
 		/// [GET] Provides access to the drawing devices shared <see cref="ShaderParameterCollection"/>,
@@ -266,216 +317,132 @@ namespace Duality.Drawing
 			get { return this.shaderParameters; }
 		}
 
-
-		public DrawDevice() { }
-		~DrawDevice()
-		{
-			this.Dispose(false);
-		}
+		
 		public void Dispose()
 		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-		private void Dispose(bool manually)
-		{
-			if (!this.disposed)
-			{
-				// Release Resources
-				this.disposed = true;
+			if (this.disposed) return;
+			this.disposed = true;
 
-				// Set big object references to null to make
-				// sure they're garbage collected even when keeping
-				// a reference to the disposed DrawDevice around.
-				this.renderOptions = null;
-				this.renderStats = null;
-				this.tempMaterialPool = null;
-				this.drawVertices = null;
-				this.drawBuffer = null;
-				this.sortBufferSolid = null;
-				this.sortBufferBlended = null;
-				this.sortBufferTemp = null;
-				this.batchBufferSolid = null;
-				this.batchBufferBlended = null;
-				this.drawVertices = null;
-				this.batchIndexPool = null;
-			}
+			// Set big object references to null to make
+			// sure they're garbage collected even when keeping
+			// a reference to the disposed DrawDevice around.
+			this.renderOptions = null;
+			this.renderStats = null;
+			this.tempMaterialPool = null;
+			this.drawVertices = null;
+			this.drawBuffer = null;
+			this.sortBufferSolid = null;
+			this.sortBufferBlended = null;
+			this.sortBufferTemp = null;
+			this.batchBufferSolid = null;
+			this.batchBufferBlended = null;
+			this.batchIndexPool = null;
 		}
 
 		
 		/// <summary>
-		/// Returns the scale factor of objects that are located at the specified (world space) z-Coordinate.
+		/// Returns the scale factor of objects that are located at the specified world space Z position.
 		/// </summary>
 		/// <param name="z"></param>
 		/// <returns></returns>
 		public float GetScaleAtZ(float z)
 		{
-			if (this.perspective == PerspectiveMode.Parallax)
-				return this.focusDist / Math.Max(z - this.refPos.Z, this.nearZ);
+			if (this.projection == ProjectionMode.Screen)
+				return 1.0f;
+			else if (this.projection == ProjectionMode.Perspective)
+				return this.focusDist / Math.Max(z - this.viewerPos.Z, this.nearZ);
 			else
 				return this.focusDist / DefaultFocusDist;
 		}
 		/// <summary>
-		/// Transforms screen space coordinates to world space coordinates. The screen positions Z coordinate is
+		/// Transforms screen space to world space positions. The screen positions Z coordinate is
 		/// interpreted as the target world Z coordinate.
 		/// </summary>
 		/// <param name="screenPos"></param>
 		/// <returns></returns>
-		public Vector3 GetSpaceCoord(Vector3 screenPos)
+		public Vector3 GetWorldPos(Vector3 screenPos)
 		{
-			float targetZ = screenPos.Z;
+			// Determine which clip space depth and divide the target Z corresponds to
+			Vector4 targetWorldPos = new Vector4(0.0f, 0.0f, screenPos.Z, 1.0f);
+			Vector4 targetClipPos;
+			Vector4.Transform(ref targetWorldPos, ref this.matFinal, out targetClipPos);
 
-			// Since screenPos.Z is expected to be a world coordinate, first make that relative
-			Vector3 gameObjPos = this.refPos;
-			screenPos.Z -= gameObjPos.Z;
+			// Calculate the clip space position for the specified screen position
+			Vector4 clipPos;
+			clipPos.X = (2.0f * screenPos.X / this.targetSize.X) - 1.0f;
+			clipPos.Y = -(2.0f * screenPos.Y / this.targetSize.Y) + 1.0f;
+			clipPos.Z = targetClipPos.Z;
+			clipPos.W = targetClipPos.W;
 
-			Vector2 targetSize = this.TargetSize;
-			screenPos.X -= targetSize.X / 2;
-			screenPos.Y -= targetSize.Y / 2;
+			// Inverse perspective divide on the normalized screen coordinates
+			clipPos.X *= targetClipPos.W;
+			clipPos.Y *= targetClipPos.W;
 
-			MathF.TransformCoord(ref screenPos.X, ref screenPos.Y, this.refAngle);
+			// Do an inverse transformation with projection and view matrix
+			Vector4 worldPos;
+			Vector4.Transform(ref clipPos, ref this.matFinalInv, out worldPos);
+
+			return worldPos.Xyz;
+		}
+		/// <summary>
+		/// Transforms world space to screen space positions.
+		/// </summary>
+		/// <param name="worldPos"></param>
+		/// <returns></returns>
+		public Vector2 GetScreenPos(Vector3 worldPos)
+		{
+			// Transform coordinate into clip space
+			Vector4 worldPosFull = new Vector4(worldPos, 1.0f);
+			Vector4 clipPos;
+			Vector4.Transform(ref worldPosFull, ref this.matFinal, out clipPos);
 			
-			// Revert active perspective effect
-			float scaleTemp;
-			if (this.perspective == PerspectiveMode.Flat)
-			{
-				// Scale globally
-				scaleTemp = DefaultFocusDist / this.focusDist;
-				screenPos.X *= scaleTemp;
-				screenPos.Y *= scaleTemp;
-			}
-			else if (this.perspective == PerspectiveMode.Parallax)
-			{
-				// Scale distance-based
-				scaleTemp = Math.Max(screenPos.Z, this.nearZ) / this.focusDist;
-				screenPos.X *= scaleTemp;
-				screenPos.Y *= scaleTemp;
-			}
-			//else if (this.perspective == PerspectiveMode.Isometric)
-			//{
-			//    // Scale globally
-			//    scaleTemp = DefaultFocusDist / this.focusDist;
-			//    screenPos.X *= scaleTemp;
-			//    screenPos.Y *= scaleTemp;
-				
-			//    // Revert isometric projection
-			//    screenPos.Z += screenPos.Y;
-			//    screenPos.Y -= screenPos.Z;
-			//    screenPos.Z += this.focusDist;
-			//}
-			
-			// Make coordinates absolte
-			screenPos.X += gameObjPos.X;
-			screenPos.Y += gameObjPos.Y;
-			screenPos.Z += gameObjPos.Z;
+			// Apply the perspective divide and invert Y
+			float invClipW = 1.0f / MathF.Max(clipPos.W, 0.000001f);
+			clipPos.X *= invClipW;
+			clipPos.Y *= -invClipW;
 
-			//// For isometric projection, assure we'll meet the target Z value.
-			//if (this.perspective == PerspectiveMode.Isometric)
-			//{
-			//    screenPos.Y += screenPos.Z - targetZ;
-			//    screenPos.Z = targetZ;
-			//}
+			// Transform NDC coordinates to pixel coordinates
+			Vector2 screenPos;
+			screenPos.X = (clipPos.X + 1.0f) * 0.5f * this.targetSize.X;
+			screenPos.Y = (clipPos.Y + 1.0f) * 0.5f * this.targetSize.Y;
 
 			return screenPos;
 		}
+		
 		/// <summary>
-		/// Transforms world space coordinates to screen space coordinates.
+		/// Determines whether a point or sphere is inside the devices viewing frustum,
+		/// given a world space position and radius.
 		/// </summary>
-		/// <param name="spacePos"></param>
+		/// <param name="worldPos">The points world space position.</param>
+		/// <param name="radius">A world space radius around the point.</param>
 		/// <returns></returns>
-		public Vector3 GetScreenCoord(Vector3 spacePos)
+		public bool IsSphereInView(Vector3 worldPos, float radius)
 		{
-			// Make coordinates relative to the Camera
-			Vector3 gameObjPos = this.refPos;
-			spacePos.X -= gameObjPos.X;
-			spacePos.Y -= gameObjPos.Y;
-			spacePos.Z -= gameObjPos.Z;
+			// Transform coordinate into clip space
+			Vector4 worldPosFull = new Vector4(worldPos, 1.0f);
+			Vector4 clipPos;
+			Vector4.Transform(ref worldPosFull, ref this.matFinal, out clipPos);
 
-			// Apply active perspective effect
-			float scaleTemp;
-			if (this.perspective == PerspectiveMode.Flat)
-			{
-				// Scale globally
-				scaleTemp = this.focusDist / DefaultFocusDist;
-				spacePos.X *= scaleTemp;
-				spacePos.Y *= scaleTemp;
-			}
-			else if (this.perspective == PerspectiveMode.Parallax)
-			{
-				// Scale distance-based
-				scaleTemp = this.focusDist / Math.Max(spacePos.Z, this.nearZ);
-				spacePos.X *= scaleTemp;
-				spacePos.Y *= scaleTemp;
-			}
+			// If the perspective divide near zero or negative, we know it's something behind the camera. Discard.
+			if (clipPos.W < 0.000000001f) return false;
 
-			MathF.TransformCoord(ref spacePos.X, ref spacePos.Y, -this.refAngle);
+			// Apply the perspective divide
+			float invClipW = 1.0f / clipPos.W;
+			clipPos.X *= invClipW;
+			clipPos.Y *= invClipW;
+			clipPos.Z *= invClipW;
+			Vector2 clipRadius;
+			clipRadius.X = radius * Math.Abs(this.matProjection.Row0.X) * invClipW;
+			clipRadius.Y = radius * Math.Abs(this.matProjection.Row1.Y) * invClipW;
 
-			Vector2 targetSize = this.TargetSize;
-			spacePos.X += targetSize.X / 2;
-			spacePos.Y += targetSize.Y / 2;
-
-			// Since the result Z value is expected to be a world coordinate, make it absolute
-			spacePos.Z += gameObjPos.Z;
-			return spacePos;
-		}
-
-		public void PreprocessCoords(ref Vector3 pos, ref float scale)
-		{
-			if (this.renderMode == RenderMatrix.ScreenSpace) return;
-
-			// Make coordinates relative to the Camera
-			pos.X -= this.refPos.X;
-			pos.Y -= this.refPos.Y;
-			pos.Z -= this.refPos.Z;
-
-			// Apply active perspective effect
-			float scaleTemp;
-			if (this.perspective == PerspectiveMode.Flat)
-			{
-				// Scale globally
-				scaleTemp = this.focusDist / DefaultFocusDist;
-				pos.X *= scaleTemp;
-				pos.Y *= scaleTemp;
-				scale *= scaleTemp;
-			}
-			else if (this.perspective == PerspectiveMode.Parallax)
-			{
-				// Scale distance-based
-				scaleTemp = this.focusDist / Math.Max(pos.Z, this.nearZ);
-				pos.X *= scaleTemp;
-				pos.Y *= scaleTemp;
-				scale *= scaleTemp;
-			}
-		}
-		public bool IsCoordInView(Vector3 c, float boundRad)
-		{
-			if (this.renderMode == RenderMatrix.ScreenSpace)
-			{
-				if (c.Z < this.nearZ) return false;
-			}
-			else if (c.Z <= this.refPos.Z) return false;
-
-			// Retrieve center vertex coord
-			float scaleTemp = 1.0f;
-			this.PreprocessCoords(ref c, ref scaleTemp);
-
-			// Apply final (modelview and projection) matrix
-			Vector3 oldPosTemp = c;
-			Vector3.Transform(ref oldPosTemp, ref this.matFinal, out c);
-
-			// Apply projection matrices XY rotation and scale to bounding radius
-			boundRad *= scaleTemp;
-			Vector2 boundRadVec = new Vector2(
-				boundRad * Math.Abs(this.matFinal.Row0.X) + boundRad * Math.Abs(this.matFinal.Row1.X),
-				boundRad * Math.Abs(this.matFinal.Row0.Y) + boundRad * Math.Abs(this.matFinal.Row1.Y));
-
+			// Check if the result would still be within valid device coordinates
 			return 
-				c.Z >= -1.0f &&
-				c.Z <= 1.0f &&
-				c.X >= -1.0f - boundRadVec.X &&
-				c.Y >= -1.0f - boundRadVec.Y &&
-				c.X <= 1.0f + boundRadVec.X &&
-				c.Y <= 1.0f + boundRadVec.Y;
+				clipPos.Z >= -1.0f &&
+				clipPos.Z <= 1.0f &&
+				clipPos.X >= -1.0f - clipRadius.X &&
+				clipPos.X <= 1.0f + clipRadius.X &&
+				clipPos.Y >= -1.0f - clipRadius.Y &&
+				clipPos.Y <= 1.0f + clipRadius.Y;
 		}
 		
 		/// <summary>
@@ -492,7 +459,19 @@ namespace Duality.Drawing
 
 			return this.tempMaterialPool[index];
 		}
-
+		
+		/// <summary>
+		/// Adds a parameterized set of vertices to the drawing devices rendering schedule.
+		/// </summary>
+		/// <typeparam name="T">The type of vertex data to add.</typeparam>
+		/// <param name="material">The <see cref="Duality.Drawing.BatchInfo"/> to use for rendering the vertices.</param>
+		/// <param name="vertexMode">The vertices drawing mode.</param>
+		/// <param name="vertexBuffer">
+		/// A vertex data buffer that stores the vertices to add. Ownership of the buffer
+		/// remains at the callsite, while the <see cref="IDrawDevice"/> copies the required
+		/// data into internal storage.
+		/// </param>
+		/// <param name="vertexCount">The number of vertices to add, from the beginning of the buffer.</param>
 		public void AddVertices<T>(BatchInfo material, VertexMode vertexMode, T[] vertexBuffer, int vertexOffset, int vertexCount) where T : struct, IVertexData
 		{
 			if (vertexCount == 0) return;
@@ -517,7 +496,7 @@ namespace Duality.Drawing
 				material = this.RentMaterial(material);
 				material.Technique = DrawTechnique.Solid;
 			}
-
+			
 			// Move the added vertices to an internal shared buffer
 			VertexSlice<T> slice = this.drawVertices.Rent<T>(vertexCount);
 			Array.Copy(vertexBuffer, vertexOffset, slice.Data, slice.Offset, slice.Length);
@@ -525,15 +504,16 @@ namespace Duality.Drawing
 			// Aggregate all info we have about our incoming vertices
 			VertexDrawItem drawItem = new VertexDrawItem
 			{
-				Type = VertexDeclaration.Get<T>(),
-				Offset = slice.Offset,
-				Count = slice.Length,
+				Offset = (ushort)slice.Offset,
+				Count = (ushort)slice.Length,
+				BufferIndex = (byte)(this.drawVertices.GetBatchCount<T>() - 1),
+				TypeIndex = (byte)VertexDeclaration.Get<T>().TypeIndex,
 				Mode = vertexMode,
 				Material = material
 			};
-
+			
 			// Determine whether we need depth sorting and calculate a reference depth
-			bool sortByDepth = !this.DepthWrite || material.Technique.Res.NeedsZSort;
+			bool sortByDepth = (this.projection == ProjectionMode.Screen) || material.Technique.Res.NeedsZSort;
 			RawList<SortItem> sortBuffer = sortByDepth ? this.sortBufferBlended : this.sortBufferSolid;
 			SortItem sortItem = new SortItem();
 			if (sortByDepth)
@@ -577,6 +557,17 @@ namespace Duality.Drawing
 				this.drawBuffer.Add(drawItem);
 			}
 
+			++this.numRawBatches;
+		}
+		/// <summary>
+		/// Adds an already prepared batch to the drawing devices rendering schedule.
+		/// </summary>
+		/// <param name="batch"></param>
+		public void AddBatch(DrawBatch batch)
+		{
+			bool sortByDepth = (this.projection == ProjectionMode.Screen) || batch.Material.Technique.Res.NeedsZSort;
+			RawList<DrawBatch> batchBuffer = sortByDepth ? this.batchBufferBlended : this.batchBufferSolid;
+			batchBuffer.Add(batch);
 			++this.numRawBatches;
 		}
 		/// <summary>
@@ -626,12 +617,6 @@ namespace Duality.Drawing
 			this.AddVertices(material, VertexMode.Quads, vertices);
 		}
 
-		public void UpdateMatrices()
-		{
-			this.UpdateModelViewMatrix();
-			this.UpdateProjectionMatrix();
-			this.matFinal = this.matModelView * this.matProjection;
-		}
 		public void PrepareForDrawcalls()
 		{
 			// Recalculate matrices according to current mode
@@ -642,23 +627,26 @@ namespace Duality.Drawing
 			if (DualityApp.GraphicsBackend == null) return;
 
 			// Prepare forwarding the collected data and parameters to the graphics backend
+			this.UploadVertexData();
 			this.AggregateBatches();
 			this.UpdateBuiltinShaderParameters();
 
+			bool overlayMode = (this.projection == ProjectionMode.Screen);
 			this.renderOptions.ClearFlags = this.clearFlags;
 			this.renderOptions.ClearColor = this.clearColor;
 			this.renderOptions.ClearDepth = this.clearDepth;
 			this.renderOptions.Viewport = this.viewportRect;
-			this.renderOptions.RenderMode = this.renderMode;
-			this.renderOptions.ModelViewMatrix = this.matModelView;
+			this.renderOptions.ViewMatrix = this.matView;
 			this.renderOptions.ProjectionMatrix = this.matProjection;
+			this.renderOptions.DepthTest = !overlayMode;
+			this.renderOptions.DepthWrite = !overlayMode;
 			this.renderOptions.Target = this.renderTarget.IsAvailable ? this.renderTarget.Res.Native : null;
 			this.renderOptions.ShaderParameters = this.shaderParameters;
 
 			this.renderStats.Reset();
 
 			// Invoke graphics backend functionality to do the rendering
-			DualityApp.GraphicsBackend.BeginRendering(this, this.drawVertices, this.renderOptions, this.renderStats);
+			DualityApp.GraphicsBackend.BeginRendering(this, this.renderOptions, this.renderStats);
 			{
 				//Profile.TimeProcessDrawcalls.BeginMeasure();
 
@@ -671,7 +659,7 @@ namespace Duality.Drawing
 			}
 			DualityApp.GraphicsBackend.EndRendering();
 			//Profile.StatNumDrawcalls.Add(this.renderStats.DrawCalls);
-			
+
 			// Reset all temp materials and return them to the pool
 			for (int i = 0; i < this.tempMaterialIndex; i++)
 			{
@@ -694,8 +682,6 @@ namespace Duality.Drawing
 
 		private float CalcZSortIndex<T>(T[] vertices, int offset, int count) where T : struct, IVertexData
 		{
-			if (count < 0) count = vertices.Length;
-
 			// Require double precision, so we don't get "z fighting" issues in our sort.
 			double zSortIndex = 0.0d;
 			for (int i = 0; i < count; i++)
@@ -704,48 +690,91 @@ namespace Duality.Drawing
 			}
 			return (float)(zSortIndex / (double)count);
 		}
-
-		private void UpdateModelViewMatrix()
+		
+		private void UpdateMatrices()
 		{
-            this.matModelView = Matrix4.Identity;
-			if (this.renderMode == RenderMatrix.ScreenSpace) return;
-
-            // Translate objects contrary to the camera
-            // Removed: Do this in software now for custom perspective / parallax support
-            // modelViewMat *= Matrix4.CreateTranslation(-this.GameObj.Transform.Pos);
-
-            // Rotate them according to the camera angle
-            this.matModelView *= Matrix4.CreateRotationZ(-this.refAngle);
+			this.UpdateViewMatrix();
+			this.UpdateProjectionMatrix();
+			this.matFinal = this.matView * this.matProjection;
+			Matrix4.Invert(ref this.matFinal, out this.matFinalInv);
+		}
+		private void UpdateViewMatrix()
+		{
+			this.matView = Matrix4.Identity;
+			if (this.projection != ProjectionMode.Screen)
+			{
+				// Translate opposite to camera position
+				this.matView *= Matrix4.CreateTranslation(-this.viewerPos);
+				// Rotate opposite to camera angle
+				this.matView *= Matrix4.CreateRotationZ(-this.viewerAngle);
+			}
 		}
 		private void UpdateProjectionMatrix()
 		{
-            Rect targetRect = new Rect(this.targetSize);
+			Rect targetRect = new Rect(this.targetSize);
 
-            if (this.renderMode == RenderMatrix.ScreenSpace)
+			// Flip Z direction from "out of the screen" to "into the screen".
+			Matrix4 flipZDir;
+			Matrix4.CreateScale(1.0f, 1.0f, -1.0f, out flipZDir);
+
+			if (this.projection == ProjectionMode.Screen)
+			{
+				// When rendering in screen space, all reasonable positive depth should be valid,
+				// so we'll ignore any of the projection specific near and far plane settings.
+				Matrix4.CreateOrthographicOffCenter(
+					targetRect.X,
+					targetRect.X + targetRect.W, 
+					targetRect.Y + targetRect.H, 
+					targetRect.Y, 
+					// These values give us a linear depth precision of ~0.006 at 24 bit
+					0.0f, 
+					100000.0f,
+					out this.matProjection);
+
+				this.matProjection = flipZDir * this.matProjection;
+			}
+			else if (this.projection == ProjectionMode.Orthographic)
 			{
 				Matrix4.CreateOrthographicOffCenter(
-                    targetRect.X,
-                    targetRect.X + targetRect.W,
-                    targetRect.Y + targetRect.H,
-                    targetRect.Y, 
+					targetRect.X - targetRect.W * 0.5f,
+					targetRect.X + targetRect.W * 0.5f, 
+					targetRect.Y + targetRect.H * 0.5f, 
+					targetRect.Y - targetRect.H * 0.5f,
 					this.nearZ, 
 					this.farZ,
 					out this.matProjection);
-                // Flip Z direction from "out of the screen" to "into the screen".
-                this.matProjection.M33 = -this.matProjection.M33;
+
+				// In non-perspective projection, we'll use FocusDist for scaling
+				Matrix4 scaleByFocusDist;
+				Matrix4.CreateScale(
+					this.focusDist / DefaultFocusDist, 
+					this.focusDist / DefaultFocusDist,
+					1.0f,
+					out scaleByFocusDist);
+
+				this.matProjection = scaleByFocusDist * flipZDir * this.matProjection;
 			}
 			else
 			{
-				Matrix4.CreateOrthographicOffCenter(
-                    targetRect.X - targetRect.W * 0.5f,
-                    targetRect.X + targetRect.W * 0.5f,
-                    targetRect.Y + targetRect.H * 0.5f,
-                    targetRect.Y - targetRect.H * 0.5f, 
-					this.nearZ, 
+				// Clamp near plane to above-zero, so we avoid division by zero problems
+				float clampedNear = MathF.Max(this.nearZ, 1.0f);
+
+				Matrix4.CreatePerspectiveOffCenter(
+					targetRect.X - targetRect.W * 0.5f, 
+					targetRect.X + targetRect.W * 0.5f, 
+					targetRect.Y + targetRect.H * 0.5f, 
+					targetRect.Y - targetRect.H * 0.5f, 
+					clampedNear, 
 					this.farZ,
 					out this.matProjection);
-                // Flip Z direction from "out of the screen" to "into the screen".
-                this.matProjection.M33 = -this.matProjection.M33;
+
+				this.matProjection = flipZDir * this.matProjection;
+
+				// Apply custom "focus distance", where objects appear at 1:1 scale.
+				// Otherwise, that distance would be the near plane. 
+				this.matProjection.M33 *= clampedNear / this.focusDist; // Output Z scale
+				this.matProjection.M43 *= clampedNear / this.focusDist; // Output Z offset
+				this.matProjection.M34 *= clampedNear / this.focusDist; // Perspective divide scale
 			}
 		}
 
@@ -760,12 +789,50 @@ namespace Duality.Drawing
 			this.shaderParameters.Set(BuiltinShaderFields.DeltaTime, Time.DeltaTime);
 			this.shaderParameters.Set(BuiltinShaderFields.FrameCount, Time.FrameCount);
 
-			this.shaderParameters.Set(BuiltinShaderFields.CameraPosition, this.refPos);
-			this.shaderParameters.Set(BuiltinShaderFields.CameraParallax, this.perspective == PerspectiveMode.Parallax);
+			this.shaderParameters.Set(BuiltinShaderFields.CameraPosition, this.viewerPos);
+			this.shaderParameters.Set(BuiltinShaderFields.CameraIsPerspective, this.projection == ProjectionMode.Perspective);
 			this.shaderParameters.Set(BuiltinShaderFields.CameraFocusDist, this.focusDist);
+			this.shaderParameters.Set(BuiltinShaderFields.ViewSize, this.targetSize);
+		}
+		/// <summary>
+		/// Uploads all dynamically gathered vertex data to the GPU using the internal <see cref="vertexBuffers"/> pool.
+		/// </summary>
+		private void UploadVertexData()
+		{
+			// Note that there is a 1:1 mapping between gathered vertex batches and vertex buffers.
+			// We'll keep all buffers around until the drawdevice is disposed, in case we might need
+			// them again later.
+			this.vertexBuffers.Count = Math.Max(this.vertexBuffers.Count, this.drawVertices.TypeIndexCount);
+			for (int typeIndex = 0; typeIndex < this.drawVertices.TypeIndexCount; typeIndex++)
+			{
+				// Filter out unused vertex types
+				IReadOnlyList<IVertexBatch> batches = this.drawVertices.GetBatches(typeIndex);
+				if (batches == null) continue;
+				if (batches.Count == 0) continue;
 
-            this.shaderParameters.Set(BuiltinShaderFields.ViewSize, this.targetSize);
-        }
+				// Upload all vertex batches for this vertex type
+				if (this.vertexBuffers[typeIndex] == null)
+					this.vertexBuffers[typeIndex] = new RawList<VertexBuffer>();
+				this.vertexBuffers[typeIndex].Count = Math.Max(this.vertexBuffers[typeIndex].Count, batches.Count);
+				for (int batchIndex = 0; batchIndex < batches.Count; batchIndex++)
+				{
+					IVertexBatch vertexBatch = batches[batchIndex];
+
+					// Generate a VertexBuffer for this vertex type and batch index, if it didn't exist yet
+					if (this.vertexBuffers[typeIndex][batchIndex] == null)
+						this.vertexBuffers[typeIndex][batchIndex] = new VertexBuffer();
+
+					// Upload the vertex batch to 
+					using (PinnedArrayHandle pinned = vertexBatch.Lock())
+					{
+						this.vertexBuffers[typeIndex][batchIndex].LoadVertexData(
+							vertexBatch.Declaration, 
+							pinned.Address, 
+							vertexBatch.Count);
+					}
+				}
+			}
+		}
 
 		private static int MaterialSortComparison(SortItem first, SortItem second)
 		{
@@ -781,6 +848,7 @@ namespace Duality.Drawing
 			else
 				return 1;
 		}
+
 		private void AggregateBatches()
 		{
 			//int batchCountBefore = this.sortBufferSolid.Count + this.sortBufferBlended.Count;
@@ -831,7 +899,7 @@ namespace Duality.Drawing
 				if (i >= count) break;
 				
 				int drawIndex = sortData[i].DrawItemIndex;
-				int vertexTypeIndex = drawData[drawIndex].Type.TypeIndex;
+				int vertexTypeIndex = drawData[drawIndex].TypeIndex;
 				VertexMode vertexMode = drawData[drawIndex].Mode;
 				BatchInfo material = drawData[drawIndex].Material;
 
@@ -844,15 +912,12 @@ namespace Duality.Drawing
 					matHash = (13 * matHash + 17 * (matHash >> 9)) % (1 << 23);
 				}
 
-				// Bit significancy is used to achieve sorting by multiple traits at once.
-				// The higher a traits bit significancy, the higher its priority when sorting.
+				// Bit significance is used to achieve sorting by multiple traits at once.
+				// The higher a traits bit significance, the higher its priority when sorting.
 				sortData[i].SortIndex = 
 					(((int)vertexMode & 15) << 0) | //                           XXXX  4 Bit   Vertex Mode  Offset 4
 					((matHash & 8388607) << 4) |    //    XXXXXXXXXXXXXXXXXXXXXXXaaaa  23 Bit  Material     Offset 27
 					((vertexTypeIndex & 15) << 27); // XXXbbbbbbbbbbbbbbbbbbbbbbbaaaa  4 Bit   Vertex Type  Offset 31
-
-				// Keep an eye on this. If for example two material hash codes randomly have the same 23 lower bits, they
-				// will be sorted as if equal, resulting in blocking batch aggregation.
 			}
 		}
 		private void AggregateBatches(RawList<SortItem> sortItems, RawList<VertexDrawItem> drawItems, RawList<DrawBatch> batches)
@@ -877,8 +942,9 @@ namespace Duality.Drawing
 				}
 
 				// Create a batch for all previous items
+				VertexBuffer vertexBuffer = this.vertexBuffers[activeItem.TypeIndex][activeItem.BufferIndex];
 				DrawBatch batch = new DrawBatch(
-					activeItem.Type, 
+					vertexBuffer, 
 					this.batchIndexPool.Rent(sortIndex - beginBatchIndex), 
 					activeItem.Mode,
 					activeItem.Material);
@@ -917,10 +983,9 @@ namespace Duality.Drawing
 				ClearFlags = ClearFlag.All,
 				ClearColor = color,
 				ClearDepth = 1.0f,
-				Viewport = viewportRect,
-				RenderMode = RenderMatrix.ScreenSpace
+				Viewport = viewportRect
 			};
-			DualityApp.GraphicsBackend.BeginRendering(null, null, options);
+			DualityApp.GraphicsBackend.BeginRendering(null, options);
 			DualityApp.GraphicsBackend.EndRendering();
 		}
 	}

@@ -201,19 +201,27 @@ namespace Jazz2.Storage.Content
             path = path.Replace(PathOp.AltDirectorySeparatorChar, PathOp.DirectorySeparatorChar);
 
             if (recursive) {
-                Stack<Tuple<ContentTree.Node, string>> stack = new Stack<Tuple<ContentTree.Node, string>>();
-                stack.Push(Tuple.Create(this.tree[path], path));
+                string parentPath;
+                int idx = path.LastIndexOf(PathOp.DirectorySeparatorChar);
+                if (idx == -1) {
+                    parentPath = string.Empty;
+                } else {
+                    parentPath = path.Substring(0, idx);
+                }
+
+                Queue<Tuple<ContentTree.Node, string>> stack = new Queue<Tuple<ContentTree.Node, string>>();
+                stack.Enqueue(Tuple.Create(this.tree[path], parentPath));
 
                 do {
-                    Tuple<ContentTree.Node, string> parent = stack.Pop();
+                    Tuple<ContentTree.Node, string> parent = stack.Dequeue();
                     string fullPath = PathOp.Combine(parent.Item2, parent.Item1.Name);
 
                     if (parent.Item1.Source != null) {
-                        yield return PathOp.Combine(fullPath);
+                        yield return fullPath;
                     }
 
                     foreach (ContentTree.Node node in parent.Item1) {
-                        stack.Push(Tuple.Create(node, fullPath));
+                        stack.Enqueue(Tuple.Create(node, fullPath));
                     }
                 } while (stack.Count > 0);
             } else {
@@ -230,19 +238,27 @@ namespace Jazz2.Storage.Content
             path = path.Replace(PathOp.AltDirectorySeparatorChar, PathOp.DirectorySeparatorChar);
 
             if (recursive) {
-                Stack<Tuple<ContentTree.Node, string>> stack = new Stack<Tuple<ContentTree.Node, string>>();
-                stack.Push(Tuple.Create(this.tree[path], path));
+                string parentPath;
+                int idx = path.LastIndexOf(PathOp.DirectorySeparatorChar);
+                if (idx == -1) {
+                    parentPath = string.Empty;
+                } else {
+                    parentPath = path.Substring(0, idx);
+                }
+
+                Queue<Tuple<ContentTree.Node, string>> stack = new Queue<Tuple<ContentTree.Node, string>>();
+                stack.Enqueue(Tuple.Create(this.tree[path], parentPath));
 
                 do {
-                    Tuple<ContentTree.Node, string> parent = stack.Pop();
+                    Tuple<ContentTree.Node, string> parent = stack.Dequeue();
                     string fullPath = PathOp.Combine(parent.Item2, parent.Item1.Name);
 
                     if (parent.Item1.Source == null) {
-                        yield return PathOp.Combine(fullPath);
+                        yield return fullPath;
                     }
 
                     foreach (ContentTree.Node node in parent.Item1) {
-                        stack.Push(Tuple.Create(node, fullPath));
+                        stack.Enqueue(Tuple.Create(node, fullPath));
                     }
                 } while (stack.Count > 0);
             } else {

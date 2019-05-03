@@ -4,9 +4,9 @@ using Jazz2.Game.UI.Menu.S;
 
 namespace Jazz2.Game.UI.Menu
 {
-    public class CustomGameSection : MainMenuSectionWithControls
+    public class CustomGameSection : MenuSectionWithControls
     {
-        public override void OnShow(MainMenu root)
+        public override void OnShow(IMenuContainer root)
         {
             base.OnShow(root);
 

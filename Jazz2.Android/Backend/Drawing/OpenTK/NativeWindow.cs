@@ -1,6 +1,6 @@
 ﻿using System;
 using Android.Views;
-using Duality.Android;
+using Jazz2.Android;
 
 namespace Duality.Backend.Android.OpenTK
 {
@@ -10,7 +10,7 @@ namespace Duality.Backend.Android.OpenTK
 
         public NativeWindow(WindowOptions options)
         {
-            ((INativeWindow)this).ScreenMode = options.ScreenMode;
+            this.ScreenMode = options.ScreenMode;
         }
 
         void IDisposable.Dispose()
@@ -19,10 +19,10 @@ namespace Duality.Backend.Android.OpenTK
 
         void INativeWindow.Run()
         {
-            // DualityActivity runs automatically
+            // Activity runs automatically
         }
 
-        string INativeWindow.Title
+        public string Title
         {
             get
             {
@@ -42,7 +42,27 @@ namespace Duality.Backend.Android.OpenTK
             }
         }
 
-        ScreenMode INativeWindow.ScreenMode
+        public Point2 Size
+        {
+            get { return Point2.Zero; }
+            set { }
+        }
+
+        public RefreshMode RefreshMode
+        {
+            get { return RefreshMode.VSync; }
+            set
+            {
+                // Only VSync is supported on Android
+                if (value == RefreshMode.VSync) {
+                    return;
+                }
+                
+                throw new NotSupportedException();
+            }
+        }
+        
+        public ScreenMode ScreenMode
         {
             get { return screenMode; }
             set

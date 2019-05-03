@@ -3,12 +3,12 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Duality;
+using Duality.Drawing;
 using Import;
 
 namespace Jazz2.Compatibility
@@ -416,12 +416,19 @@ namespace Jazz2.Compatibility
                         version = JJ2Version.BaseGame | JJ2Version.SharewareDemo;
                         Log.Write(LogType.Info, "Detected Jazz Jackrabbit 2 (v1.20/1.23): Shareware Demo.");
                     }
-                } else if (headerLen == 500 && seemsLikeCC) {
-                    version = JJ2Version.CC;
-                    Log.Write(LogType.Info, "Detected Jazz Jackrabbit 2: Christmas Chronicles.");
-                } else if (headerLen == 500 && !seemsLikeCC) {
-                    version = JJ2Version.TSF;
-                    Log.Write(LogType.Info, "Detected Jazz Jackrabbit 2: The Secret Files.");
+                } else if (headerLen == 500) {
+                    if (!isStreamComplete) {
+                        version = JJ2Version.TSF | JJ2Version.SharewareDemo;
+                        Log.Write(LogType.Info, "Detected Jazz Jackrabbit 2: The Secret Files Demo.");
+                        Log.Write(LogType.Error, "Sorry, but this version is not supported yet!");
+                        return;
+                    } else if (seemsLikeCC) {
+                        version = JJ2Version.CC;
+                        Log.Write(LogType.Info, "Detected Jazz Jackrabbit 2: Christmas Chronicles.");
+                    } else {
+                        version = JJ2Version.TSF;
+                        Log.Write(LogType.Info, "Detected Jazz Jackrabbit 2: The Secret Files.");
+                    }
                 } else if (headerLen == 476) {
                     version = JJ2Version.HH;
                     Log.Write(LogType.Info, "Detected Jazz Jackrabbit 2: Holiday Hare '98.");
@@ -480,9 +487,8 @@ namespace Jazz2.Compatibility
                             currentAnim.FrameConfigurationY = 1;
                         }
 
-                        Bitmap img = new Bitmap(sizeX * currentAnim.FrameConfigurationX,
-                            sizeY * currentAnim.FrameConfigurationY,
-                            PixelFormat.Format32bppArgb);
+                        PngWriter img = new PngWriter(sizeX * currentAnim.FrameConfigurationX,
+                            sizeY * currentAnim.FrameConfigurationY);
 
                         // ToDo: Hardcoded name
                         bool applyToasterPowerUpFix = (data.Category == "Object" && data.Name == "powerup_upgrade_toaster");
@@ -513,11 +519,11 @@ namespace Jazz2.Compatibility
                                         }
                                     }
 
-                                    Color color = data.Palette[colorIdx];
+                                    ColorRgba color = data.Palette[colorIdx];
 
                                     // Apply transparency
                                     if (frame.DrawTransparent) {
-                                        color = Color.FromArgb(Math.Min(/*127*/140, (int)color.A), color);
+                                        color.A = Math.Min((byte)/*127*/140, color.A);
                                     }
 
                                     img.SetPixel(targetX, targetY, color);
@@ -538,15 +544,14 @@ namespace Jazz2.Compatibility
                         }
                         filename = Path.Combine(targetPath, filename);
 
-                        img.Save(filename, ImageFormat.Png);
+                        img.Save(filename);
 
                         if (!string.IsNullOrEmpty(data.Name) && !data.SkipNormalMap) {
-                            using (Bitmap normalMap = NormalMapGenerator.FromSprite(img,
+                            PngWriter normalMap = NormalMapGenerator.FromSprite(img,
                                     new Point(currentAnim.FrameConfigurationX, currentAnim.FrameConfigurationY),
-                                    !data.AllowRealtimePalette && data.Palette == JJ2DefaultPalette.ByIndex ? JJ2DefaultPalette.Sprite : null)) {
+                                    !data.AllowRealtimePalette && data.Palette == JJ2DefaultPalette.ByIndex ? JJ2DefaultPalette.Sprite : null);
 
-                                normalMap.Save(filename.Replace(".png", ".n.png"), ImageFormat.Png);
-                            }
+                            normalMap.Save(filename.Replace(".png", ".n.png"));
                         }
 
                         CreateAnimationMetadataFile(filename, currentAnim, data, version, sizeX, sizeY);
@@ -583,7 +588,7 @@ namespace Jazz2.Compatibility
                         sourceVersion = "The Secret Files (1.24)";
                         break;
                     case JJ2Version.PlusExtension:
-                        sourceVersion = "Plus";
+                        sourceVersion = "JJ2+";
                         break;
                     default:
                         sourceVersion = "Unknown";
@@ -601,10 +606,12 @@ namespace Jazz2.Compatibility
                 w.WriteLine("    },");
 
                 int flags = 0x00;
-                if (!data.AllowRealtimePalette && data.Palette == JJ2DefaultPalette.ByIndex)
+                if (!data.AllowRealtimePalette && data.Palette == JJ2DefaultPalette.ByIndex) {
                     flags |= 0x01;
-                if (!data.AllowRealtimePalette) // Use Linear Sampling, only if the palette is applied in pre-processing stage
+                }
+                if (!data.AllowRealtimePalette) {// Use Linear Sampling, only if the palette is applied in pre-processing stage
                     flags |= 0x02;
+                }
 
                 if (flags != 0x00) {
                     w.WriteLine("    \"Flags\": " + flags + ",");

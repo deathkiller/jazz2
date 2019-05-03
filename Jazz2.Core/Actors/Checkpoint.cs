@@ -25,7 +25,7 @@ namespace Jazz2.Actors
         public override void OnHandleCollision(ActorBase other)
         {
             switch (other) {
-                case Player player:
+                case Player player: {
                     if (!activated) {
                         activated = true;
 
@@ -37,6 +37,7 @@ namespace Jazz2.Actors
                         PlaySound("TransitionActivate");
                     }
                     break;
+                }
             }
         }
     }

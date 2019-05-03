@@ -25,7 +25,7 @@ namespace Jazz2.Game.Structs
         // the current actor state
         Crouch = 0x00000020,
         Lookup = 0x00000040,
-        IdleAnim = 0x00000080, // ToDo: Not implemented yes
+        Dizzy = 0x00000080,
         Buttstomp = 0x00000100,
         Uppercut = 0x00000200,
         Airboard = 0x00000400,
@@ -67,6 +67,8 @@ namespace Jazz2.Game.Structs
         TransitionWarpInFreefall = 0x40000017,
         TransitionWarpOutFreefall = 0x40000018,
 
+        TransitionIdleBored = 0x40000019,
+
         TransitionDashToIdle = 0x40000020,
         TransitionIdleToShoot = 0x40000021,
         TransitionButtstompEnd = 0x40000022,
@@ -78,6 +80,9 @@ namespace Jazz2.Game.Structs
         TransitionLedgeClimb = 0x40000026,
 
         TransitionFallShootToFall = 0x40000030,
+
+        TransitionFromFrog = 0x40000040,
+
 
         // Aliases for object states overlapping player states
         Activated = 0x00000020,

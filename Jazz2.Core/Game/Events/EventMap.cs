@@ -38,7 +38,7 @@ namespace Jazz2.Game.Events
             public int X, Y;
         }
 
-        private readonly LevelHandler levelHandler;
+        private LevelHandler levelHandler;
 
         private EventTile[] eventLayout;
         private int layoutWidth, layoutHeight;
@@ -66,7 +66,11 @@ namespace Jazz2.Game.Events
 
         protected override void Dispose(bool disposing)
         {
-            ContentResolver.Current.ResourceReady -= OnResourceReady;
+            if (DualityApp.ExecContext != DualityApp.ExecutionContext.Terminated) {
+                ContentResolver.Current.ResourceReady -= OnResourceReady;
+            }
+
+            levelHandler = null;
         }
 
 #if NET45
@@ -105,8 +109,9 @@ namespace Jazz2.Game.Events
             int ty = (int)y / 32;
 
             ushort[] eventParams = null;
-            if (GetEventByPosition(tx, ty, ref eventParams) != EventType.ModifierHurt)
+            if (GetEventByPosition(tx, ty, ref eventParams) != EventType.ModifierHurt) {
                 return false;
+            }
 
             return !levelHandler.TileMap.IsTileEmpty(tx, ty);
         }
@@ -144,7 +149,8 @@ namespace Jazz2.Game.Events
         {
             List<Vector2> targets;
             if (!warpTargets.TryGetValue(id, out targets)) {
-                warpTargets[id] = targets = new List<Vector2>();
+                targets = new List<Vector2>();
+                warpTargets[id] = targets;
             }
 
             targets.Add(new Vector2(x * 32 + 16, y * 32 + 12));
@@ -164,17 +170,16 @@ namespace Jazz2.Game.Events
         {
             List<Vector2> targets;
             if (!spawnPositions.TryGetValue(type, out targets)) {
-                spawnPositions[type] = targets = new List<Vector2>();
+                targets = new List<Vector2>();
+                spawnPositions[type] = targets;
             }
 
             targets.Add(new Vector2(32 * x + 16, 32 * y + 16 - 8));
         }
 
-        public void ReadEvents(string filename, uint layoutVersion, GameDifficulty difficulty)
+        public void ReadEvents(Stream s, uint layoutVersion, GameDifficulty difficulty)
         {
-            using (Stream s = FileOp.Open(filename, FileAccessMode.Read))
-            using (DeflateStream ds = new DeflateStream(s, CompressionMode.Decompress))
-            using (BinaryReader r = new BinaryReader(ds)) {
+            using (BinaryReader r = new BinaryReader(s)) {
                 int width = r.ReadInt32();
                 int height = r.ReadInt32();
 
@@ -328,7 +333,7 @@ namespace Jazz2.Game.Events
                 if (!eventLayout[generator.EventPos].IsEventActive) {
                     // Generator is inactive (and recharging)
                     generator.TimeLeft -= Time.TimeMult;
-                } else if (generator.SpawnedActor == null || generator.SpawnedActor.ParentScene == null) {
+                } else if (generator.SpawnedActor == null || generator.SpawnedActor.Scene == null) {
                     if (generator.TimeLeft <= 0f) {
                         // Generator is active and is ready to spawn new actor
                         generator.TimeLeft = generator.Delay * Time.FramesPerSecond;
@@ -350,7 +355,7 @@ namespace Jazz2.Game.Events
             }
         }
 
-        public void ActivateEvents(int tx, int ty, int tileDistance)
+        public void ActivateEvents(int tx1, int ty1, int tx2, int ty2)
         {
             TileMap tiles = levelHandler.TileMap;
             if (tiles == null) {
@@ -359,10 +364,10 @@ namespace Jazz2.Game.Events
 
             Point2 levelSize = tiles.Size;
 
-            int x1 = MathF.Max(0, tx - tileDistance);
-            int x2 = MathF.Min(levelSize.X - 1, tx + tileDistance);
-            int y1 = MathF.Max(0, ty - tileDistance);
-            int y2 = MathF.Min(levelSize.Y - 1, ty + tileDistance);
+            int x1 = MathF.Max(0, tx1);
+            int x2 = MathF.Min(levelSize.X - 1, tx2);
+            int y1 = MathF.Max(0, ty1);
+            int y2 = MathF.Min(levelSize.Y - 1, ty2);
 
             for (int x = x1; x <= x2; x++) {
                 for (int y = y1; y <= y2; y++) {

@@ -92,23 +92,20 @@ namespace Editor.UI.CamView
         }
         public bool IsCoordInView(Vector3 c, float boundRad = 1.0f)
         {
-            return this.CameraComponent.IsCoordInView(c, boundRad);
+            return this.CameraComponent.IsSphereInView(c, boundRad);
         }
         public float GetScaleAtZ(float z)
         {
             return this.CameraComponent.GetScaleAtZ(z);
         }
-        public Vector3 GetSpaceCoord(Vector3 screenCoord)
-        {
-            return this.CameraComponent.GetSpaceCoord(screenCoord);
-        }
+
         public Vector3 GetSpaceCoord(Vector2 screenCoord)
         {
-            return this.CameraComponent.GetSpaceCoord(screenCoord);
+            return this.CameraComponent.GetWorldPos(screenCoord);
         }
-        public Vector3 GetScreenCoord(Vector3 spaceCoord)
+        public Vector2 GetScreenCoord(Vector3 spaceCoord)
         {
-            return this.CameraComponent.GetScreenCoord(spaceCoord);
+            return this.CameraComponent.GetScreenPos(spaceCoord);
         }
 
         public void MakeDualityTarget()

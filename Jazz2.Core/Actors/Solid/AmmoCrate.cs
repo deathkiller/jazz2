@@ -36,7 +36,7 @@ namespace Jazz2.Actors.Solid
 
             PlaySound("Break");
 
-            if (content.Count == 0) {
+            if (Content.Count == 0) {
                 // Random Ammo create
                 HashSet<WeaponType> availableWeapons = new HashSet<WeaponType>();
                 foreach (Player player in api.Players) {

@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using Duality.Input;
 using Duality.IO;
+using Jazz2.Game;
 using OpenTK;
 
 namespace Duality.Backend.DefaultOpenTK
@@ -84,8 +85,8 @@ namespace Duality.Backend.DefaultOpenTK
                 EnableHighResolution = /*!inEditor*/true
             };
 
-            Console.WriteLine("Initializing OpenTK...");
-            Console.WriteLine(
+            App.Log("Initializing OpenTK...");
+            App.Log(
                 "Platform Backend: {0}" + Environment.NewLine +
                 "EnableHighResolution: {1}",
                 options.Backend,
@@ -106,7 +107,7 @@ namespace Duality.Backend.DefaultOpenTK
         {
             if (Thread.CurrentThread != mainThread) {
                 if (!silent) {
-                    Console.WriteLine(
+                    App.Log(
                         "Method {0} isn't allowed to be called from a Thread that is not the main Thread.",
                         callerInfoMember);
                 }

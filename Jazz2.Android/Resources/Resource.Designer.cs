@@ -41,11 +41,105 @@ namespace Jazz2.Android
 			}
 		}
 		
-		public partial class Mipmap
+		public partial class Color
+		{
+			
+			// aapt resource value: 0x7f060001
+			public const int body_text_1 = 2131099649;
+			
+			// aapt resource value: 0x7f060002
+			public const int body_text_2 = 2131099650;
+			
+			// aapt resource value: 0x7f060003
+			public const int body_text_3 = 2131099651;
+			
+			// aapt resource value: 0x7f060000
+			public const int light_primary = 2131099648;
+			
+			// aapt resource value: 0x7f060004
+			public const int link_text = 2131099652;
+			
+			static Color()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private Color()
+			{
+			}
+		}
+		
+		public partial class Drawable
 		{
 			
 			// aapt resource value: 0x7f020000
-			public const int ic_launcher = 2130837504;
+			public const int action_bar_bg = 2130837504;
+			
+			static Drawable()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private Drawable()
+			{
+			}
+		}
+		
+		public partial class Id
+		{
+			
+			// aapt resource value: 0x7f090000
+			public const int background_video = 2131296256;
+			
+			// aapt resource value: 0x7f090002
+			public const int content = 2131296258;
+			
+			// aapt resource value: 0x7f090001
+			public const int header = 2131296257;
+			
+			// aapt resource value: 0x7f090004
+			public const int retry_button = 2131296260;
+			
+			// aapt resource value: 0x7f090003
+			public const int version = 2131296259;
+			
+			static Id()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private Id()
+			{
+			}
+		}
+		
+		public partial class Layout
+		{
+			
+			// aapt resource value: 0x7f040000
+			public const int activity_info = 2130968576;
+			
+			static Layout()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private Layout()
+			{
+			}
+		}
+		
+		public partial class Mipmap
+		{
+			
+			// aapt resource value: 0x7f030000
+			public const int ic_background = 2130903040;
+			
+			// aapt resource value: 0x7f030001
+			public const int ic_foreground = 2130903041;
+			
+			// aapt resource value: 0x7f030002
+			public const int ic_launcher = 2130903042;
 			
 			static Mipmap()
 			{
@@ -57,11 +151,27 @@ namespace Jazz2.Android
 			}
 		}
 		
+		public partial class Raw
+		{
+			
+			// aapt resource value: 0x7f050000
+			public const int logo = 2131034112;
+			
+			static Raw()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private Raw()
+			{
+			}
+		}
+		
 		public partial class String
 		{
 			
-			// aapt resource value: 0x7f030000
-			public const int ApplicationName = 2130903040;
+			// aapt resource value: 0x7f070000
+			public const int app_name = 2131165184;
 			
 			static String()
 			{
@@ -76,8 +186,8 @@ namespace Jazz2.Android
 		public partial class Style
 		{
 			
-			// aapt resource value: 0x7f040000
-			public const int AppTheme = 2130968576;
+			// aapt resource value: 0x7f080000
+			public const int AppTheme = 2131230720;
 			
 			static Style()
 			{

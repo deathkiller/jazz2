@@ -25,7 +25,7 @@ namespace Jazz2.Game
         private readonly ContentRef<DrawTechnique> downsampleShader;
         private readonly ContentRef<DrawTechnique> blurShader;
 #endif
-        private readonly ContentRef<DrawTechnique> resizeShader;
+        private ContentRef<DrawTechnique> resizeShader;
 
         private Texture lightingTexture, mainTexture, normalTexture, finalTexture;
         private RenderTarget lightingTarget, mainTarget, finalTarget;
@@ -38,6 +38,8 @@ namespace Jazz2.Game
         private readonly VertexC1P3T4A1[] lightBuffer = new VertexC1P3T4A1[4];
 
         private readonly ContentRef<Texture> noiseTexture;
+
+        private SettingsCache.ResizeMode lastResizeMode;
 
         public Texture FinalTexture
         {
@@ -59,23 +61,28 @@ namespace Jazz2.Game
             combineSceneShader = ContentResolver.Current.RequestShader("CombineScene");
             combineSceneWaterShader = ContentResolver.Current.RequestShader("CombineSceneWater");
 
+            lastResizeMode = SettingsCache.Resize;
+
             try {
-                switch (Settings.Resize) {
+                switch (lastResizeMode) {
                     default:
-                    case Settings.ResizeMode.None:
+                    case SettingsCache.ResizeMode.None:
                         resizeShader = DrawTechnique.Solid;
                         break;
-                    case Settings.ResizeMode.HQ2x:
+                    case SettingsCache.ResizeMode.HQ2x:
                         resizeShader = ContentResolver.Current.RequestShader("ResizeHQ2x");
                         break;
-                    case Settings.ResizeMode.xBRZ3:
+                    case SettingsCache.ResizeMode.xBRZ3:
                         resizeShader = ContentResolver.Current.RequestShader("Resize3xBRZ");
                         break;
-                    case Settings.ResizeMode.xBRZ4:
+                    case SettingsCache.ResizeMode.xBRZ4:
                         resizeShader = ContentResolver.Current.RequestShader("Resize4xBRZ");
                         break;
-                    case Settings.ResizeMode.CRT:
+                    case SettingsCache.ResizeMode.CRT:
                         resizeShader = ContentResolver.Current.RequestShader("ResizeCRT");
+                        break;
+                    case SettingsCache.ResizeMode.GB:
+                        resizeShader = ContentResolver.Current.RequestShader("ResizeGB");
                         break;
                 }
             } catch {
@@ -107,7 +114,7 @@ namespace Jazz2.Game
 
             // Render steps
             AddRenderStep(RenderStepPosition.Last, new RenderStep {
-                MatrixMode = RenderMatrix.WorldSpace,
+                DefaultProjection = true,
                 VisibilityMask = VisibilityFlag.AllGroups,
                 ClearFlags = ClearFlag.All,
                 DefaultClearColor = true,
@@ -119,7 +126,7 @@ namespace Jazz2.Game
             AddRenderStep(RenderStepPosition.Last, new RenderStep {
                 Id = "CombineScene",
 
-                MatrixMode = RenderMatrix.ScreenSpace,
+                Projection = ProjectionMode.Screen,
                 VisibilityMask = VisibilityFlag.None,
                 ClearFlags = ClearFlag.None,
 
@@ -128,7 +135,7 @@ namespace Jazz2.Game
             });
 
             AddRenderStep(RenderStepPosition.Last, new RenderStep {
-                MatrixMode = RenderMatrix.ScreenSpace,
+                Projection = ProjectionMode.Screen,
                 VisibilityMask = VisibilityFlag.All,
                 ClearFlags = ClearFlag.None,
 
@@ -138,7 +145,7 @@ namespace Jazz2.Game
             AddRenderStep(RenderStepPosition.Last, new RenderStep {
                 Id = "Resize",
 
-                MatrixMode = RenderMatrix.ScreenSpace,
+                Projection = ProjectionMode.Screen,
                 VisibilityMask = VisibilityFlag.None,
                 ClearFlags = ClearFlag.None
             });
@@ -166,6 +173,37 @@ namespace Jazz2.Game
 
         protected override void OnRenderPointOfView(Scene scene, DrawDevice drawDevice, Rect viewportRect, Vector2 imageSize)
         {
+            // Switch between resize modes if necessary
+            if (lastResizeMode != SettingsCache.Resize) {
+                lastResizeMode = SettingsCache.Resize;
+
+                try {
+                    switch (lastResizeMode) {
+                        default:
+                        case SettingsCache.ResizeMode.None:
+                            resizeShader = DrawTechnique.Solid;
+                            break;
+                        case SettingsCache.ResizeMode.HQ2x:
+                            resizeShader = ContentResolver.Current.RequestShader("ResizeHQ2x");
+                            break;
+                        case SettingsCache.ResizeMode.xBRZ3:
+                            resizeShader = ContentResolver.Current.RequestShader("Resize3xBRZ");
+                            break;
+                        case SettingsCache.ResizeMode.xBRZ4:
+                            resizeShader = ContentResolver.Current.RequestShader("Resize4xBRZ");
+                            break;
+                        case SettingsCache.ResizeMode.CRT:
+                            resizeShader = ContentResolver.Current.RequestShader("ResizeCRT");
+                            break;
+                        case SettingsCache.ResizeMode.GB:
+                            resizeShader = ContentResolver.Current.RequestShader("ResizeGB");
+                            break;
+                    }
+                } catch {
+                    resizeShader = DrawTechnique.Solid;
+                }
+            }
+
             // Check if resolution changed
             if (lastImageSize != imageSize) {
                 lastImageSize = imageSize;
@@ -195,35 +233,35 @@ namespace Jazz2.Game
             base.OnRenderPointOfView(scene, drawDevice, viewportRect, imageSize);
         }
 
-        protected override void OnRenderSingleStep(RenderStep step, Scene scene, DrawDevice drawDevice)
+        protected override void OnRenderSingleStep(RenderStep step, Scene scene, DrawDevice device)
         {
             if (step.Id == "Resize") {
-                ProcessResizeStep(drawDevice);
+                ProcessResizeStep(device);
             } else if(step.Id == "CombineScene") {
-                ProcessCombineSceneStep(drawDevice);
+                ProcessCombineSceneStep(device);
             } else {
-                base.OnRenderSingleStep(step, scene, drawDevice);
+                base.OnRenderSingleStep(step, scene, device);
             }
         }
 
-        private void ProcessResizeStep(DrawDevice drawDevice)
+        private void ProcessResizeStep(DrawDevice device)
         {
-            BatchInfo material = drawDevice.RentMaterial();
+            BatchInfo material = device.RentMaterial();
             material.Technique = resizeShader;
             material.MainTexture = finalTexture;
             material.SetValue("mainTexSize", new Vector2(finalTexture.ContentWidth, finalTexture.ContentHeight));
-            this.Blit(drawDevice, material, drawDevice.ViewportRect);
+            this.Blit(device, material, device.ViewportRect);
         }
 
-        private void ProcessCombineSceneStep(DrawDevice drawDevice)
+        private void ProcessCombineSceneStep(DrawDevice device)
         {
             // ToDo: Split lighting to RGB channels
             // ToDo: Implement dynamic lighting/shadows (https://github.com/mattdesl/lwjgl-basics/wiki/2D-Pixel-Perfect-Shadows)
 
-            Vector2 viewSize = drawDevice.TargetSize;
+            Vector2 viewSize = device.TargetSize;
             Vector2 viewOffset = new Vector2(
-                drawDevice.RefCoord.X - viewSize.X / 2,
-                drawDevice.RefCoord.Y - viewSize.Y / 2
+                device.ViewerPos.X - viewSize.X / 2,
+                device.ViewerPos.Y - viewSize.Y / 2
             );
 
             float ambientLight = levelHandler.AmbientLightCurrent;
@@ -231,14 +269,14 @@ namespace Jazz2.Game
 
             // Blit ambient light color
             {
-                BatchInfo material = drawDevice.RentMaterial();
+                BatchInfo material = device.RentMaterial();
                 material.Technique = DrawTechnique.Solid;
                 material.MainColor = new ColorRgba(ambientLight, 0, 0);
-                this.Blit(drawDevice, material, lightingTarget);
+                this.Blit(device, material, lightingTarget);
             }
 
             // Render lights (target was set in previous step)
-            drawDevice.PrepareForDrawcalls();
+            device.PrepareForDrawcalls();
 
             foreach (GameObject actor in levelHandler.ActiveObjects) {
                 LightEmitter light = actor.GetComponent<LightEmitter>();
@@ -285,63 +323,63 @@ namespace Jazz2.Game
                         switch (light.Type) {
                             default:
                             case LightType.Solid:
-                                drawDevice.AddVertices(lightingMaterial, VertexMode.Quads, lightBuffer);
+                                device.AddVertices(lightingMaterial, VertexMode.Quads, lightBuffer);
                                 break;
 
                             case LightType.WithNoise:
-                                drawDevice.AddVertices(lightingNoiseMaterial, VertexMode.Quads, lightBuffer);
+                                device.AddVertices(lightingNoiseMaterial, VertexMode.Quads, lightBuffer);
                                 break;
                         }
                     }
                 }
             }
 
-            drawDevice.Render();
+            device.Render();
 
 #if !__ANDROID__
             // Resize Blur targets
-            SetupTargets((Point2)drawDevice.TargetSize);
+            SetupTargets((Point2)device.TargetSize);
 
             // Blit it into screen
             {
-                BatchInfo material = drawDevice.RentMaterial();
+                BatchInfo material = device.RentMaterial();
                 material.Technique = DrawTechnique.Solid;
                 material.MainTexture = mainTexture;
-                this.Blit(drawDevice, material, targetPingPongA[0]);
+                this.Blit(device, material, targetPingPongA[0]);
             }
 
             // Downsample to lowest target
             for (int i = 1; i < targetPingPongA.Length; i++) {
-                BatchInfo material = drawDevice.RentMaterial();
+                BatchInfo material = device.RentMaterial();
                 material.Technique = downsampleShader;
                 material.MainTexture = targetPingPongA[i - 1].Targets[0];
                 material.SetValue("pixelOffset", new Vector2(1f / material.MainTexture.Res.ContentWidth, 1f / material.MainTexture.Res.ContentHeight));
 
-                this.Blit(drawDevice, material, targetPingPongA[i]);
+                this.Blit(device, material, targetPingPongA[i]);
             }
 
             // Blur all targets, separating horizontal and vertical blur
             for (int i = 0; i < targetPingPongA.Length; i++) {
-                BatchInfo material = drawDevice.RentMaterial();
+                BatchInfo material = device.RentMaterial();
                 material.Technique = blurShader;
                 material.MainTexture = targetPingPongA[i].Targets[0];
                 material.SetValue("blurDirection", new Vector2(1f, 0f));
                 material.SetValue("pixelOffset", new Vector2(1f / material.MainTexture.Res.ContentWidth, 1f / material.MainTexture.Res.ContentHeight));
 
-                this.Blit(drawDevice, material, targetPingPongB[i]);
+                this.Blit(device, material, targetPingPongB[i]);
 
                 material.MainTexture = targetPingPongB[i].Targets[0];
                 material.SetValue("blurDirection", new Vector2(0f, 1f));
                 material.SetValue("pixelOffset", new Vector2(1f / material.MainTexture.Res.ContentWidth, 1f / material.MainTexture.Res.ContentHeight));
 
-                this.Blit(drawDevice, material, targetPingPongA[i]);
+                this.Blit(device, material, targetPingPongA[i]);
             }
 #endif
 
             // Blit it into screen
             if (viewWaterLevel < viewSize.Y) {
                 // Render lighting with water
-                BatchInfo material = drawDevice.RentMaterial();
+                BatchInfo material = device.RentMaterial();
                 material.Technique = combineSceneWaterShader;
                 material.SetTexture("mainTex", mainTexture);
                 material.SetTexture("lightTex", lightingTexture);
@@ -356,10 +394,10 @@ namespace Jazz2.Game
 
                 material.SetValue("waterLevel", viewWaterLevel / viewSize.Y);
 
-                this.Blit(drawDevice, material, finalTarget);
+                this.Blit(device, material, finalTarget);
             } else {
                 // Render lighting without water
-                BatchInfo material = drawDevice.RentMaterial();
+                BatchInfo material = device.RentMaterial();
                 material.Technique = combineSceneShader;
                 material.SetTexture("mainTex", mainTexture);
                 material.SetTexture("lightTex", lightingTexture);
@@ -371,7 +409,7 @@ namespace Jazz2.Game
 #endif
                 material.SetValue("darknessColor", levelHandler.DarknessColor);
 
-                this.Blit(drawDevice, material, finalTarget);
+                this.Blit(device, material, finalTarget);
             }
         }
 

@@ -10,14 +10,15 @@ namespace Jazz2.Actors.Collectibles
 
             scoreValue = 500;
 
-            SetAnimation("CarrotInvincible");
+            RequestMetadata("Collectible/CarrotInvincible");
+            SetAnimation("Carrot");
 
             SetFacingDirection();
         }
 
         protected override void Collect(Player player)
         {
-            player.SetInvulnerability(30 * Time.FramesPerSecond);
+            player.SetInvulnerability(30 * Time.FramesPerSecond, true);
 
             base.Collect(player);
         }

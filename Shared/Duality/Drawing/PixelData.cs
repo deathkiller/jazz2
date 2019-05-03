@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace Duality.Drawing
@@ -10,20 +9,6 @@ namespace Duality.Drawing
     /// </summary>
     public class PixelData
 	{
-		/// <summary>
-		/// Represents an unknown <see cref="PixelData"/> version.
-		/// </summary>
-		private const int Serialize_Version_Unknown		= 0;
-		/// <summary>
-		/// Represents the PNG-compressed <see cref="PixelData"/> version.
-		/// </summary>
-		private const int Serialize_Version_LayerPng	= 3;
-		/// <summary>
-		/// Represents the first v2.x <see cref="PixelData"/> version that requires an explicitly stated format id for image codec support.
-		/// </summary>
-		private const int Serialize_Version_FormatId	= 4;
-
-
 		private	int	width;
 		private	int height;
 		private	ColorRgba[]	data;
@@ -800,68 +785,5 @@ namespace Duality.Drawing
 
 			return tempDestData;
 		}
-
-		/*void ISerializeExplicit.WriteData(IDataWriter writer)
-		{
-			string formatId = ImageCodec.FormatPng;
-
-			writer.WriteValue("version", Serialize_Version_FormatId);
-			writer.WriteValue("formatId", formatId);
-			
-			IImageCodec codec = ImageCodec.GetWrite(formatId);
-			if (codec == null)
-			{
-				throw new NotSupportedException(string.Format(
-					"Unable to retrieve image codec for format '{0}'. Can't save image data.",
-					formatId));
-			}
-
-			using (MemoryStream str = new MemoryStream(1024 * 64))
-			{
-				codec.Write(str, this, formatId);
-				writer.WriteValue("pixelData", str.ToArray());
-			}
-		}
-		void ISerializeExplicit.ReadData(IDataReader reader)
-		{
-			int version;
-			try { reader.ReadValue("version", out version); }
-			catch (Exception) { version = Serialize_Version_Unknown; }
-
-			string formatId;
-			if (version == Serialize_Version_FormatId)
-			{
-				reader.ReadValue("formatId", out formatId);
-			}
-			else if (version == Serialize_Version_LayerPng)
-			{
-				formatId = ImageCodec.FormatPng;
-			}
-			else
-			{
-				throw new NotSupportedException(string.Format(
-					"Unknown PixelData serialization version '{0}'. Can't load image data.",
-					version));
-			}
-			
-			IImageCodec codec = ImageCodec.GetRead(formatId);
-			if (codec == null)
-			{
-				throw new NotSupportedException(string.Format(
-					"Unable to retrieve image codec for format '{0}'. Can't load image data.",
-					formatId));
-			}
-
-			byte[] dataBlock;
-			reader.ReadValue("pixelData", out dataBlock);
-			using (MemoryStream stream = new MemoryStream(dataBlock))
-			{
-				PixelData pixelData = codec.Read(stream);
-				this.data = pixelData.data;
-				this.width = pixelData.width;
-				this.height = pixelData.height;
-				pixelData = null;
-			}
-		}*/
 	}
 }

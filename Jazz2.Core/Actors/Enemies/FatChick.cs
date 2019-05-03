@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Duality;
 using Jazz2.Game.Structs;
+using MathF = Duality.MathF;
 
 namespace Jazz2.Actors.Enemies
 {

@@ -27,7 +27,7 @@ namespace Jazz2.Actors.Solid
         private bool isSwing;
 
         private float phase;
-        private Vector3 originPos;
+        private Vector3 originPos, lastPos;
         private ChainPiece[] pieces;
 
         public override void OnAttach(ActorInstantiationDetails details)
@@ -35,6 +35,7 @@ namespace Jazz2.Actors.Solid
             base.OnAttach(details);
 
             originPos = Transform.Pos;
+            lastPos = originPos;
 
             type = (PlatformType)details.Params[0];
             length = details.Params[3];
@@ -48,13 +49,12 @@ namespace Jazz2.Actors.Solid
             IsOneWay = true;
             canBeFrozen = false;
 
-            RequestMetadata("Object/MovingPlatform");
-
-            SetAnimation((AnimState)((int)type << 10));
+            RequestMetadata("MovingPlatform/" + type.ToString("G"));
+            SetAnimation("Platform");
 
             pieces = new ChainPiece[length];
             for (int i = 0; i < length; i++) {
-                pieces[i] = new ChainPiece(api, originPos + new Vector3(0f, 0f, 4f), (AnimState)((int)type << 10) + 16, i);
+                pieces[i] = new ChainPiece(api, originPos + new Vector3(0f, 0f, 4f), type, i);
                 api.AddActor(pieces[i]);
             }
         }
@@ -69,6 +69,8 @@ namespace Jazz2.Actors.Solid
         protected override void OnUpdate()
         {
             if (length > 0) {
+                lastPos = Transform.Pos;
+
                 phase -= speed * Time.TimeMult;
                 if (phase < 0f) {
                     phase += BaseCycleFrames;
@@ -115,7 +117,7 @@ namespace Jazz2.Actors.Solid
 
         public Vector2 GetLocationDelta()
         {
-            return GetPhasePosition(true, length) - GetPhasePosition(false, length);
+            return Transform.Pos.Xy - lastPos.Xy;
         }
 
         public Vector2 GetPhasePosition(bool next, int distance)
@@ -146,8 +148,8 @@ namespace Jazz2.Actors.Solid
             float multiY = MathF.Sin(effectivePhase / BaseCycleFrames * MathF.TwoPi);
 
             return new Vector2(
-                originPos.X + multiX * distance * 12,
-                originPos.Y + multiY * distance * 12
+                (int)(originPos.X + multiX * distance * 12),
+                (int)(originPos.Y + multiY * distance * 12)
             );
         }
 
@@ -155,7 +157,7 @@ namespace Jazz2.Actors.Solid
         {
             private int distance;
 
-            public ChainPiece(ActorApi api, Vector3 pos, AnimState animState, int distance)
+            public ChainPiece(ActorApi api, Vector3 pos, PlatformType type, int distance)
             {
                 this.api = api;
                 this.distance = distance;
@@ -165,9 +167,8 @@ namespace Jazz2.Actors.Solid
 
                 collisionFlags = CollisionFlags.None;
 
-                RequestMetadata("Object/MovingPlatform");
-
-                SetAnimation(animState);
+                RequestMetadata("MovingPlatform/" + type.ToString("G"));
+                SetAnimation("Chain");
             }
 
             protected override void OnUpdate()

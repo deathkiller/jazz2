@@ -1,5 +1,4 @@
-﻿using Duality;
-using Jazz2.Actors.Weapons;
+﻿using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
 
@@ -26,8 +25,7 @@ namespace Jazz2.Actors.Solid
             collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
 
             RequestMetadata("Object/TriggerCrate");
-
-            SetAnimation(AnimState.Idle);
+            SetAnimation("Crate");
         }
 
         public override void OnHandleCollision(ActorBase other)

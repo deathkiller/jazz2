@@ -118,7 +118,6 @@ namespace Jazz2.Actors.Bosses
 
                     break;
                 }
-
             }
 
             stateTime -= Time.TimeMult;

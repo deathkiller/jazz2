@@ -4,10 +4,9 @@
     },
 
     "Animations": {
-        "Idle": {
+        "Airboard": {
             "Path": "Pickup/airboard.png",
-            "FrameRate": 6,
-            "States": [ 0 ]
+            "FrameRate": 6
         }
     }
 }

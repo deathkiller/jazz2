@@ -21,7 +21,8 @@ namespace Jazz2
                             IntPtr hConsole = GetStdHandle(-11 /*STD_OUTPUT_HANDLE*/);
                             isOutputRedirected = GetFileType(hConsole) != 0x02 /*FILE_TYPE_CHAR*/ || !GetConsoleMode(hConsole, out mode);
                         } else {
-                            isOutputRedirected = (isatty(1 /*stdout*/) == 0);
+                            //isOutputRedirected = (isatty(1 /*stdout*/) == 0);
+                            isOutputRedirected = true;
                         }
                     } catch {
                         // Nothing to do...

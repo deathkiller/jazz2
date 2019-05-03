@@ -67,7 +67,7 @@
             set
             {
                 if (this.active != value) {
-                    if (this.gameobj != null && this.gameobj.ParentScene != null && this.gameobj.ParentScene.IsCurrent) {
+                    if (this.gameobj != null && this.gameobj.Scene != null && this.gameobj.Scene.IsCurrent) {
                         if (value) {
                             ICmpInitializable cInit = this as ICmpInitializable;
                             if (cInit != null) cInit.OnInit(InitContext.Activate);

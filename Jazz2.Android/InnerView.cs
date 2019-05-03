@@ -2,14 +2,19 @@
 using Android.App;
 using Android.Content;
 using Android.OS;
+using Duality;
 using Duality.Backend;
+using Duality.Backend.Dummy;
 using Jazz2.Game;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Platform.Android;
+using ContentResolver = Jazz2.Game.ContentResolver;
+using Environment = System.Environment;
 using INativeWindow = Duality.Backend.INativeWindow;
+using Vector2 = Duality.Vector2;
 
-namespace Duality.Android
+namespace Jazz2.Android
 {
     public partial class InnerView : AndroidGameView
     {
@@ -27,27 +32,41 @@ namespace Duality.Android
         {
             base.OnLoad(e);
 
+            // Initialize core
+            // ToDo: Create Android-specific AssemblyLoader
+            DualityApp.Init(DualityApp.ExecutionContext.Game, null, null);
+
+            // Check if graphics backend is supported
+            if (DualityApp.GraphicsBackend is DummyGraphicsBackend) {
+                MainActivity mainActivity = Context as MainActivity;
+                if (mainActivity != null) {
+                    mainActivity.ShowInfoScreen("This device is not powerful enough", "OpenGL ES 3.0 support is required to&nbsp;run this application.", false);
+                }
+                return;
+            }
+            
+            ContentResolver.Current.Init();
+            
             viewportWidth = Width;
             viewportHeight = Height;
 
-            // ToDo: Create Android-specific AssemblyLoader
-            DualityApp.Init(DualityApp.ExecutionContext.Game, /*new DefaultAssemblyLoader()*/null, null);
-
             DualityApp.WindowSize = new Point2(viewportWidth, viewportHeight);
-            INativeWindow window = DualityApp.OpenWindow(new WindowOptions {
-                ScreenMode = ScreenMode.Window
-            });
+            INativeWindow window = DualityApp.OpenWindow(new WindowOptions());
 
+            ContentResolver.Current.InitPostWindow();
+
+            // Initialize input
             FocusableInTouchMode = true;
             RequestFocus();
 
             InitializeInput();
 
+            // Initialize the game
             current = new App(window);
             current.ShowMainMenu();
 
             // Run the render loop
-            Run();
+            Run(60);
         }
 
         protected override void OnUnload(EventArgs e)
@@ -66,7 +85,7 @@ namespace Duality.Android
                 base.CreateFrameBuffer();
                 return;
             } catch (Exception ex) {
-                //Console.WriteLine("GLView.CreateFrameBuffer() threw an exception: " + ex);
+                App.Log("GLView.CreateFrameBuffer() threw an exception: " + ex);
             }
 
             // This is a graphics setting that sets everything to the lowest mode possible so
@@ -77,7 +96,7 @@ namespace Duality.Android
                 base.CreateFrameBuffer();
                 return;
             } catch (Exception ex) {
-                //Console.WriteLine("GLView.CreateFrameBuffer() threw an exception: " + ex);
+                App.Log("GLView.CreateFrameBuffer() threw an exception: " + ex);
             }
 
             throw new BackendException("Cannot initialize OpenGL ES 3.0 device");
@@ -91,6 +110,8 @@ namespace Duality.Android
             DualityApp.WindowSize = new Point2(viewportWidth, viewportHeight);
 
             MakeCurrent();
+
+            InitializeInput();
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -103,10 +124,15 @@ namespace Duality.Android
                 } else {
                     (Context as Activity).Finish();
                 }
+                Environment.Exit(0);
                 return;
             }
 
             DualityApp.Update();
+            
+#if ENABLE_TOUCH
+            ControlScheme.UpdateTouchActions();
+#endif
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -116,6 +142,34 @@ namespace Duality.Android
             DualityApp.Render(null, new Rect(viewportWidth, viewportHeight), new Vector2(viewportWidth, viewportHeight));
 
             SwapBuffers();
+        }
+
+        protected override void OnContextLost(EventArgs e)
+        {
+            base.OnContextLost(e);
+
+            // Reinitialize core
+            DualityApp.Terminate();
+            DualityApp.Init(DualityApp.ExecutionContext.Game, null, null);
+
+            ContentResolver.Current.Init();
+
+            viewportWidth = Width;
+            viewportHeight = Height;
+
+            DualityApp.WindowSize = new Point2(viewportWidth, viewportHeight);
+            INativeWindow window = DualityApp.OpenWindow(new WindowOptions());
+
+            ContentResolver.Current.InitPostWindow();
+
+            // Reinitialize input
+            TouchButtons = null;
+
+            InitializeInput();
+
+            // Reinitialize the game
+            current = new App(window);
+            current.ShowMainMenu();
         }
     }
 }

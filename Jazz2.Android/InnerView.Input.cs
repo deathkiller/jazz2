@@ -1,16 +1,22 @@
-﻿using Android.Views;
+﻿using System;
+using System.IO;
+using Android.Content.Res;
+using Android.Views;
+using Duality;
 using Duality.Drawing;
 using Duality.Input;
 using Duality.Resources;
 using Jazz2.Storage;
 
-namespace Duality.Android
+namespace Jazz2.Android
 {
     partial class InnerView
     {
-        public class VirtualButton
+#if ENABLE_TOUCH
+        public struct TouchButtonInfo
         {
-            public Key KeyCode;
+            public PlayerActions Action;
+            
             public float Left;
             public float Top;
             public float Width;
@@ -18,95 +24,94 @@ namespace Duality.Android
 
             public ContentRef<Material> Material;
 
-            public int CurrentPointerId = -1;
+            public int CurrentPointerId;
         }
 
-        internal static bool allowVibrations = true;
-        internal static bool showVirtualButtons;
-        internal static VirtualButton[] virtualButtons;
+        internal static bool AllowVibrations = true;
+        internal static bool ShowTouchButtons;
+        internal static TouchButtonInfo[] TouchButtons;
+        internal static float LeftPadding, RightPadding;
+#endif
 
-        private bool[] pressedButtons;
+        private bool[] pressedButtons = new bool[(int)Key.Last + 1];
 
         private void InitializeInput()
         {
-            if (virtualButtons != null) {
-                // It's already initialized...
+#if ENABLE_TOUCH
+            if (TouchButtons != null || viewportWidth == 0 || viewportHeight == 0) {
+                // Game is not initialized yet or the buttons were already created
                 return;
             }
 
-            pressedButtons = new bool[(int)Key.Last + 1];
+            const float DpadLeft = 0.02f;
+            const float DpadBottom = 0.1f;
+            const float DpadThreshold = 0.09f;
 
-            DualityApp.Keyboard.Source = new KeyboardInputSource(this);
-            //DualityApp.Gamepads.AddSource(new GamepadInputSource(this));
+            const float DpadSize = 0.37f;
+            const float ButtonSize = 0.172f;
+            const float SmallButtonSize = 0.098f;
 
-            const float dpadLeft = 0.02f;
-            const float dpadTop = 0.58f;
-            const float dpadWidth = 0.2f;
-            const float dpadHeight = 0.37f;
-            const float dpadThresholdX = 0.05f;
-            const float dpadThresholdY = 0.09f;
+            AssetManager assets = Context.Assets;
 
-            Material m1 = new Material(DrawTechnique.Alpha, new ColorRgba(1f, 0.2f));
-            Material m2 = new Material(DrawTechnique.Alpha, new ColorRgba(1f, 0.1f));
-            Material m3 = new Material(DrawTechnique.Alpha, new ColorRgba(1f, 0f));
+            Material matDpad = LoadButtonImageFromAssets(assets, "dpad.png");
+            Material matFire = LoadButtonImageFromAssets(assets, "fire.png");
+            Material matJump = LoadButtonImageFromAssets(assets, "jump.png");
+            Material matRun = LoadButtonImageFromAssets(assets, "run.png");
+            Material matSwitchWeapon = LoadButtonImageFromAssets(assets, "switch.png");
 
-            Material m4 = new Material(DrawTechnique.Alpha, new ColorRgba(0.95f, 0.68f, 0.62f, 0.3f));
-            Material m5 = new Material(DrawTechnique.Alpha, new ColorRgba(0.62f, 0.83f, 0.94f, 0.3f));
-            Material m6 = new Material(DrawTechnique.Alpha, new ColorRgba(0.74f, 0.94f, 0.63f, 0.3f));
-
-            // ToDo: Add check for invalid Keycode value
-            // ToDo: Rework virtual gamepad
-            virtualButtons = new[] {
-                new VirtualButton { Left = dpadLeft, Top = dpadTop, Width = dpadWidth, Height = dpadHeight, Material = m2 },
-
-                new VirtualButton { KeyCode = Key.Left, Left = dpadLeft - dpadThresholdX, Top = dpadTop, Width = (dpadWidth / 3) + dpadThresholdX, Height = dpadHeight, Material = m3 },
-                new VirtualButton { KeyCode = Key.Right, Left = (dpadLeft + (dpadWidth * 2 / 3)), Top = dpadTop, Width = (dpadWidth / 3) + dpadThresholdX, Height = dpadHeight, Material = m3 },
-                new VirtualButton { KeyCode = Key.Up, Left = dpadLeft, Top = dpadTop - dpadThresholdY, Width = dpadWidth, Height = (dpadHeight / 3) + dpadThresholdY, Material = m3 },
-                new VirtualButton { KeyCode = Key.Down, Left = dpadLeft, Top = (dpadTop + (dpadHeight * 2 / 3)), Width = dpadWidth, Height = (dpadHeight / 3) + dpadThresholdY, Material = m3 },
-
-                new VirtualButton { KeyCode = Key.Space, Left = 0.68f, Top = 0.79f, Width = 0.094f, Height = 0.17f, Material = m4 },
-                new VirtualButton { KeyCode = Key.V, Left = 0.785f, Top = 0.71f, Width = 0.094f, Height = 0.17f, Material = m5 },
-                new VirtualButton { KeyCode = Key.C, Left = 0.89f, Top = 0.64f, Width = 0.094f, Height = 0.17f, Material = m6 },
-                new VirtualButton { KeyCode = Key.X, Left = 0.83f, Top = 0.57f, Width = 0.055f, Height = 0.096f, Material = m1 },
-
-#if DEBUG
-                new VirtualButton { KeyCode = Key.D, Left = 0.8f, Top = 0.1f, Width = 0.06f, Height = 0.1f, Material = m2 },
-                new VirtualButton { KeyCode = Key.N, Left = 0.9f, Top = 0.1f, Width = 0.08f, Height = 0.16f, Material = m3 },
-#endif
-
-                new VirtualButton { KeyCode = Key.Enter, Left = 0.68f, Top = 0.79f, Width = 0.094f, Height = 0.17f },
-                new VirtualButton { KeyCode = Key.Enter, Left = 0.785f, Top = 0.71f, Width = 0.094f, Height = 0.17f },
-                new VirtualButton { KeyCode = Key.Enter, Left = 0.89f, Top = 0.64f, Width = 0.094f, Height = 0.17f },
+            TouchButtons = new[] {
+                // D-pad
+                CreateTouchButton(PlayerActions.None, matDpad, Alignment.BottomLeft, DpadLeft, DpadBottom, DpadSize, DpadSize),
+                // D-pad subsections
+                CreateTouchButton(PlayerActions.Left, null, Alignment.BottomLeft, DpadLeft - DpadThreshold, DpadBottom, (DpadSize / 3) + DpadThreshold, DpadSize),
+                CreateTouchButton(PlayerActions.Right, null, Alignment.BottomLeft, DpadLeft + (DpadSize * 2 / 3), DpadBottom, (DpadSize / 3) + DpadThreshold, DpadSize),
+                CreateTouchButton(PlayerActions.Up, null, Alignment.BottomLeft, DpadLeft, DpadBottom + (DpadSize * 2 / 3), DpadSize, (DpadSize / 3) + DpadThreshold),
+                CreateTouchButton(PlayerActions.Down, null, Alignment.BottomLeft, DpadLeft, DpadBottom - DpadThreshold, DpadSize, (DpadSize / 3) + DpadThreshold),
+                // Action buttons
+                CreateTouchButton(PlayerActions.Fire, matFire, Alignment.BottomRight, (ButtonSize + 0.02f) * 2, 0.04f, ButtonSize, ButtonSize),
+                CreateTouchButton(PlayerActions.Jump, matJump, Alignment.BottomRight, (ButtonSize + 0.02f), 0.04f + 0.08f, ButtonSize, ButtonSize),
+                CreateTouchButton(PlayerActions.Run, matRun, Alignment.BottomRight, 0f, 0.01f + 0.15f, ButtonSize, ButtonSize),
+                CreateTouchButton(PlayerActions.SwitchWeapon, matSwitchWeapon, Alignment.BottomRight, ButtonSize + 0.01f, 0.04f + 0.28f, SmallButtonSize, SmallButtonSize)
             };
 
-            showVirtualButtons = true;
-            allowVibrations = Preferences.Get("Vibrations", true);
+            ShowTouchButtons = true;
+            AllowVibrations = Preferences.Get("Vibrations", true);
+
+            LeftPadding = Preferences.Get("LeftPadding", (byte)20) * 0.001f;
+            RightPadding = Preferences.Get("RightPadding", (byte)70) * 0.001f;
+#endif
+
+            DualityApp.Keyboard.Source = new KeyboardInputSource(this);
         }
 
         public override bool OnTouchEvent(MotionEvent e)
         {
-            if (virtualButtons != null) {
-                showVirtualButtons = true;
+#if ENABLE_TOUCH
+            if (TouchButtons != null) {
+                ShowTouchButtons = true;
 
                 MotionEventActions action = e.ActionMasked;
                 if (action == MotionEventActions.Down || action == MotionEventActions.PointerDown) {
                     int pointerIndex = e.ActionIndex;
-                    float x = e.GetX(pointerIndex);
-                    float y = e.GetY(pointerIndex);
-                    float w = e.GetTouchMajor(pointerIndex) * 0.5f;
-                    float h = e.GetTouchMinor(pointerIndex) * 0.5f;
+                    float x = e.GetX(pointerIndex) / (float)viewportWidth;
+                    float y = e.GetY(pointerIndex) / (float)viewportHeight;
+                    if (x < 0.5f) {
+                        x -= LeftPadding;
+                    } else {
+                        x += RightPadding;
+                    }
 
                     bool vibrated = false;
-                    for (int i = 0; i < virtualButtons.Length; i++) {
-                        VirtualButton button = virtualButtons[i];
-                        if (button.KeyCode != Key.Unknown) {
-                            if (button.CurrentPointerId == -1 && IsOnButton(button, x, y, w, h)) {
+                    for (int i = 0; i < TouchButtons.Length; i++) {
+                        ref TouchButtonInfo button = ref TouchButtons[i];
+                        if (button.Action != PlayerActions.None) {
+                            if (button.CurrentPointerId == -1 && IsOnButton(ref button, x, y)) {
                                 int pointerId = e.GetPointerId(pointerIndex);
 
                                 button.CurrentPointerId = pointerId;
-                                pressedButtons[(int)button.KeyCode] = true;
+                                ControlScheme.InternalTouchAction(button.Action, true);
 
-                                if (allowVibrations && !vibrated) {
+                                if (AllowVibrations && !vibrated) {
                                     vibrator.Vibrate(16);
                                     vibrated = true;
                                 }
@@ -116,25 +121,33 @@ namespace Duality.Android
                 } else if (action == MotionEventActions.Move) {
                     int pointerCount = e.PointerCount;
 
-                    for (int i = 0; i < virtualButtons.Length; i++) {
-                        VirtualButton button = virtualButtons[i];
-                        if (button.KeyCode != Key.Unknown) {
+                    for (int i = 0; i < TouchButtons.Length; i++) {
+                        ref TouchButtonInfo button = ref TouchButtons[i];
+                        if (button.Action != PlayerActions.None) {
                             if (button.CurrentPointerId != -1) {
                                 int pointerIndex = e.FindPointerIndex(button.CurrentPointerId);
 
-                                if (!IsOnButton(button, e.GetX(pointerIndex), e.GetY(pointerIndex), e.GetTouchMajor(pointerIndex) * 0.5f, e.GetTouchMinor(pointerIndex) * 0.5f)) {
+                                float x = e.GetX(pointerIndex) / (float)viewportWidth;
+                                float y = e.GetY(pointerIndex) / (float)viewportHeight;
+                                if (x < 0.5f) {
+                                    x -= LeftPadding;
+                                } else {
+                                    x += RightPadding;
+                                }
+
+                                if (!IsOnButton(ref button, x, y)) {
                                     button.CurrentPointerId = -1;
-                                    pressedButtons[(int)button.KeyCode] = false;
+                                    ControlScheme.InternalTouchAction(button.Action, false);
                                 }
                             } else {
                                 for (int j = 0; j < pointerCount; j++) {
-                                    if (IsOnButton(button, e.GetX(j), e.GetY(j), e.GetTouchMajor(j) * 0.5f, e.GetTouchMinor(j) * 0.5f)) {
+                                    if (IsOnButton(ref button, e.GetX(j), e.GetY(j))) {
                                         int pointerId = e.GetPointerId(j);
 
                                         button.CurrentPointerId = pointerId;
-                                        pressedButtons[(int)button.KeyCode] = true;
+                                        ControlScheme.InternalTouchAction(button.Action, true);
 
-                                        if (allowVibrations) {
+                                        if (AllowVibrations) {
                                             vibrator.Vibrate(11);
                                         }
                                         break;
@@ -144,77 +157,60 @@ namespace Duality.Android
                         }
                     }
                 } else if (action == MotionEventActions.Up || action == MotionEventActions.Cancel) {
-                    for (int i = 0; i < virtualButtons.Length; i++) {
-                        VirtualButton button = virtualButtons[i];
+                    for (int i = 0; i < TouchButtons.Length; i++) {
+                        ref TouchButtonInfo button = ref TouchButtons[i];
                         if (button.CurrentPointerId != -1) {
                             button.CurrentPointerId = -1;
-                            pressedButtons[(int)button.KeyCode] = false;
+                            ControlScheme.InternalTouchAction(button.Action, false);
                         }
                     }
 
                 } else if (action == MotionEventActions.PointerUp) {
                     int pointerId = e.GetPointerId(e.ActionIndex);
 
-                    for (int i = 0; i < virtualButtons.Length; i++) {
-                        VirtualButton button = virtualButtons[i];
-
+                    for (int i = 0; i < TouchButtons.Length; i++) {
+                        ref TouchButtonInfo button = ref TouchButtons[i];
                         if (button.CurrentPointerId == pointerId) {
                             button.CurrentPointerId = -1;
-                            pressedButtons[(int)button.KeyCode] = false;
+                            ControlScheme.InternalTouchAction(button.Action, false);
                         }
                     }
                 }
             }
+#endif
 
             //return base.OnTouchEvent(e);
             return true;
         }
 
-        private bool IsOnButton(VirtualButton button, float x, float y, float rw, float rh)
+#if ENABLE_TOUCH
+        private bool IsOnButton(ref TouchButtonInfo button, float x, float y)
         {
-            float left = button.Left * viewportWidth;
-            if (x - rw < left)
-                return false;
+            float left = button.Left;
+            if (x < left) return false;
 
-            float top = button.Top * viewportHeight;
-            if (y - rh < top)
-                return false;
+            float top = button.Top;
+            if (y < top) return false;
 
-            float right = left + button.Width * viewportWidth;
-            if (x + rw > right)
-                return false;
+            float right = left + button.Width;
+            if (x > right) return false;
 
-            float bottom = top + button.Height * viewportHeight;
-            if (y + rh > bottom)
-                return false;
+            float bottom = top + button.Height;
+            if (y > bottom) return false;
 
             return true;
         }
+#endif
 
         public override bool OnKeyDown(Keycode keyCode, KeyEvent e)
         {
             if (keyCode == Keycode.Menu || keyCode == Keycode.VolumeDown || keyCode == Keycode.VolumeUp || keyCode == Keycode.VolumeMute) {
-                /*if (menu.IsShowing)
-                    menu.Dismiss();
-                else
-                    menu.Show();
-
-                Debug.WriteLine("MainActivity :: Menu: " + menu.IsShowing);
-                return true;*/
+                // Nothing to do...
             } else if (keyCode == Keycode.Back) {
-                /*if (currentCore != null && !(currentCore is None)) {
-                    AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-                    dialog.SetTitle("Ukončit aplikaci");
-                    dialog.SetPositiveButton("Ano", (sender, args) => { FinishAndRemoveTask(); });
-                    dialog.SetNegativeButton("Ne", (sender, args) => { });
-                    dialog.Show();
-
-                    return true;
-                }*/
-                pressedButtons[(int)Key.Escape] = true;
+                ControlScheme.InternalTouchAction(PlayerActions.Menu, true);
                 return true;
             } else {
-                showVirtualButtons = false;
+                ShowTouchButtons = false;
                 pressedButtons[(int)ToDuality(keyCode)] = true;
 
                 // ToDo: Remove this... gamepad to keyboard redirection
@@ -237,7 +233,7 @@ namespace Duality.Android
         public override bool OnKeyUp(Keycode keyCode, KeyEvent e)
         {
             if (keyCode == Keycode.Back) {
-                pressedButtons[(int)Key.Escape] = false;
+                ControlScheme.InternalTouchAction(PlayerActions.Menu, false);
                 return true;
             }
 
@@ -254,9 +250,52 @@ namespace Duality.Android
                 pressedButtons[(int)Key.C] = false;
             }
 
-            //return base.OnKeyUp(keyCode, e);
             return true;
         }
+
+#if ENABLE_TOUCH
+        private TouchButtonInfo CreateTouchButton(PlayerActions action, Material material, Alignment alignment, float x, float y, float w, float h)
+        {
+            float toWidth = ((float)viewportHeight / viewportWidth);
+            float left, top, width, height;
+
+            width = w * toWidth;
+            if ((alignment & Alignment.Right) != 0) {
+                left = 1f - x * toWidth - width;
+            } else {
+                left = x * toWidth;
+            }
+
+            height = h;
+            if ((alignment & Alignment.Bottom) != 0) {
+                top = 1f - y - height;
+            } else {
+                top = y;
+            }
+
+            return new TouchButtonInfo {
+                Action = action,
+                Left = left,
+                Top = top,
+                Width = width,
+                Height = height,
+                Material = material,
+                CurrentPointerId = -1
+            };
+        }
+
+        private static Material LoadButtonImageFromAssets(AssetManager assets, string filename)
+        {
+            using (Stream s = assets.Open(filename))
+            using (MemoryStream ms = new MemoryStream()) {
+                // ToDo: Workaround for System.NotSupportedException in Android.Runtime.InputStreamInvoker.Position
+                s.CopyTo(ms);
+                ms.Position = 0;
+
+                return new Material(DrawTechnique.Alpha, new Texture(new Pixmap(new Png(ms).GetPixelData()), TextureSizeMode.NonPowerOfTwo));
+            }
+        }
+#endif
 
         private Key ToDuality(Keycode key)
         {
@@ -309,14 +348,18 @@ namespace Duality.Android
                 //case Keycode.NonUSBackSlash: return Key.NonUSBackSlash;
             }
 
-            if (key >= Keycode.A && key <= Keycode.Z)
+            if (key >= Keycode.A && key <= Keycode.Z) {
                 return key - Keycode.A + Key.A;
-            if (key >= Keycode.F1 && key <= Keycode.F12)
+            }
+            if (key >= Keycode.F1 && key <= Keycode.F12) {
                 return key - Keycode.F1 + Key.F1;
-            if (key >= Keycode.Numpad0 && key <= Keycode.NumpadEnter)
+            }
+            if (key >= Keycode.Numpad0 && key <= Keycode.NumpadEnter) {
                 return key - Keycode.Numpad0 + Key.Keypad0;
-            if (key >= Keycode.Num0 && key <= Keycode.Num9)
+            }
+            if (key >= Keycode.Num0 && key <= Keycode.Num9) {
                 return key - Keycode.Num0 + Key.Number0;
+            }
 
             return Key.Unknown;
         }
@@ -329,9 +372,11 @@ namespace Duality.Android
 
             public string CharInput => "";
 
-            public string Description => "Android Keyboard Provider";
+            string IUserInputSource.Id => "Android Keyboard Provider";
+            string IUserInputSource.ProductName => "Android Keyboard Provider";
+            Guid IUserInputSource.ProductId => new Guid("0E57FFB8-2D48-4447-B34E-5AA062C824AB");
 
-            public bool IsAvailable => true;
+            bool IUserInputSource.IsAvailable => true;
 
             public KeyboardInputSource(InnerView owner)
             {
@@ -343,35 +388,5 @@ namespace Duality.Android
                 // Nothing to do...
             }
         }
-
-        // ToDo: Implement this properly
-        /*private class GamepadInputSource : IGamepadInputSource
-        {
-            private readonly InnerView owner;
-
-            public bool this[GamepadButton button] => false;
-
-            public float this[GamepadAxis axis] => 0;
-
-            public string Description => "Android Gamepad Provider";
-
-            public bool IsAvailable => true;
-
-            public GamepadInputSource(InnerView owner)
-            {
-                this.owner = owner;
-            }
-
-            public void SetVibration(float left, float right)
-            {
-                float average = (left + right) * 0.5f;
-                owner.vibrator.Vibrate((long)(9 + average * 4));
-            }
-
-            public void UpdateState()
-            {
-                // Nothing to do...
-            }
-        }*/
     }
 }

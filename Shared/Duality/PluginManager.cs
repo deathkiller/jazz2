@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 using Duality.IO;
 using Duality.Backend;
+using Jazz2.Game;
 
 namespace Duality
 {
@@ -174,7 +175,7 @@ namespace Duality
 				}
 				catch (Exception e)
 				{
-					Console.WriteLine("Error disposing plugin {1}: {0}", /*LogFormat.Exception(*/e/*)*/, plugin.AssemblyName);
+                    App.Log("Error disposing plugin {1}: {0}", /*LogFormat.Exception(*/e/*)*/, plugin.AssemblyName);
 				}
 			}
 			this.OnPluginsRemoved(oldPlugins);
@@ -222,13 +223,13 @@ namespace Duality
 						pluginType.GetType()));
 
 				plugin.FilePath = pluginFilePath;
-				plugin.FileHash = this.assemblyLoader.GetAssemblyHash(pluginFilePath);
+				//plugin.FileHash = this.assemblyLoader.GetAssemblyHash(pluginFilePath);
 
 				this.pluginRegistry.Add(plugin.AssemblyName, plugin);
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine("Error loading plugin: {0}", /*LogFormat.Exception(*/e/*)*/);
+                App.Log("Error loading plugin: {0}", /*LogFormat.Exception(*/e/*)*/);
 
 				this.disposedPlugins.Add(pluginAssembly);
 				plugin = null;
@@ -252,7 +253,7 @@ namespace Duality
 					{
 						if (plugin.PluginAssembly == lockedAssembly)
 						{
-                            Console.WriteLine(
+                            App.Log(
                                 "Can't reload plugin {0}, because it has been locked by the runtime. " +
                                 "This usually happens for plugins that implement a currently active backend.",
                                 /*LogFormat.Assembly(*/lockedAssembly/*)*/);
@@ -271,7 +272,7 @@ namespace Duality
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine("Error loading plugin Assembly: {0}", /*LogFormat.Exception(*/e/*)*/);
+                App.Log("Error loading plugin Assembly: {0}", /*LogFormat.Exception(*/e/*)*/);
 				return null;
 			}
 
@@ -308,7 +309,7 @@ namespace Duality
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine("Error initializing plugin {1}: {0}", /*LogFormat.Exception(*/e/*)*/, plugin.AssemblyName);
+                App.Log("Error initializing plugin {1}: {0}", /*LogFormat.Exception(*/e/*)*/, plugin.AssemblyName);
 
 				this.RemovePlugin(plugin);
 			}
@@ -347,7 +348,7 @@ namespace Duality
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine("Error loading plugin Assembly: {0}", /*LogFormat.Exception(*/e/*)*/);
+                App.Log("Error loading plugin Assembly: {0}", /*LogFormat.Exception(*/e/*)*/);
 
 				plugin = null;
 			}
@@ -372,7 +373,7 @@ namespace Duality
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine("Error disposing plugin {1}: {0}", /*LogFormat.Exception(*/e/*)*/, plugin.AssemblyName);
+                App.Log("Error disposing plugin {1}: {0}", /*LogFormat.Exception(*/e/*)*/, plugin.AssemblyName);
 			}
 
 			// Discard temporary plugin-related data (cached Types, etc.)

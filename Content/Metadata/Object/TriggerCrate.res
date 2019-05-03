@@ -7,8 +7,7 @@
 
     "Animations": {
         "Crate": {
-            "Path": "Object/TriggerCrate.png",
-            "States": [ 0 ]
+            "Path": "Object/TriggerCrate.png"
         }
     },
 

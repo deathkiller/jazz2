@@ -1,6 +1,6 @@
 ﻿namespace Duality.Backend.GL21
 {
-    public class Es20BackendPlugin : CorePlugin
+    public class Gl21BackendPlugin : CorePlugin
     {
     }
 }

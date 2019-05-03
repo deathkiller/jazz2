@@ -56,7 +56,8 @@ namespace Jazz2.Actors.Enemies
                 case GameDifficulty.Hard: health = (int)MathF.Round(health * 1.4f); break;
             }
 
-            this.maxHealth = this.health = MathF.Max(health, 1);
+            this.health = MathF.Max(health, 1);
+            this.maxHealth = this.health;
         }
 
         protected bool CanMoveToPosition(float x, float y)

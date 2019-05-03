@@ -5,7 +5,7 @@ namespace Jazz2.Actors.Solid
 {
     public abstract class GenericContainer : SolidObjectBase
     {
-        public RawList<ActorBase> content = new RawList<ActorBase>();
+        protected RawList<ActorBase> Content = new RawList<ActorBase>();
 
         protected override bool OnPerish(ActorBase collider)
         {
@@ -18,25 +18,26 @@ namespace Jazz2.Actors.Solid
         {
             Vector3 pos = Transform.Pos;
 
-            for (int i = 0; i < content.Count; i++) {
+            for (int i = 0; i < Content.Count; i++) {
                 float fx, fy;
-                if (content.Count > 1) {
+                if (Content.Count > 1) {
                     fx = MathF.Rnd.NextFloat(-6f, 6f);
                     fy = MathF.Rnd.NextFloat(-2f, 0.2f);
                 } else {
-                    fx = fy = 0f;
+                    fx = 0f;
+                    fy = 0f;
                 }
-                content.Data[i].MoveInstantly(new Vector2(pos.X + fx * (2f + content.Count * 0.1f), pos.Y + fy * (12f + content.Count * 0.2f)), MoveType.Absolute, true);
-                content.Data[i].AddExternalForce(fx, fy);
+                Content.Data[i].MoveInstantly(new Vector2(pos.X + fx * (2f + Content.Count * 0.1f), pos.Y + fy * (12f + Content.Count * 0.2f)), MoveType.Absolute, true);
+                Content.Data[i].AddExternalForce(fx, fy);
 
-                api.AddActor(content.Data[i]);
+                api.AddActor(Content.Data[i]);
             }
-            content.Clear();
+            Content.Clear();
         }
 
         protected void StoreActor(ActorBase actor)
         {
-            content.Add(actor);
+            Content.Add(actor);
         }
 
         protected void GenerateContents(EventType type, uint count, params ushort[] eventParams)

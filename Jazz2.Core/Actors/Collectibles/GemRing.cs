@@ -1,5 +1,4 @@
 ﻿using Duality;
-using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Collectibles
 {
@@ -26,7 +25,7 @@ namespace Jazz2.Actors.Collectibles
 
             // Workaround: Some animation have to be loaded for collision detection
             RequestMetadata("Object/GemGiant");
-            SetAnimation(AnimState.Idle);
+            SetAnimation("GemGiant");
 
             renderer.Active = false;
 
@@ -94,7 +93,7 @@ namespace Jazz2.Actors.Collectibles
 
                 collisionFlags = CollisionFlags.None;
 
-                RequestMetadata("Object/Collectible");
+                RequestMetadata("Collectible/Gems");
                 SetAnimation("GemRed");
             }
 

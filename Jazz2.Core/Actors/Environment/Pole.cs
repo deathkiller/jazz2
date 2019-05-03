@@ -39,15 +39,16 @@ namespace Jazz2.Actors.Environment
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
             //collisionFlags |= CollisionFlags.IsSolidObject;
 
-            RequestMetadata("Object/Pole");
-
             switch (theme) {
-                case 0: SetAnimation("Carrotus"); break;
-                case 1: SetAnimation("Diamondus"); break;
-                case 2: SetAnimation("DiamondusTree"); break;
-                case 3: SetAnimation("Jungle"); break;
-                case 4: SetAnimation("Psych"); break;
+                default:
+                case 0: RequestMetadata("Pole/Carrotus"); break;
+                case 1: RequestMetadata("Pole/Diamondus"); break;
+                case 2: RequestMetadata("Pole/DiamondusTree"); break;
+                case 3: RequestMetadata("Pole/Jungle"); break;
+                case 4: RequestMetadata("Pole/Psych"); break;
             }
+
+            SetAnimation("Pole");
         }
 
         protected override void OnUpdate()

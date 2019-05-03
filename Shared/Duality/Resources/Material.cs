@@ -4,15 +4,14 @@ using Duality.Drawing;
 
 namespace Duality.Resources
 {
-    /// <summary>
-    /// Materials are standardized <see cref="BatchInfo">BatchInfos</see>, stored as a Resource. 
-    /// Just like BatchInfo objects, they describe how an object, represented by a set of vertices, 
-    /// looks like. Using Materials is generally more performant than using BatchInfos but not always
-    /// reasonable, for example when there is a single, unique GameObject with a special appearance:
-    /// This is a typical <see cref="BatchInfo"/> case.
-    /// </summary>
-    /// <seealso cref="BatchInfo"/>
-    [ExplicitResourceReference(typeof(Texture))]
+	/// <summary>
+	/// Materials are standardized <see cref="BatchInfo">BatchInfos</see>, stored as a Resource. 
+	/// Just like BatchInfo objects, they describe how an object, represented by a set of vertices, 
+	/// looks like. Using Materials is generally more performant than using BatchInfos but not always
+	/// reasonable, for example when there is a single, unique GameObject with a special appearance:
+	/// This is a typical <see cref="BatchInfo"/> case.
+	/// </summary>
+	/// <seealso cref="BatchInfo"/>
 	public class Material : Resource
 	{
 		/// <summary>
@@ -30,8 +29,7 @@ namespace Duality.Resources
 
 		internal static void InitDefaultContent()
 		{
-			InitDefaultContent<Material>(new Dictionary<string,Material>
-			{
+			DefaultContent.InitType(new Dictionary<string,Material> {
 				{ "SolidWhite", new Material(DrawTechnique.Solid, ColorRgba.White) },
 				{ "SolidBlack", new Material(DrawTechnique.Solid, ColorRgba.Black) },
 				{ "InvertWhite", new Material(DrawTechnique.Invert, ColorRgba.White) }

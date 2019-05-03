@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -9,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Duality.Drawing;
 using Duality.IO;
 using Import.Downloaders;
 using Jazz2;
@@ -270,12 +270,12 @@ namespace Import
                 }
             }
 
-            string plusPath = Path.Combine(sourcePath, "Plus.j2a");
-            if (Utils.FileResolveCaseInsensitive(ref plusPath)) {
-                JJ2Anims.Convert(plusPath, animationsPath, true);
-            } else {
+            //string plusPath = Path.Combine(sourcePath, "Plus.j2a");
+            //if (Utils.FileResolveCaseInsensitive(ref plusPath)) {
+            //    JJ2Anims.Convert(plusPath, animationsPath, true);
+            //} else {
                 JJ2PlusDownloader.Run(targetPath);
-            }
+            //}
 
             RecreateDefaultPalette(animationsPath);
 
@@ -528,6 +528,20 @@ namespace Import
                     Directory.CreateDirectory(targetPathInner);
                     l.Convert(targetPathInner, LevelTokenConversion);
 
+                    // Create package
+                    ContentTree tree = new ContentTree();
+
+                    tree.GetContentFromDirectory(targetPathInner, null, false);
+
+                    CompressedContent.Create(targetPathInner + ".level", tree, (name, flags) => {
+                        if ((flags & CompressedContent.ResourceFlags.HasResource) != 0 && !name.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) {
+                            flags |= CompressedContent.ResourceFlags.Compressed;
+                        }
+                        return flags;
+                    });
+
+                    Utils.DirectoryTryDelete(targetPathInner, true);
+
                     if (l.UnsupportedEvents.Count > 0) {
                         Log.Write(LogType.Warning, "Level \"" + levelToken + "\"" + versionPart + " converted" + (isPlusEnhanced ? " without .j2as" : "") + " with " + l.UnsupportedEvents.Sum(i => i.Value) + " warnings.");
                     } else {
@@ -636,6 +650,21 @@ namespace Import
                     string output = Path.Combine(targetPath, "Content", "Tilesets", token);
                     Directory.CreateDirectory(output);
                     t.Convert(output);
+
+                    // Create package
+                    ContentTree tree = new ContentTree();
+
+                    tree.GetContentFromDirectory(output, null, false);
+
+                    CompressedContent.Create(output + ".set", tree, (name, flags) => {
+                        if ((flags & CompressedContent.ResourceFlags.HasResource) != 0 && !name.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) {
+                            flags |= CompressedContent.ResourceFlags.Compressed;
+                        }
+                        return flags;
+                    });
+
+                    Utils.DirectoryTryDelete(output, true);
+
                 } catch (Exception ex) {
                     Log.Write(LogType.Error, "Tileset \"" + Path.GetFileName(file) + "\" not supported!");
                     Console.WriteLine(ex.ToString());
@@ -668,9 +697,10 @@ namespace Import
                 usedMusic.Add("menu");
 
                 foreach (string episode in Directory.EnumerateDirectories(Path.Combine(targetPath, "Content", "Episodes"))) {
-                    foreach (string level in Directory.EnumerateDirectories(episode)) {
-                        string path = Path.Combine(level, ".res");
-                        using (Stream s = File.Open(path, FileMode.Open)) {
+                    foreach (string level in Directory.EnumerateFiles(episode, "*.level")) {
+                        IFileSystem levelPackage = new CompressedContent(level);
+
+                        using (Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
                             LevelConfigJson json = jsonParser.Parse<LevelConfigJson>(s);
 
                             if (!string.IsNullOrEmpty(json.Description.DefaultMusic)) {
@@ -703,17 +733,17 @@ namespace Import
                 }
 
                 if (Directory.Exists(Path.Combine(targetPath, "Content", "Tilesets"))) {
-                    string[] tilesets = Directory.GetDirectories(Path.Combine(targetPath, "Content", "Tilesets"));
-                    foreach (string directory in tilesets) {
-                        if (!usedTilesets.Contains(Path.GetFileName(directory).ToLowerInvariant())) {
+                    string[] tilesets = Directory.GetFiles(Path.Combine(targetPath, "Content", "Tilesets"), "*.set");
+                    foreach (string tileset in tilesets) {
+                        if (!usedTilesets.Contains(Path.GetFileNameWithoutExtension(tileset).ToLowerInvariant())) {
                             try {
-                                Directory.Delete(directory, true);
+                                File.Delete(tileset);
                                 if (verbose) {
-                                    Log.Write(LogType.Verbose, "Tileset \"" + Path.GetFileName(directory) + "\" removed.");
+                                    Log.Write(LogType.Verbose, "Tileset \"" + Path.GetFileName(tileset) + "\" removed.");
                                 }
                                 removedCount++;
                             } catch {
-                                Log.Write(LogType.Warning, "Tileset \"" + Path.GetFileName(directory) + "\" cannot be removed.");
+                                Log.Write(LogType.Warning, "Tileset \"" + Path.GetFileName(tileset) + "\" cannot be removed.");
                             }
 
                         }
@@ -738,7 +768,7 @@ namespace Import
                     metadataExists = true;
 
                     foreach (string metadata in Directory.EnumerateDirectories(Path.Combine(targetPath, "Content", "Metadata"))) {
-                        foreach (string path in Directory.EnumerateFiles(metadata, "*.res")) {
+                        foreach (string path in Directory.EnumerateFiles(metadata, "*.res", SearchOption.AllDirectories)) {
                             using (Stream s = File.Open(path, FileMode.Open)) {
                                 MetadataJson json = jsonParser.Parse<MetadataJson>(s);
 
@@ -769,13 +799,13 @@ namespace Import
                     }
                 }
 
-                if (File.Exists(Path.Combine(targetPath, "Content", ".dz"))) {
+                if (File.Exists(Path.Combine(targetPath, "Content", "Main.dz"))) {
                     metadataExists = true;
 
-                    IFileSystem fs = new CompressedContent(Path.Combine(targetPath, "Content", ".dz"));
+                    IFileSystem fs = new CompressedContent(Path.Combine(targetPath, "Content", "Main.dz"));
 
                     foreach (string metadata in fs.GetDirectories("Metadata")) {
-                        foreach (string path in fs.GetFiles(metadata)) {
+                        foreach (string path in fs.GetFiles(metadata, true)) {
                             if (!path.EndsWith(".res", StringComparison.OrdinalIgnoreCase)) {
                                 continue;
                             }
@@ -813,7 +843,7 @@ namespace Import
                 if (metadataExists) {
 
                     // Default (unreferenced) assets - paths in the set have to be lower-case
-                    usedAnimations.Add(".palette");
+                    usedAnimations.Add("Main.palette");
                     usedAnimations.Add("_custom/noise.png");
                     usedAnimations.Add("ui/font_small.png");
                     usedAnimations.Add("ui/font_medium.png");
@@ -877,9 +907,10 @@ namespace Import
 
             if (Directory.Exists(Path.Combine(targetPath, "Content", "Episodes"))) {
                 foreach (string episode in Directory.EnumerateDirectories(Path.Combine(targetPath, "Content", "Episodes"))) {
-                    foreach (string level in Directory.EnumerateDirectories(episode)) {
-                        string path = Path.Combine(level, ".res");
-                        using (Stream s = File.Open(path, FileMode.Open)) {
+                    foreach (string level in Directory.EnumerateFiles(episode, ".*.level")) {
+                        IFileSystem levelPackage = new CompressedContent(level);
+
+                        using (Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
                             LevelConfigJson json = jsonParser.Parse<LevelConfigJson>(s);
 
                             if (!string.IsNullOrEmpty(json.Description.DefaultMusic)) {
@@ -892,8 +923,8 @@ namespace Import
                                 if (!Directory.Exists(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset)) ||
                                     !Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "tiles.png")) ||
                                     !Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "mask.png")) ||
-                                    !Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "normal.png")) ||
-                                    !Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, ".palette"))) {
+                                    !Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "normals.png")) ||
+                                    !Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "palette.res"))) {
 
                                     Log.Write(LogType.Warning, "\"" + Path.Combine("Tilesets", json.Description.DefaultTileset) + "\" is missing!");
                                 }
@@ -909,11 +940,11 @@ namespace Import
             Log.Write(LogType.Info, "Checking \"Animations\" directory for missing files...");
             Log.PushIndent();
 
-            if (File.Exists(Path.Combine(targetPath, "Content", ".dz"))) {
-                IFileSystem fs = new CompressedContent(Path.Combine(targetPath, "Content", ".dz"));
+            if (File.Exists(Path.Combine(targetPath, "Content", "Main.dz"))) {
+                IFileSystem fs = new CompressedContent(Path.Combine(targetPath, "Content", "Main.dz"));
 
                 foreach (string unreferenced in new[] {
-                    ".palette", "_custom/noise.png", "UI/font_medium.png", "UI/font_medium.png.res",
+                    "Main.palette", "_custom/noise.png", "UI/font_medium.png", "UI/font_medium.png.res",
                     "UI/font_medium.png.config", "UI/font_small.png", "UI/font_small.png.res",
                     "UI/font_small.png.config"
                 }) {
@@ -926,7 +957,7 @@ namespace Import
 
                 if (fs.DirectoryExists("Metadata")) {
                     foreach (string metadata in fs.GetDirectories("Metadata")) {
-                        foreach (string path in fs.GetFiles(metadata)) {
+                        foreach (string path in fs.GetFiles(metadata, true)) {
                             if (!path.EndsWith(".res")) {
                                 continue;
                             }
@@ -988,7 +1019,7 @@ namespace Import
                     Log.Write(LogType.Error, "Directory \"Metadata\" is missing!");
                 }
             } else {
-                Log.Write(LogType.Error, "\".\\Content\\.dz\" does not exist!");
+                Log.Write(LogType.Error, "\".\\Content\\Main.dz\" does not exist!");
             }
 
             Log.PopIndent();
@@ -1002,10 +1033,10 @@ namespace Import
             string animationsPath = Path.Combine(targetPath, "Content", "Animations");
             RecreateDefaultPalette(animationsPath);
 
-            Log.Write(LogType.Info, "Compressing content into \".\\Content\\.dz\" file...");
+            Log.Write(LogType.Info, "Compressing content into \".\\Content\\Main.dz\" file...");
             Log.PushIndent();
 
-            string oldContent = Path.Combine(targetPath, "Content", ".dz");
+            string oldContent = Path.Combine(targetPath, "Content", "Main.dz");
             string newContent = oldContent + ".new";
 
             bool keepOld = false;
@@ -1013,7 +1044,7 @@ namespace Import
             ContentTree tree = new ContentTree();
 
             foreach (string unreferenced in new[] {
-                ".palette",
+                "Main.palette",
                 "UI/font_medium.png.config",
                 "UI/font_small.png.config"
             }) {
@@ -1044,6 +1075,10 @@ namespace Import
                 tree.GetContentFromDirectory(Path.Combine(targetPath, "Content", "Shaders"));
             }
 
+            if (Directory.Exists(Path.Combine(targetPath, "Content", "Shaders.ES30"))) {
+                tree.GetContentFromDirectory(Path.Combine(targetPath, "Content", "Shaders.ES30"));
+            }
+
             Log.PopIndent();
             Log.Write(LogType.Info, "Saving changes...");
 
@@ -1071,10 +1106,10 @@ namespace Import
 
         private static void MergeToCompressedContent(string targetPath, bool keep)
         {
-            Log.Write(LogType.Info, "Compressing content into \".\\Content\\.dz\" file...");
+            Log.Write(LogType.Info, "Compressing content into \".\\Content\\Main.dz\" file...");
             Log.PushIndent();
 
-            string oldContent = Path.Combine(targetPath, "Content", ".dz");
+            string oldContent = Path.Combine(targetPath, "Content", "Main.dz");
             string newContent = oldContent + ".new";
 
             bool keepOld = false;
@@ -1084,7 +1119,7 @@ namespace Import
                 try {
                     tree = new CompressedContent(oldContent).Tree;
                 } catch {
-                    Log.Write(LogType.Warning, "\".\\Content\\.dz\" is corrupted and cannot be merged!");
+                    Log.Write(LogType.Warning, "\".\\Content\\Main.dz\" is corrupted and cannot be merged!");
 
                     tree = new ContentTree();
                     keepOld = true;
@@ -1105,6 +1140,10 @@ namespace Import
 
             if (Directory.Exists(Path.Combine(targetPath, "Content", "Shaders"))) {
                 tree.GetContentFromDirectory(Path.Combine(targetPath, "Content", "Shaders"));
+            }
+
+            if (Directory.Exists(Path.Combine(targetPath, "Content", "Shaders.ES30"))) {
+                tree.GetContentFromDirectory(Path.Combine(targetPath, "Content", "Shaders.ES30"));
             }
 
             Log.Write(LogType.Info, "Saving changes...");
@@ -1142,6 +1181,10 @@ namespace Import
                 if (Directory.Exists(Path.Combine(targetPath, "Content", "Shaders"))) {
                     Directory.Delete(Path.Combine(targetPath, "Content", "Shaders"), true);
                 }
+
+                if (Directory.Exists(Path.Combine(targetPath, "Content", "Shaders.ES30"))) {
+                    Directory.Delete(Path.Combine(targetPath, "Content", "Shaders.ES30"), true);
+                }
             }
 
             Log.PopIndent();
@@ -1149,13 +1192,13 @@ namespace Import
 
         private static void RecreateDefaultPalette(string animationsPath)
         {
-            string defaultPalettePath = Path.Combine(animationsPath, ".palette");
+            string defaultPalettePath = Path.Combine(animationsPath, "Main.palette");
             if (!File.Exists(defaultPalettePath)) {
                 Log.Write(LogType.Info, "Recreating default palette...");
 
                 using (FileStream s = File.Open(defaultPalettePath, FileMode.Create, FileAccess.Write))
                 using (BinaryWriter w = new BinaryWriter(s)) {
-                    Color[] palette = JJ2DefaultPalette.Sprite;
+                    ColorRgba[] palette = JJ2DefaultPalette.Sprite;
 
                     w.Write((ushort)palette.Length);
                     w.Write((int)0); // Empty color
@@ -1212,59 +1255,59 @@ namespace Import
             int diffMax = 0, diffSum = 0;
             bool[] usedIndices = new bool[256];
 
-            using (FileStream s = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-                using (Bitmap b = new Bitmap(s)) {
+            using (FileStream s = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (Bitmap source = new Bitmap(s)) {
+                PngWriter img = new PngWriter(source);
 
-                    if (frameConfiguration.X == 0 || frameConfiguration.Y == 0) {
-                        Log.Write(LogType.Info, "Generating normal map (" + frameConfiguration.X + "x" + frameConfiguration.Y + " frames)...");
+                if (frameConfiguration.X == 0 || frameConfiguration.Y == 0) {
+                    Log.Write(LogType.Info, "Generating normal map (" + frameConfiguration.X + "x" + frameConfiguration.Y + " frames)...");
 
-                        using (Bitmap normalMap = NormalMapGenerator.FromSprite(b, frameConfiguration, null)) {
-                            normalMap.Save(Path.ChangeExtension(path, ".n.new" + Path.GetExtension(path)), ImageFormat.Png);
-                        }
-                    }
+                    PngWriter normalMap = NormalMapGenerator.FromSprite(img, frameConfiguration, null);
+                    normalMap.Save(Path.ChangeExtension(path, ".n.new" + Path.GetExtension(path)));
+                }
 
-                    for (int x = 0; x < b.Width; x++) {
-                        for (int y = 0; y < b.Height; y++) {
-                            Color color = b.GetPixel(x, y);
+                for (int x = 0; x < img.Width; x++) {
+                    for (int y = 0; y < img.Height; y++) {
+                        ColorRgba color = img.GetPixel(x, y);
 
-                            int bestMatchIndex = 0;
-                            int bestMatchIndex2 = 0;
-                            int bestMatchDiff = int.MaxValue;
-                            // Use only usable indices from the default palette
-                            for (int p = 0; p < UsableIndexRanges.Length; p += 2) {
-                                for (int i = UsableIndexRanges[p]; i <= UsableIndexRanges[p + 1]; i++) {
-                                    Color current = JJ2DefaultPalette.Sprite[i];
-                                    int currentDiff = Math.Abs(color.R - current.R) + Math.Abs(color.G - current.G) + Math.Abs(color.B - current.B) + Math.Abs(color.A - current.A);
-                                    if (currentDiff < bestMatchDiff) {
-                                        bestMatchIndex2 = bestMatchIndex;
-                                        bestMatchIndex = i;
-                                        bestMatchDiff = currentDiff;
-                                    }
+                        int bestMatchIndex = 0;
+                        int bestMatchIndex2 = 0;
+                        int bestMatchDiff = int.MaxValue;
+                        // Use only usable indices from the default palette
+                        for (int p = 0; p < UsableIndexRanges.Length; p += 2) {
+                            for (int i = UsableIndexRanges[p]; i <= UsableIndexRanges[p + 1]; i++) {
+                                ColorRgba current = JJ2DefaultPalette.Sprite[i];
+                                int currentDiff = Math.Abs(color.R - current.R) + Math.Abs(color.G - current.G) + Math.Abs(color.B - current.B) + Math.Abs(color.A - current.A);
+                                if (currentDiff < bestMatchDiff) {
+                                    bestMatchIndex2 = bestMatchIndex;
+                                    bestMatchIndex = i;
+                                    bestMatchDiff = currentDiff;
                                 }
                             }
-
-                            if (r.Next(100) < noise && Math.Abs(color.A - JJ2DefaultPalette.Sprite[bestMatchIndex2].A) < 20) {
-                                bestMatchIndex = bestMatchIndex2;
-                            }
-
-                            usedIndices[bestMatchIndex] = true;
-
-                            Color bestMatch;
-                            if (apply) {
-                                bestMatch = Color.FromArgb(color.A, JJ2DefaultPalette.Sprite[bestMatchIndex]);
-                            } else {
-                                bestMatch = Color.FromArgb(color.A, bestMatchIndex, bestMatchIndex, bestMatchIndex);
-                            }
-
-                            b.SetPixel(x, y, bestMatch);
-
-                            diffMax = Math.Max(diffMax, bestMatchDiff);
-                            diffSum += bestMatchDiff;
                         }
-                    }
 
-                    b.Save(Path.ChangeExtension(path, ".new" + Path.GetExtension(path)), ImageFormat.Png);
+                        if (r.Next(100) < noise && Math.Abs(color.A - JJ2DefaultPalette.Sprite[bestMatchIndex2].A) < 20) {
+                            bestMatchIndex = bestMatchIndex2;
+                        }
+
+                        usedIndices[bestMatchIndex] = true;
+
+                        ColorRgba bestMatch;
+                        if (apply) {
+                            bestMatch = JJ2DefaultPalette.Sprite[bestMatchIndex];
+                        } else {
+                            bestMatch = new ColorRgba((byte)bestMatchIndex, (byte)bestMatchIndex, (byte)bestMatchIndex);
+                        }
+                        bestMatch.A = color.A;
+
+                        img.SetPixel(x, y, bestMatch);
+
+                        diffMax = Math.Max(diffMax, bestMatchDiff);
+                        diffSum += bestMatchDiff;
+                    }
                 }
+
+                img.Save(Path.ChangeExtension(path, ".new" + Path.GetExtension(path)));
             }
 
             Log.Write(LogType.Verbose, "Max. difference:    " + diffMax.ToString("N0"));

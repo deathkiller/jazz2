@@ -1,5 +1,6 @@
 ﻿using Duality.Backend.DefaultOpenTK;
 using Duality.Drawing;
+using Jazz2.Game;
 using OpenTK;
 using OpenTK.Graphics;
 using System;
@@ -60,6 +61,17 @@ namespace Duality.Backend.Es20
         public Point2 Size
         {
             get { return new Point2(this.Width, this.Height); }
+            set
+            {
+                this.internalWindow.ClientSize = new Size(value.X, value.Y);
+
+                Point location = this.internalWindow.Location;
+                if (location.X < 50) location.X = 50;
+                if (location.Y < 50) location.Y = 50;
+                this.internalWindow.Location = location;
+
+                DualityApp.WindowSize = new Point2(this.internalWindow.ClientSize.Width, this.internalWindow.ClientSize.Height);
+            }
         }
 
         public bool IsMultisampled
@@ -73,18 +85,48 @@ namespace Duality.Backend.Es20
             set { this.internalWindow.Title = value; }
         }
 
+        public RefreshMode RefreshMode
+        {
+            get { return refreshMode; }
+            set
+            {
+                if (refreshMode == value) {
+                    return;
+                }
+
+                VSyncMode vsyncMode;
+                switch (value) {
+                    default:
+                    case RefreshMode.NoSync:
+                    case RefreshMode.ManualSync:
+                        vsyncMode = VSyncMode.Off;
+                        break;
+                    case RefreshMode.VSync:
+                        vsyncMode = VSyncMode.On;
+                        break;
+                    case RefreshMode.AdaptiveVSync:
+                        vsyncMode = VSyncMode.Adaptive;
+                        break;
+                }
+
+                this.internalWindow.VSync = vsyncMode;
+
+                refreshMode = value;
+            }
+        }
+
         public ScreenMode ScreenMode
         {
             get { return screenMode; }
             set
             {
-                value &= (ScreenMode.FullWindow | ScreenMode.FixedSize);
+                value &= (ScreenMode.FullWindow | ScreenMode.FixedSize | ScreenMode.ChangeResolution);
                 if (screenMode == value)
                 {
                     return;
                 }
 
-                if ((value & ScreenMode.FullWindow) != 0)
+                if ((value & (ScreenMode.FullWindow | ScreenMode.ChangeResolution)) != 0)
                 {
                     this.internalWindow.WindowState = WindowState.Fullscreen;
                     this.internalWindow.WindowBorder = WindowBorder.Hidden;
@@ -104,27 +146,24 @@ namespace Duality.Backend.Es20
 
         public NativeWindow(GraphicsMode mode, WindowOptions options)
         {
-            if ((options.ScreenMode & (ScreenMode.ChangeResolution | ScreenMode.FullWindow)) != 0)
-            {
-                if (DisplayDevice.Default != null)
-                {
+            if ((options.ScreenMode & (ScreenMode.ChangeResolution | ScreenMode.FullWindow)) != 0) {
+                if (DisplayDevice.Default != null) {
                     options.Size = new Point2(
                         DisplayDevice.Default.Width,
                         DisplayDevice.Default.Height);
                 }
             }
 
-            screenMode = options.ScreenMode & (ScreenMode.FullWindow | ScreenMode.FixedSize);
+            screenMode = options.ScreenMode & (ScreenMode.FullWindow | ScreenMode.FixedSize | ScreenMode.ChangeResolution);
 
             GameWindowFlags windowFlags = GameWindowFlags.Default;
             if ((screenMode & ScreenMode.FixedSize) != 0)
                 windowFlags = GameWindowFlags.FixedWindow;
-            else if ((screenMode & ScreenMode.ChangeResolution) != 0)
+            else if ((screenMode & ScreenMode.FullWindow) != 0)
                 windowFlags = GameWindowFlags.Fullscreen;
 
             VSyncMode vsyncMode;
-            switch (options.RefreshMode)
-            {
+            switch (options.RefreshMode) {
                 default:
                 case RefreshMode.NoSync:
                 case RefreshMode.ManualSync:
@@ -167,7 +206,7 @@ namespace Duality.Backend.Es20
 
             GraphicsBackend.LogOpenGLSpecs();
 
-            Console.WriteLine(
+            App.Log(
                 "Window Specification: " + Environment.NewLine +
                 "  Buffers: {0}" + Environment.NewLine +
                 "  Samples: {1}" + Environment.NewLine +
@@ -188,8 +227,7 @@ namespace Duality.Backend.Es20
 
             // Retrieve icon from executable file and set it as window icon
             string executablePath = null;
-            try
-            {
+            try {
                 Assembly entryAssembly = Assembly.GetEntryAssembly();
                 if (entryAssembly != null)
                 {
@@ -203,9 +241,8 @@ namespace Duality.Backend.Es20
             // As described in issue 301 (https://github.com/AdamsLair/duality/issues/301), the
             // icon extraction can fail with an exception under certain circumstances. Don't fail
             // just because of an icon. Log the error and continue.
-            catch (Exception e)
-            {
-                Console.WriteLine(
+            catch (Exception e) {
+                App.Log(
                     "There was an exception while trying to extract the " +
                     "window icon from the game's main executable '{0}'. This is " +
                     "uncritical, but still an error: {1}",
@@ -231,8 +268,7 @@ namespace Duality.Backend.Es20
         void IDisposable.Dispose()
         {
             this.UnhookFromDuality();
-            if (this.internalWindow != null)
-            {
+            if (this.internalWindow != null) {
                 this.internalWindow.Dispose();
                 this.internalWindow = null;
             }
@@ -260,17 +296,14 @@ namespace Duality.Backend.Es20
 
         private void OnUpdateFrame(FrameEventArgs e)
         {
-            if (DualityApp.ExecContext == DualityApp.ExecutionContext.Terminated)
-            {
+            if (DualityApp.ExecContext == DualityApp.ExecutionContext.Terminated) {
                 this.internalWindow.Close();
                 return;
             }
 
             // Give the processor a rest if we have the time, don't use 100% CPU even without VSync
-            if (this.frameLimiterWatch.IsRunning && this.refreshMode == RefreshMode.ManualSync)
-            {
-                while (this.frameLimiterWatch.Elapsed.TotalMilliseconds < Time.MillisecondsPerFrame)
-                {
+            if (this.frameLimiterWatch.IsRunning && this.refreshMode == RefreshMode.ManualSync) {
+                while (this.frameLimiterWatch.Elapsed.TotalMilliseconds < Time.MillisecondsPerFrame) {
                     // Enough leftover time? Risk a short sleep, don't burn CPU waiting.
                     if (this.frameLimiterWatch.Elapsed.TotalMilliseconds < Time.MillisecondsPerFrame * 0.75f)
                         System.Threading.Thread.Sleep(0);

@@ -2,13 +2,13 @@
 {
     public class JoystickAxisEventArgs : UserInputEventArgs
 	{
-		private JoystickAxis axis;
+		private int axisIndex;
 		private float axisValue;
 		private float axisDelta;
 
-		public JoystickAxis Axis
+		public int AxisIndex
 		{
-			get { return this.axis; }
+			get { return this.axisIndex; }
 		}
 		public float Value
 		{
@@ -19,9 +19,9 @@
 			get { return this.axisDelta; }
 		}
 
-		public JoystickAxisEventArgs(JoystickInput inputChannel, JoystickAxis axis, float axisValue, float axisDelta) : base(inputChannel)
+		public JoystickAxisEventArgs(JoystickInput inputChannel, int axisIndex, float axisValue, float axisDelta) : base(inputChannel)
 		{
-			this.axis = axis;
+			this.axisIndex = axisIndex;
 			this.axisValue = axisValue;
 			this.axisDelta = axisDelta;
 		}

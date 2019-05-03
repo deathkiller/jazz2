@@ -23,6 +23,8 @@ namespace Jazz2.Actors.Enemies
 
             RequestMetadata("Enemy/Witch");
             SetAnimation(AnimState.Idle);
+
+            PreloadMetadata("Interactive/PlayerFrog");
         }
 
         protected override void OnUpdate()
@@ -89,7 +91,8 @@ namespace Jazz2.Actors.Enemies
                 }
             }
 
-            speedX = speedY = 0;
+            speedX = 0f;
+            speedY = 0f;
         }
 
         protected override bool OnPerish(ActorBase collider)
@@ -105,7 +108,7 @@ namespace Jazz2.Actors.Enemies
             return false;
         }
 
-        public override bool OnTileDeactivate(int tx, int ty, int tileDistance)
+        public override bool OnTileDeactivate(int tx1, int ty1, int tx2, int ty2)
         {
             return false;
         }
@@ -166,10 +169,12 @@ namespace Jazz2.Actors.Enemies
                 }
 
                 foreach (ActorBase collision in api.FindCollisionActors(this)) {
-                    if (collision is Player) {
+                    Player player = collision as Player;
+                    if (player != null) {
                         DecreaseHealth(int.MaxValue);
                         owner.OnPlayerHit();
-                        // ToDo: Frog
+
+                        player.MorphTo(PlayerType.Frog);
                     }
                 }
             }

@@ -5,13 +5,13 @@ namespace Duality
 {
     /// <summary>
     /// This lightweight struct references <see cref="Resource">Resources</see> in an abstract way. It
-    /// is tightly connected to the <see cref="DefaultContentProvider"/> and takes care of keeping or making 
+    /// is tightly connected to the <see cref="DefaultContent"/> and takes care of keeping or making 
     /// the referenced content available when needed. Never store actual Resource references permanently,
     /// instead use a ContentRef to it. However, you may retrieve and store a direct Resource reference
     /// temporarily, although this is only recommended at method-local scope.
     /// </summary>
     /// <seealso cref="Resource"/>
-    /// <seealso cref="DefaultContentProvider"/>
+    /// <seealso cref="DefaultContent"/>
     /// <seealso cref="IContentRef"/>
     [DebuggerTypeProxy(typeof(ContentRef<>.DebuggerTypeProxy))]
     public struct ContentRef<T> : IEquatable<ContentRef<T>>, IContentRef where T : Resource
@@ -76,7 +76,7 @@ namespace Duality
         /// Loads the associated content as if it was accessed now.
         /// You don't usually need to call this method. It is invoked implicitly by trying to access the ContentRef
         /// </summary>
-        public void MakeAvailable()
+        public void EnsureLoaded()
         {
             //if (this.contentInstance == null || this.contentInstance.Disposed) this.RetrieveInstance();
         }

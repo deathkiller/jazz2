@@ -7,6 +7,9 @@ namespace Jazz2.Actors.Weapons
 {
     public class AmmoBouncer : AmmoBase
     {
+        private Vector2 gunspotPos;
+        private bool fired;
+
         private float targetSpeedX;
         private float hitLimit;
 
@@ -27,11 +30,13 @@ namespace Jazz2.Actors.Weapons
             light.RadiusFar = 12f;
         }
 
-        public void OnFire(Player owner, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
+        public void OnFire(Player owner, Vector3 gunspotPos, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
         {
             base.owner = owner;
             base.IsFacingLeft = isFacingLeft;
             base.upgrades = upgrades;
+
+            this.gunspotPos = gunspotPos.Xy;
 
             float angleRel = angle * (isFacingLeft ? -1 : 1);
 
@@ -59,29 +64,41 @@ namespace Jazz2.Actors.Weapons
             SetAnimation(state);
 
             OnUpdateHitbox();
+
+            renderer.Active = false;
         }
 
         protected override void OnUpdate()
         {
+            float timeMult = Time.TimeMult;
+
+            TryStandardMovement(timeMult);
             OnUpdateHitbox();
-            CheckCollisions();
-            TryStandardMovement(Time.TimeMult);
+            CheckCollisions(timeMult);
+            
 
             base.OnUpdate();
 
             if (hitLimit > 0f) {
-                hitLimit -= Time.TimeMult;
+                hitLimit -= timeMult;
             }
 
             if ((upgrades & 0x1) != 0 && targetSpeedX != 0f) {
                 if (speedX != targetSpeedX) {
-                    float step = Time.TimeMult * 0.2f;
+                    float step = timeMult * 0.2f;
                     if (MathF.Abs(speedX - targetSpeedX) < step) {
                         speedX = targetSpeedX;
                     } else {
                         speedX += step * ((targetSpeedX < speedX) ? -1 : 1);
                     }
                 }
+            }
+
+            if (!fired) {
+                fired = true;
+
+                MoveInstantly(gunspotPos, MoveType.Absolute, true);
+                renderer.Active = true;
             }
         }
 

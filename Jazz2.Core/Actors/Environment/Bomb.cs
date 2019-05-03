@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Duality;
+﻿using Duality;
 
 namespace Jazz2.Actors.Environment
 {

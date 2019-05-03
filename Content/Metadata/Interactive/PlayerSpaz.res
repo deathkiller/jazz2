@@ -58,9 +58,19 @@
             "FrameRate": 38,
             "States": [ 32 ]
         },
+        "DizzyIdle": {
+            "Path": "Spaz/dizzy.png",
+            "FrameRate": 7,
+            "States": [ 128 ]
+        },
+        "DizzyWalk": {
+            "Path": "Spaz/dizzy_walk.png",
+            "FrameRate": 6,
+            "States": [ 129, 145 ]
+        },
         "Shoot": {
             "Path": "Spaz/shoot.png",
-            "States": [ 16 ],
+            "States": [ 16, 144 ],
             "Flags": 1
         },
         "CrouchShoot": {
@@ -145,7 +155,7 @@
         },
         "HookShootToHook": {
             "Path": "Spaz/vine_shoot_end.png",
-            "FrameRate": 20,
+            "FrameRate": 24,
             "States": [ 1073741829 ]
         },
         "CopterShootToCopter": {
@@ -272,8 +282,39 @@
             "States": [ 1073741862 ]
         },
         
+        "IdleBored1": {
+            "Path": "Spaz/idle_flavor_2.png",
+            "FrameRate": 2,
+            "States": [ 1073741849 ]
+        },
+        "IdleBored2": {
+            "Path": "Spaz/idle_flavor_3.png",
+            "FrameRate": 1,
+            "States": [ 1073741849 ]
+        },
+        "IdleBored3": {
+            "Path": "Spaz/idle_flavor_4.png",
+            "FrameRate": 3,
+            "States": [ 1073741849 ]
+        },
+        "IdleBored4": {
+            "Path": "Spaz/idle_flavor_5.png",
+            "FrameRate": 3,
+            "States": [ 1073741849 ]
+        },
+
+        "TransformFromFrog": {
+            "Path": "Spaz/transform_frog_end.png",
+            "States": [ 1073741888 ],
+            "FrameRate": 3
+        },
+        
         "Corpse": {
             "Path": "Spaz/corpse.png"
+        },
+
+        "SugarRush": {
+            "Path": "Common/SugarRushStars.png"
         }
     },
 

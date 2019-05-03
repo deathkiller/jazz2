@@ -35,8 +35,6 @@ namespace Jazz2.Actors.Collectibles
                 timeLeft = 90f * Time.FramesPerSecond;
             }
 
-            RequestMetadata("Object/Collectible");
-
             if ((details.Flags & ActorInstantiationFlags.Illuminated) != 0) {
                 Illuminate();
             }

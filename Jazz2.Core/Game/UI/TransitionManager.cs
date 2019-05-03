@@ -6,29 +6,36 @@ namespace Jazz2.Game.UI
 {
     public class TransitionManager
     {
+        public enum Mode
+        {
+            None,
+            FadeIn,
+            FadeOut
+        }
+
         private struct Block
         {
             public float Current;
             public float Offset;
         }
 
-        private const int BlockSize = 6;
+        private const int BlockSize = 8;
         private const int BlockSizeSmooth = 3;
 
-        private TransitionMode mode;
+        private readonly Mode mode;
+        private readonly int w, h;
         private int blockSize;
         private Block[] blocks;
-        private int w, h;
         private bool isCompleted;
         private float time;
         private VertexC1P3[] vertices;
 
 
-        public TransitionMode Mode => mode;
+        public Mode ActiveMode => mode;
 
         public bool IsCompleted => isCompleted;
 
-        public TransitionManager(TransitionMode mode, Point2 targetSize, bool smooth)
+        public TransitionManager(Mode mode, Point2 targetSize, bool smooth)
         {
             this.mode = mode;
 
@@ -36,8 +43,6 @@ namespace Jazz2.Game.UI
 
             this.w = (int)MathF.Ceiling((float)targetSize.X / blockSize);
             this.h = (int)MathF.Ceiling((float)targetSize.Y / blockSize);
-
-            float m = MathF.Max(this.w, this.h);
 
             this.blocks = new Block[this.w * this.h];
             this.vertices = new VertexC1P3[this.blocks.Length * 4];
@@ -60,7 +65,7 @@ namespace Jazz2.Game.UI
 
         public void Draw(IDrawDevice device, Canvas canvas)
         {
-            if (mode == TransitionMode.None) {
+            if (mode == Mode.None) {
                 return;
             }
 
@@ -77,7 +82,7 @@ namespace Jazz2.Game.UI
                     ref Block block = ref blocks[this.w * y + x];
 
                     float alpha = MathF.Clamp(block.Current - block.Offset, 0, 1);
-                    if (mode == TransitionMode.FadeIn) {
+                    if (mode == Mode.FadeIn) {
                         alpha = 1f - alpha;
 
                         if (alpha > 0f) {
@@ -96,8 +101,6 @@ namespace Jazz2.Game.UI
                     ColorRgba color = new ColorRgba(0, alpha);
 
                     Vector3 pos = new Vector3(offset.X + x * blockSize, offset.Y + y * blockSize, 0);
-                    float scale = 1.0f;
-                    device.PreprocessCoords(ref pos, ref scale);
 
                     vertices[idx + 0].Pos = new Vector3(pos.X, pos.Y, pos.Z);
                     vertices[idx + 1].Pos = new Vector3(pos.X + blockSize, pos.Y, pos.Z);
@@ -113,7 +116,16 @@ namespace Jazz2.Game.UI
 
             BatchInfo material = device.RentMaterial();
             material.Technique = DrawTechnique.Alpha;
-            device.AddVertices(material, VertexMode.Quads, vertices, 0, vertices.Length);
+
+            if (vertices.Length > ushort.MaxValue) {
+                const int limit = 60000; // 60k vertices per batch
+                for (int i = 0; i < vertices.Length; i += limit) {
+                    int count = MathF.Min(limit, vertices.Length - i);
+                    device.AddVertices(material, VertexMode.Quads, vertices, i, count);
+                }
+            } else {
+                device.AddVertices(material, VertexMode.Quads, vertices, 0, vertices.Length);
+            }
 
             if (time < 30f) {
                 isCompleted = false;

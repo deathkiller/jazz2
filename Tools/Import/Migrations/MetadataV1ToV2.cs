@@ -108,8 +108,9 @@ namespace Jazz2.Migrations
                         w.Write("            \"Path\": \"" + graphic.Value.filename + "\"");
 
                         int flags = 0;
-                        if (graphic.Value.onlyOnce)
+                        if (graphic.Value.onlyOnce) {
                             flags |= 1;
+                        }
                         if (flags != 0) {
                             w.WriteLine(",");
                             w.Write("            \"Flags\": " + flags + "");
@@ -117,15 +118,15 @@ namespace Jazz2.Migrations
 
                         if (graphic.Value.frameOffset > 0) {
                             w.WriteLine(",");
-                            w.Write("            \"FrameOffset\": " + graphic.Value.frameOffset.ToString() + "");
+                            w.Write("            \"FrameOffset\": " + graphic.Value.frameOffset + "");
                         }
                         if (graphic.Value.frameCount != null) {
                             w.WriteLine(",");
-                            w.Write("            \"FrameCount\": " + graphic.Value.frameCount.ToString() + "");
+                            w.Write("            \"FrameCount\": " + graphic.Value.frameCount + "");
                         }
                         if (graphic.Value.fps != null) {
                             w.WriteLine(",");
-                            w.Write("            \"FrameRate\": " + graphic.Value.fps.ToString() + "");
+                            w.Write("            \"FrameRate\": " + graphic.Value.fps + "");
                         }
                         if (graphic.Value.states != null && graphic.Value.states.Count > 0) {
                             w.WriteLine(",");

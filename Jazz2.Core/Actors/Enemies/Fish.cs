@@ -54,7 +54,8 @@ namespace Jazz2.Actors.Enemies
                     if (length < 320f) {
                         direction.Normalize();
 
-                        speedX = speedY = 0f;
+                        speedX = 0f;
+                        speedY = 0f;
                         IsFacingLeft = (direction.X < 0f);
                         state = StateAttacking;
 
@@ -101,21 +102,24 @@ namespace Jazz2.Actors.Enemies
         {
             base.OnHitWallHook();
 
-            speedX = speedY = 0f;
+            speedX = 0f;
+            speedY = 0f;
         }
 
         protected override void OnHitFloorHook()
         {
             base.OnHitFloorHook();
 
-            speedX = speedY = 0f;
+            speedX = 0f;
+            speedY = 0f;
         }
 
         protected override void OnHitCeilingHook()
         {
             base.OnHitCeilingHook();
 
-            speedX = speedY = 0f;
+            speedX = 0f;
+            speedY = 0f;
         }
 
         protected override bool OnPerish(ActorBase collider)

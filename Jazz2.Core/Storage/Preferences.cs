@@ -9,28 +9,36 @@ namespace Jazz2.Storage
 
         public static T Get<T>(string key, T defaultValue = default(T))
         {
-            if (prefBack == null) Initialize();
+            if (prefBack == null) {
+                Initialize();
+            }
 
             return prefBack.Get<T>(key, defaultValue);
         }
 
         public static void Set<T>(string key, T value)
         {
-            if (prefBack == null) Initialize();
+            if (prefBack == null) {
+                Initialize();
+            }
 
             prefBack.Set<T>(key, value);
         }
 
         public static void Remove(string key)
         {
-            if (prefBack == null) Initialize();
+            if (prefBack == null) {
+                Initialize();
+            }
 
             prefBack.Remove(key);
         }
 
         public static void Commit()
         {
-            if (prefBack == null) return;
+            if (prefBack == null) {
+                Initialize();
+            }
 
             prefBack.Commit();
         }

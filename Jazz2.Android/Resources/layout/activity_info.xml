@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <VideoView
+        android:id="@+id/background_video"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scaleType="centerCrop"
+        android:adjustViewBounds="true" />
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="false"
+        android:orientation="vertical">
+
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:app="http://schemas.android.com/apk/res-auto"
+          android:background="@drawable/action_bar_bg"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="40dp"
+                android:layout_marginTop="136dp"
+                android:gravity="top|center"
+                android:lineSpacingMultiplier="1.2"
+                android:maxWidth="340dp"
+                android:textColor="@color/body_text_1"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="30dp"
+                android:gravity="top|center"
+                android:lineSpacingMultiplier="1.2"
+                android:maxWidth="340dp"
+                android:layout_below="@id/header"
+                android:textColor="@color/body_text_2"
+                android:textColorLink="@color/link_text" />
+
+            <TextView
+                  android:id="@+id/version"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginRight="20dp"
+                  android:layout_marginBottom="14dp"
+                  android:layout_alignParentRight="true"
+                  android:layout_alignParentBottom="true"
+                  android:gravity="bottom|right"
+                  android:lineSpacingMultiplier="1.2"
+                  android:textColor="@color/body_text_3"
+                  android:textSize="11sp"/>
+
+            <Button
+              android:id="@+id/retry_button"
+              style="@android:style/Widget.DeviceDefault.Button.Borderless"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginBottom="32dp"
+              android:layout_alignParentBottom="true"
+              android:layout_centerHorizontal="true"
+              android:text="Retry" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</merge>

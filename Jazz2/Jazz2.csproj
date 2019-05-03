@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET45 UNSAFE MULTIPLAYER UNCOMPRESSED_CONTENT</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET45 ENABLE_SPLITSCREEN MULTIPLAYE_ UNCOMPRESSED_CONTENT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -30,7 +30,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>Bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NET45 UNSAFE MULTIPLAYER</DefineConstants>
+    <DefineConstants>TRACE;NET45 ENABLE_SPLITSCREEN</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -47,12 +47,9 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
-    <Compile Include="Backend\Drawing\BitmapImageCodec.cs" />
     <Compile Include="Backend\Preferences\PreferencesBackend.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Backend\System\NativeFileSystem.cs" />
@@ -65,7 +62,18 @@
     <None Include="App.manifest" />
     <None Include="Icon.ico" />
   </ItemGroup>
-  <Import Project="..\Shared\Networking\Networking.projitems" Label="Shared" Condition="$(DefineConstants.Contains('MULTIPLAYER'))" />
+  <ItemGroup />
+  <Choose>
+    <When Condition="$(DefineConstants.Contains('MULTIPLAYER'))">
+      <ItemGroup>
+        <ProjectReference Include="..\Extensions\Lidgren.Network\Lidgren.Network.csproj">
+          <Project>{49ba1c69-6104-41ac-a5d8-b54fa9f696e8}</Project>
+          <Name>Lidgren.Network</Name>
+        </ProjectReference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Import Project="..\Shared\NetworkPackets\NetworkPackets.projitems" Label="Shared" Condition="$(DefineConstants.Contains('MULTIPLAYER'))" />
   <Import Project="..\Jazz2.Core\Jazz2.Core.projitems" Label="Shared" />
   <Import Project="..\Shared\Duality\Duality.projitems" Label="Shared" />
   <Import Project="..\Shared\Primitives\Primitives.projitems" Label="Shared" />

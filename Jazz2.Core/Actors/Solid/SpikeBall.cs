@@ -3,7 +3,6 @@ using Duality.Components;
 using Duality.Drawing;
 using Jazz2.Actors.Enemies;
 using Jazz2.Game;
-using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Solid
 {
@@ -37,13 +36,12 @@ namespace Jazz2.Actors.Solid
             collisionFlags = CollisionFlags.CollideWithOtherActors;
             canBeFrozen = false;
 
-            RequestMetadata("Object/MovingPlatform");
-
-            SetAnimation((AnimState)(7 /*SpikeBall*/ << 10));
+            RequestMetadata("MovingPlatform/SpikeBall");
+            SetAnimation("Platform");
 
             pieces = new ChainPiece[length];
             for (int i = 0; i < length; i++) {
-                pieces[i] = new ChainPiece(api, originPos + new Vector3(0f, 0f, 4f), (AnimState)(7 /*SpikeBall*/ << 10) + 16, i);
+                pieces[i] = new ChainPiece(api, originPos + new Vector3(0f, 0f, 4f), i);
                 api.AddActor(pieces[i]);
             }
         }
@@ -90,6 +88,11 @@ namespace Jazz2.Actors.Solid
 
         public Vector3 GetPhasePosition(bool next, int distance, out float scale)
         {
+            if (length == 0) {
+                scale = 1f;
+                return originPos;
+            }
+
             float effectivePhase = phase;
             if (next) {
                 effectivePhase -= speed * Time.TimeMult;
@@ -122,7 +125,7 @@ namespace Jazz2.Actors.Solid
         {
             private int distance;
 
-            public ChainPiece(ActorApi api, Vector3 pos, AnimState animState, int distance)
+            public ChainPiece(ActorApi api, Vector3 pos, int distance)
             {
                 this.api = api;
                 this.distance = distance;
@@ -132,9 +135,8 @@ namespace Jazz2.Actors.Solid
 
                 collisionFlags = CollisionFlags.None;
 
-                RequestMetadata("Object/MovingPlatform");
-
-                SetAnimation(animState);
+                RequestMetadata("MovingPlatform/SpikeBall");
+                SetAnimation("Chain");
             }
 
             protected override void OnUpdate()

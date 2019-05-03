@@ -250,8 +250,9 @@ namespace Jazz2.Compatibility
                 };
             });
             Add(JJ2Event.MODIFIER_ACC_BELT_LEFT, (level, jj2Params) => {
-                if (jj2Params == 0)
+                if (jj2Params == 0) {
                     jj2Params = 3;
+                }
 
                 return new ConversionResult {
                     eventType = EventType.AreaHForce,
@@ -259,8 +260,9 @@ namespace Jazz2.Compatibility
                 };
             });
             Add(JJ2Event.MODIFIER_ACC_BELT_RIGHT, (level, jj2Params) => {
-                if (jj2Params == 0)
+                if (jj2Params == 0) {
                     jj2Params = 3;
+                }
 
                 return new ConversionResult {
                     eventType = EventType.AreaHForce,
@@ -641,6 +643,16 @@ namespace Jazz2.Compatibility
 
             Add(JJ2Event.POLE_PSYCH, GetPoleConverter(4));
 
+            Add(JJ2Event.ROTATING_ROCK, ParamIntToParamList(EventType.RollingRock,
+                Pair.Create(JJ2EventParamType.UInt, 8), // ID
+                Pair.Create(JJ2EventParamType.Int, 4),  // X-Speed
+                Pair.Create(JJ2EventParamType.Int, 4)   // Y-Speed
+            ));
+
+            Add(JJ2Event.TRIGGER_ROCK, ParamIntToParamList(EventType.RollingRockTrigger,
+                Pair.Create(JJ2EventParamType.UInt, 8)  // ID
+            ));
+
             // Enemies
             Add(JJ2Event.ENEMY_TURTLE_NORMAL, ConstantParamList(EventType.EnemyTurtle, 0));
             Add(JJ2Event.ENEMY_NORMAL_TURTLE_XMAS, ConstantParamList(EventType.EnemyTurtle, 1));
@@ -862,7 +874,7 @@ namespace Jazz2.Compatibility
                     Pair.Create(JJ2EventParamType.Bool, 1)); // Chuck (Yellow)
 
                 return new ConversionResult {
-                    eventType = EventType.BirdyCage,
+                    eventType = EventType.BirdCage,
                     eventParams = new ushort[] { eventParams[0], 0 }
                 };
             });

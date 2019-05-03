@@ -1,6 +1,4 @@
-﻿using Jazz2.Game.Structs;
-
-namespace Jazz2.Actors.Collectibles
+﻿namespace Jazz2.Actors.Collectibles
 {
     public class FoodCollectible : Collectible
     {
@@ -52,7 +50,8 @@ namespace Jazz2.Actors.Collectibles
 
             scoreValue = 50;
 
-            SetAnimation("Food" + ((FoodType)details.Params[0]).ToString("G"));
+            RequestMetadata("Collectible/Food" + ((FoodType)details.Params[0]).ToString("G"));
+            SetAnimation("Food");
 
             switch ((FoodType)details.Params[0]) {
                 case FoodType.Pepsi:

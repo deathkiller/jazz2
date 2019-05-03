@@ -15,6 +15,7 @@ using Jazz2.Game.Events;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
 using static Duality.Component;
+using MathF = Duality.MathF;
 
 namespace Jazz2.Actors
 {
@@ -103,6 +104,8 @@ namespace Jazz2.Actors
         protected bool currentTransitionCancellable;
         private Action currentTransitionCallback;
 
+        private List<GraphicResource> cachedCandidates = new List<GraphicResource>();
+
         public Hitbox Hitbox => currentHitbox;
         public CollisionFlags CollisionFlags => collisionFlags;
         public bool IsInvulnerable => isInvulnerable;
@@ -113,13 +116,13 @@ namespace Jazz2.Actors
         public Vector3 ExternalForce => new Vector3(externalForceX, externalForceY, 0f);
         public Vector3 InternalForce => new Vector3(0, internalForceY, 0f);
 
-        protected bool IsFacingLeft
+        public bool IsFacingLeft
         {
             get
             {
                 return isFacingLeft;
             }
-            set
+            protected set
             {
                 if (isFacingLeft == value) {
                     return;
@@ -168,9 +171,9 @@ namespace Jazz2.Actors
 
             Vector3 pos = Transform.Pos;
 
-            float timeMult = Time.TimeMult;
-            pos.X += speedX * timeMult;
-            pos.Y += speedY * timeMult;
+            //float timeMult = Time.TimeMult;
+            //pos.X += speedX * timeMult;
+            //pos.Y += speedY * timeMult;
 
             if (currentAnimation.Base.HasColdspot) {
                 currentHitbox = new Hitbox(
@@ -447,20 +450,22 @@ namespace Jazz2.Actors
             internalForceY = MathF.Max(internalForceY - gravity * 0.33f * timeMult, 0f);
         }
 
-        public virtual bool OnTileDeactivate(int tx, int ty, int tileDistance)
+        public virtual bool OnTileDeactivate(int tx1, int ty1, int tx2, int ty2)
         {
-            if ((flags & (ActorInstantiationFlags.IsCreatedFromEventMap | ActorInstantiationFlags.IsFromGenerator)) != 0 && ((MathF.Abs(tx - originTile.X) > tileDistance) || (MathF.Abs(ty - originTile.Y) > tileDistance))) {
-                EventMap events = api.EventMap;
-                if (events != null) {
-                    if ((flags & ActorInstantiationFlags.IsFromGenerator) != 0) {
-                        events.ResetGenerator(originTile.X, originTile.Y);
+            if ((flags & (ActorInstantiationFlags.IsCreatedFromEventMap | ActorInstantiationFlags.IsFromGenerator)) != 0) {
+                if (originTile.X < tx1 || originTile.Y < ty1 || originTile.X > tx2 || originTile.Y > ty2) {
+                    EventMap events = api.EventMap;
+                    if (events != null) {
+                        if ((flags & ActorInstantiationFlags.IsFromGenerator) != 0) {
+                            events.ResetGenerator(originTile.X, originTile.Y);
+                        }
+
+                        events.Deactivate(originTile.X, originTile.Y);
                     }
 
-                    events.Deactivate(originTile.X, originTile.Y);
+                    api.RemoveActor(this);
+                    return true;
                 }
-
-                api.RemoveActor(this);
-                return true;
             }
 
             return false;
@@ -560,6 +565,11 @@ namespace Jazz2.Actors
 
         }
 
+        public virtual void OnTriggeredEvent(EventType eventType, ushort[] eventParams)
+        {
+
+        }
+
         public bool IsCollidingWith(ActorBase other)
         {
             const byte AlphaThreshold = 40;
@@ -575,8 +585,8 @@ namespace Jazz2.Actors
             GraphicResource res1 = (currentTransitionState != AnimState.Idle ? currentTransition : currentAnimation);
             GraphicResource res2 = (other.currentTransitionState != AnimState.Idle ? other.currentTransition : other.currentAnimation);
 
-            PixelData p1 = res1?.Material.Res?.MainTexture.Res?.BasePixmap.Res?.PixelData?[0];
-            PixelData p2 = res2?.Material.Res?.MainTexture.Res?.BasePixmap.Res?.PixelData?[0];
+            PixelData p1 = res1?.Material.Res?.MainTexture.Res?.BasePixmap.Res?.MainLayer;
+            PixelData p2 = res2?.Material.Res?.MainTexture.Res?.BasePixmap.Res?.MainLayer;
             if (p1 == null || p2 == null) {
                 return false;
             }
@@ -657,7 +667,9 @@ namespace Jazz2.Actors
                 for (int i = x1; i < x2; i++) {
                     for (int j = y1; j < y2; j++) {
                         int i1 = i - xs;
-                        if (isFacingLeftCurrent) i1 = res.Base.FrameDimensions.X - i1 - 1;
+                        if (isFacingLeftCurrent) {
+                            i1 = res.Base.FrameDimensions.X - i1 - 1;
+                        }
 
                         if (p[i1 + dx, j + dy].A > AlphaThreshold) {
                             return true;
@@ -686,9 +698,13 @@ namespace Jazz2.Actors
                 for (int i = x1; i < x2; i++) {
                     for (int j = y1; j < y2; j++) {
                         int i1 = i - x1s;
-                        if (isFacingLeft) i1 = res1.Base.FrameDimensions.X - i1 - 1;
+                        if (isFacingLeft) {
+                            i1 = res1.Base.FrameDimensions.X - i1 - 1;
+                        }
                         int i2 = i - x2s;
-                        if (other.isFacingLeft) i2 = res2.Base.FrameDimensions.X - i2 - 1;
+                        if (other.isFacingLeft) {
+                            i2 = res2.Base.FrameDimensions.X - i2 - 1;
+                        }
 
                         if (p1[i1 + dx1, j + dy1].A > AlphaThreshold && p2[i2 + dx2, j + dy2].A > AlphaThreshold) {
                             return true;
@@ -707,23 +723,25 @@ namespace Jazz2.Actors
             GraphicResource res1 = (currentTransitionState != AnimState.Idle ? currentTransition : currentAnimation);
             GraphicResource res2 = (other.currentTransitionState != AnimState.Idle ? other.currentTransition : other.currentAnimation);
 
-            PixelData p1 = res1?.Material.Res?.MainTexture.Res?.BasePixmap.Res?.PixelData?[0];
-            PixelData p2 = res2?.Material.Res?.MainTexture.Res?.BasePixmap.Res?.PixelData?[0];
+            PixelData p1 = res1?.Material.Res?.MainTexture.Res?.BasePixmap.Res?.MainLayer;
+            PixelData p2 = res2?.Material.Res?.MainTexture.Res?.BasePixmap.Res?.MainLayer;
             if (p1 == null || p2 == null) {
                 return false;
             }
 
             Matrix4 transform1 =
                 Matrix4.CreateTranslation(new Vector3(-res1.Base.Hotspot.X, -res1.Base.Hotspot.Y, 0f));
-            if (isFacingLeft)
+            if (isFacingLeft) {
                 transform1 *= Matrix4.CreateScale(-1f, 1f, 1f);
+            }
             transform1 *= Matrix4.CreateRotationZ(Transform.Angle) *
                 Matrix4.CreateTranslation(Transform.Pos);
 
             Matrix4 transform2 =
                 Matrix4.CreateTranslation(new Vector3(-res2.Base.Hotspot.X, -res2.Base.Hotspot.Y, 0f));
-            if (other.isFacingLeft)
+            if (other.isFacingLeft) {
                 transform2 *= Matrix4.CreateScale(-1f, 1f, 1f);
+            }
             transform2 *= Matrix4.CreateRotationZ(other.Transform.Angle) *
                 Matrix4.CreateTranslation(other.Transform.Pos);
 
@@ -847,7 +865,7 @@ namespace Jazz2.Actors
             if (availableSounds.TryGetValue(name, out resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, this);
                 // ToDo: Hardcoded volume
-                instance.Volume = gain * Settings.SfxVolume;
+                instance.Volume = gain * SettingsCache.SfxVolume;
                 instance.Pitch = pitch;
 
                 if (Transform.Pos.Y >= api.WaterLevel) {
@@ -878,7 +896,7 @@ namespace Jazz2.Actors
                 if (availableAnimations.TryGetValue(identifier, out res)) {
                     tilemap.CreateSpriteDebris(res, Transform.Pos, count);
                 } else {
-                    Console.WriteLine("Can't create sprite debris \"" + identifier + "\" from " + GetType().FullName);
+                    App.Log("Can't create sprite debris \"" + identifier + "\" from " + GetType().FullName);
                 }
             }
         }
@@ -972,7 +990,11 @@ namespace Jazz2.Actors
                 }
 
                 currentAnimationState = state;
-                currentAnimation = candidates[MathF.Rnd.Next() % candidates.Count];
+                if (candidates.Count > 1) {
+                    currentAnimation = candidates[MathF.Rnd.Next() % candidates.Count];
+                } else {
+                    currentAnimation = candidates[0];
+                }
 
                 if (boundingBox.X == 0 || boundingBox.Y == 0) {
                     boundingBox = currentAnimation.Base.FrameDimensions - new Point2(2, 2);
@@ -987,7 +1009,6 @@ namespace Jazz2.Actors
         {
             List<GraphicResource> candidates = FindAnimationCandidates(state);
             if (candidates.Count == 0) {
-                // ToDo: Cancel previous transition here?
                 if (callback != null) {
                     callback();
                 }
@@ -1004,7 +1025,11 @@ namespace Jazz2.Actors
 
                 currentTransitionState = state;
                 currentTransitionCancellable = cancellable;
-                currentTransition = candidates[0];
+                if (candidates.Count > 1) {
+                    currentTransition = candidates[MathF.Rnd.Next() % candidates.Count];
+                } else {
+                    currentTransition = candidates[0];
+                }
 
                 RefreshAnimation();
                 return true;
@@ -1028,9 +1053,15 @@ namespace Jazz2.Actors
 
         protected void ForceCancelTransition()
         {
+            if (currentTransitionState == AnimState.Idle) {
+                return;
+            }
+
             currentTransitionCancellable = true;
             currentTransitionCallback = null;
             currentTransitionState = AnimState.Idle;
+
+            RefreshAnimation();
         }
 
         protected virtual void OnAnimationStarted()
@@ -1055,13 +1086,13 @@ namespace Jazz2.Actors
 
         protected List<GraphicResource> FindAnimationCandidates(AnimState state)
         {
-            List<GraphicResource> candidates = new List<GraphicResource>();
+            cachedCandidates.Clear();
             foreach (var animation in availableAnimations) {
                 if (animation.Value.State != null && animation.Value.State.Contains(state)) {
-                    candidates.Add(animation.Value);
+                    cachedCandidates.Add(animation.Value);
                 }
             }
-            return candidates;
+            return cachedCandidates;
         }
         #endregion
 

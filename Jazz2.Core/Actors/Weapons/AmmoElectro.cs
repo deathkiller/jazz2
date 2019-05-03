@@ -1,4 +1,6 @@
 ﻿using Duality;
+using Duality.Components;
+using Duality.Drawing;
 using Duality.Resources;
 using Jazz2.Game;
 using Jazz2.Game.Structs;
@@ -8,7 +10,13 @@ namespace Jazz2.Actors.Weapons
 {
     public class AmmoElectro : AmmoBase
     {
+        private Vector2 gunspotPos;
+        private bool fired;
+
         private LightEmitter light;
+
+        private Material material1, material2;
+        private float currentStep;
 
         public override WeaponType WeaponType => WeaponType.Electro;
 
@@ -29,11 +37,13 @@ namespace Jazz2.Actors.Weapons
             light.RadiusFar = 12f;
         }
 
-        public void OnFire(Player owner, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
+        public void OnFire(Player owner, Vector3 gunspotPos, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
         {
             base.owner = owner;
             base.IsFacingLeft = isFacingLeft;
             base.upgrades = upgrades;
+
+            this.gunspotPos = gunspotPos.Xy;
 
             float angleRel = angle * (isFacingLeft ? -1 : 1);
 
@@ -46,76 +56,94 @@ namespace Jazz2.Actors.Weapons
             speedY = MathF.Sin(angleRel) * baseSpeed;
             speedY += MathF.Abs(speed.Y) * speedY;
 
-            AnimState state = AnimState.Idle;
+            ColorRgba color1, color2;
             if ((upgrades & 0x1) != 0) {
-                timeLeft = 44;
-                state |= (AnimState)1;
+                timeLeft = 55;
+                color1 = new ColorRgba(160, 245, 255, 140);
+                color2 = new ColorRgba(20, 170, 255, 140);
             } else {
-                timeLeft = 44;
+                timeLeft = 55;
+                color1 = new ColorRgba(255, 235, 20, 140);
+                color2 = new ColorRgba(255, 120, 10, 140);
             }
 
-            Transform.Angle = angle;
-            Transform.Scale = 0.5f;
-
-            SetAnimation(state);
+            SetAnimation(AnimState.Idle);
             PlaySound("Fire");
+
+            // Turn off default renderer
+            renderer.Active = false;
+
+            // Create materials for particles
+            material1 = new Material(ContentResolver.Current.RequestShader("BasicNormal"));
+            material1.SetTexture("mainTex", Texture.White);
+            material1.SetTexture("normalTex", ContentResolver.Current.DefaultNormalMap);
+            material1.SetValue("normalMultiplier", Vector2.One);
+            material1.MainColor = color1;
+
+            material2 = new Material(ContentResolver.Current.RequestShader("BasicNormal"));
+            material2.SetTexture("mainTex", Texture.White);
+            material2.SetTexture("normalTex", ContentResolver.Current.DefaultNormalMap);
+            material2.SetValue("normalMultiplier", Vector2.One);
+            material2.MainColor = color2;
         }
 
         protected override void OnUpdate()
         {
-            OnUpdateHitbox();
-            CheckCollisions();
-            TryStandardMovement(Time.TimeMult);
+            float timeMult = Time.TimeMult * 0.5f;
+
+            for (int i = 0; i < 2; i++) {
+                TryMovement(timeMult);
+                OnUpdateHitbox();
+                CheckCollisions(timeMult);
+            }
 
             base.OnUpdate();
 
-            float timeMult = Time.TimeMult;
+            timeMult = Time.TimeMult;
 
-            Transform.Scale += 0.014f * timeMult;
-
+            // Adjust light
             light.Intensity += 0.016f * timeMult;
             light.Brightness += 0.02f * timeMult;
             light.RadiusFar += 0.1f * timeMult;
 
-            Material material = currentAnimation.Material.Res;
-            Texture texture = material.MainTexture.Res;
-            if (texture != null) {
+            if (!fired) {
+                fired = true;
+
+                MoveInstantly(gunspotPos, MoveType.Absolute, true);
+            } else {
+                // Spawn particles
                 Vector3 pos = Transform.Pos;
-                int currentFrame = renderer.CurrentFrame;
 
-                for (int i = 0; i < 5; i++) {
-                    float dx = MathF.Rnd.NextFloat(-10f, 10f);
-                    float dy = MathF.Rnd.NextFloat(-10f, 10f);
+                for (int i = 0; i < 6; i++) {
+                    float angle = (currentStep * 0.3f + i * 0.6f);
+                    if (IsFacingLeft) {
+                        angle = -angle;
+                    }
 
-                    float currentSizeX = MathF.Rnd.NextFloat(2f, 6f);
-                    float currentSizeY = 1f;
-
-                    float sx = MathF.Rnd.NextFloat(-0.6f, 0.6f);
-                    float sy = MathF.Rnd.NextFloat(-0.6f, 0.6f);
+                    float size = (2f + currentStep * 0.1f);
+                    float dist = (1f + currentStep * 0.01f);
+                    float dx = dist * (float)System.Math.Cos(angle);
+                    float dy = dist * (float)System.Math.Sin(angle);
 
                     api.TileMap.CreateDebris(new DestructibleDebris {
                         Pos = new Vector3(pos.X + dx, pos.Y + dy, pos.Z),
-                        Size = new Vector2(currentSizeX, currentSizeY),
-                        Speed = new Vector2(sx, sy),
-                        Acceleration = new Vector2(sx * 0.1f, sy * 0.1f),
+                        Size = new Vector2(size, size),
 
                         Scale = 1f,
+                        ScaleSpeed = -0.1f,
                         Alpha = 1f,
-                        AlphaSpeed = MathF.Rnd.NextFloat(-0.05f, -0.02f),
+                        AlphaSpeed = -0.2f,
 
-                        Angle = MathF.Atan2(sy, sx),
+                        Angle = angle,
 
-                        Time = 240f,
+                        Time = 60f,
 
-                        Material = material,
-                        MaterialOffset = new Rect(
-                            (((float)(currentFrame % currentAnimation.Base.FrameConfiguration.X) / currentAnimation.Base.FrameConfiguration.X) + ((float)dx / texture.ContentWidth) + 0.5f) * texture.UVRatio.X,
-                            (((float)(currentFrame / currentAnimation.Base.FrameConfiguration.X) / currentAnimation.Base.FrameConfiguration.Y) + ((float)dy / texture.ContentHeight) + 0.5f) * texture.UVRatio.Y,
-                            (currentSizeX * texture.UVRatio.X / texture.ContentWidth),
-                            (currentSizeY * texture.UVRatio.Y / texture.ContentHeight)
-                        )
+                        Material = (MathF.Rnd.NextFloat() < 0.6f ? material1 : material2),
+                        MaterialOffset = new Rect(0, 0, 1, 1)
                     });
                 }
+
+                currentStep += timeMult;
             }
         }
 
@@ -124,24 +152,7 @@ namespace Jazz2.Actors.Weapons
             UpdateHitbox(4, 4);
         }
 
-        protected override bool OnPerish(ActorBase collider)
-        {
-            Explosion.Create(api, Transform.Pos + Speed, Explosion.SmokeGray);
-
-            return base.OnPerish(collider);
-        }
-
-        protected override void OnHitFloorHook()
-        {
-            DecreaseHealth(int.MaxValue);
-        }
-
         protected override void OnHitWallHook()
-        {
-            DecreaseHealth(int.MaxValue);
-        }
-
-        protected override void OnHitCeilingHook()
         {
             DecreaseHealth(int.MaxValue);
         }

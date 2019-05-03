@@ -10,12 +10,14 @@
 
             PlayerType player = (api.Players.Count == 0 ? PlayerType.Jazz : api.Players[0].PlayerType);
             if (player == PlayerType.Spaz) {
-                SetAnimation("FastFireSpaz");
+                RequestMetadata("Collectible/FastFireSpaz");
             } else if (player == PlayerType.Lori) {
-                SetAnimation("FastFireLori");
+                RequestMetadata("Collectible/FastFireLori");
             } else {
-                SetAnimation("FastFireJazz");
+                RequestMetadata("Collectible/FastFireJazz");
             }
+
+            SetAnimation("FastFire");
 
             SetFacingDirection();
         }

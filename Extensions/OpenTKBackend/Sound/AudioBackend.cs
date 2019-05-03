@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Jazz2.Game;
 using OpenTK.Audio;
 using OpenTK.Audio.OpenAL;
 
@@ -67,12 +68,12 @@ namespace Duality.Backend.DefaultOpenTK
             // Initialize OpenTK, if not done yet
             DefaultOpenTKBackendPlugin.InitOpenTK();
 
-            Console.WriteLine("Available audio devices:" + Environment.NewLine + "{0}",
+            App.Log("Available audio devices:" + Environment.NewLine + "{0}",
             	AudioContext.AvailableDevices.ToString(d => "  " + d + (d == AudioContext.DefaultDevice ? " (Default)" : ""), Environment.NewLine));
 
             // Create OpenAL audio context
             this.context = new AudioContext();
-            Console.WriteLine("Current device: {0}", this.context.CurrentDevice);
+            App.Log("Current device: {0}", this.context.CurrentDevice);
 
             // Create extension interfaces
             try {
@@ -91,7 +92,7 @@ namespace Duality.Backend.DefaultOpenTK
             // Generate OpenAL source pool
             for (int i = 0; i < 256; i++) {
                 int newSrc = AL.GenSource();
-                if (!Backend.DefaultOpenTK.AudioBackend.CheckOpenALErrors(true))
+                if (!CheckOpenALErrors(true))
                     this.sourcePool.Push(newSrc);
                 else
                     break;
@@ -240,11 +241,11 @@ namespace Duality.Backend.DefaultOpenTK
             try {
                 CheckOpenALErrors();
                 string versionString = AL.Get(ALGetString.Version);
-                Console.WriteLine(
-					"OpenAL Version: {0}" + Environment.NewLine +
-					"Vendor: {1}" + Environment.NewLine +
-					"Renderer: {2}" + Environment.NewLine +
-					"Effects: {3}",
+                App.Log(
+					"  OpenAL Version: {0}" + Environment.NewLine +
+					"  Vendor: {1}" + Environment.NewLine +
+					"  Renderer: {2}" + Environment.NewLine +
+					"  Effects: {3}",
 					versionString,
 					AL.Get(ALGetString.Vendor),
 					AL.Get(ALGetString.Renderer),
@@ -257,7 +258,7 @@ namespace Duality.Backend.DefaultOpenTK
                     Version version;
                     if (Version.TryParse(token[i], out version)) {
                         if (version.Major < MinOpenALVersion.Major && version.Minor < MinOpenALVersion.Minor) {
-                            Console.WriteLine(
+                            App.Log(
 								"The detected OpenAL version {0} appears to be lower than the required minimum. Version {1} or higher is required to run Duality applications.",
 								version,
 								MinOpenALVersion);
@@ -266,7 +267,7 @@ namespace Duality.Backend.DefaultOpenTK
                     }
                 }
             } catch (Exception e) {
-                Console.WriteLine("Can't determine OpenAL specs, because an error occurred: {0}", e);
+                App.Log("Can't determine OpenAL specs, because an error occurred: {0}", e);
             }
         }
         public static bool CheckOpenALErrors(bool silent = false, [CallerMemberName] string callerInfoMember = null, [CallerFilePath] string callerInfoFile = null, [CallerLineNumber] int callerInfoLine = -1)
@@ -275,7 +276,7 @@ namespace Duality.Backend.DefaultOpenTK
             bool found = false;
             while ((error = AL.GetError()) != ALError.NoError) {
                 if (!silent) {
-                    Console.WriteLine(
+                    App.Log(
 						"Internal OpenAL error, code {0} at {1} in {2}, line {3}.",
 						error,
 						callerInfoMember,

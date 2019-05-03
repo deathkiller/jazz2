@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using Duality;
+using Duality.Drawing;
 using Import;
 
 namespace Jazz2.Compatibility
@@ -113,7 +114,7 @@ namespace Jazz2.Compatibility
 
         public void Convert(string path, Func<string, JJ2Level.LevelToken> levelTokenConversion = null, Func<JJ2Episode, string> episodeNameConversion = null, Func<JJ2Episode, Tuple<string, string>> episodePrevNext = null)
         {
-            using (Stream s = File.Create(Path.Combine(path, ".res")))
+            using (Stream s = File.Create(Path.Combine(path, "Episode.res")))
             using (StreamWriter w = new StreamWriter(s, new UTF8Encoding(false))) {
                 w.WriteLine("{");
                 w.WriteLine("    \"Version\": {");
@@ -158,13 +159,12 @@ namespace Jazz2.Compatibility
             }
 
             if (titleLight != null) {
-                using (Bitmap output = ConvertEpisodeLogo(titleLight)) {
-                    output.Save(Path.Combine(path, ".png"), ImageFormat.Png);
-                }
+                PngWriter output = ConvertEpisodeLogo(titleLight);
+                output.Save(Path.Combine(path, "Logo.png"));
             }
         }
 
-        private static Bitmap ConvertEpisodeLogo(Bitmap logo)
+        private static PngWriter ConvertEpisodeLogo(Bitmap logo)
         {
             // Resize the original image
             const float ratio = 120f / 220f;
@@ -226,7 +226,7 @@ namespace Jazz2.Compatibility
                 g.DrawImage(title, new Rectangle(alignX, 0, width, height));
             }
 
-            return output;
+            return new PngWriter(output);
         }
 
         private static Bitmap ConvertIndicesToRgbaBitmap(int width, int height, JJ2Block block, bool removeShadow)
@@ -239,15 +239,15 @@ namespace Jazz2.Compatibility
                 for (int x = 0; x < width; x++) {
                     int index = data[y * width + x];
                     // Use menu palette here
-                    Color color;
+                    ColorRgba color;
                     if (removeShadow && (index == 63 || index == 143)) {
                         // Remove original shadow pixels
-                        color = Color.FromArgb(0, 0, 0, 0);
+                        color = new ColorRgba(0);
                     } else {
                         color = JJ2DefaultPalette.Menu[index];
                     }
 
-                    result.SetPixel(x, y, color);
+                    result.SetPixel(x, y, Color.FromArgb(color.A, color.R, color.G, color.B));
                 }
             }
 

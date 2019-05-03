@@ -14,7 +14,8 @@ namespace Jazz2.Actors.Collectibles
 
             scoreValue = 100;
 
-            SetAnimation("Ammo" + weaponType.ToString("G"));
+            RequestMetadata("Collectible/Ammo" + weaponType.ToString("G"));
+            SetAnimation("Ammo");
 
             SetFacingDirection();
         }

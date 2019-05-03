@@ -8,7 +8,7 @@ namespace Duality
         private Assembly assembly = null;
         private string asmName = null;
         private string filePath = null;
-        private int fileHash = 0;
+        //private int fileHash = 0;
 
         public bool Disposed
         {
@@ -27,11 +27,11 @@ namespace Duality
             get { return this.filePath; }
             internal set { this.filePath = value; }
         }
-        public int FileHash
-        {
-            get { return this.fileHash; }
-            internal set { this.fileHash = value; }
-        }
+        //public int FileHash
+        //{
+        //    get { return this.fileHash; }
+        //    internal set { this.fileHash = value; }
+        //}
 
         protected DualityPlugin()
         {

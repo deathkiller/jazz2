@@ -3,6 +3,7 @@ using Duality;
 using Jazz2.Actors.Enemies;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
+using MathF = Duality.MathF;
 
 namespace Jazz2.Actors.Bosses
 {
@@ -36,7 +37,8 @@ namespace Jazz2.Actors.Bosses
             canHurtPlayer = false;
             isInvulnerable = true;
             canBeFrozen = false;
-            maxHealth = health = int.MaxValue;
+            health = int.MaxValue;
+            maxHealth = int.MaxValue;
             scoreValue = 0;
 
             lastHealth = health;
@@ -227,7 +229,7 @@ namespace Jazz2.Actors.Bosses
         {
             base.OnHandleCollision(other);
 
-            if (!canJump && state != StateDead) {
+            if (state != StateDead) {
                 // It can only die by collision with spring in the air
                 Spring spring = other as Spring;
                 if (spring != null) {

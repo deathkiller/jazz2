@@ -32,7 +32,6 @@ namespace Jazz2.Game.Structs
         public Point2 Coldspot;
         public Point2 Gunspot;
         public bool HasColdspot;
-        public bool HasGunspot;
     }
 
     public class GraphicResource
@@ -90,6 +89,7 @@ namespace Jazz2.Game.Structs
         {
         }
     }
+
     // ToDo: Refactor sounds
     public class SoundResource
     {
@@ -100,7 +100,6 @@ namespace Jazz2.Game.Structs
     {
         public Pixmap TextureMap;
         public Pixmap TextureNormalMap;
-        public TextureWrapMode TextureWrap;
         public bool LinearSampling;
     }
 

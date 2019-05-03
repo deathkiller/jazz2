@@ -24,6 +24,9 @@
         },
         "Bomb": {
             "Paths": [ "Common/bomb.wav" ]
+        },
+        "WaterSplash": {
+            "Paths": [ "Common/water_splash.wav" ]
         }
     },
 

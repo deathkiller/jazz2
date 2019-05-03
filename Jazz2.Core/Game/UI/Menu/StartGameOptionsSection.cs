@@ -8,7 +8,7 @@ using Jazz2.Storage;
 
 namespace Jazz2.Game.UI.Menu
 {
-    public class StartGameOptionsSection : MainMenuSection
+    public class StartGameOptionsSection : MenuSection
     {
         private readonly string episodeName, levelName, previousEpisodeName;
 
@@ -32,7 +32,7 @@ namespace Jazz2.Game.UI.Menu
             this.previousEpisodeName = previousEpisodeName;
         }
 
-        public override void OnShow(MainMenu root)
+        public override void OnShow(IMenuContainer root)
         {
             animation = 0f;
             base.OnShow(root);
@@ -40,7 +40,7 @@ namespace Jazz2.Game.UI.Menu
             availableCharacters = (api.IsAnimationPresent("MenuDifficultyLori") ? 3 : 2);
         }
 
-        public override void OnPaint(Canvas canvas)
+        public override void OnPaint(Canvas canvas, Rect view)
         {
             IDrawDevice device = canvas.DrawDevice;
 
@@ -83,7 +83,8 @@ namespace Jazz2.Game.UI.Menu
 
                     float offset, spacing;
                     if (availableCharacters == 1) {
-                        offset = spacing = 0f;
+                        offset = 0f;
+                        spacing = 0f;
                     } else if (availableCharacters == 2) {
                         offset = 50f;
                         spacing = 100f;
@@ -215,7 +216,7 @@ namespace Jazz2.Game.UI.Menu
                 } else {
                     selectedIndex = 0;
                 }
-            } else if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
+            } else if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
                 api.PlaySound("MenuSelect", 0.5f);
                 api.LeaveSection(this);
             }

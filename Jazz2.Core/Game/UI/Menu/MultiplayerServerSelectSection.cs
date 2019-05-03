@@ -11,7 +11,7 @@ using Jazz2.Game.Multiplayer;
 
 namespace Jazz2.Game.UI.Menu
 {
-    public class MultiplayerServerSelectSection : MainMenuSection
+    public class MultiplayerServerSelectSection : MenuSection
     {
         private class Server
         {
@@ -39,7 +39,7 @@ namespace Jazz2.Game.UI.Menu
             serverList = new List<Server>();
         }
 
-        public override void OnShow(MainMenu root)
+        public override void OnShow(IMenuContainer root)
         {
             base.OnShow(root);
             animation = 0f;
@@ -57,7 +57,7 @@ namespace Jazz2.Game.UI.Menu
             }
         }
 
-        public override void OnPaint(Canvas canvas)
+        public override void OnPaint(Canvas canvas, Rect view)
         {
             IDrawDevice device = canvas.DrawDevice;
 
@@ -137,10 +137,16 @@ namespace Jazz2.Game.UI.Menu
                     float sy = ((float)xOffset / serverList.Count) * 18f * itemCount + topLine;
                     float sh = ((float)itemCount / serverList.Count) * 16f * itemCount;
 
-                    canvas.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0f, 0f, 0f, 0.28f)));
+                    BatchInfo mat1 = device.RentMaterial();
+                    mat1.Technique = DrawTechnique.Alpha;
+                    mat1.MainColor = new ColorRgba(0f, 0f, 0f, 0.28f);
+                    canvas.State.SetMaterial(mat1);
                     canvas.FillRect(sx + 1f, sy + 1f, sw, sh);
 
-                    canvas.State.SetMaterial(new BatchInfo(DrawTechnique.Alpha, new ColorRgba(0.8f, 0.8f, 0.8f, 0.5f)));
+                    BatchInfo mat2 = device.RentMaterial();
+                    mat2.Technique = DrawTechnique.Alpha;
+                    mat2.MainColor = new ColorRgba(0.8f, 0.8f, 0.8f, 0.5f);
+                    canvas.State.SetMaterial(mat2);
                     canvas.FillRect(sx, sy, sw, sh);
                 }
             } else {
@@ -177,7 +183,7 @@ namespace Jazz2.Game.UI.Menu
                     // ToDo: Testing only
                     api.SwitchToServer(new IPEndPoint(IPAddress.Parse("192.168.2.6"), 10666));
                 }
-            } else if (DualityApp.Keyboard.KeyHit(Key.Escape)) {
+            } else if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
                 api.PlaySound("MenuSelect", 0.5f);
                 api.LeaveSection(this);
             }

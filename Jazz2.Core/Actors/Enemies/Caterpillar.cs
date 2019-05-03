@@ -1,4 +1,5 @@
 ﻿using Duality;
+using Duality.Audio;
 using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
 
@@ -157,7 +158,16 @@ namespace Jazz2.Actors.Enemies
 
             public override void OnHandleCollision(ActorBase other)
             {
-                // ToDo
+                switch (other) {
+                    case Player player: {
+                        if (player.SetDizzyTime(180f)) {
+                            SoundInstance sound = PlaySound("Dizzy");
+                            sound.Looped = true;
+                            sound.FadeOut(2.4f);
+                        }
+                        break;
+                    }
+                }
             }
         }
     }
