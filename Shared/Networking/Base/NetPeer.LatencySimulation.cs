@@ -37,6 +37,9 @@ namespace Lidgren.Network
 #if DEBUG
         private readonly List<DelayedPacket> m_delayedPackets = new List<DelayedPacket>();
 
+        // Avoids allocation on mapping to IPv6
+        private IPEndPoint targetCopy = new IPEndPoint(IPAddress.Any, 0);
+
         private class DelayedPacket
         {
             public byte[] Data;
@@ -144,16 +147,21 @@ namespace Lidgren.Network
                 ba = NetUtility.GetCachedBroadcastAddress();
 
                 // TODO: refactor this check outta here
-                if (target.Address == ba)
+                if (target.Address.Equals(ba))
                 {
                     // Some networks do not allow 
                     // a global broadcast so we use the BroadcastAddress from the configuration
                     // this can be resolved to a local broadcast addresss e.g 192.168.x.255                    
-                    target.Address = m_configuration.BroadcastAddress;
+                    targetCopy.Address = m_configuration.BroadcastAddress;
+                    targetCopy.Port = target.Port;
                     m_socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, true);
                 }
+                else
+                {
+                    NetUtility.CopyEndpoint(target, targetCopy); //Maps to IPv6 for Dual Mode
+                }
 
-                int bytesSent = m_socket.SendTo(data, 0, numBytes, SocketFlags.None, target);
+                int bytesSent = m_socket.SendTo(data, 0, numBytes, SocketFlags.None, targetCopy);
                 if (numBytes != bytesSent)
                     LogWarning("Failed to send the full " + numBytes + "; only " + bytesSent + " bytes sent in packet!");
 
@@ -181,8 +189,10 @@ namespace Lidgren.Network
             }
             finally
             {
-                if (target.Address == ba)
+                if (target.Address.Equals(ba))
+                {
                     m_socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, false);
+                }
             }
             return true;
         }

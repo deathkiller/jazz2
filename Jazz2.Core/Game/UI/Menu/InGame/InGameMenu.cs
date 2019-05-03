@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using Duality;
 using Duality.Audio;
 using Duality.Components;
@@ -284,6 +285,11 @@ namespace Jazz2.Game.UI.Menu.InGame
         public bool IsAnimationPresent(string name)
         {
             return metadata.Graphics.ContainsKey(name);
+        }
+
+        public void SwitchToServer(IPEndPoint endPoint)
+        {
+            throw new NotSupportedException();
         }
 
         private class LocalController : Component, ICmpUpdatable, ICmpRenderer

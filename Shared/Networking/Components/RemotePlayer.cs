@@ -1,21 +1,22 @@
 ﻿using Duality;
 using Jazz2.Actors;
 using Jazz2.Game.Structs;
-using Jazz2.Networking.Packets.Server;
+using Jazz2.Game.UI;
 
 namespace Jazz2.Game.Multiplayer
 {
     public class RemotePlayer : ActorBase
     {
         private PlayerType playerType;
-        private int index;
+
+        public int Index;
 
         public override void OnAttach(ActorInstantiationDetails details)
         {
             base.OnAttach(details);
 
             playerType = (PlayerType)details.Params[0];
-            index = details.Params[1];
+            Index = details.Params[1];
 
             switch (playerType) {
                 case PlayerType.Jazz:
@@ -35,23 +36,28 @@ namespace Jazz2.Game.Multiplayer
             collisionFlags = CollisionFlags.CollideWithOtherActors;
         }
 
-        public void UpdateFromServer(ref UpdateRemotePlayer p)
+        protected override void OnUpdate()
         {
-            Vector3 pos = p.Pos;
-            pos.X += p.Speed.X * p.SenderConnection.AverageRoundtripTime * 0.5f;
-            pos.Y += p.Speed.Y * p.SenderConnection.AverageRoundtripTime * 0.5f;
+            base.OnUpdate();
 
+            Hud.ShowDebugText("- Remote Player");
+            Hud.ShowDebugText("  - AnimState: " + currentAnimationState);
+            Hud.ShowDebugText("  - AnimTime: " + renderer.AnimTime);
+        }
+
+        public void UpdateFromServer(Vector3 pos, Vector2 speed, AnimState animState, float animTime, bool isFacingLeft)
+        {
             Transform.Pos = pos;
 
-            speedX = p.Speed.X;
-            speedY = p.Speed.Y;
+            speedX = speed.X;
+            speedY = speed.Y;
 
-            if (currentAnimationState != p.AnimState) {
-                SetAnimation(p.AnimState);
+            if (currentAnimationState != animState) {
+                SetAnimation(animState);
             }
 
-            renderer.AnimTime = p.AnimTime;
-            IsFacingLeft = p.IsFacingLeft;
+            renderer.AnimTime = animTime;
+            IsFacingLeft = isFacingLeft;
         }
     }
 }

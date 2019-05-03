@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Reflection;
 using System.Threading;
 using Jazz2.Networking;
+using Jazz2.Networking.Packets;
 using Lidgren.Network;
 
 namespace Jazz2.Game.Multiplayer
@@ -16,8 +16,11 @@ namespace Jazz2.Game.Multiplayer
         private Dictionary<byte, Action<NetIncomingMessage>> callbacks;
 
         public event Action OnDisconnected;
+        public event Action<NetIncomingMessage> OnUpdateAllPlayers;
 
         public bool IsConnected => (client.ConnectionStatus != NetConnectionStatus.Disconnected && client.ConnectionStatus != NetConnectionStatus.Disconnecting);
+
+        public float AverageRoundtripTime => client.ServerConnection.AverageRoundtripTime;
 
         public NetworkHandler(string appId)
         {
@@ -109,13 +112,16 @@ namespace Jazz2.Game.Multiplayer
 
                                 byte type = msg.ReadByte();
 
-                                Action<NetIncomingMessage> callback;
-                                if (callbacks.TryGetValue(type, out callback)) {
-                                    callback(msg);
+                                if (type == PacketTypes.UpdateAllPlayers) {
+                                    OnUpdateAllPlayers?.Invoke(msg);
                                 } else {
-                                    Console.WriteLine("        - Unknown packet type!");
+                                    Action<NetIncomingMessage> callback;
+                                    if (callbacks.TryGetValue(type, out callback)) {
+                                        callback(msg);
+                                    } else {
+                                        Console.WriteLine("        - Unknown packet type!");
+                                    }
                                 }
-
                                 break;
                             }
 

@@ -157,8 +157,8 @@ namespace Jazz2.Actors
                 Api = api,
                 Pos = initialPos
             });
-            api.AddActor(newAmmo);
             newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            api.AddActor(newAmmo);
 
             PlaySound("WeaponBlaster");
             weaponCooldown = 40f - (weaponUpgrades[(int)WeaponType.Blaster] >> 1) * 2f;

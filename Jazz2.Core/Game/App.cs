@@ -6,10 +6,10 @@ using Duality.IO;
 using Duality.Resources;
 using Jazz2.Game.Structs;
 using Jazz2.Game.UI.Menu;
+using Jazz2.Networking.Packets;
 using Jazz2.Storage;
 
 #if MULTIPLAYER
-using Jazz2.Networking;
 #endif
 
 namespace Jazz2.Game
@@ -263,7 +263,7 @@ namespace Jazz2.Game
 
                 network.Send(new Networking.Packets.Client.LevelReady {
                     Index = playerIndex
-                }, 2, Lidgren.Network.NetDeliveryMethod.ReliableSequenced, NetworkChannels.Main);
+                }, 2, Lidgren.Network.NetDeliveryMethod.ReliableSequenced, PacketChannels.Main);
             });
         }
 

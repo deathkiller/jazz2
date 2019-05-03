@@ -6,7 +6,7 @@ namespace Jazz2.Networking.Packets.Client
     {
         public NetConnection SenderConnection { get; set; }
 
-        byte IClientPacket.Type => 1;
+        byte IClientPacket.Type => 11;
 
         bool IClientPacket.SupportsUnconnected => false;
 

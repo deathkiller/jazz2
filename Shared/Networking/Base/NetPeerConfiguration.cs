@@ -94,8 +94,7 @@ namespace Lidgren.Network
             // default values
             //
             m_disabledTypes = NetIncomingMessageType.ConnectionApproval | NetIncomingMessageType.UnconnectedData | NetIncomingMessageType.VerboseDebugMessage | NetIncomingMessageType.ConnectionLatencyUpdated | NetIncomingMessageType.NatIntroductionSuccess;
-            m_networkThreadName = "Lidgren network thread";
-            //m_localAddress = IPAddress.Any;
+            m_networkThreadName = "Network thread";
             m_localAddress = IPAddress.IPv6Any;
             m_broadcastAddress = IPAddress.Broadcast;
             var ip = NetUtility.GetBroadcastAddress();

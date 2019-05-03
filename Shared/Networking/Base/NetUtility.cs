@@ -400,11 +400,30 @@ namespace Lidgren.Network
         }
 
         /// <summary>
+        /// Copies from <paramref name="src"/> to <paramref name="dst"/>. Maps to an IPv6 address.
+        /// </summary>
+        /// <param name="src">Source</param>
+        /// <param name="dst">Destination</param>
+        internal static void CopyEndpoint(IPEndPoint src, IPEndPoint dst)
+        {
+            dst.Port = src.Port;
+            if (src.AddressFamily == AddressFamily.InterNetwork)
+            {
+                dst.Address = src.Address.MapToIPv6();
+            }
+            else
+            {
+                dst.Address = src.Address;
+            }
+        }
+
+        /// <summary>
         /// Maps the IPEndPoint object to an IPv6 address, if it is currently mapped to an IPv4 address.
         /// </summary>
         internal static NetEndPoint MapToIPv6(NetEndPoint endPoint)
         {
-            if (endPoint.AddressFamily == AddressFamily.InterNetwork) {
+            if (endPoint.AddressFamily == AddressFamily.InterNetwork)
+            {
                 return new NetEndPoint(endPoint.Address.MapToIPv6(), endPoint.Port);
             }
             return endPoint;

@@ -800,7 +800,7 @@ namespace Jazz2.Game
             weatherOutdoors = outdoors;
         }
 
-        private void OnUpdate()
+        protected virtual void OnUpdate()
         {
             if (currentCarryOver.HasValue) {
                 bool playersReady = true;

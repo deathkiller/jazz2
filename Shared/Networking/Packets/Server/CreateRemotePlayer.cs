@@ -8,7 +8,7 @@ namespace Jazz2.Networking.Packets.Server
     {
         public NetConnection SenderConnection { get; set; }
 
-        byte IServerPacket.Type => 2;
+        byte IServerPacket.Type => 12;
 
 
         public int Index;

@@ -8,16 +8,16 @@ namespace Jazz2.Networking.Packets.Client
     {
         public NetConnection SenderConnection { get; set; }
 
-        byte IClientPacket.Type => 2;
+        byte IClientPacket.Type => 12;
 
         bool IClientPacket.SupportsUnconnected => false;
 
-
         public byte Index;
 
+        public long UpdateTime;
+
         public Vector3 Pos;
-        //public ushort X, Y, Z;
-        public Vector3 Speed;
+        public Vector2 Speed;
 
         public AnimState AnimState;
         public float AnimTime;
@@ -27,10 +27,9 @@ namespace Jazz2.Networking.Packets.Client
         {
             Index = msg.ReadByte();
 
+            UpdateTime = msg.ReadInt64();
+
             {
-                //float x = msg.ReadFloat();
-                //float y = msg.ReadFloat();
-                //float z = msg.ReadFloat();
                 ushort x = msg.ReadUInt16();
                 ushort y = msg.ReadUInt16();
                 ushort z = msg.ReadUInt16();
@@ -38,16 +37,12 @@ namespace Jazz2.Networking.Packets.Client
             }
 
             {
-                //float x = msg.ReadFloat();
-                //float y = msg.ReadFloat();
-                //float z = msg.ReadFloat();
                 float x = msg.ReadInt16() * 0.002f;
                 float y = msg.ReadInt16() * 0.002f;
-                float z = msg.ReadInt16() * 0.002f;
-                Speed = new Vector3(x, y, z);
+                Speed = new Vector2(x, y);
             }
 
-            AnimState = (AnimState)msg.ReadUInt16();
+            AnimState = (AnimState)msg.ReadUInt32();
             AnimTime = msg.ReadFloat();
             IsFacingLeft = msg.ReadBoolean();
         }
@@ -56,21 +51,16 @@ namespace Jazz2.Networking.Packets.Client
         {
             msg.Write((byte)Index);
 
-            //msg.Write(Pos.X);
-            //msg.Write(Pos.Y);
-            //msg.Write(Pos.Z);
+            msg.Write((long)UpdateTime);
+
             msg.Write((ushort)Pos.X);
             msg.Write((ushort)Pos.Y);
             msg.Write((ushort)Pos.Z);
 
-            //msg.Write(Speed.X);
-            //msg.Write(Speed.Y);
-            //msg.Write(Speed.Z);
             msg.Write((short)(Speed.X * 500f));
             msg.Write((short)(Speed.Y * 500f));
-            msg.Write((short)(Speed.Z * 500f));
 
-            msg.Write((ushort)AnimState);
+            msg.Write((uint)AnimState);
             msg.Write((float)AnimTime);
             msg.Write((bool)IsFacingLeft);
         }

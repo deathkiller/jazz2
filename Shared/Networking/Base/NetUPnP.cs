@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if ENABLE_UPNP
+
+using System;
 using System.IO;
 using System.Xml;
 using System.Net;
@@ -274,3 +276,5 @@ namespace Lidgren.Network
         }
     }
 }
+
+#endif

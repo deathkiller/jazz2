@@ -25,10 +25,10 @@ namespace Jazz2.Server
         public event Action<MessageReceivedEventArgs> MessageReceived;
         public event Action<DiscoveryRequestEventArgs> DiscoveryRequest;
 
-        public ServerConnection(string appId, int port, int maxPlayers = 255)
+        public ServerConnection(string appId, int port, int maxPlayers = 254)
         {
-            if (maxPlayers < 0 || maxPlayers >= int.MaxValue)
-                throw new ArgumentOutOfRangeException("Max. number of players must be smaller than " + int.MaxValue);
+            if (maxPlayers < 0 || maxPlayers >= byte.MaxValue)
+                throw new ArgumentOutOfRangeException("Max. number of players must be smaller than " + byte.MaxValue);
 
             this.port = port;
             this.maxPlayers = maxPlayers;
@@ -38,9 +38,10 @@ namespace Jazz2.Server
             config.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
             config.EnableMessageType(NetIncomingMessageType.DiscoveryRequest);
             config.EnableMessageType(NetIncomingMessageType.NatIntroductionSuccess);
+            config.EnableMessageType(NetIncomingMessageType.UnconnectedData);
             config.EnableUPnP = true;
 
-            //config.SimulatedMinimumLatency = 200 / 1000f;
+            //config.SimulatedMinimumLatency = 400 / 1000f;
             //config.SimulatedRandomLatency = 100 / 1000f;
             //config.SimulatedDuplicatesChance = 0.2f;
 
@@ -63,7 +64,7 @@ namespace Jazz2.Server
             threadUpdate.IsBackground = true;
             threadUpdate.Start();
 
-            server.UPnP.ForwardPort(port, "Jazz2");
+            //server.UPnP.ForwardPort(port, "Jazz2");
         }
 
         public void Close()
@@ -75,7 +76,7 @@ namespace Jazz2.Server
             threadUpdate.Abort();
             threadUpdate = null;
 
-            server.UPnP.DeleteForwardingRule(port);
+            //server.UPnP.DeleteForwardingRule(port);
 
             server.Shutdown("Server is shutting down");
             server = null;

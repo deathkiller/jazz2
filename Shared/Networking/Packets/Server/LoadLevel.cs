@@ -6,7 +6,7 @@ namespace Jazz2.Networking.Packets.Server
     {
         public NetConnection SenderConnection { get; set; }
 
-        byte IServerPacket.Type => 1;
+        byte IServerPacket.Type => 11;
 
 
         public string LevelName;

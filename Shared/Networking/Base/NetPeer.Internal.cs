@@ -24,7 +24,9 @@ namespace Lidgren.Network
         private uint m_frameCounter;
         private double m_lastHeartbeat;
         private double m_lastSocketBind = float.MinValue;
+#if ENABLE_UPNP
         private NetUPnP m_upnp;
+#endif
         internal bool m_needFlushSendQueue;
 
         internal readonly NetPeerConfiguration m_configuration;
@@ -124,8 +126,6 @@ namespace Lidgren.Network
             m_socket.ReceiveBufferSize = m_configuration.ReceiveBufferSize;
             m_socket.SendBufferSize = m_configuration.SendBufferSize;
             m_socket.Blocking = false;
-
-            //var ep = (EndPoint)new NetEndPoint(m_configuration.LocalAddress, reBind ? m_listenPort : m_configuration.Port);
             m_socket.DualMode = true;
             var ep = (EndPoint)new NetEndPoint(m_configuration.LocalAddress.MapToIPv6(), reBind ? m_listenPort : m_configuration.Port);
 
@@ -157,8 +157,10 @@ namespace Lidgren.Network
                 if (m_status == NetPeerStatus.Running)
                     return;
 
+#if ENABLE_UPNP
                 if (m_configuration.m_enableUPnP)
                     m_upnp = new NetUPnP(this);
+#endif
 
                 InitializePools();
 
@@ -383,7 +385,9 @@ namespace Lidgren.Network
                 }
             }
 
+#if ENABLE_UPNP
             m_upnp?.CheckForDiscoveryTimeout();
+#endif
 
             //
             // read from socket
@@ -436,6 +440,7 @@ namespace Lidgren.Network
 
                 var ipsender = (NetEndPoint)m_senderRemote;
 
+#if ENABLE_UPNP
                 if (m_upnp != null && now < m_upnp.m_discoveryResponseDeadline && bytesReceived > 32)
                 {
                     // is this an UPnP response?
@@ -458,6 +463,7 @@ namespace Lidgren.Network
                         }
                     }
                 }
+#endif
 
                 NetConnection sender = null;
                 m_connectionLookup.TryGetValue(ipsender, out sender);

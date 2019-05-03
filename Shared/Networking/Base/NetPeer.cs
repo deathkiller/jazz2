@@ -62,10 +62,12 @@ namespace Lidgren.Network
         /// </summary>
         public int Port { get { return m_listenPort; } }
 
+#if ENABLE_UPNP
         /// <summary>
         /// Returns an UPnP object if enabled in the NetPeerConfiguration
         /// </summary>
         public NetUPnP UPnP { get { return m_upnp; } }
+#endif
 
         /// <summary>
         /// Gets or sets the application defined object containing data about the peer
@@ -121,7 +123,6 @@ namespace Lidgren.Network
             m_connections = new List<NetConnection>();
             m_connectionLookup = new Dictionary<NetEndPoint, NetConnection>();
             m_handshakes = new Dictionary<NetEndPoint, NetConnection>();
-            //m_senderRemote = new NetEndPoint(IPAddress.Any, 0);
             m_senderRemote = new NetEndPoint(IPAddress.IPv6Any, 0);
             m_status = NetPeerStatus.NotRunning;
             m_receivedFragmentGroups = new Dictionary<NetConnection, Dictionary<int, ReceivedFragmentGroup>>();	
@@ -156,9 +157,11 @@ namespace Lidgren.Network
             m_networkThread.IsBackground = true;
             m_networkThread.Start();
 
+#if ENABLE_UPNP
             // send upnp discovery
             if (m_upnp != null)
                 m_upnp.Discover(this);
+#endif
 
             // allow some time for network thread to start up in case they call Connect() or UPnP calls immediately
             NetUtility.Sleep(50);

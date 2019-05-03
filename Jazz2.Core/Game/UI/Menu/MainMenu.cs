@@ -324,7 +324,7 @@ namespace Jazz2.Game.UI.Menu
             if (transitionManager != null) {
                 transitionManager.Draw(device, canvas);
                 if (transitionManager.IsCompleted) {
-                    if (transitionManager.Mode != TransitionMode.FadeOut) {
+                    if (transitionManager.ActiveMode != TransitionManager.Mode.FadeOut) {
                         transitionManager = null;
                     }
 

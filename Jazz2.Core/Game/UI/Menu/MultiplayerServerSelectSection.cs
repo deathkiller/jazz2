@@ -13,30 +13,20 @@ namespace Jazz2.Game.UI.Menu
 {
     public class MultiplayerServerSelectSection : MenuSection
     {
-        private class Server
-        {
-            public IPEndPoint EndPoint;
-
-            public string Name;
-            public int CurrentPlayers;
-            public int MaxPlayers;
-            public int LatencyMs;
-        }
-
         private ServerDiscovery discovery;
 
-        private int itemCount = 15;
+        private int maxVisibleItems = 15;
 
-        private List<Server> serverList;
+        private List<ServerDiscovery.Server> serverList;
 
         private int selectedIndex;
-        private int xOffset;
+        private int scrollOffset;
         private float animation;
         private int pressedCount;
 
         public MultiplayerServerSelectSection()
         {
-            serverList = new List<Server>();
+            serverList = new List<ServerDiscovery.Server>();
         }
 
         public override void OnShow(IMenuContainer root)
@@ -69,13 +59,17 @@ namespace Jazz2.Game.UI.Menu
 
             int charOffset = 0;
             if (serverList.Count > 0) {
-                float topItem = topLine;
-                float bottomItem = bottomLine;
-                float contentHeight = bottomItem - topItem;
                 const float itemSpacing = 17f;
-                itemCount = (int)(contentHeight / itemSpacing);
 
-                float currentItem = topItem + itemSpacing;
+                float topItem = topLine - 4f;
+                float bottomItem = bottomLine - 10f;
+                float contentHeight = bottomItem - topItem;
+
+                float maxVisibleItemsFloat = (contentHeight / itemSpacing);
+                maxVisibleItems = (int)maxVisibleItemsFloat;
+
+                float currentItem = topItem + itemSpacing + (maxVisibleItemsFloat - maxVisibleItems) * 0.5f * itemSpacing;
+
 
                 // ToDo: ...
                 float column2 = device.TargetSize.X * 0.55f;
@@ -86,15 +80,15 @@ namespace Jazz2.Game.UI.Menu
                 column2 *= 0.78f;
                 column3 *= 1.08f;
 
-                for (int i_ = 0; i_ < itemCount; i_++) {
-                    int i = xOffset + i_;
-                    if (i >= serverList.Count) {
+                for (int i = 0; i < maxVisibleItems; i++) {
+                    int idx = i + scrollOffset;
+                    if (idx >= serverList.Count) {
                         break;
                     }
 
-                    Server server = serverList[i];
+                    ServerDiscovery.Server server = serverList[idx];
 
-                    if (selectedIndex == i) {
+                    if (selectedIndex == idx) {
                         charOffset = 0;
 
                         float xMultiplier = server.Name.Length * 0.5f;
@@ -103,11 +97,11 @@ namespace Jazz2.Game.UI.Menu
                         float size = 0.7f + easing * 0.1f;
 
                         // Column 2
-                        api.DrawStringShadow(ref charOffset, server.CurrentPlayers + " / " + server.MaxPlayers + "  " + server.LatencyMs + " ms", column2, currentItem, Alignment.Left,
+                        api.DrawStringShadow(ref charOffset, server.CurrentPlayers + " / " + server.MaxPlayers + "  " + (server.LatencyMs < 0 ? "-" : server.LatencyMs.ToString()) + " ms", column2, currentItem, Alignment.Left,
                             new ColorRgba(0.48f, 0.5f), 0.8f, 0.4f, 1f, 1f, 8f, charSpacing: 0.8f);
 
                         // Column 3
-                        api.DrawStringShadow(ref charOffset, server.EndPoint.ToString(), column3, currentItem, Alignment.Left,
+                        api.DrawStringShadow(ref charOffset, server.EndPointName, column3, currentItem, Alignment.Left,
                             new ColorRgba(0.48f, 0.5f), 0.8f, 0.4f, 1f, 1f, 8f, charSpacing: 0.8f);
 
                         // Column 1
@@ -116,11 +110,11 @@ namespace Jazz2.Game.UI.Menu
                         
                     } else {
                         // Column 2
-                        api.DrawString(ref charOffset, server.CurrentPlayers + " / " + server.MaxPlayers + "  " + server.LatencyMs + " ms", column2, currentItem, Alignment.Left,
+                        api.DrawString(ref charOffset, server.CurrentPlayers + " / " + server.MaxPlayers + "  " + (server.LatencyMs < 0 ? "-" : server.LatencyMs.ToString()) + " ms", column2, currentItem, Alignment.Left,
                             ColorRgba.TransparentBlack, 0.7f);
 
                         // Column 3
-                        api.DrawString(ref charOffset, server.EndPoint.ToString(), column3, currentItem, Alignment.Left,
+                        api.DrawString(ref charOffset, server.EndPointName, column3, currentItem, Alignment.Left,
                             ColorRgba.TransparentBlack, 0.7f);
 
                         // Column 1
@@ -132,10 +126,10 @@ namespace Jazz2.Game.UI.Menu
                 }
 
                 // Scrollbar
-                if (serverList.Count > itemCount) {
+                if (serverList.Count > maxVisibleItems) {
                     const float sw = 3f;
-                    float sy = ((float)xOffset / serverList.Count) * 18f * itemCount + topLine;
-                    float sh = ((float)itemCount / serverList.Count) * 16f * itemCount;
+                    float sy = ((float)scrollOffset / serverList.Count) * 18f * maxVisibleItems + topLine;
+                    float sh = ((float)maxVisibleItems / serverList.Count) * 16f * maxVisibleItems;
 
                     BatchInfo mat1 = device.RentMaterial();
                     mat1.Technique = DrawTechnique.Alpha;
@@ -195,12 +189,12 @@ namespace Jazz2.Game.UI.Menu
                         animation = 0f;
                         if (selectedIndex > 0) {
                             selectedIndex--;
-                            while (selectedIndex < xOffset) {
-                                xOffset--;
+                            while (selectedIndex < scrollOffset) {
+                                scrollOffset--;
                             }
                         } else {
                             selectedIndex = serverList.Count - 1;
-                            xOffset = selectedIndex - (itemCount - 1);
+                            scrollOffset = selectedIndex - (maxVisibleItems - 1);
                         }
                         pressedCount = Math.Min(pressedCount + 4, 19);
                     }
@@ -210,12 +204,12 @@ namespace Jazz2.Game.UI.Menu
                         animation = 0f;
                         if (selectedIndex < serverList.Count - 1) {
                             selectedIndex++;
-                            while (selectedIndex >= xOffset + itemCount) {
-                                xOffset++;
+                            while (selectedIndex >= scrollOffset + maxVisibleItems) {
+                                scrollOffset++;
                             }
                         } else {
                             selectedIndex = 0;
-                            xOffset = 0;
+                            scrollOffset = 0;
                         }
                         pressedCount = Math.Min(pressedCount + 4, 19);
                     }
@@ -225,9 +219,9 @@ namespace Jazz2.Game.UI.Menu
             }
         }
 
-        private void OnServerFound(string name, IPEndPoint endPoint, int currentPlayers, int maxPlayers, int latencyMs)
+        private void OnServerFound(ServerDiscovery.Server server, bool isNew)
         {
-            for (int i = 0; i < serverList.Count; i++) {
+            /*for (int i = 0; i < serverList.Count; i++) {
                 Server server = serverList[i];
                 if (server.EndPoint == endPoint) {
                     server.Name = name;
@@ -236,15 +230,13 @@ namespace Jazz2.Game.UI.Menu
                     server.LatencyMs = latencyMs;
                     return;
                 }
+            }*/
+
+            if (!isNew) {
+                return;
             }
 
-            serverList.Add(new Server {
-                EndPoint = endPoint,
-                Name = name,
-                CurrentPlayers = currentPlayers,
-                MaxPlayers = maxPlayers,
-                LatencyMs = latencyMs
-            });
+            serverList.Add(server);
         }
     }
 }
