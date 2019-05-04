@@ -7,6 +7,7 @@ namespace Jazz2.Game.UI.Menu.Settings
     public class LinkControl : MenuControlBase
     {
         private string title;
+        private string description;
         private Action action;
         private bool enabled = true;
 
@@ -24,10 +25,11 @@ namespace Jazz2.Game.UI.Menu.Settings
 
         public override bool IsInputCaptured => false;
 
-        public LinkControl(IMenuContainer api, string title, Action action) : base(api)
+        public LinkControl(IMenuContainer api, string title, Action action, string description = null) : base(api)
         {
             this.title = title;
             this.action = action;
+            this.description = description;
         }
 
         public override void OnDraw(Canvas canvas, ref Vector2 pos, bool focused, float animation)
@@ -49,7 +51,14 @@ namespace Jazz2.Game.UI.Menu.Settings
                     ColorRgba.TransparentBlack, 0.9f);
             }
 
-            pos.Y += 40f;
+            if (description != null) {
+                api.DrawString(ref charOffset, description, pos.X, pos.Y + 20f, Alignment.Center,
+                    new ColorRgba(0.5f, 0.42f, 0.38f, 0.48f), 0.7f);
+
+                pos.Y += 55f;
+            } else {
+                pos.Y += 40f;
+            }
         }
 
         public override void OnUpdate()

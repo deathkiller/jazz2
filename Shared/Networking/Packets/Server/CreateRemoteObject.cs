@@ -1,25 +1,25 @@
 ﻿using Duality;
-using Jazz2.Actors;
 using Lidgren.Network;
 
 namespace Jazz2.Networking.Packets.Server
 {
-    public struct CreateRemotePlayer : IServerPacket
+    public struct CreateRemoteObject : IServerPacket
     {
         public NetConnection SenderConnection { get; set; }
 
-        byte IServerPacket.Type => 13;
-
+        byte IServerPacket.Type => 15;
 
         public int Index;
-        public PlayerType Type;
+
+        public string Metadata;
+
         public Vector3 Pos;
 
         void IServerPacket.Read(NetIncomingMessage msg)
         {
-            Index = msg.ReadByte();
+            Index = msg.ReadInt32();
 
-            Type = (PlayerType)msg.ReadByte();
+            Metadata = msg.ReadString();
 
             float x = msg.ReadUInt16();
             float y = msg.ReadUInt16();
@@ -29,9 +29,9 @@ namespace Jazz2.Networking.Packets.Server
 
         void IServerPacket.Write(NetOutgoingMessage msg)
         {
-            msg.Write((byte)Index);
+            msg.Write((int)Index);
 
-            msg.Write((byte)Type);
+            msg.Write((string)Metadata);
 
             msg.Write((ushort)Pos.X);
             msg.Write((ushort)Pos.Y);

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Threading;
 using Duality;
 using Jazz2.Actors;
@@ -19,6 +19,7 @@ namespace Jazz2.Game.Multiplayer
         private long lastServerUpdateTime;
 
         private RemotePlayer[] remotePlayers = new RemotePlayer[256];
+        private Dictionary<int, RemoteObject> remoteObjects = new Dictionary<int, RemoteObject>();
 
         public byte PlayerIndex => localPlayerIndex;
 
@@ -30,6 +31,8 @@ namespace Jazz2.Game.Multiplayer
             network.OnUpdateAllPlayers += OnUpdateAllPlayers;
             network.RegisterCallback<CreateRemotePlayer>(OnCreateRemotePlayer);
             network.RegisterCallback<DestroyRemotePlayer>(OnDestroyRemotePlayer);
+            network.RegisterCallback<CreateRemoteObject>(OnCreateRemoteObject);
+            network.RegisterCallback<DestroyRemoteObject>(OnDestroyRemoteObject);
         }
 
         protected override void OnDisposing(bool manually)
@@ -38,6 +41,8 @@ namespace Jazz2.Game.Multiplayer
                 network.OnUpdateAllPlayers -= OnUpdateAllPlayers;
                 network.RemoveCallback<CreateRemotePlayer>();
                 network.RemoveCallback<DestroyRemotePlayer>();
+                network.RemoveCallback<CreateRemoteObject>();
+                network.RemoveCallback<DestroyRemoteObject>();
             }
 
             base.OnDisposing(manually);
@@ -45,6 +50,8 @@ namespace Jazz2.Game.Multiplayer
 
         protected override void OnUpdate()
         {
+            base.OnUpdate();
+
             Hud.ShowDebugText("- Local Player Index: " + localPlayerIndex);
             Hud.ShowDebugText("- RTT: " + (int)(network.AverageRoundtripTime * 1000) + " ms");
             Hud.ShowDebugText("- Last Server Update: " + lastServerUpdateTime);
@@ -62,8 +69,6 @@ namespace Jazz2.Game.Multiplayer
             updateSelfPacket.Index = localPlayerIndex;
             updateSelfPacket.UpdateTime = (long)(NetTime.Now * 1000);
             network.Send(updateSelfPacket, 29, NetDeliveryMethod.Unreliable, PacketChannels.Main);
-
-            base.OnUpdate();
         }
 
         private void OnUpdateAllPlayers(NetIncomingMessage msg)
@@ -113,6 +118,39 @@ namespace Jazz2.Game.Multiplayer
 
                 remotePlayers[playerIndex].UpdateFromServer(pos, speed, animState, animTime, isFacingLeft);
             }
+
+            int objectCount = msg.ReadInt32();
+            for (int i = 0; i < objectCount; i++) {
+                int objectIndex = msg.ReadInt32();
+                byte flags = msg.ReadByte();
+
+                Vector3 pos;
+                {
+                    ushort x = msg.ReadUInt16();
+                    ushort y = msg.ReadUInt16();
+                    ushort z = msg.ReadUInt16();
+                    pos = new Vector3(x, y, z);
+                }
+                Vector2 speed;
+                {
+                    float x = msg.ReadInt16() * 0.002f;
+                    float y = msg.ReadInt16() * 0.002f;
+                    speed = new Vector2(x, y);
+                }
+
+                AnimState animState = (AnimState)msg.ReadUInt32();
+                float animTime = msg.ReadFloat();
+                bool isFacingLeft = msg.ReadBoolean();
+
+                float rtt = msg.SenderConnection.AverageRoundtripTime;
+                pos.X += speed.X * rtt * 0.5f;
+                pos.Y += speed.Y * rtt * 0.5f;
+
+                RemoteObject remoteObject;
+                if (remoteObjects.TryGetValue(objectIndex, out remoteObject)) {
+                    remoteObject.UpdateFromServer(pos, speed, animState, animTime, isFacingLeft);
+                }
+            }
         }
 
         private void OnCreateRemotePlayer(ref CreateRemotePlayer p)
@@ -153,6 +191,47 @@ namespace Jazz2.Game.Multiplayer
                 if (player != null) {
                     RemoveObject(player);
                 }
+            });
+        }
+
+        private void OnCreateRemoteObject(ref CreateRemoteObject p)
+        {
+            int index = p.Index;
+
+            if (remoteObjects.ContainsKey(index)) {
+                //throw new InvalidOperationException();
+                return;
+            }
+
+            // ToDo: Load metadata
+
+            Vector3 pos = p.Pos;
+
+            Root.DispatchToMainThread(delegate {
+                RemoteObject newObject = new RemoteObject();
+
+                remoteObjects[index] = newObject;
+
+                newObject.OnAttach(new ActorInstantiationDetails {
+                    Api = Api,
+                    Pos = pos
+                });
+
+                AddObject(newObject);
+            });
+        }
+
+        private void OnDestroyRemoteObject(ref DestroyRemoteObject p)
+        {
+            int index = p.Index;
+
+            Root.DispatchToMainThread(delegate {
+                RemoteObject objectToRemove;
+                if (remoteObjects.TryGetValue(index, out objectToRemove)) {
+                    remoteObjects.Remove(index);
+                    RemoveObject(objectToRemove);
+                }
+
             });
         }
     }

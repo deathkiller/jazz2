@@ -11,17 +11,27 @@ namespace Jazz2.Game.UI.Menu
             base.OnShow(root);
 
             controls = new MenuControlBase[] {
-                new LinkControl(api, "Single Player", OnSinglePlayerPressed),
-                new LinkControl(api, "Party Mode", OnPartyModePressed)
+                new LinkControl(api, "Singleplayer", OnSingleplayerPressed, "Play any custom level alone"),
+#if ENABLE_SPLITSCREEN
+                new LinkControl(api, "Splitscreen", OnSplitscreenPressed, "Play with up to 3 other players on this PC"),
+#endif
+                new LinkControl(api, "Online Multiplayer", OnOnlineMultiplayerPressed, "Connect to server and play with other players")
             };
         }
 
-        private void OnSinglePlayerPressed()
+        private void OnSingleplayerPressed()
         {
             api.SwitchToSection(new CustomLevelSelectSection());
         }
 
-        private void OnPartyModePressed()
+#if ENABLE_SPLITSCREEN
+        private void OnSplitscreenPressed()
+        {
+            // ToDo
+        }
+#endif
+
+        private void OnOnlineMultiplayerPressed()
         {
             api.SwitchToSection(new MultiplayerServerSelectSection());
         }

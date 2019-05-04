@@ -9,7 +9,6 @@ using Duality;
 using Duality.Audio;
 using Duality.Components;
 using Duality.Drawing;
-using Duality.Input;
 using Duality.IO;
 using Duality.Resources;
 using Jazz2.Actors;

@@ -10,9 +10,9 @@ using Lidgren.Network;
 
 namespace Jazz2.Server
 {
-    partial class App
+    partial class GameServer
     {
-        private static void OnClientConnected(ClientConnectedEventArgs args)
+        private void OnClientConnected(ClientConnectedEventArgs args)
         {
             if (args.Message.LengthBytes < 4) {
                 Console.WriteLine("        - Corrupted OnClientConnected message!");
@@ -36,7 +36,7 @@ namespace Jazz2.Server
             };
         }
 
-        private static void OnClientStatusChanged(ClientStatusChangedEventArgs args)
+        private void OnClientStatusChanged(ClientStatusChangedEventArgs args)
         {
             if (args.Status == NetConnectionStatus.Connected) {
                 lastPlayerIndex++;
@@ -67,7 +67,7 @@ namespace Jazz2.Server
             }
         }
 
-        private static void OnMessageReceived(MessageReceivedEventArgs args)
+        private void OnMessageReceived(MessageReceivedEventArgs args)
         {
             if (args.IsUnconnected) {
                 if (args.Message.LengthBytes == 1 && args.Message.ReadByte() == PacketTypes.Ping) {
@@ -103,7 +103,7 @@ namespace Jazz2.Server
             }
         }
 
-        private static void OnDiscoveryRequest(DiscoveryRequestEventArgs args)
+        private void OnDiscoveryRequest(DiscoveryRequestEventArgs args)
         {
             NetOutgoingMessage msg = server.CreateMessage(64);
 
@@ -127,19 +127,19 @@ namespace Jazz2.Server
         }
 
         #region Callbacks
-        public static void RegisterCallback<T>(PacketCallback<T> callback) where T : struct, IClientPacket
+        public void RegisterCallback<T>(PacketCallback<T> callback) where T : struct, IClientPacket
         {
             byte type = (new T().Type);
             callbacks[type] = (msg, isUnconnected) => ProcessCallback(msg, isUnconnected, callback);
         }
 
-        public static void RemoveCallback<T>() where T : struct, IClientPacket
+        public void RemoveCallback<T>() where T : struct, IClientPacket
         {
             byte type = (new T().Type);
             callbacks.Remove(type);
         }
 
-        private static void ProcessCallback<T>(NetIncomingMessage msg, bool isUnconnected, PacketCallback<T> callback) where T : struct, IClientPacket
+        private void ProcessCallback<T>(NetIncomingMessage msg, bool isUnconnected, PacketCallback<T> callback) where T : struct, IClientPacket
         {
             T packet = default(T);
             if (isUnconnected && !packet.SupportsUnconnected) {
@@ -160,7 +160,7 @@ namespace Jazz2.Server
         #endregion
 
         #region Messages
-        public static bool Send<T>(T packet, int capacity, NetConnection recipient, NetDeliveryMethod method, int channel) where T : struct, IServerPacket
+        public bool Send<T>(T packet, int capacity, NetConnection recipient, NetDeliveryMethod method, int channel) where T : struct, IServerPacket
         {
             NetOutgoingMessage msg = server.CreateMessage(capacity);
             msg.Write((byte)packet.Type);
@@ -176,7 +176,7 @@ namespace Jazz2.Server
             return (result == NetSendResult.Sent || result == NetSendResult.Queued);
         }
 
-        public static bool Send<T>(T packet, int capacity, List<NetConnection> recipients, NetDeliveryMethod method, int channel) where T : struct, IServerPacket
+        public bool Send<T>(T packet, int capacity, List<NetConnection> recipients, NetDeliveryMethod method, int channel) where T : struct, IServerPacket
         {
             NetOutgoingMessage msg = server.CreateMessage(capacity);
             msg.Write((byte)packet.Type);

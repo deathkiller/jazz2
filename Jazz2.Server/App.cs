@@ -4,14 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Net;
 using System.Reflection;
-using System.Text;
-using System.Threading;
-using Jazz2.Networking.Packets;
-using Jazz2.Networking.Packets.Client;
-using Jazz2.Networking.Packets.Server;
-using Lidgren.Network;
 
 namespace Jazz2
 {
@@ -47,24 +40,7 @@ namespace Jazz2.Server
 {
     internal static partial class App
     {
-        private const string Token = "J²";
-        private const string ServerListUrl = "http://deat.tk/jazz2/servers/";
-
-        private static string name;
-        private static int port, maxPlayers;
-
-        private static Thread threadGame, threadPublishToServerList;
-        private static ServerConnection server;
-        private static byte neededMajor, neededMinor, neededBuild;
-
-        private static Dictionary<byte, Action<NetIncomingMessage, bool>> callbacks;
-        private static Dictionary<NetConnection, Player> players;
-        private static List<NetConnection> playerConnections;
-
-        private static int lastGameLoadMs;
-
-        private static string currentLevel = "unknown/battle2";
-        private static byte lastPlayerIndex;
+        private static GameServer gameServer;
 
         private static void Main(string[] args)
         {
@@ -81,23 +57,29 @@ namespace Jazz2.Server
                 ConsoleImage.RenderFromManifestResource("ConsoleImage.udl");
             }
 
+            // Process parameters
+            int port;
             if (!TryRemoveArg(ref args, "/port:", out port)) {
                 port = 10666;
             }
 
+            string name;
             if (!TryRemoveArg(ref args, "/name:", out name) || string.IsNullOrWhiteSpace(name)) {
                 name = "Unnamed server";
             }
 
+            int maxPlayers;
             if (!TryRemoveArg(ref args, "/players:", out maxPlayers)) {
                 maxPlayers = 64;
             }
 
+            bool isPrivate = TryRemoveArg(ref args, "/private");
+
             // Initialization
             Version v = Assembly.GetEntryAssembly().GetName().Version;
-            neededMajor = (byte)v.Major;
-            neededMinor = (byte)v.Minor;
-            neededBuild = (byte)v.Build;
+            byte neededMajor = (byte)v.Major;
+            byte neededMinor = (byte)v.Minor;
+            byte neededBuild = (byte)v.Build;
 
             Log.Write(LogType.Info, "Starting server...");
             Log.PushIndent();
@@ -105,34 +87,11 @@ namespace Jazz2.Server
             Log.Write(LogType.Info, "Server Name: " + name);
             Log.Write(LogType.Info, "Max. Players: " + maxPlayers);
 
-            callbacks = new Dictionary<byte, Action<NetIncomingMessage, bool>>();
-            players = new Dictionary<NetConnection, Player>();
-            playerConnections = new List<NetConnection>();
-
-            server = new ServerConnection(Token, port, maxPlayers);
-            server.MessageReceived += OnMessageReceived;
-            server.DiscoveryRequest += OnDiscoveryRequest;
-            server.ClientConnected += OnClientConnected;
-            server.ClientStatusChanged += OnClientStatusChanged;
-
-            RegisterCallback<LevelReady>(OnLevelReady);
-            RegisterCallback<UpdateSelf>(OnUpdateSelf);
-
             Log.PopIndent();
 
-            // Create game loop
-            threadGame = new Thread(OnGameLoop);
-            threadGame.IsBackground = true;
-            threadGame.Start();
-
-            // Publish to server list
-            if (!TryRemoveArg(ref args, "/private")) {
-                Log.Write(LogType.Info, "Publishing to server list...");
-
-                threadPublishToServerList = new Thread(OnPublishToServerList);
-                threadPublishToServerList.IsBackground = true;
-                threadPublishToServerList.Start();
-            }
+            // Start game server
+            gameServer = new GameServer();
+            gameServer.Run(port, name, maxPlayers, isPrivate, neededMajor, neededMinor, neededBuild);
 
             Log.Write(LogType.Info, "Ready!");
             Console.WriteLine();
@@ -144,18 +103,7 @@ namespace Jazz2.Server
             Console.WriteLine();
             Log.Write(LogType.Info, "Closing...");
 
-            server.ClientStatusChanged -= OnClientStatusChanged;
-            server.ClientConnected -= OnClientConnected;
-            server.MessageReceived -= OnMessageReceived;
-            server.DiscoveryRequest -= OnDiscoveryRequest;
-
-            //ClearCallbacks();
-
-            Thread threadGame_ = threadGame;
-            threadGame = null;
-            threadGame_.Join();
-
-            server.Close();
+            gameServer.Dispose();
         }
 
         private static void ProcessConsoleCommands()
@@ -173,9 +121,9 @@ namespace Jazz2.Server
                         return;
 
                     case "info": {
-                        Log.Write(LogType.Info, "Server Load: " + lastGameLoadMs + " ms");
-                        Log.Write(LogType.Info, "Players: " + players.Count + "/" + maxPlayers);
-                        Log.Write(LogType.Info, "Current Level: " + currentLevel);
+                        Log.Write(LogType.Info, "Server Load: " + gameServer.LoadMs + " ms");
+                        Log.Write(LogType.Info, "Players: " + gameServer.PlayerCount + "/" + gameServer.MaxPlayers);
+                        Log.Write(LogType.Info, "Current Level: " + gameServer.CurrentLevel);
                         break;
                     }
 
@@ -184,17 +132,7 @@ namespace Jazz2.Server
                         string value = GetPartFromInput(ref input);
                         switch (key) {
                             case "level": {
-                                currentLevel = value;
-
-                                foreach (KeyValuePair<NetConnection, Player> pair in players) {
-                                    Send(new LoadLevel {
-                                        LevelName = currentLevel,
-                                        AssignedPlayerIndex = pair.Value.Index
-                                    }, 64, pair.Key, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
-                                }
-
-                                playerConnections.Clear();
-
+                                gameServer.ChangeLevel(value);
                                 Log.Write(LogType.Warning, "OK!");
                                 break;
                             }
@@ -286,42 +224,6 @@ namespace Jazz2.Server
                 Console.Write((progress + "%").PadLeft(5) + " ");
                 Console.ForegroundColor = ConsoleColor.Gray;
                 Console.WriteLine(text);
-            }
-        }
-
-        private static void OnPublishToServerList()
-        {
-            while (threadPublishToServerList != null) {
-                try {
-                    string currentVersion = Jazz2.App.AssemblyVersion;
-                    IPAddress mask;
-                    string endpoint = NetUtility.GetMyAddress(out mask).ToString() + ":" + port;
-
-                    string dataString = "0|" + endpoint + "|" + currentVersion + "|" + players.Count + "|" + maxPlayers + "|" + name;
-                    string data = "add=" + Convert.ToBase64String(Encoding.UTF8.GetBytes(dataString))
-                                .Replace('+', '-').Replace('/', '_').TrimEnd('=');
-
-                    WebClient client = new WebClient();
-                    client.Encoding = Encoding.UTF8;
-                    client.Headers["User-Agent"] = Jazz2.App.AssemblyTitle;
-                    client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
-
-                    string content = client.UploadString(ServerListUrl, data);
-                    if (content.Contains("\"r\":false")) {
-                        if (content.Contains("\"e\":1")) {
-                            Log.Write(LogType.Warning, "Cannot publish server with private IP address!");
-                        } else if (content.Contains("\"e\":2")) {
-                            Log.Write(LogType.Warning, "Access to server list is denied!");
-                        } else {
-                            Log.Write(LogType.Warning, "Server cannot be published to server list!");
-                        }
-                        return;
-                    }
-                } catch {
-                    // Nothing to do... try it again later
-                }
-
-                Thread.Sleep(300000); // 5 minutes
             }
         }
     }

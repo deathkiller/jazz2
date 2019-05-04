@@ -328,10 +328,14 @@ namespace Jazz2.Game.UI.Menu
             }
             
             if (ControlScheme.MenuActionHit(PlayerActions.Left)) {
-                expanded = false;
-                expandedAnimation = 0f;
+                if (expanded) {
+                    api.PlaySound("MenuSelect", 0.4f);
+                    expanded = false;
+                    expandedAnimation = 0f;
+                }
             } else if (ControlScheme.MenuActionHit(PlayerActions.Right)) {
                 if (episodes.Count > 0 && episodes[selectedIndex].CanContinue) {
+                    api.PlaySound("MenuSelect", 0.4f);
                     expanded = true;
                 }
             }

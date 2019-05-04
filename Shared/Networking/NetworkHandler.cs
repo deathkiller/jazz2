@@ -113,14 +113,14 @@ namespace Jazz2.Game.Multiplayer
 
                                 byte type = msg.ReadByte();
 
-                                if (type == PacketTypes.UpdateAllPlayers) {
+                                if (type == PacketTypes.UpdateAll) {
                                     OnUpdateAllPlayers?.Invoke(msg);
                                 } else {
                                     Action<NetIncomingMessage> callback;
                                     if (callbacks.TryGetValue(type, out callback)) {
                                         callback(msg);
                                     } else {
-                                        Console.WriteLine("        - Unknown packet type!");
+                                        Console.WriteLine("        - Unknown packet type (" + type + ")!");
                                     }
                                 }
                                 break;

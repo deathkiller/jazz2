@@ -264,16 +264,17 @@ namespace Jazz2.Game
             byte playerIndex = p.AssignedPlayerIndex;
 
             DispatchToMainThread(delegate {
+                Scene.Current.Dispose();
+
                 Multiplayer.NetworkLevelHandler handler = new Multiplayer.NetworkLevelHandler(this, network,
                     new LevelInitialization(episodeName, levelName, GameDifficulty.Default, Actors.PlayerType.Jazz),
                     playerIndex);
 
-                Scene.Current.DisposeLater();
                 Scene.SwitchTo(handler);
 
                 network.Send(new Networking.Packets.Client.LevelReady {
                     Index = playerIndex
-                }, 2, Lidgren.Network.NetDeliveryMethod.ReliableSequenced, PacketChannels.Main);
+                }, 2, Lidgren.Network.NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
             });
         }
 

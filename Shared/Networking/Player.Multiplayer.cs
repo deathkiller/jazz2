@@ -14,7 +14,9 @@ namespace Jazz2.Actors
 
                 AnimState = (currentTransitionState != AnimState.Idle ? currentTransitionState : currentAnimationState),
                 AnimTime = renderer.AnimTime,
-                IsFacingLeft = IsFacingLeft
+                IsFacingLeft = IsFacingLeft,
+
+                IsFirePressed = wasFirePressed
             };
         }
     }

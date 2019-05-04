@@ -4,6 +4,6 @@
     {
         public const byte Ping = 1;
 
-        public const byte UpdateAllPlayers = 30;
+        public const byte UpdateAll = 30;
     }
 }

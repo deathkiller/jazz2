@@ -1,34 +1,17 @@
 ﻿using Duality;
 using Jazz2.Actors;
 using Jazz2.Game.Structs;
-using Jazz2.Game.UI;
 
 namespace Jazz2.Game.Multiplayer
 {
-    public class RemotePlayer : ActorBase
+    public class RemoteObject : ActorBase
     {
-        private PlayerType playerType;
-
-        public int Index;
-
         public override void OnAttach(ActorInstantiationDetails details)
         {
             base.OnAttach(details);
 
-            playerType = (PlayerType)details.Params[0];
-            Index = details.Params[1];
-
-            switch (playerType) {
-                case PlayerType.Jazz:
-                    RequestMetadata("Interactive/PlayerJazz");
-                    break;
-                case PlayerType.Spaz:
-                    RequestMetadata("Interactive/PlayerSpaz");
-                    break;
-                case PlayerType.Lori:
-                    RequestMetadata("Interactive/PlayerLori");
-                    break;
-            }
+            // ToDo: Load metadata
+            RequestMetadata("Weapon/Blaster");
 
             SetAnimation(AnimState.Fall);
 

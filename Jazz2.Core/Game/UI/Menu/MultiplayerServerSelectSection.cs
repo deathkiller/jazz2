@@ -122,11 +122,11 @@ namespace Jazz2.Game.UI.Menu
 
                         // Column 2
                         api.DrawStringShadow(ref charOffset, infoText, column2, currentItem, Alignment.Left,
-                            infoColor, 0.8f, 0.4f, 1f, 1f, 8f, charSpacing: 0.8f);
+                            infoColor, 0.8f, 0.4f, 1f, 1f, 8f, charSpacing: 0.88f);
 
                         // Column 3
                         api.DrawStringShadow(ref charOffset, server.EndPointName, column3, currentItem, Alignment.Left,
-                            new ColorRgba(0.48f, 0.5f), 0.8f, 0.4f, 1f, 1f, 8f, charSpacing: 0.8f);
+                            new ColorRgba(0.48f, 0.5f), 0.8f, 0.4f, 1f, 1f, 8f, charSpacing: 0.88f);
 
                         // Column 1
                         api.DrawStringShadow(ref charOffset, server.Name, x, currentItem, Alignment.Left,

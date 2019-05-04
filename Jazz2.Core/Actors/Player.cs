@@ -540,17 +540,13 @@ namespace Jazz2.Actors
                         if (suspendType == SuspendType.None && isDashPressed)
                         {
                             speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxDashingSpeed, MaxDashingSpeed);
-                        } else if (suspendType == SuspendType.Vine)
-                        {
-                            if (wasFirePressed)
-                            {
+                        } else if (suspendType == SuspendType.Vine) {
+                            if (wasFirePressed) {
                                 speedX = 0f;
-                            } else
-                            {
+                            } else {
                                 speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxVineSpeed, MaxVineSpeed);
                             }
-                        } else if (suspendType != SuspendType.Hook)
-                        {
+                        } else if (suspendType != SuspendType.Hook) {
                             speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxRunningSpeed, MaxRunningSpeed);
                         }
                     }
