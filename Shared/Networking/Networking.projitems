@@ -71,6 +71,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Packets\IClientPacket+IServerPacket.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NetworkHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NetworkLevelHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\CreateControllablePlayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\CreateRemoteObject.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\DestroyRemoteObject.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Player.Multiplayer.cs" />

@@ -9,7 +9,7 @@ namespace Jazz2.Networking.Packets.Server
         byte IServerPacket.Type => 14;
 
 
-        public int Index;
+        public byte Index;
         public byte Reason;
 
         void IServerPacket.Read(NetIncomingMessage msg)

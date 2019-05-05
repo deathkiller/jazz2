@@ -48,8 +48,8 @@ namespace Jazz2.Game
         private DynamicTreeBroadPhase collisions;
         private int collisionsCountA, collisionsCountB, collisionsCountC;
 
-        private List<Player> players = new List<Player>();
-        private List<GameObject> cameras = new List<GameObject>();
+        protected List<Player> players = new List<Player>();
+        protected List<GameObject> cameras = new List<GameObject>();
         private List<ActorBase> actors = new List<ActorBase>();
 
         private string levelFileName;
@@ -181,27 +181,48 @@ namespace Jazz2.Game
             if (players.Count > 0) {
                 targetPlayer = players[0];
                 targetPlayerPosition = targetPlayer.Transform.Pos;
+
+                // Setup all cameras
+                float relativeViewRange = (1f / players.Count);
+                for (int i = 0; i < players.Count; i++) {
+                    GameObject camera = new GameObject(/*"MainCamera " + i*/);
+                    Transform cameraTransform = camera.AddComponent<Transform>();
+
+                    Camera cameraInner = camera.AddComponent<Camera>();
+                    cameraInner.NearZ = NearZ;
+                    cameraInner.FarZ = FarZ;
+                    cameraInner.Projection = ProjectionMode.Orthographic;
+                    cameraInner.VisibilityMask = VisibilityFlag.Group0 | VisibilityFlag.ScreenOverlay | (VisibilityFlag)(1 << i);
+
+                    switch (players.Count) {
+                        case 1: cameraInner.TargetRect = new Rect(0f, 0f, 1f, 1f); break;
+                        case 2: cameraInner.TargetRect = new Rect(0f, i * relativeViewRange, 1f, relativeViewRange); break;
+                        case 3: cameraInner.TargetRect = new Rect(0f, i * relativeViewRange, 1f, relativeViewRange); break;
+                        case 4: cameraInner.TargetRect = new Rect((i % 2) * 0.5f, (i / 2) * 0.5f, 0.5f, 0.5f); break;
+                    }
+
+                    // Create controller
+                    CameraController cameraController = camera.AddComponent<CameraController>();
+                    cameraController.ViewBounds = levelBounds;
+
+                    // Bind camera to player
+                    cameraInner.RenderingSetup = new LevelRenderSetup(this);
+
+                    Player currentPlayer = players[i];
+                    cameraTransform.Pos = new Vector3(currentPlayer.Transform.Pos.Xy, 0);
+                    cameraController.TargetObject = currentPlayer;
+
+                    ((ICmpUpdatable)cameraController).OnUpdate();
+                    camera.Parent = rootObject;
+
+                    cameras.Add(camera);
+
+                    if (i == 0) {
+                        // First camera is always sound listener
+                        DualityApp.Sound.Listener = camera;
+                    }
+                }
             } else {
-                Debug.WriteLine("No spawn point found, used default location instead!");
-
-                targetPlayerPosition = new Vector3(120, 160, PlayerZ);
-
-                targetPlayer = new Player();
-                targetPlayer.OnAttach(new ActorInstantiationDetails {
-                    Api = api,
-                    Pos = targetPlayerPosition,
-                    Params = new[] { (ushort)PlayerType.Jazz, (ushort)0 }
-                });
-                AddPlayer(targetPlayer);
-
-                targetPlayer.AttachToHud(hud);
-
-                hud.BeginFadeIn(true);
-            }
-
-            // Setup all cameras
-            float relativeViewRange = (1f / players.Count);
-            for (int i = 0; i < players.Count; i++) {
                 GameObject camera = new GameObject(/*"MainCamera " + i*/);
                 Transform cameraTransform = camera.AddComponent<Transform>();
 
@@ -209,16 +230,7 @@ namespace Jazz2.Game
                 cameraInner.NearZ = NearZ;
                 cameraInner.FarZ = FarZ;
                 cameraInner.Projection = ProjectionMode.Orthographic;
-                cameraInner.VisibilityMask = VisibilityFlag.Group0 | VisibilityFlag.ScreenOverlay | (VisibilityFlag)(1 << (i + 1));
-                //cameraInner.TargetRect = new Rect(i * relativeViewRange, 0f, relativeViewRange, 1f);
-
-                switch (players.Count)
-                {
-                    case 1: cameraInner.TargetRect = new Rect(0f, 0f, 1f, 1f); break;
-                    case 2: cameraInner.TargetRect = new Rect(0f, i * relativeViewRange, 1f, relativeViewRange); break;
-                    case 3: cameraInner.TargetRect = new Rect(0f, i * relativeViewRange, 1f, relativeViewRange); break;
-                    case 4: cameraInner.TargetRect = new Rect((i % 2) * 0.5f, (i / 2) * 0.5f, 0.5f, 0.5f); break;
-                }
+                cameraInner.VisibilityMask = VisibilityFlag.Group0 | VisibilityFlag.ScreenOverlay | (VisibilityFlag)(1 << 0);
 
                 // Create controller
                 CameraController cameraController = camera.AddComponent<CameraController>();
@@ -227,19 +239,18 @@ namespace Jazz2.Game
                 // Bind camera to player
                 cameraInner.RenderingSetup = new LevelRenderSetup(this);
 
-                Player currentPlayer = players[i];
-                cameraTransform.Pos = new Vector3(currentPlayer.Transform.Pos.Xy, 0);
-                cameraController.TargetObject = currentPlayer;
+                cameraTransform.Pos = new Vector3(levelBounds.Center, 0);
+                //cameraController.TargetObject = currentPlayer;
 
                 ((ICmpUpdatable)cameraController).OnUpdate();
                 camera.Parent = rootObject;
 
                 cameras.Add(camera);
 
-                if (i == 0) {
-                    // First camera is always sound listener
-                    DualityApp.Sound.Listener = camera;
-                }
+                // First camera is always sound listener
+                DualityApp.Sound.Listener = camera;
+
+                hud.BeginFadeIn(true);
             }
 
             // Common sounds
@@ -819,49 +830,51 @@ namespace Jazz2.Game
                 }
             }
 
-            Vector3 pos = players[0].Transform.Pos;
-            int tx1 = (int)pos.X >> 5;
-            int ty1 = (int)pos.Y >> 5;
-            int tx2 = tx1;
-            int ty2 = ty1;
+            if (players.Count > 0)
+            {
+                Vector3 pos = players[0].Transform.Pos;
+                int tx1 = (int)pos.X >> 5;
+                int ty1 = (int)pos.Y >> 5;
+                int tx2 = tx1;
+                int ty2 = ty1;
 
 #if ENABLE_SPLITSCREEN
-            for (int i = 1; i < players.Count; i++) {
-                Vector3 pos2 = players[i].Transform.Pos;
-                int tx = (int)pos2.X >> 5;
-                int ty = (int)pos2.Y >> 5;
-                if (tx1 > tx) {
-                    tx1 = tx;
-                } else if (tx2 < tx) {
-                    tx2 = tx;
+                for (int i = 1; i < players.Count; i++) {
+                    Vector3 pos2 = players[i].Transform.Pos;
+                    int tx = (int)pos2.X >> 5;
+                    int ty = (int)pos2.Y >> 5;
+                    if (tx1 > tx) {
+                        tx1 = tx;
+                    } else if (tx2 < tx) {
+                        tx2 = tx;
+                    }
+                    if (ty1 > ty) {
+                        ty1 = ty;
+                    } else if (ty2 < ty) {
+                        ty2 = ty;
+                    }
                 }
-                if (ty1 > ty) {
-                    ty1 = ty;
-                } else if (ty2 < ty) {
-                    ty2 = ty;
-                }
-            }
 #endif
 
-            // ToDo: Remove this branching
+                // ToDo: Remove this branching
 #if __ANDROID__
-            const int ActivateTileRange = 20;
+                const int ActivateTileRange = 20;
 #else
-            const int ActivateTileRange = 26;
+                const int ActivateTileRange = 26;
 #endif
+                tx1 -= ActivateTileRange;
+                ty1 -= ActivateTileRange;
+                tx2 += ActivateTileRange;
+                ty2 += ActivateTileRange;
 
-            tx1 -= ActivateTileRange;
-            ty1 -= ActivateTileRange;
-            tx2 += ActivateTileRange;
-            ty2 += ActivateTileRange;
-
-            for (int i = 0; i < actors.Count; i++) {
-                if (actors[i].OnTileDeactivate(tx1 - 2, ty1 - 2, tx2 + 2, ty2 + 2)) {
-                    i--;
+                for (int i = 0; i < actors.Count; i++) {
+                    if (actors[i].OnTileDeactivate(tx1 - 2, ty1 - 2, tx2 + 2, ty2 + 2)) {
+                        i--;
+                    }
                 }
-            }
 
-            eventMap.ActivateEvents(tx1, ty1, tx2, ty2);
+                eventMap.ActivateEvents(tx1, ty1, tx2, ty2);
+            }
 
             eventMap.ProcessGenerators();
 

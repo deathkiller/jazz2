@@ -4,11 +4,11 @@ using Lidgren.Network;
 
 namespace Jazz2.Networking.Packets.Server
 {
-    public struct CreateRemotePlayer : IServerPacket
+    public struct CreateControllablePlayer : IServerPacket
     {
         public NetConnection SenderConnection { get; set; }
 
-        byte IServerPacket.Type => 13;
+        byte IServerPacket.Type => 12;
 
 
         public byte Index;

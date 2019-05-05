@@ -13,7 +13,7 @@ namespace Jazz2.Game.Multiplayer
 {
     public class NetworkLevelHandler : LevelHandler
     {
-        private NetworkHandler network;
+        private NetworkHandler net;
         private byte localPlayerIndex;
         private float lastUpdate;
         private long lastServerUpdateTime;
@@ -23,26 +23,28 @@ namespace Jazz2.Game.Multiplayer
 
         public byte PlayerIndex => localPlayerIndex;
 
-        public NetworkLevelHandler(App root, NetworkHandler network, LevelInitialization data, byte playerIndex) : base(root, data)
+        public NetworkLevelHandler(App root, NetworkHandler net, LevelInitialization data, byte playerIndex) : base(root, data)
         {
-            this.network = network;
+            this.net = net;
             this.localPlayerIndex = playerIndex;
 
-            network.OnUpdateAllPlayers += OnUpdateAllPlayers;
-            network.RegisterCallback<CreateRemotePlayer>(OnCreateRemotePlayer);
-            network.RegisterCallback<DestroyRemotePlayer>(OnDestroyRemotePlayer);
-            network.RegisterCallback<CreateRemoteObject>(OnCreateRemoteObject);
-            network.RegisterCallback<DestroyRemoteObject>(OnDestroyRemoteObject);
+            net.OnUpdateAllPlayers += OnUpdateAllPlayers;
+            net.RegisterCallback<CreateControllablePlayer>(OnCreateControllablePlayer);
+            net.RegisterCallback<CreateRemotePlayer>(OnCreateRemotePlayer);
+            net.RegisterCallback<DestroyRemotePlayer>(OnDestroyRemotePlayer);
+            net.RegisterCallback<CreateRemoteObject>(OnCreateRemoteObject);
+            net.RegisterCallback<DestroyRemoteObject>(OnDestroyRemoteObject);
         }
 
         protected override void OnDisposing(bool manually)
         {
-            if (network != null) {
-                network.OnUpdateAllPlayers -= OnUpdateAllPlayers;
-                network.RemoveCallback<CreateRemotePlayer>();
-                network.RemoveCallback<DestroyRemotePlayer>();
-                network.RemoveCallback<CreateRemoteObject>();
-                network.RemoveCallback<DestroyRemoteObject>();
+            if (net != null) {
+                net.OnUpdateAllPlayers -= OnUpdateAllPlayers;
+                net.RemoveCallback<CreateControllablePlayer>();
+                net.RemoveCallback<CreateRemotePlayer>();
+                net.RemoveCallback<DestroyRemotePlayer>();
+                net.RemoveCallback<CreateRemoteObject>();
+                net.RemoveCallback<DestroyRemoteObject>();
             }
 
             base.OnDisposing(manually);
@@ -53,22 +55,24 @@ namespace Jazz2.Game.Multiplayer
             base.OnUpdate();
 
             Hud.ShowDebugText("- Local Player Index: " + localPlayerIndex);
-            Hud.ShowDebugText("- RTT: " + (int)(network.AverageRoundtripTime * 1000) + " ms");
+            Hud.ShowDebugText("- RTT: " + (int)(net.AverageRoundtripTime * 1000) + " ms | Up: " + net.Up + " | Down: " + net.Down);
             Hud.ShowDebugText("- Last Server Update: " + lastServerUpdateTime);
 
-            float timeMult = Time.TimeMult;
-            lastUpdate += timeMult;
+            if (Players.Count > 0) {
+                float timeMult = Time.TimeMult;
+                lastUpdate += timeMult;
 
-            if (lastUpdate < 1.6f) {
-                return;
+                if (lastUpdate < 1.6f) {
+                    return;
+                }
+
+                lastUpdate = 0f;
+
+                UpdateSelf updateSelfPacket = Players[0].CreateUpdatePacket();
+                updateSelfPacket.Index = localPlayerIndex;
+                updateSelfPacket.UpdateTime = (long)(NetTime.Now * 1000);
+                net.Send(updateSelfPacket, 29, NetDeliveryMethod.Unreliable, PacketChannels.Main);
             }
-
-            lastUpdate = 0f;
-
-            UpdateSelf updateSelfPacket = Players[0].CreateUpdatePacket();
-            updateSelfPacket.Index = localPlayerIndex;
-            updateSelfPacket.UpdateTime = (long)(NetTime.Now * 1000);
-            network.Send(updateSelfPacket, 29, NetDeliveryMethod.Unreliable, PacketChannels.Main);
         }
 
         private void OnUpdateAllPlayers(NetIncomingMessage msg)
@@ -151,6 +155,38 @@ namespace Jazz2.Game.Multiplayer
                     remoteObject.UpdateFromServer(pos, speed, animState, animTime, isFacingLeft);
                 }
             }
+        }
+
+        private void OnCreateControllablePlayer(ref CreateControllablePlayer p)
+        {
+            // ToDo: throw on mismatch?
+            localPlayerIndex = p.Index;
+
+            PlayerType type = p.Type;
+            Vector3 pos = p.Pos;
+
+            Root.DispatchToMainThread(delegate {
+                if (Players.Count > 0) {
+                    Player oldPlayer = Players[0];
+                    RemoveActor(oldPlayer);
+                    Players.Remove(oldPlayer);
+                }
+
+                Player player = new Player();
+                player.OnAttach(new ActorInstantiationDetails {
+                    Api = Api,
+                    Pos = pos,
+                    Params = new[] { (ushort)type, (ushort)0 }
+                });
+                AddPlayer(player);
+
+                cameras[0].Transform.Pos = new Vector3(pos.Xy, 0);
+                cameras[0].GetComponent<CameraController>().TargetObject = player;
+
+                player.AttachToHud(rootObject.AddComponent<Hud>());
+
+                //player.ReceiveLevelCarryOver(data.ExitType, ref data.PlayerCarryOvers[i]);
+            });
         }
 
         private void OnCreateRemotePlayer(ref CreateRemotePlayer p)

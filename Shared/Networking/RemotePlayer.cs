@@ -28,6 +28,9 @@ namespace Jazz2.Game.Multiplayer
                 case PlayerType.Lori:
                     RequestMetadata("Interactive/PlayerLori");
                     break;
+                case PlayerType.Frog:
+                    RequestMetadata("Interactive/PlayerFrog");
+                    break;
             }
 
             SetAnimation(AnimState.Fall);
@@ -42,12 +45,14 @@ namespace Jazz2.Game.Multiplayer
             speedX = speed.X;
             speedY = speed.Y;
 
-            if (currentAnimationState != animState) {
-                SetAnimation(animState);
-            }
+            if (availableAnimations != null) {
+                if (currentAnimationState != animState) {
+                    SetAnimation(animState);
+                }
 
-            renderer.AnimTime = animTime;
-            IsFacingLeft = isFacingLeft;
+                renderer.AnimTime = animTime;
+                IsFacingLeft = isFacingLeft;
+            }
         }
     }
 }

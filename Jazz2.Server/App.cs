@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using Lidgren.Network;
 
 namespace Jazz2
 {
@@ -124,6 +125,14 @@ namespace Jazz2.Server
                         Log.Write(LogType.Info, "Server Load: " + gameServer.LoadMs + " ms");
                         Log.Write(LogType.Info, "Players: " + gameServer.PlayerCount + "/" + gameServer.MaxPlayers);
                         Log.Write(LogType.Info, "Current Level: " + gameServer.CurrentLevel);
+
+                        Log.Write(LogType.Info, "Players:");
+                        Log.PushIndent();
+                        foreach (KeyValuePair<NetConnection, GameServer.Player> pair in gameServer.Players) {
+                            Log.Write(LogType.Info, "#" + pair.Value.Index + " | " + pair.Key.RemoteEndPoint + " | " + pair.Value.State + " | " + pair.Value.Pos + " | " + pair.Value.Speed);
+                        }
+                        Log.PopIndent();
+
                         break;
                     }
 

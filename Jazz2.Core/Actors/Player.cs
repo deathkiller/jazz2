@@ -120,6 +120,9 @@ namespace Jazz2.Actors
                 case PlayerType.Lori:
                     RequestMetadata("Interactive/PlayerLori");
                     break;
+                case PlayerType.Frog:
+                    RequestMetadata("Interactive/PlayerFrog");
+                    break;
             }
 
             SetAnimation(AnimState.Fall);

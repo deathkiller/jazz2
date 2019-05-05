@@ -303,9 +303,9 @@ namespace Duality.Backend.Es20
 
             // Give the processor a rest if we have the time, don't use 100% CPU even without VSync
             if (this.frameLimiterWatch.IsRunning && this.refreshMode == RefreshMode.ManualSync) {
-                while (this.frameLimiterWatch.Elapsed.TotalMilliseconds < Time.MillisecondsPerFrame) {
+                while (this.frameLimiterWatch.ElapsedMilliseconds < Time.MillisecondsPerFrame) {
                     // Enough leftover time? Risk a short sleep, don't burn CPU waiting.
-                    if (this.frameLimiterWatch.Elapsed.TotalMilliseconds < Time.MillisecondsPerFrame * 0.75f)
+                    if (this.frameLimiterWatch.ElapsedMilliseconds < Time.MillisecondsPerFrame * 0.75f)
                         System.Threading.Thread.Sleep(0);
                 }
             }

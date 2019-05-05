@@ -88,72 +88,74 @@ namespace Jazz2.Game.UI
 
             DrawDebugStrings();
 
-            // Health & Lives
-            {
-                string currentPlayer;
-                if (owner.PlayerType == PlayerType.Spaz) {
-                    currentPlayer = "CharacterSpaz";
-                } else if (owner.PlayerType == PlayerType.Lori) {
-                    currentPlayer = "CharacterLori";
-                } else if (owner.PlayerType == PlayerType.Frog) {
-                    currentPlayer = "CharacterFrog";
-                } else {
-                    currentPlayer = "CharacterJazz";
-                }
-
-                DrawMaterial(currentPlayer, -1, view.X + 36, bottom + 1.6f, Alignment.BottomRight, new ColorRgba(0f, 0.4f));
-                DrawMaterial(currentPlayer, -1, view.X + 36, bottom, Alignment.BottomRight, ColorRgba.White);
-
-                string healthString = new string('|', owner.Health);
-
-                if (owner.Lives > 0) {
-                    fontSmall.DrawString(ref charOffsetShadow, healthString, view.X + 36 - 3 - 0.5f, bottom - 16 + 0.5f,
-                        Alignment.BottomLeft, new ColorRgba(0f, 0.42f), 0.7f, charSpacing: 1.1f);
-                    fontSmall.DrawString(ref charOffsetShadow, healthString, view.X + 36 - 3 + 0.5f, bottom - 16 - 0.5f,
-                        Alignment.BottomLeft, new ColorRgba(0f, 0.42f), 0.7f, charSpacing: 1.1f);
-                    fontSmall.DrawString(ref charOffset, healthString, view.X + 36 - 3, bottom - 16, Alignment.BottomLeft,
-                        null, 0.7f, charSpacing: 1.1f);
-
-                    fontSmall.DrawString(ref charOffsetShadow, "x" + owner.Lives.ToString(CultureInfo.InvariantCulture), view.X + 36 - 4, bottom + 1f,
-                        Alignment.BottomLeft, new ColorRgba(0f, 0.32f));
-                    fontSmall.DrawString(ref charOffset, "x" + owner.Lives.ToString(CultureInfo.InvariantCulture), view.X + 36 - 4, bottom,
-                        Alignment.BottomLeft, ColorRgba.TransparentBlack);
-                } else {
-                    fontSmall.DrawString(ref charOffsetShadow, healthString, view.X + 36 - 3 - 0.5f, bottom - 3 + 0.5f,
-                        Alignment.BottomLeft, new ColorRgba(0f, 0.42f), 0.7f, charSpacing: 1.1f);
-                    fontSmall.DrawString(ref charOffsetShadow, healthString, view.X + 36 - 3 + 0.5f, bottom - 3 - 0.5f,
-                        Alignment.BottomLeft, new ColorRgba(0f, 0.42f), 0.7f, charSpacing: 1.1f);
-                    fontSmall.DrawString(ref charOffset, healthString, view.X + 36 - 3, bottom - 3, Alignment.BottomLeft,
-                        null, 0.7f, charSpacing: 1.1f);
-                }
-            }
-
-            // Weapon
-            if (owner.PlayerType != PlayerType.Frog) {
-                WeaponType weapon = owner.CurrentWeapon;
-                string currentWeaponString = GetCurrentWeapon(weapon);
-
-                GraphicResource res;
-                if (graphics.TryGetValue(currentWeaponString, out res)) {
-                    float y = bottom;
-                    if (res.Base.FrameDimensions.Y < 20) {
-                        y -= MathF.Round((20 - res.Base.FrameDimensions.Y) * 0.5f);
+            if (owner != null) {
+                // Health & Lives
+                {
+                    string currentPlayer;
+                    if (owner.PlayerType == PlayerType.Spaz) {
+                        currentPlayer = "CharacterSpaz";
+                    } else if (owner.PlayerType == PlayerType.Lori) {
+                        currentPlayer = "CharacterLori";
+                    } else if (owner.PlayerType == PlayerType.Frog) {
+                        currentPlayer = "CharacterFrog";
+                    } else {
+                        currentPlayer = "CharacterJazz";
                     }
 
-                    DrawMaterial(currentWeaponString, -1, right - 40, y + 1.6f, Alignment.BottomRight, new ColorRgba(0f, 0.4f));
-                    DrawMaterial(currentWeaponString, -1, right - 40, y, Alignment.BottomRight, ColorRgba.White);
+                    DrawMaterial(currentPlayer, -1, view.X + 36, bottom + 1.6f, Alignment.BottomRight, new ColorRgba(0f, 0.4f));
+                    DrawMaterial(currentPlayer, -1, view.X + 36, bottom, Alignment.BottomRight, ColorRgba.White);
+
+                    string healthString = new string('|', owner.Health);
+
+                    if (owner.Lives > 0) {
+                        fontSmall.DrawString(ref charOffsetShadow, healthString, view.X + 36 - 3 - 0.5f, bottom - 16 + 0.5f,
+                            Alignment.BottomLeft, new ColorRgba(0f, 0.42f), 0.7f, charSpacing: 1.1f);
+                        fontSmall.DrawString(ref charOffsetShadow, healthString, view.X + 36 - 3 + 0.5f, bottom - 16 - 0.5f,
+                            Alignment.BottomLeft, new ColorRgba(0f, 0.42f), 0.7f, charSpacing: 1.1f);
+                        fontSmall.DrawString(ref charOffset, healthString, view.X + 36 - 3, bottom - 16, Alignment.BottomLeft,
+                            null, 0.7f, charSpacing: 1.1f);
+
+                        fontSmall.DrawString(ref charOffsetShadow, "x" + owner.Lives.ToString(CultureInfo.InvariantCulture), view.X + 36 - 4, bottom + 1f,
+                            Alignment.BottomLeft, new ColorRgba(0f, 0.32f));
+                        fontSmall.DrawString(ref charOffset, "x" + owner.Lives.ToString(CultureInfo.InvariantCulture), view.X + 36 - 4, bottom,
+                            Alignment.BottomLeft, ColorRgba.TransparentBlack);
+                    } else {
+                        fontSmall.DrawString(ref charOffsetShadow, healthString, view.X + 36 - 3 - 0.5f, bottom - 3 + 0.5f,
+                            Alignment.BottomLeft, new ColorRgba(0f, 0.42f), 0.7f, charSpacing: 1.1f);
+                        fontSmall.DrawString(ref charOffsetShadow, healthString, view.X + 36 - 3 + 0.5f, bottom - 3 - 0.5f,
+                            Alignment.BottomLeft, new ColorRgba(0f, 0.42f), 0.7f, charSpacing: 1.1f);
+                        fontSmall.DrawString(ref charOffset, healthString, view.X + 36 - 3, bottom - 3, Alignment.BottomLeft,
+                            null, 0.7f, charSpacing: 1.1f);
+                    }
                 }
 
-                string ammoCount;
-                if (owner.WeaponAmmo[(int)weapon] < 0) {
-                    ammoCount = "x\x7f";
-                } else {
-                    ammoCount = "x" + owner.WeaponAmmo[(int)weapon].ToString(CultureInfo.InvariantCulture);
+                // Weapon
+                if (owner.PlayerType != PlayerType.Frog) {
+                    WeaponType weapon = owner.CurrentWeapon;
+                    string currentWeaponString = GetCurrentWeapon(weapon);
+
+                    GraphicResource res;
+                    if (graphics.TryGetValue(currentWeaponString, out res)) {
+                        float y = bottom;
+                        if (res.Base.FrameDimensions.Y < 20) {
+                            y -= MathF.Round((20 - res.Base.FrameDimensions.Y) * 0.5f);
+                        }
+
+                        DrawMaterial(currentWeaponString, -1, right - 40, y + 1.6f, Alignment.BottomRight, new ColorRgba(0f, 0.4f));
+                        DrawMaterial(currentWeaponString, -1, right - 40, y, Alignment.BottomRight, ColorRgba.White);
+                    }
+
+                    string ammoCount;
+                    if (owner.WeaponAmmo[(int)weapon] < 0) {
+                        ammoCount = "x\x7f";
+                    } else {
+                        ammoCount = "x" + owner.WeaponAmmo[(int)weapon].ToString(CultureInfo.InvariantCulture);
+                    }
+                    fontSmall.DrawString(ref charOffsetShadow, ammoCount, right - 40, bottom + 1f, Alignment.BottomLeft,
+                        new ColorRgba(0f, 0.32f), charSpacing: 0.96f);
+                    fontSmall.DrawString(ref charOffset, ammoCount, right - 40, bottom, Alignment.BottomLeft,
+                        ColorRgba.TransparentBlack, charSpacing: 0.96f);
                 }
-                fontSmall.DrawString(ref charOffsetShadow, ammoCount, right - 40, bottom + 1f, Alignment.BottomLeft,
-                    new ColorRgba(0f, 0.32f), charSpacing: 0.96f);
-                fontSmall.DrawString(ref charOffset, ammoCount, right - 40, bottom, Alignment.BottomLeft,
-                    ColorRgba.TransparentBlack, charSpacing: 0.96f);
             }
 
             // Active Boss (health bar)

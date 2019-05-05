@@ -33,6 +33,7 @@ namespace Jazz2.Server
         public int PlayerCount => players.Count;
         public int MaxPlayers => maxPlayers;
         public string CurrentLevel => currentLevel;
+        public Dictionary<NetConnection, Player> Players => players;
 
         public void Run(int port, string name, int maxPlayers, bool isPrivate, byte neededMajor, byte neededMinor, byte neededBuild)
         {
@@ -101,7 +102,7 @@ namespace Jazz2.Server
                 currentLevel = levelName;
 
                 foreach (KeyValuePair<NetConnection, Player> pair in players) {
-                    pair.Value.HasLevelLoaded = false;
+                    pair.Value.State = PlayerState.NotReady;
                 }
 
                 playerConnections.Clear();
@@ -117,6 +118,8 @@ namespace Jazz2.Server
 
         private void OnPublishToServerList()
         {
+            bool isPublished = true;
+
             while (threadPublishToServerList != null) {
                 try {
                     string currentVersion = Jazz2.App.AssemblyVersion;
@@ -143,9 +146,17 @@ namespace Jazz2.Server
                             Log.Write(LogType.Warning, "Server cannot be published to server list!");
                         }
                         return;
+                    } else if (!isPublished) {
+                        Log.Write(LogType.Error, "Server was successfully published again!");
                     }
+
+                    isPublished = true;
                 } catch {
-                    // Nothing to do... try it again later
+                    // Try it again later
+                    if (isPublished) {
+                        isPublished = false;
+                        Log.Write(LogType.Error, "Server list is unreachable!");
+                    }
                 }
 
                 Thread.Sleep(300000); // 5 minutes

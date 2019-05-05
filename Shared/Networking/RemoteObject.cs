@@ -25,12 +25,14 @@ namespace Jazz2.Game.Multiplayer
             speedX = speed.X;
             speedY = speed.Y;
 
-            if (currentAnimationState != animState) {
-                SetAnimation(animState);
-            }
+            if (availableAnimations != null) {
+                if (currentAnimationState != animState) {
+                    SetAnimation(animState);
+                }
 
-            renderer.AnimTime = animTime;
-            IsFacingLeft = isFacingLeft;
+                renderer.AnimTime = animTime;
+                IsFacingLeft = isFacingLeft;
+            }
         }
     }
 }

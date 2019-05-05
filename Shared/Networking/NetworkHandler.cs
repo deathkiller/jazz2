@@ -15,6 +15,11 @@ namespace Jazz2.Game.Multiplayer
 
         private Dictionary<byte, Action<NetIncomingMessage>> callbacks;
 
+#if DEBUG
+        public int Down, Up;
+        private int downLast, upLast, statsReset;
+#endif
+
         public event Action OnDisconnected;
         public event Action<NetIncomingMessage> OnUpdateAllPlayers;
 
@@ -84,9 +89,19 @@ namespace Jazz2.Game.Multiplayer
                 while (true) {
                     client.MessageReceivedEvent.WaitOne();
 
+#if DEBUG
+                    int nowTime = (int)(NetTime.Now * 1000);
+                    if (nowTime - statsReset > 1000) {
+                        statsReset = nowTime;
+                        Down = downLast;
+                        Up = upLast;
+                        downLast = 0;
+                        upLast = 0;
+                    }
+#endif
+
                     NetIncomingMessage msg;
                     while (client.ReadMessage(out msg)) {
-
                         switch (msg.MessageType) {
                             case NetIncomingMessageType.StatusChanged:
                                 NetConnectionStatus status = (NetConnectionStatus)msg.ReadByte();
@@ -104,13 +119,9 @@ namespace Jazz2.Game.Multiplayer
                                 break;
 
                             case NetIncomingMessageType.Data: {
-#if DEBUG__
-                                Console.ForegroundColor = ConsoleColor.Cyan;
-                                Console.Write("    R ");
-                                Console.ForegroundColor = ConsoleColor.Gray;
-                                Console.WriteLine("[" + msg.SenderEndPoint + "] " + msg.LengthBytes + " bytes");
+#if DEBUG
+                                downLast += msg.LengthBytes;
 #endif
-
                                 byte type = msg.ReadByte();
 
                                 if (type == PacketTypes.UpdateAll) {
@@ -171,6 +182,9 @@ namespace Jazz2.Game.Multiplayer
             packet.Write(msg);
             NetSendResult result = client.SendMessage(msg, method, channel);
 
+#if DEBUG
+            upLast += msg.LengthBytes;
+#endif
 #if DEBUG__
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.Write("Debug: ");

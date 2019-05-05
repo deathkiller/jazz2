@@ -9,15 +9,24 @@ using Jazz2.Game.Structs;
 using Jazz2.Networking.Packets;
 using Jazz2.Networking.Packets.Server;
 using Lidgren.Network;
-using System.Linq;
 
 namespace Jazz2.Server
 {
     partial class GameServer
     {
-        private class Player
+        public enum PlayerState
+        {
+            Unknown,
+
+            NotReady,
+            HasLevelLoaded,
+            Spawned
+        }
+
+        public class Player
         {
             public byte Index;
+            public PlayerState State;
             public long LastUpdateTime;
 
             public Vector3 Pos;
@@ -27,12 +36,9 @@ namespace Jazz2.Server
             public float AnimTime;
             public bool IsFacingLeft;
 
-            public bool HasLevelLoaded;
-
             public PlayerType PlayerType;
             public int Lives, Coins, Gems, FoodEaten;
             public float InvulnerableTime;
-
 
             public bool IsFirePressed;
             public float WeaponCooldown;
@@ -70,12 +76,14 @@ namespace Jazz2.Server
         {
             const int TargetFps = 30;
 
-            const float timeMult = 60f / TargetFps;
-
             Stopwatch sw = new Stopwatch();
 
             while (threadGame != null) {
                 sw.Restart();
+
+                // Update time
+                Time.FrameTick(false, false);
+                float timeMult = Time.TimeMult;
 
                 lock (sync) {
                     // Update objects
@@ -119,7 +127,7 @@ namespace Jazz2.Server
                             Player p = pair.Value;
                             m.Write((byte)p.Index); // Player Index
 
-                            if (!p.HasLevelLoaded) {
+                            if (p.State != PlayerState.Spawned) {
                                 m.Write((byte)0); // Flags - None
                                 continue;
                             }

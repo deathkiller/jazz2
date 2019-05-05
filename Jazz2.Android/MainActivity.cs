@@ -9,9 +9,7 @@ using Android.Text;
 using Android.Text.Method;
 using Android.Views;
 using Android.Widget;
-using Duality;
 using Duality.Backend.Android;
-using Duality.Backend.Dummy;
 using Jazz2.Game;
 using Path = System.IO.Path;
 

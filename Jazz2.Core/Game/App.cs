@@ -87,10 +87,10 @@ namespace Jazz2.Game
         public void ShowMainMenu()
         {
 #if MULTIPLAYER
-            if (network != null) {
-                network.OnDisconnected -= OnNetworkDisconnected;
-                network.Close();
-                network = null;
+            if (net != null) {
+                net.OnDisconnected -= OnNetworkDisconnected;
+                net.Close();
+                net = null;
             }
 #endif
 
@@ -224,22 +224,22 @@ namespace Jazz2.Game
         }
 
 #if MULTIPLAYER
-        private Multiplayer.NetworkHandler network;
+        private Multiplayer.NetworkHandler net;
 
         public void ConnectToServer(System.Net.IPEndPoint endPoint)
         {
             // ToDo
             const string token = "J²";
 
-            if (network != null) {
-                network.OnDisconnected -= OnNetworkDisconnected;
-                network.Close();
+            if (net != null) {
+                net.OnDisconnected -= OnNetworkDisconnected;
+                net.Close();
             }
 
-            network = new Multiplayer.NetworkHandler(token);
-            network.OnDisconnected += OnNetworkDisconnected;
-            network.RegisterCallback<Networking.Packets.Server.LoadLevel>(OnNetworkLoadLevel);
-            network.Connect(endPoint);
+            net = new Multiplayer.NetworkHandler(token);
+            net.OnDisconnected += OnNetworkDisconnected;
+            net.RegisterCallback<Networking.Packets.Server.LoadLevel>(OnNetworkLoadLevel);
+            net.Connect(endPoint);
         }
 
         private void OnNetworkDisconnected()
@@ -266,13 +266,13 @@ namespace Jazz2.Game
             DispatchToMainThread(delegate {
                 Scene.Current.Dispose();
 
-                Multiplayer.NetworkLevelHandler handler = new Multiplayer.NetworkLevelHandler(this, network,
-                    new LevelInitialization(episodeName, levelName, GameDifficulty.Default, Actors.PlayerType.Jazz),
+                Multiplayer.NetworkLevelHandler handler = new Multiplayer.NetworkLevelHandler(this, net,
+                    new LevelInitialization(episodeName, levelName, GameDifficulty.Default),
                     playerIndex);
 
                 Scene.SwitchTo(handler);
 
-                network.Send(new Networking.Packets.Client.LevelReady {
+                net.Send(new Networking.Packets.Client.LevelReady {
                     Index = playerIndex
                 }, 2, Lidgren.Network.NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
             });
@@ -281,10 +281,11 @@ namespace Jazz2.Game
 
         public void DispatchToMainThread(System.Action action)
         {
+            // ToDo: This is not thread-safe
             DualityApp.DisposeLater(new ActionDisposable(action));
         }
 
-        private class ActionDisposable : System.IDisposable
+        private struct ActionDisposable : System.IDisposable
         {
             private System.Action action;
 

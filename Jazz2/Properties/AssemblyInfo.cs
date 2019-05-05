@@ -36,3 +36,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("0.5.8.0")]
 
 [assembly: InternalsVisibleTo("Editor")]
+[assembly: InternalsVisibleTo("Jazz2.Server")]
