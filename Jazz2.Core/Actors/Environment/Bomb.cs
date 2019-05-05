@@ -49,7 +49,7 @@ namespace Jazz2.Actors.Environment
                 Player player = collision as Player;
                 if (player != null) {
                     bool pushLeft = (pos.X > player.Transform.Pos.X);
-                    player.TakeDamage(pushLeft ? -8f : 8f);
+                    player.TakeDamage(1, pushLeft ? -8f : 8f);
                 }
             }
 

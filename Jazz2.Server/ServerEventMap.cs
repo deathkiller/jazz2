@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#if MULTIPLAYER
+
+using System.Collections.Generic;
 using System.IO;
 using Duality;
 using Jazz2.Actors;
@@ -152,3 +154,5 @@ namespace Jazz2.Server
         }
     }
 }
+
+#endif

@@ -122,6 +122,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\Collisions\AABB.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Collisions\DynamicTree.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Collisions\DynamicTreeBroadPhase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\Collisions\ICollisionable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Collisions\Pair.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Collisions\TreeNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\ILevelHandler.cs" />

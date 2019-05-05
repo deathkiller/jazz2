@@ -45,7 +45,7 @@ namespace Jazz2.Game
         private TileMap tileMap;
         private EventMap eventMap;
         private EventSpawner eventSpawner;
-        private DynamicTreeBroadPhase collisions;
+        private DynamicTreeBroadPhase<ActorBase> collisions;
         private int collisionsCountA, collisionsCountB, collisionsCountC;
 
         protected List<Player> players = new List<Player>();
@@ -134,7 +134,7 @@ namespace Jazz2.Game
 
             gravity = DefaultGravity;
 
-            collisions = new DynamicTreeBroadPhase();
+            collisions = new DynamicTreeBroadPhase<ActorBase>();
 
 #if MULTIPLAYER
             api = new ActorApi(this, this is Multiplayer.NetworkLevelHandler);
@@ -841,8 +841,7 @@ namespace Jazz2.Game
                 }
             }
 
-            if (players.Count > 0)
-            {
+            if (players.Count > 0) {
                 Vector3 pos = players[0].Transform.Pos;
                 int tx1 = (int)pos.X >> 5;
                 int ty1 = (int)pos.Y >> 5;

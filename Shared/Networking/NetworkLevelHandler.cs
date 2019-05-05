@@ -34,6 +34,7 @@ namespace Jazz2.Game.Multiplayer
             net.RegisterCallback<DestroyRemotePlayer>(OnDestroyRemotePlayer);
             net.RegisterCallback<CreateRemoteObject>(OnCreateRemoteObject);
             net.RegisterCallback<DestroyRemoteObject>(OnDestroyRemoteObject);
+            net.RegisterCallback<DecreasePlayerHealth>(OnDecreasePlayerHealth);
         }
 
         protected override void OnDisposing(bool manually)
@@ -45,6 +46,7 @@ namespace Jazz2.Game.Multiplayer
                 net.RemoveCallback<DestroyRemotePlayer>();
                 net.RemoveCallback<CreateRemoteObject>();
                 net.RemoveCallback<DestroyRemoteObject>();
+                net.RemoveCallback<DecreasePlayerHealth>();
             }
 
             base.OnDisposing(manually);
@@ -60,7 +62,7 @@ namespace Jazz2.Game.Multiplayer
             Hud.ShowDebugText("- Last Server Update: " + lastServerUpdateTime);
 #endif
 
-            if (Players.Count > 0) {
+            if (players.Count > 0) {
                 float timeMult = Time.TimeMult;
                 lastUpdate += timeMult;
 
@@ -70,7 +72,7 @@ namespace Jazz2.Game.Multiplayer
 
                 lastUpdate = 0f;
 
-                UpdateSelf updateSelfPacket = Players[0].CreateUpdatePacket();
+                UpdateSelf updateSelfPacket = players[0].CreateUpdatePacket();
                 updateSelfPacket.Index = localPlayerIndex;
                 updateSelfPacket.UpdateTime = (long)(NetTime.Now * 1000);
                 net.Send(updateSelfPacket, 29, NetDeliveryMethod.Unreliable, PacketChannels.Main);
@@ -168,8 +170,8 @@ namespace Jazz2.Game.Multiplayer
             Vector3 pos = p.Pos;
 
             Root.DispatchToMainThread(delegate {
-                if (Players.Count > 0) {
-                    Player oldPlayer = Players[0];
+                if (players.Count > 0) {
+                    Player oldPlayer = players[0];
                     RemoveActor(oldPlayer);
                     Players.Remove(oldPlayer);
                 }
@@ -193,7 +195,7 @@ namespace Jazz2.Game.Multiplayer
 
         private void OnCreateRemotePlayer(ref CreateRemotePlayer p)
         {
-            int index = p.Index;
+            byte index = p.Index;
 
             if (remotePlayers[index] != null) {
                 //throw new InvalidOperationException();
@@ -222,7 +224,7 @@ namespace Jazz2.Game.Multiplayer
 
         private void OnDestroyRemotePlayer(ref DestroyRemotePlayer p)
         {
-            int index = p.Index;
+            byte index = p.Index;
 
             Root.DispatchToMainThread(delegate {
                 RemotePlayer player = Interlocked.Exchange(ref remotePlayers[index], null);
@@ -269,7 +271,21 @@ namespace Jazz2.Game.Multiplayer
                     remoteObjects.Remove(index);
                     RemoveObject(objectToRemove);
                 }
+            });
+        }
 
+        private void OnDecreasePlayerHealth(ref DecreasePlayerHealth p)
+        {
+            if (p.Index != localPlayerIndex) {
+                return;
+            }
+
+            byte amount = p.Amount;
+
+            Root.DispatchToMainThread(delegate {
+                if (players.Count > 0) {
+                    players[0].TakeDamage(amount, 0f);
+                }
             });
         }
     }

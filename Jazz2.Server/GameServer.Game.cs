@@ -10,6 +10,7 @@ using Duality;
 using Duality.IO;
 using Jazz2.Actors;
 using Jazz2.Game;
+using Jazz2.Game.Collisions;
 using Jazz2.Game.Structs;
 using Jazz2.Networking.Packets;
 using Jazz2.Networking.Packets.Server;
@@ -29,7 +30,7 @@ namespace Jazz2.Server
             Spawned
         }
 
-        public class Player
+        public class Player : ICollisionable
         {
             public byte Index;
             public PlayerState State;
@@ -49,9 +50,15 @@ namespace Jazz2.Server
             public bool Controllable;
             public bool IsFirePressed;
             public float WeaponCooldown;
+
+            private int proxyId = -1;
+            private AABB aabb;
+
+            public ref int ProxyId => ref proxyId;
+            public ref AABB AABB => ref aabb;
         }
 
-        public class Object
+        public class Object : ICollisionable
         {
             public int Index;
 
@@ -65,6 +72,12 @@ namespace Jazz2.Server
             public bool IsFacingLeft;
 
             public float TimeLeft;
+
+            private int proxyId = -1;
+            private AABB aabb;
+
+            public ref int ProxyId => ref proxyId;
+            public ref AABB AABB => ref aabb;
         }
 
         private string currentLevel;
@@ -81,6 +94,7 @@ namespace Jazz2.Server
 
         private Rect levelBounds;
         private ServerEventMap eventMap;
+        private DynamicTreeBroadPhase<ICollisionable> collisions = new DynamicTreeBroadPhase<ICollisionable>();
 
 
         private void OnGameLoop()
@@ -157,6 +171,10 @@ namespace Jazz2.Server
                             m.Write((uint)p.AnimState);
                             m.Write((float)p.AnimTime);
                             m.Write((bool)p.IsFacingLeft);
+
+                            AABB aabb = new AABB(p.Pos.Xy, 20, 30);
+                            collisions.MoveProxy(p, ref aabb, p.Speed);
+                            p.AABB = aabb;
                         }
 
                         m.Write((int)objectCount);
@@ -176,9 +194,15 @@ namespace Jazz2.Server
                             m.Write((uint)o.AnimState);
                             m.Write((float)o.AnimTime);
                             m.Write((bool)o.IsFacingLeft);
+
+                            AABB aabb = new AABB(o.Pos.Xy, 8, 8);
+                            collisions.MoveProxy(o, ref aabb, o.Speed);
+                            o.AABB = aabb;
                         }
 
                         server.Send(m, playerConnections, NetDeliveryMethod.Unreliable, PacketChannels.Main);
+
+                        ResolveCollisions();
                     }
                 }
 
@@ -194,8 +218,8 @@ namespace Jazz2.Server
         
         public bool ChangeLevel(string levelName)
         {
-            string path = PathOp.Combine(DualityApp.DataDirectory, "Episodes", currentLevel + ".level");
-            if (!FileOp.Exists(path)) {
+            string path = Path.Combine(DualityApp.DataDirectory, "Episodes", levelName + ".level");
+            if (!File.Exists(path)) {
                 return false;
             }
 
@@ -240,6 +264,8 @@ namespace Jazz2.Server
                     }
 
                     levelBounds = new Rect(tileMapSize * /*tileMap.Tileset.TileSize*/32);
+
+                    collisions = new DynamicTreeBroadPhase<ICollisionable>();
 
                     // Read events
                     eventMap = new ServerEventMap(tileMapSize);
@@ -291,12 +317,11 @@ namespace Jazz2.Server
                     // ToDo: Set character requested by the player
                     player.PlayerType = MathF.Rnd.OneOf(new[] { PlayerType.Jazz, PlayerType.Spaz, PlayerType.Lori, PlayerType.Frog });
 
-                    // ToDo: Spawn player later
-                    // ToDo: Set player position from event map
                     player.Pos = new Vector3(eventMap.GetRandomSpawnPosition(), LevelHandler.PlayerZ);
-
-
                     player.State = PlayerState.Spawned;
+
+                    player.AABB = new AABB(player.Pos.Xy, 20, 30);
+                    collisions.AddProxy(player);
 
                     Send(new CreateControllablePlayer {
                         Index = player.Index,
@@ -339,6 +364,9 @@ namespace Jazz2.Server
                 lastObjectIndex++;
 
                 objects[newObject.Index] = newObject;
+
+                newObject.AABB = new AABB(newObject.Pos.Xy, 20, 30);
+                collisions.AddProxy(newObject);
             }
 
             Send(new CreateRemoteObject {
@@ -353,6 +381,11 @@ namespace Jazz2.Server
             bool success;
 
             lock (sync) {
+                Object oldObject;
+                if (objects.TryGetValue(index, out oldObject)) {
+                    collisions.RemoveProxy(oldObject);
+                }
+
                 success = objects.Remove(index);
             }
 
@@ -360,6 +393,47 @@ namespace Jazz2.Server
                 Send(new DestroyRemoteObject {
                     Index = index,
                 }, 5, playerConnections, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+            }
+        }
+
+        private void ResolveCollisions()
+        {
+            collisions.UpdatePairs((proxyA, proxyB) => {
+
+                /*if (proxyA.Health <= 0 || proxyB.Health <= 0) {
+                    return;
+                }
+
+                if (proxyA.IsCollidingWith(proxyB)) {
+                    proxyA.OnHandleCollision(proxyB);
+                    proxyB.OnHandleCollision(proxyA);
+
+                    collisionsCountC++;
+                }
+
+                collisionsCountB++;*/
+
+                CheckCollisions(proxyA, proxyB);
+                CheckCollisions(proxyB, proxyA);
+
+                //Log.Write(LogType.Verbose, "Collision: " + proxyA.GetType() + " | " + proxyB.GetType());
+            });
+        }
+
+        private void CheckCollisions(ICollisionable proxyA, ICollisionable proxyB)
+        {
+            Player p = proxyA as Player;
+            if (p != null) {
+                Object o = proxyB as Object;
+                if (o != null) {
+                    DestroyObject(o.Index);
+
+                    // ToDo: Send it only to target player
+                    Send(new DecreasePlayerHealth {
+                        Index = p.Index,
+                        Amount = 1
+                    }, 3, playerConnections, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+                }
             }
         }
     }

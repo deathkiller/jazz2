@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Duality;
 using Jazz2.Actors;
 using Jazz2.Game;
+using Jazz2.Game.Collisions;
 using Jazz2.Networking.Packets;
 using Jazz2.Networking.Packets.Client;
 using Jazz2.Networking.Packets.Server;
@@ -49,12 +50,11 @@ namespace Jazz2.Server
                     // ToDo: Set character requested by the player
                     player.PlayerType = MathF.Rnd.OneOf(new[] { PlayerType.Jazz, PlayerType.Spaz, PlayerType.Lori, PlayerType.Frog });
 
-                    // ToDo: Spawn player later
-                    // ToDo: Set player position from event map
                     player.Pos = new Vector3(eventMap.GetRandomSpawnPosition(), LevelHandler.PlayerZ);
-                    
-
                     player.State = PlayerState.Spawned;
+
+                    player.AABB = new AABB(player.Pos.Xy, 20, 30);
+                    collisions.AddProxy(player);
 
                     Send(new CreateControllablePlayer {
                         Index = player.Index,

@@ -141,7 +141,7 @@ namespace Jazz2.Actors
 
             health = 5;
             maxHealth = health;
-            currentWeapon = WeaponType.Toaster;
+            currentWeapon = WeaponType.Blaster;
 
             checkpointPos = details.Pos.Xy;
             checkpointLight = api.AmbientLight;
@@ -875,7 +875,7 @@ namespace Jazz2.Actors
         {
             Vector3 pos = Transform.Pos;
             if (api.EventMap.IsHurting(pos.X, pos.Y + 24)) {
-                TakeDamage(speedX * 0.25f);
+                TakeDamage(1, speedX * 0.25f);
             } else if (!inWater && activeModifier == Modifier.None) {
                 if (!canJump) {
                     PlaySound("Land", 0.8f);
@@ -902,7 +902,7 @@ namespace Jazz2.Actors
         {
             Vector3 pos = Transform.Pos;
             if (api.EventMap.IsHurting(pos.X, pos.Y - 4f)) {
-                TakeDamage(speedX * 0.25f);
+                TakeDamage(1, speedX * 0.25f);
             }
         }
 
@@ -914,7 +914,7 @@ namespace Jazz2.Actors
 
             Vector3 pos = Transform.Pos;
             if (api.EventMap.IsHurting(pos.X + (speedX > 0f ? 1f : -1f) * 16f, pos.Y)) {
-                TakeDamage(speedX * 0.25f);
+                TakeDamage(1, speedX * 0.25f);
             } else {
 
                 if (isActivelyPushing && suspendType == SuspendType.None && !canJump && speedY >= -1f && externalForceY <= 0f && copterFramesLeft <= 0f && keepRunningTime <= 0f) {
@@ -1767,7 +1767,7 @@ namespace Jazz2.Actors
                             shieldTime = Math.Max(1f, shieldTime - 5f * Time.FramesPerSecond);
                         }
                     } else if (collider.CanHurtPlayer) {
-                        TakeDamage(4 * (Transform.Pos.X > collider.Transform.Pos.X ? 1 : -1));
+                        TakeDamage(1, 4 * (Transform.Pos.X > collider.Transform.Pos.X ? 1 : -1));
                     }
                     break;
                 }
@@ -1910,7 +1910,7 @@ namespace Jazz2.Actors
             return SetTransition(state, cancellable, callback);
         }
 
-        public void TakeDamage(float pushForce)
+        public void TakeDamage(int amount, float pushForce)
         {
             if (!isInvulnerable && levelExiting == LevelExitingState.None) {
                 // Cancel active climbing
@@ -1920,7 +1920,7 @@ namespace Jazz2.Actors
                     MoveInstantly(new Vector2(IsFacingLeft ? 6f : -6f, 0f), MoveType.Relative, true);
                 }
 
-                DecreaseHealth(1, null);
+                DecreaseHealth(amount, null);
 
                 internalForceY = 0f;
                 speedX = 0f;

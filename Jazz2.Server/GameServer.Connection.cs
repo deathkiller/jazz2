@@ -39,9 +39,10 @@ namespace Jazz2.Server
         private void OnClientStatusChanged(ClientStatusChangedEventArgs args)
         {
             if (args.Status == NetConnectionStatus.Connected) {
-                lastPlayerIndex++;
-
-                players[args.SenderConnection].Index = lastPlayerIndex;
+                lock (sync) {
+                    lastPlayerIndex++;
+                    players[args.SenderConnection].Index = lastPlayerIndex;
+                }
 
                 Send(new LoadLevel {
                     LevelName = currentLevel,
@@ -49,21 +50,28 @@ namespace Jazz2.Server
                     AssignedPlayerIndex = lastPlayerIndex
                 }, 64, args.SenderConnection, NetDeliveryMethod.ReliableSequenced, PacketChannels.Main);
             } else if (args.Status == NetConnectionStatus.Disconnected) {
-                byte index = players[args.SenderConnection].Index;
+                //lock (sync) {
+                    byte index = players[args.SenderConnection].Index;
 
-                players.Remove(args.SenderConnection);
-                playerConnections.Remove(args.SenderConnection);
-
-                foreach (var to in players) {
-                    if (to.Key == args.SenderConnection) {
-                        continue;
+                    Player player;
+                    if (players.TryGetValue(args.SenderConnection, out player)) {
+                        collisions.RemoveProxy(player);
                     }
 
-                    Send(new DestroyRemotePlayer {
-                        Index = index,
-                        Reason = 1 // ToDo
-                    }, 3, to.Key, NetDeliveryMethod.ReliableSequenced, PacketChannels.Main);
-                }
+                    players.Remove(args.SenderConnection);
+                    playerConnections.Remove(args.SenderConnection);
+
+                    foreach (var to in players) {
+                        if (to.Key == args.SenderConnection) {
+                            continue;
+                        }
+
+                        Send(new DestroyRemotePlayer {
+                            Index = index,
+                            Reason = 1 // ToDo
+                        }, 3, to.Key, NetDeliveryMethod.ReliableSequenced, PacketChannels.Main);
+                    }
+                //}
             }
         }
 

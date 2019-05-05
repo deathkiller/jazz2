@@ -1,7 +1,6 @@
 ﻿using Duality;
 using Jazz2.Actors;
 using Jazz2.Game.Structs;
-using Jazz2.Game.UI;
 
 namespace Jazz2.Game.Multiplayer
 {
@@ -17,6 +16,8 @@ namespace Jazz2.Game.Multiplayer
 
             playerType = (PlayerType)details.Params[0];
             Index = details.Params[1];
+
+            health = int.MaxValue;
 
             switch (playerType) {
                 case PlayerType.Jazz:

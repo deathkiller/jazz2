@@ -95,12 +95,12 @@ namespace Jazz2.Actors.Solid
                         hitbox.Bottom += 40;
 
                         foreach (Player player in api.GetCollidingPlayers(hitbox)) {
-                            player.TakeDamage(2);
+                            player.TakeDamage(1, 2);
                         }
                     }
                 } else {
                     foreach (Player player in api.GetCollidingPlayers(hitbox)) {
-                        player.TakeDamage(2);
+                        player.TakeDamage(1, 2);
                     }
                 }
             }

@@ -10,6 +10,8 @@ namespace Jazz2.Game.Multiplayer
         {
             base.OnAttach(details);
 
+            health = int.MaxValue;
+
             // ToDo: Load metadata
             RequestMetadata("Weapon/Blaster");
 

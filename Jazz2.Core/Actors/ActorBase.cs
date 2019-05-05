@@ -59,7 +59,7 @@ namespace Jazz2.Actors
         RelativeTime
     }
 
-    public abstract class ActorBase : GameObject
+    public abstract class ActorBase : GameObject, ICollisionable
     {
         private const float CollisionCheckStep = 0.5f;
 
@@ -91,8 +91,8 @@ namespace Jazz2.Actors
         protected ActorRenderer renderer;
         private Point2 boundingBox;
 
-        internal AABB AABB;
-        internal int ProxyId = -1;
+        private AABB aabb;
+        private int proxyId = -1;
 
         protected Dictionary<string, GraphicResource> availableAnimations;
         protected GraphicResource currentAnimation;
@@ -140,6 +140,10 @@ namespace Jazz2.Actors
                 }
             }
         }
+
+        public ref int ProxyId => ref proxyId;
+
+        public ref AABB AABB => ref aabb;
 
         public virtual void OnAttach(ActorInstantiationDetails details)
         {

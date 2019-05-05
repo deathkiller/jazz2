@@ -23,7 +23,6 @@
 using System;
 using System.Diagnostics;
 using Duality;
-using Jazz2.Actors;
 
 namespace Jazz2.Game.Collisions
 {
@@ -32,9 +31,9 @@ namespace Jazz2.Game.Collisions
     /// This broad-phase does not persist pairs. Instead, this reports potentially new pairs.
     /// It is up to the client to consume the new pairs and to track subsequent overlap.
     /// </summary>
-    public class DynamicTreeBroadPhase
+    public class DynamicTreeBroadPhase<T> where T : ICollisionable
     {
-        public delegate void BroadphaseHandler(ActorBase proxyA, ActorBase proxyB);
+        public delegate void BroadphaseHandler(T proxyA, T proxyB);
 
         private const int NullProxy = -1;
         private int[] moveBuffer;
@@ -45,9 +44,9 @@ namespace Jazz2.Game.Collisions
         private int pairCapacity;
         private int pairCount;
         private int proxyCount;
-        private Func<ActorBase, bool> queryCallback;
+        private Func<T, bool> queryCallback;
         private int queryProxyId;
-        private DynamicTree<ActorBase> tree = new DynamicTree<ActorBase>();
+        private DynamicTree<T> tree = new DynamicTree<T>();
 
         /// <summary>
         /// Constructs a new broad phase based on the dynamic tree implementation
@@ -88,7 +87,7 @@ namespace Jazz2.Game.Collisions
         /// </summary>
         /// <param name="proxy">The user data.</param>
         /// <returns></returns>
-        public int AddProxy(ActorBase proxy)
+        public int AddProxy(T proxy)
         {
             Debug.Assert(proxy.ProxyId == -1);
 
@@ -105,7 +104,7 @@ namespace Jazz2.Game.Collisions
         /// Destroy a proxy. It is up to the client to remove any pairs.
         /// </summary>
         /// <param name="proxyId">The proxy id.</param>
-        public void RemoveProxy(ActorBase proxy)
+        public void RemoveProxy(T proxy)
         {
             //Debug.Assert(proxy.ProxyId != -1);
             if (proxy.ProxyId == -1) {
@@ -123,7 +122,7 @@ namespace Jazz2.Game.Collisions
         /// Call MoveProxy as many times as you like, then when you are done
         /// call UpdatePairs to finalized the proxy pairs (for your time step).
         /// </summary>
-        public void MoveProxy(ActorBase proxy, ref AABB aabb, Vector2 displacement)
+        public void MoveProxy(T proxy, ref AABB aabb, Vector2 displacement)
         {
             Debug.Assert(proxy.ProxyId != -1);
 
@@ -135,7 +134,7 @@ namespace Jazz2.Game.Collisions
         /// <summary>
         /// Call to trigger a re-processing of it's pairs on the next call to UpdatePairs.
         /// </summary>
-        public void TouchProxy(ActorBase proxy)
+        public void TouchProxy(T proxy)
         {
             Debug.Assert(proxy.ProxyId != -1);
 
@@ -147,7 +146,7 @@ namespace Jazz2.Game.Collisions
         /// </summary>
         /// <param name="proxyId">The proxy id.</param>
         /// <param name="aabb">The AABB.</param>
-        public void GetFatAABB(ActorBase proxy, out AABB aabb)
+        public void GetFatAABB(T proxy, out AABB aabb)
         {
             Debug.Assert(proxy.ProxyId != -1);
 
@@ -155,22 +154,12 @@ namespace Jazz2.Game.Collisions
         }
 
         /// <summary>
-        /// Get user data from a proxy. Returns null if the id is invalid.
-        /// </summary>
-        /// <param name="proxyId">The proxy id.</param>
-        /// <returns></returns>
-        /*public ActorBase GetProxy(int proxyId)
-        {
-            return tree.GetUserData(proxyId);
-        }*/
-
-        /// <summary>
         /// Test overlap of fat AABBs.
         /// </summary>
         /// <param name="proxyIdA">The proxy id A.</param>
         /// <param name="proxyIdB">The proxy id B.</param>
         /// <returns></returns>
-        public bool TestOverlap(ActorBase proxyA, ActorBase proxyB)
+        public bool TestOverlap(T proxyA, T proxyB)
         {
             tree.GetFatAABB(proxyA.ProxyId, out AABB aabbA);
             tree.GetFatAABB(proxyB.ProxyId, out AABB aabbB);
@@ -210,8 +199,8 @@ namespace Jazz2.Game.Collisions
             int i = 0;
             while (i < pairCount) {
                 Pair primaryPair = pairBuffer[i];
-                ActorBase userDataA = tree.GetUserData(primaryPair.ProxyIdA);
-                ActorBase userDataB = tree.GetUserData(primaryPair.ProxyIdB);
+                T userDataA = tree.GetUserData(primaryPair.ProxyIdA);
+                T userDataB = tree.GetUserData(primaryPair.ProxyIdB);
 
                 callback(userDataA, userDataB);
                 ++i;
@@ -236,7 +225,7 @@ namespace Jazz2.Game.Collisions
         /// </summary>
         /// <param name="callback">The callback.</param>
         /// <param name="aabb">The AABB.</param>
-        public void Query(Func<ActorBase, bool> callback, ref AABB aabb)
+        public void Query(Func<T, bool> callback, ref AABB aabb)
         {
             tree.Query(callback, ref aabb);
         }
@@ -287,7 +276,7 @@ namespace Jazz2.Game.Collisions
         /// <summary>
         /// This is called from DynamicTree.Query when we are gathering pairs.
         /// </summary>
-        private bool QueryCallback(ActorBase proxy)
+        private bool QueryCallback(T proxy)
         {
             // A proxy cannot form a pair with itself.
             if (proxy.ProxyId == queryProxyId)
