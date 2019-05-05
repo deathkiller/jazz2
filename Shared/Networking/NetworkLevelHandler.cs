@@ -54,9 +54,11 @@ namespace Jazz2.Game.Multiplayer
         {
             base.OnUpdate();
 
+#if DEBUG
             Hud.ShowDebugText("- Local Player Index: " + localPlayerIndex);
-            Hud.ShowDebugText("- RTT: " + (int)(net.AverageRoundtripTime * 1000) + " ms | Up: " + net.Up + " | Down: " + net.Down);
+            Hud.ShowDebugText("- RTT: " + (int)(net.AverageRoundtripTime * 1000) + " ms / Up: " + net.Up + " / Down: " + net.Down);
             Hud.ShowDebugText("- Last Server Update: " + lastServerUpdateTime);
+#endif
 
             if (Players.Count > 0) {
                 float timeMult = Time.TimeMult;

@@ -197,13 +197,9 @@ namespace Jazz2.Game.Events
                         break;
                 }
 
-                HashSet<EventType> encounteredEvents = new HashSet<EventType>();
                 for (int y = 0; y < height; y++) {
                     for (int x = 0; x < width; x++) {
                         ushort eventID = r.ReadUInt16();
-
-                        encounteredEvents.Add((EventType)eventID);
-
                         byte flags = r.ReadByte();
                         ushort[] eventParams = new ushort[8];
 
@@ -232,23 +228,25 @@ namespace Jazz2.Game.Events
 
                         // Flag 0x02: Generator
                         if ((flags & 0x02) != 0) {
-                            ushort generatorIdx = (ushort)generators.Count;
-                            float timeLeft = ((generatorFlags & 0x01) != 0 ? generatorDelay : 0f);
+                            if ((flags & (0x01 << difficultyBit)) != 0 && (flags & 0x80) == 0) {
+                                ushort generatorIdx = (ushort)generators.Count;
+                                float timeLeft = ((generatorFlags & 0x01) != 0 ? generatorDelay : 0f);
 
-                            generators.Add(new GeneratorInfo {
-                                EventPos = x + y * layoutWidth,
-                                EventType = (EventType)eventID,
-                                EventParams = eventParams,
-                                Delay = generatorDelay,
-                                TimeLeft = timeLeft
-                            });
+                                generators.Add(new GeneratorInfo {
+                                    EventPos = x + y * layoutWidth,
+                                    EventType = (EventType)eventID,
+                                    EventParams = eventParams,
+                                    Delay = generatorDelay,
+                                    TimeLeft = timeLeft
+                                });
 
-                            StoreTileEvent(x, y, EventType.Generator, eventFlags, new[] { generatorIdx });
+                                StoreTileEvent(x, y, EventType.Generator, eventFlags, new[] { generatorIdx });
+                            }
                             continue;
                         }
 
-                        // If the difficulty bytes for the event don't match the selected difficulty, don't add anything to the event map.
-                        // Additionally, never show events that are multiplayer-only for now.
+                        // If the difficulty bytes for the event don't match the selected difficulty, don't add anything to the event map
+                        // Additionally, never show events that are multiplayer-only
                         if (flags == 0 || ((flags & (0x01 << difficultyBit)) != 0 && (flags & 0x80) == 0)) {
                             switch ((EventType)eventID) {
                                 case EventType.Empty:

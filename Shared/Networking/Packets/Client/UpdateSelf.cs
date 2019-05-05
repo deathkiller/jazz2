@@ -23,6 +23,7 @@ namespace Jazz2.Networking.Packets.Client
         public float AnimTime;
         public bool IsFacingLeft;
 
+        public bool Controllable;
         public bool IsFirePressed;
 
         void IClientPacket.Read(NetIncomingMessage msg)
@@ -48,6 +49,7 @@ namespace Jazz2.Networking.Packets.Client
             AnimTime = msg.ReadFloat();
             IsFacingLeft = msg.ReadBoolean();
 
+            Controllable = msg.ReadBoolean();
             IsFirePressed = msg.ReadBoolean();
         }
 
@@ -68,6 +70,7 @@ namespace Jazz2.Networking.Packets.Client
             msg.Write((float)AnimTime);
             msg.Write((bool)IsFacingLeft);
 
+            msg.Write((bool)Controllable);
             msg.Write((bool)IsFirePressed);
         }
     }

@@ -14,12 +14,12 @@ namespace Jazz2.Game.UI.Menu.InGame
         private int selectedIndex;
         private float animation;
 
-        public InGameMenuBeginSection()
+        public InGameMenuBeginSection(bool isMultiplayerSession)
         {
             items = new List<Tuple<string, Action>> {
                 Tuple.Create<string, Action>("Resume", OnPlayStoryPressed),
                 Tuple.Create<string, Action>("Settings", OnSettingsPressed),
-                Tuple.Create<string, Action>("Save & Exit", OnExitPressed),
+                Tuple.Create<string, Action>(isMultiplayerSession ? "Disconnect & Exit" : "Save & Exit", OnExitPressed),
             };
         }
 

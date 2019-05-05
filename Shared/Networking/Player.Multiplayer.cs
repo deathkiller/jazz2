@@ -16,6 +16,7 @@ namespace Jazz2.Actors
                 AnimTime = renderer.AnimTime,
                 IsFacingLeft = IsFacingLeft,
 
+                Controllable = controllable,
                 IsFirePressed = wasFirePressed
             };
         }

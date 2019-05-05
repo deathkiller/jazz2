@@ -59,6 +59,12 @@ namespace Jazz2.Game.UI.Menu.InGame
 
             root.Immersive = true;
 
+#if MULTIPLAYER
+            bool isMultiplayerSession = (levelHandler is Multiplayer.NetworkLevelHandler);
+#else
+            bool isMultiplayerSession = false;
+#endif
+
             rootObject = new GameObject("InGameMenu");
             rootObject.AddComponent(new LocalController(this));
             AddObject(rootObject);
@@ -95,8 +101,7 @@ namespace Jazz2.Game.UI.Menu.InGame
             // Show Begin section
             sectionStack = new Stack<MenuSection>();
 
-            SwitchToSection(new InGameMenuBeginSection());
-
+            SwitchToSection(new InGameMenuBeginSection(isMultiplayerSession));
         }
 
         public void SwitchToSection(MenuSection section)

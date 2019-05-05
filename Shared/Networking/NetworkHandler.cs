@@ -177,6 +177,10 @@ namespace Jazz2.Game.Multiplayer
 
         public bool Send<T>(T packet, int capacity, NetDeliveryMethod method, int channel) where T : struct, IClientPacket
         {
+            if (client == null) {
+                return false;
+            }
+
             NetOutgoingMessage msg = client.CreateMessage(capacity);
             msg.Write((byte)packet.Type);
             packet.Write(msg);

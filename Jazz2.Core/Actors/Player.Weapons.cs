@@ -77,7 +77,7 @@ namespace Jazz2.Actors
 
         private void FireWeapon()
         {
-            if (weaponCooldown > 0f) {
+            if (weaponCooldown > 0f || api.IsMultiplayerSession) {
                 return;
             }
 

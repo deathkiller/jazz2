@@ -32,8 +32,8 @@ namespace Jazz2.Game
         public const float MainPlaneZ = (NearZ + FarZ) * 0.5f;
         public const float PlayerZ = MainPlaneZ - 10f;
 
-        private const int LayerFormatVersion = 1;
-        private const int EventSetVersion = 2;
+        public const int LayerFormatVersion = 1;
+        public const int EventSetVersion = 2;
 
         private const float DefaultGravity = 0.3f;
 
@@ -136,7 +136,11 @@ namespace Jazz2.Game
 
             collisions = new DynamicTreeBroadPhase();
 
-            api = new ActorApi(this);
+#if MULTIPLAYER
+            api = new ActorApi(this, this is Multiplayer.NetworkLevelHandler);
+#else
+            api = new ActorApi(this, false);
+#endif
             eventSpawner = new EventSpawner(api);
 
             rootObject = new GameObject("LevelManager");
@@ -240,7 +244,6 @@ namespace Jazz2.Game
                 cameraInner.RenderingSetup = new LevelRenderSetup(this);
 
                 cameraTransform.Pos = new Vector3(levelBounds.Center, 0);
-                //cameraController.TargetObject = currentPlayer;
 
                 ((ICmpUpdatable)cameraController).OnUpdate();
                 camera.Parent = rootObject;
@@ -387,7 +390,9 @@ namespace Jazz2.Game
                 ColorRgba[] tileMapPalette;
                 {
                     if (levelPackage.FileExists("Main.palette")) {
-                        tileMapPalette = TileSet.LoadPalette(levelPackage.OpenFile("Main.palette", FileAccessMode.Read));
+                        using (Stream s2 = levelPackage.OpenFile("Main.palette", FileAccessMode.Read)) {
+                            tileMapPalette = TileSet.LoadPalette(s2);
+                        }
                     } else {
                         tileMapPalette = null;
                     }
@@ -424,12 +429,16 @@ namespace Jazz2.Game
                         type = LayerType.Other;
                     }
 
-                    tileMap.ReadLayerConfiguration(type, levelPackage.OpenFile(layer.Key + ".layer", FileAccessMode.Read), layer.Value);
+                    using (Stream s2 = levelPackage.OpenFile(layer.Key + ".layer", FileAccessMode.Read)) {
+                        tileMap.ReadLayerConfiguration(type, s2, layer.Value);
+                    }
                 }
 
                 // Read animated tiles
                 if (levelPackage.FileExists("Animated.tiles")) {
-                    tileMap.ReadAnimatedTiles(levelPackage.OpenFile("Animated.tiles", FileAccessMode.Read));
+                    using (Stream s2 = levelPackage.OpenFile("Animated.tiles", FileAccessMode.Read)) {
+                        tileMap.ReadAnimatedTiles(s2);
+                    }
                 }
 
                 levelBounds = new Rect(tileMap.Size * tileMap.Tileset.TileSize);
@@ -438,7 +447,9 @@ namespace Jazz2.Game
                 eventMap = new EventMap(this, tileMap.Size);
 
                 if (levelPackage.FileExists("Events.layer")) {
-                    eventMap.ReadEvents(levelPackage.OpenFile("Events.layer", FileAccessMode.Read), config.Version.LayerFormat, difficulty);
+                    using (Stream s2 = levelPackage.OpenFile("Events.layer", FileAccessMode.Read)) {
+                        eventMap.ReadEvents(s2, config.Version.LayerFormat, difficulty);
+                    }
                 }
 
                 levelTexts = config.TextEvents ?? new Dictionary<int, string>();

@@ -74,6 +74,11 @@ namespace Jazz2.Server
                 maxPlayers = 64;
             }
 
+            string levelName;
+            if (!TryRemoveArg(ref args, "/level:", out levelName)) {
+                levelName = "unknown/battle2";
+            }
+
             bool isPrivate = TryRemoveArg(ref args, "/private");
 
             // Initialization
@@ -93,6 +98,7 @@ namespace Jazz2.Server
             // Start game server
             gameServer = new GameServer();
             gameServer.Run(port, name, maxPlayers, isPrivate, neededMajor, neededMinor, neededBuild);
+            gameServer.ChangeLevel(levelName);
 
             Log.Write(LogType.Info, "Ready!");
             Console.WriteLine();
@@ -141,13 +147,22 @@ namespace Jazz2.Server
                         string value = GetPartFromInput(ref input);
                         switch (key) {
                             case "level": {
-                                gameServer.ChangeLevel(value);
-                                Log.Write(LogType.Warning, "OK!");
+                                if (gameServer.ChangeLevel(value)) {
+                                    Log.Write(LogType.Info, "OK!");
+                                } else {
+                                    Log.Write(LogType.Error, "Cannot load level \"" + value + "\"!");
+                                }
+                                break;
+                            }
+
+                            case "spawning": {
+                                gameServer.EnablePlayerSpawning(value == "true" || value == "yes" || value == "1");
+                                Log.Write(LogType.Info, "OK!");
                                 break;
                             }
 
                             default: {
-                                Log.Write(LogType.Warning, "Error!");
+                                Log.Write(LogType.Info, "Error!");
                                 break;
                             }
                         }

@@ -168,7 +168,7 @@ namespace Jazz2.Game.UI.Menu
                     canvas.FillRect(sx, sy, sw, sh);
                 }
             } else {
-                api.DrawStringShadow(ref charOffset, "No servers found!", center.X, center.Y, Alignment.Center,
+                api.DrawStringShadow(ref charOffset, "No servers found, but still searchin'!", center.X, center.Y, Alignment.Center,
                     new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f), 0.9f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
             }
 

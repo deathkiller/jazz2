@@ -96,26 +96,6 @@ namespace Jazz2.Server
             server = null;
         }
 
-        public void ChangeLevel(string levelName)
-        {
-            lock (sync) {
-                currentLevel = levelName;
-
-                foreach (KeyValuePair<NetConnection, Player> pair in players) {
-                    pair.Value.State = PlayerState.NotReady;
-                }
-
-                playerConnections.Clear();
-
-                foreach (KeyValuePair<NetConnection, Player> pair in players) {
-                    Send(new LoadLevel {
-                        LevelName = currentLevel,
-                        AssignedPlayerIndex = pair.Value.Index
-                    }, 64, pair.Key, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
-                }
-            }
-        }
-
         private void OnPublishToServerList()
         {
             bool isPublished = true;

@@ -23,18 +23,35 @@ namespace Jazz2.Server
                 }
 
                 lock (sync) {
+
+                    playerConnections.Add(p.SenderConnection);
+
+                    if (!enablePlayerSpawning) {
+                        player.State = PlayerState.HasLevelLoaded;
+
+                        foreach (KeyValuePair<NetConnection, Player> pair in players) {
+                            if (pair.Key == p.SenderConnection) {
+                                continue;
+                            }
+
+                            if (pair.Value.State == PlayerState.Spawned) {
+                                Send(new CreateRemotePlayer {
+                                    Index = pair.Value.Index,
+                                    Type = pair.Value.PlayerType,
+                                    Pos = pair.Value.Pos
+                                }, 9, p.SenderConnection, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+                            }
+                        }
+
+                        return;
+                    }
+
                     // ToDo: Set character requested by the player
                     player.PlayerType = MathF.Rnd.OneOf(new[] { PlayerType.Jazz, PlayerType.Spaz, PlayerType.Lori, PlayerType.Frog });
-                    //player.State = PlayerState.HasLevelLoaded;
 
                     // ToDo: Spawn player later
                     // ToDo: Set player position from event map
-                    if (playerConnections.Count > 0) {
-                        player.Pos = players[playerConnections[0]].Pos;
-                        player.Pos.Y -= 40;
-                    } else {
-                        player.Pos = new Vector3(200, 200, LevelHandler.PlayerZ);
-                    }
+                    player.Pos = new Vector3(eventMap.GetRandomSpawnPosition(), LevelHandler.PlayerZ);
                     
 
                     player.State = PlayerState.Spawned;
@@ -44,8 +61,6 @@ namespace Jazz2.Server
                         Type = player.PlayerType,
                         Pos = player.Pos
                     }, 9, p.SenderConnection, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
-
-                    playerConnections.Add(p.SenderConnection);
 
                     List<NetConnection> playersWithLoadedLevel = new List<NetConnection>();
                     foreach (KeyValuePair<NetConnection, Player> pair in players) {
@@ -102,6 +117,7 @@ namespace Jazz2.Server
                 player.AnimTime = p.AnimTime;
                 player.IsFacingLeft = p.IsFacingLeft;
 
+                player.Controllable = p.Controllable;
                 player.IsFirePressed = p.IsFirePressed;
             }
         }

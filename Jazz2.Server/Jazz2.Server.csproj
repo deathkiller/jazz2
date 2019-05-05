@@ -52,6 +52,7 @@
     <Compile Include="GameServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerConnection.cs" />
+    <Compile Include="ServerEventMap.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

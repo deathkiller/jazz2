@@ -1,13 +1,19 @@
 ﻿#if MULTIPLAYER
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Text.Json;
 using System.Threading;
 using Duality;
+using Duality.IO;
 using Jazz2.Actors;
+using Jazz2.Game;
 using Jazz2.Game.Structs;
 using Jazz2.Networking.Packets;
 using Jazz2.Networking.Packets.Server;
+using Jazz2.Storage.Content;
 using Lidgren.Network;
 
 namespace Jazz2.Server
@@ -40,6 +46,7 @@ namespace Jazz2.Server
             public int Lives, Coins, Gems, FoodEaten;
             public float InvulnerableTime;
 
+            public bool Controllable;
             public bool IsFirePressed;
             public float WeaponCooldown;
         }
@@ -60,16 +67,20 @@ namespace Jazz2.Server
             public float TimeLeft;
         }
 
-        private string currentLevel = "unknown/battle2";
+        private string currentLevel;
 
         private Dictionary<NetConnection, Player> players;
         private List<NetConnection> playerConnections;
         private byte lastPlayerIndex;
+        private bool enablePlayerSpawning = true;
 
         private Dictionary<int, Object> objects;
         private int lastObjectIndex;
 
         private int lastGameLoadMs;
+
+        private Rect levelBounds;
+        private ServerEventMap eventMap;
 
 
         private void OnGameLoop()
@@ -90,9 +101,11 @@ namespace Jazz2.Server
                     foreach (KeyValuePair<NetConnection, Player> pair in players) {
                         if (pair.Value.IsFirePressed) {
                             if (pair.Value.WeaponCooldown <= 0f) {
-                                pair.Value.WeaponCooldown = 35f;
+                                if (pair.Value.Controllable) {
+                                    pair.Value.WeaponCooldown = 35f;
 
-                                SpawnObject("Weapon/Blaster", pair.Value.Pos, pair.Value.Speed + new Vector2(pair.Value.IsFacingLeft ? -10f : 10f, 0f));
+                                    SpawnObject("Weapon/Blaster", pair.Value.Pos, pair.Value.Speed + new Vector2(pair.Value.IsFacingLeft ? -10f : 10f, 0f));
+                                }
                             } else {
                                 pair.Value.WeaponCooldown -= 1f * timeMult;
                             }
@@ -175,6 +188,138 @@ namespace Jazz2.Server
                 int sleepMs = (1000 / TargetFps) - lastGameLoadMs;
                 if (sleepMs > 0) {
                     Thread.Sleep(sleepMs);
+                }
+            }
+        }
+        
+        public bool ChangeLevel(string levelName)
+        {
+            string path = PathOp.Combine(DualityApp.DataDirectory, "Episodes", currentLevel + ".level");
+            if (!FileOp.Exists(path)) {
+                return false;
+            }
+
+            IFileSystem levelPackage = new CompressedContent(path);
+
+            lock (sync) {
+                currentLevel = levelName;
+
+                // Load new level
+                using (Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
+                    // ToDo: Cache parser, move JSON parsing to ContentResolver
+                    JsonParser json = new JsonParser();
+                    LevelHandler.LevelConfigJson config = json.Parse<LevelHandler.LevelConfigJson>(s);
+
+                    if (config.Version.LayerFormat > LevelHandler.LayerFormatVersion || config.Version.EventSet > LevelHandler.EventSetVersion) {
+                        throw new NotSupportedException("Version not supported");
+                    }
+
+                    //App.Log("Loading level \"" + config.Description.Name + "\"...");
+
+                    //root.Title = BitmapFont.StripFormatting(config.Description.Name);
+                    //root.Immersive = false;
+                    Log.Write(LogType.Info, "Loading level \"" + config.Description.Name + "\"...");
+
+                    //defaultNextLevel = config.Description.NextLevel;
+                    //defaultSecretLevel = config.Description.SecretLevel;
+                    //ambientLightDefault = config.Description.DefaultLight;
+                    //ambientLightCurrent = ambientLightTarget = ambientLightDefault * 0.01f;
+
+                    //if (config.Description.DefaultDarkness != null && config.Description.DefaultDarkness.Count >= 4) {
+                    //    darknessColor = new Vector4(config.Description.DefaultDarkness[0] / 255f, config.Description.DefaultDarkness[1] / 255f, config.Description.DefaultDarkness[2] / 255f, config.Description.DefaultDarkness[3] / 255f);
+                    //} else {
+                    //    darknessColor = new Vector4(0, 0, 0, 1);
+                    //}
+
+                    Point2 tileMapSize;
+
+                    using (Stream s2 = levelPackage.OpenFile("Sprite.layer", FileAccessMode.Read))
+                    using (BinaryReader r = new BinaryReader(s2)) {
+                        tileMapSize.X = r.ReadInt32();
+                        tileMapSize.Y = r.ReadInt32();
+                    }
+
+                    levelBounds = new Rect(tileMapSize * /*tileMap.Tileset.TileSize*/32);
+
+                    // Read events
+                    eventMap = new ServerEventMap(tileMapSize);
+
+                    if (levelPackage.FileExists("Events.layer")) {
+                        using (Stream s2 = levelPackage.OpenFile("Events.layer", FileAccessMode.Read)) {
+                            eventMap.ReadEvents(s2, config.Version.LayerFormat);
+                        }
+                    }
+
+                    //levelTexts = config.TextEvents ?? new Dictionary<int, string>();
+                }
+
+                // Send request to change level to all players
+                foreach (KeyValuePair<NetConnection, Player> pair in players) {
+                    pair.Value.State = PlayerState.NotReady;
+                }
+
+                playerConnections.Clear();
+
+                foreach (KeyValuePair<NetConnection, Player> pair in players) {
+                    Send(new LoadLevel {
+                        LevelName = currentLevel,
+                        AssignedPlayerIndex = pair.Value.Index
+                    }, 64, pair.Key, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+                }
+            }
+
+            return true;
+        }
+
+        public void EnablePlayerSpawning(bool enable)
+        {
+            if (enablePlayerSpawning == enable) {
+                return;
+            }
+
+            enablePlayerSpawning = enable;
+
+            if (enablePlayerSpawning) {
+                List<NetConnection> playersWithLoadedLevel = new List<NetConnection>();
+                
+                foreach (KeyValuePair<NetConnection, Player> pair in players) {
+                    Player player = pair.Value;
+                    if (player.State != PlayerState.HasLevelLoaded) {
+                        continue;
+                    }
+
+                    // ToDo: Set character requested by the player
+                    player.PlayerType = MathF.Rnd.OneOf(new[] { PlayerType.Jazz, PlayerType.Spaz, PlayerType.Lori, PlayerType.Frog });
+
+                    // ToDo: Spawn player later
+                    // ToDo: Set player position from event map
+                    player.Pos = new Vector3(eventMap.GetRandomSpawnPosition(), LevelHandler.PlayerZ);
+
+
+                    player.State = PlayerState.Spawned;
+
+                    Send(new CreateControllablePlayer {
+                        Index = player.Index,
+                        Type = player.PlayerType,
+                        Pos = player.Pos
+                    }, 9, pair.Key, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+
+                    playersWithLoadedLevel.Clear();
+                    foreach (KeyValuePair<NetConnection, Player> pair2 in players) {
+                        if (pair.Key == pair2.Key) {
+                            continue;
+                        }
+
+                        if (pair2.Value.State == PlayerState.HasLevelLoaded || pair2.Value.State == PlayerState.Spawned) {
+                            playersWithLoadedLevel.Add(pair2.Key);
+                        }
+                    }
+
+                    Send(new CreateRemotePlayer {
+                        Index = player.Index,
+                        Type = player.PlayerType,
+                        Pos = player.Pos
+                    }, 9, playersWithLoadedLevel, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
                 }
             }
         }

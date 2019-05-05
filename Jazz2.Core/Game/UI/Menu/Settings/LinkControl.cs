@@ -41,20 +41,27 @@ namespace Jazz2.Game.UI.Menu.Settings
 
                 api.DrawMaterial("MenuGlow", pos.X, pos.Y, Alignment.Center, ColorRgba.White.WithAlpha(0.4f * size), (title.Length + 3) * 0.5f * size, 4f * size);
 
+                if (description != null) {
+                    api.DrawMaterial("MenuGlow", pos.X, pos.Y + 20f, Alignment.Center, ColorRgba.White.WithAlpha(0.3f * MathF.Min(1f, animation * 6f)), (description.Length + 3) * 0.4f, 3f);
+
+                    api.DrawString(ref charOffset, description, pos.X, pos.Y + 20f, Alignment.Center,
+                        new ColorRgba(0.44f, 0.42f, 0.4f, 0.5f), 0.7f);
+                }
+
                 api.DrawStringShadow(ref charOffset, title, pos.X, pos.Y,
                     Alignment.Center, null, size, 0.7f, 1.1f, 1.1f, charSpacing: 0.9f);
             } else if (!enabled) {
                 api.DrawString(ref charOffset, title, pos.X, pos.Y, Alignment.Center,
                     new ColorRgba(0.4f, 0.3f), 0.9f);
             } else {
+                api.DrawString(ref charOffset, description, pos.X, pos.Y + 20f, Alignment.Center,
+                    new ColorRgba(0.44f, 0.42f, 0.4f, 0.5f), 0.7f);
+
                 api.DrawString(ref charOffset, title, pos.X, pos.Y, Alignment.Center,
                     ColorRgba.TransparentBlack, 0.9f);
             }
 
             if (description != null) {
-                api.DrawString(ref charOffset, description, pos.X, pos.Y + 20f, Alignment.Center,
-                    new ColorRgba(0.5f, 0.42f, 0.38f, 0.48f), 0.7f);
-
                 pos.Y += 55f;
             } else {
                 pos.Y += 40f;

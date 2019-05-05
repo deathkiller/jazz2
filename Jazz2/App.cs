@@ -92,7 +92,7 @@ namespace Jazz2.Game
                 case 1: screenMode = ScreenMode.FullWindow; break;
             }
 
-            RefreshMode refreshMode = (RefreshMode)Preferences.Get<int>("RefreshMode", (int)RefreshMode.AdaptiveVSync);
+            RefreshMode refreshMode = (RefreshMode)Preferences.Get<int>("RefreshMode", (int)RefreshMode.VSync);
 
             ContentResolver.Current.Init();
 
