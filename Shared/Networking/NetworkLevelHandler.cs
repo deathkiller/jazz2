@@ -35,6 +35,7 @@ namespace Jazz2.Game.Multiplayer
             net.RegisterCallback<CreateRemoteObject>(OnCreateRemoteObject);
             net.RegisterCallback<DestroyRemoteObject>(OnDestroyRemoteObject);
             net.RegisterCallback<DecreasePlayerHealth>(OnDecreasePlayerHealth);
+            net.RegisterCallback<RemotePlayerDied>(OnRemotePlayerDied);
         }
 
         protected override void OnDisposing(bool manually)
@@ -47,6 +48,7 @@ namespace Jazz2.Game.Multiplayer
                 net.RemoveCallback<CreateRemoteObject>();
                 net.RemoveCallback<DestroyRemoteObject>();
                 net.RemoveCallback<DecreasePlayerHealth>();
+                net.RemoveCallback<RemotePlayerDied>();
             }
 
             base.OnDisposing(manually);
@@ -66,7 +68,7 @@ namespace Jazz2.Game.Multiplayer
                 float timeMult = Time.TimeMult;
                 lastUpdate += timeMult;
 
-                if (lastUpdate < 1.6f) {
+                if (lastUpdate < 1f) {
                     return;
                 }
 
@@ -79,6 +81,15 @@ namespace Jazz2.Game.Multiplayer
             }
         }
 
+        public override bool HandlePlayerDied(Player player)
+        {
+            net.Send(new SelfDied {
+                Index = localPlayerIndex
+            }, 2, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+
+            return false;
+        }
+
         private void OnUpdateAllPlayers(NetIncomingMessage msg)
         {
             msg.Position = 8; // Skip packet type
@@ -89,6 +100,8 @@ namespace Jazz2.Game.Multiplayer
             }
 
             lastServerUpdateTime = serverUpdateTime;
+
+            float rtt = msg.SenderConnection.AverageRoundtripTime;
 
             byte playerCount = msg.ReadByte();
             for (int i = 0; i < playerCount; i++) {
@@ -120,9 +133,8 @@ namespace Jazz2.Game.Multiplayer
                     continue;
                 }
 
-                float rtt = msg.SenderConnection.AverageRoundtripTime;
-                pos.X += speed.X * rtt * 0.5f;
-                pos.Y += speed.Y * rtt * 0.5f;
+                pos.X += speed.X * rtt;
+                pos.Y += speed.Y * rtt;
 
                 remotePlayers[playerIndex].UpdateFromServer(pos, speed, animState, animTime, isFacingLeft);
             }
@@ -150,9 +162,8 @@ namespace Jazz2.Game.Multiplayer
                 float animTime = msg.ReadFloat();
                 bool isFacingLeft = msg.ReadBoolean();
 
-                float rtt = msg.SenderConnection.AverageRoundtripTime;
-                pos.X += speed.X * rtt * 0.5f;
-                pos.Y += speed.Y * rtt * 0.5f;
+                pos.X += speed.X * rtt;
+                pos.Y += speed.Y * rtt;
 
                 RemoteObject remoteObject;
                 if (remoteObjects.TryGetValue(objectIndex, out remoteObject)) {
@@ -172,6 +183,11 @@ namespace Jazz2.Game.Multiplayer
             Root.DispatchToMainThread(delegate {
                 if (players.Count > 0) {
                     Player oldPlayer = players[0];
+                    if (oldPlayer.PlayerType == type) {
+                        oldPlayer.Respawn(pos.Xy);
+                        return;
+                    }
+
                     RemoveActor(oldPlayer);
                     Players.Remove(oldPlayer);
                 }
@@ -287,6 +303,28 @@ namespace Jazz2.Game.Multiplayer
                     players[0].TakeDamage(amount, 0f);
                 }
             });
+        }
+
+        public void OnRemotePlayerDied(ref RemotePlayerDied p)
+        {
+            if (p.Index == localPlayerIndex) {
+                return;
+            }
+
+            RemotePlayer player = remotePlayers[p.Index];
+            if (player == null) {
+                return;
+            }
+
+            PlayerCorpse corpse = new PlayerCorpse();
+            corpse.OnAttach(new ActorInstantiationDetails {
+                Api = Api,
+                Pos = player.Transform.Pos,
+                Params = new[] { (ushort)player.PlayerType, (ushort)(player.IsFacingLeft ? 1 : 0) }
+            });
+            AddActor(corpse);
+
+            player.UpdateFromServer(player.Transform.Pos, new Vector2(0, 0), AnimState.Idle, -1, player.IsFacingLeft);
         }
     }
 }

@@ -12,6 +12,7 @@ using Jazz2.Actors;
 using Jazz2.Game;
 using Jazz2.Game.Collisions;
 using Jazz2.Game.Structs;
+using Jazz2.Game.UI;
 using Jazz2.Networking.Packets;
 using Jazz2.Networking.Packets.Server;
 using Jazz2.Storage.Content;
@@ -27,11 +28,14 @@ namespace Jazz2.Server
 
             NotReady,
             HasLevelLoaded,
-            Spawned
+            Spawned,
+            Dead
         }
 
         public class Player : ICollisionable
         {
+            public NetConnection Connection;
+
             public byte Index;
             public PlayerState State;
             public long LastUpdateTime;
@@ -73,6 +77,8 @@ namespace Jazz2.Server
 
             public float TimeLeft;
 
+            public Player Owner;
+
             private int proxyId = -1;
             private AABB aabb;
 
@@ -99,7 +105,7 @@ namespace Jazz2.Server
 
         private void OnGameLoop()
         {
-            const int TargetFps = 30;
+            const int TargetFps = 60;
 
             Stopwatch sw = new Stopwatch();
 
@@ -113,12 +119,25 @@ namespace Jazz2.Server
                 lock (sync) {
                     // Update objects
                     foreach (KeyValuePair<NetConnection, Player> pair in players) {
+                        if (pair.Value.State == PlayerState.Dead) {
+                            if (enablePlayerSpawning) {
+                                RespawnPlayer(pair.Value);
+                            }
+                            continue;
+                        } else if (pair.Value.State != PlayerState.Spawned) {
+                            continue;
+                        }
+
                         if (pair.Value.IsFirePressed) {
                             if (pair.Value.WeaponCooldown <= 0f) {
                                 if (pair.Value.Controllable) {
                                     pair.Value.WeaponCooldown = 35f;
 
-                                    SpawnObject("Weapon/Blaster", pair.Value.Pos, pair.Value.Speed + new Vector2(pair.Value.IsFacingLeft ? -10f : 10f, 0f));
+                                    Vector3 pos = pair.Value.Pos;
+                                    pos.Y -= 6;
+                                    pos.Z += 2;
+                                    SpawnObject(pair.Value, "Weapon/Blaster", pos,
+                                        pair.Value.Speed + new Vector2(pair.Value.IsFacingLeft ? -10f : 10f, 0f), pair.Value.IsFacingLeft);
                                 }
                             } else {
                                 pair.Value.WeaponCooldown -= 1f * timeMult;
@@ -230,7 +249,7 @@ namespace Jazz2.Server
 
                 // Load new level
                 using (Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
-                    // ToDo: Cache parser, move JSON parsing to ContentResolver
+                    // ToDo: Cache parser
                     JsonParser json = new JsonParser();
                     LevelHandler.LevelConfigJson config = json.Parse<LevelHandler.LevelConfigJson>(s);
 
@@ -238,25 +257,9 @@ namespace Jazz2.Server
                         throw new NotSupportedException("Version not supported");
                     }
 
-                    //App.Log("Loading level \"" + config.Description.Name + "\"...");
-
-                    //root.Title = BitmapFont.StripFormatting(config.Description.Name);
-                    //root.Immersive = false;
-                    Log.Write(LogType.Info, "Loading level \"" + config.Description.Name + "\"...");
-
-                    //defaultNextLevel = config.Description.NextLevel;
-                    //defaultSecretLevel = config.Description.SecretLevel;
-                    //ambientLightDefault = config.Description.DefaultLight;
-                    //ambientLightCurrent = ambientLightTarget = ambientLightDefault * 0.01f;
-
-                    //if (config.Description.DefaultDarkness != null && config.Description.DefaultDarkness.Count >= 4) {
-                    //    darknessColor = new Vector4(config.Description.DefaultDarkness[0] / 255f, config.Description.DefaultDarkness[1] / 255f, config.Description.DefaultDarkness[2] / 255f, config.Description.DefaultDarkness[3] / 255f);
-                    //} else {
-                    //    darknessColor = new Vector4(0, 0, 0, 1);
-                    //}
+                    Log.Write(LogType.Info, "Loading level \"" + BitmapFont.StripFormatting(config.Description.Name) + "\"...");
 
                     Point2 tileMapSize;
-
                     using (Stream s2 = levelPackage.OpenFile("Sprite.layer", FileAccessMode.Read))
                     using (BinaryReader r = new BinaryReader(s2)) {
                         tileMapSize.X = r.ReadInt32();
@@ -275,8 +278,6 @@ namespace Jazz2.Server
                             eventMap.ReadEvents(s2, config.Version.LayerFormat);
                         }
                     }
-
-                    //levelTexts = config.TextEvents ?? new Dictionary<int, string>();
                 }
 
                 // Send request to change level to all players
@@ -315,7 +316,7 @@ namespace Jazz2.Server
                     }
 
                     // ToDo: Set character requested by the player
-                    player.PlayerType = MathF.Rnd.OneOf(new[] { PlayerType.Jazz, PlayerType.Spaz, PlayerType.Lori, PlayerType.Frog });
+                    player.PlayerType = MathF.Rnd.OneOf(new[] { PlayerType.Jazz, PlayerType.Spaz, PlayerType.Lori });
 
                     player.Pos = new Vector3(eventMap.GetRandomSpawnPosition(), LevelHandler.PlayerZ);
                     player.State = PlayerState.Spawned;
@@ -335,7 +336,7 @@ namespace Jazz2.Server
                             continue;
                         }
 
-                        if (pair2.Value.State == PlayerState.HasLevelLoaded || pair2.Value.State == PlayerState.Spawned) {
+                        if (pair2.Value.State == PlayerState.HasLevelLoaded || pair2.Value.State == PlayerState.Spawned || pair2.Value.State == PlayerState.Dead) {
                             playersWithLoadedLevel.Add(pair2.Key);
                         }
                     }
@@ -349,12 +350,32 @@ namespace Jazz2.Server
             }
         }
 
-        public void SpawnObject(string metadata, Vector3 pos, Vector2 speed)
+        public void RespawnPlayer(Player player)
+        {
+            lock (sync) {
+                if (player.State != PlayerState.HasLevelLoaded && player.State != PlayerState.Dead) {
+                    return;
+                }
+
+                player.State = PlayerState.Spawned;
+                player.Pos.Xy = eventMap.GetRandomSpawnPosition();
+
+                Send(new CreateControllablePlayer {
+                    Index = player.Index,
+                    Type = player.PlayerType,
+                    Pos = player.Pos
+                }, 9, player.Connection, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+            }
+        }
+
+        public void SpawnObject(Player owner, string metadata, Vector3 pos, Vector2 speed, bool isFacingLeft)
         {
             Object newObject = new Object {
+                Owner = owner,
                 Metadata = metadata,
                 Pos = pos,
                 Speed = speed,
+                IsFacingLeft = isFacingLeft,
 
                 TimeLeft = 100f
             };
@@ -399,40 +420,24 @@ namespace Jazz2.Server
         private void ResolveCollisions()
         {
             collisions.UpdatePairs((proxyA, proxyB) => {
-
-                /*if (proxyA.Health <= 0 || proxyB.Health <= 0) {
-                    return;
-                }
-
-                if (proxyA.IsCollidingWith(proxyB)) {
-                    proxyA.OnHandleCollision(proxyB);
-                    proxyB.OnHandleCollision(proxyA);
-
-                    collisionsCountC++;
-                }
-
-                collisionsCountB++;*/
-
                 CheckCollisions(proxyA, proxyB);
                 CheckCollisions(proxyB, proxyA);
-
-                //Log.Write(LogType.Verbose, "Collision: " + proxyA.GetType() + " | " + proxyB.GetType());
             });
         }
 
         private void CheckCollisions(ICollisionable proxyA, ICollisionable proxyB)
         {
             Player p = proxyA as Player;
-            if (p != null) {
+            if (p != null && p.State == PlayerState.Spawned) {
                 Object o = proxyB as Object;
-                if (o != null) {
+                if (o != null && o.Owner != p) {
                     DestroyObject(o.Index);
 
                     // ToDo: Send it only to target player
                     Send(new DecreasePlayerHealth {
                         Index = p.Index,
                         Amount = 1
-                    }, 3, playerConnections, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+                    }, 3, p.Connection, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
                 }
             }
         }

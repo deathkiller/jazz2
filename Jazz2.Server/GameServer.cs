@@ -5,9 +5,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using System.Threading;
-using Jazz2.Networking.Packets;
 using Jazz2.Networking.Packets.Client;
-using Jazz2.Networking.Packets.Server;
 using Lidgren.Network;
 
 namespace Jazz2.Server
@@ -59,6 +57,7 @@ namespace Jazz2.Server
 
             RegisterCallback<LevelReady>(OnLevelReady);
             RegisterCallback<UpdateSelf>(OnUpdateSelf);
+            RegisterCallback<SelfDied>(OnSelfDied);
 
             // Create game loop
             threadGame = new Thread(OnGameLoop);

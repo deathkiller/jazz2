@@ -2,11 +2,11 @@
 
 namespace Jazz2.Networking.Packets.Client
 {
-    public struct LevelReady : IClientPacket
+    public struct SelfDied : IClientPacket
     {
         public NetConnection SenderConnection { get; set; }
 
-        byte IClientPacket.Type => 11;
+        byte IClientPacket.Type => 21;
 
         bool IClientPacket.SupportsUnconnected => false;
 

@@ -6,20 +6,19 @@ namespace Jazz2.Game.Multiplayer
 {
     public class RemotePlayer : ActorBase
     {
-        private PlayerType playerType;
-
         public int Index;
+        public PlayerType PlayerType;
 
         public override void OnAttach(ActorInstantiationDetails details)
         {
             base.OnAttach(details);
 
-            playerType = (PlayerType)details.Params[0];
+            PlayerType = (PlayerType)details.Params[0];
             Index = details.Params[1];
 
             health = int.MaxValue;
 
-            switch (playerType) {
+            switch (PlayerType) {
                 case PlayerType.Jazz:
                     RequestMetadata("Interactive/PlayerJazz");
                     break;
@@ -51,8 +50,14 @@ namespace Jazz2.Game.Multiplayer
                     SetAnimation(animState);
                 }
 
-                renderer.AnimTime = animTime;
-                IsFacingLeft = isFacingLeft;
+                if (animTime < 0) {
+                    renderer.Active = false;
+                } else {
+                    renderer.Active = true;
+                    renderer.AnimTime = animTime;
+                    IsFacingLeft = isFacingLeft;
+                }
+                
             }
         }
     }

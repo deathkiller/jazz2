@@ -48,7 +48,7 @@ namespace Jazz2.Server
                     }
 
                     // ToDo: Set character requested by the player
-                    player.PlayerType = MathF.Rnd.OneOf(new[] { PlayerType.Jazz, PlayerType.Spaz, PlayerType.Lori, PlayerType.Frog });
+                    player.PlayerType = MathF.Rnd.OneOf(new[] { PlayerType.Jazz, PlayerType.Spaz, PlayerType.Lori });
 
                     player.Pos = new Vector3(eventMap.GetRandomSpawnPosition(), LevelHandler.PlayerZ);
                     player.State = PlayerState.Spawned;
@@ -68,7 +68,7 @@ namespace Jazz2.Server
                             continue;
                         }
 
-                        if (pair.Value.State == PlayerState.HasLevelLoaded || pair.Value.State == PlayerState.Spawned) {
+                        if (pair.Value.State == PlayerState.HasLevelLoaded || pair.Value.State == PlayerState.Spawned || pair.Value.State == PlayerState.Dead) {
                             playersWithLoadedLevel.Add(pair.Key);
 
                             if (pair.Value.State == PlayerState.Spawned) {
@@ -107,8 +107,8 @@ namespace Jazz2.Server
                 float rtt = p.SenderConnection.AverageRoundtripTime;
 
                 Vector3 pos = p.Pos;
-                pos.X += p.Speed.X * rtt * 0.5f;
-                pos.Y += p.Speed.Y * rtt * 0.5f;
+                pos.X += p.Speed.X * rtt;
+                pos.Y += p.Speed.Y * rtt;
                 player.Pos = pos;
 
                 player.Speed = p.Speed;
@@ -120,6 +120,23 @@ namespace Jazz2.Server
                 player.Controllable = p.Controllable;
                 player.IsFirePressed = p.IsFirePressed;
             }
+        }
+
+        private void OnSelfDied(ref SelfDied p)
+        {
+            Player player;
+
+            lock (sync) {
+                if (!players.TryGetValue(p.SenderConnection, out player)) {
+                    return;
+                }
+
+                player.State = PlayerState.Dead;
+            }
+
+            Send(new RemotePlayerDied {
+                Index = player.Index
+            }, 2, playerConnections, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
         }
     }
 }

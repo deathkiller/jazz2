@@ -150,9 +150,9 @@ namespace Duality
                 gameDelta = timeScale * clampedDelta;
                 timeMult = gameDelta / SecondsPerFrame;
 
-				if (advanceGameTime)
-					gameTimer += TimeSpan.FromTicks((long)(gameDelta * TimeSpan.TicksPerSecond));
-			} else {
+                if (advanceGameTime)
+                    gameTimer += TimeSpan.FromTicks((long)(gameDelta * TimeSpan.TicksPerSecond));
+            } else {
                 timeMult = 0.0f;
                 gameDelta = 0.0f;
             }

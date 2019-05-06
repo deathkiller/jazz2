@@ -9,6 +9,7 @@
     <Import_RootNamespace>Jazz2.Networking</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)App.Multiplayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Base\NetBitVector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Base\NetBitWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Base\NetBuffer.cs" />
@@ -67,6 +68,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Base\Platform\PlatformWin32.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MultiplayerLevelType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\LevelReady.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\SelfDied.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\UpdateSelf.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\IClientPacket+IServerPacket.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NetworkHandler.cs" />
@@ -75,6 +77,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\CreateRemoteObject.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\DecreasePlayerHealth.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\DestroyRemoteObject.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\RemotePlayerDied.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Player.Multiplayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RemoteObject.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RemotePlayer.cs" />

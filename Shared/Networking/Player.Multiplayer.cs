@@ -13,7 +13,7 @@ namespace Jazz2.Actors
                 Speed = new Vector2(speedX, speedY),
 
                 AnimState = (currentTransitionState != AnimState.Idle ? currentTransitionState : currentAnimationState),
-                AnimTime = renderer.AnimTime,
+                AnimTime = (renderer.Active ? renderer.AnimTime : -1),
                 IsFacingLeft = IsFacingLeft,
 
                 Controllable = controllable,

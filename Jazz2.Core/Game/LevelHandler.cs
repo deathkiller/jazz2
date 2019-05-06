@@ -652,7 +652,7 @@ namespace Jazz2.Game
             root.ShowMainMenu();
         }
 
-        public bool HandlePlayerDied(Player player)
+        public virtual bool HandlePlayerDied(Player player)
         {
             if (activeBoss != null) {
                 activeBoss.DeactivateBoss();

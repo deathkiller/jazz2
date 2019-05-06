@@ -32,6 +32,7 @@ namespace Jazz2.Server
             args.Allow = true;
 
             players[args.Message.SenderConnection] = new Player {
+                Connection = args.Message.SenderConnection,
                 State = PlayerState.NotReady
             };
         }
@@ -50,7 +51,7 @@ namespace Jazz2.Server
                     AssignedPlayerIndex = lastPlayerIndex
                 }, 64, args.SenderConnection, NetDeliveryMethod.ReliableSequenced, PacketChannels.Main);
             } else if (args.Status == NetConnectionStatus.Disconnected) {
-                //lock (sync) {
+                lock (sync) {
                     byte index = players[args.SenderConnection].Index;
 
                     Player player;
@@ -71,7 +72,7 @@ namespace Jazz2.Server
                             Reason = 1 // ToDo
                         }, 3, to.Key, NetDeliveryMethod.ReliableSequenced, PacketChannels.Main);
                     }
-                //}
+                }
             }
         }
 

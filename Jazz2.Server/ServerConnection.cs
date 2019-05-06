@@ -25,7 +25,7 @@ namespace Jazz2.Server
         public event Action<MessageReceivedEventArgs> MessageReceived;
         public event Action<DiscoveryRequestEventArgs> DiscoveryRequest;
 
-        public ServerConnection(string appId, int port, int maxPlayers = 254)
+        public ServerConnection(string appId, int port, int maxPlayers)
         {
             if (maxPlayers < 0 || maxPlayers >= byte.MaxValue)
                 throw new ArgumentOutOfRangeException("Max. number of players must be smaller than " + byte.MaxValue);
@@ -41,7 +41,7 @@ namespace Jazz2.Server
             config.EnableMessageType(NetIncomingMessageType.UnconnectedData);
             config.EnableUPnP = true;
 
-            //config.SimulatedMinimumLatency = 400 / 1000f;
+            //config.SimulatedMinimumLatency = 100 / 1000f;
             //config.SimulatedRandomLatency = 100 / 1000f;
             //config.SimulatedDuplicatesChance = 0.2f;
 

@@ -1013,11 +1013,10 @@ namespace Jazz2.Actors
                 ForceCancelTransition();
 
                 SetPlayerTransition(AnimState.TransitionDeath, false, true, SpecialMoveType.None, delegate {
-                    if (lives > 1) {
-                        lives--;
-
-                        // Reset health and remove one life
-                        health = maxHealth;
+                    if (lives > 1 || api.IsMultiplayerSession) {
+                        if (lives > 1) {
+                            lives--;
+                        }
 
                         // Remove fast fires
                         weaponUpgrades[(int)WeaponType.Blaster] = (byte)(weaponUpgrades[(int)WeaponType.Blaster] & 0x1);
@@ -1035,7 +1034,7 @@ namespace Jazz2.Actors
                         controllable = true;
                         SetModifier(Modifier.None);
 
-                        // Spawn coprse
+                        // Spawn corpse
                         PlayerCorpse corpse = new PlayerCorpse();
                         corpse.OnAttach(new ActorInstantiationDetails {
                             Api = api,
@@ -1047,6 +1046,9 @@ namespace Jazz2.Actors
                         SetAnimation(AnimState.Idle);
 
                         if (api.HandlePlayerDied(this)) {
+                            // Reset health
+                            health = maxHealth;
+
                             // Player can be respawned immediately
                             isInvulnerable = false;
                             collisionFlags |= CollisionFlags.ApplyGravitation;
@@ -1954,6 +1956,33 @@ namespace Jazz2.Actors
                     PlaySound("Die", 1.3f);
                 }
             }
+        }
+
+        public void Respawn(Vector2? pos = null)
+        {
+            if (health > 0) {
+                return;
+            }
+
+            // Reset health
+            health = maxHealth;
+
+            if (pos == null) {
+                // Return to the last save point
+                MoveInstantly(checkpointPos, MoveType.Absolute, true);
+                api.AmbientLight = checkpointLight;
+                api.LimitCameraView(0, 0);
+                api.WarpCameraToTarget(this);
+            } else {
+                MoveInstantly(pos.Value, MoveType.Absolute, true);
+                api.WarpCameraToTarget(this);
+            }
+
+            isInvulnerable = false;
+            collisionFlags |= CollisionFlags.ApplyGravitation;
+
+            controllable = true;
+            renderer.Active = true;
         }
 
         public void WarpToPosition(Vector2 pos, bool fast)

@@ -8,10 +8,6 @@ using Jazz2.Game.Structs;
 using Jazz2.Game.UI.Menu;
 using Jazz2.Storage;
 
-#if MULTIPLAYER
-using Jazz2.Networking.Packets;
-#endif
-
 namespace Jazz2.Game
 {
     public partial class App
@@ -222,84 +218,6 @@ namespace Jazz2.Game
 
             ContentResolver.Current.ReleaseUnreferencedResources();
         }
-
-#if MULTIPLAYER
-        private Multiplayer.NetworkHandler net;
-
-        public void ConnectToServer(System.Net.IPEndPoint endPoint)
-        {
-            // ToDo
-            const string token = "J²";
-
-            if (net != null) {
-                net.OnDisconnected -= OnNetworkDisconnected;
-                net.Close();
-            }
-
-            net = new Multiplayer.NetworkHandler(token);
-            net.OnDisconnected += OnNetworkDisconnected;
-            net.RegisterCallback<Networking.Packets.Server.LoadLevel>(OnNetworkLoadLevel);
-            net.Connect(endPoint);
-        }
-
-        private void OnNetworkDisconnected()
-        {
-            DispatchToMainThread(delegate {
-                ShowMainMenu();
-            });
-        }
-
-        private void OnNetworkLoadLevel(ref Networking.Packets.Server.LoadLevel p)
-        {
-            string episodeName;
-            string levelName = p.LevelName;
-            int i = levelName.IndexOf('/');
-            if (i != -1) {
-                episodeName = levelName.Substring(0, i);
-                levelName = levelName.Substring(i + 1);
-            } else {
-                return;
-            }
-
-            byte playerIndex = p.AssignedPlayerIndex;
-
-            DispatchToMainThread(delegate {
-                Scene.Current.Dispose();
-
-                Multiplayer.NetworkLevelHandler handler = new Multiplayer.NetworkLevelHandler(this, net,
-                    new LevelInitialization(episodeName, levelName, GameDifficulty.Default),
-                    playerIndex);
-
-                Scene.SwitchTo(handler);
-
-                net.Send(new Networking.Packets.Client.LevelReady {
-                    Index = playerIndex
-                }, 2, Lidgren.Network.NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
-            });
-        }
-
-
-        public void DispatchToMainThread(System.Action action)
-        {
-            // ToDo: This is not thread-safe
-            DualityApp.DisposeLater(new ActionDisposable(action));
-        }
-
-        private struct ActionDisposable : System.IDisposable
-        {
-            private System.Action action;
-
-            public ActionDisposable(System.Action action)
-            {
-                this.action = action;
-            }
-
-            void System.IDisposable.Dispose()
-            {
-                System.Threading.Interlocked.Exchange(ref action, null)();
-            }
-        }
-#endif
 
         private static Episode GetEpisode(string name)
         {
