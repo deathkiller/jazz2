@@ -278,7 +278,6 @@ namespace Editor.UI.CamView
         {
             // Create internal Camera object
             this.nativeCamObj = new GameObject();
-            this.nativeCamObj.Name = "CamView Camera " + this.runtimeId;
             this.nativeCamObj.AddComponent<Transform>();
             this.nativeCamObj.AddComponent<SoundListener>().MakeCurrent();
 

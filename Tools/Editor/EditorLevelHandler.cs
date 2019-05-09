@@ -49,12 +49,12 @@ namespace Editor
 
             // ...
 
-            rootObject = new GameObject("LevelManager");
+            rootObject = new GameObject();
             rootObject.AddComponent(new LocalController(this));
             AddObject(rootObject);
 
             // Setup camera
-            camera = new GameObject("MainCamera");
+            camera = new GameObject();
             Transform cameraTransform = camera.AddComponent<Transform>();
 
             Camera cameraInner = camera.AddComponent<Camera>();

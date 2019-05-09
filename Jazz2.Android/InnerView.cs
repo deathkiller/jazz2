@@ -6,6 +6,7 @@ using Duality;
 using Duality.Backend;
 using Duality.Backend.Dummy;
 using Jazz2.Game;
+using Jazz2.Storage;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Platform.Android;

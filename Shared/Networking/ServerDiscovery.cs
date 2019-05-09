@@ -45,6 +45,7 @@ namespace Jazz2.Game.Multiplayer
 
         private const string ServerListUrl = "http://deat.tk/jazz2/servers/";
 
+        private bool isRunning = true;
         private NetClient client;
         private Thread thread;
         private AutoResetEvent waitEvent;
@@ -97,29 +98,20 @@ namespace Jazz2.Game.Multiplayer
 
         public void Dispose()
         {
-            if (client == null) {
+            if (!isRunning) {
                 return;
             }
 
-            client.UnregisterReceivedCallback(OnMessage);
-            client.Shutdown(null);
-            client = null;
-
+            isRunning = false;
             waitEvent.Set();
-
-            thread.Join();
-
-            waitEvent.Dispose();
-            waitEvent = null;
-
-            thread = null;
+            //thread.Join();
         }
 
         private void OnPeriodicDiscoveryThread()
         {
             double discoverPublicTime = 0;
 
-            while (client != null) {
+            while (isRunning) {
                 // Discover new public servers every 30 seconds
                 if ((NetTime.Now - discoverPublicTime) < 30) {
                     discoverPublicTime = NetTime.Now;
@@ -133,6 +125,15 @@ namespace Jazz2.Game.Multiplayer
                 // Wait
                 waitEvent.WaitOne(10000);
             }
+
+            client.UnregisterReceivedCallback(OnMessage);
+            client.Shutdown(null);
+            client = null;
+
+            waitEvent.Dispose();
+            waitEvent = null;
+
+            thread = null;
         }
 
         private void DiscoverPublicServers()

@@ -26,7 +26,7 @@ namespace Jazz2.Game.UI
         private ContentRef<Material> materialPlain, materialColor;
         private Rect[] asciiChars = new Rect[128];
         private Dictionary<int, Rect> unicodeChars = new Dictionary<int, Rect>();
-        private int spacing, charHeight;
+        private int baseSpacing, charHeight;
 
         private readonly Canvas canvas;
 
@@ -71,9 +71,9 @@ namespace Jazz2.Game.UI
 
                 byte flags = s.ReadUInt8(ref internalBuffer);
                 ushort width = s.ReadUInt16(ref internalBuffer);
-                ushort charHeight = s.ReadUInt16(ref internalBuffer);
+                ushort height = s.ReadUInt16(ref internalBuffer);
                 byte cols = s.ReadUInt8(ref internalBuffer);
-                int rows = textureHeight / charHeight;
+                int rows = textureHeight / height;
                 short spacing = s.ReadInt16(ref internalBuffer);
                 int asciiFirst = s.ReadUInt8(ref internalBuffer);
                 int asciiCount = s.ReadUInt8(ref internalBuffer);
@@ -86,7 +86,7 @@ namespace Jazz2.Game.UI
                         (float)(i % cols) / cols,
                         (float)(i / cols) / rows,
                         internalBuffer[i],
-                        charHeight);
+                        height);
                 }
 
                 UTF8Encoding enc = new UTF8Encoding(false, true);
@@ -112,11 +112,11 @@ namespace Jazz2.Game.UI
                         (float)(i % cols) / cols,
                         (float)(i / cols) / rows,
                         charWidth,
-                        charHeight);
+                        height);
                 }
 
-                this.charHeight = charHeight;
-                this.spacing = spacing;
+                this.charHeight = height;
+                this.baseSpacing = spacing;
             }
         }
 
@@ -184,7 +184,7 @@ namespace Jazz2.Game.UI
                 }
 
                 if (uvRect.W > 0 && uvRect.H > 0) {
-                    totalWidth += (uvRect.W + spacing) * charSpacingPre * scalePre;
+                    totalWidth += (uvRect.W + baseSpacing) * charSpacingPre * scalePre;
                 }
             }
             if (lastWidth < totalWidth) {
@@ -233,7 +233,7 @@ namespace Jazz2.Game.UI
             int vertexIndex = 0;
 
             Vector2 originPos = new Vector2(x, y);
-            alignment.ApplyTo(ref originPos, new Vector2(lastWidth /** scale*/, totalHeight/*lines * height * scale * lineSpacing*/));
+            alignment.ApplyTo(ref originPos, new Vector2(lastWidth, totalHeight));
             float lineStart = originPos.X;
 
             for (int i = 0; i < text.Length; i++) {
@@ -359,7 +359,7 @@ namespace Jazz2.Game.UI
 
                     vertexIndex += 4;
 
-                    originPos.X += ((uvRect.W + spacing) * scale * charSpacing);
+                    originPos.X += ((uvRect.W + baseSpacing) * scale * charSpacing);
                 }
                 charOffset++;
             }
