@@ -5,7 +5,7 @@ using Jazz2.Game.Tiles;
 
 namespace Jazz2.Actors.Weapons
 {
-    public class AmmoToaster : AmmoBase
+    public partial class AmmoToaster : AmmoBase
     {
         private Vector2 gunspotPos;
         private bool fired;
@@ -16,11 +16,25 @@ namespace Jazz2.Actors.Weapons
         {
             base.OnAttach(details);
 
+            base.upgrades = (byte)details.Params[0];
+
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
             strength = 1;
 
             RequestMetadata("Weapon/Toaster");
+
+            AnimState state = AnimState.Idle;
+            if ((upgrades & 0x1) != 0) {
+                timeLeft = 80;
+                state |= (AnimState)1;
+            } else {
+                timeLeft = 60;
+            }
+
+            SetAnimation(state);
+
+            renderer.Active = false;
 
             LightEmitter light = AddComponent<LightEmitter>();
             light.Intensity = 0.85f;
@@ -29,11 +43,10 @@ namespace Jazz2.Actors.Weapons
             light.RadiusFar = 30f;
         }
 
-        public void OnFire(Player owner, Vector3 gunspotPos, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
+        public void OnFire(Player owner, Vector3 gunspotPos, Vector3 speed, float angle, bool isFacingLeft)
         {
             base.owner = owner;
             base.IsFacingLeft = isFacingLeft;
-            base.upgrades = upgrades;
 
             this.gunspotPos = gunspotPos.Xy;
 
@@ -55,18 +68,6 @@ namespace Jazz2.Actors.Weapons
             }
             speedY += MathF.Abs(speed.Y) * speedY;
             speedY += ax * MathF.Rnd.NextFloat(-0.5f, 0.5f);
-
-            AnimState state = AnimState.Idle;
-            if ((upgrades & 0x1) != 0) {
-                timeLeft = 80;
-                state |= (AnimState)1;
-            } else {
-                timeLeft = 60;
-            }
-
-            SetAnimation(state);
-
-            renderer.Active = false;
         }
 
         protected override void OnUpdate()

@@ -57,7 +57,7 @@ namespace Jazz2.Game.UI
         {
             canvas = new Canvas();
 
-            fontSmall = new BitmapFont(canvas, "UI/font_small", 17, 18, 15, 32, 256, -2);
+            fontSmall = new BitmapFont(canvas, "_custom/font_small");
 
             // ToDo: Pass palette from LevelHandler to adjust HUD colors
             Metadata m = ContentResolver.Current.RequestMetadata("UI/HUD");
@@ -147,7 +147,7 @@ namespace Jazz2.Game.UI
 
                     string ammoCount;
                     if (owner.WeaponAmmo[(int)weapon] < 0) {
-                        ammoCount = "x\x7f";
+                        ammoCount = "x∞";
                     } else {
                         ammoCount = "x" + owner.WeaponAmmo[(int)weapon].ToString(CultureInfo.InvariantCulture);
                     }

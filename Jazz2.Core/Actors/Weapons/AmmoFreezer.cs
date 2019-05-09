@@ -6,7 +6,7 @@ using static Jazz2.Game.Tiles.TileMap;
 
 namespace Jazz2.Actors.Weapons
 {
-    public class AmmoFreezer : AmmoBase
+    public partial class AmmoFreezer : AmmoBase
     {
         private Vector2 gunspotPos;
         private bool fired;
@@ -19,10 +19,28 @@ namespace Jazz2.Actors.Weapons
         {
             base.OnAttach(details);
 
+            base.upgrades = (byte)details.Params[0];
+
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
             strength = 0;
 
             RequestMetadata("Weapon/Freezer");
+
+            AnimState state = AnimState.Idle;
+
+            if ((upgrades & 0x1) != 0) {
+                timeLeft = 38;
+                state |= (AnimState)1;
+                PlaySound("FireUpgraded");
+            } else {
+                timeLeft = 44;
+
+                PlaySound("Fire");
+            }
+
+            SetAnimation(state);
+
+            renderer.Active = false;
 
             LightEmitter light = AddComponent<LightEmitter>();
             light.Intensity = 0.8f;
@@ -31,11 +49,10 @@ namespace Jazz2.Actors.Weapons
             light.RadiusFar = 20f;
         }
 
-        public void OnFire(Player owner, Vector3 gunspotPos, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
+        public void OnFire(Player owner, Vector3 gunspotPos, Vector3 speed, float angle, bool isFacingLeft)
         {
             base.owner = owner;
             base.IsFacingLeft = isFacingLeft;
-            base.upgrades = upgrades;
 
             this.gunspotPos = gunspotPos.Xy;
 
@@ -50,23 +67,7 @@ namespace Jazz2.Actors.Weapons
             speedY = MathF.Sin(angleRel) * baseSpeed;
             speedY += MathF.Abs(speed.Y) * speedY;
 
-            AnimState state = AnimState.Idle;
-
-            if ((upgrades & 0x1) != 0) {
-                timeLeft = 38;
-                state |= (AnimState)1;
-                PlaySound("FireUpgraded");
-            } else {
-                timeLeft = 44;
-                
-                PlaySound("Fire");
-            }
-
             Transform.Angle = angle;
-
-            SetAnimation(state);
-
-            renderer.Active = false;
         }
 
         protected override void OnUpdate()

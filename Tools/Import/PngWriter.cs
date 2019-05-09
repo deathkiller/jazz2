@@ -19,6 +19,7 @@ namespace Import
 
         public int Width => width;
         public int Height => height;
+        public ColorRgba[] Data => data;
 
         public PngWriter(int width, int height)
         {

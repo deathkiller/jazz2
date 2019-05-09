@@ -4,7 +4,7 @@ using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Weapons
 {
-    public class AmmoPepper : AmmoBase
+    public partial class AmmoPepper : AmmoBase
     {
         private Vector2 gunspotPos;
         private bool fired;
@@ -15,31 +15,13 @@ namespace Jazz2.Actors.Weapons
         {
             base.OnAttach(details);
 
+            base.upgrades = (byte)details.Params[0];
+
             strength = 1;
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
             collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
 
             RequestMetadata("Weapon/Pepper");
-        }
-
-        public void OnFire(Player owner, Vector3 gunspotPos, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
-        {
-            base.owner = owner;
-            base.IsFacingLeft = isFacingLeft;
-            base.upgrades = upgrades;
-
-            this.gunspotPos = gunspotPos.Xy;
-
-            float angleRel = angle * (isFacingLeft ? -1 : 1);
-
-            float baseSpeed = ((upgrades & 0x1) != 0 ? MathF.Rnd.NextFloat(5f, 7.2f) : MathF.Rnd.NextFloat(3f, 7f));
-            if (isFacingLeft) {
-                speedX = MathF.Min(0, speed.X) - MathF.Cos(angleRel) * baseSpeed;
-            } else {
-                speedX = MathF.Max(0, speed.X) + MathF.Cos(angleRel) * baseSpeed;
-            }
-            speedY = MathF.Sin(angleRel) * baseSpeed;
-            speedY += MathF.Abs(speed.Y) * speedY;
 
             AnimState state = AnimState.Idle;
             if ((upgrades & 0x1) != 0) {
@@ -55,12 +37,31 @@ namespace Jazz2.Actors.Weapons
                 timeLeft = MathF.Rnd.NextFloat(26, 36);
             }
 
-            Transform.Angle = angle;
-
             SetAnimation(state);
             PlaySound("Fire");
 
             renderer.Active = false;
+        }
+
+        public void OnFire(Player owner, Vector3 gunspotPos, Vector3 speed, float angle, bool isFacingLeft)
+        {
+            base.owner = owner;
+            base.IsFacingLeft = isFacingLeft;
+
+            this.gunspotPos = gunspotPos.Xy;
+
+            float angleRel = angle * (isFacingLeft ? -1 : 1);
+
+            float baseSpeed = ((upgrades & 0x1) != 0 ? MathF.Rnd.NextFloat(5f, 7.2f) : MathF.Rnd.NextFloat(3f, 7f));
+            if (isFacingLeft) {
+                speedX = MathF.Min(0, speed.X) - MathF.Cos(angleRel) * baseSpeed;
+            } else {
+                speedX = MathF.Max(0, speed.X) + MathF.Cos(angleRel) * baseSpeed;
+            }
+            speedY = MathF.Sin(angleRel) * baseSpeed;
+            speedY += MathF.Abs(speed.Y) * speedY;
+
+            Transform.Angle = angle;
         }
 
         protected override void OnUpdate()

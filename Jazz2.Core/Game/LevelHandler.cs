@@ -143,7 +143,7 @@ namespace Jazz2.Game
 #endif
             eventSpawner = new EventSpawner(api);
 
-            rootObject = new GameObject("LevelManager");
+            rootObject = new GameObject();
             rootObject.AddComponent(new LocalController(this));
             AddObject(rootObject);
 
@@ -454,7 +454,7 @@ namespace Jazz2.Game
 
                 levelTexts = config.TextEvents ?? new Dictionary<int, string>();
 
-                GameObject tilemapHandler = new GameObject("TilemapHandler");
+                GameObject tilemapHandler = new GameObject();
                 tilemapHandler.Parent = rootObject;
                 tilemapHandler.AddComponent(tileMap);
 
@@ -472,7 +472,7 @@ namespace Jazz2.Game
             }
         }
 
-        public void AddActor(ActorBase actor)
+        public virtual void AddActor(ActorBase actor)
         {
             actors.Add(actor);
 
@@ -484,7 +484,7 @@ namespace Jazz2.Game
             actor.Transform.EventTransformChanged += OnActorTransformChanged;
         }
 
-        public void RemoveActor(ActorBase actor)
+        public virtual void RemoveActor(ActorBase actor)
         {
             actor.Transform.EventTransformChanged -= OnActorTransformChanged;
             collisions.RemoveProxy(actor);

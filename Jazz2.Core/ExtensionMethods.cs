@@ -162,7 +162,7 @@ namespace Jazz2
 
         public static int PeekByte(this Stream s, ref byte[] internalBuffer)
         {
-            if (internalBuffer == null || internalBuffer.Length < 4) {
+            if (internalBuffer == null || internalBuffer.Length < 1) {
                 internalBuffer = new byte[4];
             }
 
@@ -176,7 +176,7 @@ namespace Jazz2
 
         public static byte ReadUInt8(this Stream s, ref byte[] internalBuffer)
         {
-            if (internalBuffer == null || internalBuffer.Length < 4) {
+            if (internalBuffer == null || internalBuffer.Length < 1) {
                 internalBuffer = new byte[4];
             }
 
@@ -189,7 +189,7 @@ namespace Jazz2
 
         public static ushort ReadUInt16(this Stream s, ref byte[] internalBuffer)
         {
-            if (internalBuffer == null || internalBuffer.Length < 4) {
+            if (internalBuffer == null || internalBuffer.Length < 2) {
                 internalBuffer = new byte[4];
             }
 
@@ -202,7 +202,7 @@ namespace Jazz2
 
         public static short ReadInt16(this Stream s, ref byte[] internalBuffer)
         {
-            if (internalBuffer == null || internalBuffer.Length < 4) {
+            if (internalBuffer == null || internalBuffer.Length < 2) {
                 internalBuffer = new byte[4];
             }
 

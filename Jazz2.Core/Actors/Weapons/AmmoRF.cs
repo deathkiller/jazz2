@@ -4,7 +4,7 @@ using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Weapons
 {
-    public class AmmoRF : AmmoBase
+    public partial class AmmoRF : AmmoBase
     {
         private Vector2 gunspotPos;
         private bool fired;
@@ -17,10 +17,25 @@ namespace Jazz2.Actors.Weapons
         {
             base.OnAttach(details);
 
+            base.upgrades = (byte)details.Params[0];
+
             strength = 2;
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
             RequestMetadata("Weapon/RF");
+
+            AnimState state = AnimState.Idle;
+            if ((upgrades & 0x1) != 0) {
+                timeLeft = 35;
+                state |= (AnimState)1;
+            } else {
+                timeLeft = 30;
+            }
+
+            SetAnimation(state);
+            PlaySound("Fire", 0.4f);
+
+            renderer.Active = false;
 
             LightEmitter light = AddComponent<LightEmitter>();
             light.Intensity = 0.8f;
@@ -29,11 +44,10 @@ namespace Jazz2.Actors.Weapons
             light.RadiusFar = 12f;
         }
 
-        public void OnFire(Player owner, Vector3 gunspotPos, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
+        public void OnFire(Player owner, Vector3 gunspotPos, Vector3 speed, float angle, bool isFacingLeft)
         {
             base.owner = owner;
             base.IsFacingLeft = isFacingLeft;
-            base.upgrades = upgrades;
 
             this.gunspotPos = gunspotPos.Xy;
 
@@ -48,20 +62,7 @@ namespace Jazz2.Actors.Weapons
             speedY = MathF.Sin(angleRel) * baseSpeed;
             speedY += MathF.Abs(speed.Y) * speedY;
 
-            AnimState state = AnimState.Idle;
-            if ((upgrades & 0x1) != 0) {
-                timeLeft = 35;
-                state |= (AnimState)1;
-            } else {
-                timeLeft = 30;
-            }
-
             Transform.Angle = angle;
-
-            SetAnimation(state);
-            PlaySound("Fire", 0.4f);
-
-            renderer.Active = false;
         }
 
         protected override void OnUpdate()

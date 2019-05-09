@@ -140,22 +140,6 @@ namespace Duality
 			}
 		}
 		/// <summary>
-		/// [GET / SET] The name of this GameObject.
-		/// </summary>
-		public string Name
-		{
-			get { return this.name; }
-			set { this.name = string.IsNullOrWhiteSpace(value) ? "null" : value; }
-		}
-		/// <summary>
-		/// [GET] The path-like hierarchial name of this GameObject.
-		/// </summary>
-		/// <example>For an object called <c>Wheel</c> inside an object called <c>Car</c>, this would return <c>Car/Wheel</c>.</example>
-		public string FullName
-		{
-			get { return (this.parent != null) ? this.parent.FullName + '/' + this.name : this.name; }
-		}
-		/// <summary>
 		/// [GET] A list of all (direct) child objects of this <see cref="GameObject"/>.
 		/// </summary>
 		public IReadOnlyList<GameObject> Children
@@ -218,16 +202,6 @@ namespace Duality
 		/// Creates a new, empty GameObject.
 		/// </summary>
 		public GameObject() {}
-		/// <summary>
-		/// Creates a new, empty GameObject with a specific name.
-		/// </summary>
-		/// <param name="name"></param>
-		/// <param name="parent"></param>
-		public GameObject(string name, GameObject parent = null)
-		{
-			this.Name = name;
-			this.Parent = parent;
-		}
 
 		public T GetFirstChild<T>() where T : class
 		{
@@ -269,16 +243,6 @@ namespace Duality
 			}
 		}
 
-		/// <summary>
-		/// Returns the first child GameObject with the specified name. You may also specify a full name to access children's children.
-		/// </summary>
-		/// <param name="name"></param>
-		/// <returns></returns>
-		public GameObject GetChildByName(string name)
-		{
-			if (this.children == null || string.IsNullOrEmpty(name)) return null;
-			return this.children.FirstByName(name);
-		}
 		/// <summary>
 		/// Executes a series of child indexing operations, beginning at this GameObject and 
 		/// each on the last retrieved child object.
@@ -585,7 +549,7 @@ namespace Duality
 			if (newComp.gameobj != null) throw new ArgumentException(string.Format(
 				"Specified Component '{0}' is already part of another GameObject '{1}'",
 				type,
-				newComp.gameobj.FullName));
+				newComp.gameobj));
 			if (this.compMap.ContainsKey(type)) throw new InvalidOperationException(string.Format(
 				"GameObject '{0}' already has a Component of type '{1}'.", 
 				this, 
@@ -770,7 +734,7 @@ namespace Duality
 					if (this.children[i] == null || this.children[i].Disposed)
 					{
 						this.children.RemoveAt(i);
-                        App.Log(
+						App.Log(
 							"Missing or Disposed Child in GameObject '{0}'. Check for serialization problems. Did you recently rename or remove classes?", 
 							this);
 					}
@@ -785,7 +749,7 @@ namespace Duality
 					if (this.compList[i] == null || this.compList[i].Disposed)
 					{
 						this.compList.RemoveAt(i);
-                        App.Log(
+						App.Log(
 							"Missing or Disposed Component in GameObject '{0}'. Check for serialization problems. Did you recently rename or remove classes?", 
 							this);
 					}
@@ -794,7 +758,7 @@ namespace Duality
 			else
 			{
 				this.compList = new List<Component>();
-                App.Log(
+				App.Log(
 					"GameObject '{0}' didn't have a Component list. Check for serialization problems. Did you recently rename or remove classes?", 
 					this);
 			}
@@ -807,7 +771,7 @@ namespace Duality
 					if (this.compMap[key] == null || this.compMap[key].Disposed)
 					{
 						this.compMap.Remove(key);
-                        App.Log(
+						App.Log(
 							"Missing or Disposed Component '{0}' in GameObject '{1}'. Check for serialization problems. Did you recently rename or remove classes?", 
 							key,
 							this);
@@ -817,7 +781,7 @@ namespace Duality
 			else
 			{
 				this.compMap = new Dictionary<Type,Component>();
-                App.Log(
+				App.Log(
 					"GameObject '{0}' didn't have a Component map. Check for serialization problems. Did you recently rename or remove classes?", 
 					this);
 			}

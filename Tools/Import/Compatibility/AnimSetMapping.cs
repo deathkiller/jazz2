@@ -46,9 +46,10 @@ namespace Jazz2.Compatibility
 
                 m.NextSet(); // 4
 
-                m.Add("UI", "font_medium");
-                m.Add("UI", "font_small");
-                m.Add("UI", "font_large");
+                //m.Add("UI", "font_medium");
+                //m.Add("UI", "font_small");
+                //m.Add("UI", "font_large");
+                m.DiscardItems(3);
 
                 //mapping.Add("UI", "logo_plus", skipNormalMap: true);
                 m.DiscardItems(1);
@@ -462,9 +463,10 @@ namespace Jazz2.Compatibility
                 }
 
                 m.NextSet();
-                m.Add("UI", "font_medium");
-                m.Add("UI", "font_small");
-                m.Add("UI", "font_large");
+                //m.Add("UI", "font_medium");
+                //m.Add("UI", "font_small");
+                //m.Add("UI", "font_large");
+                m.DiscardItems(3);
 
                 //mapping.Add("UI", "logo", skipNormalMap: true);
                 m.DiscardItems(1);

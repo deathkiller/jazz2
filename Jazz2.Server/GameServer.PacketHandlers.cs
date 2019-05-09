@@ -104,12 +104,7 @@ namespace Jazz2.Server
 
                 player.LastUpdateTime = p.UpdateTime;
 
-                float rtt = p.SenderConnection.AverageRoundtripTime;
-
-                Vector3 pos = p.Pos;
-                pos.X += p.Speed.X * rtt;
-                pos.Y += p.Speed.Y * rtt;
-                player.Pos = pos;
+                player.Pos = p.Pos;
 
                 player.Speed = p.Speed;
 
@@ -137,6 +132,113 @@ namespace Jazz2.Server
             Send(new RemotePlayerDied {
                 Index = player.Index
             }, 2, playerConnections, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+        }
+
+        private void OnCreateRemotableActor(ref CreateRemotableActor p)
+        {
+            int index = p.Index;
+
+            Player player;
+            RemotableActor remotableActor = new RemotableActor {
+                Index = index,
+                EventType = p.EventType,
+                EventParams = p.EventParams,
+                Pos = p.Pos
+            };
+
+            lock (sync) {
+                if (!players.TryGetValue(p.SenderConnection, out player)) {
+                    return;
+                }
+
+                if (player.Index != (index & 0xff)) {
+                    return;
+                }
+
+                remotableActor.Owner = player;
+
+                remotableActors[index] = remotableActor;
+
+                remotableActor.AABB = new AABB(remotableActor.Pos.Xy, 30, 30);
+                collisions.AddProxy(remotableActor);
+            }
+
+            Send(new CreateRemoteObject {
+                Index = remotableActor.Index,
+                EventType = remotableActor.EventType,
+                EventParams = remotableActor.EventParams,
+                Pos = remotableActor.Pos,
+            }, 13, playerConnections, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+        }
+
+        private void OnUpdateRemotableActor(ref UpdateRemotableActor p)
+        {
+            int index = p.Index;
+
+            Player player;
+
+            lock (sync) {
+                if (!players.TryGetValue(p.SenderConnection, out player)) {
+                    return;
+                }
+
+                if (player.Index != (index & 0xff)) {
+                    return;
+                }
+
+                //Console.WriteLine("UPDATE ACTOR: " + index + " | " + p.Pos);
+
+                RemotableActor remotableActor;
+                if (!remotableActors.TryGetValue(index, out remotableActor)) {
+                    return;
+                }
+
+                if (remotableActor.LastUpdateTime > p.UpdateTime) {
+                    return;
+                }
+
+                remotableActor.LastUpdateTime = p.UpdateTime;
+
+                float rtt = p.SenderConnection.AverageRoundtripTime;
+
+                Vector3 pos = p.Pos;
+                pos.X += p.Speed.X * rtt;
+                pos.Y += p.Speed.Y * rtt;
+                remotableActor.Pos = pos;
+
+                remotableActor.Speed = p.Speed;
+
+                remotableActor.AnimState = p.AnimState;
+                remotableActor.AnimTime = p.AnimTime;
+                remotableActor.IsFacingLeft = p.IsFacingLeft;
+
+                //remotableObject.AABB = new AABB(remotableObject.Pos.Xy, 30, 30);
+                //collisions.AddProxy(remotableObject);
+            }
+        }
+
+        private void OnDestroyRemotableActor(ref DestroyRemotableActor p)
+        {
+            int index = p.Index;
+
+            lock (sync) {
+                Player player;
+                if (!players.TryGetValue(p.SenderConnection, out player)) {
+                    return;
+                }
+
+                if (player.Index != (index & 0xff)) {
+                    return;
+                }
+
+                if (!remotableActors.Remove(index)) {
+                    return;
+                }
+            }
+
+            Send(new DestroyRemoteObject {
+                Index = index
+            }, 5, playerConnections, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
         }
     }
 }

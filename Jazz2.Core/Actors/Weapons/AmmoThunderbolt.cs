@@ -6,7 +6,7 @@ using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Weapons
 {
-    public class AmmoThunderbolt : AmmoBase
+    public partial class AmmoThunderbolt : AmmoBase
     {
         private LightEmitter light;
         private SoundInstance sound;
@@ -18,6 +18,8 @@ namespace Jazz2.Actors.Weapons
         public override void OnAttach(ActorInstantiationDetails details)
         {
             base.OnAttach(details);
+
+            base.upgrades = (byte)details.Params[0];
 
             health = int.MaxValue;
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
@@ -31,11 +33,10 @@ namespace Jazz2.Actors.Weapons
             light.RadiusFar = 120f;
         }
 
-        public void OnFire(Player owner, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
+        public void OnFire(Player owner, Vector3 speed, float angle, bool isFacingLeft)
         {
             base.owner = owner;
             base.IsFacingLeft = isFacingLeft;
-            base.upgrades = upgrades;
 
             AnimState state = AnimState.Idle;
             //if ((upgrades & 0x1) != 0) {

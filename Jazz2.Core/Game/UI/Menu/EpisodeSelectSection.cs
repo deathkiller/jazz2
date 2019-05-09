@@ -107,7 +107,7 @@ namespace Jazz2.Game.UI.Menu
             api.DrawMaterial("MenuLine", 1, center.X, bottomLine, Alignment.Center, ColorRgba.White, 1.6f);
 
             int charOffset = 0;
-            api.DrawStringShadow(ref charOffset, "Select Episode", center.X, 110f,
+            api.DrawStringShadow(ref charOffset, "menu/play story/title".T(), center.X, 110f,
                 Alignment.Center, new ColorRgba(0.5f, 0.5f), 0.9f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
 
             if (episodes.Count > 0) {
@@ -172,7 +172,7 @@ namespace Jazz2.Game.UI.Menu
                             if (expanded) {
                                 float expandedAnimation4 = Ease.OutElastic(expandedAnimation) * 0.8f;
 
-                                api.DrawStringShadow(ref charOffset, "Restart episode", center.X + 110f, topItemSelected,
+                                api.DrawStringShadow(ref charOffset, "menu/play story/restart".T(), center.X + 110f, topItemSelected,
                                     Alignment.Center, new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f * MathF.Min(1f, 0.4f + expandedAnimation3)), expandedAnimation4, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.8f);
                             }
                         }
@@ -194,16 +194,16 @@ namespace Jazz2.Game.UI.Menu
 
                     string info;
                     if (previousEpisode == null) {
-                        info = "Episode is locked!";
+                        info = "menu/play story/locked".T();
                     } else {
-                        info = "You must complete \"" + previousEpisode.Name + "\" first!";
+                        info = "menu/play story/locked prev".T(previousEpisode.Name);
                     }
 
                     api.DrawStringShadow(ref charOffset, info, center.X, topItemSelected,
                         Alignment.Center, new ColorRgba(0.66f, 0.42f, 0.32f, MathF.Min(0.5f, 0.2f + 2f * selectAnimation)), 0.7f * size, charSpacing: 0.9f);
                 }
             } else {
-                api.DrawStringShadow(ref charOffset, "No episode found!", center.X, center.Y, Alignment.Center,
+                api.DrawStringShadow(ref charOffset, "menu/play story/empty".T(), center.X, center.Y, Alignment.Center,
                     new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f), 0.9f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
             }
         }

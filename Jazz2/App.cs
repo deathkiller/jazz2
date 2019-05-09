@@ -94,6 +94,8 @@ namespace Jazz2.Game
 
             RefreshMode refreshMode = (RefreshMode)Preferences.Get<int>("RefreshMode", (int)RefreshMode.VSync);
 
+            i18n.Language = Preferences.Get<string>("Language", "en");
+
             ContentResolver.Current.Init();
 
             using (INativeWindow window = DualityApp.OpenWindow(new WindowOptions {

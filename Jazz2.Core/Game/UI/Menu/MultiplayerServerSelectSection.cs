@@ -93,7 +93,7 @@ namespace Jazz2.Game.UI.Menu
                         infoText += "- ms";
                         infoColor = new ColorRgba(0.48f, 0.5f);
                     } else if (server.LatencyMs > 10000) {
-                        infoText = "Unreachable";
+                        infoText = "menu/play custom/multi/unreachable".T();
                         infoColor = new ColorRgba(0.45f, 0.27f, 0.22f, 0.5f);
                     } else {
                         infoText += server.LatencyMs + " ms";
@@ -168,7 +168,7 @@ namespace Jazz2.Game.UI.Menu
                     canvas.FillRect(sx, sy, sw, sh);
                 }
             } else {
-                api.DrawStringShadow(ref charOffset, "No servers found, but still searchin'!", center.X, center.Y, Alignment.Center,
+                api.DrawStringShadow(ref charOffset, "menu/play custom/multi/empty".T(), center.X, center.Y, Alignment.Center,
                     new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f), 0.9f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
             }
 

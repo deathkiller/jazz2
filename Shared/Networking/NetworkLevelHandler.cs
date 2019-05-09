@@ -4,6 +4,7 @@ using Duality;
 using Jazz2.Actors;
 using Jazz2.Game.Structs;
 using Jazz2.Game.UI;
+using Jazz2.Networking;
 using Jazz2.Networking.Packets;
 using Jazz2.Networking.Packets.Client;
 using Jazz2.Networking.Packets.Server;
@@ -19,7 +20,10 @@ namespace Jazz2.Game.Multiplayer
         private long lastServerUpdateTime;
 
         private RemotePlayer[] remotePlayers = new RemotePlayer[256];
-        private Dictionary<int, RemoteObject> remoteObjects = new Dictionary<int, RemoteObject>();
+
+        private Dictionary<int, IRemotableActor> localRemotableActors = new Dictionary<int, IRemotableActor>();
+        private Dictionary<int, IRemotableActor> remoteActors = new Dictionary<int, IRemotableActor>();
+        private int lastRemotableActorIndex;
 
         public byte PlayerIndex => localPlayerIndex;
 
@@ -68,16 +72,26 @@ namespace Jazz2.Game.Multiplayer
                 float timeMult = Time.TimeMult;
                 lastUpdate += timeMult;
 
-                if (lastUpdate < 1f) {
+                if (lastUpdate < 1.4f) {
                     return;
                 }
 
                 lastUpdate = 0f;
 
+                long updateTime = (long)(NetTime.Now * 1000);
+
                 UpdateSelf updateSelfPacket = players[0].CreateUpdatePacket();
                 updateSelfPacket.Index = localPlayerIndex;
-                updateSelfPacket.UpdateTime = (long)(NetTime.Now * 1000);
+                updateSelfPacket.UpdateTime = updateTime;
                 net.Send(updateSelfPacket, 29, NetDeliveryMethod.Unreliable, PacketChannels.Main);
+
+                foreach (KeyValuePair<int, IRemotableActor> pair in localRemotableActors) {
+                    UpdateRemotableActor p = new UpdateRemotableActor();
+                    pair.Value.OnUpdateRemotableActor(ref p);
+                    p.Index = pair.Key;
+                    p.UpdateTime = updateTime;
+                    net.Send(p, 32, NetDeliveryMethod.Unreliable, PacketChannels.Main);
+                }
             }
         }
 
@@ -88,6 +102,47 @@ namespace Jazz2.Game.Multiplayer
             }, 2, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
 
             return false;
+        }
+
+        public override void AddActor(ActorBase actor)
+        {
+            base.AddActor(actor);
+
+            IRemotableActor remotableActor = actor as IRemotableActor;
+            if (remotableActor == null) {
+                return;
+            }
+
+            int actorIndex = localPlayerIndex | (lastRemotableActorIndex << 8);
+
+            remotableActor.Index = actorIndex;
+            localRemotableActors[actorIndex] = remotableActor;
+
+            CreateRemotableActor p = new CreateRemotableActor();
+            remotableActor.OnCreateRemotableActor(ref p);
+            p.Index = actorIndex;
+            net.Send(p, 13, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+
+            lastRemotableActorIndex++;
+        }
+
+        public override void RemoveActor(ActorBase actor)
+        {
+            base.RemoveActor(actor);
+
+            IRemotableActor remotableActor = actor as IRemotableActor;
+            if (remotableActor == null) {
+                return;
+            }
+
+            int actorIndex = remotableActor.Index;
+            if (!localRemotableActors.Remove(actorIndex)) {
+                return;
+            }
+
+            DestroyRemotableActor p = new DestroyRemotableActor();
+            p.Index = actorIndex;
+            net.Send(p, 5, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
         }
 
         private void OnUpdateAllPlayers(NetIncomingMessage msg)
@@ -118,12 +173,6 @@ namespace Jazz2.Game.Multiplayer
                     ushort z = msg.ReadUInt16();
                     pos = new Vector3(x, y, z);
                 }
-                Vector2 speed;
-                {
-                    float x = msg.ReadInt16() * 0.002f;
-                    float y = msg.ReadInt16() * 0.002f;
-                    speed = new Vector2(x, y);
-                }
 
                 AnimState animState = (AnimState)msg.ReadUInt32();
                 float animTime = msg.ReadFloat();
@@ -133,10 +182,7 @@ namespace Jazz2.Game.Multiplayer
                     continue;
                 }
 
-                pos.X += speed.X * rtt;
-                pos.Y += speed.Y * rtt;
-
-                remotePlayers[playerIndex].UpdateFromServer(pos, speed, animState, animTime, isFacingLeft);
+                remotePlayers[playerIndex].UpdateFromServer(pos, animState, animTime, isFacingLeft);
             }
 
             int objectCount = msg.ReadInt32();
@@ -165,9 +211,9 @@ namespace Jazz2.Game.Multiplayer
                 pos.X += speed.X * rtt;
                 pos.Y += speed.Y * rtt;
 
-                RemoteObject remoteObject;
-                if (remoteObjects.TryGetValue(objectIndex, out remoteObject)) {
-                    remoteObject.UpdateFromServer(pos, speed, animState, animTime, isFacingLeft);
+                IRemotableActor actor;
+                if (remoteActors.TryGetValue(objectIndex, out actor)) {
+                    actor.OnUpdateRemoteActor(pos, speed, animState, animTime, isFacingLeft);
                 }
             }
         }
@@ -254,26 +300,29 @@ namespace Jazz2.Game.Multiplayer
         {
             int index = p.Index;
 
-            if (remoteObjects.ContainsKey(index)) {
-                //throw new InvalidOperationException();
+            if ((index & 0xff) == localPlayerIndex) {
                 return;
             }
 
-            // ToDo: Load metadata
+            if (remoteActors.ContainsKey(index)) {
+                return;
+            }
 
+            EventType eventType = p.EventType;
+            ushort[] eventParams = p.EventParams;
             Vector3 pos = p.Pos;
 
             Root.DispatchToMainThread(delegate {
-                RemoteObject newObject = new RemoteObject();
 
-                remoteObjects[index] = newObject;
+                ActorBase actor = EventSpawner.SpawnEvent(ActorInstantiationFlags.None, eventType, pos, eventParams);
+                IRemotableActor remotableActor = actor as IRemotableActor;
+                if (remotableActor == null) {
+                    return;
+                }
 
-                newObject.OnAttach(new ActorInstantiationDetails {
-                    Api = Api,
-                    Pos = pos
-                });
+                remoteActors[index] = remotableActor;
 
-                AddObject(newObject);
+                AddObject(actor);
             });
         }
 
@@ -281,11 +330,15 @@ namespace Jazz2.Game.Multiplayer
         {
             int index = p.Index;
 
+            if ((index & 0xff) == localPlayerIndex) {
+                return;
+            }
+
             Root.DispatchToMainThread(delegate {
-                RemoteObject objectToRemove;
-                if (remoteObjects.TryGetValue(index, out objectToRemove)) {
-                    remoteObjects.Remove(index);
-                    RemoveObject(objectToRemove);
+                IRemotableActor actor;
+                if (remoteActors.TryGetValue(index, out actor)) {
+                    remoteActors.Remove(index);
+                    RemoveObject(actor as ActorBase);
                 }
             });
         }
@@ -324,7 +377,7 @@ namespace Jazz2.Game.Multiplayer
             });
             AddActor(corpse);
 
-            player.UpdateFromServer(player.Transform.Pos, new Vector2(0, 0), AnimState.Idle, -1, player.IsFacingLeft);
+            player.UpdateFromServer(player.Transform.Pos, AnimState.Idle, -1, player.IsFacingLeft);
         }
     }
 }

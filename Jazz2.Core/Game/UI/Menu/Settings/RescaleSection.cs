@@ -6,7 +6,7 @@ using static Jazz2.SettingsCache;
 
 namespace Jazz2.Game.UI.Menu.Settings
 {
-    public class SettingsRescaleSection : MenuSection
+    public class RescaleSection : MenuSection
     {
         private ResizeMode[] availableModes;
         private string[] availableModesNames;
@@ -38,7 +38,7 @@ namespace Jazz2.Game.UI.Menu.Settings
                 ResizeMode.CRT
             };
             availableModesNames = new[] {
-                "None / Pixel-perfect",
+                "menu/settings/rescale/none".T(),
                 "HQ2x",
                 "3xBRZ",
                 "4xBRZ",
@@ -69,7 +69,7 @@ namespace Jazz2.Game.UI.Menu.Settings
             api.DrawMaterial("MenuLine", 1, center.X, bottomLine, Alignment.Center, ColorRgba.White, 1.6f);
 
             int charOffset = 0;
-            api.DrawStringShadow(ref charOffset, "Select Rescale Mode", center.X, 110f,
+            api.DrawStringShadow(ref charOffset, "menu/settings/rescale/title".T(), center.X, 110f,
                 Alignment.Center, new ColorRgba(0.5f, 0.5f), 0.9f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
 
             if (availableModes.Length > 0) {

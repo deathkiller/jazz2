@@ -9,12 +9,20 @@ namespace Jazz2.Game.Multiplayer
         public int Index;
         public PlayerType PlayerType;
 
+        private Vector3 lastPos1, lastPos2;
+        private double lastTime1, lastTime2;
+
+
         public override void OnAttach(ActorInstantiationDetails details)
         {
             base.OnAttach(details);
 
             PlayerType = (PlayerType)details.Params[0];
             Index = details.Params[1];
+
+            lastPos1 = lastPos2 = details.Pos;
+            lastTime2 = Time.MainTimer.TotalMilliseconds;
+            lastTime1 = lastTime2 - 1000;
 
             health = int.MaxValue;
 
@@ -38,12 +46,24 @@ namespace Jazz2.Game.Multiplayer
             collisionFlags = CollisionFlags.CollideWithOtherActors;
         }
 
-        public void UpdateFromServer(Vector3 pos, Vector2 speed, AnimState animState, float animTime, bool isFacingLeft)
+        protected override void OnUpdate()
         {
-            Transform.Pos = pos;
+            double time = Time.MainTimer.TotalMilliseconds;
 
-            speedX = speed.X;
-            speedY = speed.Y;
+            float alpha = (float)((time - lastTime1) / (lastTime2 - lastTime1));
+
+            Transform.Pos = lastPos1 + (lastPos2 - lastPos1) * alpha;
+
+            base.OnUpdate();
+        }
+
+        public void UpdateFromServer(Vector3 pos, AnimState animState, float animTime, bool isFacingLeft)
+        {
+            lastPos1 = lastPos2;
+            lastPos2 = pos;
+
+            lastTime1 = lastTime2;
+            lastTime2 = Time.MainTimer.TotalMilliseconds;
 
             if (availableAnimations != null) {
                 if (currentAnimationState != animState) {
@@ -57,7 +77,6 @@ namespace Jazz2.Game.Multiplayer
                     renderer.AnimTime = animTime;
                     IsFacingLeft = isFacingLeft;
                 }
-                
             }
         }
     }

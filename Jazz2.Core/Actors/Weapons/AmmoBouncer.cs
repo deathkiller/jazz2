@@ -5,7 +5,7 @@ using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Weapons
 {
-    public class AmmoBouncer : AmmoBase
+    public partial class AmmoBouncer : AmmoBase
     {
         private Vector2 gunspotPos;
         private bool fired;
@@ -19,37 +19,13 @@ namespace Jazz2.Actors.Weapons
         {
             base.OnAttach(details);
 
+            base.upgrades = (byte)details.Params[0];
+
             strength = 1;
 
             RequestMetadata("Weapon/Bouncer");
 
-            LightEmitter light = AddComponent<LightEmitter>();
-            light.Intensity = 0.8f;
-            light.Brightness = 0.2f;
-            light.RadiusNear = 0f;
-            light.RadiusFar = 12f;
-        }
-
-        public void OnFire(Player owner, Vector3 gunspotPos, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
-        {
-            base.owner = owner;
-            base.IsFacingLeft = isFacingLeft;
-            base.upgrades = upgrades;
-
-            this.gunspotPos = gunspotPos.Xy;
-
-            float angleRel = angle * (isFacingLeft ? -1 : 1);
-
-            const float baseSpeed = 6f;
-            if (isFacingLeft) {
-                targetSpeedX = speedX = MathF.Min(0, speed.X) - MathF.Cos(angleRel) * baseSpeed;
-            } else {
-                targetSpeedX = speedX = MathF.Max(0, speed.X) + MathF.Cos(angleRel) * baseSpeed;
-            }
-            speedY = MathF.Sin(angleRel) * baseSpeed;
-            speedY += MathF.Abs(speed.Y) * speedY;
-
-            elasticity = 0.9f;
+            ushort upgrades = details.Params[0];
 
             AnimState state = AnimState.Idle;
             if ((upgrades & 0x1) != 0) {
@@ -66,6 +42,33 @@ namespace Jazz2.Actors.Weapons
             OnUpdateHitbox();
 
             renderer.Active = false;
+
+            LightEmitter light = AddComponent<LightEmitter>();
+            light.Intensity = 0.8f;
+            light.Brightness = 0.2f;
+            light.RadiusNear = 0f;
+            light.RadiusFar = 12f;
+        }
+
+        public void OnFire(Player owner, Vector3 gunspotPos, Vector3 speed, float angle, bool isFacingLeft)
+        {
+            base.owner = owner;
+            base.IsFacingLeft = isFacingLeft;
+
+            this.gunspotPos = gunspotPos.Xy;
+
+            float angleRel = angle * (isFacingLeft ? -1 : 1);
+
+            const float baseSpeed = 6f;
+            if (isFacingLeft) {
+                targetSpeedX = speedX = MathF.Min(0, speed.X) - MathF.Cos(angleRel) * baseSpeed;
+            } else {
+                targetSpeedX = speedX = MathF.Max(0, speed.X) + MathF.Cos(angleRel) * baseSpeed;
+            }
+            speedY = MathF.Sin(angleRel) * baseSpeed;
+            speedY += MathF.Abs(speed.Y) * speedY;
+
+            elasticity = 0.9f;
         }
 
         protected override void OnUpdate()

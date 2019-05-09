@@ -66,12 +66,12 @@ namespace Jazz2.Game.UI.Menu
             root.Title = null;
             root.Immersive = true;
 
-            rootObject = new GameObject("MainMenu");
+            rootObject = new GameObject();
             rootObject.AddComponent(new LocalController(this));
             AddObject(rootObject);
 
             // Setup camera
-            GameObject camera = new GameObject("MainCamera");
+            GameObject camera = new GameObject();
             camera.AddComponent<Transform>();
 
             Camera cameraInner = camera.AddComponent<Camera>();
@@ -94,8 +94,8 @@ namespace Jazz2.Game.UI.Menu
                 ContentResolver.Current.ApplyBasePalette(TileSet.LoadPalette(s));
             }
 
-            fontSmall = new BitmapFont(canvas, "UI/font_small", 17, 18, 15, 32, 256, -2);
-            fontMedium = new BitmapFont(canvas, "UI/font_medium", 29, 31, 15, 32, 256, -1);
+            fontSmall = new BitmapFont(canvas, "_custom/font_small");
+            fontMedium = new BitmapFont(canvas, "_custom/font_medium");
 
             metadata = ContentResolver.Current.RequestMetadata("UI/MainMenu");
 
@@ -302,12 +302,12 @@ namespace Jazz2.Game.UI.Menu
             // Copyright
             Vector2 bottomLeft = bottomRight;
             bottomLeft.X = view.X + 24f;
-            DrawStringShadow(ref charOffset, "(c) 2016-" + DateTime.Now.Year + "  Dan R.", bottomLeft.X, bottomLeft.Y, Alignment.BottomLeft,
+            DrawStringShadow(ref charOffset, "© 2016-" + DateTime.Now.Year + "  Dan R.", bottomLeft.X, bottomLeft.Y, Alignment.BottomLeft,
                 ColorRgba.TransparentBlack, 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
 
             // New version available
             if (newVersion != null) {
-                DrawStringShadow(ref charOffset, "New version available!", (bottomLeft.X + bottomRight.X) * 0.5f, bottomLeft.Y - 12, Alignment.Bottom,
+                DrawStringShadow(ref charOffset, "menu/update".T(), (bottomLeft.X + bottomRight.X) * 0.5f, bottomLeft.Y - 12, Alignment.Bottom,
                     new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f), 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.9f);
 
                 DrawStringShadow(ref charOffset, newVersion, (bottomLeft.X + bottomRight.X) * 0.5f, bottomLeft.Y + 2, Alignment.Bottom,

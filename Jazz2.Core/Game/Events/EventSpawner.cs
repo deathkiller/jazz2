@@ -8,6 +8,7 @@ using Jazz2.Actors.Enemies;
 using Jazz2.Actors.Environment;
 using Jazz2.Actors.Lighting;
 using Jazz2.Actors.Solid;
+using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Game.Events
@@ -138,6 +139,19 @@ namespace Jazz2.Game.Events
             RegisterSpawnable<AmmoCollectible>(EventType.Ammo);
             RegisterSpawnable<PowerUpWeaponMonitor>(EventType.PowerUpWeapon);
             RegisterSpawnable<FoodCollectible>(EventType.Food);
+
+
+            // Multiplayer-only remotable actors
+            RegisterSpawnable<AmmoBlaster>(EventType.WeaponBlaster);
+            RegisterSpawnable<AmmoBouncer>(EventType.WeaponBouncer);
+            RegisterSpawnable<AmmoElectro>(EventType.WeaponElectro);
+            RegisterSpawnable<AmmoFreezer>(EventType.WeaponFreezer);
+            RegisterSpawnable<AmmoPepper>(EventType.WeaponPepper);
+            RegisterSpawnable<AmmoRF>(EventType.WeaponRF);
+            RegisterSpawnable<AmmoSeeker>(EventType.WeaponSeeker);
+            RegisterSpawnable<AmmoThunderbolt>(EventType.WeaponThunderbolt);
+            RegisterSpawnable<AmmoTNT>(EventType.WeaponTNT);
+            RegisterSpawnable<AmmoToaster>(EventType.WeaponToaster);
         }
 
         public ActorBase SpawnEvent(ActorInstantiationFlags flags, EventType type, int x, int y, float z, ushort[] spawnParams)

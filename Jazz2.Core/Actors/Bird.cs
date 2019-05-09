@@ -171,18 +171,20 @@ namespace Jazz2.Actors
                             AmmoBlaster newAmmo = new AmmoBlaster();
                             newAmmo.OnAttach(new ActorInstantiationDetails {
                                 Api = api,
-                                Pos = pos
+                                Pos = pos,
+                                Params = new ushort[] { 0 }
                             });
                             api.AddActor(newAmmo);
-                            newAmmo.OnFire(owner, pos, Speed, 0f, IsFacingLeft, 0);
+                            newAmmo.OnFire(owner, pos, Speed, 0f, IsFacingLeft);
 
                             newAmmo = new AmmoBlaster();
                             newAmmo.OnAttach(new ActorInstantiationDetails {
                                 Api = api,
-                                Pos = pos
+                                Pos = pos,
+                                Params = new ushort[] { 0 }
                             });
                             api.AddActor(newAmmo);
-                            newAmmo.OnFire(owner, pos, Speed, IsFacingLeft ? -0.18f : 0.18f, IsFacingLeft, 0);
+                            newAmmo.OnFire(owner, pos, Speed, IsFacingLeft ? -0.18f : 0.18f, IsFacingLeft);
 
                             fireCooldown = 48f;
                             break;

@@ -74,13 +74,28 @@ namespace Import
                         processAnims = processLevels = processMusic = processTilesets = false;
                         break;
 
-                    default:
 #if DEBUG
-                        if (File.Exists(args[i]) && Path.GetExtension(args[i]) == ".png") {
-                            AdaptImageToDefaultPalette(args[i], args);
-                            return;
+                    case "/to-palette": {
+                        if (i + 1 < args.Length && File.Exists(args[i + 1])) {
+                            AdaptImageToDefaultPalette(args[i + 1], args);
                         }
+                        return;
+                    }
+                    case "/from-palette": {
+                        if (i + 1 < args.Length && File.Exists(args[i + 1])) {
+                            ApplyDefaultPaletteToPng(args[i + 1]);
+                        }
+                        return;
+                    }
+                    case "/json-to-font": {
+                        if (i + 2 < args.Length && File.Exists(args[i + 1])) {
+                            ConvertJsonToFont(args[i + 1], args[i + 2]);
+                        }
+                        return;
+                    }
 #endif
+
+                    default:
                         if (!Directory.Exists(args[i]) && File.Exists(args[i])) {
                             args[i] = Path.GetDirectoryName(args[i]);
                         }
@@ -274,7 +289,7 @@ namespace Import
             //if (Utils.FileResolveCaseInsensitive(ref plusPath)) {
             //    JJ2Anims.Convert(plusPath, animationsPath, true);
             //} else {
-                JJ2PlusDownloader.Run(targetPath);
+            JJ2PlusDownloader.Run(targetPath);
             //}
 
             RecreateDefaultPalette(animationsPath);
@@ -1252,19 +1267,19 @@ namespace Import
             Log.PushIndent();
 
             Random r = new Random();
-            int diffMax = 0, diffSum = 0;
+            int diffMax = 0, diffMaxX = 0, diffMaxY = 0, diffSum = 0;
             bool[] usedIndices = new bool[256];
 
             using (FileStream s = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
             using (Bitmap source = new Bitmap(s)) {
                 PngWriter img = new PngWriter(source);
 
-                if (frameConfiguration.X == 0 || frameConfiguration.Y == 0) {
+                /*if (frameConfiguration.X == 0 || frameConfiguration.Y == 0) {
                     Log.Write(LogType.Info, "Generating normal map (" + frameConfiguration.X + "x" + frameConfiguration.Y + " frames)...");
 
                     PngWriter normalMap = NormalMapGenerator.FromSprite(img, frameConfiguration, null);
                     normalMap.Save(Path.ChangeExtension(path, ".n.new" + Path.GetExtension(path)));
-                }
+                }*/
 
                 for (int x = 0; x < img.Width; x++) {
                     for (int y = 0; y < img.Height; y++) {
@@ -1302,7 +1317,11 @@ namespace Import
 
                         img.SetPixel(x, y, bestMatch);
 
-                        diffMax = Math.Max(diffMax, bestMatchDiff);
+                        if (diffMax < bestMatchDiff) {
+                            diffMax = bestMatchDiff;
+                            diffMaxX = x;
+                            diffMaxY = y;
+                        }
                         diffSum += bestMatchDiff;
                     }
                 }
@@ -1310,7 +1329,7 @@ namespace Import
                 img.Save(Path.ChangeExtension(path, ".new" + Path.GetExtension(path)));
             }
 
-            Log.Write(LogType.Verbose, "Max. difference:    " + diffMax.ToString("N0"));
+            Log.Write(LogType.Verbose, "Max. difference:    " + diffMax.ToString("N0") + " (" + diffMaxX.ToString("N0") + "; " + diffMaxY.ToString("N0") + ")");
             Log.Write(LogType.Verbose, "Sum of differences: " + diffSum.ToString("N0"));
 
             int numberOfIndices = usedIndices.Sum(index => index ? 1 : 0);
@@ -1339,6 +1358,140 @@ namespace Import
 
             if (!ConsoleUtils.IsOutputRedirected) {
                 Console.ReadLine();
+            }
+        }
+
+        private static void ApplyDefaultPaletteToPng(string path)
+        {
+            Png source;
+            using (Stream s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+                source = new Png(s);
+            }
+
+            PngWriter target = new PngWriter(source.Width, source.Height);
+
+            for (int i = 0; i < source.Data.Length; i += 4) {
+                byte idx = source.Data[i];
+                float alpha = source.Data[i + 3] / 255f;
+
+                ColorRgba color = JJ2DefaultPalette.Sprite[idx];
+                color.A = (byte)(color.A * alpha);
+                target.Data[i / 4] = color;
+            }
+
+            target.Save(path + ".c.png");
+        }
+
+        private static void ConvertLegacyFontToJson(string path, int width, int height, int cols, int spacing)
+        {
+            byte[] charWidths = new byte[256];
+            int charCount;
+            int first = 32;
+
+            using (Stream s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+                charCount = s.Read(charWidths, 0, charWidths.Length);
+            }
+
+            using (Stream s = File.Create(path + ".json"))
+            using (StreamWriter w = new StreamWriter(s, new UTF8Encoding(false))) {
+                w.WriteLine("{");
+                w.WriteLine("    \"Flags\": 0,");
+                w.WriteLine();
+                w.WriteLine("    \"Width\": " + width + ",");
+                w.WriteLine("    \"Height\": " + height + ",");
+                w.WriteLine("    \"Columns\": " + cols + ",");
+                w.WriteLine("    \"Spacing\": " + spacing + ",");
+                w.WriteLine();
+                w.WriteLine("    \"AsciiFirst\": " + first + ",");
+                w.WriteLine("    \"Ascii\": [");
+
+                int asciiCount = 127;
+                while (asciiCount > 0 && charWidths[asciiCount - 1] == 0) {
+                    asciiCount--;
+                }
+
+                for (int i = 0; i < asciiCount; i++) {
+                    if (i != 0) {
+                        w.WriteLine(",");
+                    }
+
+                    w.Write("        " + charWidths[i]);
+                }
+
+                w.WriteLine();
+                w.WriteLine("    ],");
+                w.WriteLine();
+                w.WriteLine("    \"Unicode\": {");
+
+                bool isFirst = true;
+                for (int i = 127; i < charCount; i++) {
+                    if (charWidths[i] == 0) {
+                        continue;
+                    }
+
+                    if (isFirst) {
+                        isFirst = false;
+                    } else {
+                        w.WriteLine(",");
+                    }
+
+                    w.Write("        \"" + ((char)i) + "\": " + charWidths[i]);
+                }
+
+                w.WriteLine();
+                w.WriteLine("    }");
+                w.WriteLine("}");
+            }
+        }
+
+        public class FontJson
+        {
+            public int Flags { get; set; }
+            public int Width { get; set; }
+            public int Height { get; set; }
+            public int Columns { get; set; }
+            public int Spacing { get; set; }
+            public int AsciiFirst { get; set; }
+            public IList<int> Ascii { get; set; }
+            public IDictionary<string, int> Unicode { get; set; }
+        }
+
+        private static void ConvertJsonToFont(string path, string targetPath)
+        {
+            JsonParser jsonParser = new JsonParser();
+            FontJson json;
+
+            using (Stream s = File.Open(path, FileMode.Open, FileAccess.Read)) {
+                json = jsonParser.Parse<FontJson>(s);
+            }
+
+            using (Stream s = File.Create(targetPath))
+            using (BinaryWriter bw = new BinaryWriter(s)) {
+                s.WriteByte((byte)json.Flags);
+                s.Write((short)json.Width);
+                s.Write((short)json.Height);
+                s.WriteByte((byte)json.Columns);
+                s.Write((short)json.Spacing);
+
+                s.WriteByte((byte)json.AsciiFirst);
+                s.WriteByte((byte)json.Ascii.Count);
+                for (int i = 0; i < json.Ascii.Count; i++) {
+                    s.WriteByte((byte)json.Ascii[i]);
+                }
+
+                UTF8Encoding enc = new UTF8Encoding(false, true);
+                byte[] internalBuffer = new byte[8];
+
+                s.Write((int)json.Unicode.Count);
+                foreach (KeyValuePair<string, int> pair in json.Unicode) {
+                    int byteCount = enc.GetBytes(pair.Key, 0, 1, internalBuffer, 0);
+                    if (byteCount > 4) {
+                        throw new InvalidDataException();
+                    }
+
+                    s.Write(internalBuffer, 0, byteCount);
+                    s.WriteByte((byte)pair.Value);
+                }
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,15 +24,16 @@ namespace Jazz2.Game.UI
         };
 
         private ContentRef<Material> materialPlain, materialColor;
-        private Rect[] chars = new Rect[256];
-        private int spacing, height;
+        private Rect[] asciiChars = new Rect[128];
+        private Dictionary<int, Rect> unicodeChars = new Dictionary<int, Rect>();
+        private int spacing, charHeight;
 
         private readonly Canvas canvas;
 
-        public int Height => height;
+        public int Height => charHeight;
 
         // ToDo: Move parameters to .config file, rework .config file format
-        public BitmapFont(Canvas canvas, string path, int width, int height, int cols, int first, int last, int defaultSpacing)
+        public BitmapFont(Canvas canvas, string path)
         {
             this.canvas = canvas;
 
@@ -40,10 +42,13 @@ namespace Jazz2.Game.UI
 #else
             string png = PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Animations", path + ".png");
 #endif
-            string config = png + ".config";
+            string pathFont = png + ".font";
+
+            int textureHeight;
 
             using (Stream s = FileOp.Open(png, FileAccessMode.Read)) {
                 PixelData pixelData = new Png(s).GetPixelData();
+                textureHeight = pixelData.Height;
 
                 ColorRgba[] palette = ContentResolver.Current.Palette.Res.BasePixmap.Res.MainLayer.Data;
 
@@ -61,25 +66,57 @@ namespace Jazz2.Game.UI
                 materialColor = new Material(ContentResolver.Current.RequestShader("Colorize"), texture);
             }
 
-            byte[] widthFromFileTable = new byte[256];
-            using (Stream s = FileOp.Open(config, FileAccessMode.Read)) {
-                s.Read(widthFromFileTable, 0, widthFromFileTable.Length);
-            }
+            using (Stream s = FileOp.Open(pathFont, FileAccessMode.Read)) {
+                byte[] internalBuffer = new byte[128];
 
-            this.height = height;
-            spacing = defaultSpacing;
+                byte flags = s.ReadUInt8(ref internalBuffer);
+                ushort width = s.ReadUInt16(ref internalBuffer);
+                ushort charHeight = s.ReadUInt16(ref internalBuffer);
+                byte cols = s.ReadUInt8(ref internalBuffer);
+                int rows = textureHeight / charHeight;
+                short spacing = s.ReadInt16(ref internalBuffer);
+                int asciiFirst = s.ReadUInt8(ref internalBuffer);
+                int asciiCount = s.ReadUInt8(ref internalBuffer);
 
-            uint charCode = 0;
-            for (int i = first; i < last; i++, charCode++) {
-                chars[i] = new Rect(
-                    (float)((i - first) % cols) / cols,
-                    (float)((i - first) / cols) / cols,
-                    widthFromFileTable[charCode],
-                    height);
+                s.Read(internalBuffer, 0, asciiCount);
 
-                if (charCode > last || i >= 255) {
-                    break;
+                int i = 0;
+                for (; i < asciiCount; i++) {
+                    asciiChars[i + asciiFirst] = new Rect(
+                        (float)(i % cols) / cols,
+                        (float)(i / cols) / rows,
+                        internalBuffer[i],
+                        charHeight);
                 }
+
+                UTF8Encoding enc = new UTF8Encoding(false, true);
+
+                int unicodeCharCount = asciiCount + s.ReadInt32(ref internalBuffer);
+                for (; i < unicodeCharCount; i++) {
+                    s.Read(internalBuffer, 0, 1);
+
+                    int remainingBytes =
+                        ((internalBuffer[0] & 240) == 240) ? 3 : (
+                        ((internalBuffer[0] & 224) == 224) ? 2 : (
+                        ((internalBuffer[0] & 192) == 192) ? 1 : -1
+                    ));
+                    if (remainingBytes == -1) {
+                        throw new InvalidDataException("Char \"" + (char)internalBuffer[0] + "\" is not UTF-8");
+                    }
+
+                    s.Read(internalBuffer, 1, remainingBytes);
+                    char c = enc.GetChars(internalBuffer, 0, remainingBytes + 1)[0];
+                    byte charWidth = s.ReadUInt8(ref internalBuffer);
+
+                    unicodeChars[c] = new Rect(
+                        (float)(i % cols) / cols,
+                        (float)(i / cols) / rows,
+                        charWidth,
+                        charHeight);
+                }
+
+                this.charHeight = charHeight;
+                this.spacing = spacing;
             }
         }
 
@@ -103,7 +140,7 @@ namespace Jazz2.Game.UI
                         lastWidth = totalWidth;
                     }
                     totalWidth = 0f;
-                    totalHeight += (height * scale * lineSpacing);
+                    totalHeight += (charHeight * scale * lineSpacing);
                     //lines++;
                     continue;
                 } else if (text[i] == '\f' && text[i + 1] == '[') {
@@ -136,7 +173,16 @@ namespace Jazz2.Game.UI
                     continue;
                 }
 
-                Rect uvRect = chars[(byte)text[i]];
+                Rect uvRect;
+                if (!unicodeChars.TryGetValue(text[i], out uvRect)) {
+                    byte ascii = (byte)text[i];
+                    if (ascii < 128) {
+                        uvRect = asciiChars[ascii];
+                    } else {
+                        uvRect = new Rect();
+                    }
+                }
+
                 if (uvRect.W > 0 && uvRect.H > 0) {
                     totalWidth += (uvRect.W + spacing) * charSpacingPre * scalePre;
                 }
@@ -144,7 +190,7 @@ namespace Jazz2.Game.UI
             if (lastWidth < totalWidth) {
                 lastWidth = totalWidth;
             }
-            totalHeight += (height * scale * lineSpacing);
+            totalHeight += (charHeight * scale * lineSpacing);
 
             VertexC1P3T2[] vertexData = canvas.RentVertices(text.Length * 4);
 
@@ -194,7 +240,7 @@ namespace Jazz2.Game.UI
                 if (text[i] == '\n') {
                     // New line
                     originPos.X = lineStart;
-                    originPos.Y += (height * scale * lineSpacing);
+                    originPos.Y += (charHeight * scale * lineSpacing);
                     continue;
                 } else if (text[i] == '\f' && text[i + 1] == '[') {
                     // Format
@@ -239,7 +285,16 @@ namespace Jazz2.Game.UI
                     continue;
                 }
 
-                Rect uvRect = chars[(byte)text[i]];
+                Rect uvRect;
+                if (!unicodeChars.TryGetValue(text[i], out uvRect)) {
+                    byte ascii = (byte)text[i];
+                    if (ascii < 128) {
+                        uvRect = asciiChars[ascii];
+                    } else {
+                        uvRect = new Rect();
+                    }
+                }
+
                 if (uvRect.W > 0 && uvRect.H > 0) {
                     if (colorize) {
                         mainColor = colors[charOffset % colors.Length];

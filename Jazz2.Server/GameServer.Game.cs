@@ -86,6 +86,29 @@ namespace Jazz2.Server
             public ref AABB AABB => ref aabb;
         }
 
+        public class RemotableActor : ICollisionable
+        {
+            public int Index;
+            public EventType EventType;
+            public ushort[] EventParams;
+            public long LastUpdateTime;
+
+            public Vector3 Pos;
+            public Vector2 Speed;
+
+            public AnimState AnimState;
+            public float AnimTime;
+            public bool IsFacingLeft;
+
+            public Player Owner;
+
+            private int proxyId = -1;
+            private AABB aabb;
+
+            public ref int ProxyId => ref proxyId;
+            public ref AABB AABB => ref aabb;
+        }
+
         private string currentLevel;
 
         private Dictionary<NetConnection, Player> players;
@@ -93,8 +116,7 @@ namespace Jazz2.Server
         private byte lastPlayerIndex;
         private bool enablePlayerSpawning = true;
 
-        private Dictionary<int, Object> objects;
-        private int lastObjectIndex;
+        private Dictionary<int, RemotableActor> remotableActors;
 
         private int lastGameLoadMs;
 
@@ -105,7 +127,7 @@ namespace Jazz2.Server
 
         private void OnGameLoop()
         {
-            const int TargetFps = 60;
+            const int TargetFps = 30;
 
             Stopwatch sw = new Stopwatch();
 
@@ -114,7 +136,6 @@ namespace Jazz2.Server
 
                 // Update time
                 Time.FrameTick(false, false);
-                float timeMult = Time.TimeMult;
 
                 lock (sync) {
                     // Update objects
@@ -127,96 +148,63 @@ namespace Jazz2.Server
                         } else if (pair.Value.State != PlayerState.Spawned) {
                             continue;
                         }
-
-                        if (pair.Value.IsFirePressed) {
-                            if (pair.Value.WeaponCooldown <= 0f) {
-                                if (pair.Value.Controllable) {
-                                    pair.Value.WeaponCooldown = 35f;
-
-                                    Vector3 pos = pair.Value.Pos;
-                                    pos.Y -= 6;
-                                    pos.Z += 2;
-                                    SpawnObject(pair.Value, "Weapon/Blaster", pos,
-                                        pair.Value.Speed + new Vector2(pair.Value.IsFacingLeft ? -10f : 10f, 0f), pair.Value.IsFacingLeft);
-                                }
-                            } else {
-                                pair.Value.WeaponCooldown -= 1f * timeMult;
-                            }
-                        } else {
-                            pair.Value.WeaponCooldown = 0f;
-                        }
-                    }
-
-                    foreach (KeyValuePair<int, Object> pair in objects) {
-                        if (pair.Value.TimeLeft <= 0f) {
-                            DestroyObject(pair.Key);
-                            break;
-                        }
-
-                        pair.Value.Pos.X += pair.Value.Speed.X * timeMult;
-                        pair.Value.Pos.Y += pair.Value.Speed.Y * timeMult;
-
-                        pair.Value.TimeLeft -= 1f * timeMult;
                     }
 
                     // Update all players
                     if (playerConnections.Count > 0) {
                         int playerCount = players.Count;
-                        int objectCount = objects.Count;
+                        int actorCount = remotableActors.Count;
 
-                        NetOutgoingMessage m = server.CreateMessage(14 + 21 * playerCount + 24 * objectCount);
+                        NetOutgoingMessage m = server.CreateMessage(14 + 21 * playerCount + 24 * actorCount);
                         m.Write(PacketTypes.UpdateAll);
                         m.Write((long)(NetTime.Now * 1000));
 
                         m.Write((byte)playerCount);
                         foreach (KeyValuePair<NetConnection, Player> pair in players) {
-                            Player p = pair.Value;
-                            m.Write((byte)p.Index); // Player Index
+                            Player player = pair.Value;
+                            m.Write((byte)player.Index); // Player Index
 
-                            if (p.State != PlayerState.Spawned) {
+                            if (player.State != PlayerState.Spawned) {
                                 m.Write((byte)0); // Flags - None
                                 continue;
                             }
 
                             m.Write((byte)1); // Flags - Spawned
 
-                            m.Write((ushort)p.Pos.X);
-                            m.Write((ushort)p.Pos.Y);
-                            m.Write((ushort)p.Pos.Z);
+                            m.Write((ushort)player.Pos.X);
+                            m.Write((ushort)player.Pos.Y);
+                            m.Write((ushort)player.Pos.Z);
 
-                            m.Write((short)(p.Speed.X * 500f));
-                            m.Write((short)(p.Speed.Y * 500f));
+                            m.Write((uint)player.AnimState);
+                            m.Write((float)player.AnimTime);
+                            m.Write((bool)player.IsFacingLeft);
 
-                            m.Write((uint)p.AnimState);
-                            m.Write((float)p.AnimTime);
-                            m.Write((bool)p.IsFacingLeft);
-
-                            AABB aabb = new AABB(p.Pos.Xy, 20, 30);
-                            collisions.MoveProxy(p, ref aabb, p.Speed);
-                            p.AABB = aabb;
+                            //AABB aabb = new AABB(player.Pos.Xy, 20, 30);
+                            //collisions.MoveProxy(player, ref aabb, player.Speed);
+                            //player.AABB = aabb;
                         }
 
-                        m.Write((int)objectCount);
-                        foreach (KeyValuePair<int, Object> pair in objects) {
-                            Object o = pair.Value;
-                            m.Write((int)o.Index); // Player Index
+                        m.Write((int)actorCount);
+                        foreach (KeyValuePair<int, RemotableActor> pair in remotableActors) {
+                            RemotableActor actor = pair.Value;
+                            m.Write((int)actor.Index); // Object Index
 
                             m.Write((byte)0); // Flags - None
 
-                            m.Write((ushort)o.Pos.X);
-                            m.Write((ushort)o.Pos.Y);
-                            m.Write((ushort)o.Pos.Z);
+                            m.Write((ushort)actor.Pos.X);
+                            m.Write((ushort)actor.Pos.Y);
+                            m.Write((ushort)actor.Pos.Z);
 
-                            m.Write((short)(o.Speed.X * 500f));
-                            m.Write((short)(o.Speed.Y * 500f));
+                            m.Write((short)(actor.Speed.X * 500f));
+                            m.Write((short)(actor.Speed.Y * 500f));
 
-                            m.Write((uint)o.AnimState);
-                            m.Write((float)o.AnimTime);
-                            m.Write((bool)o.IsFacingLeft);
+                            m.Write((uint)actor.AnimState);
+                            m.Write((float)actor.AnimTime);
+                            m.Write((bool)actor.IsFacingLeft);
 
-                            AABB aabb = new AABB(o.Pos.Xy, 8, 8);
-                            collisions.MoveProxy(o, ref aabb, o.Speed);
-                            o.AABB = aabb;
+                            //AABB aabb = new AABB(actor.Pos.Xy, 8, 8);
+                            //collisions.MoveProxy(actor, ref aabb, actor.Speed);
+                            //actor.AABB = aabb;
                         }
 
                         server.Send(m, playerConnections, NetDeliveryMethod.Unreliable, PacketChannels.Main);
@@ -368,55 +356,6 @@ namespace Jazz2.Server
             }
         }
 
-        public void SpawnObject(Player owner, string metadata, Vector3 pos, Vector2 speed, bool isFacingLeft)
-        {
-            Object newObject = new Object {
-                Owner = owner,
-                Metadata = metadata,
-                Pos = pos,
-                Speed = speed,
-                IsFacingLeft = isFacingLeft,
-
-                TimeLeft = 100f
-            };
-
-            lock (sync) {
-                newObject.Index = lastObjectIndex;
-                lastObjectIndex++;
-
-                objects[newObject.Index] = newObject;
-
-                newObject.AABB = new AABB(newObject.Pos.Xy, 20, 30);
-                collisions.AddProxy(newObject);
-            }
-
-            Send(new CreateRemoteObject {
-                Index = newObject.Index,
-                Metadata = newObject.Metadata,
-                Pos = newObject.Pos,
-            }, 10 + metadata.Length * 2, playerConnections, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
-        }
-
-        public void DestroyObject(int index)
-        {
-            bool success;
-
-            lock (sync) {
-                Object oldObject;
-                if (objects.TryGetValue(index, out oldObject)) {
-                    collisions.RemoveProxy(oldObject);
-                }
-
-                success = objects.Remove(index);
-            }
-
-            if (success) {
-                Send(new DestroyRemoteObject {
-                    Index = index,
-                }, 5, playerConnections, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
-            }
-        }
-
         private void ResolveCollisions()
         {
             collisions.UpdatePairs((proxyA, proxyB) => {
@@ -427,19 +366,7 @@ namespace Jazz2.Server
 
         private void CheckCollisions(ICollisionable proxyA, ICollisionable proxyB)
         {
-            Player p = proxyA as Player;
-            if (p != null && p.State == PlayerState.Spawned) {
-                Object o = proxyB as Object;
-                if (o != null && o.Owner != p) {
-                    DestroyObject(o.Index);
-
-                    // ToDo: Send it only to target player
-                    Send(new DecreasePlayerHealth {
-                        Index = p.Index,
-                        Amount = 1
-                    }, 3, p.Connection, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
-                }
-            }
+            // ToDo
         }
     }
 }

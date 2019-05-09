@@ -1,7 +1,6 @@
 ﻿using System;
 using Duality;
 using Duality.Drawing;
-using Duality.Input;
 using Jazz2.Actors;
 using Jazz2.Game.Structs;
 using Jazz2.Storage;
@@ -10,12 +9,18 @@ namespace Jazz2.Game.UI.Menu
 {
     public class StartGameOptionsSection : MenuSection
     {
-        private readonly string episodeName, levelName, previousEpisodeName;
+        private string episodeName, levelName, previousEpisodeName;
 
-        private readonly string[] items = {
-            "Character",
-            "Difficulty",
-            "Start Game"
+        private string[] items = {
+            "menu/play/character".T(),
+            "menu/play/difficulty".T(),
+            "menu/play/start".T()
+        };
+
+        private string[] difficultyTypes = {
+            "menu/play/difficulty/easy".T(),
+            "menu/play/difficulty/medium".T(),
+            "menu/play/difficulty/hard".T()
         };
 
         private int selectedIndex = 2;
@@ -111,7 +116,6 @@ namespace Jazz2.Game.UI.Menu
                     api.DrawStringShadow(ref charOffset, ">", center.X + (100f + 40f), center.Y + 28f, Alignment.Center,
                         ColorRgba.TransparentBlack, 0.7f);
                 } else if (i == 1) {
-                    string[] difficultyTypes = { "Easy", "Medium", "Hard" };
                     for (int j = 0; j < difficultyTypes.Length; j++) {
                         if (selectedDifficulty == j) {
                             api.DrawMaterial("MenuGlow", center.X + (j - 1) * 100f, center.Y + 28f, Alignment.Center, ColorRgba.White.WithAlpha(0.2f), (difficultyTypes[j].Length + 3) * 0.4f, 2.2f);
@@ -183,9 +187,11 @@ namespace Jazz2.Game.UI.Menu
                     } else {
                         selectedPlayerType = availableCharacters - 1;
                     }
+                    api.PlaySound("MenuSelect", 0.3f);
                 } else if (selectedIndex == 1) {
                     if (selectedDifficulty > 0) {
                         selectedDifficulty--;
+                        api.PlaySound("MenuSelect", 0.3f);
                     }
                 }
             } else if (ControlScheme.MenuActionHit(PlayerActions.Right)) {
@@ -195,9 +201,11 @@ namespace Jazz2.Game.UI.Menu
                     } else {
                         selectedPlayerType = 0;
                     }
+                    api.PlaySound("MenuSelect", 0.3f);
                 } else if (selectedIndex == 1) {
                     if (selectedDifficulty < 3 - 1) {
                         selectedDifficulty++;
+                        api.PlaySound("MenuSelect", 0.3f);
                     }
                 }
             } else if (ControlScheme.MenuActionHit(PlayerActions.Up)) {

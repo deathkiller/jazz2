@@ -47,7 +47,7 @@ namespace Jazz2.Server
             players = new Dictionary<NetConnection, Player>();
             playerConnections = new List<NetConnection>();
 
-            objects = new Dictionary<int, Object>();
+            remotableActors = new Dictionary<int, RemotableActor>();
 
             server = new ServerConnection(Token, port, maxPlayers);
             server.MessageReceived += OnMessageReceived;
@@ -58,6 +58,9 @@ namespace Jazz2.Server
             RegisterCallback<LevelReady>(OnLevelReady);
             RegisterCallback<UpdateSelf>(OnUpdateSelf);
             RegisterCallback<SelfDied>(OnSelfDied);
+            RegisterCallback<CreateRemotableActor>(OnCreateRemotableActor);
+            RegisterCallback<UpdateRemotableActor>(OnUpdateRemotableActor);
+            RegisterCallback<DestroyRemotableActor>(OnDestroyRemotableActor);
 
             // Create game loop
             threadGame = new Thread(OnGameLoop);

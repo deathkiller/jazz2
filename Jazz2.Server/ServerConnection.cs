@@ -41,11 +41,11 @@ namespace Jazz2.Server
             config.EnableMessageType(NetIncomingMessageType.UnconnectedData);
             config.EnableUPnP = true;
 
-            //config.SimulatedMinimumLatency = 100 / 1000f;
-            //config.SimulatedRandomLatency = 100 / 1000f;
+#if DEBUG
+            //config.SimulatedMinimumLatency = 50 / 1000f;
+            //config.SimulatedRandomLatency = 50 / 1000f;
             //config.SimulatedDuplicatesChance = 0.2f;
 
-#if DEBUG
             config.EnableMessageType(NetIncomingMessageType.DebugMessage);
             config.EnableMessageType(NetIncomingMessageType.ErrorMessage);
             config.EnableMessageType(NetIncomingMessageType.VerboseDebugMessage);

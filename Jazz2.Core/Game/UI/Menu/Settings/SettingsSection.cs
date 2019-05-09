@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Globalization;
+using Duality;
 using Jazz2.Storage;
 using static Jazz2.SettingsCache;
 
@@ -14,6 +15,9 @@ namespace Jazz2.Game.UI.Menu.Settings
         private ChoiceControl screenMode;
         private ChoiceControl refreshMode;
 #endif
+        private ChoiceControl language;
+        private string[] availableLanguages;
+
         private SliderControl musicVolume;
         private SliderControl sfxVolume;
 
@@ -29,31 +33,46 @@ namespace Jazz2.Game.UI.Menu.Settings
             } else {
                 screenModeValue = 0;
             }
-            screenMode = new ChoiceControl(api, "Screen Mode", screenModeValue, "Window", "Fullscreen");
+            screenMode = new ChoiceControl(api, "menu/settings/screen".T(), screenModeValue,
+                "menu/settings/screen/0".T(), "menu/settings/screen/1".T());
 
             int refreshModeValue = (int)api.RefreshMode;
-            refreshMode = new ChoiceControl(api, "Frame Rate Limit", refreshModeValue, "None (Not Recommended)", "60 fps", "V-Sync", "Adaptive V-Sync");
+            refreshMode = new ChoiceControl(api, "menu/settings/refresh".T(), refreshModeValue,
+                "menu/settings/refresh/0".T(), "menu/settings/refresh/1".T(), "menu/settings/refresh/2".T(), "menu/settings/refresh/3".T());
 #endif
-            musicVolume = new SliderControl(api, "Music Volume", MusicVolume, 0f, 1f);
-            sfxVolume = new SliderControl(api, "SFX Volume", SfxVolume, 0f, 1f);
+            availableLanguages = i18n.AvailableLanguages;
+            string currentLanguage = i18n.Language;
+            int currentLanguageIndex = 0;
+            string[] languageNames = new string[availableLanguages.Length];
+            for (int i = 0; i < availableLanguages.Length; i++) {
+                if (availableLanguages[i] == currentLanguage) {
+                    currentLanguageIndex = i;
+                }
+
+                languageNames[i] = CultureInfo.GetCultureInfo(availableLanguages[i]).DisplayName;
+            }
+            language = new ChoiceControl(api, "menu/settings/language".T(), currentLanguageIndex, languageNames);
+
+            musicVolume = new SliderControl(api, "menu/settings/music".T(), MusicVolume, 0f, 1f);
+            sfxVolume = new SliderControl(api, "menu/settings/sfx".T(), SfxVolume, 0f, 1f);
 
 #if __ANDROID__
-            vibrations = new ChoiceControl(api, "Vibrations", Android.InnerView.AllowVibrations ? 1 : 0, "Disable", "Enable");
+            vibrations = new ChoiceControl(api, "menu/settings/vibrations".T(), Android.InnerView.AllowVibrations ? 1 : 0, "disabled".T(), "enabled".T());
 
-            leftPadding = new SliderControl(api, "Left Controls Padding", Android.InnerView.LeftPadding, 0f, 0.15f);
-            rightPadding = new SliderControl(api, "Right Controls Padding", Android.InnerView.RightPadding, 0f, 0.15f);
+            leftPadding = new SliderControl(api, "menu/settings/left padding".T(), Android.InnerView.LeftPadding, 0f, 0.15f);
+            rightPadding = new SliderControl(api, "menu/settings/right padding".T(), Android.InnerView.RightPadding, 0f, 0.15f);
 
             controls = new MenuControlBase[] {
-                new LinkControl(api, "Rescale Mode", OnRescaleModePressed),
-                vibrations, musicVolume, sfxVolume,
-                new LinkControl(api, "Controls", OnControlsPressed),
+                new LinkControl(api, "menu/settings/rescale".T(), OnRescaleModePressed),
+                language, vibrations, musicVolume, sfxVolume,
+                new LinkControl(api, "menu/settings/controls".T(), OnControlsPressed),
                 leftPadding, rightPadding
             };
 #else
             controls = new MenuControlBase[] {
-                new LinkControl(api, "Rescale Mode", OnRescaleModePressed),
-                screenMode, refreshMode, musicVolume, sfxVolume,
-                new LinkControl(api, "Controls", OnControlsPressed)
+                new LinkControl(api, "menu/settings/rescale".T(), OnRescaleModePressed),
+                screenMode, refreshMode, language, musicVolume, sfxVolume,
+                new LinkControl(api, "menu/settings/controls".T(), OnControlsPressed)
             };
 #endif
         }
@@ -69,6 +88,10 @@ namespace Jazz2.Game.UI.Menu.Settings
 
         private void Commit()
         {
+            string currentLanguage = availableLanguages[language.SelectedIndex];
+            i18n.Language = currentLanguage;
+            Preferences.Set("Language", currentLanguage);
+
             MusicVolume = musicVolume.CurrentValue;
             SfxVolume = sfxVolume.CurrentValue;
 
@@ -103,7 +126,7 @@ namespace Jazz2.Game.UI.Menu.Settings
 
         private void OnRescaleModePressed()
         {
-            api.SwitchToSection(new SettingsRescaleSection());
+            api.SwitchToSection(new RescaleSection());
         }
 
         private void OnControlsPressed()

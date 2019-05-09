@@ -40,14 +40,14 @@ namespace Jazz2.Game.UI.Menu.Settings
             api.DrawMaterial("MenuDim", center.X, (topLine + bottomLine) * 0.5f, Alignment.Center, ColorRgba.White, 55f, (bottomLine - topLine) * 0.063f, new Rect(0f, 0.3f, 1f, 0.4f));
 
             int charOffset = 0;
-            api.DrawStringShadow(ref charOffset, "Controls for Player #1", center.X * 0.3f, 110f,
+            api.DrawStringShadow(ref charOffset, "menu/settings/controls/title".T("1"), center.X * 0.3f, 110f,
                 Alignment.Left, new ColorRgba(0.5f, 0.5f), 0.9f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
 
-            api.DrawStringShadow(ref charOffset, "Key 1", center.X * (0.9f + 0 * 0.34f), 110f,
+            api.DrawStringShadow(ref charOffset, "menu/settings/controls/key".T("1"), center.X * (0.9f + 0 * 0.34f), 110f,
                 Alignment.Center, new ColorRgba(0.46f, 0.5f), 0.8f, charSpacing: 0.88f);
-            api.DrawStringShadow(ref charOffset, "Key 2", center.X * (0.9f + 1 * 0.34f), 110f,
+            api.DrawStringShadow(ref charOffset, "menu/settings/controls/key".T("2"), center.X * (0.9f + 1 * 0.34f), 110f,
                 Alignment.Center, new ColorRgba(0.46f, 0.5f), 0.8f, charSpacing: 0.88f);
-            api.DrawStringShadow(ref charOffset, "Gamepad", center.X * (0.9f + 2 * 0.34f), 110f,
+            api.DrawStringShadow(ref charOffset, "menu/settings/controls/gamepad".T(), center.X * (0.9f + 2 * 0.34f), 110f,
                 Alignment.Center, new ColorRgba(0.46f, 0.5f), 0.8f, charSpacing: 0.88f);
 
             int n = (int)PlayerActions.Count;
@@ -62,15 +62,15 @@ namespace Jazz2.Game.UI.Menu.Settings
             for (int i = 0; i < n; i++) {
                 string name;
                 switch ((PlayerActions)i) {
-                    case PlayerActions.Left: name = "Left"; break;
-                    case PlayerActions.Right: name = "Right"; break;
-                    case PlayerActions.Up: name = "Up / Look Up"; break;
-                    case PlayerActions.Down: name = "Down / Crouch"; break;
-                    case PlayerActions.Fire: name = "Fire"; break;
-                    case PlayerActions.Jump: name = "Jump"; break;
-                    case PlayerActions.Run: name = "Run"; break;
-                    case PlayerActions.SwitchWeapon: name = "Switch Weapon"; break;
-                    case PlayerActions.Menu: name = "Menu / Back"; break;
+                    case PlayerActions.Left: name = "menu/settings/controls/left".T(); break;
+                    case PlayerActions.Right: name = "menu/settings/controls/right".T(); break;
+                    case PlayerActions.Up: name = "menu/settings/controls/up".T(); break;
+                    case PlayerActions.Down: name = "menu/settings/controls/down".T(); break;
+                    case PlayerActions.Fire: name = "menu/settings/controls/fire".T(); break;
+                    case PlayerActions.Jump: name = "menu/settings/controls/jump".T(); break;
+                    case PlayerActions.Run: name = "menu/settings/controls/run".T(); break;
+                    case PlayerActions.SwitchWeapon: name = "menu/settings/controls/switch weapon".T(); break;
+                    case PlayerActions.Menu: name = "menu/settings/controls/back".T(); break;
                     default: name = ((PlayerActions)i).ToString(); break;
                 }
 

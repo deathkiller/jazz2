@@ -8,7 +8,7 @@ using static Jazz2.Game.Tiles.TileMap;
 
 namespace Jazz2.Actors.Weapons
 {
-    public class AmmoElectro : AmmoBase
+    public partial class AmmoElectro : AmmoBase
     {
         private Vector2 gunspotPos;
         private bool fired;
@@ -24,37 +24,13 @@ namespace Jazz2.Actors.Weapons
         {
             base.OnAttach(details);
 
+            base.upgrades = (byte)details.Params[0];
+
             strength = 4;
             collisionFlags &= ~(CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset);
             collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
 
             RequestMetadata("Weapon/Electro");
-
-            light = AddComponent<LightEmitter>();
-            light.Intensity = 0.4f;
-            light.Brightness = 0.2f;
-            light.RadiusNear = 0f;
-            light.RadiusFar = 12f;
-        }
-
-        public void OnFire(Player owner, Vector3 gunspotPos, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
-        {
-            base.owner = owner;
-            base.IsFacingLeft = isFacingLeft;
-            base.upgrades = upgrades;
-
-            this.gunspotPos = gunspotPos.Xy;
-
-            float angleRel = angle * (isFacingLeft ? -1 : 1);
-
-            float baseSpeed = ((upgrades & 0x1) != 0 ? 5f : 4f);
-            if (isFacingLeft) {
-                speedX = MathF.Min(0, speed.X) - MathF.Cos(angleRel) * baseSpeed;
-            } else {
-                speedX = MathF.Max(0, speed.X) + MathF.Cos(angleRel) * baseSpeed;
-            }
-            speedY = MathF.Sin(angleRel) * baseSpeed;
-            speedY += MathF.Abs(speed.Y) * speedY;
 
             ColorRgba color1, color2;
             if ((upgrades & 0x1) != 0) {
@@ -85,6 +61,31 @@ namespace Jazz2.Actors.Weapons
             material2.SetTexture("normalTex", ContentResolver.Current.DefaultNormalMap);
             material2.SetValue("normalMultiplier", Vector2.One);
             material2.MainColor = color2;
+
+            light = AddComponent<LightEmitter>();
+            light.Intensity = 0.4f;
+            light.Brightness = 0.2f;
+            light.RadiusNear = 0f;
+            light.RadiusFar = 12f;
+        }
+
+        public void OnFire(Player owner, Vector3 gunspotPos, Vector3 speed, float angle, bool isFacingLeft)
+        {
+            base.owner = owner;
+            base.IsFacingLeft = isFacingLeft;
+
+            this.gunspotPos = gunspotPos.Xy;
+
+            float angleRel = angle * (isFacingLeft ? -1 : 1);
+
+            float baseSpeed = ((upgrades & 0x1) != 0 ? 5f : 4f);
+            if (isFacingLeft) {
+                speedX = MathF.Min(0, speed.X) - MathF.Cos(angleRel) * baseSpeed;
+            } else {
+                speedX = MathF.Max(0, speed.X) + MathF.Cos(angleRel) * baseSpeed;
+            }
+            speedY = MathF.Sin(angleRel) * baseSpeed;
+            speedY += MathF.Abs(speed.Y) * speedY;
         }
 
         protected override void OnUpdate()

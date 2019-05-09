@@ -7,7 +7,7 @@ namespace Jazz2.Actors.Weapons
 {
     // ToDo: Adjust according to https://www.jazz2online.com/wiki/seeker
 
-    public class AmmoSeeker : AmmoBase
+    public partial class AmmoSeeker : AmmoBase
     {
         private Vector2 gunspotPos;
         private bool fired;
@@ -22,10 +22,29 @@ namespace Jazz2.Actors.Weapons
         {
             base.OnAttach(details);
 
+            base.upgrades = (byte)details.Params[0];
+
             //strength = 2;
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
             RequestMetadata("Weapon/Seeker");
+
+            AnimState state = AnimState.Idle;
+            if ((upgrades & 0x1) != 0) {
+                timeLeft = 188;
+                defaultRecomputeTime = 6f;
+                strength = 3;
+                state |= (AnimState)1;
+            } else {
+                timeLeft = 144;
+                defaultRecomputeTime = 10f;
+                strength = 2;
+            }
+
+            SetAnimation(state);
+            PlaySound("Fire");
+
+            renderer.Active = false;
 
             LightEmitter light = AddComponent<LightEmitter>();
             light.Intensity = 0.8f;
@@ -33,11 +52,10 @@ namespace Jazz2.Actors.Weapons
             light.RadiusFar = 8f;
         }
 
-        public void OnFire(Player owner, Vector3 gunspotPos, Vector3 speed, float angle, bool isFacingLeft, byte upgrades)
+        public void OnFire(Player owner, Vector3 gunspotPos, Vector3 speed, float angle, bool isFacingLeft)
         {
             base.owner = owner;
             //base.isFacingLeft = isFacingLeft;
-            base.upgrades = upgrades;
 
             this.gunspotPos = gunspotPos.Xy;
 
@@ -52,24 +70,7 @@ namespace Jazz2.Actors.Weapons
             speedY = MathF.Sin(angleRel) * baseSpeed;
             speedY += MathF.Abs(speed.Y) * 0.06f * speedY;
 
-            AnimState state = AnimState.Idle;
-            if ((upgrades & 0x1) != 0) {
-                timeLeft = 188;
-                defaultRecomputeTime = 6f;
-                strength = 3;
-                state |= (AnimState)1;
-            } else {
-                timeLeft = 144;
-                defaultRecomputeTime = 10f;
-                strength = 2;
-            }
-
             Transform.Angle = angleRel;
-
-            SetAnimation(state);
-            PlaySound("Fire");
-
-            renderer.Active = false;
         }
 
         protected override void OnUpdate()

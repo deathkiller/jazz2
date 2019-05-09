@@ -45,6 +45,8 @@ namespace Jazz2.Android
                 return;
             }
             
+            i18n.Language = Preferences.Get<string>("Language", "en");
+            
             ContentResolver.Current.Init();
             
             viewportWidth = Width;

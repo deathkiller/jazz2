@@ -38,50 +38,6 @@ namespace Duality
 			}
 			return result;
 		}
-		/// <summary>
-		/// Enumerates all <see cref="Duality.GameObject">GameObjects</see> that match the specified name.
-		/// </summary>
-		/// <param name="objEnum"></param>
-		/// <param name="name"></param>
-		/// <returns></returns>
-		public static IEnumerable<GameObject> ByName(this IEnumerable<GameObject> objEnum, string name)
-		{
-			if (name.IndexOf('/') != -1)
-			{
-				string[] names = name.Split('/');
-				IEnumerable<GameObject> cur = objEnum.ByName(names[0]);
-				for (int i = 1; i < names.Length; i++)
-				{
-					if (cur == null) return null;
-					cur = cur.Children().ByName(names[i]);
-				}
-				return cur;
-			}
-			else
-				return objEnum.Where(o => o.Name == name);
-		}
-		/// <summary>
-		/// Returns the first <see cref="Duality.GameObject"/> that matches the specified name.
-		/// </summary>
-		/// <param name="objEnum"></param>
-		/// <param name="name"></param>
-		/// <returns></returns>
-		public static GameObject FirstByName(this IEnumerable<GameObject> objEnum, string name)
-		{
-			if (name.IndexOf('/') != -1)
-			{
-				string[] names = name.Split('/');
-				GameObject cur = objEnum.FirstByName(names[0]);
-				for (int i = 1; i < names.Length; i++)
-				{
-					if (cur == null) return null;
-					cur = cur.Children.FirstByName(names[i]);
-				}
-				return cur;
-			}
-			else
-				return objEnum.FirstOrDefault(o => o.Name == name);
-		}
 
 		/// <summary>
 		/// Enumerates all <see cref="Duality.GameObject">GameObjects</see> <see cref="Component">Components</see> of the specified type.

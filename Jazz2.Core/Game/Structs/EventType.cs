@@ -163,5 +163,17 @@
 
         RollingRock = 0x006E,
         RollingRockTrigger = 0x006F,
+
+        // Multiplayer-only remotable actors
+        WeaponBlaster = 0x0601,
+        WeaponBouncer = 0x0602,
+        WeaponElectro = 0x0603,
+        WeaponFreezer = 0x0604,
+        WeaponPepper = 0x0605,
+        WeaponRF = 0x0606,
+        WeaponSeeker = 0x0607,
+        WeaponThunderbolt = 0x0608,
+        WeaponTNT = 0x0609,
+        WeaponToaster = 0x060A,
     }
 }

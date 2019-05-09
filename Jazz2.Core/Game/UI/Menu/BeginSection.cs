@@ -17,11 +17,11 @@ namespace Jazz2.Game.UI.Menu
         public BeginSection()
         {
             items = new List<Tuple<string, Action>> {
-                Tuple.Create<string, Action>("Play Story", OnPlayStoryPressed),
-                Tuple.Create<string, Action>("Play Custom Game", OnPlayCustomGamePressed),
-                Tuple.Create<string, Action>("Settings", OnSettingsPressed),
-                Tuple.Create<string, Action>("About", OnAboutPressed),
-                Tuple.Create<string, Action>("Exit", OnExitPressed),
+                Tuple.Create<string, Action>("menu/play story".T(), OnPlayStoryPressed),
+                Tuple.Create<string, Action>("menu/play custom".T(), OnPlayCustomGamePressed),
+                Tuple.Create<string, Action>("menu/settings".T(), OnSettingsPressed),
+                Tuple.Create<string, Action>("menu/about".T(), OnAboutPressed),
+                Tuple.Create<string, Action>("menu/exit".T(), OnExitPressed),
             };
         }
 

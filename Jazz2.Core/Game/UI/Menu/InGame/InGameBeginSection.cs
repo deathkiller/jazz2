@@ -17,9 +17,9 @@ namespace Jazz2.Game.UI.Menu.InGame
         public InGameMenuBeginSection(bool isMultiplayerSession)
         {
             items = new List<Tuple<string, Action>> {
-                Tuple.Create<string, Action>("Resume", OnPlayStoryPressed),
-                Tuple.Create<string, Action>("Settings", OnSettingsPressed),
-                Tuple.Create<string, Action>(isMultiplayerSession ? "Disconnect & Exit" : "Save & Exit", OnExitPressed),
+                Tuple.Create<string, Action>("menu/resume".T(), OnPlayStoryPressed),
+                Tuple.Create<string, Action>("menu/settings".T(), OnSettingsPressed),
+                Tuple.Create<string, Action>(isMultiplayerSession ? "menu/disconnect exit".T() : "menu/save exit".T(), OnExitPressed),
             };
         }
 

@@ -65,12 +65,12 @@ namespace Jazz2.Game.UI.Menu.InGame
             bool isMultiplayerSession = false;
 #endif
 
-            rootObject = new GameObject("InGameMenu");
+            rootObject = new GameObject();
             rootObject.AddComponent(new LocalController(this));
             AddObject(rootObject);
 
             // Setup camera
-            GameObject camera = new GameObject("MainCamera");
+            GameObject camera = new GameObject();
             camera.AddComponent<Transform>();
 
             Camera cameraInner = camera.AddComponent<Camera>();
@@ -84,8 +84,8 @@ namespace Jazz2.Game.UI.Menu.InGame
             canvas = new Canvas();
 
             // Load resources
-            fontSmall = new BitmapFont(canvas, "UI/font_small", 17, 18, 15, 32, 256, -2);
-            fontMedium = new BitmapFont(canvas, "UI/font_medium", 29, 31, 15, 32, 256, -1);
+            fontSmall = new BitmapFont(canvas, "_custom/font_small");
+            fontMedium = new BitmapFont(canvas, "_custom/font_medium");
 
             metadata = ContentResolver.Current.RequestMetadata("UI/MainMenu");
 
@@ -258,7 +258,7 @@ namespace Jazz2.Game.UI.Menu.InGame
             // Copyright
             Vector2 bottomLeft = bottomRight;
             bottomLeft.X = view.X + 24f;
-            DrawStringShadow(ref charOffset, "(c) 2016-" + DateTime.Now.Year + "  Dan R.", bottomLeft.X, bottomLeft.Y, Alignment.BottomLeft,
+            DrawStringShadow(ref charOffset, "© 2016-" + DateTime.Now.Year + "  Dan R.", bottomLeft.X, bottomLeft.Y, Alignment.BottomLeft,
                 new ColorRgba(0.45f, 0.5f), 0.7f, 0.4f, 1.2f, 1.2f, 7f, 0.8f);
 
             // Current section

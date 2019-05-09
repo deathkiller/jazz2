@@ -4,7 +4,7 @@ using Jazz2.Game.Tiles;
 
 namespace Jazz2.Actors.Weapons
 {
-    public class AmmoTNT : ActorBase
+    public partial class AmmoTNT : ActorBase
     {
         private Player owner;
 
@@ -12,11 +12,6 @@ namespace Jazz2.Actors.Weapons
         private bool isExploded;
 
         public Player Owner => owner;
-
-        public AmmoTNT(Player owner)
-        {
-            this.owner = owner;
-        }
 
         public override void OnAttach(ActorInstantiationDetails details)
         {
@@ -26,6 +21,11 @@ namespace Jazz2.Actors.Weapons
 
             RequestMetadata("Weapon/TNT");
             SetAnimation(AnimState.Idle);
+        }
+
+        public void OnFire(Player owner)
+        {
+            this.owner = owner;
         }
 
         protected override void OnUpdate()

@@ -77,7 +77,7 @@ namespace Jazz2.Actors
 
         private void FireWeapon()
         {
-            if (weaponCooldown > 0f || api.IsMultiplayerSession) {
+            if (weaponCooldown > 0f) {
                 return;
             }
 
@@ -155,9 +155,10 @@ namespace Jazz2.Actors
             AmmoBlaster newAmmo = new AmmoBlaster();
             newAmmo.OnAttach(new ActorInstantiationDetails {
                 Api = api,
-                Pos = initialPos
+                Pos = initialPos,
+                Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
             });
-            newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft);
             api.AddActor(newAmmo);
 
             PlaySound("WeaponBlaster");
@@ -172,9 +173,10 @@ namespace Jazz2.Actors
             AmmoBouncer newAmmo = new AmmoBouncer();
             newAmmo.OnAttach(new ActorInstantiationDetails {
                 Api = api,
-                Pos = initialPos
+                Pos = initialPos,
+                Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
             });
-            newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft);
             api.AddActor(newAmmo);
 
             weaponCooldown = 32f - (weaponUpgrades[(int)WeaponType.Blaster] >> 1) * 1.7f;
@@ -189,25 +191,28 @@ namespace Jazz2.Actors
                 AmmoFreezer newAmmo = new AmmoFreezer();
                 newAmmo.OnAttach(new ActorInstantiationDetails {
                     Api = api,
-                    Pos = initialPos
+                    Pos = initialPos,
+                    Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
                 });
-                newAmmo.OnFire(this, gunspotPos, Speed, angle - 0.018f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, gunspotPos, Speed, angle - 0.018f, IsFacingLeft);
                 api.AddActor(newAmmo);
 
                 newAmmo = new AmmoFreezer();
                 newAmmo.OnAttach(new ActorInstantiationDetails {
                     Api = api,
-                    Pos = initialPos
+                    Pos = initialPos,
+                    Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
                 });
-                newAmmo.OnFire(this, gunspotPos, Speed, angle + 0.018f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, gunspotPos, Speed, angle + 0.018f, IsFacingLeft);
                 api.AddActor(newAmmo);
             } else {
                 AmmoFreezer newAmmo = new AmmoFreezer();
                 newAmmo.OnAttach(new ActorInstantiationDetails {
                     Api = api,
-                    Pos = initialPos
+                    Pos = initialPos,
+                    Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
                 });
-                newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft);
                 api.AddActor(newAmmo);
             }
 
@@ -222,9 +227,10 @@ namespace Jazz2.Actors
             AmmoSeeker newAmmo = new AmmoSeeker();
             newAmmo.OnAttach(new ActorInstantiationDetails {
                 Api = api,
-                Pos = initialPos
+                Pos = initialPos,
+                Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
             });
-            newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft);
             api.AddActor(newAmmo);
 
             weaponCooldown = 46f - (weaponUpgrades[(int)WeaponType.Blaster] >> 1) * 1.4f;
@@ -239,41 +245,46 @@ namespace Jazz2.Actors
                 AmmoRF newAmmo = new AmmoRF();
                 newAmmo.OnAttach(new ActorInstantiationDetails {
                     Api = api,
-                    Pos = initialPos
+                    Pos = initialPos,
+                    Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
                 });
-                newAmmo.OnFire(this, gunspotPos, Speed, angle - 0.26f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, gunspotPos, Speed, angle - 0.26f, IsFacingLeft);
                 api.AddActor(newAmmo);
 
                 newAmmo = new AmmoRF();
                 newAmmo.OnAttach(new ActorInstantiationDetails {
                     Api = api,
-                    Pos = initialPos
+                    Pos = initialPos,
+                    Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
                 });
-                newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft);
                 api.AddActor(newAmmo);
 
                 newAmmo = new AmmoRF();
                 newAmmo.OnAttach(new ActorInstantiationDetails {
                     Api = api,
-                    Pos = initialPos
+                    Pos = initialPos,
+                    Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
                 });
-                newAmmo.OnFire(this, gunspotPos, Speed, angle + 0.26f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, gunspotPos, Speed, angle + 0.26f, IsFacingLeft);
                 api.AddActor(newAmmo);
             } else {
                 AmmoRF newAmmo = new AmmoRF();
                 newAmmo.OnAttach(new ActorInstantiationDetails {
                     Api = api,
-                    Pos = initialPos
+                    Pos = initialPos,
+                    Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
                 });
-                newAmmo.OnFire(this, gunspotPos, Speed, angle - 0.2f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, gunspotPos, Speed, angle - 0.2f, IsFacingLeft);
                 api.AddActor(newAmmo);
 
                 newAmmo = new AmmoRF();
                 newAmmo.OnAttach(new ActorInstantiationDetails {
                     Api = api,
-                    Pos = initialPos
+                    Pos = initialPos,
+                    Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
                 });
-                newAmmo.OnFire(this, gunspotPos, Speed, angle + 0.2f, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+                newAmmo.OnFire(this, gunspotPos, Speed, angle + 0.2f, IsFacingLeft);
                 api.AddActor(newAmmo);
             }
 
@@ -288,9 +299,10 @@ namespace Jazz2.Actors
             AmmoToaster newAmmo = new AmmoToaster();
             newAmmo.OnAttach(new ActorInstantiationDetails {
                 Api = api,
-                Pos = initialPos
+                Pos = initialPos,
+                Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
             });
-            newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft);
             api.AddActor(newAmmo);
 
             //PlaySound("WeaponToaster", 0.6f);
@@ -302,11 +314,12 @@ namespace Jazz2.Actors
         {
             Vector3 pos = Transform.Pos;
 
-            AmmoTNT tnt = new AmmoTNT(this);
+            AmmoTNT tnt = new AmmoTNT();
             tnt.OnAttach(new ActorInstantiationDetails {
                 Api = api,
                 Pos = pos
             });
+            tnt.OnFire(this);
             api.AddActor(tnt);
 
             weaponCooldown = 30f;
@@ -320,17 +333,19 @@ namespace Jazz2.Actors
             AmmoPepper newAmmo = new AmmoPepper();
             newAmmo.OnAttach(new ActorInstantiationDetails {
                 Api = api,
-                Pos = initialPos
+                Pos = initialPos,
+                Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
             });
-            newAmmo.OnFire(this, gunspotPos, Speed, angle + MathF.Rnd.NextFloat(-0.2f, 0.2f), IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            newAmmo.OnFire(this, gunspotPos, Speed, angle + MathF.Rnd.NextFloat(-0.2f, 0.2f), IsFacingLeft);
             api.AddActor(newAmmo);
 
             newAmmo = new AmmoPepper();
             newAmmo.OnAttach(new ActorInstantiationDetails {
                 Api = api,
-                Pos = initialPos
+                Pos = initialPos,
+                Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
             });
-            newAmmo.OnFire(this, gunspotPos, Speed, angle + MathF.Rnd.NextFloat(-0.2f, 0.2f), IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            newAmmo.OnFire(this, gunspotPos, Speed, angle + MathF.Rnd.NextFloat(-0.2f, 0.2f), IsFacingLeft);
             api.AddActor(newAmmo);
 
             weaponCooldown = 36f - (weaponUpgrades[(int)WeaponType.Blaster] >> 1) * 1.6f;
@@ -344,9 +359,10 @@ namespace Jazz2.Actors
             AmmoElectro newAmmo = new AmmoElectro();
             newAmmo.OnAttach(new ActorInstantiationDetails {
                 Api = api,
-                Pos = initialPos
+                Pos = initialPos,
+                Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
             });
-            newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft);
             api.AddActor(newAmmo);
 
             weaponCooldown = 32f - (weaponUpgrades[(int)WeaponType.Blaster] >> 1) * 1.2f;
@@ -364,9 +380,10 @@ namespace Jazz2.Actors
             AmmoThunderbolt newAmmo = new AmmoThunderbolt();
             newAmmo.OnAttach(new ActorInstantiationDetails {
                 Api = api,
-                Pos = gunspotPos
+                Pos = gunspotPos,
+                Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
             });
-            newAmmo.OnFire(this, Speed, angle, IsFacingLeft, weaponUpgrades[(int)currentWeapon]);
+            newAmmo.OnFire(this, Speed, angle, IsFacingLeft);
             api.AddActor(newAmmo);
 
             controllable = false;

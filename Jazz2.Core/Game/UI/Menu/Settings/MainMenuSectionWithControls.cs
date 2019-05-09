@@ -33,7 +33,7 @@ namespace Jazz2.Game.UI.Menu.Settings
             Vector2 pos = size * 0.5f;
             pos.Y *= 0.65f;
 
-            float maxVisibleItemsFloat = (size.Y - pos.Y - 20f) / 45f;
+            float maxVisibleItemsFloat = (size.Y - pos.Y - 40f) / 45f;
             maxVisibleItems = (int)maxVisibleItemsFloat;
 
             if (maxVisibleItems > controls.Length) {

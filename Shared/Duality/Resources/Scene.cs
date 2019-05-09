@@ -591,15 +591,6 @@ namespace Duality.Resources
         }
 
         /// <summary>
-        /// Finds all GameObjects in the Scene that match the specified name or name path.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public IEnumerable<GameObject> FindGameObjects(string name)
-        {
-            return this.AllObjects.ByName(name);
-        }
-        /// <summary>
         /// Finds all GameObjects in the Scene which have a Component of the specified type.
         /// </summary>
         /// <param name="name"></param>
@@ -669,15 +660,6 @@ namespace Duality.Resources
             return result;
         }
 
-        /// <summary>
-        /// Finds a single GameObjects in the Scene that match the specified name or name path.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public GameObject FindGameObject(string name, bool activeOnly = true)
-        {
-            return (activeOnly ? this.ActiveObjects : this.AllObjects).ByName(name).FirstOrDefault();
-        }
         /// <summary>
         /// Finds a single GameObject in the Scene that has a Component of the specified type.
         /// </summary>
