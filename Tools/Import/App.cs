@@ -860,8 +860,8 @@ namespace Import
                     // Default (unreferenced) assets - paths in the set have to be lower-case
                     usedAnimations.Add("Main.palette");
                     usedAnimations.Add("_custom/noise.png");
-                    usedAnimations.Add("ui/font_small.png");
-                    usedAnimations.Add("ui/font_medium.png");
+                    usedAnimations.Add("_custom/font_small.png");
+                    usedAnimations.Add("_custom/font_medium.png");
 
                     string prefix = Path.Combine(targetPath, "Content", "Animations");
 
@@ -959,9 +959,9 @@ namespace Import
                 IFileSystem fs = new CompressedContent(Path.Combine(targetPath, "Content", "Main.dz"));
 
                 foreach (string unreferenced in new[] {
-                    "Main.palette", "_custom/noise.png", "UI/font_medium.png", "UI/font_medium.png.res",
-                    "UI/font_medium.png.config", "UI/font_small.png", "UI/font_small.png.res",
-                    "UI/font_small.png.config"
+                    "Main.palette", "_custom/noise.png",
+                    "_custom/font_medium.png", "_custom/font_medium.png.font",
+                    "_custom/font_small.png", "_custom/font_small.png.font"
                 }) {
                     if (!fs.FileExists(Path.Combine("Animations", unreferenced))) {
                         Log.Write(LogType.Warning,
@@ -1060,8 +1060,8 @@ namespace Import
 
             foreach (string unreferenced in new[] {
                 "Main.palette",
-                "UI/font_medium.png.config",
-                "UI/font_small.png.config"
+                "_custom/font_medium.png.font",
+                "_custom/font_small.png.font"
             }) {
                 string file = PathOp.Combine("Animations", unreferenced.Replace('/', PathOp.DirectorySeparatorChar));
                 string path = Path.Combine(animationsPath, unreferenced);
