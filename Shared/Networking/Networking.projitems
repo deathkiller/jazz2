@@ -81,6 +81,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\CreateRemotableActor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\DestroyRemotableActor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\LevelReady.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\RemotePlayerHit.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\SelfDied.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\UpdateRemotableActor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\UpdateSelf.cs" />

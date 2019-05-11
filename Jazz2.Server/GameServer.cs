@@ -55,12 +55,7 @@ namespace Jazz2.Server
             server.ClientConnected += OnClientConnected;
             server.ClientStatusChanged += OnClientStatusChanged;
 
-            RegisterCallback<LevelReady>(OnLevelReady);
-            RegisterCallback<UpdateSelf>(OnUpdateSelf);
-            RegisterCallback<SelfDied>(OnSelfDied);
-            RegisterCallback<CreateRemotableActor>(OnCreateRemotableActor);
-            RegisterCallback<UpdateRemotableActor>(OnUpdateRemotableActor);
-            RegisterCallback<DestroyRemotableActor>(OnDestroyRemotableActor);
+            RegisterPacketCallbacks();
 
             // Create game loop
             threadGame = new Thread(OnGameLoop);

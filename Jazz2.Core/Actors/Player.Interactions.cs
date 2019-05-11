@@ -183,6 +183,7 @@ namespace Jazz2.Actors
 
                     speedY = 0f;
                     externalForceY = 0f;
+                    internalForceY = 0f;
 
                     activeModifier = Modifier.Airboard;
 
@@ -209,6 +210,7 @@ namespace Jazz2.Actors
 
                     speedY = 0f;
                     externalForceY = 0f;
+                    internalForceY = 0f;
 
                     activeModifier = Modifier.LizardCopter;
 

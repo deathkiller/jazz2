@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using Duality.Audio;
 using Duality.Backend;
-using Duality.Drawing;
 using Duality.Input;
 using Duality.IO;
 using Duality.Resources;
@@ -62,6 +62,7 @@ namespace Duality
         private static SoundDevice sound = null;
         private static ExecutionContext execContext = ExecutionContext.Terminated;
         private static List<object> disposeSchedule = new List<object>();
+        private static SpinLock disposeScheduleLock = new SpinLock();
 
         /// <summary>
         /// Called when the game becomes focused or loses focus.
@@ -490,7 +491,13 @@ namespace Duality
         /// <param name="o">The object to schedule for disposal.</param>
         public static void DisposeLater(object o)
         {
-            disposeSchedule.Add(o);
+            bool lockTaken = false;
+            try {
+                disposeScheduleLock.Enter(ref lockTaken);
+                disposeSchedule.Add(o);
+            } finally {
+                if (lockTaken) disposeScheduleLock.Exit();
+            }
         }
         /// <summary>
         /// Performs all scheduled disposal calls and cleans up internal data. This is done automatically at the
@@ -500,8 +507,16 @@ namespace Duality
         public static void RunCleanup()
         {
             // Perform scheduled object disposals
-            object[] disposeScheduleArray = disposeSchedule.ToArray();
-            disposeSchedule.Clear();
+            object[] disposeScheduleArray;
+            bool lockTaken = false;
+            try {
+                disposeScheduleLock.Enter(ref lockTaken);
+                disposeScheduleArray = disposeSchedule.ToArray();
+                disposeSchedule.Clear();
+            } finally {
+                if (lockTaken) disposeScheduleLock.Exit();
+            }
+            
             foreach (object o in disposeScheduleArray) {
                 IManageableObject m = o as IManageableObject;
                 if (m != null) { m.Dispose(); continue; }

@@ -15,6 +15,17 @@ namespace Jazz2.Server
 {
     partial class GameServer
     {
+        private void RegisterPacketCallbacks()
+        {
+            RegisterCallback<LevelReady>(OnLevelReady);
+            RegisterCallback<UpdateSelf>(OnUpdateSelf);
+            RegisterCallback<SelfDied>(OnSelfDied);
+            RegisterCallback<RemotePlayerHit>(OnRemotePlayerHit);
+            RegisterCallback<CreateRemotableActor>(OnCreateRemotableActor);
+            RegisterCallback<UpdateRemotableActor>(OnUpdateRemotableActor);
+            RegisterCallback<DestroyRemotableActor>(OnDestroyRemotableActor);
+        }
+
         private void OnLevelReady(ref LevelReady p)
         {
             Player player;
@@ -132,6 +143,14 @@ namespace Jazz2.Server
             Send(new RemotePlayerDied {
                 Index = player.Index
             }, 2, playerConnections, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+        }
+
+        private void OnRemotePlayerHit(ref RemotePlayerHit p)
+        {
+            Send(new DecreasePlayerHealth {
+                Index = p.Index,
+                Amount = p.Damage
+            }, 3, playerConnections, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
         }
 
         private void OnCreateRemotableActor(ref CreateRemotableActor p)

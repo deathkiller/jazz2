@@ -66,6 +66,7 @@ namespace Jazz2.Game.Multiplayer
             Hud.ShowDebugText("- Local Player Index: " + localPlayerIndex);
             Hud.ShowDebugText("- RTT: " + (int)(net.AverageRoundtripTime * 1000) + " ms / Up: " + net.Up + " / Down: " + net.Down);
             Hud.ShowDebugText("- Last Server Update: " + lastServerUpdateTime);
+            Hud.ShowDebugText("- Remote Objects: " + localRemotableActors.Count + " / " + remoteActors.Count);
 #endif
 
             if (players.Count > 0) {
@@ -102,6 +103,19 @@ namespace Jazz2.Game.Multiplayer
             }, 2, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
 
             return false;
+        }
+
+        public override void BroadcastTriggeredEvent(EventType eventType, ushort[] eventParams)
+        {
+            if (eventType == EventType.ModifierHurt) {
+                net.Send(new RemotePlayerHit {
+                    Index = (byte)eventParams[0],
+                    Damage = (byte)eventParams[1]
+                }, 3, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+                return;
+            }
+
+            base.BroadcastTriggeredEvent(eventType, eventParams);
         }
 
         public override void AddActor(ActorBase actor)
@@ -280,7 +294,8 @@ namespace Jazz2.Game.Multiplayer
                     Params = new ushort[] { (ushort)type, (ushort)index }
                 });
 
-                AddObject(player);
+                //AddObject(player);
+                AddActor(player);
             });
         }
 
@@ -291,7 +306,8 @@ namespace Jazz2.Game.Multiplayer
             Root.DispatchToMainThread(delegate {
                 RemotePlayer player = Interlocked.Exchange(ref remotePlayers[index], null);
                 if (player != null) {
-                    RemoveObject(player);
+                    //RemoveObject(player);
+                    RemoveActor(player);
                 }
             });
         }

@@ -1,5 +1,6 @@
 ﻿using Duality;
 using Jazz2.Actors;
+using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Game.Multiplayer
@@ -50,7 +51,7 @@ namespace Jazz2.Game.Multiplayer
         {
             double time = Time.MainTimer.TotalMilliseconds;
 
-            float alpha = (float)((time - lastTime1) / (lastTime2 - lastTime1));
+            float alpha = MathF.Clamp((float)((time - lastTime1) / (lastTime2 - lastTime1)), 0f, 1f);
 
             Transform.Pos = lastPos1 + (lastPos2 - lastPos1) * alpha;
 
@@ -76,6 +77,17 @@ namespace Jazz2.Game.Multiplayer
                     renderer.Active = true;
                     renderer.AnimTime = animTime;
                     IsFacingLeft = isFacingLeft;
+                }
+            }
+        }
+
+        public override void OnHandleCollision(ActorBase other)
+        {
+            switch (other) {
+                case AmmoBase ammo: {
+                    api.BroadcastTriggeredEvent(EventType.ModifierHurt, new ushort[] { (ushort)Index, 1 });
+                    ammo.DecreaseHealth(int.MaxValue);
+                    break;
                 }
             }
         }

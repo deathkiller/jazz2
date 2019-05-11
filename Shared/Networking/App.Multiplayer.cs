@@ -75,7 +75,7 @@ namespace Jazz2.Game
             DualityApp.DisposeLater(new ActionDisposable(action));
         }
 
-        private struct ActionDisposable : IDisposable
+        private class ActionDisposable : IDisposable
         {
             private Action action;
 
