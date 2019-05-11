@@ -19,7 +19,7 @@ namespace Jazz2
                 List<string> languages = new List<string>();
                 string path = PathOp.Combine(DualityApp.DataDirectory, "i18n");
                 foreach (string file in DirectoryOp.GetFiles(path, false)) {
-                    languages.Add(Path.GetFileNameWithoutExtension(file));
+                    languages.Add(PathOp.GetFileNameWithoutExtension(file));
                 }
                 return languages.ToArray();
             }

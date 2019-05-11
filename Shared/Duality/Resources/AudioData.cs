@@ -82,8 +82,15 @@ namespace Duality.Resources
 		/// <param name="stream">A <see cref="System.IO.Stream"/> containing audio data</param>
 		public AudioData(Stream stream)
 		{
-			this.data = new byte[stream.Length];
-			stream.Read(this.data, 0, (int)stream.Length);
+			if (stream.CanSeek) {
+				this.data = new byte[stream.Length];
+				stream.Read(this.data, 0, (int)stream.Length);
+			} else {
+				using (MemoryStream ms = new MemoryStream()) {
+					stream.CopyTo(ms);
+					this.data = ms.ToArray();
+				}
+			}
 
 			this.SetupNativeBuffer();
 		}

@@ -220,6 +220,7 @@ namespace Jazz2.Android
 
                 if (Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop) {
                     Window.SetStatusBarColor(new Color(0x30000000));
+                    Window.SetNavigationBarColor(new Color(unchecked((int)0xff000000)));
                 }
 
                 if (Build.VERSION.SdkInt >= BuildVersionCodes.P) {

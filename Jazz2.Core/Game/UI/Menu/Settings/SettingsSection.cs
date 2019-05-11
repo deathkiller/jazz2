@@ -49,7 +49,11 @@ namespace Jazz2.Game.UI.Menu.Settings
                     currentLanguageIndex = i;
                 }
 
-                languageNames[i] = CultureInfo.GetCultureInfo(availableLanguages[i]).DisplayName;
+                try {
+                    languageNames[i] = CultureInfo.GetCultureInfo(availableLanguages[i]).DisplayName;
+                } catch {
+                    languageNames[i] = availableLanguages[i].ToUpperInvariant();
+                }
             }
             language = new ChoiceControl(api, "menu/settings/language".T(), currentLanguageIndex, languageNames);
 
