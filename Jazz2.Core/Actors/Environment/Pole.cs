@@ -97,13 +97,24 @@ namespace Jazz2.Actors.Environment
         {
             //base.HandleCollision(other);
 
-            AmmoBase ammo = other as AmmoBase;
-            if (ammo != null) {
-                if (fall == FallDirection.None) {
-                    fall = (ammo.Speed.X < 0 ? FallDirection.Left : FallDirection.Right);
+            switch (other) {
+                case AmmoBase ammo: {
+                    if (fall == FallDirection.None) {
+                        fall = (ammo.Speed.X < 0 ? FallDirection.Left : FallDirection.Right);
+                        isInvulnerable = true;
+                    }
+
+                    ammo.DecreaseHealth(1, this);
+                    break;
                 }
 
-                ammo.DecreaseHealth(1, this);
+                case AmmoTNT ammo: {
+                    if (fall == FallDirection.None) {
+                        fall = (ammo.Speed.X < 0 ? FallDirection.Left : FallDirection.Right);
+                        isInvulnerable = true;
+                    }
+                    break;
+                }
             }
         }
 

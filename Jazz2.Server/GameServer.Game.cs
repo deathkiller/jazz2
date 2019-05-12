@@ -41,7 +41,6 @@ namespace Jazz2.Server
             public long LastUpdateTime;
 
             public Vector3 Pos;
-            public Vector2 Speed;
 
             public AnimState AnimState;
             public float AnimTime;

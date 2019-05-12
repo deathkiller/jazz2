@@ -1,4 +1,7 @@
 ﻿using Duality;
+using Jazz2.Actors.Enemies;
+using Jazz2.Actors.Environment;
+using Jazz2.Actors.Solid;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
 
@@ -8,7 +11,7 @@ namespace Jazz2.Actors.Weapons
     {
         private Player owner;
 
-        private float lifetime = 80f;
+        private float lifetime = 200f;
         private bool isExploded;
 
         public Player Owner => owner;
@@ -34,6 +37,22 @@ namespace Jazz2.Actors.Weapons
 
             if (lifetime > 0f) {
                 lifetime -= Time.TimeMult;
+
+                if (lifetime > 40f) {
+                    Vector3 pos = Transform.Pos;
+                    foreach (ActorBase collision in api.FindCollisionActorsRadius(pos.X, pos.Y, 50)) {
+                        if (!collision.IsInvulnerable && (collision is EnemyBase ||
+                            collision is AmmoBarrel || collision is AmmoCrate ||
+                            collision is BarrelContainer || collision is CrateContainer ||
+                            collision is GemBarrel || collision is GemCrate ||
+                            collision is PowerUpMorphMonitor || collision is PowerUpShieldMonitor ||
+                            collision is PowerUpWeaponMonitor || collision is TriggerCrate ||
+                            collision is BirdCage || collision is Pole)) {
+                            lifetime = 40f;
+                            break;
+                        }
+                    }
+                }
             } else if (!isExploded) {
                 isExploded = true;
 
@@ -59,6 +78,20 @@ namespace Jazz2.Actors.Weapons
                 }
             } else {
                 Transform.Scale += Time.TimeMult * 0.02f;
+            }
+        }
+
+        public override void OnHandleCollision(ActorBase other)
+        {
+            //base.OnHandleCollision(other);
+
+            switch (other) {
+                case AmmoTNT ammo: {
+                    if (lifetime > 40f) {
+                        lifetime = 40f;
+                    }
+                    break;
+                }
             }
         }
     }

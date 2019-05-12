@@ -17,7 +17,6 @@ namespace Jazz2.Networking.Packets.Client
         public long UpdateTime;
 
         public Vector3 Pos;
-        public Vector2 Speed;
 
         public AnimState AnimState;
         public float AnimTime;
@@ -39,12 +38,6 @@ namespace Jazz2.Networking.Packets.Client
                 Pos = new Vector3(x, y, z);
             }
 
-            {
-                float x = msg.ReadInt16() * 0.002f;
-                float y = msg.ReadInt16() * 0.002f;
-                Speed = new Vector2(x, y);
-            }
-
             AnimState = (AnimState)msg.ReadUInt32();
             AnimTime = msg.ReadFloat();
             IsFacingLeft = msg.ReadBoolean();
@@ -62,9 +55,6 @@ namespace Jazz2.Networking.Packets.Client
             msg.Write((ushort)Pos.X);
             msg.Write((ushort)Pos.Y);
             msg.Write((ushort)Pos.Z);
-
-            msg.Write((short)(Speed.X * 500f));
-            msg.Write((short)(Speed.Y * 500f));
 
             msg.Write((uint)AnimState);
             msg.Write((float)AnimTime);

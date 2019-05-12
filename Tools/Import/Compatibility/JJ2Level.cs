@@ -776,37 +776,42 @@ namespace Jazz2.Compatibility
                 w.WriteLine();
                 w.WriteLine("    },");
 
-                bool textFound = false;
-                for (int i = 0; i < textEventStrings.Count; ++i) {
+                int textEventsCount = 0;
+                for (int i = 0; i < textEventStrings.Count; i++) {
                     if (!string.IsNullOrEmpty(textEventStrings[i])) {
-                        if (textFound) {
-                            w.WriteLine(",");
-                        } else {
-                            textFound = true;
-                            w.WriteLine("    \"TextEvents\": {");
-                        }
-
-                        string current = textEventStrings[i];
-
-                        if (levelTokenTextIDs.Contains(i)) {
-                            string[] tokens = current.Split(new[] { '|' }, StringSplitOptions.None);
-
-                            for (int j = 0; j < tokens.Length; j++) {
-                                LevelToken token = levelTokenConversion(tokens[j]);
-                                tokens[j] = (token.Episode == null ? "" : token.Episode + ":") + token.Level;
-                            }
-
-                            current = string.Join("|", tokens);
-                        } else {
-                            current = JJ2Text.ConvertFormattedString(current);
-                        }
-
-                        w.Write("        \"" + i.ToString(CultureInfo.InvariantCulture) + "\": \"" + current + "\"");
+                        textEventsCount = i + 1;
                     }
                 }
-                if (textFound) {
+                if (textEventsCount > 0) {
+                    w.WriteLine("    \"TextEvents\": [");
+                    for (int i = 0; i < textEventsCount; i++) {
+                        if (i != 0) {
+                            w.WriteLine(",");
+                        }
+
+                        if (!string.IsNullOrEmpty(textEventStrings[i])) {
+                            string current = textEventStrings[i];
+
+                            if (levelTokenTextIDs.Contains(i)) {
+                                string[] tokens = current.Split(new[] { '|' }, StringSplitOptions.None);
+
+                                for (int j = 0; j < tokens.Length; j++) {
+                                    LevelToken token = levelTokenConversion(tokens[j]);
+                                    tokens[j] = (token.Episode == null ? "" : token.Episode + ":") + token.Level;
+                                }
+
+                                current = string.Join("|", tokens);
+                            } else {
+                                current = JJ2Text.ConvertFormattedString(current);
+                            }
+
+                            w.Write("        \"" + current + "\"");
+                        } else {
+                            w.Write("        null");
+                        }
+                    }
                     w.WriteLine();
-                    w.WriteLine("    },");
+                    w.WriteLine("    ],");
                 }
 
                 if (extraTilesets != null) {

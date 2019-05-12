@@ -26,6 +26,7 @@ using System;
 using System.Net;
 
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 
 namespace Lidgren.Network
 {
@@ -71,14 +72,6 @@ namespace Lidgren.Network
         {
             var adr = Resolve(ipOrHost);
             return adr == null ? null : new NetEndPoint(adr, port);
-        }
-
-        private static IPAddress s_broadcastAddress;
-        public static IPAddress GetCachedBroadcastAddress()
-        {
-            if (s_broadcastAddress == null)
-                s_broadcastAddress = GetBroadcastAddress();
-            return s_broadcastAddress;
         }
 
         /// <summary>
@@ -404,7 +397,10 @@ namespace Lidgren.Network
         /// </summary>
         /// <param name="src">Source</param>
         /// <param name="dst">Destination</param>
-        internal static void CopyEndpoint(IPEndPoint src, IPEndPoint dst)
+#if NET45
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        internal static void CopyEndpoint(NetEndPoint src, NetEndPoint dst)
         {
             dst.Port = src.Port;
             if (src.AddressFamily == AddressFamily.InterNetwork)
@@ -420,6 +416,9 @@ namespace Lidgren.Network
         /// <summary>
         /// Maps the IPEndPoint object to an IPv6 address, if it is currently mapped to an IPv4 address.
         /// </summary>
+#if NET45
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         internal static NetEndPoint MapToIPv6(NetEndPoint endPoint)
         {
             if (endPoint.AddressFamily == AddressFamily.InterNetwork)

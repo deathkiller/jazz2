@@ -69,7 +69,7 @@ namespace Jazz2.Game
 
         private BossBase activeBoss;
 
-        private IDictionary<int, string> levelTexts;
+        private IList<string> levelTexts;
         private Metadata commonResources;
 
         private OpenMptStream music;
@@ -351,7 +351,7 @@ namespace Jazz2.Game
 
             public VersionSection Version { get; set; }
             public DescriptionSection Description { get; set; }
-            public IDictionary<int, string> TextEvents { get; set; }
+            public IList<string> TextEvents { get; set; }
             public IList<TilesetSection> Tilesets { get; set; }
             public IDictionary<string, LayerSection> Layers { get; set; }
 
@@ -452,7 +452,7 @@ namespace Jazz2.Game
                     }
                 }
 
-                levelTexts = config.TextEvents ?? new Dictionary<int, string>();
+                levelTexts = config.TextEvents ?? new List<string>();
 
                 GameObject tilemapHandler = new GameObject();
                 tilemapHandler.Parent = rootObject;
@@ -678,9 +678,11 @@ namespace Jazz2.Game
 
         public string GetLevelText(int textID)
         {
-            string text;
-            levelTexts.TryGetValue(textID, out text);
-            return text;
+            if (textID < 0 && textID >= levelTexts.Count) {
+                return null;
+            }
+
+            return levelTexts[textID];
         }
 
         public void WarpCameraToTarget(ActorBase target)

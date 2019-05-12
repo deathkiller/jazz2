@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using Jazz2.Networking;
@@ -46,7 +47,7 @@ namespace Jazz2.Game.Multiplayer
             client = new NetClient(config);
             client.Start();
 
-            threadUpdate = new Thread(OnMessage);
+            threadUpdate = new Thread(OnHandleMessagesThread);
             threadUpdate.IsBackground = true;
             threadUpdate.Start();
         }
@@ -72,105 +73,103 @@ namespace Jazz2.Game.Multiplayer
 
         public void Close()
         {
-            if (client == null) {
+            if (threadUpdate == null) {
                 return;
             }
 
-            threadUpdate.Abort();
             threadUpdate = null;
 
             client.Shutdown("Client is disconnecting");
-            client = null;
         }
 
-        private void OnMessage()
+        private void OnHandleMessagesThread()
         {
-            try {
-                while (true) {
-                    client.MessageReceivedEvent.WaitOne();
+            while (threadUpdate != null) {
+                client.MessageReceivedEvent.WaitOne();
 
 #if DEBUG
-                    int nowTime = (int)(NetTime.Now * 1000);
-                    if (nowTime - statsReset > 1000) {
-                        statsReset = nowTime;
-                        Down = downLast;
-                        Up = upLast;
-                        downLast = 0;
-                        upLast = 0;
-                    }
+                int nowTime = (int)(NetTime.Now * 1000);
+                if (nowTime - statsReset > 1000) {
+                    statsReset = nowTime;
+                    Down = downLast;
+                    Up = upLast;
+                    downLast = 0;
+                    upLast = 0;
+                }
 #endif
 
-                    NetIncomingMessage msg;
-                    while (client.ReadMessage(out msg)) {
-                        switch (msg.MessageType) {
-                            case NetIncomingMessageType.StatusChanged:
-                                NetConnectionStatus status = (NetConnectionStatus)msg.ReadByte();
+                NetIncomingMessage msg;
+                while (client.ReadMessage(out msg)) {
+                    switch (msg.MessageType) {
+                        case NetIncomingMessageType.StatusChanged:
+                            NetConnectionStatus status = (NetConnectionStatus)msg.ReadByte();
 #if DEBUG
-                                Console.ForegroundColor = ConsoleColor.DarkCyan;
-                                Console.Write("    S ");
-                                Console.ForegroundColor = ConsoleColor.Gray;
-                                Console.WriteLine("[" + msg.SenderEndPoint + "] " + status);
+                            Console.ForegroundColor = ConsoleColor.DarkCyan;
+                            Console.Write("    S ");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                            Console.WriteLine("[" + msg.SenderEndPoint + "] " + status);
 #endif
                                 
-                                if (status == NetConnectionStatus.Disconnected) {
-                                    OnDisconnected?.Invoke();
-                                }
-
-                                break;
-
-                            case NetIncomingMessageType.Data: {
-#if DEBUG
-                                downLast += msg.LengthBytes;
-#endif
-                                byte type = msg.ReadByte();
-
-                                if (type == PacketTypes.UpdateAll) {
-                                    OnUpdateAllPlayers?.Invoke(msg);
-                                } else {
-                                    Action<NetIncomingMessage> callback;
-                                    if (callbacks.TryGetValue(type, out callback)) {
-                                        callback(msg);
-                                    } else {
-                                        Console.WriteLine("        - Unknown packet type (" + type + ")!");
-                                    }
-                                }
-                                break;
+                            if (status == NetConnectionStatus.Disconnected) {
+                                OnDisconnected?.Invoke();
                             }
 
+                            break;
+
+                        case NetIncomingMessageType.Data: {
 #if DEBUG
-                            case NetIncomingMessageType.VerboseDebugMessage:
-                                Console.ForegroundColor = ConsoleColor.DarkGray;
-                                Console.Write("    D ");
-                                Console.ForegroundColor = ConsoleColor.Gray;
-                                Console.WriteLine(msg.ReadString());
-                                break;
-                            case NetIncomingMessageType.DebugMessage:
-                                Console.ForegroundColor = ConsoleColor.Green;
-                                Console.Write("    D ");
-                                Console.ForegroundColor = ConsoleColor.Gray;
-                                Console.WriteLine(msg.ReadString());
-                                break;
-                            case NetIncomingMessageType.WarningMessage:
-                                Console.ForegroundColor = ConsoleColor.Yellow;
-                                Console.Write("    W ");
-                                Console.ForegroundColor = ConsoleColor.Gray;
-                                Console.WriteLine(msg.ReadString());
-                                break;
-                            case NetIncomingMessageType.ErrorMessage:
-                                Console.ForegroundColor = ConsoleColor.Red;
-                                Console.Write("    E ");
-                                Console.ForegroundColor = ConsoleColor.Gray;
-                                Console.WriteLine(msg.ReadString());
-                                break;
+                            downLast += msg.LengthBytes;
 #endif
+                            byte type = msg.ReadByte();
+
+                            if (type == PacketTypes.UpdateAll) {
+                                OnUpdateAllPlayers?.Invoke(msg);
+                            } else {
+                                Action<NetIncomingMessage> callback;
+                                if (callbacks.TryGetValue(type, out callback)) {
+                                    callback(msg);
+                                } else {
+                                    Console.WriteLine("        - Unknown packet type (" + type + ")!");
+                                }
+                            }
+                            break;
                         }
 
-                        client.Recycle(msg);
+#if DEBUG
+                        case NetIncomingMessageType.VerboseDebugMessage:
+                            Console.ForegroundColor = ConsoleColor.DarkGray;
+                            Console.Write("    D ");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                            Console.WriteLine(msg.ReadString());
+                            break;
+                        case NetIncomingMessageType.DebugMessage:
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.Write("    D ");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                            Console.WriteLine(msg.ReadString());
+                            break;
+                        case NetIncomingMessageType.WarningMessage:
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.Write("    W ");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                            Console.WriteLine(msg.ReadString());
+                            break;
+                        case NetIncomingMessageType.ErrorMessage:
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.Write("    E ");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                            Console.WriteLine(msg.ReadString());
+                            break;
+#endif
                     }
+
+                    client.Recycle(msg);
                 }
-            } catch (ThreadAbortException) {
-                // Client is stopped
             }
+
+            client = null;
+
+            Debug.WriteLine("NetworkHandler: OnHandleMessagesThread exited!");
         }
 
         #region Messages

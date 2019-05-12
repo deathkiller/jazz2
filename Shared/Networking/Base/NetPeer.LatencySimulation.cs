@@ -33,12 +33,11 @@ namespace Lidgren.Network
 {
     public partial class NetPeer
     {
+        // Avoids allocation on mapping to IPv6
+        private IPEndPoint targetCopy = new IPEndPoint(IPAddress.Any, 0);
 
 #if DEBUG
         private readonly List<DelayedPacket> m_delayedPackets = new List<DelayedPacket>();
-
-        // Avoids allocation on mapping to IPv6
-        private IPEndPoint targetCopy = new IPEndPoint(IPAddress.Any, 0);
 
         private class DelayedPacket
         {
@@ -139,27 +138,20 @@ namespace Lidgren.Network
         {
             connectionReset = false;
 
-            target = NetUtility.MapToIPv6(target);
-
-            IPAddress ba = default(IPAddress);
+            bool isBroadcast = false;
             try
             {
-                ba = NetUtility.GetCachedBroadcastAddress();
-
                 // TODO: refactor this check outta here
-                if (target.Address.Equals(ba))
+                if (target.Address.Equals(m_configuration.BroadcastAddress))
                 {
                     // Some networks do not allow 
                     // a global broadcast so we use the BroadcastAddress from the configuration
                     // this can be resolved to a local broadcast addresss e.g 192.168.x.255                    
-                    targetCopy.Address = m_configuration.BroadcastAddress;
-                    targetCopy.Port = target.Port;
+                    isBroadcast = true;
                     m_socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, true);
                 }
-                else
-                {
-                    NetUtility.CopyEndpoint(target, targetCopy); //Maps to IPv6 for Dual Mode
-                }
+
+                NetUtility.CopyEndpoint(target, targetCopy); // Maps to IPv6 for Dual Mode
 
                 int bytesSent = m_socket.SendTo(data, 0, numBytes, SocketFlags.None, targetCopy);
                 if (numBytes != bytesSent)
@@ -189,7 +181,7 @@ namespace Lidgren.Network
             }
             finally
             {
-                if (target.Address.Equals(ba))
+                if (isBroadcast)
                 {
                     m_socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, false);
                 }
@@ -276,15 +268,22 @@ namespace Lidgren.Network
             m_statistics.PacketSent(numBytes, numMessages);
 #endif
             connectionReset = false;
-            IPAddress ba = default(IPAddress);
+            bool isBroadcast = false;
             try
             {
                 // TODO: refactor this check outta here
-                ba = NetUtility.GetCachedBroadcastAddress();
-                if (target.Address == ba)
+                if (target.Address.Equals(m_configuration.BroadcastAddress))
+                {
+                    // Some networks do not allow 
+                    // a global broadcast so we use the BroadcastAddress from the configuration
+                    // this can be resolved to a local broadcast addresss e.g 192.168.x.255                    
+                    isBroadcast = true;
                     m_socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, true);
+                }
 
-                int bytesSent = m_socket.SendTo(m_sendBuffer, 0, numBytes, SocketFlags.None, target);
+                NetUtility.CopyEndpoint(target, targetCopy); // Maps to IPv6 for Dual Mode
+
+                int bytesSent = m_socket.SendTo(m_sendBuffer, 0, numBytes, SocketFlags.None, targetCopy);
                 if (numBytes != bytesSent)
                     LogVerbose("Failed to send the full " + numBytes + "; only " + bytesSent + " bytes sent in packet!");
             }
@@ -310,8 +309,10 @@ namespace Lidgren.Network
             }
             finally
             {
-                if (target.Address == ba)
+                if (isBroadcast)
+                {
                     m_socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, false);
+                }
             }
             return;
         }

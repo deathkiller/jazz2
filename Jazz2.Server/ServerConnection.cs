@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -60,7 +61,7 @@ namespace Jazz2.Server
             server = new NetServer(config);
             server.Start();
 
-            threadUpdate = new Thread(OnMessage);
+            threadUpdate = new Thread(OnHandleMessagesThread);
             threadUpdate.IsBackground = true;
             threadUpdate.Start();
 
@@ -69,17 +70,15 @@ namespace Jazz2.Server
 
         public void Close()
         {
-            if (server == null) {
+            if (threadUpdate == null) {
                 return;
             }
 
-            threadUpdate.Abort();
             threadUpdate = null;
 
             //server.UPnP.DeleteForwardingRule(port);
 
             server.Shutdown("Server is shutting down");
-            server = null;
         }
 
 #region Messages
@@ -140,118 +139,118 @@ namespace Jazz2.Server
         }
 #endregion
 
-        private void OnMessage()
+        private void OnHandleMessagesThread()
         {
-            try {
-                while (true) {
-                    server.MessageReceivedEvent.WaitOne();
+            while (threadUpdate != null) {
+                server.MessageReceivedEvent.WaitOne();
 
-                    NetIncomingMessage msg;
-                    while (server.ReadMessage(out msg)) {
+                NetIncomingMessage msg;
+                while (server.ReadMessage(out msg)) {
 
-                        switch (msg.MessageType) {
-                            case NetIncomingMessageType.StatusChanged: {
-                                NetConnectionStatus status = (NetConnectionStatus)msg.ReadByte();
+                    switch (msg.MessageType) {
+                        case NetIncomingMessageType.StatusChanged: {
+                            NetConnectionStatus status = (NetConnectionStatus)msg.ReadByte();
 #if DEBUG
-                                Console.ForegroundColor = ConsoleColor.DarkCyan;
-                                Console.Write("    S ");
-                                Console.ForegroundColor = ConsoleColor.Gray;
-                                Console.WriteLine("[" + msg.SenderEndPoint + "] " + status);
+                            Console.ForegroundColor = ConsoleColor.DarkCyan;
+                            Console.Write("    S ");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                            Console.WriteLine("[" + msg.SenderEndPoint + "] " + status);
 #endif
-                                ClientStatusChangedEventArgs args = new ClientStatusChangedEventArgs(msg.SenderConnection, status);
-                                ClientStatusChanged?.Invoke(args);
-                                break;
-                            }
-
-                            case NetIncomingMessageType.Data: {
-#if DEBUG__
-                                Console.ForegroundColor = ConsoleColor.Cyan;
-                                Console.Write("    R ");
-                                Console.ForegroundColor = ConsoleColor.Gray;
-                                Console.WriteLine("[" + msg.SenderEndPoint + "] " + msg.LengthBytes + " bytes");
-#endif
-
-                                MessageReceivedEventArgs args = new MessageReceivedEventArgs(msg, false);
-                                MessageReceived?.Invoke(args);
-
-                                break;
-                            }
-
-                            case NetIncomingMessageType.UnconnectedData: {
-#if DEBUG
-                                Console.ForegroundColor = ConsoleColor.Cyan;
-                                Console.Write("    R ");
-                                Console.ForegroundColor = ConsoleColor.Gray;
-                                Console.WriteLine("Unconnected [" + msg.SenderEndPoint + "] " + msg.LengthBytes + " bytes");
-#endif
-
-                                MessageReceivedEventArgs args = new MessageReceivedEventArgs(msg, true);
-                                MessageReceived?.Invoke(args);
-
-                                break;
-                            }
-
-                            case NetIncomingMessageType.ConnectionApproval: {
-                                ClientConnectedEventArgs args = new ClientConnectedEventArgs(msg);
-                                ClientConnected?.Invoke(args);
-
-                                if (args.Allow) {
-                                    msg.SenderConnection.Approve();
-                                } else {
-                                    msg.SenderConnection.Deny("Incompatible version");
-                                }
-                                break;
-                            }
-
-                            case NetIncomingMessageType.DiscoveryRequest: {
-#if DEBUG
-                                Console.ForegroundColor = ConsoleColor.Cyan;
-                                Console.Write("    Q ");
-                                Console.ForegroundColor = ConsoleColor.Gray;
-                                Console.WriteLine("[" + msg.SenderEndPoint + "] " + msg.LengthBytes + " bytes");
-#endif
-
-                                DiscoveryRequestEventArgs args = new DiscoveryRequestEventArgs();
-                                DiscoveryRequest?.Invoke(args);
-
-                                server.SendDiscoveryResponse(args.Message, msg.SenderEndPoint);
-                                break;
-                            }
-
-#if DEBUG
-                            case NetIncomingMessageType.VerboseDebugMessage:
-                                Console.ForegroundColor = ConsoleColor.DarkGray;
-                                Console.Write("    D ");
-                                Console.ForegroundColor = ConsoleColor.Gray;
-                                Console.WriteLine(msg.ReadString());
-                                break;
-                            case NetIncomingMessageType.DebugMessage:
-                                Console.ForegroundColor = ConsoleColor.Green;
-                                Console.Write("    D ");
-                                Console.ForegroundColor = ConsoleColor.Gray;
-                                Console.WriteLine(msg.ReadString());
-                                break;
-                            case NetIncomingMessageType.WarningMessage:
-                                Console.ForegroundColor = ConsoleColor.Yellow;
-                                Console.Write("    W ");
-                                Console.ForegroundColor = ConsoleColor.Gray;
-                                Console.WriteLine(msg.ReadString());
-                                break;
-                            case NetIncomingMessageType.ErrorMessage:
-                                Console.ForegroundColor = ConsoleColor.Red;
-                                Console.Write("    E ");
-                                Console.ForegroundColor = ConsoleColor.Gray;
-                                Console.WriteLine(msg.ReadString());
-                                break;
-#endif
+                            ClientStatusChangedEventArgs args = new ClientStatusChangedEventArgs(msg.SenderConnection, status);
+                            ClientStatusChanged?.Invoke(args);
+                            break;
                         }
 
-                        server.Recycle(msg);
+                        case NetIncomingMessageType.Data: {
+#if DEBUG__
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.Write("    R ");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                            Console.WriteLine("[" + msg.SenderEndPoint + "] " + msg.LengthBytes + " bytes");
+#endif
+
+                            MessageReceivedEventArgs args = new MessageReceivedEventArgs(msg, false);
+                            MessageReceived?.Invoke(args);
+
+                            break;
+                        }
+
+                        case NetIncomingMessageType.UnconnectedData: {
+#if DEBUG
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.Write("    R ");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                            Console.WriteLine("Unconnected [" + msg.SenderEndPoint + "] " + msg.LengthBytes + " bytes");
+#endif
+
+                            MessageReceivedEventArgs args = new MessageReceivedEventArgs(msg, true);
+                            MessageReceived?.Invoke(args);
+
+                            break;
+                        }
+
+                        case NetIncomingMessageType.ConnectionApproval: {
+                            ClientConnectedEventArgs args = new ClientConnectedEventArgs(msg);
+                            ClientConnected?.Invoke(args);
+
+                            if (args.Allow) {
+                                msg.SenderConnection.Approve();
+                            } else {
+                                msg.SenderConnection.Deny("Incompatible version");
+                            }
+                            break;
+                        }
+
+                        case NetIncomingMessageType.DiscoveryRequest: {
+#if DEBUG
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.Write("    Q ");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                            Console.WriteLine("[" + msg.SenderEndPoint + "] " + msg.LengthBytes + " bytes");
+#endif
+
+                            DiscoveryRequestEventArgs args = new DiscoveryRequestEventArgs();
+                            DiscoveryRequest?.Invoke(args);
+
+                            server.SendDiscoveryResponse(args.Message, msg.SenderEndPoint);
+                            break;
+                        }
+
+#if DEBUG
+                        case NetIncomingMessageType.VerboseDebugMessage:
+                            Console.ForegroundColor = ConsoleColor.DarkGray;
+                            Console.Write("    D ");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                            Console.WriteLine(msg.ReadString());
+                            break;
+                        case NetIncomingMessageType.DebugMessage:
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.Write("    D ");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                            Console.WriteLine(msg.ReadString());
+                            break;
+                        case NetIncomingMessageType.WarningMessage:
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.Write("    W ");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                            Console.WriteLine(msg.ReadString());
+                            break;
+                        case NetIncomingMessageType.ErrorMessage:
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.Write("    E ");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                            Console.WriteLine(msg.ReadString());
+                            break;
+#endif
                     }
+
+                    server.Recycle(msg);
                 }
-            } catch (ThreadAbortException) {
-                // Server is stopped
             }
+
+            server = null;
+
+            Debug.WriteLine("ServerConnection: OnHandleMessagesThread exited!");
         }
     }
 }

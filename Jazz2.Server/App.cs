@@ -135,7 +135,7 @@ namespace Jazz2.Server
                         Log.Write(LogType.Info, "Players:");
                         Log.PushIndent();
                         foreach (KeyValuePair<NetConnection, GameServer.Player> pair in gameServer.Players) {
-                            Log.Write(LogType.Info, "#" + pair.Value.Index + " | " + pair.Key.RemoteEndPoint + " | " + pair.Value.State + " | " + pair.Value.Pos + " | " + pair.Value.Speed);
+                            Log.Write(LogType.Info, "#" + pair.Value.Index + " | " + pair.Key.RemoteEndPoint + " | " + pair.Value.State + " | " + pair.Value.Pos);
                         }
                         Log.PopIndent();
 

@@ -35,19 +35,27 @@ namespace Jazz2.Actors.Environment
         public override void OnHandleCollision(ActorBase other)
         {
             switch (other) {
-                case Player player: {
-                    if (!activated && player.CanBreakSolidObjects) {
-                        ApplyToPlayer(player);
-                    }
-                    break;
-                }
-
                 case AmmoBase ammo: {
                     Player player = ammo.Owner;
                     if (!activated && player != null) {
                         ApplyToPlayer(player);
 
                         ammo.DecreaseHealth(int.MaxValue);
+                    }
+                    break;
+                }
+
+                case AmmoTNT ammo: {
+                    Player player = ammo.Owner;
+                    if (!activated && player != null) {
+                        ApplyToPlayer(player);
+                    }
+                    break;
+                }
+
+                case Player player: {
+                    if (!activated && player.CanBreakSolidObjects) {
+                        ApplyToPlayer(player);
                     }
                     break;
                 }

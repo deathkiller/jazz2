@@ -155,7 +155,6 @@ namespace Jazz2.Actors.Weapons
 
         protected override void OnHitWallHook()
         {
-            DecreaseHealth(int.MaxValue);
         }
 
         protected override void OnRicochet()

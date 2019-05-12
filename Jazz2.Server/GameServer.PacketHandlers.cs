@@ -117,8 +117,6 @@ namespace Jazz2.Server
 
                 player.Pos = p.Pos;
 
-                player.Speed = p.Speed;
-
                 player.AnimState = p.AnimState;
                 player.AnimTime = p.AnimTime;
                 player.IsFacingLeft = p.IsFacingLeft;

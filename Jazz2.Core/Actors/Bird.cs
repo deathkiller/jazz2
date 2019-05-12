@@ -123,7 +123,7 @@ namespace Jazz2.Actors
 
         public override void OnHandleCollision(ActorBase other)
         {
-            if (attackTime <= 0f) {
+            if (attackTime <= 0f || other.IsInvulnerable) {
                 return;
             }
 
@@ -152,7 +152,7 @@ namespace Jazz2.Actors
 
             foreach (GameObject o in api.ActiveObjects) {
                 EnemyBase enemy = o as EnemyBase;
-                if (enemy != null) {
+                if (enemy != null && !enemy.IsInvulnerable) {
                     Vector3 newPos = enemy.Transform.Pos;
 
                     if ((IsFacingLeft && newPos.X > pos.X) || (!IsFacingLeft && newPos.X < pos.X)) {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Text;
@@ -45,9 +46,9 @@ namespace Jazz2.Game.Multiplayer
 
         private const string ServerListUrl = "http://deat.tk/jazz2/servers/";
 
-        private bool isRunning = true;
         private NetClient client;
-        private Thread thread;
+        private Thread threadUpdate;
+        private Thread threadDiscovery;
         private AutoResetEvent waitEvent;
 
         private int port;
@@ -85,33 +86,160 @@ namespace Jazz2.Game.Multiplayer
             config.DisableMessageType(NetIncomingMessageType.WarningMessage);
 #endif
             client = new NetClient(config);
-            client.RegisterReceivedCallback(OnMessage);
             client.Start();
 
             waitEvent = new AutoResetEvent(false);
 
-            thread = new Thread(OnPeriodicDiscoveryThread);
-            thread.IsBackground = true;
-            thread.Priority = ThreadPriority.Lowest;
-            thread.Start();
+            threadUpdate = new Thread(OnHandleMessagesThread);
+            threadUpdate.IsBackground = true;
+            threadUpdate.Start();
+
+            threadDiscovery = new Thread(OnPeriodicDiscoveryThread);
+            threadDiscovery.IsBackground = true;
+            threadDiscovery.Priority = ThreadPriority.Lowest;
+            threadDiscovery.Start();
         }
 
         public void Dispose()
         {
-            if (!isRunning) {
+            if (threadUpdate == null && threadUpdate == null) {
                 return;
             }
 
-            isRunning = false;
+            threadUpdate = null;
+            threadDiscovery = null;
+
+            client.Shutdown(null);
+
             waitEvent.Set();
-            //thread.Join();
+        }
+
+        private void OnHandleMessagesThread()
+        {
+            while (threadUpdate != null) {
+                client.MessageReceivedEvent.WaitOne();
+
+                NetIncomingMessage msg;
+                while (client.ReadMessage(out msg)) {
+                    switch (msg.MessageType) {
+                        case NetIncomingMessageType.DiscoveryResponse: {
+#if DEBUG
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.Write("    Q ");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                            Console.WriteLine("[" + msg.SenderEndPoint + "] " + msg.LengthBytes + " bytes");
+#endif
+                            bool isNew;
+                            Server server;
+                            if (!foundServers.TryGetValue(msg.SenderEndPoint, out server)) {
+                                string endPointName;
+                                if (msg.SenderEndPoint.Address.IsIPv4MappedToIPv6) {
+                                    endPointName = msg.SenderEndPoint.Address.MapToIPv4().ToString();
+                                } else {
+                                    endPointName = msg.SenderEndPoint.Address.ToString();
+                                }
+                                endPointName += ":" + msg.SenderEndPoint.Port.ToString(CultureInfo.InvariantCulture);
+
+                                server = new Server {
+                                    EndPoint = msg.SenderEndPoint,
+                                    EndPointName = endPointName,
+                                    LatencyMs = -1
+                                };
+
+                                foundServers[msg.SenderEndPoint] = server;
+                                isNew = true;
+                            } else {
+                                if (server.IsPublic) {
+                                    break;
+                                }
+
+                                isNew = false;
+                            }
+
+                            string token = msg.ReadString();
+                            int neededMajor = msg.ReadByte();
+                            int neededMinor = msg.ReadByte();
+                            int neededBuild = msg.ReadByte();
+                            // ToDo: Check server version
+
+                            server.Name = msg.ReadString();
+                            server.IsLost = false;
+
+                            byte flags = msg.ReadByte();
+
+                            server.CurrentPlayers = msg.ReadVariableInt32();
+                            server.MaxPlayers = msg.ReadVariableInt32();
+
+                            serverFoundAction(server, isNew);
+
+                            // Send ping request
+                            server.LastPingTime = (long)(NetTime.Now * 1000);
+
+                            NetOutgoingMessage m = client.CreateMessage();
+                            m.Write(PacketTypes.Ping);
+                            client.SendUnconnectedMessage(m, server.EndPoint);
+                            break;
+                        }
+
+                        case NetIncomingMessageType.UnconnectedData: {
+                            if (msg.LengthBytes == 1 && msg.ReadByte() == PacketTypes.Ping) {
+                                long nowTime = (long)(NetTime.Now * 1000);
+
+                                Server server;
+                                if (foundServers.TryGetValue(msg.SenderEndPoint, out server)) {
+                                    server.IsLost = false;
+                                    server.LatencyMs = (int)(nowTime - server.LastPingTime) / 2 - 1;
+                                    if (server.LatencyMs < 0) {
+                                        server.LatencyMs = 0;
+                                    }
+                                    serverFoundAction(server, false);
+                                }
+                            }
+                            break;
+                        }
+
+#if DEBUG
+                        case NetIncomingMessageType.VerboseDebugMessage:
+                            Console.ForegroundColor = ConsoleColor.DarkGray;
+                            Console.Write("    D ");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                            Console.WriteLine(msg.ReadString());
+                            break;
+                        case NetIncomingMessageType.DebugMessage:
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.Write("    D ");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                            Console.WriteLine(msg.ReadString());
+                            break;
+                        case NetIncomingMessageType.WarningMessage:
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.Write("    W ");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                            Console.WriteLine(msg.ReadString());
+                            break;
+                        case NetIncomingMessageType.ErrorMessage:
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.Write("    E ");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                            Console.WriteLine(msg.ReadString());
+                            break;
+#endif
+                    }
+
+                    client.Recycle(msg);
+                }
+            }
+
+            client = null;
+
+            Debug.WriteLine("ServerDiscovery: OnHandleMessagesThread exited!");
         }
 
         private void OnPeriodicDiscoveryThread()
         {
             double discoverPublicTime = 0;
 
-            while (isRunning) {
+            while (threadDiscovery != null) {
                 // Discover new public servers every 30 seconds
                 if ((NetTime.Now - discoverPublicTime) < 30) {
                     discoverPublicTime = NetTime.Now;
@@ -126,14 +254,10 @@ namespace Jazz2.Game.Multiplayer
                 waitEvent.WaitOne(10000);
             }
 
-            client.UnregisterReceivedCallback(OnMessage);
-            client.Shutdown(null);
-            client = null;
-
             waitEvent.Dispose();
             waitEvent = null;
 
-            thread = null;
+            Debug.WriteLine("ServerDiscovery: OnPeriodicDiscoveryThread exited!");
         }
 
         private void DiscoverPublicServers()
@@ -310,121 +434,5 @@ namespace Jazz2.Game.Multiplayer
             // Discover new local servers
             client.DiscoverLocalPeers(port);
         }
-
-        private void OnMessage(object peer)
-        {
-            if (client == null) {
-                return;
-            }
-
-            NetIncomingMessage msg = client.ReadMessage();
-            switch (msg.MessageType) {
-                case NetIncomingMessageType.DiscoveryResponse: {
-#if DEBUG
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.Write("    Q ");
-                    Console.ForegroundColor = ConsoleColor.Gray;
-                    Console.WriteLine("[" + msg.SenderEndPoint + "] " + msg.LengthBytes + " bytes");
-#endif
-                    bool isNew;
-                    Server server;
-                    if (!foundServers.TryGetValue(msg.SenderEndPoint, out server)) {
-                        string endPointName;
-                        if (msg.SenderEndPoint.Address.IsIPv4MappedToIPv6) {
-                            endPointName = msg.SenderEndPoint.Address.MapToIPv4().ToString();
-                        } else {
-                            endPointName = msg.SenderEndPoint.Address.ToString();
-                        }
-                        endPointName += ":" + msg.SenderEndPoint.Port.ToString(CultureInfo.InvariantCulture);
-
-                        server = new Server {
-                            EndPoint = msg.SenderEndPoint,
-                            EndPointName = endPointName,
-                            LatencyMs = -1
-                        };
-
-                        foundServers[msg.SenderEndPoint] = server;
-                        isNew = true;
-                    } else {
-                        if (server.IsPublic) {
-                            break;
-                        }
-
-                        isNew = false;
-                    }
-
-                    string token = msg.ReadString();
-                    int neededMajor = msg.ReadByte();
-                    int neededMinor = msg.ReadByte();
-                    int neededBuild = msg.ReadByte();
-                    // ToDo: Check server version
-
-                    server.Name = msg.ReadString();
-                    server.IsLost = false;
-
-                    byte flags = msg.ReadByte();
-
-                    server.CurrentPlayers = msg.ReadVariableInt32();
-                    server.MaxPlayers = msg.ReadVariableInt32();
-
-                    serverFoundAction(server, isNew);
-
-                    // Send ping request
-                    server.LastPingTime = (long)(NetTime.Now * 1000);
-
-                    NetOutgoingMessage m = client.CreateMessage();
-                    m.Write(PacketTypes.Ping);
-                    client.SendUnconnectedMessage(m, server.EndPoint);
-                    break;
-                }
-
-                case NetIncomingMessageType.UnconnectedData: {
-                    if (msg.LengthBytes == 1 && msg.ReadByte() == PacketTypes.Ping) {
-                        long nowTime = (long)(NetTime.Now * 1000);
-
-                        Server server;
-                        if (foundServers.TryGetValue(msg.SenderEndPoint, out server)) {
-                            server.IsLost = false;
-                            server.LatencyMs = (int)(nowTime - server.LastPingTime) / 2 - 1;
-                            if (server.LatencyMs < 0) {
-                                server.LatencyMs = 0;
-                            }
-                            serverFoundAction(server, false);
-                        }
-                    }
-                    break;
-                }
-
-#if DEBUG
-                case NetIncomingMessageType.VerboseDebugMessage:
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.Write("    D ");
-                    Console.ForegroundColor = ConsoleColor.Gray;
-                    Console.WriteLine(msg.ReadString());
-                    break;
-                case NetIncomingMessageType.DebugMessage:
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.Write("    D ");
-                    Console.ForegroundColor = ConsoleColor.Gray;
-                    Console.WriteLine(msg.ReadString());
-                    break;
-                case NetIncomingMessageType.WarningMessage:
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.Write("    W ");
-                    Console.ForegroundColor = ConsoleColor.Gray;
-                    Console.WriteLine(msg.ReadString());
-                    break;
-                case NetIncomingMessageType.ErrorMessage:
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Write("    E ");
-                    Console.ForegroundColor = ConsoleColor.Gray;
-                    Console.WriteLine(msg.ReadString());
-                    break;
-#endif
-            }
-
-            client.Recycle(msg);
-        }
-
     }
 }

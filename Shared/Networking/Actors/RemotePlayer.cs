@@ -2,17 +2,26 @@
 using Jazz2.Actors;
 using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
+using Lidgren.Network;
 
 namespace Jazz2.Game.Multiplayer
 {
     public class RemotePlayer : ActorBase
     {
+        private struct StateFrame
+        {
+            public double Time;
+            public Vector2 Pos;
+        }
+
+        private const double ServerDelay = 2 * 1.0 / 30; // 66ms (2 server updates) delay to allow better interpolation
+
         public int Index;
         public PlayerType PlayerType;
 
-        private Vector3 lastPos1, lastPos2;
-        private double lastTime1, lastTime2;
-
+        private StateFrame[] stateBuffer = new StateFrame[6];
+        private int stateBufferPos = 0;
+        private float posZ;
 
         public override void OnAttach(ActorInstantiationDetails details)
         {
@@ -21,9 +30,12 @@ namespace Jazz2.Game.Multiplayer
             PlayerType = (PlayerType)details.Params[0];
             Index = details.Params[1];
 
-            lastPos1 = lastPos2 = details.Pos;
-            lastTime2 = Time.MainTimer.TotalMilliseconds;
-            lastTime1 = lastTime2 - 1000;
+            double timeNow = NetTime.Now;
+            for (int i = 0; i < stateBuffer.Length; i++) {
+                stateBuffer[i].Time = timeNow - stateBuffer.Length + i;
+                stateBuffer[i].Pos = details.Pos.Xy;
+            }
+            posZ = details.Pos.Z;
 
             health = int.MaxValue;
 
@@ -49,22 +61,45 @@ namespace Jazz2.Game.Multiplayer
 
         protected override void OnUpdate()
         {
-            double time = Time.MainTimer.TotalMilliseconds;
+            double timeNow = NetTime.Now;
+            double renderTime = timeNow - ServerDelay;
 
-            float alpha = MathF.Clamp((float)((time - lastTime1) / (lastTime2 - lastTime1)), 0f, 1f);
+            int nextIdx = stateBufferPos - 1;
+            if (nextIdx < 0) {
+                nextIdx += stateBuffer.Length;
+            }
 
-            Transform.Pos = lastPos1 + (lastPos2 - lastPos1) * alpha;
+            if (renderTime <= stateBuffer[nextIdx].Time) {
+                int prevIdx;
+                while (true) {
+                    prevIdx = nextIdx - 1;
+                    if (prevIdx < 0) {
+                        prevIdx += stateBuffer.Length;
+                    }
+
+                    if (prevIdx == stateBufferPos || stateBuffer[prevIdx].Time <= renderTime) {
+                        break;
+                    }
+
+                    nextIdx = prevIdx;
+                }
+
+                Vector2 pos = stateBuffer[prevIdx].Pos + (stateBuffer[nextIdx].Pos - stateBuffer[prevIdx].Pos) * (float)((renderTime - stateBuffer[prevIdx].Time) / (stateBuffer[nextIdx].Time - stateBuffer[prevIdx].Time));
+                Transform.Pos = new Vector3(pos, posZ);
+            }
 
             base.OnUpdate();
         }
 
         public void UpdateFromServer(Vector3 pos, AnimState animState, float animTime, bool isFacingLeft)
         {
-            lastPos1 = lastPos2;
-            lastPos2 = pos;
-
-            lastTime1 = lastTime2;
-            lastTime2 = Time.MainTimer.TotalMilliseconds;
+            stateBuffer[stateBufferPos].Time = NetTime.Now;
+            stateBuffer[stateBufferPos].Pos = pos.Xy;
+            stateBufferPos++;
+            if (stateBufferPos >= stateBuffer.Length) {
+                stateBufferPos = 0;
+            }
+            posZ = pos.Z;
 
             if (availableAnimations != null) {
                 if (currentAnimationState != animState) {
