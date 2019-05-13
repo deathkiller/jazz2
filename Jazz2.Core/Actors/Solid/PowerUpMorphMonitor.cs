@@ -14,9 +14,9 @@ namespace Jazz2.Actors.Solid
 
         private MorphType morphType;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             morphType = (MorphType)details.Params[0];
 

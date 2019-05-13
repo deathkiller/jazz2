@@ -10,9 +10,9 @@ namespace Jazz2.Actors.Environment
         private float timeLeft;
         private bool active;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             delay = details.Params[0];
 

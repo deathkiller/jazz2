@@ -355,7 +355,7 @@ namespace Duality.Audio
 		{
 			// Don't take fade into account: If a yet-to-fade-in sound wants to grab
 			// the source of a already-playing sound, it should get its chance.
-			float volTemp = this.GetTypeVolFactor() * this.sound.Res.VolumeFactor * this.vol;
+			float volTemp = this.GetTypeVolFactor() * this.vol;
 			float priorityTemp = 1000.0f;
 			priorityTemp *= volTemp;
 
@@ -438,9 +438,9 @@ namespace Duality.Audio
             AudioSourceState nativeState = AudioSourceState.Default;
             nativeState.MinDistance = soundRes.MinDist;
             nativeState.MaxDistance = soundRes.MaxDist;
-            nativeState.Volume = optVolFactor * soundRes.VolumeFactor * this.vol * this.curFade * this.pauseFade;
-            nativeState.Pitch = soundRes.PitchFactor * this.pitch;
-            nativeState.Lowpass = soundRes.LowpassFactor * this.lowpass;
+            nativeState.Volume = optVolFactor * this.vol * this.curFade * this.pauseFade;
+            nativeState.Pitch = this.pitch;
+            nativeState.Lowpass = this.lowpass;
             priorityTemp *= nativeState.Volume;
 
             // Calculate 3D source values, distance and priority
@@ -565,8 +565,6 @@ namespace Duality.Audio
             // Update play time
             if (!this.paused) {
                 this.playTime += MathF.Max(0.5f, nativeState.Pitch) * Time.TimeMult * Time.SecondsPerFrame;
-                if (this.sound.Res.FadeOutAt > 0.0f && this.playTime >= this.sound.Res.FadeOutAt)
-                    this.FadeOut(this.sound.Res.FadeOutTime);
             }
 
             // Finish priority calculation

@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using Duality;
 using Jazz2.Game;
+using Jazz2.Game.Collisions;
 using Jazz2.Game.Events;
-using Jazz2.Game.Structs;
 using MathF = Duality.MathF;
 
 namespace Jazz2.Actors.Solid
@@ -40,9 +40,9 @@ namespace Jazz2.Actors.Solid
         private List<ActorBase> collisions = new List<ActorBase>();
         private Player lastPlayer;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             bridgeWidth = details.Params[0];
             bridgeType = (BridgeType)details.Params[1];
@@ -66,7 +66,7 @@ namespace Jazz2.Actors.Solid
             int widthCovered = widthList[0] / 2;
             for (int i = 0; (widthCovered <= bridgeWidth * 16 + 6) || (i * 16 < bridgeWidth); i++) {
                 Piece piece = new Piece();
-                piece.OnAttach(new ActorInstantiationDetails {
+                piece.OnActivated(new ActorActivationDetails {
                     Api = api,
                     Pos = new Vector3(pos.X + widthCovered - 16, pos.Y - 20, LevelHandler.MainPlaneZ + 10),
                     Params = new[] { (ushort)bridgeType, (ushort)i }
@@ -78,7 +78,7 @@ namespace Jazz2.Actors.Solid
                 widthCovered += (widthList[i % widthList.Length] + widthList[(i + 1) % widthList.Length]) / 2;
             }
 
-            collisionFlags = CollisionFlags.CollideWithOtherActors /*| CollisionFlags.IsSolidObject*/;
+            collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.SkipPerPixelCollisions;
 
             OnUpdateHitbox();
         }
@@ -105,14 +105,14 @@ namespace Jazz2.Actors.Solid
         protected override void OnUpdateHitbox()
         {
             Vector3 pos = Transform.Pos;
-            currentHitbox = new Hitbox(pos.X, pos.Y - 10, pos.X + bridgeWidth * 16, pos.Y + 16);
+            AABBInner = new AABB(pos.X, pos.Y - 10, pos.X + bridgeWidth * 16, pos.Y + 16);
         }
 
         protected override void OnUpdate()
         {
             collisions.Clear();
 
-            api.FindCollisionActorsFast(this, currentHitbox, ResolveCollisions);
+            api.FindCollisionActorsFast(this, AABBInner, ResolveCollisions);
             for (int j = 0; j < bridgePieces.Count; ++j) {
                 api.FindCollisionActorsFast(this, bridgePieces[j].GetHitboxForParent(), ResolveCollisions);
             }
@@ -207,9 +207,9 @@ namespace Jazz2.Actors.Solid
 
         public class Piece : SolidObjectBase
         {
-            public override void OnAttach(ActorInstantiationDetails details)
+            public override void OnActivated(ActorActivationDetails details)
             {
-                base.OnAttach(details);
+                base.OnActivated(details);
 
                 BridgeType type = (BridgeType)details.Params[0];
 
@@ -243,9 +243,14 @@ namespace Jazz2.Actors.Solid
                 OnUpdateHitbox();
             }
 
-            public Hitbox GetHitboxForParent()
+            protected override void OnUpdateHitbox()
             {
-                return currentHitbox.Extend(0, 4);
+                UpdateHitbox(20, 10);
+            }
+
+            public AABB GetHitboxForParent()
+            {
+                return AABBInner.Extend(0, 4);
             }
         }
     }

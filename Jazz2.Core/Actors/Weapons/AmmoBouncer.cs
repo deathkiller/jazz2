@@ -15,9 +15,9 @@ namespace Jazz2.Actors.Weapons
 
         public override WeaponType WeaponType => WeaponType.Bouncer;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             base.upgrades = (byte)details.Params[0];
 
@@ -112,7 +112,7 @@ namespace Jazz2.Actors.Weapons
             return base.OnPerish(collider);
         }
 
-        protected override void OnHitWallHook()
+        protected override void OnHitWall()
         {
             if (hitLimit > 3f) {
                 DecreaseHealth(int.MaxValue);
@@ -123,7 +123,7 @@ namespace Jazz2.Actors.Weapons
             PlaySound("Bounce", 0.5f);
         }
 
-        protected override void OnHitFloorHook()
+        protected override void OnHitFloor()
         {
             if (hitLimit > 3f) {
                 DecreaseHealth(int.MaxValue);
@@ -134,7 +134,7 @@ namespace Jazz2.Actors.Weapons
             PlaySound("Bounce", 0.5f);
         }
 
-        protected override void OnHitCeilingHook()
+        protected override void OnHitCeiling()
         {
             if (hitLimit > 3f) {
                 DecreaseHealth(int.MaxValue);

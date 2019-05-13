@@ -9,11 +9,11 @@ namespace Jazz2.Actors.Environment
         private ushort type;
         private bool activated;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
             details.Pos.Z -= 50f;
 
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             type = details.Params[0];
             activated = (details.Params[1] != 0);

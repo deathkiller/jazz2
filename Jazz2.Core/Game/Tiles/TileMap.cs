@@ -1,9 +1,8 @@
 ﻿using System.Collections;
 using System.IO;
-using System.IO.Compression;
 using Duality;
 using Duality.Drawing;
-using Duality.IO;
+using Jazz2.Game.Collisions;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Game.Tiles
@@ -269,25 +268,25 @@ namespace Jazz2.Game.Tiles
             return tileset.IsTileMaskEmpty(idx);
         }
 
-        public bool IsTileEmpty(ref Hitbox hitbox, bool downwards)
+        public bool IsTileEmpty(ref AABB aabb, bool downwards)
         {
             int limitLeftPx = limitLeft << 5;
             int limitRightPx = limitRight << 5;
             int limitBottomPx = levelHeight << 5;
 
             // Consider out-of-level coordinates as solid walls
-            if (hitbox.Left < limitLeftPx || hitbox.Top < 0 || hitbox.Right >= limitRightPx) {
+            if (aabb.LowerBound.X < limitLeftPx || aabb.LowerBound.Y < 0 || aabb.UpperBound.X >= limitRightPx) {
                 return false;
             }
-            if (hitbox.Bottom >= limitBottomPx) {
+            if (aabb.UpperBound.Y >= limitBottomPx) {
                 return hasPit;
             }
 
             // Check all covered tiles for collisions; if all are empty, no need to do pixel collision checking
-            int hx1 = MathF.Max((int)hitbox.Left, limitLeftPx);
-            int hx2 = MathF.Min((int)MathF.Ceiling(hitbox.Right), limitRightPx - 1);
-            int hy1 = (int)hitbox.Top;
-            int hy2 = MathF.Min((int)MathF.Ceiling(hitbox.Bottom), limitBottomPx - 1);
+            int hx1 = MathF.Max((int)aabb.LowerBound.X, limitLeftPx);
+            int hx2 = MathF.Min((int)MathF.Ceiling(aabb.UpperBound.X), limitRightPx - 1);
+            int hy1 = (int)aabb.LowerBound.Y;
+            int hy2 = MathF.Min((int)MathF.Ceiling(aabb.UpperBound.Y), limitBottomPx - 1);
 
             int hx1t = hx1 >> 5;
             int hx2t = hx2 >> 5;

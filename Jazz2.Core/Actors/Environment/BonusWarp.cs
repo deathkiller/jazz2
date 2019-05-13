@@ -10,9 +10,9 @@ namespace Jazz2.Actors.Environment
 
         public ushort Cost => cost;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             warpTarget = details.Params[0];
             fast = (details.Params[1] != 0);

@@ -8,9 +8,9 @@ namespace Jazz2.Actors.Enemies
         private float phase;
         private Vector2 originPos;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             originPos = new Vector2(details.Pos.X, details.Pos.Y);
 
@@ -38,7 +38,7 @@ namespace Jazz2.Actors.Enemies
         protected override bool OnPerish(ActorBase collider)
         {
             Sucker sucker = new Sucker();
-            sucker.OnAttach(new ActorInstantiationDetails {
+            sucker.OnActivated(new ActorActivationDetails {
                 Api = api,
                 Pos = Transform.Pos,
                 Params = new[] { (ushort)lastHitDir }

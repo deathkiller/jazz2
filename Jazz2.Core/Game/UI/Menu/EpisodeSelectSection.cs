@@ -268,7 +268,7 @@ namespace Jazz2.Game.UI.Menu
                                     player.Lives = misc[0];
                                 }
 
-                                int[] ammo = Preferences.Get<int[]>("EpisodeContinue_Ammo_" + episodeName);
+                                short[] ammo = Preferences.Get<short[]>("EpisodeContinue_Ammo_" + episodeName);
                                 if (ammo != null) {
                                     player.Ammo = ammo;
                                 }

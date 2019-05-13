@@ -6,9 +6,9 @@ namespace Jazz2.Game.Multiplayer
 {
     public class RemoteObject : ActorBase
     {
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             health = int.MaxValue;
 

@@ -8,9 +8,9 @@ namespace Jazz2.Actors.Enemies
     {
         private const float DefaultSpeed = -2f;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             collisionFlags = CollisionFlags.CollideWithOtherActors;
             //friction = 40f;

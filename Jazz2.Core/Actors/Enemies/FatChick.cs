@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Duality;
 using Jazz2.Game.Structs;
@@ -13,9 +12,9 @@ namespace Jazz2.Actors.Enemies
 
         private bool stuck;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             Vector3 pos = Transform.Pos;
             pos.Y -= 18f;
@@ -72,7 +71,7 @@ namespace Jazz2.Actors.Enemies
                 }
             }
 
-            if (!isAttacking && api.GetCollidingPlayers(currentHitbox + new Vector2(speedX * 28, 0)).Any()) {
+            if (!isAttacking && api.GetCollidingPlayers(AABBInner + new Vector2(speedX * 28, 0)).Any()) {
                 Attack();
             }
         }

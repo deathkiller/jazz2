@@ -1,6 +1,6 @@
 ﻿using Duality;
 using Jazz2.Actors.Weapons;
-using Jazz2.Game.Structs;
+using Jazz2.Game.Collisions;
 
 namespace Jazz2.Actors.Environment
 {
@@ -21,9 +21,9 @@ namespace Jazz2.Actors.Environment
         private float angleVel, angleVelLast;
         private int bouncesLeft = BouncesMax;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             ushort theme = details.Params[0];
             short x = unchecked((short)(details.Params[1]));
@@ -37,7 +37,7 @@ namespace Jazz2.Actors.Environment
 
             canBeFrozen = false;
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
-            //collisionFlags |= CollisionFlags.IsSolidObject;
+            collisionFlags |= CollisionFlags.IsSolidObject;
 
             switch (theme) {
                 default:
@@ -135,8 +135,8 @@ namespace Jazz2.Actors.Environment
             {
                 float x = pos.X + (rx * Ratio1 * radius);
                 float y = pos.Y + (ry * Ratio1 * radius);
-                Hitbox hitbox = new Hitbox(x - 3, y - 3, x + 7, y + 7);
-                if (!api.IsPositionEmpty(this, ref hitbox, true)) {
+                AABB aabb = new AABB(x - 3, y - 3, x + 7, y + 7);
+                if (!api.IsPositionEmpty(this, ref aabb, true)) {
                     return true;
                 }
             }
@@ -144,8 +144,8 @@ namespace Jazz2.Actors.Environment
             {
                 float x = pos.X + (rx * Ratio2 * radius);
                 float y = pos.Y + (ry * Ratio2 * radius);
-                Hitbox hitbox = new Hitbox(x - 3, y - 3, x + 7, y + 7);
-                if (!api.IsPositionEmpty(this, ref hitbox, true)) {
+                AABB aabb = new AABB(x - 3, y - 3, x + 7, y + 7);
+                if (!api.IsPositionEmpty(this, ref aabb, true)) {
                     return true;
                 }
             }
@@ -153,8 +153,8 @@ namespace Jazz2.Actors.Environment
             {
                 float x = pos.X + (rx * Ratio3 * radius);
                 float y = pos.Y + (ry * Ratio3 * radius);
-                Hitbox hitbox = new Hitbox(x - 3, y - 3, x + 7, y + 7);
-                if (!api.IsPositionEmpty(this, ref hitbox, true)) {
+                AABB aabb = new AABB(x - 3, y - 3, x + 7, y + 7);
+                if (!api.IsPositionEmpty(this, ref aabb, true)) {
                     return true;
                 }
             }
@@ -162,8 +162,8 @@ namespace Jazz2.Actors.Environment
             {
                 float x = pos.X + (rx * Ratio4 * radius);
                 float y = pos.Y + (ry * Ratio4 * radius);
-                Hitbox hitbox = new Hitbox(x - 3, y - 3, x + 7, y + 7);
-                if (!api.IsPositionEmpty(this, ref hitbox, true)) {
+                AABB aabb = new AABB(x - 3, y - 3, x + 7, y + 7);
+                if (!api.IsPositionEmpty(this, ref aabb, true)) {
                     return true;
                 }
             }

@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System;
+using Duality;
 using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
 
@@ -10,26 +11,27 @@ namespace Jazz2.Actors
     {
         private WeaponType currentWeapon;
         private float weaponCooldown;
-        private int[] weaponAmmo;
+        private short[] weaponAmmo;
         private byte[] weaponUpgrades;
 
         public WeaponType CurrentWeapon => currentWeapon;
 
-        public int[] WeaponAmmo => weaponAmmo;
+        public short[] WeaponAmmo => weaponAmmo;
 
         public byte[] WeaponUpgrades => weaponUpgrades;
 
-        public bool AddAmmo(WeaponType type, int count)
+        public bool AddAmmo(WeaponType type, short count)
         {
-            const int ammoLimit = 99;
+            const short Multiplier = 100;
+            const short AmmoLimit = 99 * Multiplier;
 
-            if (weaponAmmo[(int)type] < 0 || weaponAmmo[(int)type] >= ammoLimit) {
+            if (weaponAmmo[(int)type] < 0 || weaponAmmo[(int)type] >= AmmoLimit) {
                 return false;
             }
 
             bool switchTo = (weaponAmmo[(int)type] == 0);
 
-            weaponAmmo[(int)type] = MathF.Min(weaponAmmo[(int)type] + count, ammoLimit);
+            weaponAmmo[(int)type] = (short)Math.Min(weaponAmmo[(int)type] + count * Multiplier, AmmoLimit);
 
             if (switchTo) {
                 currentWeapon = type;
@@ -86,32 +88,46 @@ namespace Jazz2.Actors
                 renderer.AnimTime = 0f;
             }
 
+            short ammoDecrease = 100;
+
             switch (currentWeapon) {
                 case WeaponType.Blaster: FireWeaponBlaster(); break;
                 case WeaponType.Bouncer: FireWeaponBouncer(); break;
                 case WeaponType.Freezer: FireWeaponFreezer(); break;
                 case WeaponType.Seeker: FireWeaponSeeker(); break;
                 case WeaponType.RF: FireWeaponRF(); break;
-                case WeaponType.Toaster: FireWeaponToaster(); break;
+
+                case WeaponType.Toaster: {
+                    FireWeaponToaster();
+                    ammoDecrease = 20;
+                    break;
+                }
+
                 case WeaponType.TNT: FireWeaponTNT(); break;
                 case WeaponType.Pepper: FireWeaponPepper(); break;
                 case WeaponType.Electro: FireWeaponElectro(); break;
 
-                case WeaponType.Thunderbolt:
+                case WeaponType.Thunderbolt: {
                     if (!FireWeaponThunderbolt()) {
                         return;
                     }
                     break;
+                }
 
                 default:
                     return;
             }
 
-            if (weaponAmmo[(int)currentWeapon] > 0) {
-                weaponAmmo[(int)currentWeapon]--;
+            ref short currentAmmo = ref weaponAmmo[(int)currentWeapon];
+
+            if (currentAmmo > 0) {
+                currentAmmo -= ammoDecrease;
+                if (currentAmmo < 0) {
+                    currentAmmo = 0;
+                }
 
                 // No ammo, switch weapons
-                if (weaponAmmo[(int)currentWeapon] == 0) {
+                if (currentAmmo == 0) {
                     SwitchToNextWeapon();
                     PlaySound("SwitchAmmo");
                 }
@@ -153,7 +169,7 @@ namespace Jazz2.Actors
             GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
 
             AmmoBlaster newAmmo = new AmmoBlaster();
-            newAmmo.OnAttach(new ActorInstantiationDetails {
+            newAmmo.OnActivated(new ActorActivationDetails {
                 Api = api,
                 Pos = initialPos,
                 Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
@@ -171,7 +187,7 @@ namespace Jazz2.Actors
             GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
 
             AmmoBouncer newAmmo = new AmmoBouncer();
-            newAmmo.OnAttach(new ActorInstantiationDetails {
+            newAmmo.OnActivated(new ActorActivationDetails {
                 Api = api,
                 Pos = initialPos,
                 Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
@@ -189,7 +205,7 @@ namespace Jazz2.Actors
 
             if ((weaponUpgrades[(int)currentWeapon] & 0x1) != 0) {
                 AmmoFreezer newAmmo = new AmmoFreezer();
-                newAmmo.OnAttach(new ActorInstantiationDetails {
+                newAmmo.OnActivated(new ActorActivationDetails {
                     Api = api,
                     Pos = initialPos,
                     Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
@@ -198,7 +214,7 @@ namespace Jazz2.Actors
                 api.AddActor(newAmmo);
 
                 newAmmo = new AmmoFreezer();
-                newAmmo.OnAttach(new ActorInstantiationDetails {
+                newAmmo.OnActivated(new ActorActivationDetails {
                     Api = api,
                     Pos = initialPos,
                     Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
@@ -207,7 +223,7 @@ namespace Jazz2.Actors
                 api.AddActor(newAmmo);
             } else {
                 AmmoFreezer newAmmo = new AmmoFreezer();
-                newAmmo.OnAttach(new ActorInstantiationDetails {
+                newAmmo.OnActivated(new ActorActivationDetails {
                     Api = api,
                     Pos = initialPos,
                     Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
@@ -225,7 +241,7 @@ namespace Jazz2.Actors
             GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
 
             AmmoSeeker newAmmo = new AmmoSeeker();
-            newAmmo.OnAttach(new ActorInstantiationDetails {
+            newAmmo.OnActivated(new ActorActivationDetails {
                 Api = api,
                 Pos = initialPos,
                 Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
@@ -243,7 +259,7 @@ namespace Jazz2.Actors
 
             if ((weaponUpgrades[(int)currentWeapon] & 0x1) != 0) {
                 AmmoRF newAmmo = new AmmoRF();
-                newAmmo.OnAttach(new ActorInstantiationDetails {
+                newAmmo.OnActivated(new ActorActivationDetails {
                     Api = api,
                     Pos = initialPos,
                     Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
@@ -252,7 +268,7 @@ namespace Jazz2.Actors
                 api.AddActor(newAmmo);
 
                 newAmmo = new AmmoRF();
-                newAmmo.OnAttach(new ActorInstantiationDetails {
+                newAmmo.OnActivated(new ActorActivationDetails {
                     Api = api,
                     Pos = initialPos,
                     Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
@@ -261,7 +277,7 @@ namespace Jazz2.Actors
                 api.AddActor(newAmmo);
 
                 newAmmo = new AmmoRF();
-                newAmmo.OnAttach(new ActorInstantiationDetails {
+                newAmmo.OnActivated(new ActorActivationDetails {
                     Api = api,
                     Pos = initialPos,
                     Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
@@ -270,7 +286,7 @@ namespace Jazz2.Actors
                 api.AddActor(newAmmo);
             } else {
                 AmmoRF newAmmo = new AmmoRF();
-                newAmmo.OnAttach(new ActorInstantiationDetails {
+                newAmmo.OnActivated(new ActorActivationDetails {
                     Api = api,
                     Pos = initialPos,
                     Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
@@ -279,7 +295,7 @@ namespace Jazz2.Actors
                 api.AddActor(newAmmo);
 
                 newAmmo = new AmmoRF();
-                newAmmo.OnAttach(new ActorInstantiationDetails {
+                newAmmo.OnActivated(new ActorActivationDetails {
                     Api = api,
                     Pos = initialPos,
                     Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
@@ -297,7 +313,7 @@ namespace Jazz2.Actors
             GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
 
             AmmoToaster newAmmo = new AmmoToaster();
-            newAmmo.OnAttach(new ActorInstantiationDetails {
+            newAmmo.OnActivated(new ActorActivationDetails {
                 Api = api,
                 Pos = initialPos,
                 Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
@@ -315,7 +331,7 @@ namespace Jazz2.Actors
             Vector3 pos = Transform.Pos;
 
             AmmoTNT tnt = new AmmoTNT();
-            tnt.OnAttach(new ActorInstantiationDetails {
+            tnt.OnActivated(new ActorActivationDetails {
                 Api = api,
                 Pos = pos
             });
@@ -331,7 +347,7 @@ namespace Jazz2.Actors
             GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
 
             AmmoPepper newAmmo = new AmmoPepper();
-            newAmmo.OnAttach(new ActorInstantiationDetails {
+            newAmmo.OnActivated(new ActorActivationDetails {
                 Api = api,
                 Pos = initialPos,
                 Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
@@ -340,7 +356,7 @@ namespace Jazz2.Actors
             api.AddActor(newAmmo);
 
             newAmmo = new AmmoPepper();
-            newAmmo.OnAttach(new ActorInstantiationDetails {
+            newAmmo.OnActivated(new ActorActivationDetails {
                 Api = api,
                 Pos = initialPos,
                 Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
@@ -357,7 +373,7 @@ namespace Jazz2.Actors
             GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
 
             AmmoElectro newAmmo = new AmmoElectro();
-            newAmmo.OnAttach(new ActorInstantiationDetails {
+            newAmmo.OnActivated(new ActorActivationDetails {
                 Api = api,
                 Pos = initialPos,
                 Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }
@@ -378,7 +394,7 @@ namespace Jazz2.Actors
             GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
 
             AmmoThunderbolt newAmmo = new AmmoThunderbolt();
-            newAmmo.OnAttach(new ActorInstantiationDetails {
+            newAmmo.OnActivated(new ActorActivationDetails {
                 Api = api,
                 Pos = gunspotPos,
                 Params = new ushort[] { weaponUpgrades[(int)currentWeapon] }

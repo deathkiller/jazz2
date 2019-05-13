@@ -12,9 +12,9 @@ namespace Jazz2.Actors.Enemies
         private float attackTime;
         private bool playerHit;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
@@ -73,7 +73,7 @@ namespace Jazz2.Actors.Enemies
                         Vector3 bulletPos = Transform.Pos + new Vector3(24f * (IsFacingLeft ? -1f : 1f), 0f, -2f);
 
                         MagicBullet bullet = new MagicBullet(this);
-                        bullet.OnAttach(new ActorInstantiationDetails {
+                        bullet.OnActivated(new ActorActivationDetails {
                             Api = api,
                             Pos = bulletPos
                         });
@@ -134,9 +134,9 @@ namespace Jazz2.Actors.Enemies
                 this.owner = owner;
             }
 
-            public override void OnAttach(ActorInstantiationDetails details)
+            public override void OnActivated(ActorActivationDetails details)
             {
-                base.OnAttach(details);
+                base.OnActivated(details);
 
                 canHurtPlayer = false;
                 canBeFrozen = false;

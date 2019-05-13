@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Duality;
 using Duality.Audio;
 using Duality.Components;
@@ -30,7 +29,7 @@ namespace Jazz2.Actors
         Illuminated = 1 << 2,
     }
 
-    public struct ActorInstantiationDetails
+    public struct ActorActivationDetails
     {
         public ActorApi Api;
         public Vector3 Pos;
@@ -86,13 +85,15 @@ namespace Jazz2.Actors
         protected Point2 originTile;
         protected ActorInstantiationFlags flags;
 
-        protected Hitbox currentHitbox;
-
         protected ActorRenderer renderer;
         private Point2 boundingBox;
 
-        private AABB aabb;
-        private int proxyId = -1;
+        public AABB AABB;
+        public AABB AABBInner;
+        public int ProxyId = -1;
+
+        ref AABB ICollisionable.AABB => ref AABBInner;
+        ref int ICollisionable.ProxyId => ref ProxyId;
 
         protected Dictionary<string, GraphicResource> availableAnimations;
         protected GraphicResource currentAnimation;
@@ -106,7 +107,6 @@ namespace Jazz2.Actors
 
         private List<GraphicResource> cachedCandidates = new List<GraphicResource>();
 
-        public Hitbox Hitbox => currentHitbox;
         public CollisionFlags CollisionFlags => collisionFlags;
         public bool IsInvulnerable => isInvulnerable;
         public int Health => health;
@@ -131,7 +131,7 @@ namespace Jazz2.Actors
                 isFacingLeft = value;
 
                 if ((collisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0) {
-                    // ToDo: Workaround for refresh of AABB
+                    // ToDo: Workaround for refreshing of AABB
                     Transform.Pos = Transform.Pos;
                 }
 
@@ -141,11 +141,7 @@ namespace Jazz2.Actors
             }
         }
 
-        public ref int ProxyId => ref proxyId;
-
-        public ref AABB AABB => ref aabb;
-
-        public virtual void OnAttach(ActorInstantiationDetails details)
+        public virtual void OnActivated(ActorActivationDetails details)
         {
             this.api = details.Api;
             this.flags = details.Flags;
@@ -180,7 +176,7 @@ namespace Jazz2.Actors
             //pos.Y += speedY * timeMult;
 
             if (currentAnimation.Base.HasColdspot) {
-                currentHitbox = new Hitbox(
+                AABBInner = new AABB(
                     pos.X - currentAnimation.Base.Hotspot.X + currentAnimation.Base.Coldspot.X - (w / 2),
                     pos.Y - currentAnimation.Base.Hotspot.Y + currentAnimation.Base.Coldspot.Y - h,
                     pos.X - currentAnimation.Base.Hotspot.X + currentAnimation.Base.Coldspot.X + (w / 2),
@@ -189,7 +185,7 @@ namespace Jazz2.Actors
             } else {
                 // Collision base set to the bottom of the sprite.
                 // This is probably still not the correct way to do it, but at least it works for now.
-                currentHitbox = new Hitbox(
+                AABBInner = new AABB(
                     pos.X - (w / 2),
                     pos.Y - currentAnimation.Base.Hotspot.Y + currentAnimation.Base.FrameDimensions.Y - h,
                     pos.X + (w / 2),
@@ -220,7 +216,7 @@ namespace Jazz2.Actors
                 Point2 hotspot = res.Base.Hotspot;
                 Point2 size = res.Base.FrameDimensions;
 
-                if (Transform.Angle != 0f) {
+                if (MathF.Abs(Transform.Angle) > 0.1f) {
                     Matrix4 transform1 = Matrix4.CreateTranslation(new Vector3(-hotspot.X, -hotspot.Y, 0f));
                     if (isFacingLeft)
                         transform1 *= Matrix4.CreateScale(-1f, 1f, 1f);
@@ -250,11 +246,11 @@ namespace Jazz2.Actors
                 }
             } else {
                 OnUpdateHitbox();
-
-                AABB = currentHitbox.ToAABB();
+                AABB = AABBInner;
             }
 
 #if DEBUG
+            Game.UI.Hud.ShowDebugRect(new Rect(AABBInner.LowerBound.X, AABBInner.LowerBound.Y, AABBInner.UpperBound.X - AABBInner.LowerBound.X, AABBInner.UpperBound.Y - AABBInner.LowerBound.Y));
             Game.UI.Hud.ShowDebugRect(new Rect(AABB.LowerBound.X, AABB.LowerBound.Y, AABB.UpperBound.X - AABB.LowerBound.X, AABB.UpperBound.Y - AABB.LowerBound.Y));
 #endif
         }
@@ -291,20 +287,20 @@ namespace Jazz2.Actors
             return true;
         }
 
-        protected virtual void OnHitFloorHook()
+        protected virtual void OnHitFloor()
         {
             // Called from inside the position update code when the object hits floor
             // and was falling earlier. Objects should override this if they need to
             // (e.g. the Player class playing a sound).
         }
 
-        protected virtual void OnHitCeilingHook()
+        protected virtual void OnHitCeiling()
         {
             // Called from inside the position update code when the object hits ceiling.
             // Objects should override this if they need to.
         }
 
-        protected virtual void OnHitWallHook()
+        protected virtual void OnHitWall()
         {
             // Called from inside the position update code when the object hits a wall.
             // Objects should override this if they need to.
@@ -366,11 +362,11 @@ namespace Jazz2.Actors
                     if (xDiff > CollisionCheckStep || (xDiff > 0f && elasticity > 0f)) {
                         speedX = -(elasticity * speedX);
                     }
-                    OnHitWallHook();
+                    OnHitWall();
                 }
 
                 // Run all floor-related hooks, such as the player's check for hurting positions.
-                OnHitFloorHook();
+                OnHitFloor();
             } else {
                 // Airborne movement is handled here.
                 // First, attempt to move directly based on the current speed values.
@@ -412,7 +408,7 @@ namespace Jazz2.Actors
                         if (effectiveSpeedY > 0f) {
                             speedY = -(elasticity * effectiveSpeedY / timeMult);
                             
-                            OnHitFloorHook();
+                            OnHitFloor();
 
                             if (speedY > -CollisionCheckStep) {
                                 speedY = 0f;
@@ -420,7 +416,7 @@ namespace Jazz2.Actors
                             }
                         } else {
                             speedY = 0f;
-                            OnHitCeilingHook();
+                            OnHitCeiling();
                         }
                     }
 
@@ -430,14 +426,14 @@ namespace Jazz2.Actors
                         if (xDiff > CollisionCheckStep || (xDiff > 0f && elasticity > 0f)) {
                             speedX = -(elasticity * speedX);
                         }
-                        OnHitWallHook();
+                        OnHitWall();
                     }
                 }
             }
 
             // Set the actor as airborne if there seems to be enough space below it
-            Hitbox hitbox = (currentHitbox + new Vector2(0f, CollisionCheckStep));
-            if (api.IsPositionEmpty(this, ref hitbox, effectiveSpeedY >= 0)) {
+            AABB aabb = (AABBInner + new Vector2(0f, CollisionCheckStep));
+            if (api.IsPositionEmpty(this, ref aabb, effectiveSpeedY >= 0)) {
                 speedY += gravity * timeMult;
                 canJump = false;
             }
@@ -512,12 +508,12 @@ namespace Jazz2.Actors
                 }
             }
 
-            Hitbox translatedHitbox = currentHitbox + newPos - new Vector2(Transform.Pos.X, Transform.Pos.Y);
+            AABB aabb = AABBInner + newPos - new Vector2(Transform.Pos.X, Transform.Pos.Y);
 
             // ToDo: Fix moving on roofs through windowsill in colon2
-            bool free = force || api.IsPositionEmpty(this, ref translatedHitbox, speedY >= 0);
+            bool free = force || api.IsPositionEmpty(this, ref aabb, speedY >= 0);
             if (free) {
-                currentHitbox = translatedHitbox;
+                AABBInner = aabb;
                 Transform.Pos = new Vector3(newPos.X, newPos.Y, Transform.Pos.Z);
             }
             return free;
@@ -581,8 +577,12 @@ namespace Jazz2.Actors
             bool perPixel1 = (collisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0;
             bool perPixel2 = (other.collisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0;
 
-            // Limitation - both have to support per-pixel collisions
-            if (perPixel1 && perPixel2 && (Transform.Angle != 0f || other.Transform.Angle != 0f)) {
+            if ((perPixel1 || perPixel2) && (MathF.Abs(Transform.Angle) > 0.1f || MathF.Abs(other.Transform.Angle) > 0.1f)) {
+                if (!perPixel1 && MathF.Abs(other.Transform.Angle) > 0.1f) {
+                    return other.IsCollidingWithAngled(ref AABBInner);
+                } else if (!perPixel2 && MathF.Abs(Transform.Angle) > 0.1f) {
+                    return IsCollidingWithAngled(ref other.AABBInner);
+                }
                 return IsCollidingWithAngled(other);
             }
 
@@ -592,6 +592,12 @@ namespace Jazz2.Actors
             PixelData p1 = res1?.Material.Res?.MainTexture.Res?.BasePixmap.Res?.MainLayer;
             PixelData p2 = res2?.Material.Res?.MainTexture.Res?.BasePixmap.Res?.MainLayer;
             if (p1 == null || p2 == null) {
+                if (p1 != null) {
+                    return IsCollidingWith(ref other.AABBInner);
+                }
+                if (p2 != null) {
+                    return other.IsCollidingWith(ref AABBInner);
+                }
                 return false;
             }
 
@@ -604,25 +610,29 @@ namespace Jazz2.Actors
             Point2 size1 = res1.Base.FrameDimensions;
             Point2 size2 = res2.Base.FrameDimensions;
 
-            Rect box1, box2;
+            AABB aabb1, aabb2;
             if (!perPixel1) {
-                box1 = new Rect(currentHitbox.Left, currentHitbox.Top, currentHitbox.Right - currentHitbox.Left, currentHitbox.Bottom - currentHitbox.Top);
+                aabb1 = AABBInner;
             } else if (isFacingLeft) {
-                box1 = new Rect(pos1.X + hotspot1.X - size1.X, pos1.Y - hotspot1.Y, size1.X, size1.Y);
+                aabb1 = new AABB(pos1.X + hotspot1.X - size1.X, pos1.Y - hotspot1.Y, size1.X, size1.Y);
+                aabb1.UpperBound += aabb1.LowerBound;
             } else {
-                box1 = new Rect(pos1.X - hotspot1.X, pos1.Y - hotspot1.Y, size1.X, size1.Y);
+                aabb1 = new AABB(pos1.X - hotspot1.X, pos1.Y - hotspot1.Y, size1.X, size1.Y);
+                aabb1.UpperBound += aabb1.LowerBound;
             }
             if (!perPixel2) {
-                box2 = new Rect(other.currentHitbox.Left, other.currentHitbox.Top, other.currentHitbox.Right - other.currentHitbox.Left, other.currentHitbox.Bottom - other.currentHitbox.Top);
+                aabb2 = other.AABBInner;
             } else if (other.isFacingLeft) {
-                box2 = new Rect(pos2.X + hotspot2.X - size2.X, pos2.Y - hotspot2.Y, size2.X, size2.Y);
+                aabb2 = new AABB(pos2.X + hotspot2.X - size2.X, pos2.Y - hotspot2.Y, size2.X, size2.Y);
+                aabb2.UpperBound += aabb2.LowerBound;
             } else {
-                box2 = new Rect(pos2.X - hotspot2.X, pos2.Y - hotspot2.Y, size2.X, size2.Y);
+                aabb2 = new AABB(pos2.X - hotspot2.X, pos2.Y - hotspot2.Y, size2.X, size2.Y);
+                aabb2.UpperBound += aabb2.LowerBound;
             }
 
             // Bounding Box intersection
-            Rect inter = box1.Intersection(box2);
-            if (inter.W <= 0 || inter.H <= 0) {
+            AABB inter = AABB.Intersection(ref aabb1, ref aabb2);
+            if (inter.UpperBound.X <= 0 || inter.UpperBound.Y <= 0) {
                 return false;
             }
 
@@ -640,31 +650,31 @@ namespace Jazz2.Actors
                     res = res1;
                     isFacingLeftCurrent = isFacingLeft;
 
-                    x1 = (int)MathF.Max(inter.X, other.currentHitbox.Left);
-                    y1 = (int)MathF.Max(inter.Y, other.currentHitbox.Top);
-                    x2 = (int)MathF.Min(inter.RightX, other.currentHitbox.Right);
-                    y2 = (int)MathF.Min(inter.BottomY, other.currentHitbox.Bottom);
+                    x1 = (int)MathF.Max(inter.LowerBound.X, other.AABBInner.LowerBound.X);
+                    y1 = (int)MathF.Max(inter.LowerBound.Y, other.AABBInner.LowerBound.Y);
+                    x2 = (int)MathF.Min(inter.UpperBound.X, other.AABBInner.UpperBound.X);
+                    y2 = (int)MathF.Min(inter.UpperBound.Y, other.AABBInner.UpperBound.Y);
 
-                    xs = (int)box1.X;
+                    xs = (int)aabb1.LowerBound.X;
 
                     int frame1 = Math.Min(renderer.CurrentFrame, res.FrameCount - 1);
                     dx = (frame1 % res.Base.FrameConfiguration.X) * res.Base.FrameDimensions.X;
-                    dy = (frame1 / res.Base.FrameConfiguration.X) * res.Base.FrameDimensions.Y - (int)box1.Y;
+                    dy = (frame1 / res.Base.FrameConfiguration.X) * res.Base.FrameDimensions.Y - (int)aabb1.LowerBound.Y;
                 } else {
                     p = p2;
                     res = res2;
                     isFacingLeftCurrent = other.isFacingLeft;
 
-                    x1 = (int)MathF.Max(inter.X, currentHitbox.Left);
-                    y1 = (int)MathF.Max(inter.Y, currentHitbox.Top);
-                    x2 = (int)MathF.Min(inter.RightX, currentHitbox.Right);
-                    y2 = (int)MathF.Min(inter.BottomY, currentHitbox.Bottom);
+                    x1 = (int)MathF.Max(inter.LowerBound.X, AABBInner.LowerBound.X);
+                    y1 = (int)MathF.Max(inter.LowerBound.Y, AABBInner.LowerBound.Y);
+                    x2 = (int)MathF.Min(inter.UpperBound.X, AABBInner.UpperBound.X);
+                    y2 = (int)MathF.Min(inter.UpperBound.Y, AABBInner.UpperBound.Y);
 
-                    xs = (int)box2.X;
+                    xs = (int)aabb2.LowerBound.X;
 
                     int frame2 = Math.Min(other.renderer.CurrentFrame, res.FrameCount - 1);
                     dx = (frame2 % res.Base.FrameConfiguration.X) * res.Base.FrameDimensions.X;
-                    dy = (frame2 / res.Base.FrameConfiguration.X) * res.Base.FrameDimensions.Y - (int)box2.Y;
+                    dy = (frame2 / res.Base.FrameConfiguration.X) * res.Base.FrameDimensions.Y - (int)aabb2.LowerBound.Y;
                 }
 
                 // Per-pixel collision check
@@ -680,23 +690,22 @@ namespace Jazz2.Actors
                         }
                     }
                 }
-
             } else {
-                int x1 = (int)inter.X;
-                int y1 = (int)inter.Y;
-                int x2 = (int)inter.RightX;
-                int y2 = (int)inter.BottomY;
+                int x1 = (int)inter.LowerBound.X;
+                int y1 = (int)inter.LowerBound.Y;
+                int x2 = (int)inter.UpperBound.X;
+                int y2 = (int)inter.UpperBound.Y;
 
-                int x1s = (int)box1.X;
-                int x2s = (int)box2.X;
+                int x1s = (int)aabb1.LowerBound.X;
+                int x2s = (int)aabb2.LowerBound.X;
 
                 int frame1 = Math.Min(renderer.CurrentFrame, res1.FrameCount - 1);
                 int dx1 = (frame1 % res1.Base.FrameConfiguration.X) * res1.Base.FrameDimensions.X;
-                int dy1 = (frame1 / res1.Base.FrameConfiguration.X) * res1.Base.FrameDimensions.Y - (int)box1.Y;
+                int dy1 = (frame1 / res1.Base.FrameConfiguration.X) * res1.Base.FrameDimensions.Y - (int)aabb1.LowerBound.Y;
 
                 int frame2 = Math.Min(other.renderer.CurrentFrame, res2.FrameCount - 1);
                 int dx2 = (frame2 % res2.Base.FrameConfiguration.X) * res2.Base.FrameDimensions.X;
-                int dy2 = (frame2 / res2.Base.FrameConfiguration.X) * res2.Base.FrameDimensions.Y - (int)box2.Y;
+                int dy2 = (frame2 / res2.Base.FrameConfiguration.X) * res2.Base.FrameDimensions.Y - (int)aabb2.LowerBound.Y;
 
                 // Per-pixel collision check
                 for (int i = x1; i < x2; i++) {
@@ -713,6 +722,75 @@ namespace Jazz2.Actors
                         if (p1[i1 + dx1, j + dy1].A > AlphaThreshold && p2[i2 + dx2, j + dy2].A > AlphaThreshold) {
                             return true;
                         }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public bool IsCollidingWith(ref AABB aabb)
+        {
+            const byte AlphaThreshold = 40;
+
+            bool perPixel = (collisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0;
+            if (perPixel && MathF.Abs(Transform.Angle) > 0.1f) {
+                return IsCollidingWithAngled(ref aabb);
+            }
+
+            GraphicResource res = (currentTransitionState != AnimState.Idle ? currentTransition : currentAnimation);
+
+            PixelData p = res?.Material.Res?.MainTexture.Res?.BasePixmap.Res?.MainLayer;
+            if (p == null) {
+                return false;
+            }
+
+            Vector3 pos = Transform.Pos;
+            Point2 hotspot = res.Base.Hotspot;
+            Point2 size = res.Base.FrameDimensions;
+
+            AABB aabbSelf;
+            if (!perPixel) {
+                aabbSelf = AABBInner;
+            } else if (isFacingLeft) {
+                aabbSelf = new AABB(pos.X + hotspot.X - size.X, pos.Y - hotspot.Y, size.X, size.Y);
+                aabbSelf.UpperBound += aabbSelf.LowerBound;
+            } else {
+                aabbSelf = new AABB(pos.X - hotspot.X, pos.Y - hotspot.Y, size.X, size.Y);
+                aabbSelf.UpperBound += aabbSelf.LowerBound;
+            }
+
+            // Bounding Box intersection
+            AABB inter = AABB.Intersection(ref aabb, ref aabbSelf);
+            if (inter.UpperBound.X <= 0 || inter.UpperBound.Y <= 0) {
+                return false;
+            }
+
+            if (!perPixel) {
+                return true;
+            }
+
+            int x1 = (int)MathF.Max(inter.LowerBound.X, aabb.LowerBound.X);
+            int y1 = (int)MathF.Max(inter.LowerBound.Y, aabb.LowerBound.Y);
+            int x2 = (int)MathF.Min(inter.UpperBound.X, aabb.UpperBound.X);
+            int y2 = (int)MathF.Min(inter.UpperBound.Y, aabb.UpperBound.Y);
+
+            int xs = (int)aabbSelf.LowerBound.X;
+
+            int frame1 = Math.Min(renderer.CurrentFrame, res.FrameCount - 1);
+            int dx = (frame1 % res.Base.FrameConfiguration.X) * res.Base.FrameDimensions.X;
+            int dy = (frame1 / res.Base.FrameConfiguration.X) * res.Base.FrameDimensions.Y - (int)aabbSelf.LowerBound.Y;
+
+            // Per-pixel collision check
+            for (int i = x1; i < x2; i++) {
+                for (int j = y1; j < y2; j++) {
+                    int i1 = i - xs;
+                    if (isFacingLeft) {
+                        i1 = res.Base.FrameDimensions.X - i1 - 1;
+                    }
+
+                    if (p[i1 + dx, j + dy].A > AlphaThreshold) {
+                        return true;
                     }
                 }
             }
@@ -755,7 +833,7 @@ namespace Jazz2.Actors
             int height2 = res2.Base.FrameDimensions.Y;
 
             // Bounding Box intersection
-            Hitbox box1, box2;
+            AABB aabb1, aabb2;
             {
                 Vector2 tl = Vector2.Transform(Vector2.Zero, transform1);
                 Vector2 tr = Vector2.Transform(new Vector2(width1, 0f), transform1);
@@ -767,7 +845,7 @@ namespace Jazz2.Actors
                 float maxX = MathF.Max(tl.X, tr.X, bl.X, br.X);
                 float maxY = MathF.Max(tl.Y, tr.Y, bl.Y, br.Y);
 
-                box1 = new Hitbox(
+                aabb1 = new AABB(
                     MathF.Floor(minX),
                     MathF.Floor(minY),
                     MathF.Ceiling(maxX),
@@ -784,14 +862,14 @@ namespace Jazz2.Actors
                 float maxX = MathF.Max(tl.X, tr.X, bl.X, br.X);
                 float maxY = MathF.Max(tl.Y, tr.Y, bl.Y, br.Y);
 
-                box2 = new Hitbox(
+                aabb2 = new AABB(
                     MathF.Floor(minX),
                     MathF.Floor(minY),
                     MathF.Ceiling(maxX),
                     MathF.Ceiling(maxY));
             }
 
-            if (!box1.Intersects(ref box2)) {
+            if (!AABB.TestOverlap(ref aabb1, ref aabb2)) {
                 return false;
             }
 
@@ -820,16 +898,91 @@ namespace Jazz2.Actors
                     int y2 = (int)MathF.Round(posIn2.Y);
 
                     if (x2 >= 0 && x2 < width2 && y2 >= 0 && y2 < height2) {
-
                         if (p1[x1 + dx1, y1 + dy1].A > AlphaThreshold && p2[x2 + dx2, y2 + dy2].A > AlphaThreshold) {
                             return true;
                         }
                     }
-
                     posIn2 += stepX;
                 }
-
                 yPosIn2 += stepY;
+            }
+
+            return false;
+        }
+
+        private bool IsCollidingWithAngled(ref AABB aabb)
+        {
+            const byte AlphaThreshold = 40;
+
+            GraphicResource res = (currentTransitionState != AnimState.Idle ? currentTransition : currentAnimation);
+
+            PixelData p = res?.Material.Res?.MainTexture.Res?.BasePixmap.Res?.MainLayer;
+            if (p == null) {
+                return false;
+            }
+
+            Matrix4 transform =
+                Matrix4.CreateTranslation(new Vector3(-res.Base.Hotspot.X, -res.Base.Hotspot.Y, 0f));
+            if (isFacingLeft) {
+                transform *= Matrix4.CreateScale(-1f, 1f, 1f);
+            }
+            transform *= Matrix4.CreateRotationZ(Transform.Angle) *
+                Matrix4.CreateTranslation(Transform.Pos);
+
+            int width = res.Base.FrameDimensions.X;
+            int height = res.Base.FrameDimensions.Y;
+
+            // Bounding Box intersection
+            AABB aabbSelf;
+            {
+                Vector2 tl = Vector2.Transform(Vector2.Zero, transform);
+                Vector2 tr = Vector2.Transform(new Vector2(width, 0f), transform);
+                Vector2 bl = Vector2.Transform(new Vector2(0f, height), transform);
+                Vector2 br = Vector2.Transform(new Vector2(width, height), transform);
+
+                float minX = MathF.Min(tl.X, tr.X, bl.X, br.X);
+                float minY = MathF.Min(tl.Y, tr.Y, bl.Y, br.Y);
+                float maxX = MathF.Max(tl.X, tr.X, bl.X, br.X);
+                float maxY = MathF.Max(tl.Y, tr.Y, bl.Y, br.Y);
+
+                aabbSelf = new AABB(
+                    MathF.Floor(minX),
+                    MathF.Floor(minY),
+                    MathF.Ceiling(maxX),
+                    MathF.Ceiling(maxY));
+            }
+
+            if (!AABB.TestOverlap(ref aabb, ref aabbSelf)) {
+                return false;
+            }
+
+            // TransformNormal with [1, 0] and [0, 1] vectors
+            Vector2 stepX = new Vector2(transform.M11, transform.M12);
+            Vector2 stepY = new Vector2(transform.M21, transform.M22);
+
+            Vector2 yPosInAABB = Vector2.Transform(Vector2.Zero, transform);
+
+            int frame = MathF.Min(renderer.CurrentFrame, res.FrameCount - 1);
+            int dx = (frame % res.Base.FrameConfiguration.X) * res.Base.FrameDimensions.X;
+            int dy = (frame / res.Base.FrameConfiguration.X) * res.Base.FrameDimensions.Y;
+
+            for (int y1 = 0; y1 < height; y1++) {
+                Vector2 posInAABB = yPosInAABB;
+
+                for (int x1 = 0; x1 < width; x1++) {
+                    int x2 = (int)MathF.Round(posInAABB.X);
+                    int y2 = (int)MathF.Round(posInAABB.Y);
+
+                    if (p[x1 + dx, y1 + dy].A > AlphaThreshold &&
+                        x2 >= aabb.LowerBound.X && x2 < aabb.UpperBound.X &&
+                        y2 >= aabb.LowerBound.Y && y2 < aabb.UpperBound.Y) {
+                        return true;
+                    }
+
+                    posInAABB += stepX;
+                }
+
+                yPosInAABB += stepY;
             }
 
             return false;

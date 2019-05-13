@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Duality;
 using Jazz2.Actors;
+using Jazz2.Game.Collisions;
 using Jazz2.Game.Events;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
@@ -137,9 +138,9 @@ namespace Jazz2.Game
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public void FindCollisionActorsFast(ActorBase self, Hitbox hitbox, Func<ActorBase, bool> callback)
+        public void FindCollisionActorsFast(ActorBase self, AABB aabb, Func<ActorBase, bool> callback)
         {
-            levelHandler.FindCollisionActorsFast(self, hitbox, callback);
+            levelHandler.FindCollisionActorsFast(self, aabb, callback);
         }
 
 #if NET45
@@ -153,24 +154,25 @@ namespace Jazz2.Game
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public bool IsPositionEmpty(ActorBase self, ref Hitbox hitbox, bool downwards, out ActorBase collider) {
-            return levelHandler.IsPositionEmpty(self, ref hitbox, downwards, out collider);
+        public bool IsPositionEmpty(ActorBase self, ref AABB aabb, bool downwards, out ActorBase collider)
+        {
+            return levelHandler.IsPositionEmpty(self, ref aabb, downwards, out collider);
         }
 
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public bool IsPositionEmpty(ActorBase self, ref Hitbox hitbox, bool downwards)
+        public bool IsPositionEmpty(ActorBase self, ref AABB aabb, bool downwards)
         {
-            return levelHandler.IsPositionEmpty(self, ref hitbox, downwards);
+            return levelHandler.IsPositionEmpty(self, ref aabb, downwards);
         }
 
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public IEnumerable<Player> GetCollidingPlayers(Hitbox hitbox)
+        public IEnumerable<Player> GetCollidingPlayers(AABB aabb)
         {
-            return levelHandler.GetCollidingPlayers(hitbox);
+            return levelHandler.GetCollidingPlayers(aabb);
         }
 
 #if NET45

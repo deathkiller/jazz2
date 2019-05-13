@@ -1,6 +1,7 @@
 ﻿using System;
 using Duality;
 using Jazz2.Actors;
+using Jazz2.Game.Collisions;
 using Jazz2.Game.Structs;
 using MathF = Duality.MathF;
 
@@ -8,12 +9,12 @@ namespace Jazz2.Game.Tiles
 {
     partial class TileMap
     {
-        public int CheckWeaponDestructible(ref Hitbox hitbox, WeaponType weapon, int strength)
+        public int CheckWeaponDestructible(ref AABB aabb, WeaponType weapon, int strength)
         {
-            int x1 = Math.Max(0, (int)hitbox.Left >> 5);
-            int x2 = Math.Min((int)hitbox.Right >> 5, levelWidth - 1);
-            int y1 = Math.Max(0, (int)hitbox.Top >> 5);
-            int y2 = Math.Min((int)hitbox.Bottom >> 5, levelHeight - 1);
+            int x1 = Math.Max(0, (int)aabb.LowerBound.X >> 5);
+            int x2 = Math.Min((int)aabb.UpperBound.X >> 5, levelWidth - 1);
+            int y1 = Math.Max(0, (int)aabb.LowerBound.Y >> 5);
+            int y2 = Math.Min((int)aabb.UpperBound.Y >> 5, levelHeight - 1);
 
             int hit = 0;
             for (int tx = x1; tx <= x2; tx++) {
@@ -22,7 +23,7 @@ namespace Jazz2.Game.Tiles
                     if (tile.DestructType == TileDestructType.Weapon) {
                         if (weapon == WeaponType.Freezer && (animatedTiles[tile.DestructAnimation].Length - 2) > tile.DestructFrameIndex) {
                             FrozenBlock frozen = new FrozenBlock();
-                            frozen.OnAttach(new ActorInstantiationDetails {
+                            frozen.OnActivated(new ActorActivationDetails {
                                 Api = levelHandler.Api,
                                 Pos = new Vector3(32 * tx + 16 - 1, 32 * ty + 16 - 1, LevelHandler.MainPlaneZ)
                             });
@@ -44,16 +45,12 @@ namespace Jazz2.Game.Tiles
             return hit;
         }
 
-        public int CheckSpecialDestructible(ref Hitbox hitbox)
+        public int CheckSpecialDestructible(ref AABB aabb)
         {
-            //int x1 = Math.Max(0, (int)hitbox.Left / 32);
-            //int x2 = Math.Min((int)hitbox.Right / 32, levelWidth - 1);
-            //int y1 = Math.Max(0, (int)hitbox.Top / 32);
-            //int y2 = Math.Min((int)hitbox.Bottom / 32, levelHeight - 1);
-            int x1 = Math.Max(0, (int)hitbox.Left >> 5);
-            int x2 = Math.Min((int)hitbox.Right >> 5, levelWidth - 1);
-            int y1 = Math.Max(0, (int)hitbox.Top >> 5);
-            int y2 = Math.Min((int)hitbox.Bottom >> 5, levelHeight - 1);
+            int x1 = Math.Max(0, (int)aabb.LowerBound.X >> 5);
+            int x2 = Math.Min((int)aabb.UpperBound.X >> 5, levelWidth - 1);
+            int y1 = Math.Max(0, (int)aabb.LowerBound.Y >> 5);
+            int y2 = Math.Min((int)aabb.UpperBound.Y >> 5, levelHeight - 1);
 
             int hit = 0;
             for (int tx = x1; tx <= x2; tx++) {
@@ -70,16 +67,12 @@ namespace Jazz2.Game.Tiles
             return hit;
         }
 
-        public int CheckSpecialSpeedDestructible(ref Hitbox hitbox, float speed)
+        public int CheckSpecialSpeedDestructible(ref AABB aabb, float speed)
         {
-            //int x1 = Math.Max(0, (int)hitbox.Left / 32);
-            //int x2 = Math.Min((int)hitbox.Right / 32, levelWidth - 1);
-            //int y1 = Math.Max(0, (int)hitbox.Top / 32);
-            //int y2 = Math.Min((int)hitbox.Bottom / 32, levelHeight - 1);
-            int x1 = Math.Max(0, (int)hitbox.Left >> 5);
-            int x2 = Math.Min((int)hitbox.Right >> 5, levelWidth - 1);
-            int y1 = Math.Max(0, (int)hitbox.Top >> 5);
-            int y2 = Math.Min((int)hitbox.Bottom >> 5, levelHeight - 1);
+            int x1 = Math.Max(0, (int)aabb.LowerBound.X >> 5);
+            int x2 = Math.Min((int)aabb.UpperBound.X >> 5, levelWidth - 1);
+            int y1 = Math.Max(0, (int)aabb.LowerBound.Y >> 5);
+            int y2 = Math.Min((int)aabb.UpperBound.Y >> 5, levelHeight - 1);
 
             int hit = 0;
             for (int tx = x1; tx <= x2; tx++) {
@@ -97,16 +90,12 @@ namespace Jazz2.Game.Tiles
             return hit;
         }
 
-        public uint CheckCollapseDestructible(ref Hitbox hitbox)
+        public uint CheckCollapseDestructible(ref AABB aabb)
         {
-            //int x1 = Math.Max(0, (int)hitbox.Left / 32);
-            //int x2 = Math.Min((int)hitbox.Right / 32, levelWidth - 1);
-            //int y1 = Math.Max(0, (int)hitbox.Top / 32);
-            //int y2 = Math.Min((int)hitbox.Bottom / 32, levelHeight - 1);
-            int x1 = Math.Max(0, (int)hitbox.Left >> 5);
-            int x2 = Math.Min((int)hitbox.Right >> 5, levelWidth - 1);
-            int y1 = Math.Max(0, (int)hitbox.Top >> 5);
-            int y2 = Math.Min((int)hitbox.Bottom >> 5, levelHeight - 1);
+            int x1 = Math.Max(0, (int)aabb.LowerBound.X >> 5);
+            int x2 = Math.Min((int)aabb.UpperBound.X >> 5, levelWidth - 1);
+            int y1 = Math.Max(0, (int)aabb.LowerBound.Y >> 5);
+            int y2 = Math.Min((int)aabb.UpperBound.Y >> 5, levelHeight - 1);
 
             uint hit = 0;
             for (int tx = x1; tx <= x2; tx++) {

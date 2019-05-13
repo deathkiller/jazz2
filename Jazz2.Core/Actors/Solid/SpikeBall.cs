@@ -18,9 +18,9 @@ namespace Jazz2.Actors.Solid
         private Vector3 originPos;
         private ChainPiece[] pieces;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             originPos = Transform.Pos;
 

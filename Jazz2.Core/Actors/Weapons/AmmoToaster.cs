@@ -12,9 +12,9 @@ namespace Jazz2.Actors.Weapons
 
         public override WeaponType WeaponType => WeaponType.Toaster;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             base.upgrades = (byte)details.Params[0];
 
@@ -82,7 +82,7 @@ namespace Jazz2.Actors.Weapons
             }
 
             TileMap tiles = api.TileMap;
-            if (tiles == null || tiles.IsTileEmpty(ref currentHitbox, false)) {
+            if (tiles == null || tiles.IsTileEmpty(ref AABBInner, false)) {
                 MoveInstantly(new Vector2(speedX, speedY), MoveType.RelativeTime, true);
                 CheckCollisions(Time.TimeMult);
             } else {

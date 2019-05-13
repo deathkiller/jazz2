@@ -1,6 +1,7 @@
 ﻿using System;
 using Duality;
 using Jazz2.Actors.Enemies;
+using Jazz2.Game.Collisions;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
 using MathF = Duality.MathF;
@@ -28,9 +29,9 @@ namespace Jazz2.Actors.Bosses
 
         private ushort endText;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             endText = details.Params[1];
 
@@ -56,7 +57,7 @@ namespace Jazz2.Actors.Bosses
 
             // Invisible block above the queen
             block = new InvisibleBlock();
-            block.OnAttach(new ActorInstantiationDetails {
+            block.OnActivated(new ActorActivationDetails {
                 Api = api
             });
             api.AddActor(block);
@@ -84,7 +85,7 @@ namespace Jazz2.Actors.Bosses
                 case StateWaiting: {
                     // Waiting for player to enter the arena
                     Vector3 pos = Transform.Pos;
-                    api.FindCollisionActorsFast(this, new Hitbox(pos.X - 300, pos.Y - 120, pos.X + 60, pos.Y + 120), actor => {
+                    api.FindCollisionActorsFast(this, new AABB(pos.X - 300, pos.Y - 120, pos.X + 60, pos.Y + 120), actor => {
                         if (actor is Player) {
                             state = StateIdleToScream;
                             stateTime = 260f;
@@ -132,7 +133,7 @@ namespace Jazz2.Actors.Bosses
                                 Vector3 pos = Transform.Pos;
 
                                 Brick brick = new Brick();
-                                brick.OnAttach(new ActorInstantiationDetails {
+                                brick.OnActivated(new ActorActivationDetails {
                                     Api = api,
                                     Pos = new Vector3(brickStartRangeX + MathF.Rnd.NextFloat(pos.X - brickStartRangeX - 50), pos.Y - 200f, pos.Z + 20f)
                                 });
@@ -159,9 +160,9 @@ namespace Jazz2.Actors.Bosses
 
                                 // Check it it's on the ledge
                                 Vector3 pos = Transform.Pos;
-                                Hitbox hitbox1 = new Hitbox(pos.X - 10, pos.Y + 24, pos.X - 6, pos.Y + 28);
-                                Hitbox hitbox2 = new Hitbox(pos.X + 6, pos.Y + 24, pos.X + 10, pos.Y + 28);
-                                if (!api.IsPositionEmpty(this, ref hitbox1, true) && api.IsPositionEmpty(this, ref hitbox2, true)) {
+                                AABB aabb1 = new AABB(pos.X - 10, pos.Y + 24, pos.X - 6, pos.Y + 28);
+                                AABB aabb2 = new AABB(pos.X + 6, pos.Y + 24, pos.X + 10, pos.Y + 28);
+                                if (!api.IsPositionEmpty(this, ref aabb1, true) && api.IsPositionEmpty(this, ref aabb2, true)) {
                                     lastHealth = health;
                                     isInvulnerable = false;
 
@@ -234,7 +235,7 @@ namespace Jazz2.Actors.Bosses
                 Spring spring = other as Spring;
                 if (spring != null) {
                     // Collide only with hitbox
-                    if (spring.Hitbox.Intersects(ref currentHitbox)) {
+                    if (AABB.TestOverlap(ref spring.AABBInner, ref AABBInner)) {
                         Vector2 force = spring.Activate();
                         int sign = ((force.X + force.Y) > float.Epsilon ? 1 : -1);
                         if (Math.Abs(force.X) > float.Epsilon) {
@@ -268,9 +269,9 @@ namespace Jazz2.Actors.Bosses
             }
 
             float timeMult = Time.TimeMult;
-            Hitbox tileCollisionHitbox = currentHitbox + new Vector2((speedX + externalForceX) * 2f * timeMult, (speedY - externalForceY) * 2f * timeMult);
+            AABB aabb = AABBInner + new Vector2((speedX + externalForceX) * 2f * timeMult, (speedY - externalForceY) * 2f * timeMult);
 
-            if (tiles.CheckWeaponDestructible(ref tileCollisionHitbox, WeaponType.Blaster, int.MaxValue) > 0) {
+            if (tiles.CheckWeaponDestructible(ref aabb, WeaponType.Blaster, int.MaxValue) > 0) {
                 api.ShakeCameraView(20f);
             }
         }
@@ -279,9 +280,9 @@ namespace Jazz2.Actors.Bosses
         {
             private float time = 50f;
 
-            public override void OnAttach(ActorInstantiationDetails details)
+            public override void OnActivated(ActorActivationDetails details)
             {
-                base.OnAttach(details);
+                base.OnActivated(details);
 
                 collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation;
 
@@ -316,9 +317,9 @@ namespace Jazz2.Actors.Bosses
 
         private class InvisibleBlock : ActorBase
         {
-            public override void OnAttach(ActorInstantiationDetails details)
+            public override void OnActivated(ActorActivationDetails details)
             {
-                base.OnAttach(details);
+                base.OnActivated(details);
 
                 collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.IsSolidObject | CollisionFlags.SkipPerPixelCollisions;
 

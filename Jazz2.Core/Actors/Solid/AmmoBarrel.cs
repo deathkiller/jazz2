@@ -7,9 +7,9 @@ namespace Jazz2.Actors.Solid
 {
     public class AmmoBarrel : GenericContainer
     {
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             Movable = true;
 

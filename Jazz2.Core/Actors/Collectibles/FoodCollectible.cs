@@ -44,9 +44,9 @@
 
         private bool isDrinkable;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             scoreValue = 50;
 

@@ -11,9 +11,9 @@ namespace Jazz2.Actors.Enemies
         private float attackTime = 160f;
         private bool attacking;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
 

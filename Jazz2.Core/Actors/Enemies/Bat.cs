@@ -12,9 +12,9 @@ namespace Jazz2.Actors.Enemies
         private bool attacking;
         private float noiseCooldown;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             originPos = Transform.Pos;
 

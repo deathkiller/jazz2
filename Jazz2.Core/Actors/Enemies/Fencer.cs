@@ -8,9 +8,9 @@ namespace Jazz2.Actors.Enemies
     {
         private double stateTime;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             SetHealthByDifficulty(3);
             scoreValue = 400;

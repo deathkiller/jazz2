@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET45 UNSAFE MULTIPLAYER ENABLE_SPLITSCREEN _UNCOMPRESSED_CONTENT</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET45 UNSAFE MULTIPLAYER ENABLE_SPLITSCREEN UNCOMPRESSED_CONTENT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

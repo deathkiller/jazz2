@@ -1,14 +1,15 @@
 ﻿using Duality;
 using Jazz2.Actors.Solid;
+using Jazz2.Game.Collisions;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Environment
 {
     public class PinballPaddle : SolidObjectBase
     {
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             IsFacingLeft = (details.Params[0] != 0);
 
@@ -23,7 +24,7 @@ namespace Jazz2.Actors.Environment
         {
             if (currentAnimation != null) {
                 Vector3 pos = Transform.Pos;
-                currentHitbox = new Hitbox(
+                AABBInner = new AABB(
                     pos.X - currentAnimation.Base.FrameDimensions.X * (IsFacingLeft ? 0.7f : 0.3f),
                     pos.Y - currentAnimation.Base.FrameDimensions.Y * 0.1f,
                     pos.X + currentAnimation.Base.FrameDimensions.X * (IsFacingLeft ? 0.3f : 0.7f),

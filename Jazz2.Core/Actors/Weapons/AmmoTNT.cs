@@ -2,6 +2,7 @@
 using Jazz2.Actors.Enemies;
 using Jazz2.Actors.Environment;
 using Jazz2.Actors.Solid;
+using Jazz2.Game.Collisions;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
 
@@ -16,9 +17,9 @@ namespace Jazz2.Actors.Weapons
 
         public Player Owner => owner;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             collisionFlags = CollisionFlags.None;
 
@@ -70,8 +71,8 @@ namespace Jazz2.Actors.Weapons
 
                 TileMap tiles = api.TileMap;
                 if (tiles != null) {
-                    Hitbox hitbox = new Hitbox(pos.X - 34, pos.Y - 34, pos.X + 34, pos.Y + 34);
-                    int destroyedCount = tiles.CheckWeaponDestructible(ref hitbox, WeaponType.TNT, 8);
+                    AABB aabb = new AABB(pos.X - 34, pos.Y - 34, pos.X + 34, pos.Y + 34);
+                    int destroyedCount = tiles.CheckWeaponDestructible(ref aabb, WeaponType.TNT, 8);
                     if (destroyedCount > 0 && owner != null) {
                         owner.AddScore(destroyedCount * 50);
                     }

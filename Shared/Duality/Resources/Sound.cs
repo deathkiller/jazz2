@@ -19,11 +19,6 @@ namespace Duality.Resources
 		private int maxInstances = 5;
 		private float minDistFactor = 1.0f;
 		private float maxDistFactor = 1.0f;
-		private float volFactor = 1.0f;
-		private float pitchFactor = 1.0f;
-		private float lowpassFactor = 1.0f;
-		private float fadeOutAt = 0.0f;
-		private float fadeOutTime = 0.0f;
 		private SoundType type = SoundType.World;
 		private List<ContentRef<AudioData>> audioData = null;
 
@@ -72,47 +67,6 @@ namespace Duality.Resources
 		{
 			get { return this.maxInstances; }
 			set { this.maxInstances = value; }
-		}
-		/// <summary>
-		/// [GET / SET] A volume factor that is applied when playing this sound.
-		/// </summary>
-		public float VolumeFactor
-		{
-			get { return this.volFactor; }
-			set { this.volFactor = value; }
-		}
-		/// <summary>
-		/// [GET / SET] A pitch factor that is applied when playing this sound.
-		/// </summary>
-		public float PitchFactor
-		{
-			get { return this.pitchFactor; }
-			set { this.pitchFactor = value; }
-		}
-		/// <summary>
-		/// [GET / SET] A lowpass factor that is applied when playing this sound.
-		/// </summary>
-		public float LowpassFactor
-		{
-			get { return this.lowpassFactor; }
-			set { this.lowpassFactor = value; }
-		}
-		/// <summary>
-		/// [GET / SET] Play time in seconds at which <see cref="Duality.Audio.SoundInstance">SoundInstances</see> of this Sound
-		/// automatically fade out.
-		/// </summary>
-		public float FadeOutAt
-		{
-			get { return this.fadeOutAt; }
-			set { this.fadeOutAt = value; }
-		}
-		/// <summary>
-		/// [GET / SET] If <see cref="FadeOutAt"/> has been triggered, this is the fade out time in seconds that is used.
-		/// </summary>
-		public float FadeOutTime
-		{
-			get { return this.fadeOutTime; }
-			set { this.fadeOutTime = value; }
 		}
 		/// <summary>
 		/// [GET / SET] The distance at which the sound is played at full volume. Getting nearer to the source won't increase the volume anymore.

@@ -15,9 +15,9 @@ namespace Jazz2.Actors.Enemies
         private int smokesLeft;
         private float attackTime;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             canBeFrozen = false;
             IsFacingLeft = true;
@@ -67,7 +67,7 @@ namespace Jazz2.Actors.Enemies
                             Vector3 pos = Transform.Pos;
 
                             Smoke smoke = new Smoke();
-                            smoke.OnAttach(new ActorInstantiationDetails {
+                            smoke.OnActivated(new ActorActivationDetails {
                                 Api = api,
                                 Pos = new Vector3(pos.X - 26f, pos.Y - 18f, pos.Z - 20f)
                             });
@@ -122,9 +122,9 @@ namespace Jazz2.Actors.Enemies
             private float time = 500f;
             private Vector2 baseSpeed;
 
-            public override void OnAttach(ActorInstantiationDetails details)
+            public override void OnActivated(ActorActivationDetails details)
             {
-                base.OnAttach(details);
+                base.OnActivated(details);
 
                 collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.SkipPerPixelCollisions;
                 canHurtPlayer = false;

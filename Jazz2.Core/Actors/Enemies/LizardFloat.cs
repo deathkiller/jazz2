@@ -16,9 +16,9 @@ namespace Jazz2.Actors.Enemies
 
         private ushort theme;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             theme = details.Params[0];
 
@@ -42,7 +42,7 @@ namespace Jazz2.Actors.Enemies
 
             // Spawn copter
             CopterDecor copter = new CopterDecor();
-            copter.OnAttach(new ActorInstantiationDetails {
+            copter.OnActivated(new ActorActivationDetails {
                 Api = api,
                 Params = details.Params
             });
@@ -78,7 +78,7 @@ namespace Jazz2.Actors.Enemies
                 if (distance < 280f && attackTime <= 0f) {
                     SetTransition(AnimState.TransitionAttack, false, delegate {
                         Bomb bomb = new Bomb();
-                        bomb.OnAttach(new ActorInstantiationDetails {
+                        bomb.OnActivated(new ActorActivationDetails {
                             Api = api,
                             Pos = Transform.Pos + new Vector3(IsFacingLeft ? -30f : 30f, -10f, -4f),
                             Params = new[] { (ushort)(theme + 1), (ushort)(IsFacingLeft ? 1 : 0) }
@@ -118,7 +118,7 @@ namespace Jazz2.Actors.Enemies
                 TryGenerateRandomDrop();
             } else {
                 Lizard lizard = new Lizard();
-                lizard.OnAttach(new ActorInstantiationDetails {
+                lizard.OnActivated(new ActorActivationDetails {
                     Api = api,
                     Pos = Transform.Pos,
                     Params = new[] { theme, (ushort)1, (ushort)(IsFacingLeft ? 1 : 0) }
@@ -133,9 +133,9 @@ namespace Jazz2.Actors.Enemies
 
         public class CopterDecor : ActorBase
         {
-            public override void OnAttach(ActorInstantiationDetails details)
+            public override void OnActivated(ActorActivationDetails details)
             {
-                base.OnAttach(details);
+                base.OnActivated(details);
 
                 collisionFlags = CollisionFlags.None;
 

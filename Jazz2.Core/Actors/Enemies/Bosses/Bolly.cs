@@ -24,9 +24,9 @@ namespace Jazz2.Actors.Bosses
 
         private ushort endText;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             endText = details.Params[1];
 
@@ -41,14 +41,14 @@ namespace Jazz2.Actors.Bosses
 
             // Spawn bottom
             bottom = new Bottom();
-            bottom.OnAttach(new ActorInstantiationDetails {
+            bottom.OnActivated(new ActorActivationDetails {
                 Api = api
             });
             bottom.Parent = this;
 
             // Spawn turret
             turret = new Turret();
-            turret.OnAttach(new ActorInstantiationDetails {
+            turret.OnActivated(new ActorActivationDetails {
                 Api = api
             });
             turret.Parent = this;
@@ -129,9 +129,9 @@ namespace Jazz2.Actors.Bosses
 
         private class Bottom : EnemyBase
         {
-            public override void OnAttach(ActorInstantiationDetails details)
+            public override void OnActivated(ActorActivationDetails details)
             {
-                base.OnAttach(details);
+                base.OnActivated(details);
 
                 collisionFlags = CollisionFlags.CollideWithOtherActors;
 
@@ -157,9 +157,9 @@ namespace Jazz2.Actors.Bosses
 
         private class Turret : EnemyBase
         {
-            public override void OnAttach(ActorInstantiationDetails details)
+            public override void OnActivated(ActorActivationDetails details)
             {
-                base.OnAttach(details);
+                base.OnActivated(details);
 
                 collisionFlags = CollisionFlags.None;
 

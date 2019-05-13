@@ -10,13 +10,13 @@ namespace Jazz2.Actors
         private ushort type;
         private Player owner;
         private int lastPlayerHealth;
-        private float fireCooldown;
+        private float fireCooldown = 80f;
         private bool flyAway;
         private float attackTime;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             type = details.Params[0];
             switch (type) {
@@ -63,9 +63,9 @@ namespace Jazz2.Actors
                 }
                 return;
             }
-
-            // Follow player
+            
             if (type == 1 && attackTime > 0f) {
+                // Attack
                 currentPos.X += speedX * timeMult;
                 currentPos.Y += speedY * timeMult;
                 Transform.Pos = currentPos;
@@ -78,6 +78,7 @@ namespace Jazz2.Actors
                     Transform.Angle = 0f;
                 }
             } else {
+                // Follow player
                 Vector3 targetPos = owner.Transform.Pos;
                 bool playerFacingLeft = owner.IsFacingLeft;
 
@@ -89,7 +90,10 @@ namespace Jazz2.Actors
                 targetPos.Y -= 50f;
                 targetPos.Z = currentPos.Z;
 
-                IsFacingLeft = playerFacingLeft;
+                if (IsFacingLeft != playerFacingLeft) {
+                    IsFacingLeft = playerFacingLeft;
+                    fireCooldown = 40f;
+                }
 
                 targetPos.X = MathF.Lerp(currentPos.X, targetPos.X, 0.02f * timeMult);
                 targetPos.Y = MathF.Lerp(currentPos.Y, targetPos.Y, 0.02f * timeMult);
@@ -169,7 +173,7 @@ namespace Jazz2.Actors
                             pos.Z += 2f;
 
                             AmmoBlaster newAmmo = new AmmoBlaster();
-                            newAmmo.OnAttach(new ActorInstantiationDetails {
+                            newAmmo.OnActivated(new ActorActivationDetails {
                                 Api = api,
                                 Pos = pos,
                                 Params = new ushort[] { 0 }
@@ -178,7 +182,7 @@ namespace Jazz2.Actors
                             newAmmo.OnFire(owner, pos, Speed, 0f, IsFacingLeft);
 
                             newAmmo = new AmmoBlaster();
-                            newAmmo.OnAttach(new ActorInstantiationDetails {
+                            newAmmo.OnActivated(new ActorActivationDetails {
                                 Api = api,
                                 Pos = pos,
                                 Params = new ushort[] { 0 }
@@ -186,6 +190,7 @@ namespace Jazz2.Actors
                             api.AddActor(newAmmo);
                             newAmmo.OnFire(owner, pos, Speed, IsFacingLeft ? -0.18f : 0.18f, IsFacingLeft);
 
+                            PlaySound("Fire", 0.5f);
                             fireCooldown = 48f;
                             break;
                         }

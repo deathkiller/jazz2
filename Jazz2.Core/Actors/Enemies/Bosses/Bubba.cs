@@ -24,9 +24,9 @@ namespace Jazz2.Actors.Bosses
 
         private ushort endText;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             endText = details.Params[1];
 
@@ -78,7 +78,7 @@ namespace Jazz2.Actors.Bosses
                                     float y = -5f;
 
                                     BubbaFireball fireball = new BubbaFireball();
-                                    fireball.OnAttach(new ActorInstantiationDetails {
+                                    fireball.OnActivated(new ActorActivationDetails {
                                         Api = api,
                                         Pos = new Vector3(pos.X + x, pos.Y + y, pos.Z + 2f),
                                         Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
@@ -222,9 +222,9 @@ namespace Jazz2.Actors.Bosses
         {
             private float time = 50f;
 
-            public override void OnAttach(ActorInstantiationDetails details)
+            public override void OnActivated(ActorActivationDetails details)
             {
-                base.OnAttach(details);
+                base.OnActivated(details);
 
                 IsFacingLeft = (details.Params[0] != 0);
                 speedX = (IsFacingLeft ? -4.8f : 4.8f);

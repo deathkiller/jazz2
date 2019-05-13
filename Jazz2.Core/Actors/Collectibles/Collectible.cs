@@ -12,9 +12,9 @@ namespace Jazz2.Actors.Collectibles
         private float phase, timeLeft;
         private float startingY;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             elasticity = 0.6f;
 

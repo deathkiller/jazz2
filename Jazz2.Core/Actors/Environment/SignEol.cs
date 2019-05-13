@@ -8,9 +8,9 @@ namespace Jazz2.Actors.Environment
 
         public ExitType ExitType => exitType;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             exitType = (ExitType)details.Params[0];
 

@@ -28,9 +28,9 @@ namespace Jazz2.Actors.Bosses
 
         private ushort endText;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             endText = details.Params[1];
 
@@ -183,7 +183,7 @@ namespace Jazz2.Actors.Bosses
                         PlaySound("SpitFireball");
 
                         Fireball fireball = new Fireball();
-                        fireball.OnAttach(new ActorInstantiationDetails {
+                        fireball.OnActivated(new ActorActivationDetails {
                             Api = api,
                             Pos = Transform.Pos + new Vector3(IsFacingLeft ? -26f : 26f, -14f, 0f),
                             Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
@@ -322,7 +322,7 @@ namespace Jazz2.Actors.Bosses
 
             SetTransition((AnimState)16, false, delegate {
                 Bullet bullet = new Bullet();
-                bullet.OnAttach(new ActorInstantiationDetails {
+                bullet.OnActivated(new ActorActivationDetails {
                     Api = api,
                     Pos = Transform.Pos + new Vector3(IsFacingLeft ? -24f : 24f, 2f, 0f),
                     Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
@@ -352,9 +352,9 @@ namespace Jazz2.Actors.Bosses
 
         private class Bullet : EnemyBase
         {
-            public override void OnAttach(ActorInstantiationDetails details)
+            public override void OnActivated(ActorActivationDetails details)
             {
-                base.OnAttach(details);
+                base.OnActivated(details);
 
                 IsFacingLeft = (details.Params[0] != 0);
 
@@ -398,21 +398,21 @@ namespace Jazz2.Actors.Bosses
             {
             }
 
-            protected override void OnHitFloorHook()
+            protected override void OnHitFloor()
             {
                 DecreaseHealth(int.MaxValue);
 
                 PlaySound("WallPoof");
             }
 
-            protected override void OnHitWallHook()
+            protected override void OnHitWall()
             {
                 DecreaseHealth(int.MaxValue);
 
                 PlaySound("WallPoof");
             }
 
-            protected override void OnHitCeilingHook()
+            protected override void OnHitCeiling()
             {
                 DecreaseHealth(int.MaxValue);
 
@@ -422,9 +422,9 @@ namespace Jazz2.Actors.Bosses
 
         private class Fireball : EnemyBase
         {
-            public override void OnAttach(ActorInstantiationDetails details)
+            public override void OnActivated(ActorActivationDetails details)
             {
-                base.OnAttach(details);
+                base.OnActivated(details);
 
                 IsFacingLeft = (details.Params[0] != 0);
 
@@ -471,17 +471,17 @@ namespace Jazz2.Actors.Bosses
             {
             }
 
-            protected override void OnHitFloorHook()
+            protected override void OnHitFloor()
             {
                 DecreaseHealth(int.MaxValue);
             }
 
-            protected override void OnHitWallHook()
+            protected override void OnHitWall()
             {
                 DecreaseHealth(int.MaxValue);
             }
 
-            protected override void OnHitCeilingHook()
+            protected override void OnHitCeiling()
             {
                 DecreaseHealth(int.MaxValue);
             }

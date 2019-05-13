@@ -2,6 +2,7 @@
 using Duality;
 using Jazz2.Actors.Enemies;
 using Jazz2.Game;
+using Jazz2.Game.Collisions;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Bosses
@@ -18,9 +19,9 @@ namespace Jazz2.Actors.Bosses
 
         private ushort theme, endText;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             theme = details.Params[0];
             endText = details.Params[1];
@@ -72,7 +73,7 @@ namespace Jazz2.Actors.Bosses
                             Vector3 pos = Transform.Pos;
 
                             BilsyFireball fireball = new BilsyFireball();
-                            fireball.OnAttach(new ActorInstantiationDetails {
+                            fireball.OnActivated(new ActorActivationDetails {
                                 Api = api,
                                 Pos = new Vector3(pos.X + 26f * (IsFacingLeft ? -1f : 1f), pos.Y - 20f, pos.Z - 2f),
                                 Params = new[] { theme, (ushort)(IsFacingLeft ? 1 : 0) }
@@ -127,8 +128,8 @@ namespace Jazz2.Actors.Bosses
             Vector3 pos = Transform.Pos;
             for (int i = 0; i < 20; i++) {
                 pos = new Vector3(originPos.X + MathF.Rnd.NextFloat(-320f, 320f), originPos.Y + MathF.Rnd.NextFloat(-240f, 240f), originPos.Z);
-                Hitbox hitbox = new Hitbox(pos.X - 30, pos.Y - 40, pos.X + 30, pos.Y + 40);
-                if (api.IsPositionEmpty(this, ref hitbox, true)) {
+                AABB aabb = new AABB(pos.X - 30, pos.Y - 40, pos.X + 30, pos.Y + 40);
+                if (api.IsPositionEmpty(this, ref aabb, true)) {
                     Transform.Pos = pos;
                     break;
                 }
@@ -177,9 +178,9 @@ namespace Jazz2.Actors.Bosses
         {
             private float time = 90f;
 
-            public override void OnAttach(ActorInstantiationDetails details)
+            public override void OnActivated(ActorActivationDetails details)
             {
-                base.OnAttach(details);
+                base.OnActivated(details);
 
                 ushort theme = details.Params[0];
                 bool isFacingLeft = (details.Params[1] != 0);

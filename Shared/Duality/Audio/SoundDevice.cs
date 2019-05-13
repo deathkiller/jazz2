@@ -61,14 +61,14 @@ namespace Duality.Audio
 		/// </summary>
 		public float DefaultMinDist
 		{
-			get { return 350.0f; }
+			get { return 200.0f; }
 		}
 		/// <summary>
 		/// [GET] Returns a <see cref="Duality.Resources.Sound">Sounds</see> default maximum distance.
 		/// </summary>
 		public float DefaultMaxDist
 		{
-			get { return 3500.0f; }
+			get { return 900.0f; }
 		}
 		/// <summary>
 		/// [GET] Returns the maximum number of available OpenAL sound sources.

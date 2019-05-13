@@ -14,9 +14,9 @@ namespace Jazz2.Actors.Enemies
         private bool attacking;
         private float noiseCooldown = MathF.Rnd.NextFloat(180, 300);
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             collisionFlags = CollisionFlags.CollideWithOtherActors;
 

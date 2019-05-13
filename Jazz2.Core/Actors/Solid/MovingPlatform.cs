@@ -1,6 +1,7 @@
 ﻿using Duality;
 using Duality.Components;
 using Jazz2.Game;
+using Jazz2.Game.Collisions;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Solid
@@ -30,9 +31,9 @@ namespace Jazz2.Actors.Solid
         private Vector3 originPos, lastPos;
         private ChainPiece[] pieces;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             originPos = Transform.Pos;
             lastPos = originPos;
@@ -82,24 +83,24 @@ namespace Jazz2.Actors.Solid
                     pieces[i].Transform.Pos = new Vector3(GetPhasePosition(false, i), pieces[i].Transform.Pos.Z);
                 }
 
-                Hitbox hitbox = currentHitbox;
-                hitbox.Top -= 2;
+                AABB aabb = AABBInner;
+                aabb.LowerBound.Y -= 2;
 
                 if (type != PlatformType.SpikeBall) {
-                    foreach (Player player in api.GetCollidingPlayers(hitbox)) {
+                    foreach (Player player in api.GetCollidingPlayers(aabb)) {
                         player.SetCarryingPlatform(this);
                     }
 
                     if (type == PlatformType.Spike) {
-                        hitbox.Top += 40;
-                        hitbox.Bottom += 40;
+                        aabb.LowerBound.Y += 40;
+                        aabb.UpperBound.Y += 40;
 
-                        foreach (Player player in api.GetCollidingPlayers(hitbox)) {
+                        foreach (Player player in api.GetCollidingPlayers(aabb)) {
                             player.TakeDamage(1, 2);
                         }
                     }
                 } else {
-                    foreach (Player player in api.GetCollidingPlayers(hitbox)) {
+                    foreach (Player player in api.GetCollidingPlayers(aabb)) {
                         player.TakeDamage(1, 2);
                     }
                 }
@@ -112,7 +113,7 @@ namespace Jazz2.Actors.Solid
         {
             base.OnUpdateHitbox();
 
-            currentHitbox.Bottom = currentHitbox.Top + 10;
+            AABBInner.UpperBound.Y = AABBInner.LowerBound.Y + 10;
         }
 
         public Vector2 GetLocationDelta()

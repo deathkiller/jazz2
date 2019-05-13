@@ -12,9 +12,9 @@ namespace Jazz2.Actors.Enemies
         private bool isWalking;
         private bool stuck;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             isWalking = (details.Params[0] != 0);
 
@@ -85,7 +85,7 @@ namespace Jazz2.Actors.Enemies
 
                                 SetTransition((AnimState)1073741826, false, delegate {
                                     Banana banana = new Banana();
-                                    banana.OnAttach(new ActorInstantiationDetails {
+                                    banana.OnActivated(new ActorActivationDetails {
                                         Api = api,
                                         Pos = Transform.Pos + new Vector3(IsFacingLeft ? -8f : 8f, -8f, 0f),
                                         Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
@@ -107,7 +107,7 @@ namespace Jazz2.Actors.Enemies
 
                             SetTransition((AnimState)1073741826, false, delegate {
                                 Banana banana = new Banana();
-                                banana.OnAttach(new ActorInstantiationDetails {
+                                banana.OnActivated(new ActorActivationDetails {
                                     Api = api,
                                     Pos = Transform.Pos + new Vector3(IsFacingLeft ? -42f : 42f, -8f, 0f),
                                     Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
@@ -136,9 +136,9 @@ namespace Jazz2.Actors.Enemies
         {
             private SoundInstance soundThrow;
 
-            public override void OnAttach(ActorInstantiationDetails details)
+            public override void OnActivated(ActorActivationDetails details)
             {
-                base.OnAttach(details);
+                base.OnActivated(details);
 
                 IsFacingLeft = (details.Params[0] != 0);
 
@@ -189,17 +189,17 @@ namespace Jazz2.Actors.Enemies
             {
             }
 
-            protected override void OnHitFloorHook()
+            protected override void OnHitFloor()
             {
                 DecreaseHealth(int.MaxValue);
             }
 
-            protected override void OnHitWallHook()
+            protected override void OnHitWall()
             {
                 DecreaseHealth(int.MaxValue);
             }
 
-            protected override void OnHitCeilingHook()
+            protected override void OnHitCeiling()
             {
                 DecreaseHealth(int.MaxValue);
             }

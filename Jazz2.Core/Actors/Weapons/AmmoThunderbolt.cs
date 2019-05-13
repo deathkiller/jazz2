@@ -2,6 +2,7 @@
 using Duality.Audio;
 using Duality.Components.Renderers;
 using Jazz2.Game;
+using Jazz2.Game.Collisions;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Weapons
@@ -15,9 +16,9 @@ namespace Jazz2.Actors.Weapons
 
         public override WeaponType WeaponType => WeaponType.Thunderbolt;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             base.upgrades = (byte)details.Params[0];
 
@@ -130,7 +131,7 @@ namespace Jazz2.Actors.Weapons
             float maxX = MathF.Max(tl.X, tr.X, bl.X, br.X);
             float maxY = MathF.Max(tl.Y, tr.Y, bl.Y, br.Y);
 
-            currentHitbox = new Hitbox(
+            AABBInner = new AABB(
                 MathF.Floor(minX),
                 MathF.Floor(minY),
                 MathF.Ceiling(maxX),

@@ -9,9 +9,9 @@ namespace Jazz2.Actors.Solid
         private ushort triggerID;
         private bool? newState;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             triggerID = details.Params[0];
             if (details.Params[2] != 0) {

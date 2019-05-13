@@ -184,7 +184,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Misc\OpenMptStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Structs\AnimState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Structs\EventType.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\Structs\Hitbox.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Structs\LevelInitialization.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Structs\Layers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Structs\Resources.cs" />

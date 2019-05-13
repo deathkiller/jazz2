@@ -21,9 +21,9 @@ namespace Jazz2.Actors.Enemies
             this.externalForceY = speedY;
         }
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             ushort theme = details.Params[0];
 
@@ -105,9 +105,9 @@ namespace Jazz2.Actors.Enemies
 
             TileMap tiles = api.TileMap;
             if (tiles != null) {
-                tiles.CheckSpecialDestructible(ref currentHitbox);
-                tiles.CheckCollapseDestructible(ref currentHitbox);
-                tiles.CheckWeaponDestructible(ref currentHitbox, WeaponType.Blaster, 1);
+                tiles.CheckSpecialDestructible(ref AABBInner);
+                tiles.CheckCollapseDestructible(ref AABBInner);
+                tiles.CheckWeaponDestructible(ref AABBInner, WeaponType.Blaster, 1);
             }
 
             lastAngle = MathF.Lerp(lastAngle, speedX * 0.06f, Time.TimeMult * 0.2f);
@@ -129,7 +129,7 @@ namespace Jazz2.Actors.Enemies
             }
         }
 
-        protected override void OnHitFloorHook()
+        protected override void OnHitFloor()
         {
             if (MathF.Abs(speedY) > 1f) {
                 PlaySound("ImpactGround");

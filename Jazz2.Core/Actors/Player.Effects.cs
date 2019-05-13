@@ -61,13 +61,13 @@ namespace Jazz2.Actors
             switch (shieldType) {
                 case ShieldType.Fire:
                     shieldDecor = new ShieldDecor(shieldType, false);
-                    shieldDecor.OnAttach(new ActorInstantiationDetails {
+                    shieldDecor.OnActivated(new ActorActivationDetails {
                         Api = api
                     });
                     shieldDecor.Parent = this;
 
                     shieldComponentFront = new ShieldDecor(shieldType, true);
-                    shieldComponentFront.OnAttach(new ActorInstantiationDetails {
+                    shieldComponentFront.OnActivated(new ActorActivationDetails {
                         Api = api
                     });
                     shieldComponentFront.Parent = this;
@@ -75,7 +75,7 @@ namespace Jazz2.Actors
 
                 case ShieldType.Water:
                     shieldComponentFront = new ShieldDecor(shieldType, true);
-                    shieldComponentFront.OnAttach(new ActorInstantiationDetails {
+                    shieldComponentFront.OnActivated(new ActorActivationDetails {
                         Api = api
                     });
                     shieldComponentFront.Parent = this;
@@ -180,9 +180,9 @@ namespace Jazz2.Actors
                 this.front = front;
             }
 
-            public override void OnAttach(ActorInstantiationDetails details)
+            public override void OnActivated(ActorActivationDetails details)
             {
-                base.OnAttach(details);
+                base.OnActivated(details);
 
                 RequestMetadata("Interactive/Shields");
 

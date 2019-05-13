@@ -1,6 +1,7 @@
 ﻿using Duality;
 using Duality.Drawing;
 using Duality.Resources;
+using Jazz2.Game.Collisions;
 using Jazz2.Game.Structs;
 using Jazz2.Game.UI;
 
@@ -202,8 +203,8 @@ namespace Jazz2.Game.Tiles
                     // Debris should collide with tilemap
                     float nx = debris.Pos.X + debris.Speed.X * timeMult;
                     float ny = debris.Pos.Y + debris.Speed.Y * timeMult;
-                    Hitbox hitbox = new Hitbox(nx - 1, ny - 1, nx + 1, ny + 1);
-                    if (IsTileEmpty(ref hitbox, true)) {
+                    AABB aabb = new AABB(nx - 1, ny - 1, nx + 1, ny + 1);
+                    if (IsTileEmpty(ref aabb, true)) {
                         // Nothing...
                     } else if (debris.CollisionAction == DebrisCollisionAction.Disappear) {
                         debris.ScaleSpeed = -0.02f;
@@ -214,8 +215,8 @@ namespace Jazz2.Game.Tiles
                         // Place us to the ground only if no horizontal movement was
                         // involved (this prevents speeds resetting if the actor
                         // collides with a wall from the side while in the air)
-                        hitbox = new Hitbox(nx - 1, debris.Pos.Y - 1, nx + 1, debris.Pos.Y + 1);
-                        if (IsTileEmpty(ref hitbox, true)) {
+                        aabb = new AABB(nx - 1, debris.Pos.Y - 1, nx + 1, debris.Pos.Y + 1);
+                        if (IsTileEmpty(ref aabb, true)) {
                             if (debris.Speed.Y > 0f) {
                                 debris.Speed.Y = -(0.8f/*elasticity*/ * debris.Speed.Y);
                                 //OnHitFloorHook();
@@ -227,8 +228,8 @@ namespace Jazz2.Game.Tiles
 
                         // If the actor didn't move all the way horizontally,
                         // it hit a wall (or was already touching it)
-                        hitbox = new Hitbox(debris.Pos.X - 1, ny - 1, debris.Pos.X + 1, ny + 1);
-                        if (IsTileEmpty(ref hitbox, true)) {
+                        aabb = new AABB(debris.Pos.X - 1, ny - 1, debris.Pos.X + 1, ny + 1);
+                        if (IsTileEmpty(ref aabb, true)) {
                             debris.Speed.X = -(0.8f/*elasticity*/ * debris.Speed.X);
                             debris.AngleSpeed = -(0.8f/*elasticity*/ * debris.AngleSpeed);
                             //OnHitWallHook();

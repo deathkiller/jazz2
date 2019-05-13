@@ -6,9 +6,9 @@ namespace Jazz2.Actors.Collectibles
     {
         private bool maxCarrot;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             maxCarrot = (details.Params[0] != 0);
 

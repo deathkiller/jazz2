@@ -10,9 +10,9 @@ namespace Jazz2.Actors.Enemies
         private bool stuck;
         private bool isFalling;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             Vector3 pos = Transform.Pos;
             pos.Y -= 6f;
@@ -49,8 +49,7 @@ namespace Jazz2.Actors.Enemies
                 // empty, because walking Lizard has bigger hitbox
                 OnUpdateHitbox();
 
-                Hitbox hitbox = currentHitbox;
-                if (!api.IsPositionEmpty(this, ref hitbox, true)) {
+                if (!api.IsPositionEmpty(this, ref AABBInner, true)) {
                     // Lizard was probably spawned into a wall, try to move it
                     // from the wall by 4px steps (max. 12px) in both directions
                     const float adjust = 4f;
@@ -98,9 +97,9 @@ namespace Jazz2.Actors.Enemies
             }
         }
 
-        protected override void OnHitFloorHook()
+        protected override void OnHitFloor()
         {
-            base.OnHitFloorHook();
+            base.OnHitFloor();
 
             if (isFalling) {
                 isFalling = false;

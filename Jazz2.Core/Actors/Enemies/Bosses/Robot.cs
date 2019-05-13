@@ -19,9 +19,9 @@ namespace Jazz2.Actors.Bosses
         private float stateTime;
         private int shots;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             scoreValue = 2000;
 
@@ -182,7 +182,7 @@ namespace Jazz2.Actors.Bosses
         private void Shoot()
         {
             SpikeBall spikeBall = new SpikeBall();
-            spikeBall.OnAttach(new ActorInstantiationDetails {
+            spikeBall.OnActivated(new ActorActivationDetails {
                 Api = api,
                 Pos = Transform.Pos + new Vector3(0f, -32f, 0f),
                 Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
@@ -213,9 +213,9 @@ namespace Jazz2.Actors.Bosses
 
         private class SpikeBall : EnemyBase
         {
-            public override void OnAttach(ActorInstantiationDetails details)
+            public override void OnActivated(ActorActivationDetails details)
             {
-                base.OnAttach(details);
+                base.OnActivated(details);
 
                 IsFacingLeft = (details.Params[0] != 0);
 
@@ -258,17 +258,17 @@ namespace Jazz2.Actors.Bosses
                 // Nothing to do...
             }
 
-            protected override void OnHitFloorHook()
+            protected override void OnHitFloor()
             {
                 DecreaseHealth(int.MaxValue);
             }
 
-            protected override void OnHitWallHook()
+            protected override void OnHitWall()
             {
                 DecreaseHealth(int.MaxValue);
             }
 
-            protected override void OnHitCeilingHook()
+            protected override void OnHitCeiling()
             {
                 DecreaseHealth(int.MaxValue);
             }

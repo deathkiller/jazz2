@@ -1,4 +1,5 @@
 ﻿using Duality;
+using Jazz2.Game.Collisions;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors
@@ -22,9 +23,9 @@ namespace Jazz2.Actors
         public bool KeepSpeedX => keepSpeedX;
         public bool KeepSpeedY => keepSpeedY;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             RequestMetadata("Object/Spring");
 
@@ -43,8 +44,8 @@ namespace Jazz2.Actors
             if (orientation > 3) {
                 // JJ2 horizontal springs held no data about which way they were facing.
                 // For compatibility, the level converter sets their orientation to 5, which is interpreted here.
-                Hitbox hitbox = new Hitbox(pos.X + 6, pos.Y - 2, pos.X + 22, pos.Y + 2);
-                orientation = (ushort)(api.TileMap.IsTileEmpty(ref hitbox, false) != (orientation == 5) ? 1 : 3);
+                AABB aabb = new AABB(pos.X + 6, pos.Y - 2, pos.X + 22, pos.Y + 2);
+                orientation = (ushort)(api.TileMap.IsTileEmpty(ref aabb, false) != (orientation == 5) ? 1 : 3);
             }
 
             int orientationBit = 0;
@@ -123,15 +124,15 @@ namespace Jazz2.Actors
             Vector3 pos = Transform.Pos;
             switch (orientation) {
                 case 1: // Right
-                    currentHitbox = new Hitbox(pos.X - 8, pos.Y - /*15*/10, pos.X, pos.Y + /*15*/10);
+                    AABBInner = new AABB(pos.X - 8, pos.Y - 10, pos.X, pos.Y + 10);
                     break;
                 case 3: // Left
-                    currentHitbox = new Hitbox(pos.X, pos.Y - /*15*/10, pos.X + 8, pos.Y + /*15*/10);
+                    AABBInner = new AABB(pos.X, pos.Y - 10, pos.X + 8, pos.Y + 10);
                     break;
                 default:
                 case 0: // Bottom
                 case 2: // Top
-                    currentHitbox = new Hitbox(pos.X - /*15*/10, pos.Y, pos.X + /*15*/10, pos.Y + 8);
+                    AABBInner = new AABB(pos.X - 10, pos.Y, pos.X + 10, pos.Y + 8);
                     break;
             }
         }

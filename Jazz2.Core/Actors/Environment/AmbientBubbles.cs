@@ -10,9 +10,9 @@ namespace Jazz2.Actors.Environment
         private ushort speed;
         private float cooldown;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             speed = details.Params[0];
 

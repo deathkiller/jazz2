@@ -4,9 +4,9 @@ namespace Jazz2.Actors.Lighting
 {
     public class FlickerLight : ActorBase
     {
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             ushort intensity = details.Params[0];
             ushort brightness = details.Params[1];

@@ -10,9 +10,9 @@ namespace Jazz2.Actors.Enemies
 
         private bool stuck;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             LastHitDirection parentLastHitDir = (LastHitDirection)details.Params[0];
 

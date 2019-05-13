@@ -163,7 +163,7 @@ namespace Jazz2.Game.UI.Menu
                             ref PlayerCarryOver player = ref carryOver.PlayerCarryOvers[0];
 
                             byte lives = Preferences.Get<byte>("EpisodeEnd_Lives_" + previousEpisodeName);
-                            int[] ammo = Preferences.Get<int[]>("EpisodeEnd_Ammo_" + previousEpisodeName);
+                            short[] ammo = Preferences.Get<short[]>("EpisodeEnd_Ammo_" + previousEpisodeName);
                             byte[] upgrades = Preferences.Get<byte[]>("EpisodeEnd_Upgrades_" + previousEpisodeName);
 
                             if (lives > 0) {

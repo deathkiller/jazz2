@@ -7,9 +7,9 @@ namespace Jazz2.Actors
     {
         private float timeLeft = 250f;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             collisionFlags = CollisionFlags.CollideWithOtherActors;
             canBeFrozen = false;

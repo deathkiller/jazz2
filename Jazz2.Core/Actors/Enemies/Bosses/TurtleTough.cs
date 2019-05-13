@@ -21,9 +21,9 @@ namespace Jazz2.Actors.Bosses
 
         private ushort endText;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             endText = details.Params[1];
 
@@ -80,7 +80,7 @@ namespace Jazz2.Actors.Bosses
                         SetAnimation(AnimState.Idle);
                         SetTransition((AnimState)1073741824, false, delegate {
                             currentMace = new Mace();
-                            currentMace.OnAttach(new ActorInstantiationDetails {
+                            currentMace.OnActivated(new ActorActivationDetails {
                                 Api = api,
                                 Pos = Transform.Pos
                             });
@@ -128,7 +128,7 @@ namespace Jazz2.Actors.Bosses
             CreateParticleDebris();
 
             TurtleShell shell = new TurtleShell(speedX * 1.1f, 1.1f);
-            shell.OnAttach(new ActorInstantiationDetails {
+            shell.OnActivated(new ActorActivationDetails {
                 Api = api,
                 Pos = Transform.Pos,
                 Params = new[] { (ushort)2 }
@@ -184,9 +184,9 @@ namespace Jazz2.Actors.Bosses
 
             private SoundInstance sound;
 
-            public override void OnAttach(ActorInstantiationDetails details)
+            public override void OnActivated(ActorActivationDetails details)
             {
-                base.OnAttach(details);
+                base.OnActivated(details);
 
                 canBeFrozen = false;
                 collisionFlags = CollisionFlags.CollideWithOtherActors;

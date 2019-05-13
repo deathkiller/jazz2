@@ -4,9 +4,9 @@
     {
         private ushort gemType;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             gemType = (ushort)(details.Params[0] & 0x3);
 

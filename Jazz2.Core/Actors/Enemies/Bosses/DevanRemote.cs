@@ -10,9 +10,9 @@ namespace Jazz2.Actors.Bosses
 
         private ushort introText, endText;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             introText = details.Params[1];
             endText = details.Params[2];

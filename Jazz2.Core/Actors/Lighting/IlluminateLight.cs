@@ -6,9 +6,9 @@ namespace Jazz2.Actors.Lighting
 {
     public class IlluminateLight : ActorBase
     {
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             ushort size = details.Params[0];
 

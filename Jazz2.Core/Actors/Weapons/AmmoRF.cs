@@ -13,9 +13,9 @@ namespace Jazz2.Actors.Weapons
 
         public override WeaponType WeaponType => WeaponType.RF;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             base.upgrades = (byte)details.Params[0];
 
@@ -114,7 +114,7 @@ namespace Jazz2.Actors.Weapons
             return base.OnPerish(collider);
         }
 
-        protected override void OnHitWallHook()
+        protected override void OnHitWall()
         {
             DecreaseHealth(int.MaxValue);
         }

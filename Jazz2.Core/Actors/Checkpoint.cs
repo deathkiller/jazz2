@@ -6,9 +6,9 @@ namespace Jazz2.Actors
     {
         private bool activated;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             canBeFrozen = false;
 

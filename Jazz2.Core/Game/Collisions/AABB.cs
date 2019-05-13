@@ -37,6 +37,12 @@ namespace Jazz2.Game.Collisions
         /// </summary>
         public Vector2 UpperBound;
 
+        public AABB(float left, float top, float right, float bottom)
+        {
+            LowerBound = new Vector2(left, top);
+            UpperBound = new Vector2(right, bottom);
+        }
+
         public AABB(Vector2 min, Vector2 max)
             : this(ref min, ref max) { }
 
@@ -77,26 +83,6 @@ namespace Jazz2.Game.Collisions
                 return 2.0f * (wx + wy);
             }
         }
-
-        /// <summary>
-        /// First quadrant
-        /// </summary>
-        //public AABB Q1 => new AABB(Center, UpperBound);
-
-        /// <summary>
-        /// Second quadrant
-        /// </summary>
-        //public AABB Q2 => new AABB(new Vector2(LowerBound.X, Center.Y), new Vector2(Center.X, UpperBound.Y));
-
-        /// <summary>
-        /// Third quadrant
-        /// </summary>
-        //public AABB Q3 => new AABB(LowerBound, Center);
-
-        /// <summary>
-        /// Forth quadrant
-        /// </summary>
-        //public AABB Q4 => new AABB(new Vector2(Center.X, LowerBound.Y), new Vector2(UpperBound.X, Center.Y));
 
         /// <summary>
         /// Verify that the bounds are sorted. And the bounds are valid numbers (not NaN).
@@ -141,11 +127,10 @@ namespace Jazz2.Game.Collisions
         /// </returns>
         public bool Contains(ref AABB aabb)
         {
-            bool result = LowerBound.X <= aabb.LowerBound.X;
-            result = result && LowerBound.Y <= aabb.LowerBound.Y;
-            result = result && aabb.UpperBound.X <= UpperBound.X;
-            result = result && aabb.UpperBound.Y <= UpperBound.Y;
-            return result;
+            return LowerBound.X <= aabb.LowerBound.X
+                 && LowerBound.Y <= aabb.LowerBound.Y
+                 && aabb.UpperBound.X <= UpperBound.X
+                 && aabb.UpperBound.Y <= UpperBound.Y;
         }
 
         /// <summary>
@@ -170,10 +155,57 @@ namespace Jazz2.Game.Collisions
         /// <returns>True if they are overlapping.</returns>
         public static bool TestOverlap(ref AABB a, ref AABB b)
         {
-            Vector2 d1 = b.LowerBound - a.UpperBound;
-            Vector2 d2 = a.LowerBound - b.UpperBound;
+            return a.LowerBound.X <= b.UpperBound.X
+                 && a.LowerBound.Y <= b.UpperBound.Y
+                 && a.UpperBound.X >= b.LowerBound.X
+                 && a.UpperBound.Y >= b.LowerBound.Y;
+        }
 
-            return (d1.X <= 0) && (d1.Y <= 0) && (d2.X <= 0) && (d2.Y <= 0);
+        public AABB Intersection(ref AABB a, ref AABB b)
+        {
+            if (!TestOverlap(ref a, ref b)) {
+                return new AABB(0, 0, 0, 0);
+            }
+
+            return new AABB(
+                Math.Max(a.LowerBound.X, b.LowerBound.X),
+                Math.Max(a.LowerBound.Y, b.LowerBound.Y),
+                Math.Min(a.UpperBound.X, b.UpperBound.X),
+                Math.Min(a.UpperBound.Y, b.UpperBound.Y));
+        }
+
+        public AABB Extend(float left, float top, float right, float bottom)
+        {
+            AABB aabb = this;
+            aabb.LowerBound.X -= left;
+            aabb.LowerBound.Y -= top;
+            aabb.UpperBound.X += right;
+            aabb.UpperBound.Y += bottom;
+            return aabb;
+        }
+
+        public AABB Extend(float x, float y)
+        {
+            AABB aabb = this;
+            aabb.LowerBound.X -= x;
+            aabb.LowerBound.Y -= y;
+            aabb.UpperBound.X += x;
+            aabb.UpperBound.Y += y;
+            return aabb;
+        }
+
+        public static AABB operator +(AABB aabb, Vector2 vec2)
+        {
+            aabb.LowerBound += vec2;
+            aabb.UpperBound += vec2;
+            return aabb;
+        }
+
+        public static AABB operator -(AABB aabb, Vector2 vec2)
+        {
+            aabb.LowerBound -= vec2;
+            aabb.UpperBound -= vec2;
+            return aabb;
         }
 
         /// <summary>

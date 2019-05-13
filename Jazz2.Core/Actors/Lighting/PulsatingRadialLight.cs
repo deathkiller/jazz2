@@ -11,9 +11,9 @@ namespace Jazz2.Actors.Lighting
         private float radiusNear1, radiusNear2, radiusFar;
         private float phase, speed;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             ushort intensity = details.Params[0];
             ushort brightness = details.Params[1];

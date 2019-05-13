@@ -11,9 +11,9 @@ namespace Jazz2.Actors.Enemies
         private float attackTime;
         private bool stuck;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             SetHealthByDifficulty(3);
             scoreValue = 200;
@@ -55,7 +55,7 @@ namespace Jazz2.Actors.Enemies
                                 PlaySound("Spit");
 
                                 BulletSpit bullet = new BulletSpit();
-                                bullet.OnAttach(new ActorInstantiationDetails {
+                                bullet.OnActivated(new ActorActivationDetails {
                                     Api = api,
                                     Pos = new Vector3(pos.X + (IsFacingLeft ? -42f : 42f), pos.Y - 6f, pos.Z - 2f),
                                     Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
@@ -107,9 +107,9 @@ namespace Jazz2.Actors.Enemies
 
         private class BulletSpit : EnemyBase
         {
-            public override void OnAttach(ActorInstantiationDetails details)
+            public override void OnActivated(ActorActivationDetails details)
             {
-                base.OnAttach(details);
+                base.OnActivated(details);
 
                 IsFacingLeft = (details.Params[0] != 0);
                 speedX = (IsFacingLeft ? -6f : 6f);
@@ -132,17 +132,17 @@ namespace Jazz2.Actors.Enemies
             {
             }
 
-            protected override void OnHitFloorHook()
+            protected override void OnHitFloor()
             {
                 DecreaseHealth(int.MaxValue);
             }
 
-            protected override void OnHitWallHook()
+            protected override void OnHitWall()
             {
                 DecreaseHealth(int.MaxValue);
             }
 
-            protected override void OnHitCeilingHook()
+            protected override void OnHitCeiling()
             {
                 DecreaseHealth(int.MaxValue);
             }

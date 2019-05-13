@@ -149,7 +149,7 @@ namespace Jazz2.Game.UI
                     if (owner.WeaponAmmo[(int)weapon] < 0) {
                         ammoCount = "x∞";
                     } else {
-                        ammoCount = "x" + owner.WeaponAmmo[(int)weapon].ToString(CultureInfo.InvariantCulture);
+                        ammoCount = "x" + (owner.WeaponAmmo[(int)weapon] / 100).ToString(CultureInfo.InvariantCulture);
                     }
                     fontSmall.DrawString(ref charOffsetShadow, ammoCount, right - 40, bottom + 1f, Alignment.BottomLeft,
                         new ColorRgba(0f, 0.32f), charSpacing: 0.96f);

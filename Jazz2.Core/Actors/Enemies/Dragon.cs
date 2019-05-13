@@ -11,9 +11,9 @@ namespace Jazz2.Actors.Enemies
         private float stateTime;
         private float attackTime;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             SetHealthByDifficulty(1);
             scoreValue = 200;
@@ -86,7 +86,7 @@ namespace Jazz2.Actors.Enemies
                     } else {
                         if (attackTime <= 0f) {
                             Fire fire = new Fire();
-                            fire.OnAttach(new ActorInstantiationDetails {
+                            fire.OnActivated(new ActorActivationDetails {
                                 Api = api,
                                 Pos = new Vector3(pos.X + (IsFacingLeft ? -14f : 14f), pos.Y - 6f, pos.Z - 2f),
                                 Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
@@ -120,9 +120,9 @@ namespace Jazz2.Actors.Enemies
         {
             private float timeLeft = 60;
 
-            public override void OnAttach(ActorInstantiationDetails details)
+            public override void OnActivated(ActorActivationDetails details)
             {
-                base.OnAttach(details);
+                base.OnActivated(details);
 
                 IsFacingLeft = (details.Params[0] != 0);
 

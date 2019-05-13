@@ -31,7 +31,7 @@ namespace Jazz2.Actors
         public static void Create(ActorApi api, Vector3 pos, ushort type)
         {
             Explosion explosion = new Explosion();
-            explosion.OnAttach(new ActorInstantiationDetails {
+            explosion.OnActivated(new ActorActivationDetails {
                 Api = api,
                 Pos = pos,
                 Params = new[] { type }
@@ -39,9 +39,9 @@ namespace Jazz2.Actors
             api.AddActor(explosion);
         }
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             collisionFlags = CollisionFlags.None;
 

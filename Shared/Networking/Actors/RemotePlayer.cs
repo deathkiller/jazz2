@@ -23,9 +23,9 @@ namespace Jazz2.Game.Multiplayer
         private int stateBufferPos = 0;
         private float posZ;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             PlayerType = (PlayerType)details.Params[0];
             Index = details.Params[1];

@@ -4,9 +4,9 @@
     {
         private int coinValue;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             ushort coinType = details.Params[0];
 

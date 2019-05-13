@@ -7,9 +7,9 @@ namespace Jazz2.Actors.Environment
         private float timer;
         private int direction;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             Vector3 pos = Transform.Pos;
             pos.Z += 20f;

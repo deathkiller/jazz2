@@ -1,6 +1,7 @@
 ﻿using Duality;
 using Jazz2.Actors.Enemies;
 using Jazz2.Actors.Solid;
+using Jazz2.Game.Collisions;
 using Jazz2.Game.Events;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
@@ -25,9 +26,9 @@ namespace Jazz2.Actors.Weapons
 
         public virtual WeaponType WeaponType => WeaponType.Unknown;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation;
             canBeFrozen = false;
@@ -63,8 +64,8 @@ namespace Jazz2.Actors.Weapons
 
             TileMap tiles = api.TileMap;
             if (tiles != null) {
-                Hitbox adjustedHitbox = currentHitbox + new Vector2(speedX * timeMult, speedY * timeMult);
-                if (tiles.CheckWeaponDestructible(ref adjustedHitbox, WeaponType, strength) > 0) {
+                AABB adjustedAABB = AABBInner + new Vector2(speedX * timeMult, speedY * timeMult);
+                if (tiles.CheckWeaponDestructible(ref adjustedAABB, WeaponType, strength) > 0) {
                     if (WeaponType != WeaponType.Freezer) {
                         if (owner != null) {
                             owner.AddScore(50);
@@ -72,7 +73,7 @@ namespace Jazz2.Actors.Weapons
                     }
 
                     DecreaseHealth(1);
-                } else if (!tiles.IsTileEmpty(ref currentHitbox, false)) {
+                } else if (!tiles.IsTileEmpty(ref AABBInner, false)) {
                     EventMap events = api.EventMap;
                     bool handled = false;
                     if (events != null) {
@@ -91,7 +92,7 @@ namespace Jazz2.Actors.Weapons
                     }
 
                     if (!handled) {
-                        OnHitWallHook();
+                        OnHitWall();
                     }
                 }
             }

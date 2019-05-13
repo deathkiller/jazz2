@@ -6,6 +6,7 @@ using Jazz2.Actors.Enemies;
 using Jazz2.Actors.Environment;
 using Jazz2.Actors.Solid;
 using Jazz2.Game;
+using Jazz2.Game.Collisions;
 using Jazz2.Game.Events;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
@@ -102,9 +103,9 @@ namespace Jazz2.Actors
 
         public bool CanBreakSolidObjects => (currentSpecialMove != SpecialMoveType.None || sugarRushLeft > 0f);
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             playerTypeOriginal = (PlayerType)details.Params[0];
             playerType = playerTypeOriginal;
@@ -132,7 +133,7 @@ namespace Jazz2.Actors
             light.RadiusNear = 40;
             light.RadiusFar = 110;
 
-            weaponAmmo = new int[(int)WeaponType.Count];
+            weaponAmmo = new short[(int)WeaponType.Count];
             weaponUpgrades = new byte[(int)WeaponType.Count];
 
             weaponAmmo[(int)WeaponType.Blaster] = -1;
@@ -600,9 +601,7 @@ namespace Jazz2.Actors
                 attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Ammo");
 
                 for (int i = 0; i < weaponAmmo.Length; i++) {
-                    if (weaponAmmo[i] >= 0) {
-                        weaponAmmo[i] = 99;
-                    }
+                    AddAmmo((WeaponType)i, short.MaxValue);
                 }
             } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.I)) {
                 attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Sugar Rush");
@@ -871,7 +870,7 @@ namespace Jazz2.Actors
             }
         }
 
-        protected override void OnHitFloorHook()
+        protected override void OnHitFloor()
         {
             Vector3 pos = Transform.Pos;
             if (api.EventMap.IsHurting(pos.X, pos.Y + 24)) {
@@ -898,7 +897,7 @@ namespace Jazz2.Actors
             collisionFlags |= CollisionFlags.IsSolidObject;
         }
 
-        protected override void OnHitCeilingHook()
+        protected override void OnHitCeiling()
         {
             Vector3 pos = Transform.Pos;
             if (api.EventMap.IsHurting(pos.X, pos.Y - 4f)) {
@@ -906,7 +905,7 @@ namespace Jazz2.Actors
             }
         }
 
-        protected override void OnHitWallHook()
+        protected override void OnHitWall()
         {
             // Reset speed and show Push animation
             speedX = 0f;
@@ -923,11 +922,11 @@ namespace Jazz2.Actors
                         const int maxTolerance = 6;
 
                         float x = (IsFacingLeft ? -8f : 8f);
-                        Hitbox hitbox1 = currentHitbox + new Vector2(x, -42f - maxTolerance);   // Empty space to climb to
-                        Hitbox hitbox2 = currentHitbox + new Vector2(x, -42f + 2f);             // Wall below the empty space
-                        Hitbox hitbox3 = currentHitbox + new Vector2(x, -42f + 2f + 24f);       // Wall between the player and the wall above (vertically)
-                        Hitbox hitbox4 = currentHitbox + new Vector2(x,  20f);                  // Wall below the player
-                        Hitbox hitbox5 = new Hitbox(currentHitbox.Left + 2, hitbox1.Top, currentHitbox.Right - 2, currentHitbox.Bottom); // Player can't climb through walls
+                        AABB hitbox1 = AABBInner + new Vector2(x, -42f - maxTolerance);   // Empty space to climb to
+                        AABB hitbox2 = AABBInner + new Vector2(x, -42f + 2f);             // Wall below the empty space
+                        AABB hitbox3 = AABBInner + new Vector2(x, -42f + 2f + 24f);       // Wall between the player and the wall above (vertically)
+                        AABB hitbox4 = AABBInner + new Vector2(x,  20f);                  // Wall below the player
+                        AABB hitbox5 = new AABB(AABBInner.LowerBound.X + 2, hitbox1.LowerBound.Y, AABBInner.UpperBound.X - 2, AABBInner.UpperBound.Y); // Player can't climb through walls
                         if ( api.IsPositionEmpty(this, ref hitbox1, false) &&
                             !api.IsPositionEmpty(this, ref hitbox2, false) &&
                             !api.IsPositionEmpty(this, ref hitbox3, false) &&
@@ -935,11 +934,11 @@ namespace Jazz2.Actors
                              api.IsPositionEmpty(this, ref hitbox5, false)) {
 
                             ushort[] wallParams = null;
-                            if (api.EventMap.GetEventByPosition(IsFacingLeft ? hitbox2.Left : hitbox2.Right, hitbox2.Bottom, ref wallParams) != EventType.ModifierNoClimb) {
+                            if (api.EventMap.GetEventByPosition(IsFacingLeft ? hitbox2.LowerBound.X : hitbox2.UpperBound.X, hitbox2.UpperBound.Y, ref wallParams) != EventType.ModifierNoClimb) {
                                 // Move the player upwards, if it is in tolerance, so the animation will look better
                                 for (int y = 0; y >= -maxTolerance; y -= 2) {
-                                    Hitbox hitbox = currentHitbox + new Vector2(x, -42f + y);
-                                    if (api.IsPositionEmpty(this, ref hitbox, false)) {
+                                    AABB aabb = AABBInner + new Vector2(x, -42f + y);
+                                    if (api.IsPositionEmpty(this, ref aabb, false)) {
                                         MoveInstantly(new Vector2(0f, y), MoveType.Relative, true);
                                         break;
                                     }
@@ -995,8 +994,7 @@ namespace Jazz2.Actors
             // to the hotspot, though; otherwise getting stuck at walls happens all the time.
             Vector3 pos = Transform.Pos;
 
-            //currentHitbox = new Hitbox(pos.X - 14f, pos.Y + 8f - 12f, pos.X + 14f, pos.Y + 8f + 12f);
-            currentHitbox = new Hitbox(pos.X - 11f, pos.Y + 8f - 12f, pos.X + 11f, pos.Y + 8f + 12f);
+            AABBInner = new AABB(pos.X - 11f, pos.Y + 8f - 12f, pos.X + 11f, pos.Y + 8f + 12f);
         }
 
         public override bool OnTileDeactivate(int tx1, int ty1, int tx2, int ty2)
@@ -1036,7 +1034,7 @@ namespace Jazz2.Actors
 
                         // Spawn corpse
                         PlayerCorpse corpse = new PlayerCorpse();
-                        corpse.OnAttach(new ActorInstantiationDetails {
+                        corpse.OnActivated(new ActorActivationDetails {
                             Api = api,
                             Pos = Transform.Pos,
                             Params = new[] { (ushort)(playerType), (ushort)(IsFacingLeft ? 1 : 0) }
@@ -1208,12 +1206,11 @@ namespace Jazz2.Actors
                         if (newState == AnimState.Jump) {
                             SetTransition(AnimState.TransitionIdleToJump, true);
                         } else if (!inLedgeTransition) {
-                            Hitbox hitboxL = new Hitbox(currentHitbox.Left + 2, currentHitbox.Bottom - 10, currentHitbox.Left + 4, currentHitbox.Bottom + 28);
-                            Hitbox hitboxR = new Hitbox(currentHitbox.Right - 4, currentHitbox.Bottom - 10, currentHitbox.Right - 2, currentHitbox.Bottom + 28);
-
+                            AABB aabbL = new AABB(AABBInner.LowerBound.X + 2, AABBInner.UpperBound.Y - 10, AABBInner.LowerBound.X + 4, AABBInner.UpperBound.Y + 28);
+                            AABB aabbR = new AABB(AABBInner.UpperBound.X - 4, AABBInner.UpperBound.Y - 10, AABBInner.UpperBound.X - 2, AABBInner.UpperBound.Y + 28);
                             if (IsFacingLeft
-                                ? (api.IsPositionEmpty(this, ref hitboxL, true) && !api.IsPositionEmpty(this, ref hitboxR, true))
-                                : (!api.IsPositionEmpty(this, ref hitboxL, true) && api.IsPositionEmpty(this, ref hitboxR, true))) {
+                                ? (api.IsPositionEmpty(this, ref aabbL, true) && !api.IsPositionEmpty(this, ref aabbR, true))
+                                : (!api.IsPositionEmpty(this, ref aabbL, true) && api.IsPositionEmpty(this, ref aabbR, true))) {
 
                                 inLedgeTransition = true;
                                 // ToDo: Spaz's and Lori's animation should be continual
@@ -1241,21 +1238,25 @@ namespace Jazz2.Actors
 
             if (canJump && controllable && isActivelyPushing && MathF.Abs(speedX) > float.Epsilon) {
                 ActorBase collider;
-                Hitbox hitbox = currentHitbox + new Vector2(speedX < 0 ? -2f : 2f, 0f);
+                AABB hitbox = AABBInner + new Vector2(speedX < 0 ? -2f : 2f, 0f);
                 if (!api.IsPositionEmpty(this, ref hitbox, false, out collider)) {
                     SolidObjectBase solidObject = collider as SolidObjectBase;
-                    if (solidObject != null && solidObject.Push(speedX < 0)) {
-                        pushFramesLeft = 3f;
+                    if (solidObject != null) {
+                        collisionFlags &= ~CollisionFlags.IsSolidObject;
+                        if (solidObject.Push(speedX < 0)) {
+                            pushFramesLeft = 3f;
+                        }
+                        collisionFlags |= CollisionFlags.IsSolidObject;
                     }
                 }
             } else if ((collisionFlags & CollisionFlags.IsSolidObject) != 0) {
                 ActorBase collider;
-                Hitbox hitbox = currentHitbox + new Vector2(0f, -2f);
-                if (!api.IsPositionEmpty(this, ref hitbox, false, out collider)) {
+                AABB aabb = AABBInner + new Vector2(0f, -2f);
+                if (!api.IsPositionEmpty(this, ref aabb, false, out collider)) {
                     SolidObjectBase solidObject = collider as SolidObjectBase;
                     if (solidObject != null) {
 
-                        if (currentHitbox.Top >= solidObject.Hitbox.Top && !isLifting) {
+                        if (AABBInner.LowerBound.Y >= solidObject.AABBInner.LowerBound.Y && !isLifting) {
                             isLifting = true;
 
                             SetTransition(AnimState.TransitionLiftStart, true);
@@ -1335,30 +1336,28 @@ namespace Jazz2.Actors
                 return;
             }
 
-            Hitbox tileCollisionHitbox = currentHitbox + new Vector2((speedX + externalForceX) * 2f * timeMult, (speedY - externalForceY) * 2f * timeMult);
+            AABB aabb = AABBInner + new Vector2((speedX + externalForceX) * 2f * timeMult, (speedY - externalForceY) * 2f * timeMult);
 
             // Buttstomp/etc. tiles checking
             if (currentSpecialMove != SpecialMoveType.None || sugarRushLeft > 0f) {
-                int destroyedCount = tiles.CheckSpecialDestructible(ref tileCollisionHitbox);
+                int destroyedCount = tiles.CheckSpecialDestructible(ref aabb);
                 AddScore(destroyedCount * 50);
 
                 ActorBase solidObject;
-                if (!(api.IsPositionEmpty(this, ref tileCollisionHitbox, false, out solidObject)) && solidObject != null) {
+                if (!(api.IsPositionEmpty(this, ref aabb, false, out solidObject)) && solidObject != null) {
                     solidObject.OnHandleCollision(this);
                 }
             }
 
-            //tileCollisionHitbox = currentHitbox.Extend(MathF.Abs(speedX), MathF.Abs(speedY)).Extend(3f);
-
             // Speed tiles checking
             if (MathF.Abs(speedX) > float.Epsilon || MathF.Abs(speedY) > float.Epsilon || sugarRushLeft > 0f) {
-                int destroyedCount = tiles.CheckSpecialSpeedDestructible(ref tileCollisionHitbox,
+                int destroyedCount = tiles.CheckSpecialSpeedDestructible(ref aabb,
                     sugarRushLeft > 0f ? 64f : MathF.Max(MathF.Abs(speedX), MathF.Abs(speedY)));
 
                 AddScore(destroyedCount * 50);
             }
 
-            tiles.CheckCollapseDestructible(ref tileCollisionHitbox);
+            tiles.CheckCollapseDestructible(ref aabb);
         }
 
         private void CheckSuspendedStatus(Vector3 lastPos)
@@ -1672,10 +1671,10 @@ namespace Jazz2.Actors
 
             if (currentSpecialMove != SpecialMoveType.Buttstomp) {
                 if ((events.GetEventByPosition(pos.X, pos.Y, ref p) == EventType.AreaFloatUp) ||
-                    (events.GetEventByPosition(currentHitbox.Left - extendedHitbox, currentHitbox.Top - extendedHitbox, ref p) == EventType.AreaFloatUp) ||
-                    (events.GetEventByPosition(currentHitbox.Right + extendedHitbox, currentHitbox.Top - extendedHitbox, ref p) == EventType.AreaFloatUp) ||
-                    (events.GetEventByPosition(currentHitbox.Right + extendedHitbox, currentHitbox.Bottom + extendedHitbox, ref p) == EventType.AreaFloatUp) ||
-                    (events.GetEventByPosition(currentHitbox.Left - extendedHitbox, currentHitbox.Bottom + extendedHitbox, ref p) == EventType.AreaFloatUp)
+                    (events.GetEventByPosition(AABBInner.LowerBound.X - extendedHitbox, AABBInner.LowerBound.Y - extendedHitbox, ref p) == EventType.AreaFloatUp) ||
+                    (events.GetEventByPosition(AABBInner.UpperBound.X + extendedHitbox, AABBInner.LowerBound.Y - extendedHitbox, ref p) == EventType.AreaFloatUp) ||
+                    (events.GetEventByPosition(AABBInner.UpperBound.X + extendedHitbox, AABBInner.UpperBound.Y + extendedHitbox, ref p) == EventType.AreaFloatUp) ||
+                    (events.GetEventByPosition(AABBInner.LowerBound.X - extendedHitbox, AABBInner.UpperBound.Y + extendedHitbox, ref p) == EventType.AreaFloatUp)
                 ) {
                     float timeMult = Time.TimeMult;
                     if ((collisionFlags & CollisionFlags.ApplyGravitation) != 0) {
@@ -1690,10 +1689,10 @@ namespace Jazz2.Actors
             }
 
             if ((events.GetEventByPosition(pos.X, pos.Y, ref p) == EventType.AreaHForce) ||
-                (events.GetEventByPosition(currentHitbox.Left - extendedHitbox, currentHitbox.Top - extendedHitbox, ref p) == EventType.AreaHForce) ||
-                (events.GetEventByPosition(currentHitbox.Right + extendedHitbox, currentHitbox.Top - extendedHitbox, ref p) == EventType.AreaHForce) ||
-                (events.GetEventByPosition(currentHitbox.Right + extendedHitbox, currentHitbox.Bottom + extendedHitbox, ref p) == EventType.AreaHForce) ||
-                (events.GetEventByPosition(currentHitbox.Left - extendedHitbox, currentHitbox.Bottom + extendedHitbox, ref p) == EventType.AreaHForce)
+                (events.GetEventByPosition(AABBInner.LowerBound.X - extendedHitbox, AABBInner.LowerBound.Y - extendedHitbox, ref p) == EventType.AreaHForce) ||
+                (events.GetEventByPosition(AABBInner.UpperBound.X + extendedHitbox, AABBInner.LowerBound.Y - extendedHitbox, ref p) == EventType.AreaHForce) ||
+                (events.GetEventByPosition(AABBInner.UpperBound.X + extendedHitbox, AABBInner.UpperBound.Y + extendedHitbox, ref p) == EventType.AreaHForce) ||
+                (events.GetEventByPosition(AABBInner.LowerBound.X - extendedHitbox, AABBInner.UpperBound.Y + extendedHitbox, ref p) == EventType.AreaHForce)
                ) {
                 if ((p[5] != 0 || p[4] != 0)) {
                     MoveInstantly(new Vector2((p[5] - p[4]) * 0.4f, 0), MoveType.RelativeTime);
@@ -1776,7 +1775,7 @@ namespace Jazz2.Actors
 
                 case Spring spring: {
                     // Collide only with hitbox
-                    if (spring.Hitbox.Intersects(ref currentHitbox)) {
+                    if (AABB.TestOverlap(ref spring.AABBInner, ref AABBInner)) {
                         Vector2 force = spring.Activate();
                         int sign = ((force.X + force.Y) > float.Epsilon ? 1 : -1);
                         if (MathF.Abs(force.X) > 0f) {
@@ -2143,8 +2142,8 @@ namespace Jazz2.Actors
         private bool CanFreefall()
         {
             Vector3 pos = Transform.Pos;
-            Hitbox hitbox = new Hitbox(pos.X - 14, pos.Y + 8 - 12, pos.X + 14, pos.Y + 8 + 12 + 100);
-            return api.IsPositionEmpty(this, ref hitbox, true);
+            AABB aabb = new AABB(pos.X - 14, pos.Y + 8 - 12, pos.X + 14, pos.Y + 8 + 12 + 100);
+            return api.IsPositionEmpty(this, ref aabb, true);
         }
 
         public void SetCarryingPlatform(MovingPlatform platform)

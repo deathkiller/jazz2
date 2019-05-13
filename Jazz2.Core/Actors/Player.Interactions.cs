@@ -217,7 +217,7 @@ namespace Jazz2.Actors
                     copterFramesLeft = 150;
 
                     CopterDecor copter = new CopterDecor();
-                    copter.OnAttach(new ActorInstantiationDetails {
+                    copter.OnActivated(new ActorActivationDetails {
                         Api = api
                     });
                     copter.Parent = this;
@@ -246,7 +246,7 @@ namespace Jazz2.Actors
             pos.Z = Transform.Pos.Z - 100f;
 
             Bird bird = new Bird();
-            bird.OnAttach(new ActorInstantiationDetails {
+            bird.OnActivated(new ActorActivationDetails {
                 Api = api,
                 Pos = pos,
                 Params = new ushort[] { type }
@@ -287,9 +287,9 @@ namespace Jazz2.Actors
 
         public class CopterDecor : ActorBase
         {
-            public override void OnAttach(ActorInstantiationDetails details)
+            public override void OnActivated(ActorActivationDetails details)
             {
-                base.OnAttach(details);
+                base.OnActivated(details);
 
                 collisionFlags = CollisionFlags.None;
 

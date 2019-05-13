@@ -26,7 +26,7 @@ namespace Jazz2.Game.Structs
         public PlayerType Type;
 
         public int Lives;
-        public int[] Ammo;
+        public short[] Ammo;
         public byte[] WeaponUpgrades;
         public int Score;
         public int FoodEaten;

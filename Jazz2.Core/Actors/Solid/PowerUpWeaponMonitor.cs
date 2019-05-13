@@ -7,9 +7,9 @@ namespace Jazz2.Actors.Solid
     {
         private WeaponType weaponType;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             weaponType = (WeaponType)details.Params[0];
 

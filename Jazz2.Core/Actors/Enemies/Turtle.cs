@@ -1,4 +1,5 @@
 ﻿using Duality;
+using Jazz2.Game.Collisions;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Enemies
@@ -11,9 +12,9 @@ namespace Jazz2.Actors.Enemies
         private bool isTurning;
         private bool isWithdrawn;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             SetHealthByDifficulty(1);
             scoreValue = 100;
@@ -63,9 +64,9 @@ namespace Jazz2.Actors.Enemies
             }
 
             if (!isTurning && !isWithdrawn && !isAttacking) {
-                Hitbox hitbox = currentHitbox + new Vector2(speedX * 32, 0);
-                if (api.TileMap.IsTileEmpty(ref hitbox, true)) {
-                    foreach (Player player in api.GetCollidingPlayers(currentHitbox + new Vector2(speedX * 32, 0))) {
+                AABB aabb = AABBInner + new Vector2(speedX * 32, 0);
+                if (api.TileMap.IsTileEmpty(ref aabb, true)) {
+                    foreach (Player player in api.GetCollidingPlayers(aabb + new Vector2(speedX * 32, 0))) {
                         if (!player.IsInvulnerable) {
                             Attack();
                             break;
@@ -78,7 +79,7 @@ namespace Jazz2.Actors.Enemies
         protected override bool OnPerish(ActorBase collider)
         {
             TurtleShell shell = new TurtleShell(speedX * 1.1f, 1.1f);
-            shell.OnAttach(new ActorInstantiationDetails {
+            shell.OnActivated(new ActorActivationDetails {
                 Api = api,
                 Pos = Transform.Pos,
                 Params = new[] { theme }

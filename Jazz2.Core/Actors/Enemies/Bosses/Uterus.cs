@@ -27,9 +27,9 @@ namespace Jazz2.Actors.Bosses
 
         private ushort endText;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             endText = details.Params[1];
 
@@ -62,7 +62,7 @@ namespace Jazz2.Actors.Bosses
             for (int i = 0; i < shields.Length; i++) {
                 shields[i] = new Shield();
                 shields[i].Phase = (MathF.TwoPi * i / shields.Length);
-                shields[i].OnAttach(new ActorInstantiationDetails {
+                shields[i].OnActivated(new ActorActivationDetails {
                     Api = api,
                     Pos = lastPos
                 });
@@ -111,7 +111,7 @@ namespace Jazz2.Actors.Bosses
                         float force = MathF.Rnd.NextFloat(-15f, 15f);
 
                         Crab crab = new Crab();
-                        crab.OnAttach(new ActorInstantiationDetails {
+                        crab.OnActivated(new ActorActivationDetails {
                             Api = api,
                             Pos = Transform.Pos + new Vector3(0f, 0f, 4f)
                         });
@@ -224,9 +224,9 @@ namespace Jazz2.Actors.Bosses
             public float Phase;
             public float FallTime;
 
-            public override void OnAttach(ActorInstantiationDetails details)
+            public override void OnActivated(ActorActivationDetails details)
             {
-                base.OnAttach(details);
+                base.OnActivated(details);
 
                 canBeFrozen = false;
                 collisionFlags = CollisionFlags.CollideWithOtherActors;

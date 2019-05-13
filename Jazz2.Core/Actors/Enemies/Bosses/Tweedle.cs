@@ -4,9 +4,9 @@ namespace Jazz2.Actors.Bosses
 {
     public class Tweedle : BossBase
     {
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             RequestMetadata("Boss/Tweedle");
             SetAnimation(AnimState.Idle);

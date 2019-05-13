@@ -7,9 +7,9 @@ namespace Jazz2.Actors.Solid
     {
         private Player.ShieldType shieldType;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             shieldType = (Player.ShieldType)details.Params[0];
 

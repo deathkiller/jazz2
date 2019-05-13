@@ -253,7 +253,7 @@ namespace Jazz2.Game.Multiplayer
                 }
 
                 Player player = new Player();
-                player.OnAttach(new ActorInstantiationDetails {
+                player.OnActivated(new ActorActivationDetails {
                     Api = Api,
                     Pos = pos,
                     Params = new[] { (ushort)type, (ushort)0 }
@@ -288,7 +288,7 @@ namespace Jazz2.Game.Multiplayer
                     return;
                 }
 
-                player.OnAttach(new ActorInstantiationDetails {
+                player.OnActivated(new ActorActivationDetails {
                     Api = Api,
                     Pos = pos,
                     Params = new ushort[] { (ushort)type, (ushort)index }
@@ -386,7 +386,7 @@ namespace Jazz2.Game.Multiplayer
             }
 
             PlayerCorpse corpse = new PlayerCorpse();
-            corpse.OnAttach(new ActorInstantiationDetails {
+            corpse.OnActivated(new ActorActivationDetails {
                 Api = Api,
                 Pos = player.Transform.Pos,
                 Params = new[] { (ushort)player.PlayerType, (ushort)(player.IsFacingLeft ? 1 : 0) }

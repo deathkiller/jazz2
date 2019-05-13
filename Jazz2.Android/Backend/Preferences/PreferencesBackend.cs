@@ -54,6 +54,7 @@ namespace Jazz2.Backend.Android
                         case 2: data[key] = r.ReadByte(); break; // Byte
                         case 3: data[key] = r.ReadInt32(); break; // Int
                         case 4: data[key] = r.ReadInt64(); break; // Long
+                        case 5: data[key] = r.ReadInt16(); break; // Short
 
                         case 10: { // String Array
                             byte count = r.ReadByte();
@@ -100,6 +101,15 @@ namespace Jazz2.Backend.Android
                             data[key] = values;
                             break;
                         }
+                        case 15: { // Short Array
+                            byte count = r.ReadByte();
+                            short[] values = new short[count];
+                            for (int j = 0; j < count; j++) {
+                                values[j] = r.ReadInt16();
+                            }
+                            data[key] = values;
+                            break;
+                        }
                     }
                 }
             }
@@ -118,7 +128,7 @@ namespace Jazz2.Backend.Android
         T IPreferencesBackend.Get<T>(string key, T defaultValue)
         {
             object value;
-            if (data.TryGetValue(key, out value)) {
+            if (data.TryGetValue(key, out value) && value is T) {
                 return (T)value;
             } else {
                 return defaultValue;
@@ -182,6 +192,11 @@ namespace Jazz2.Backend.Android
                                 w.Write(value);
                                 break;
                             }
+                            case short value: {
+                                w.Write((byte)5);
+                                w.Write(value);
+                                break;
+                            }
 
                             case string[] value: {
                                 w.Write((byte)10);
@@ -223,6 +238,14 @@ namespace Jazz2.Backend.Android
                                 }
                                 break;
                             }
+                            case short[] value: {
+                                w.Write((byte)15);
+                                w.Write((byte)value.Length);
+                                for (int j = 0; j < value.Length; j++) {
+                                    w.Write(value[j]);
+                                }
+                                break;
+                            }
 
                             default:
                                 App.Log("Unknown preference type: " + pair.Value.GetType().FullName);
@@ -257,7 +280,9 @@ namespace Jazz2.Backend.Android
                   value is int ||
                   value is int[] ||
                   value is long ||
-                  value is long[])) {
+                  value is long[] ||
+                  value is short ||
+                  value is short[])) {
                 throw new ArgumentException("The type is not supported: " + value.GetType());
             }
         }

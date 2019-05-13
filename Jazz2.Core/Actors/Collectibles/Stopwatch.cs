@@ -2,9 +2,9 @@
 {
     public class Stopwatch : Collectible
     {
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             RequestMetadata("Collectible/Stopwatch");
             SetAnimation("Stopwatch");

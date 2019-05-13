@@ -15,9 +15,9 @@ namespace Jazz2.Actors.Enemies
         private float attackCooldown = 60f;
         private Vector2 direction;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
@@ -98,25 +98,25 @@ namespace Jazz2.Actors.Enemies
             }
         }
 
-        protected override void OnHitWallHook()
+        protected override void OnHitWall()
         {
-            base.OnHitWallHook();
+            base.OnHitWall();
 
             speedX = 0f;
             speedY = 0f;
         }
 
-        protected override void OnHitFloorHook()
+        protected override void OnHitFloor()
         {
-            base.OnHitFloorHook();
+            base.OnHitFloor();
 
             speedX = 0f;
             speedY = 0f;
         }
 
-        protected override void OnHitCeilingHook()
+        protected override void OnHitCeiling()
         {
-            base.OnHitCeilingHook();
+            base.OnHitCeiling();
 
             speedX = 0f;
             speedY = 0f;

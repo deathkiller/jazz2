@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Duality;
+using Jazz2.Game.Collisions;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Enemies
@@ -15,9 +16,9 @@ namespace Jazz2.Actors.Enemies
         private double stateTime;
         private double attackTime;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             SetHealthByDifficulty(1);
             scoreValue = 200;
@@ -82,12 +83,12 @@ namespace Jazz2.Actors.Enemies
 
                 if (canAttack) {
                     if (MathF.Abs(speedY) < float.Epsilon) {
-                        Hitbox hitbox = currentHitbox.Extend(
+                        AABB aabb = AABBInner.Extend(
                             IsFacingLeft ? 128 : 0, 20,
                             IsFacingLeft ? 0 : 128, 20
                         );
 
-                        if (api.GetCollidingPlayers(hitbox).Any()) {
+                        if (api.GetCollidingPlayers(aabb).Any()) {
                             Attack();
                         }
                     }

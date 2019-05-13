@@ -9,9 +9,9 @@ namespace Jazz2.Actors.Environment
     {
         private SoundInstance sound;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             // ToDo: Implement Fade:1|Sine:1
 

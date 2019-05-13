@@ -189,7 +189,7 @@ namespace Jazz2.Game.Events
         private ActorBase CreateCommonActorEvent<T>(ActorInstantiationFlags flags, float x, float y, float z, params ushort[] spawnParams) where T : ActorBase
         {
             T actor = typeof(T).GetTypeInfo().CreateInstanceOf() as T;
-            actor.OnAttach(new ActorInstantiationDetails {
+            actor.OnActivated(new ActorActivationDetails {
                 Api = api,
                 Pos = new Vector3(x, y, z),
                 Flags = flags,

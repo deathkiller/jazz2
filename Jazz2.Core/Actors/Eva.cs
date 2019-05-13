@@ -7,9 +7,9 @@ namespace Jazz2.Actors
     {
         private float animationTime;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             RequestMetadata("Object/Eva");
             SetAnimation(AnimState.Idle);

@@ -4,6 +4,7 @@ using Duality.Drawing;
 using Duality.Resources;
 using Jazz2.Actors.Weapons;
 using Jazz2.Game;
+using Jazz2.Game.Collisions;
 using Jazz2.Game.Events;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
@@ -68,14 +69,16 @@ namespace Jazz2.Actors.Enemies
 
             EventMap events = api.EventMap;
 
-            Hitbox h1 = currentHitbox + new Vector2(x, y - 3);
-            Hitbox h2 = currentHitbox + new Vector2(x, y + 3);
-            Hitbox h3 = currentHitbox + new Vector2(x + direction * (currentHitbox.Right - currentHitbox.Left) / 2, y + 12);
+            AABB aabbA = AABBInner + new Vector2(x, y - 3);
+            AABB aabbB = AABBInner + new Vector2(x, y + 3);
+            if (!api.IsPositionEmpty(this, ref aabbA, true) && !api.IsPositionEmpty(this, ref aabbB, true)) {
+                return false;
+            }
+
+            AABB aabbDir = AABBInner + new Vector2(x + direction * (AABBInner.UpperBound.X - AABBInner.LowerBound.X) * 0.5f, y + 12);
 
             ushort[] p = null;
-            return ((api.IsPositionEmpty(this, ref h1, true) || api.IsPositionEmpty(this, ref h2, true))
-                     && (events != null && events.GetEventByPosition(pos.X + x, pos.Y + y, ref p) != EventType.AreaStopEnemy)
-                     && !api.IsPositionEmpty(this, ref h3, true));
+            return ((events == null || events.GetEventByPosition(pos.X + x, pos.Y + y, ref p) != EventType.AreaStopEnemy) && !api.IsPositionEmpty(this, ref aabbDir, true));
         }
 
         protected void TryGenerateRandomDrop()

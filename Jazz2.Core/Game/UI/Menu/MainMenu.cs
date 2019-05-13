@@ -108,8 +108,9 @@ namespace Jazz2.Game.UI.Menu
             if (!FileOp.Exists(musicPath)) {
                 musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", "menu.j2b");
             }
-            music = DualityApp.Sound.PlaySound(new OpenMptStream(musicPath));
+            music = new OpenMptStream(musicPath);
             music.BeginFadeIn(0.5f);
+            DualityApp.Sound.PlaySound(music);
 
             InitPlatformSpecific();
 

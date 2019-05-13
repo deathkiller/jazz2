@@ -165,7 +165,7 @@ namespace Jazz2.Game
                     }
 
                     Player player = new Player();
-                    player.OnAttach(new ActorInstantiationDetails {
+                    player.OnActivated(new ActorActivationDetails {
                         Api = api,
                         Pos = new Vector3(spawnPosition, PlayerZ),
                         Params = new[] { (ushort)data.PlayerCarryOvers[i].Type, (ushort)i }
@@ -460,8 +460,9 @@ namespace Jazz2.Game
 
                 // Load default music
                 musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", config.Description.DefaultMusic);
-                music = DualityApp.Sound.PlaySound(new OpenMptStream(musicPath));
+                music = new OpenMptStream(musicPath);
                 music.BeginFadeIn(0.5f);
+                DualityApp.Sound.PlaySound(music);
 
                 if (config.Description.DefaultWeather != WeatherType.None) {
                     ApplyWeather(
@@ -501,15 +502,13 @@ namespace Jazz2.Game
             AddActor(actor);
         }
 
-        public void FindCollisionActorsFast(ActorBase self, Hitbox hitbox, Func<ActorBase, bool> callback)
+        public void FindCollisionActorsFast(ActorBase self, AABB aabb, Func<ActorBase, bool> callback)
         {
-            AABB aabb = hitbox.ToAABB();
-
             collisions.Query((actor) => {
                 if (self == actor || (actor.CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0) {
                     return true;
                 }
-                if (actor.Hitbox.Intersects(ref hitbox)) {
+                if (actor.IsCollidingWith(ref aabb)) {
                     return callback(actor);
                 }
                 return true;
@@ -535,11 +534,11 @@ namespace Jazz2.Game
                     continue;
                 }
 
-                Hitbox hitbox = actors[i].Hitbox;
+                AABB aabb = actors[i].AABB;
 
                 // Find the closest point to the circle within the rectangle
-                float closestX = MathF.Clamp(x, hitbox.Left, hitbox.Right);
-                float closestY = MathF.Clamp(y, hitbox.Top, hitbox.Bottom);
+                float closestX = MathF.Clamp(x, aabb.LowerBound.X, aabb.UpperBound.X);
+                float closestY = MathF.Clamp(y, aabb.LowerBound.Y, aabb.UpperBound.Y);
 
                 // Calculate the distance between the circle's center and this closest point
                 float distanceX = x - closestX;
@@ -553,12 +552,12 @@ namespace Jazz2.Game
             }
         }
 
-        public bool IsPositionEmpty(ActorBase self, ref Hitbox hitbox, bool downwards, out ActorBase collider)
+        public bool IsPositionEmpty(ActorBase self, ref AABB aabb, bool downwards, out ActorBase collider)
         {
             collider = null;
 
             if ((self.CollisionFlags & CollisionFlags.CollideWithTileset) != 0) {
-                if (!tileMap.IsTileEmpty(ref hitbox, downwards)) {
+                if (!tileMap.IsTileEmpty(ref aabb, downwards)) {
                     return false;
                 }
             }
@@ -567,7 +566,7 @@ namespace Jazz2.Game
             if ((self.CollisionFlags & CollisionFlags.CollideWithSolidObjects) != 0) {
                 ActorBase colliderActor = null;
 
-                FindCollisionActorsFast(self, hitbox, (actor) => {
+                FindCollisionActorsFast(self, aabb, (actor) => {
                     if ((actor.CollisionFlags & CollisionFlags.IsSolidObject) == 0) {
                         return true;
                     }
@@ -587,16 +586,16 @@ namespace Jazz2.Game
             return (collider == null);
         }
 
-        public bool IsPositionEmpty(ActorBase self, ref Hitbox hitbox, bool downwards)
+        public bool IsPositionEmpty(ActorBase self, ref AABB aabb, bool downwards)
         {
             ActorBase solidObject;
-            return IsPositionEmpty(self, ref hitbox, downwards, out solidObject);
+            return IsPositionEmpty(self, ref aabb, downwards, out solidObject);
         }
 
-        public IEnumerable<Player> GetCollidingPlayers(Hitbox hitbox)
+        public IEnumerable<Player> GetCollidingPlayers(AABB aabb)
         {
             foreach (Player player in players) {
-                if (player.Hitbox.Intersects(ref hitbox)) {
+                if (AABB.TestOverlap(ref player.AABB, ref aabb)) {
                     yield return player;
                 }
             }
@@ -668,8 +667,9 @@ namespace Jazz2.Game
                 }
 
                 // Load default music again
-                music = DualityApp.Sound.PlaySound(new OpenMptStream(musicPath));
+                music = new OpenMptStream(musicPath);
                 music.BeginFadeIn(0.4f);
+                DualityApp.Sound.PlaySound(music);
             }
 
             // Single player can respawn immediately
@@ -786,8 +786,9 @@ namespace Jazz2.Game
             // ToDo: Hardcoded music file
             string musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", "boss" + (musicFile + 1).ToString(CultureInfo.InvariantCulture) + ".j2b");
 
-            music = DualityApp.Sound.PlaySound(new OpenMptStream(musicPath));
+            music = new OpenMptStream(musicPath);
             music.BeginFadeIn(1f);
+            DualityApp.Sound.PlaySound(music);
 
             return true;
         }
@@ -1014,6 +1015,10 @@ namespace Jazz2.Game
             collisions.UpdatePairs((proxyA, proxyB) => {
 
                 if (proxyA.Health <= 0 || proxyB.Health <= 0) {
+                    return;
+                }
+                if ((proxyA.CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0 ||
+                    (proxyB.CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0) {
                     return;
                 }
 

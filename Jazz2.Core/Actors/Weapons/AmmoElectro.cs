@@ -20,9 +20,9 @@ namespace Jazz2.Actors.Weapons
 
         public override WeaponType WeaponType => WeaponType.Electro;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             base.upgrades = (byte)details.Params[0];
 
@@ -153,7 +153,7 @@ namespace Jazz2.Actors.Weapons
             UpdateHitbox(4, 4);
         }
 
-        protected override void OnHitWallHook()
+        protected override void OnHitWall()
         {
         }
 

@@ -14,9 +14,9 @@ namespace Jazz2.Actors.Environment
         private bool triggered;
         private float deceleration;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             id = details.Params[0];
             triggerSpeedX = details.Params[1];

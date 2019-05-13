@@ -8,9 +8,9 @@ namespace Jazz2.Actors.Environment
         private Vector3 originPos;
         private float anglePhase;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             RequestMetadata("Enemy/LizardFloat");
             SetAnimation(AnimState.Activated);

@@ -11,9 +11,9 @@ namespace Jazz2.Actors.Enemies
         private double stateTime;
         private bool stuck;
 
-        public override void OnAttach(ActorInstantiationDetails details)
+        public override void OnActivated(ActorActivationDetails details)
         {
-            base.OnAttach(details);
+            base.OnActivated(details);
 
             Vector3 pos = Transform.Pos;
             pos.Y -= 6f;
