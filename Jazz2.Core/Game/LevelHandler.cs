@@ -359,116 +359,135 @@ namespace Jazz2.Game
 
         private void LoadLevel(string level, string episode)
         {
-            IFileSystem levelPackage = new CompressedContent(PathOp.Combine(DualityApp.DataDirectory, "Episodes", episode, level + ".level"));
+            string levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", episode, level + ".level");
+            IFileSystem levelPackage = new CompressedContent(levelPath);
 
+            // ToDo: Cache parser, move JSON parsing to ContentResolver
+            JsonParser jsonParser = new JsonParser();
+            LevelConfigJson json;
             using (Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
-                // ToDo: Cache parser, move JSON parsing to ContentResolver
-                JsonParser json = new JsonParser();
-                LevelConfigJson config = json.Parse<LevelConfigJson>(s);
+                json = jsonParser.Parse<LevelConfigJson>(s);
+            }
 
-                if (config.Version.LayerFormat > LayerFormatVersion || config.Version.EventSet > EventSetVersion) {
-                    throw new NotSupportedException("Version not supported");
+            if (json.Version.LayerFormat > LayerFormatVersion || json.Version.EventSet > EventSetVersion) {
+                throw new NotSupportedException("Level version not supported");
+            }
+
+            App.Log("Loading level \"" + json.Description.Name + "\"...");
+
+            root.Title = BitmapFont.StripFormatting(json.Description.Name);
+            root.Immersive = false;
+
+            defaultNextLevel = json.Description.NextLevel;
+            defaultSecretLevel = json.Description.SecretLevel;
+            ambientLightDefault = json.Description.DefaultLight;
+            ambientLightCurrent = ambientLightTarget = ambientLightDefault * 0.01f;
+
+            if (json.Description.DefaultDarkness != null && json.Description.DefaultDarkness.Count >= 4) {
+                darknessColor = new Vector4(json.Description.DefaultDarkness[0] / 255f, json.Description.DefaultDarkness[1] / 255f, json.Description.DefaultDarkness[2] / 255f, json.Description.DefaultDarkness[3] / 255f);
+            } else {
+                darknessColor = new Vector4(0, 0, 0, 1);
+            }
+
+            // Palette
+            ColorRgba[] tileMapPalette;
+            if (levelPackage.FileExists("Main.palette")) {
+                using (Stream s = levelPackage.OpenFile("Main.palette", FileAccessMode.Read)) {
+                    tileMapPalette = TileSet.LoadPalette(s);
                 }
+            } else {
+                tileMapPalette = null;
+            }
 
-                App.Log("Loading level \"" + config.Description.Name + "\"...");
+            // Tileset
+            tileMap = new TileMap(this, json.Description.DefaultTileset, tileMapPalette, (json.Description.Flags & LevelFlags.HasPit) != 0);
 
-                root.Title = BitmapFont.StripFormatting(config.Description.Name);
-                root.Immersive = false;
+            // Additional tilesets
+            if (json.Tilesets != null) {
+                for (int i = 0; i < json.Tilesets.Count; i++) {
+                    LevelConfigJson.TilesetSection part = json.Tilesets[i];
+                    tileMap.ReadTilesetPart(part.Name, part.Offset, part.Count);
+                }
+            }
 
-                defaultNextLevel = config.Description.NextLevel;
-                defaultSecretLevel = config.Description.SecretLevel;
-                ambientLightDefault = config.Description.DefaultLight;
-                ambientLightCurrent = ambientLightTarget = ambientLightDefault * 0.01f;
+            // Read all layers
+            json.Layers.Add("Sprite", new LevelConfigJson.LayerSection {
+                XSpeed = 1,
+                YSpeed = 1
+            });
 
-                if (config.Description.DefaultDarkness != null && config.Description.DefaultDarkness.Count >= 4) {
-                    darknessColor = new Vector4(config.Description.DefaultDarkness[0] / 255f, config.Description.DefaultDarkness[1] / 255f, config.Description.DefaultDarkness[2] / 255f, config.Description.DefaultDarkness[3] / 255f);
+            foreach (var layer in json.Layers.OrderBy(layer => layer.Value.Depth)) {
+                LayerType type;
+                if (layer.Key == "Sprite") {
+                    type = LayerType.Sprite;
+                } else if (layer.Key == "Sky") {
+                    type = LayerType.Sky;
+
+                    //if (layer.Value.BackgroundStyle != 0 /*Plain*/ && layer.Value.BackgroundColor != null && layer.Value.BackgroundColor.Count >= 3) {
+                    //    camera.GetComponent<Camera>().ClearColor = new ColorRgba((byte)layer.Value.BackgroundColor[0], (byte)layer.Value.BackgroundColor[1], (byte)layer.Value.BackgroundColor[2]);
+                    //}
                 } else {
-                    darknessColor = new Vector4(0, 0, 0, 1);
+                    type = LayerType.Other;
                 }
 
-                // Palette
-                ColorRgba[] tileMapPalette;
-                {
-                    if (levelPackage.FileExists("Main.palette")) {
-                        using (Stream s2 = levelPackage.OpenFile("Main.palette", FileAccessMode.Read)) {
-                            tileMapPalette = TileSet.LoadPalette(s2);
+                using (Stream s = levelPackage.OpenFile(layer.Key + ".layer", FileAccessMode.Read)) {
+                    tileMap.ReadLayerConfiguration(type, s, layer.Value);
+                }
+            }
+
+            // Read animated tiles
+            if (levelPackage.FileExists("Animated.tiles")) {
+                using (Stream s = levelPackage.OpenFile("Animated.tiles", FileAccessMode.Read)) {
+                    tileMap.ReadAnimatedTiles(s);
+                }
+            }
+
+            levelBounds = new Rect(tileMap.Size * tileMap.Tileset.TileSize);
+
+            // Read events
+            eventMap = new EventMap(this, tileMap.Size);
+
+            if (levelPackage.FileExists("Events.layer")) {
+                using (Stream s2 = levelPackage.OpenFile("Events.layer", FileAccessMode.Read)) {
+                    eventMap.ReadEvents(s2, json.Version.LayerFormat, difficulty);
+                }
+            }
+
+            GameObject tilemapHandler = new GameObject();
+            tilemapHandler.Parent = rootObject;
+            tilemapHandler.AddComponent(tileMap);
+
+            // Load default music
+            musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", json.Description.DefaultMusic);
+            music = new OpenMptStream(musicPath);
+            music.BeginFadeIn(0.5f);
+            DualityApp.Sound.PlaySound(music);
+
+            // Apply weather
+            if (json.Description.DefaultWeather != WeatherType.None) {
+                ApplyWeather(
+                    json.Description.DefaultWeather,
+                    json.Description.DefaultWeatherIntensity,
+                    json.Description.DefaultWeatherOutdoors);
+            }
+
+            // Load level text events
+            levelTexts = json.TextEvents ?? new List<string>();
+
+            if (FileOp.Exists(levelPath + "." + i18n.Language)) {
+                try {
+                    using (Stream s = FileOp.Open(levelPath + "." + i18n.Language, FileAccessMode.Read)) {
+                        json = jsonParser.Parse<LevelConfigJson>(s);
+                        if (json.TextEvents != null) {
+                            for (int i = 0; i < json.TextEvents.Count && i < levelTexts.Count; i++) {
+                                if (json.TextEvents[i] != null) {
+                                    levelTexts[i] = json.TextEvents[i];
+                                }
+                            }
                         }
-                    } else {
-                        tileMapPalette = null;
                     }
-                }
-
-                // Tileset
-                tileMap = new TileMap(this, config.Description.DefaultTileset, tileMapPalette, (config.Description.Flags & LevelFlags.HasPit) != 0);
-
-                // Additional tilesets
-                if (config.Tilesets != null) {
-                    for (int i = 0; i < config.Tilesets.Count; i++) {
-                        LevelConfigJson.TilesetSection part = config.Tilesets[i];
-                        tileMap.ReadTilesetPart(part.Name, part.Offset, part.Count);
-                    }
-                }
-
-                // Read all layers
-                config.Layers.Add("Sprite", new LevelConfigJson.LayerSection {
-                    XSpeed = 1,
-                    YSpeed = 1
-                });
-
-                foreach (var layer in config.Layers.OrderBy(layer => layer.Value.Depth)) {
-                    LayerType type;
-                    if (layer.Key == "Sprite") {
-                        type = LayerType.Sprite;
-                    } else if (layer.Key == "Sky") {
-                        type = LayerType.Sky;
-
-                        //if (layer.Value.BackgroundStyle != 0 /*Plain*/ && layer.Value.BackgroundColor != null && layer.Value.BackgroundColor.Count >= 3) {
-                        //    camera.GetComponent<Camera>().ClearColor = new ColorRgba((byte)layer.Value.BackgroundColor[0], (byte)layer.Value.BackgroundColor[1], (byte)layer.Value.BackgroundColor[2]);
-                        //}
-                    } else {
-                        type = LayerType.Other;
-                    }
-
-                    using (Stream s2 = levelPackage.OpenFile(layer.Key + ".layer", FileAccessMode.Read)) {
-                        tileMap.ReadLayerConfiguration(type, s2, layer.Value);
-                    }
-                }
-
-                // Read animated tiles
-                if (levelPackage.FileExists("Animated.tiles")) {
-                    using (Stream s2 = levelPackage.OpenFile("Animated.tiles", FileAccessMode.Read)) {
-                        tileMap.ReadAnimatedTiles(s2);
-                    }
-                }
-
-                levelBounds = new Rect(tileMap.Size * tileMap.Tileset.TileSize);
-
-                // Read events
-                eventMap = new EventMap(this, tileMap.Size);
-
-                if (levelPackage.FileExists("Events.layer")) {
-                    using (Stream s2 = levelPackage.OpenFile("Events.layer", FileAccessMode.Read)) {
-                        eventMap.ReadEvents(s2, config.Version.LayerFormat, difficulty);
-                    }
-                }
-
-                levelTexts = config.TextEvents ?? new List<string>();
-
-                GameObject tilemapHandler = new GameObject();
-                tilemapHandler.Parent = rootObject;
-                tilemapHandler.AddComponent(tileMap);
-
-                // Load default music
-                musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", config.Description.DefaultMusic);
-                music = new OpenMptStream(musicPath);
-                music.BeginFadeIn(0.5f);
-                DualityApp.Sound.PlaySound(music);
-
-                if (config.Description.DefaultWeather != WeatherType.None) {
-                    ApplyWeather(
-                        config.Description.DefaultWeather,
-                        config.Description.DefaultWeatherIntensity,
-                        config.Description.DefaultWeatherOutdoors);
+                } catch (Exception ex) {
+                    App.Log("Cannot load i18n for this level: " + ex);
                 }
             }
         }
@@ -502,9 +521,9 @@ namespace Jazz2.Game
             AddActor(actor);
         }
 
-        public void FindCollisionActorsFast(ActorBase self, AABB aabb, Func<ActorBase, bool> callback)
+        public void FindCollisionActorsByAABB(ActorBase self, AABB aabb, Func<ActorBase, bool> callback)
         {
-            collisions.Query((actor) => {
+            collisions.Query(actor => {
                 if (self == actor || (actor.CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0) {
                     return true;
                 }
@@ -515,41 +534,30 @@ namespace Jazz2.Game
             }, ref aabb);
         }
 
-        public IEnumerable<ActorBase> FindCollisionActors(ActorBase self)
+        public void FindCollisionActorsByRadius(float x, float y, float radius, Func<ActorBase, bool> callback)
         {
-            for (int i = 0; i < actors.Count; ++i) {
-                if (self == actors[i] || (actors[i].CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0) {
-                    continue;
+            AABB aabb = new AABB(x - radius, y - radius, x + radius, y + radius);
+            collisions.Query((actor) => {
+                if ((actor.CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0) {
+                    return true;
                 }
-                if (actors[i].IsCollidingWith(self)) {
-                    yield return actors[i];
-                }
-            }
-        }
-
-        public IEnumerable<ActorBase> FindCollisionActorsRadius(float x, float y, float radius)
-        {
-            for (int i = 0; i < actors.Count; ++i) {
-                if ((actors[i].CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0) {
-                    continue;
-                }
-
-                AABB aabb = actors[i].AABB;
 
                 // Find the closest point to the circle within the rectangle
-                float closestX = MathF.Clamp(x, aabb.LowerBound.X, aabb.UpperBound.X);
-                float closestY = MathF.Clamp(y, aabb.LowerBound.Y, aabb.UpperBound.Y);
+                float closestX = MathF.Clamp(x, actor.AABB.LowerBound.X, actor.AABB.UpperBound.X);
+                float closestY = MathF.Clamp(y, actor.AABB.LowerBound.Y, actor.AABB.UpperBound.Y);
 
                 // Calculate the distance between the circle's center and this closest point
-                float distanceX = x - closestX;
-                float distanceY = y - closestY;
+                float distanceX = (x - closestX);
+                float distanceY = (y - closestY);
 
                 // If the distance is less than the circle's radius, an intersection occurs
                 float distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
                 if (distanceSquared < (radius * radius)) {
-                    yield return actors[i];
+                    return callback(actor);
                 }
-            }
+
+                return true;
+            }, ref aabb);
         }
 
         public bool IsPositionEmpty(ActorBase self, ref AABB aabb, bool downwards, out ActorBase collider)
@@ -566,7 +574,7 @@ namespace Jazz2.Game
             if ((self.CollisionFlags & CollisionFlags.CollideWithSolidObjects) != 0) {
                 ActorBase colliderActor = null;
 
-                FindCollisionActorsFast(self, aabb, (actor) => {
+                FindCollisionActorsByAABB(self, aabb, (actor) => {
                     if ((actor.CollisionFlags & CollisionFlags.IsSolidObject) == 0) {
                         return true;
                     }
@@ -678,7 +686,7 @@ namespace Jazz2.Game
 
         public string GetLevelText(int textID)
         {
-            if (textID < 0 && textID >= levelTexts.Count) {
+            if (textID < 0 || textID >= levelTexts.Count) {
                 return null;
             }
 

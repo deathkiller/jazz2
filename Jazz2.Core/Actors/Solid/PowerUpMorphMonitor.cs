@@ -50,7 +50,8 @@ namespace Jazz2.Actors.Solid
 
             switch (other) {
                 case AmmoBase collision: {
-                    if ((collision.WeaponType == WeaponType.RF ||
+                    if ((collision.WeaponType == WeaponType.Blaster ||
+                         collision.WeaponType == WeaponType.RF ||
                          collision.WeaponType == WeaponType.Seeker ||
                          collision.WeaponType == WeaponType.Pepper ||
                          collision.WeaponType == WeaponType.Electro) &&

@@ -61,6 +61,7 @@ namespace Jazz2.Actors
     public abstract class ActorBase : GameObject, ICollisionable
     {
         private const float CollisionCheckStep = 0.5f;
+        private const int PerPixelCollisionStep = 3;
 
         protected ActorApi api;
 
@@ -678,8 +679,8 @@ namespace Jazz2.Actors
                 }
 
                 // Per-pixel collision check
-                for (int i = x1; i < x2; i++) {
-                    for (int j = y1; j < y2; j++) {
+                for (int i = x1; i < x2; i += PerPixelCollisionStep) {
+                    for (int j = y1; j < y2; j += PerPixelCollisionStep) {
                         int i1 = i - xs;
                         if (isFacingLeftCurrent) {
                             i1 = res.Base.FrameDimensions.X - i1 - 1;
@@ -708,8 +709,8 @@ namespace Jazz2.Actors
                 int dy2 = (frame2 / res2.Base.FrameConfiguration.X) * res2.Base.FrameDimensions.Y - (int)aabb2.LowerBound.Y;
 
                 // Per-pixel collision check
-                for (int i = x1; i < x2; i++) {
-                    for (int j = y1; j < y2; j++) {
+                for (int i = x1; i < x2; i += PerPixelCollisionStep) {
+                    for (int j = y1; j < y2; j += PerPixelCollisionStep) {
                         int i1 = i - x1s;
                         if (isFacingLeft) {
                             i1 = res1.Base.FrameDimensions.X - i1 - 1;
@@ -782,8 +783,8 @@ namespace Jazz2.Actors
             int dy = (frame1 / res.Base.FrameConfiguration.X) * res.Base.FrameDimensions.Y - (int)aabbSelf.LowerBound.Y;
 
             // Per-pixel collision check
-            for (int i = x1; i < x2; i++) {
-                for (int j = y1; j < y2; j++) {
+            for (int i = x1; i < x2; i += PerPixelCollisionStep) {
+                for (int j = y1; j < y2; j += PerPixelCollisionStep) {
                     int i1 = i - xs;
                     if (isFacingLeft) {
                         i1 = res.Base.FrameDimensions.X - i1 - 1;
@@ -877,8 +878,8 @@ namespace Jazz2.Actors
             Matrix4 transformAToB = transform1 * Matrix4.Invert(transform2);
 
             // TransformNormal with [1, 0] and [0, 1] vectors
-            Vector2 stepX = new Vector2(transformAToB.M11, transformAToB.M12);
-            Vector2 stepY = new Vector2(transformAToB.M21, transformAToB.M22);
+            Vector2 stepX = new Vector2(transformAToB.M11, transformAToB.M12) * PerPixelCollisionStep;
+            Vector2 stepY = new Vector2(transformAToB.M21, transformAToB.M22) * PerPixelCollisionStep;
 
             Vector2 yPosIn2 = Vector2.Transform(Vector2.Zero, transformAToB);
 
@@ -890,10 +891,10 @@ namespace Jazz2.Actors
             int dx2 = (frame2 % res2.Base.FrameConfiguration.X) * res2.Base.FrameDimensions.X;
             int dy2 = (frame2 / res2.Base.FrameConfiguration.X) * res2.Base.FrameDimensions.Y;
 
-            for (int y1 = 0; y1 < height1; y1++) {
+            for (int y1 = 0; y1 < height1; y1 += PerPixelCollisionStep) {
                 Vector2 posIn2 = yPosIn2;
 
-                for (int x1 = 0; x1 < width1; x1++) {
+                for (int x1 = 0; x1 < width1; x1 += PerPixelCollisionStep) {
                     int x2 = (int)MathF.Round(posIn2.X);
                     int y2 = (int)MathF.Round(posIn2.Y);
 
@@ -957,8 +958,8 @@ namespace Jazz2.Actors
             }
 
             // TransformNormal with [1, 0] and [0, 1] vectors
-            Vector2 stepX = new Vector2(transform.M11, transform.M12);
-            Vector2 stepY = new Vector2(transform.M21, transform.M22);
+            Vector2 stepX = new Vector2(transform.M11, transform.M12) * PerPixelCollisionStep;
+            Vector2 stepY = new Vector2(transform.M21, transform.M22) * PerPixelCollisionStep;
 
             Vector2 yPosInAABB = Vector2.Transform(Vector2.Zero, transform);
 
@@ -966,10 +967,10 @@ namespace Jazz2.Actors
             int dx = (frame % res.Base.FrameConfiguration.X) * res.Base.FrameDimensions.X;
             int dy = (frame / res.Base.FrameConfiguration.X) * res.Base.FrameDimensions.Y;
 
-            for (int y1 = 0; y1 < height; y1++) {
+            for (int y1 = 0; y1 < height; y1 += PerPixelCollisionStep) {
                 Vector2 posInAABB = yPosInAABB;
 
-                for (int x1 = 0; x1 < width; x1++) {
+                for (int x1 = 0; x1 < width; x1 += PerPixelCollisionStep) {
                     int x2 = (int)MathF.Round(posInAABB.X);
                     int y2 = (int)MathF.Round(posInAABB.Y);
 
@@ -1062,6 +1063,9 @@ namespace Jazz2.Actors
         private void RefreshAnimation()
         {
             GraphicResource resource = (currentTransitionState != AnimState.Idle ? currentTransition : currentAnimation);
+            if (resource == null) {
+                return;
+            }
 
             if (renderer == null) {
                 renderer = AddComponent<ActorRenderer>();

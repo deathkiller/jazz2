@@ -167,16 +167,6 @@ namespace Jazz2.Actors.Enemies
 
                     FollowNearestPlayer();
                 }
-
-                foreach (ActorBase collision in api.FindCollisionActors(this)) {
-                    Player player = collision as Player;
-                    if (player != null) {
-                        DecreaseHealth(int.MaxValue);
-                        owner.OnPlayerHit();
-
-                        player.MorphTo(PlayerType.Frog);
-                    }
-                }
             }
 
             protected override void OnUpdateHitbox()
@@ -186,6 +176,15 @@ namespace Jazz2.Actors.Enemies
 
             public override void OnHandleCollision(ActorBase other)
             {
+                switch (other) {
+                    case Player player: {
+                        DecreaseHealth(int.MaxValue);
+                        owner.OnPlayerHit();
+
+                        player.MorphTo(PlayerType.Frog);
+                        break;
+                    }
+                }
             }
 
             private void FollowNearestPlayer()

@@ -2,6 +2,7 @@
 using Duality.Components;
 using Duality.Drawing;
 using Duality.Resources;
+using Jazz2.Actors.Enemies;
 using Jazz2.Game;
 using Jazz2.Game.Structs;
 using static Jazz2.Game.Tiles.TileMap;
@@ -151,6 +152,15 @@ namespace Jazz2.Actors.Weapons
         protected override void OnUpdateHitbox()
         {
             UpdateHitbox(4, 4);
+        }
+
+        public override void OnHandleCollision(ActorBase other)
+        {
+            if (other is EnemyBase && other.IsInvulnerable) {
+                return;
+            }
+
+            base.OnHandleCollision(other);
         }
 
         protected override void OnHitWall()

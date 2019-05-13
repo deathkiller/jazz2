@@ -45,13 +45,14 @@ namespace Jazz2.Actors.Environment
         {
             Vector3 pos = Transform.Pos;
 
-            foreach (ActorBase collision in api.FindCollisionActorsRadius(pos.X, pos.Y, 40)) {
-                Player player = collision as Player;
+            api.FindCollisionActorsByRadius(pos.X, pos.Y, 40, actor => {
+                Player player = actor as Player;
                 if (player != null) {
                     bool pushLeft = (pos.X > player.Transform.Pos.X);
                     player.TakeDamage(1, pushLeft ? -8f : 8f);
                 }
-            }
+                return true;
+            });
 
             // Explosion.Large is the same as Explosion.Bomb
             Explosion.Create(api, pos, Explosion.Large);

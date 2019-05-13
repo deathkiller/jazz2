@@ -98,29 +98,30 @@ namespace Jazz2.Actors.Bosses
                     }
                     break;
                 }
-
-                case StateAttacking: {
-                    if (stateTime <= 0f) {
-                        foreach (ActorBase collision in api.FindCollisionActors(this)) {
-                            Mace mace = collision as Mace;
-                            if (mace != null && mace == currentMace) {
-                                currentMace.DecreaseHealth(int.MaxValue);
-                                currentMace = null;
-
-                                PlaySound("AttackEnd");
-
-                                SetTransition((AnimState)1073741826, false, delegate {
-                                    FollowNearestPlayer(StateWalking1, MathF.Rnd.NextFloat(80, 160));
-                                });
-                            }
-                        }
-                    }
-
-                    break;
-                }
             }
 
             stateTime -= Time.TimeMult;
+        }
+
+        public override void OnHandleCollision(ActorBase other)
+        {
+            base.OnHandleCollision(other);
+
+            if (state == StateAttacking && stateTime <= 0f) {
+                switch (other) {
+                    case Mace mace: {
+                        currentMace.DecreaseHealth(int.MaxValue);
+                        currentMace = null;
+
+                        PlaySound("AttackEnd");
+
+                        SetTransition((AnimState)1073741826, false, delegate {
+                            FollowNearestPlayer(StateWalking1, MathF.Rnd.NextFloat(80, 160));
+                        });
+                        break;
+                    }
+                }
+            }
         }
 
         protected override bool OnPerish(ActorBase collider)

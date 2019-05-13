@@ -41,18 +41,19 @@ namespace Jazz2.Actors.Weapons
 
                 if (lifetime > 40f) {
                     Vector3 pos = Transform.Pos;
-                    foreach (ActorBase collision in api.FindCollisionActorsRadius(pos.X, pos.Y, 50)) {
-                        if (!collision.IsInvulnerable && (collision is EnemyBase ||
-                            collision is AmmoBarrel || collision is AmmoCrate ||
-                            collision is BarrelContainer || collision is CrateContainer ||
-                            collision is GemBarrel || collision is GemCrate ||
-                            collision is PowerUpMorphMonitor || collision is PowerUpShieldMonitor ||
-                            collision is PowerUpWeaponMonitor || collision is TriggerCrate ||
-                            collision is BirdCage || collision is Pole)) {
+                    api.FindCollisionActorsByRadius(pos.X, pos.Y, 50, actor => {
+                        if (!actor.IsInvulnerable && (actor is EnemyBase ||
+                            actor is AmmoBarrel || actor is AmmoCrate ||
+                            actor is BarrelContainer || actor is CrateContainer ||
+                            actor is GemBarrel || actor is GemCrate ||
+                            actor is PowerUpMorphMonitor || actor is PowerUpShieldMonitor ||
+                            actor is PowerUpWeaponMonitor || actor is TriggerCrate ||
+                            actor is BirdCage || actor is Pole)) {
                             lifetime = 40f;
-                            break;
+                            return false;
                         }
-                    }
+                        return true;
+                    });
                 }
             } else if (!isExploded) {
                 isExploded = true;
@@ -65,9 +66,10 @@ namespace Jazz2.Actors.Weapons
                 PlaySound("Explosion");
 
                 Vector3 pos = Transform.Pos;
-                foreach (ActorBase collision in api.FindCollisionActorsRadius(pos.X, pos.Y, 50)) {
-                    collision.OnHandleCollision(this);
-                }
+                api.FindCollisionActorsByRadius(pos.X, pos.Y, 50, actor => {
+                    actor.OnHandleCollision(this);
+                    return true;
+                });
 
                 TileMap tiles = api.TileMap;
                 if (tiles != null) {

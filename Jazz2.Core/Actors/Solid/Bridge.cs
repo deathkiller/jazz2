@@ -112,9 +112,9 @@ namespace Jazz2.Actors.Solid
         {
             collisions.Clear();
 
-            api.FindCollisionActorsFast(this, AABBInner, ResolveCollisions);
+            api.FindCollisionActorsByAABB(this, AABBInner, ResolveCollisions);
             for (int j = 0; j < bridgePieces.Count; ++j) {
-                api.FindCollisionActorsFast(this, bridgePieces[j].GetHitboxForParent(), ResolveCollisions);
+                api.FindCollisionActorsByAABB(this, bridgePieces[j].GetHitboxForParent(), ResolveCollisions);
             }
 
             Vector3 pos = Transform.Pos;

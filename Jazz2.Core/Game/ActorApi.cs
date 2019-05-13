@@ -130,25 +130,17 @@ namespace Jazz2.Game
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public IEnumerable<ActorBase> FindCollisionActors(ActorBase self)
+        public void FindCollisionActorsByAABB(ActorBase self, AABB aabb, Func<ActorBase, bool> callback)
         {
-            return levelHandler.FindCollisionActors(self);
+            levelHandler.FindCollisionActorsByAABB(self, aabb, callback);
         }
 
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public void FindCollisionActorsFast(ActorBase self, AABB aabb, Func<ActorBase, bool> callback)
+        public void FindCollisionActorsByRadius(float x, float y, float radius, Func<ActorBase, bool> callback)
         {
-            levelHandler.FindCollisionActorsFast(self, aabb, callback);
-        }
-
-#if NET45
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public IEnumerable<ActorBase> FindCollisionActorsRadius(float x, float y, float radius)
-        {
-            return levelHandler.FindCollisionActorsRadius(x, y, radius);
+            levelHandler.FindCollisionActorsByRadius(x, y, radius, callback);
         }
 
 #if NET45

@@ -85,7 +85,7 @@ namespace Jazz2.Actors.Bosses
                 case StateWaiting: {
                     // Waiting for player to enter the arena
                     Vector3 pos = Transform.Pos;
-                    api.FindCollisionActorsFast(this, new AABB(pos.X - 300, pos.Y - 120, pos.X + 60, pos.Y + 120), actor => {
+                    api.FindCollisionActorsByAABB(this, new AABB(pos.X - 300, pos.Y - 120, pos.X + 60, pos.Y + 120), actor => {
                         if (actor is Player) {
                             state = StateIdleToScream;
                             stateTime = 260f;

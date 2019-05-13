@@ -1,6 +1,7 @@
 ﻿using Duality;
 using Jazz2.Actors.Bosses;
 using Jazz2.Game;
+using Jazz2.Game.Collisions;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Weapons
@@ -18,7 +19,7 @@ namespace Jazz2.Actors.Weapons
 
             base.upgrades = (byte)details.Params[0];
 
-            collisionFlags &= ~CollisionFlags.ApplyGravitation;
+            collisionFlags = (collisionFlags & ~CollisionFlags.ApplyGravitation) | CollisionFlags.SkipPerPixelCollisions;
 
             RequestMetadata("Weapon/Blaster");
 
@@ -86,6 +87,17 @@ namespace Jazz2.Actors.Weapons
                 MoveInstantly(gunspotPos, MoveType.Absolute, true);
                 renderer.Active = true;
             }
+        }
+
+        protected override void OnUpdateHitbox()
+        {
+            Vector3 pos = Transform.Pos;
+            AABBInner = new AABB(
+                pos.X - 8,
+                pos.Y - 8,
+                pos.X + 8,
+                pos.Y + 8
+            );
         }
 
         protected override bool OnPerish(ActorBase collider)

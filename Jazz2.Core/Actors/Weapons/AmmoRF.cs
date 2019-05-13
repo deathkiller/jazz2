@@ -99,13 +99,14 @@ namespace Jazz2.Actors.Weapons
         {
             Vector3 pos = Transform.Pos;
 
-            foreach (ActorBase collision in api.FindCollisionActorsRadius(pos.X, pos.Y, 36)) {
-                Player player = collision as Player;
+            api.FindCollisionActorsByRadius(pos.X, pos.Y, 36, actor => {
+                Player player = actor as Player;
                 if (player != null) {
                     bool pushLeft = (pos.X > player.Transform.Pos.X);
                     player.AddExternalForce(pushLeft ? -4f : 4f, 0f);
                 }
-            }
+                return true;
+            });
 
             Explosion.Create(api, pos + Speed, Explosion.RF);
 

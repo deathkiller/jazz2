@@ -4,7 +4,6 @@ using Jazz2.Game.Collisions;
 
 namespace Jazz2.Actors.Environment
 {
-    // ToDo: Implement collision with player
     public class Pole : ActorBase
     {
         private enum FallDirection
@@ -19,6 +18,7 @@ namespace Jazz2.Actors.Environment
 
         private FallDirection fall;
         private float angleVel, angleVelLast;
+        private float fallTime;
         private int bouncesLeft = BouncesMax;
 
         public override void OnActivated(ActorActivationDetails details)
@@ -37,15 +37,19 @@ namespace Jazz2.Actors.Environment
 
             canBeFrozen = false;
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
-            collisionFlags |= CollisionFlags.IsSolidObject;
 
+            bool isSolid = true;
             switch (theme) {
                 default:
                 case 0: RequestMetadata("Pole/Carrotus"); break;
                 case 1: RequestMetadata("Pole/Diamondus"); break;
-                case 2: RequestMetadata("Pole/DiamondusTree"); break;
+                case 2: RequestMetadata("Pole/DiamondusTree"); isSolid = false; break;
                 case 3: RequestMetadata("Pole/Jungle"); break;
                 case 4: RequestMetadata("Pole/Psych"); break;
+            }
+
+            if (isSolid) {
+                collisionFlags |= CollisionFlags.IsSolidObject;
             }
 
             SetAnimation("Pole");
@@ -58,6 +62,13 @@ namespace Jazz2.Actors.Environment
 
             base.OnUpdate();
 
+            if (fall != FallDirection.Left && fall != FallDirection.Right) {
+                return;
+            }
+
+            float timeMult = Time.TimeMult;
+            fallTime += timeMult;
+
             if (fall == FallDirection.Right) {
                 if (angleVel > 0 && IsPositionBlocked()) {
                     if (bouncesLeft > 0) {
@@ -69,10 +80,13 @@ namespace Jazz2.Actors.Environment
                         angleVel = Bounce * bouncesLeft * angleVelLast;
                     } else {
                         fall = FallDirection.Fallen;
+                        if (fallTime < 10) {
+                            collisionFlags &= ~CollisionFlags.IsSolidObject;
+                        }
                     }
                 } else {
-                    angleVel += FallMultiplier * Time.TimeMult;
-                    Transform.Angle += angleVel * Time.TimeMult;
+                    angleVel += FallMultiplier * timeMult;
+                    Transform.Angle += angleVel * timeMult;
                 }
             } else if (fall == FallDirection.Left) {
                 if (angleVel < 0 && IsPositionBlocked()) {
@@ -85,10 +99,13 @@ namespace Jazz2.Actors.Environment
                         angleVel = Bounce * bouncesLeft * angleVelLast;
                     } else {
                         fall = FallDirection.Fallen;
+                        if (fallTime < 10) {
+                            collisionFlags &= ~CollisionFlags.IsSolidObject;
+                        }
                     }
                 } else {
-                    angleVel -= FallMultiplier * Time.TimeMult;
-                    Transform.Angle += angleVel * Time.TimeMult;
+                    angleVel -= FallMultiplier * timeMult;
+                    Transform.Angle += angleVel * timeMult;
                 }
             }
         }
@@ -99,23 +116,27 @@ namespace Jazz2.Actors.Environment
 
             switch (other) {
                 case AmmoBase ammo: {
-                    if (fall == FallDirection.None) {
-                        fall = (ammo.Speed.X < 0 ? FallDirection.Left : FallDirection.Right);
-                        isInvulnerable = true;
-                    }
-
+                    Fall(ammo.Speed.X < 0 ? FallDirection.Left : FallDirection.Right);
                     ammo.DecreaseHealth(1, this);
                     break;
                 }
 
                 case AmmoTNT ammo: {
-                    if (fall == FallDirection.None) {
-                        fall = (ammo.Speed.X < 0 ? FallDirection.Left : FallDirection.Right);
-                        isInvulnerable = true;
-                    }
+                    Fall(ammo.Transform.Pos.X > Transform.Pos.X ? FallDirection.Left : FallDirection.Right);
                     break;
                 }
             }
+        }
+
+        private void Fall(FallDirection dir)
+        {
+            if (fall != FallDirection.None) {
+                return;
+            }
+
+            fall = dir;
+            isInvulnerable = true;
+            collisionFlags |= CollisionFlags.IsSolidObject;
         }
 
         private bool IsPositionBlocked()
@@ -131,22 +152,24 @@ namespace Jazz2.Actors.Environment
             float ry = MathF.Sin(angle);
             float radius = currentAnimation.Base.FrameDimensions.Y;
 
-            // Check radius 1
-            {
-                float x = pos.X + (rx * Ratio1 * radius);
-                float y = pos.Y + (ry * Ratio1 * radius);
-                AABB aabb = new AABB(x - 3, y - 3, x + 7, y + 7);
-                if (!api.IsPositionEmpty(this, ref aabb, true)) {
-                    return true;
+            if (fallTime > 20) {
+                // Check radius 1
+                {
+                    float x = pos.X + (rx * Ratio1 * radius);
+                    float y = pos.Y + (ry * Ratio1 * radius);
+                    AABB aabb = new AABB(x - 3, y - 3, x + 7, y + 7);
+                    if (!api.IsPositionEmpty(this, ref aabb, true)) {
+                        return true;
+                    }
                 }
-            }
-            // Check radius 2
-            {
-                float x = pos.X + (rx * Ratio2 * radius);
-                float y = pos.Y + (ry * Ratio2 * radius);
-                AABB aabb = new AABB(x - 3, y - 3, x + 7, y + 7);
-                if (!api.IsPositionEmpty(this, ref aabb, true)) {
-                    return true;
+                // Check radius 2
+                {
+                    float x = pos.X + (rx * Ratio2 * radius);
+                    float y = pos.Y + (ry * Ratio2 * radius);
+                    AABB aabb = new AABB(x - 3, y - 3, x + 7, y + 7);
+                    if (!api.IsPositionEmpty(this, ref aabb, true)) {
+                        return true;
+                    }
                 }
             }
             // Check radius 3

@@ -2060,7 +2060,7 @@ namespace Jazz2.Actors
                 activeForce = speedY;
                 lastSpeed = speedY;
             }
-            bool positive = (activeForce > 0);
+            bool positive = (activeForce >= 0);
 
             pos.X = x * 32 + 16;
             pos.Y = y * 32 + 16;
