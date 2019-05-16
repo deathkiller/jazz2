@@ -267,11 +267,11 @@ namespace Jazz2.Game.UI.Menu
                     canvas.DrawCircleSegment(loadingX, loadingY, r3, startAngle, endAngle);
                     canvas.DrawCircleSegment(loadingX, loadingY, r4, startAngle, endAngle);
 
-                    api.DrawStringShadow(ref charOffset, "Loading...", loadingX + r1 + 10f, loadingY + 2f, Alignment.Left,
+                    api.DrawStringShadow(ref charOffset, "loading".T(), loadingX + r1 + 10f, loadingY + 2f, Alignment.Left,
                         new ColorRgba(0.48f, 0.5f * isLoadingAnimation), 0.8f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
                 }
             } else {
-                api.DrawStringShadow(ref charOffset, "No custom level found!", center.X, center.Y, Alignment.Center,
+                api.DrawStringShadow(ref charOffset, "menu/play custom/single/empty".T(), center.X, center.Y, Alignment.Center,
                     new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f), 0.9f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
             }
 

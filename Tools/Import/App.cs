@@ -93,6 +93,18 @@ namespace Import
                         }
                         return;
                     }
+                    case "/font-to-json": {
+                        if (i + 1 < args.Length && File.Exists(args[i + 1])) {
+                            ConvertFontToJson(args[i + 1]);
+                        }
+                        return;
+                    }
+                    case "/i18n": {
+                        if (i + 2 < args.Length && !string.IsNullOrWhiteSpace(args[i + 1]) && File.Exists(args[i + 2])) {
+                            ExtractTranslationsForLevels(args[i + 2], Path.Combine(targetPath, "Translations"), args[i + 1]);
+                        }
+                        return;
+                    }
 #endif
 
                     default:
@@ -302,119 +314,7 @@ namespace Import
             Log.Write(LogType.Info, "Importing episodes...");
             Log.PushIndent();
 
-            string xmasEpisodePath = Path.Combine(sourcePath, "xmas99.j2e");
-            string xmasEpisodeToken = (Utils.FileResolveCaseInsensitive(ref xmasEpisodePath) ? "xmas99" : "xmas98");
-
-            Dictionary<string, Tuple<string, string>> knownLevels = new Dictionary<string, Tuple<string, string>> {
-                ["castle1"] = Tuple.Create("prince", "01"),
-                ["castle1n"] = Tuple.Create("prince", "02"),
-                ["carrot1"] = Tuple.Create("prince", "03"),
-                ["carrot1n"] = Tuple.Create("prince", "04"),
-                ["labrat1"] = Tuple.Create("prince", "05"),
-                ["labrat2"] = Tuple.Create("prince", "06"),
-                ["labrat3"] = Tuple.Create("prince", "bonus"),
-
-                ["colon1"] = Tuple.Create("rescue", "01"),
-                ["colon2"] = Tuple.Create("rescue", "02"),
-                ["psych1"] = Tuple.Create("rescue", "03"),
-                ["psych2"] = Tuple.Create("rescue", "04"),
-                ["beach"] = Tuple.Create("rescue", "05"),
-                ["beach2"] = Tuple.Create("rescue", "06"),
-                ["psych3"] = Tuple.Create("rescue", "bonus"),
-
-                ["diam1"] = Tuple.Create("flash", "01"),
-                ["diam3"] = Tuple.Create("flash", "02"),
-                ["tube1"] = Tuple.Create("flash", "03"),
-                ["tube2"] = Tuple.Create("flash", "04"),
-                ["medivo1"] = Tuple.Create("flash", "05"),
-                ["medivo2"] = Tuple.Create("flash", "06"),
-                ["garglair"] = Tuple.Create("flash", "bonus"),
-                ["tube3"] = Tuple.Create("flash", "bonus"),
-
-                ["jung1"] = Tuple.Create("monk", "01"),
-                ["jung2"] = Tuple.Create("monk", "02"),
-                ["hell"] = Tuple.Create("monk", "03"),
-                ["hell2"] = Tuple.Create("monk", "04"),
-                ["damn"] = Tuple.Create("monk", "05"),
-                ["damn2"] = Tuple.Create("monk", "06"),
-
-                ["share1"] = Tuple.Create("share", "01"),
-                ["share2"] = Tuple.Create("share", "02"),
-                ["share3"] = Tuple.Create("share", "03"),
-
-                ["xmas1"] = Tuple.Create(xmasEpisodeToken, "01"),
-                ["xmas2"] = Tuple.Create(xmasEpisodeToken, "02"),
-                ["xmas3"] = Tuple.Create(xmasEpisodeToken, "03"),
-
-                ["easter1"] = Tuple.Create("secretf", "01"),
-                ["easter2"] = Tuple.Create("secretf", "02"),
-                ["easter3"] = Tuple.Create("secretf", "03"),
-                ["haunted1"] = Tuple.Create("secretf", "04"),
-                ["haunted2"] = Tuple.Create("secretf", "05"),
-                ["haunted3"] = Tuple.Create("secretf", "06"),
-                ["town1"] = Tuple.Create("secretf", "07"),
-                ["town2"] = Tuple.Create("secretf", "08"),
-                ["town3"] = Tuple.Create("secretf", "09"),
-
-                // Resurrection of Evil
-                ["roe"] = Tuple.Create("roe", "01"),
-                ["roe00"] = Tuple.Create("roe", "02"),
-                ["roe01"] = Tuple.Create("roe", "03"),
-                ["roe02"] = Tuple.Create("roe", "04"),
-                ["roe03"] = Tuple.Create("roe", "05"),
-                ["roe03a"] = Tuple.Create("roe", "05"),
-                ["roe04"] = Tuple.Create("roe", "06"),
-                ["roe05"] = Tuple.Create("roe", "07"),
-                ["roe06"] = Tuple.Create("roe", "08"),
-                ["roe07"] = Tuple.Create("roe", "09"),
-                ["roe08"] = Tuple.Create("roe", "10"),
-                ["roe08a"] = Tuple.Create("roe", "10"),
-                ["roe09"] = Tuple.Create("roe", "11"),
-                ["roe10"] = Tuple.Create("roe", "12"),
-
-                ["roe_2"] = Tuple.Create("roe2", "01"),
-                ["roe11"] = Tuple.Create("roe2", "02"),
-                ["roe12"] = Tuple.Create("roe2", "03"),
-                ["roe12a"] = Tuple.Create("roe2", "03"),
-                ["roe13"] = Tuple.Create("roe2", "04"),
-                ["roe14"] = Tuple.Create("roe2", "05"),
-                ["roe14a"] = Tuple.Create("roe2", "05"),
-                ["roe14b"] = Tuple.Create("roe2", "05"),
-                ["roe15"] = Tuple.Create("roe2", "06"),
-                ["roe15a"] = Tuple.Create("roe2", "06"),
-                ["roe16"] = Tuple.Create("roe2", "07"),
-                ["roe17"] = Tuple.Create("roe2", "08"),
-                ["roe18"] = Tuple.Create("roe2", "09"),
-                ["roe19"] = Tuple.Create("roe2", "10"),
-                ["roe20"] = Tuple.Create("roe2", "11"),
-                ["roe21"] = Tuple.Create("roe2", "12"),
-                ["roe22"] = Tuple.Create("roe2", "13"),
-                ["roe23"] = Tuple.Create("roe2", "14"),
-                ["roe24"] = Tuple.Create("roe2", "15"),
-
-                // Holiday Hare '17
-                ["hh17_level00"] = Tuple.Create("hh17", (string)null),
-                ["hh17_level01"] = Tuple.Create("hh17", (string)null),
-                ["hh17_level01_save"] = Tuple.Create("hh17", (string)null),
-                ["hh17_level02"] = Tuple.Create("hh17", (string)null),
-                ["hh17_level02_save"] = Tuple.Create("hh17", (string)null),
-                ["hh17_level03"] = Tuple.Create("hh17", (string)null),
-                ["hh17_level03_save"] = Tuple.Create("hh17", (string)null),
-                ["hh17_level04"] = Tuple.Create("hh17", (string)null),
-                ["hh17_level04_save"] = Tuple.Create("hh17", (string)null),
-                ["hh17_level05"] = Tuple.Create("hh17", (string)null),
-                ["hh17_level05_save"] = Tuple.Create("hh17", (string)null),
-                ["hh17_level06"] = Tuple.Create("hh17", (string)null),
-                ["hh17_level06_save"] = Tuple.Create("hh17", (string)null),
-                ["hh17_level07"] = Tuple.Create("hh17", (string)null),
-                ["hh17_level07_save"] = Tuple.Create("hh17", (string)null),
-                ["hh17_ending"] = Tuple.Create("hh17", (string)null),
-                ["hh17_guardian"] = Tuple.Create("hh17", (string)null),
-
-                // Special names
-                ["endepis"] = Tuple.Create((string)null, ":end"),
-                ["ending"] = Tuple.Create((string)null, ":credits")
-            };
+            Dictionary<string, Tuple<string, string>> knownLevels = GetKnownLevels(sourcePath);
 
             Dictionary<string, Tuple<string, string>> customEpisodes = new Dictionary<string, Tuple<string, string>> {
                 ["roe"] = Tuple.Create("Resurrection of Evil", "01_roe"),
@@ -1205,6 +1105,123 @@ namespace Import
             Log.PopIndent();
         }
 
+        private static Dictionary<string, Tuple<string, string>> GetKnownLevels(string sourcePath)
+        {
+            string xmasEpisodePath = Path.Combine(sourcePath, "xmas99.j2e");
+            string xmasEpisodeToken = (Utils.FileResolveCaseInsensitive(ref xmasEpisodePath) ? "xmas99" : "xmas98");
+
+            return new Dictionary<string, Tuple<string, string>> {
+                ["castle1"] = Tuple.Create("prince", "01"),
+                ["castle1n"] = Tuple.Create("prince", "02"),
+                ["carrot1"] = Tuple.Create("prince", "03"),
+                ["carrot1n"] = Tuple.Create("prince", "04"),
+                ["labrat1"] = Tuple.Create("prince", "05"),
+                ["labrat2"] = Tuple.Create("prince", "06"),
+                ["labrat3"] = Tuple.Create("prince", "bonus"),
+
+                ["colon1"] = Tuple.Create("rescue", "01"),
+                ["colon2"] = Tuple.Create("rescue", "02"),
+                ["psych1"] = Tuple.Create("rescue", "03"),
+                ["psych2"] = Tuple.Create("rescue", "04"),
+                ["beach"] = Tuple.Create("rescue", "05"),
+                ["beach2"] = Tuple.Create("rescue", "06"),
+                ["psych3"] = Tuple.Create("rescue", "bonus"),
+
+                ["diam1"] = Tuple.Create("flash", "01"),
+                ["diam3"] = Tuple.Create("flash", "02"),
+                ["tube1"] = Tuple.Create("flash", "03"),
+                ["tube2"] = Tuple.Create("flash", "04"),
+                ["medivo1"] = Tuple.Create("flash", "05"),
+                ["medivo2"] = Tuple.Create("flash", "06"),
+                ["garglair"] = Tuple.Create("flash", "bonus"),
+                ["tube3"] = Tuple.Create("flash", "bonus"),
+
+                ["jung1"] = Tuple.Create("monk", "01"),
+                ["jung2"] = Tuple.Create("monk", "02"),
+                ["hell"] = Tuple.Create("monk", "03"),
+                ["hell2"] = Tuple.Create("monk", "04"),
+                ["damn"] = Tuple.Create("monk", "05"),
+                ["damn2"] = Tuple.Create("monk", "06"),
+
+                ["share1"] = Tuple.Create("share", "01"),
+                ["share2"] = Tuple.Create("share", "02"),
+                ["share3"] = Tuple.Create("share", "03"),
+
+                ["xmas1"] = Tuple.Create(xmasEpisodeToken, "01"),
+                ["xmas2"] = Tuple.Create(xmasEpisodeToken, "02"),
+                ["xmas3"] = Tuple.Create(xmasEpisodeToken, "03"),
+
+                ["easter1"] = Tuple.Create("secretf", "01"),
+                ["easter2"] = Tuple.Create("secretf", "02"),
+                ["easter3"] = Tuple.Create("secretf", "03"),
+                ["haunted1"] = Tuple.Create("secretf", "04"),
+                ["haunted2"] = Tuple.Create("secretf", "05"),
+                ["haunted3"] = Tuple.Create("secretf", "06"),
+                ["town1"] = Tuple.Create("secretf", "07"),
+                ["town2"] = Tuple.Create("secretf", "08"),
+                ["town3"] = Tuple.Create("secretf", "09"),
+
+                // Resurrection of Evil
+                ["roe"] = Tuple.Create("roe", "01"),
+                ["roe00"] = Tuple.Create("roe", "02"),
+                ["roe01"] = Tuple.Create("roe", "03"),
+                ["roe02"] = Tuple.Create("roe", "04"),
+                ["roe03"] = Tuple.Create("roe", "05"),
+                ["roe03a"] = Tuple.Create("roe", "05"),
+                ["roe04"] = Tuple.Create("roe", "06"),
+                ["roe05"] = Tuple.Create("roe", "07"),
+                ["roe06"] = Tuple.Create("roe", "08"),
+                ["roe07"] = Tuple.Create("roe", "09"),
+                ["roe08"] = Tuple.Create("roe", "10"),
+                ["roe08a"] = Tuple.Create("roe", "10"),
+                ["roe09"] = Tuple.Create("roe", "11"),
+                ["roe10"] = Tuple.Create("roe", "12"),
+
+                ["roe_2"] = Tuple.Create("roe2", "01"),
+                ["roe11"] = Tuple.Create("roe2", "02"),
+                ["roe12"] = Tuple.Create("roe2", "03"),
+                ["roe12a"] = Tuple.Create("roe2", "03"),
+                ["roe13"] = Tuple.Create("roe2", "04"),
+                ["roe14"] = Tuple.Create("roe2", "05"),
+                ["roe14a"] = Tuple.Create("roe2", "05"),
+                ["roe14b"] = Tuple.Create("roe2", "05"),
+                ["roe15"] = Tuple.Create("roe2", "06"),
+                ["roe15a"] = Tuple.Create("roe2", "06"),
+                ["roe16"] = Tuple.Create("roe2", "07"),
+                ["roe17"] = Tuple.Create("roe2", "08"),
+                ["roe18"] = Tuple.Create("roe2", "09"),
+                ["roe19"] = Tuple.Create("roe2", "10"),
+                ["roe20"] = Tuple.Create("roe2", "11"),
+                ["roe21"] = Tuple.Create("roe2", "12"),
+                ["roe22"] = Tuple.Create("roe2", "13"),
+                ["roe23"] = Tuple.Create("roe2", "14"),
+                ["roe24"] = Tuple.Create("roe2", "15"),
+
+                // Holiday Hare '17
+                ["hh17_level00"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level01"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level01_save"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level02"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level02_save"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level03"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level03_save"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level04"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level04_save"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level05"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level05_save"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level06"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level06_save"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level07"] = Tuple.Create("hh17", (string)null),
+                ["hh17_level07_save"] = Tuple.Create("hh17", (string)null),
+                ["hh17_ending"] = Tuple.Create("hh17", (string)null),
+                ["hh17_guardian"] = Tuple.Create("hh17", (string)null),
+
+                // Special names
+                ["endepis"] = Tuple.Create((string)null, ":end"),
+                ["ending"] = Tuple.Create((string)null, ":credits")
+            };
+        }
+
         private static void RecreateDefaultPalette(string animationsPath)
         {
             string defaultPalettePath = Path.Combine(animationsPath, "Main.palette");
@@ -1382,18 +1399,21 @@ namespace Import
             target.Save(path + ".c.png");
         }
 
-        private static void ConvertLegacyFontToJson(string path, int width, int height, int cols, int spacing)
+        private static void ConvertFontToJson(string path)
         {
-            byte[] charWidths = new byte[256];
-            int charCount;
-            int first = 32;
+            using (Stream s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (Stream s2 = File.Create(path + ".json"))
+            using (StreamWriter w = new StreamWriter(s2, new UTF8Encoding(false))) {
+                byte[] internalBuffer = new byte[128];
 
-            using (Stream s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-                charCount = s.Read(charWidths, 0, charWidths.Length);
-            }
+                byte flags = s.ReadUInt8(ref internalBuffer);
+                ushort width = s.ReadUInt16(ref internalBuffer);
+                ushort height = s.ReadUInt16(ref internalBuffer);
+                byte cols = s.ReadUInt8(ref internalBuffer);
+                short spacing = s.ReadInt16(ref internalBuffer);
+                int asciiFirst = s.ReadUInt8(ref internalBuffer);
+                int asciiCount = s.ReadUInt8(ref internalBuffer);
 
-            using (Stream s = File.Create(path + ".json"))
-            using (StreamWriter w = new StreamWriter(s, new UTF8Encoding(false))) {
                 w.WriteLine("{");
                 w.WriteLine("    \"Flags\": 0,");
                 w.WriteLine();
@@ -1402,20 +1422,17 @@ namespace Import
                 w.WriteLine("    \"Columns\": " + cols + ",");
                 w.WriteLine("    \"Spacing\": " + spacing + ",");
                 w.WriteLine();
-                w.WriteLine("    \"AsciiFirst\": " + first + ",");
+                w.WriteLine("    \"AsciiFirst\": " + asciiFirst + ",");
                 w.WriteLine("    \"Ascii\": [");
 
-                int asciiCount = 127;
-                while (asciiCount > 0 && charWidths[asciiCount - 1] == 0) {
-                    asciiCount--;
-                }
+                s.Read(internalBuffer, 0, asciiCount);
 
                 for (int i = 0; i < asciiCount; i++) {
                     if (i != 0) {
                         w.WriteLine(",");
                     }
 
-                    w.Write("        " + charWidths[i]);
+                    w.Write("        " + internalBuffer[i]);
                 }
 
                 w.WriteLine();
@@ -1423,19 +1440,30 @@ namespace Import
                 w.WriteLine();
                 w.WriteLine("    \"Unicode\": {");
 
-                bool isFirst = true;
-                for (int i = 127; i < charCount; i++) {
-                    if (charWidths[i] == 0) {
-                        continue;
+                UTF8Encoding enc = new UTF8Encoding(false, true);
+
+                int unicodeCharCount = s.ReadInt32(ref internalBuffer);
+                for (int i = 0; i < unicodeCharCount; i++) {
+                    s.Read(internalBuffer, 0, 1);
+
+                    int remainingBytes =
+                        ((internalBuffer[0] & 240) == 240) ? 3 : (
+                        ((internalBuffer[0] & 224) == 224) ? 2 : (
+                        ((internalBuffer[0] & 192) == 192) ? 1 : -1
+                    ));
+                    if (remainingBytes == -1) {
+                        throw new InvalidDataException("Char \"" + (char)internalBuffer[0] + "\" is not UTF-8");
                     }
 
-                    if (isFirst) {
-                        isFirst = false;
-                    } else {
+                    s.Read(internalBuffer, 1, remainingBytes);
+                    char c = enc.GetChars(internalBuffer, 0, remainingBytes + 1)[0];
+                    byte charWidth = s.ReadUInt8(ref internalBuffer);
+
+                    if (i != 0) {
                         w.WriteLine(",");
                     }
 
-                    w.Write("        \"" + ((char)i) + "\": " + charWidths[i]);
+                    w.Write("        \"" + ((char)c) + "\": " + charWidth);
                 }
 
                 w.WriteLine();
@@ -1493,6 +1521,20 @@ namespace Import
                     s.WriteByte((byte)pair.Value);
                 }
             }
+        }
+
+        private static void ExtractTranslationsForLevels(string sourcePath, string targetPath, string langSuffix)
+        {
+            Log.Write(LogType.Info, "Extracting i18n strings for " + langSuffix.ToUpperInvariant() + " from \"" + Path.GetFileName(sourcePath) + "\"...");
+            Log.PushIndent();
+
+            Dictionary<string, Tuple<string, string>> knownLevels = GetKnownLevels(Path.GetDirectoryName(sourcePath));
+
+            JJ2Strings strings = JJ2Strings.Open(sourcePath);
+            strings.Convert(targetPath, langSuffix.ToLowerInvariant(), knownLevels);
+
+            Log.Write(LogType.Info, "Saving files to \"" + targetPath + "\"...");
+            Log.PopIndent();
         }
 
         private static void MigrateMetadata(string targetPath)

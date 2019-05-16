@@ -1,6 +1,7 @@
 {
     "enabled": "Enabled",
     "disabled": "Disabled",
+    "loading": "Loading",
 
     "menu/play story": "Play Story",
     "menu/play story/title": "Select Episode",
@@ -12,6 +13,7 @@
     "menu/play custom": "Play Custom Game",
     "menu/play custom/single": "Singleplayer",
     "menu/play custom/single/desc": "Play any custom level alone",
+    "menu/play custom/single/empty": "No custom level found!",
     "menu/play custom/split": "Splitscreen",
     "menu/play custom/split/desc": "Play with up to 3 other players on this PC",
     "menu/play custom/multi": "Online Multiplayer",
