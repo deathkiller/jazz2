@@ -30,7 +30,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>Bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NET45 UNSAFE MULTIPLAYER ENABLE_SPLITSCREEN</DefineConstants>
+    <DefineConstants>TRACE;NET45 UNSAFE MULTIPLAYER ENABLE_SPLITSCREEN ENABLE_UPNP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

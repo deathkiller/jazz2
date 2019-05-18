@@ -59,7 +59,6 @@ namespace Jazz2.Actors.Weapons
                 speedX = MathF.Max(0, speed.X) + MathF.Cos(angleRel) * baseSpeed;
             }
             speedY = MathF.Sin(angleRel) * baseSpeed;
-            speedY += MathF.Abs(speed.Y) * speedY;
 
             Transform.Angle = angle;
         }

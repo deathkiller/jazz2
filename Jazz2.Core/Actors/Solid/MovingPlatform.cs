@@ -156,12 +156,9 @@ namespace Jazz2.Actors.Solid
 
         private class ChainPiece : ActorBase
         {
-            private int distance;
-
             public ChainPiece(ActorApi api, Vector3 pos, PlatformType type, int distance)
             {
                 this.api = api;
-                this.distance = distance;
 
                 Transform transform = AddComponent<Transform>();
                 Transform.Pos = pos;

@@ -271,7 +271,12 @@ namespace Jazz2.Actors.Bosses
 
             public override void OnHandleCollision(ActorBase other)
             {
-                // Nothing to do...
+                switch (other) {
+                    case Player player: {
+                        DecreaseHealth(int.MaxValue);
+                        break;
+                    }
+                }
             }
         }
     }

@@ -66,7 +66,6 @@ namespace Jazz2.Actors.Weapons
             } else {
                 speedY = ay * (baseSpeed + MathF.Rnd.NextFloat(0f, 0.2f));
             }
-            speedY += MathF.Abs(speed.Y) * speedY;
             speedY += ax * MathF.Rnd.NextFloat(-0.5f, 0.5f);
         }
 

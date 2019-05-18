@@ -24,8 +24,13 @@ namespace Jazz2.Game.UI.Menu
         };
 
         private int selectedIndex = 2;
+
         private int selectedPlayerType;
         private int selectedDifficulty = 1;
+        private int lastPlayerType;
+        private int lastDifficulty;
+        private float imageTransition = 1f;
+
         private float animation;
 
         private int availableCharacters;
@@ -52,17 +57,18 @@ namespace Jazz2.Game.UI.Menu
             Vector2 center = device.TargetSize * 0.5f;
             center.Y *= 0.8f;
 
-            string difficultyName;
-            switch (selectedPlayerType) {
-                default:
-                case 0: difficultyName = "MenuDifficultyJazz"; break;
-                case 1: difficultyName = "MenuDifficultySpaz"; break;
-                case 2: difficultyName = "MenuDifficultyLori"; break;
-            }
+            string selectedDifficultyImage = GetDifficultyImage(selectedPlayerType);
 
             api.DrawMaterial("MenuDim", center.X * 0.36f, center.Y * 1.4f, Alignment.Center, ColorRgba.White, 24f, 36f);
-            api.DrawMaterial(difficultyName, selectedDifficulty, center.X * 0.36f, center.Y * 1.4f + 3f, Alignment.Center, new ColorRgba(0f, 0.2f), 0.88f, 0.88f);
-            api.DrawMaterial(difficultyName, selectedDifficulty, center.X * 0.36f, center.Y * 1.4f, Alignment.Center, ColorRgba.White, 0.88f, 0.88f);
+
+            api.DrawMaterial(selectedDifficultyImage, selectedDifficulty, center.X * 0.36f, center.Y * 1.4f + 3f, Alignment.Center, new ColorRgba(0f, 0.2f * imageTransition), 0.88f, 0.88f);
+
+            if (imageTransition < 1f) {
+                string lastDifficultyImage = GetDifficultyImage(lastPlayerType);
+                api.DrawMaterial(lastDifficultyImage, lastDifficulty, center.X * 0.36f, center.Y * 1.4f, Alignment.Center, new ColorRgba(1f, 1f - imageTransition), 0.88f, 0.88f);
+            }
+
+            api.DrawMaterial(selectedDifficultyImage, selectedDifficulty, center.X * 0.36f, center.Y * 1.4f, Alignment.Center, new ColorRgba(1f, imageTransition), 0.88f, 0.88f);
 
             int charOffset = 0;
             for (int i = 0; i < items.Length; i++) {
@@ -136,6 +142,14 @@ namespace Jazz2.Game.UI.Menu
 
                 center.Y += 70f;
             }
+
+            if (imageTransition < 1f) {
+                imageTransition += Time.TimeMult * 0.1f;
+
+                if (imageTransition > 1f) {
+                    imageTransition = 1f;
+                }
+            }
         }
 
         public override void OnUpdate()
@@ -183,13 +197,16 @@ namespace Jazz2.Game.UI.Menu
             } else if (ControlScheme.MenuActionHit(PlayerActions.Left)) {
                 if (selectedIndex == 0) {
                     if (selectedPlayerType > 0) {
+                        StartImageTransition();
                         selectedPlayerType--;
                     } else {
+                        StartImageTransition();
                         selectedPlayerType = availableCharacters - 1;
                     }
                     api.PlaySound("MenuSelect", 0.3f);
                 } else if (selectedIndex == 1) {
                     if (selectedDifficulty > 0) {
+                        StartImageTransition();
                         selectedDifficulty--;
                         api.PlaySound("MenuSelect", 0.3f);
                     }
@@ -197,13 +214,16 @@ namespace Jazz2.Game.UI.Menu
             } else if (ControlScheme.MenuActionHit(PlayerActions.Right)) {
                 if (selectedIndex == 0) {
                     if (selectedPlayerType < availableCharacters - 1) {
+                        StartImageTransition();
                         selectedPlayerType++;
                     } else {
+                        StartImageTransition();
                         selectedPlayerType = 0;
                     }
                     api.PlaySound("MenuSelect", 0.3f);
                 } else if (selectedIndex == 1) {
                     if (selectedDifficulty < 3 - 1) {
+                        StartImageTransition();
                         selectedDifficulty++;
                         api.PlaySound("MenuSelect", 0.3f);
                     }
@@ -227,6 +247,23 @@ namespace Jazz2.Game.UI.Menu
             } else if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
                 api.PlaySound("MenuSelect", 0.5f);
                 api.LeaveSection(this);
+            }
+        }
+
+        private void StartImageTransition()
+        {
+            lastPlayerType = selectedPlayerType;
+            lastDifficulty = selectedDifficulty;
+            imageTransition = 0f;
+        }
+
+        private static string GetDifficultyImage(int playerType)
+        {
+            switch (playerType) {
+                default:
+                case 0: return "MenuDifficultyJazz";
+                case 1: return "MenuDifficultySpaz";
+                case 2: return "MenuDifficultyLori";
             }
         }
     }
