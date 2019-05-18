@@ -139,10 +139,12 @@ namespace Jazz2.Game.Tiles
 
                 newLayer.SpeedX = layer.XSpeed;
                 newLayer.SpeedY = layer.YSpeed;
-                newLayer.RepeatX = layer.XRepeat;
-                newLayer.RepeatY = layer.YRepeat;
                 newLayer.AutoSpeedX = layer.XAutoSpeed;
                 newLayer.AutoSpeedY = layer.YAutoSpeed;
+                newLayer.RepeatX = layer.XRepeat;
+                newLayer.RepeatY = layer.YRepeat;
+                newLayer.OffsetX = layer.XOffset;
+                newLayer.OffsetY = layer.YOffset;
                 newLayer.UseInherentOffset = layer.InherentOffset;
                 newLayer.Depth = LevelHandler.MainPlaneZ + layer.Depth;
 

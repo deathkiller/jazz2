@@ -46,6 +46,8 @@ namespace Jazz2.Actors
         CollideWithOtherActors = 1 << 1,
         CollideWithSolidObjects = 1 << 2,
 
+        ForceDisableCollisions = 1 << 3,
+
         ApplyGravitation = 1 << 5,
         IsSolidObject = 1 << 6,
         SkipPerPixelCollisions = 1 << 7,

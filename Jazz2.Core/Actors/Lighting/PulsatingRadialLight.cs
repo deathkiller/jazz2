@@ -23,7 +23,7 @@ namespace Jazz2.Actors.Lighting
             this.speed = details.Params[5] * 0.6f;
             ushort sync = details.Params[6];
 
-            collisionFlags = CollisionFlags.None;
+            collisionFlags = CollisionFlags.ForceDisableCollisions;
 
             phase = (BaseCycleFrames - ((float)(Time.GameTimer.TotalMilliseconds % BaseCycleFrames) + sync * 175)) % BaseCycleFrames;
 

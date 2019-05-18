@@ -43,7 +43,7 @@ namespace Jazz2.Actors
         {
             base.OnActivated(details);
 
-            collisionFlags = CollisionFlags.None;
+            collisionFlags = CollisionFlags.ForceDisableCollisions;
 
             type = details.Params[0];
 

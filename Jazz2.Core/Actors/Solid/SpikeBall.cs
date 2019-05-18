@@ -133,7 +133,7 @@ namespace Jazz2.Actors.Solid
                 Transform transform = AddComponent<Transform>();
                 Transform.Pos = pos;
 
-                collisionFlags = CollisionFlags.None;
+                collisionFlags = CollisionFlags.ForceDisableCollisions;
 
                 RequestMetadata("MovingPlatform/SpikeBall");
                 SetAnimation("Chain");

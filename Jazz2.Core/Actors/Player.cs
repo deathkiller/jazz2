@@ -344,7 +344,9 @@ namespace Jazz2.Actors
             CheckEndOfSpecialMoves(timeMult);
 
             OnHandleWater();
-            OnHandleAreaEvents();
+
+            bool areaWeaponAllowed;
+            OnHandleAreaEvents(out areaWeaponAllowed);
 
             // Timers
             if (weaponCooldown > 0f) {
@@ -726,7 +728,7 @@ namespace Jazz2.Actors
                                         controllable = false;
                                         SetAnimation(AnimState.Uppercut);
                                         SetPlayerTransition(AnimState.TransitionUppercutA, true, true, SpecialMoveType.Uppercut, delegate {
-                                            externalForceY = 1.5f;
+                                            externalForceY = 1.4f;
                                             speedY = -2f;
                                             canJump = false;
                                             SetPlayerTransition(AnimState.TransitionUppercutB, true, true, SpecialMoveType.Uppercut);
@@ -828,7 +830,7 @@ namespace Jazz2.Actors
             }
 
             // Fire
-            if (ControlScheme.PlayerActionPressed(index, PlayerActions.Fire)) {
+            if (weaponAllowed && areaWeaponAllowed && ControlScheme.PlayerActionPressed(index, PlayerActions.Fire)) {
                 if (!isLifting && (currentAnimationState & AnimState.Push) == 0 && pushFramesLeft <= 0f) {
                     if (playerType == PlayerType.Frog) {
                         if (currentTransitionState == AnimState.Idle && MathF.Abs(speedX) < 0.1f && MathF.Abs(speedY) < 0.1f && MathF.Abs(externalForceX) < 0.1f && MathF.Abs(externalForceY) < 0.1f) {
@@ -916,7 +918,10 @@ namespace Jazz2.Actors
                 TakeDamage(1, speedX * 0.25f);
             } else {
 
-                if (isActivelyPushing && suspendType == SuspendType.None && !canJump && speedY >= -1f && externalForceY <= 0f && copterFramesLeft <= 0f && keepRunningTime <= 0f) {
+                if (isActivelyPushing && suspendType == SuspendType.None && !canJump &&
+                    currentSpecialMove == SpecialMoveType.None && currentTransitionState != AnimState.TransitionUppercutEnd &&
+                    speedY >= -1f && externalForceY <= 0f && copterFramesLeft <= 0f && keepRunningTime <= 0f) {
+
                     // Character supports ledge climbing
                     if (FindAnimationCandidates(AnimState.TransitionLedgeClimb).Count > 0) {
                         const int maxTolerance = 6;
@@ -1289,13 +1294,6 @@ namespace Jazz2.Actors
             // Uppercut
             if (currentSpecialMove == SpecialMoveType.Uppercut && currentTransitionState == AnimState.Idle && ((currentAnimationState & AnimState.Uppercut) != 0) && speedY > -2 && !canJump) {
                 EndDamagingMove();
-                if (suspendType == SuspendType.None) {
-                    SetTransition(AnimState.TransitionUppercutEnd, false, delegate {
-                        controllable = true;
-                    });
-                } else {
-                    controllable = true;
-                }
             }
 
             // Sidekick
@@ -1498,8 +1496,10 @@ namespace Jazz2.Actors
             }
         }
 
-        private void OnHandleAreaEvents()
+        private void OnHandleAreaEvents(out bool areaWeaponAllowed)
         {
+            areaWeaponAllowed = true;
+
             EventMap events = api.EventMap;
             if (events == null) {
                 return;
@@ -1617,7 +1617,6 @@ namespace Jazz2.Actors
                     break;
                 }
                 case EventType.AreaActivateBoss: { // Music
-                    // ToDo: Implement bosses somehow + music + camera lock
                     api.ActivateBoss(p[0]);
                     break;
                 }
@@ -1629,7 +1628,21 @@ namespace Jazz2.Actors
                 }
                 case EventType.AreaRevertMorph: {
                     if (playerType != playerTypeOriginal) {
-                        MorphTo(playerTypeOriginal);
+                        MorphRevent();
+                    }
+                    break;
+                }
+                case EventType.AreaMorphToFrog: {
+                    if (playerType != PlayerType.Frog) {
+                        MorphTo(PlayerType.Frog);
+                    }
+                    break;
+                }
+                case EventType.AreaNoFire: {
+                    switch (p[0]) {
+                        case 0: areaWeaponAllowed = false; break;
+                        case 1: weaponAllowed = true; break;
+                        case 2: weaponAllowed = false; break;
                     }
                     break;
                 }
@@ -1888,9 +1901,10 @@ namespace Jazz2.Actors
             SetAnimation(currentAnimationState & ~(AnimState.Uppercut | AnimState.Buttstomp));
 
             if (currentSpecialMove == SpecialMoveType.Uppercut) {
-                SetTransition(AnimState.TransitionUppercutEnd, false, delegate {
-                    controllable = true;
-                });
+                if (suspendType == SuspendType.None) {
+                    SetTransition(AnimState.TransitionUppercutEnd, false);
+                }
+                controllable = true;
 
                 if (externalForceY > 0f) {
                     externalForceY = 0f;

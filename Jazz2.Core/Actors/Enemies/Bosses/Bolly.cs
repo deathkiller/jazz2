@@ -161,7 +161,7 @@ namespace Jazz2.Actors.Bosses
             {
                 base.OnActivated(details);
 
-                collisionFlags = CollisionFlags.None;
+                collisionFlags = CollisionFlags.ForceDisableCollisions;
 
                 health = int.MaxValue;
 

@@ -883,11 +883,17 @@ namespace Jazz2.Compatibility
             if (addBackgroundFields) {
                 w.WriteLine(",");
 
-                w.WriteLine("            \"BackgroundStyle\": " + ((layer.Flags & 0x00000008) > 0 ? (layer.TexturedBackgroundType + 1) : 0).ToString(CultureInfo.InvariantCulture) + ",");
-                w.WriteLine("            \"BackgroundColor\": [ " + layer.TexturedParams1.ToString(CultureInfo.InvariantCulture) + ", " +
-                                                                    layer.TexturedParams2.ToString(CultureInfo.InvariantCulture) + ", " +
-                                                                    layer.TexturedParams3.ToString(CultureInfo.InvariantCulture) + " ],");
-                w.WriteLine("            \"ParallaxStarsEnabled\": " + ((layer.Flags & 0x00000010) > 0 ? "true" : "false"));
+                if ((layer.Flags & 0x00000008) > 0) {
+                    w.WriteLine("            \"BackgroundStyle\": " + (layer.TexturedBackgroundType + 1).ToString(CultureInfo.InvariantCulture) + ",");
+                    w.WriteLine("            \"BackgroundColor\": [ " + layer.TexturedParams1.ToString(CultureInfo.InvariantCulture) + ", " +
+                                                                        layer.TexturedParams2.ToString(CultureInfo.InvariantCulture) + ", " +
+                                                                        layer.TexturedParams3.ToString(CultureInfo.InvariantCulture) + " ],");
+                    w.WriteLine("            \"ParallaxStarsEnabled\": " + ((layer.Flags & 0x00000010) > 0 ? "true" : "false"));
+                } else {
+                    // Approximation of offsets from JJ2
+                    w.WriteLine("            \"XOffset\": 180,");
+                    w.WriteLine("            \"YOffset\": -300");
+                }
             } else {
                 w.WriteLine();
             }
@@ -1023,14 +1029,14 @@ namespace Jazz2.Compatibility
                         ConversionResult converted = EventConverter.TryConvert(this, eventType, tileEvent.TileParams);
 
                         // If the event is unsupported or can't be converted, add it to warning list
-                        if (eventType != JJ2Event.EMPTY && converted.eventType == EventType.Empty) {
+                        if (eventType != JJ2Event.EMPTY && converted.Type == EventType.Empty) {
                             int count;
                             unsupportedEvents.TryGetValue(eventType, out count);
                             unsupportedEvents[eventType] = (count + 1);
                         }
 
-                        w.Write((ushort)converted.eventType);
-                        if (converted.eventParams == null || converted.eventParams.All(p => p == 0)) {
+                        w.Write((ushort)converted.Type);
+                        if (converted.Params == null || converted.Params.All(p => p == 0)) {
                             if (generatorDelay == -1) {
                                 w.Write((byte)(flags | 0x01 /*NoParams*/));
                             } else {
@@ -1047,13 +1053,13 @@ namespace Jazz2.Compatibility
                                 w.Write((byte)generatorDelay);
                             }
 
-                            if (converted.eventParams.Length > 8) {
+                            if (converted.Params.Length > 8) {
                                 throw new NotSupportedException("Event parameter count must be at most 8");
                             }
 
                             int i = 0;
-                            for (; i < Math.Min(converted.eventParams.Length, 8); i++) {
-                                w.Write(converted.eventParams[i]);
+                            for (; i < Math.Min(converted.Params.Length, 8); i++) {
+                                w.Write(converted.Params[i]);
                             }
                             for (; i < 8; i++) {
                                 w.Write((ushort)0);

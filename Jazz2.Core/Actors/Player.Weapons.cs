@@ -9,6 +9,7 @@ namespace Jazz2.Actors
 
     partial class Player
     {
+        private bool weaponAllowed = true;
         private WeaponType currentWeapon;
         private float weaponCooldown;
         private short[] weaponAmmo;

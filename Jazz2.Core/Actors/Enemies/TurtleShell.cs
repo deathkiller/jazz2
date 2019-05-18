@@ -77,7 +77,9 @@ namespace Jazz2.Actors.Enemies
             }
 
             lastAngle = MathF.Lerp(lastAngle, speedX * 0.06f, Time.TimeMult * 0.2f);
-            Transform.Angle = lastAngle;
+            if (MathF.Abs(Transform.Angle - MathF.NormalizeAngle(lastAngle)) > 0.01f) {
+                Transform.Angle = lastAngle;
+            }
         }
 
         public override void OnHandleCollision(ActorBase other)

@@ -102,7 +102,7 @@ namespace Jazz2.Actors.Collectibles
             {
                 base.OnActivated(details);
 
-                collisionFlags = CollisionFlags.None;
+                collisionFlags = CollisionFlags.ForceDisableCollisions;
 
                 RequestMetadata("Collectible/Gems");
                 SetAnimation("GemRed");

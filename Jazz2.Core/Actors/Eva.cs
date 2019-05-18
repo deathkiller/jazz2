@@ -37,7 +37,7 @@ namespace Jazz2.Actors
                 case Player player: {
                     if (player.PlayerType == PlayerType.Frog && player.DisableControllableWithTimeout(160f)) {
                         SetTransition(AnimState.TransitionAttack, false, delegate {
-                            player.MorphToOriginal();
+                            player.MorphRevent();
 
                             PlaySound("Kiss", 0.8f);
                             SetTransition(AnimState.TransitionAttackEnd, false);

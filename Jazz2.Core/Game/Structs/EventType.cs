@@ -44,6 +44,9 @@
         AreaActivateBoss = 0x010A,
         AreaFlyOff = 0x010B,
         AreaRevertMorph = 0x010C,
+        AreaMorphToFrog = 0x0130,
+        AreaNoFire = 0x0131,
+        AreaWaterBlock = 0x0132,
 
         // Triggers
         TriggerCrate = 0x0060,
@@ -76,6 +79,7 @@
         Bomb = 0x0505,
         PinballBumper = 0x0506,
         PinballPaddle = 0x0507,
+        CtfBase = 0x0508,
 
         Weather = 0x0510,
         AmbientSound = 0x0511,

@@ -34,57 +34,61 @@ namespace Jazz2.Game.UI.Menu
 
         public EpisodeSelectSection()
         {
-            JsonParser jsonParser = new JsonParser();
+            string path = PathOp.Combine(DualityApp.DataDirectory, "Episodes");
 
-            foreach (string episode in DirectoryOp.GetDirectories(PathOp.Combine(DualityApp.DataDirectory, "Episodes"))) {
-                string pathAbsolute = PathOp.Combine(episode, "Episode.res");
-                if (FileOp.Exists(pathAbsolute)) {
-                    Episode json;
-                    using (Stream s = DualityApp.SystemBackend.FileSystem.OpenFile(pathAbsolute, FileAccessMode.Read)) {
-                        json = jsonParser.Parse<Episode>(s);
-                    }
-                    json.Token = PathOp.GetFileName(episode);
+            if (DirectoryOp.Exists(path)) {
+                JsonParser jsonParser = new JsonParser();
 
-                    if (!FileOp.Exists(PathOp.Combine(episode, json.FirstLevel + ".level"))) {
-                        continue;
-                    }
+                foreach (string episode in DirectoryOp.GetDirectories(path)) {
+                    string pathAbsolute = PathOp.Combine(episode, "Episode.res");
+                    if (FileOp.Exists(pathAbsolute)) {
+                        Episode json;
+                        using (Stream s = DualityApp.SystemBackend.FileSystem.OpenFile(pathAbsolute, FileAccessMode.Read)) {
+                            json = jsonParser.Parse<Episode>(s);
+                        }
+                        json.Token = PathOp.GetFileName(episode);
 
-                    EpisodeEntry entry;
-                    entry.Episode = json;
-                    if (json.PreviousEpisode != null) {
-                        int time = Preferences.Get<int>("EpisodeEnd_Time_" + json.PreviousEpisode);
-                        entry.IsAvailable = (time > 0);
-                    } else {
-                        entry.IsAvailable = true;
-                    }
-
-                    if (entry.IsAvailable) {
-                        int time = Preferences.Get<int>("EpisodeEnd_Time_" + entry.Episode.Token);
-                        entry.IsComplete = (time > 0);
-                    } else {
-                        entry.IsComplete = false;
-                    }
-
-                    entry.CanContinue = Preferences.Get<byte[]>("EpisodeContinue_Misc_" + entry.Episode.Token) != null;
-
-                    string logoPath = PathOp.Combine(episode, "Logo.png");
-                    if (FileOp.Exists(logoPath)) {
-                        PixelData pixelData;
-                        using (Stream s = FileOp.Open(logoPath, FileAccessMode.Read)) {
-                            pixelData = new Png(s).GetPixelData();
+                        if (!FileOp.Exists(PathOp.Combine(episode, json.FirstLevel + ".level"))) {
+                            continue;
                         }
 
-                        Texture texture = new Texture(new Pixmap(pixelData), TextureSizeMode.NonPowerOfTwo);
-                        entry.Logo = new Material(DrawTechnique.Alpha, texture);
-                    } else {
-                        entry.Logo = null;
+                        EpisodeEntry entry;
+                        entry.Episode = json;
+                        if (json.PreviousEpisode != null) {
+                            int time = Preferences.Get<int>("EpisodeEnd_Time_" + json.PreviousEpisode);
+                            entry.IsAvailable = (time > 0);
+                        } else {
+                            entry.IsAvailable = true;
+                        }
+
+                        if (entry.IsAvailable) {
+                            int time = Preferences.Get<int>("EpisodeEnd_Time_" + entry.Episode.Token);
+                            entry.IsComplete = (time > 0);
+                        } else {
+                            entry.IsComplete = false;
+                        }
+
+                        entry.CanContinue = Preferences.Get<byte[]>("EpisodeContinue_Misc_" + entry.Episode.Token) != null;
+
+                        string logoPath = PathOp.Combine(episode, "Logo.png");
+                        if (FileOp.Exists(logoPath)) {
+                            PixelData pixelData;
+                            using (Stream s = FileOp.Open(logoPath, FileAccessMode.Read)) {
+                                pixelData = new Png(s).GetPixelData();
+                            }
+
+                            Texture texture = new Texture(new Pixmap(pixelData), TextureSizeMode.NonPowerOfTwo);
+                            entry.Logo = new Material(DrawTechnique.Alpha, texture);
+                        } else {
+                            entry.Logo = null;
+                        }
+
+                        episodes.Add(entry);
                     }
-
-                    episodes.Add(entry);
                 }
-            }
 
-            episodes.Sort((x, y) => x.Episode.Position.CompareTo(y.Episode.Position));
+                episodes.Sort((x, y) => x.Episode.Position.CompareTo(y.Episode.Position));
+            }
         }
 
         public override void OnShow(IMenuContainer root)

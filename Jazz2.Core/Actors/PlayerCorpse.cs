@@ -24,7 +24,7 @@
 
             SetAnimation("Corpse");
 
-            collisionFlags = CollisionFlags.None;
+            collisionFlags = CollisionFlags.ForceDisableCollisions;
         }
 
         protected override void OnUpdate()

@@ -137,7 +137,7 @@ namespace Jazz2.Actors.Enemies
             {
                 base.OnActivated(details);
 
-                collisionFlags = CollisionFlags.None;
+                collisionFlags = CollisionFlags.ForceDisableCollisions;
 
                 health = int.MaxValue;
 

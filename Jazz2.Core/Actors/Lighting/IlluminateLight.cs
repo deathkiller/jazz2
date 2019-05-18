@@ -12,7 +12,7 @@ namespace Jazz2.Actors.Lighting
 
             ushort size = details.Params[0];
 
-            collisionFlags = CollisionFlags.None;
+            collisionFlags = CollisionFlags.ForceDisableCollisions;
 
             const int lightCount = /*20*/8;
 

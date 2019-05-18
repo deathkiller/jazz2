@@ -11,8 +11,8 @@ namespace Jazz2.Compatibility
     {
         public struct ConversionResult
         {
-            public EventType eventType;
-            public ushort[] eventParams;
+            public EventType Type;
+            public ushort[] Params;
         }
 
         public enum JJ2EventParamType
@@ -38,7 +38,7 @@ namespace Jazz2.Compatibility
             if (converters.TryGetValue(old, out converter)) {
                 return converter(level, eventParams);
             } else {
-                return new ConversionResult { eventType = EventType.Empty, eventParams = null };
+                return new ConversionResult { Type = EventType.Empty, Params = null };
             }
         }
 
@@ -59,16 +59,16 @@ namespace Jazz2.Compatibility
         public static ConversionFunction NoParamList(EventType ev)
         {
             return (level, jj2Params) => new ConversionResult {
-                eventType = ev,
-                eventParams = null
+                Type = ev,
+                Params = null
             };
         }
 
         public static ConversionFunction ConstantParamList(EventType ev, params ushort[] eventParams)
         {
             return (level, jj2Params) => new ConversionResult {
-                eventType = ev,
-                eventParams = eventParams
+                Type = ev,
+                Params = eventParams
             };
         }
 
@@ -77,8 +77,8 @@ namespace Jazz2.Compatibility
             return (level, jj2Params) => {
                 ushort[] eventParams = ConvertParamInt(jj2Params, paramDefs);
                 return new ConversionResult {
-                    eventType = ev,
-                    eventParams = eventParams
+                    Type = ev,
+                    Params = eventParams
                 };
             };
         }
@@ -152,13 +152,13 @@ namespace Jazz2.Compatibility
 
                 if (eventParams[1] > 0) {
                     return new ConversionResult {
-                        eventType = EventType.SceneryDestructSpeed,
-                        eventParams = new[] { eventParams[1] }
+                        Type = EventType.SceneryDestructSpeed,
+                        Params = new[] { eventParams[1] }
                     };
                 } else {
                     return new ConversionResult {
-                        eventType = EventType.SceneryDestruct,
-                        eventParams = new[] { eventParams[2] }
+                        Type = EventType.SceneryDestruct,
+                        Params = new[] { eventParams[2] }
                     };
                 }
             });
@@ -170,8 +170,8 @@ namespace Jazz2.Compatibility
                     Pair.Create(JJ2EventParamType.UInt, 5)); // FPS
 
                 return new ConversionResult {
-                    eventType = EventType.SceneryCollapse,
-                    eventParams = new[] { (ushort)(eventParams[0] * 25), eventParams[1] }
+                    Type = EventType.SceneryCollapse,
+                    Params = new[] { (ushort)(eventParams[0] * 25), eventParams[1] }
                 };
             });
 
@@ -198,8 +198,8 @@ namespace Jazz2.Compatibility
                     Pair.Create(JJ2EventParamType.UInt, 3)); // Wait Time (JJ2+)
 
                 return new ConversionResult {
-                    eventType = EventType.ModifierTube,
-                    eventParams = new[] { eventParams[0], eventParams[1], eventParams[5], eventParams[2], eventParams[3], eventParams[4] }
+                    Type = EventType.ModifierTube,
+                    Params = new[] { eventParams[0], eventParams[1], eventParams[5], eventParams[2], eventParams[3], eventParams[4] }
                 };
             });
 
@@ -208,8 +208,8 @@ namespace Jazz2.Compatibility
                     Pair.Create(JJ2EventParamType.UInt, 2)); // Strength
 
                 return new ConversionResult {
-                    eventType = EventType.ModifierSlide,
-                    eventParams = new[] { eventParams[0] }
+                    Type = EventType.ModifierSlide,
+                    Params = new[] { eventParams[0] }
                 };
             });
 
@@ -227,8 +227,8 @@ namespace Jazz2.Compatibility
                 }
 
                 return new ConversionResult {
-                    eventType = EventType.AreaHForce,
-                    eventParams = new ushort[] { left, right, 0, 0, 0, 0, 0, 0 }
+                    Type = EventType.AreaHForce,
+                    Params = new ushort[] { left, right, 0, 0, 0, 0, 0, 0 }
                 };
             });
             Add(JJ2Event.MODIFIER_BELT_RIGHT, (level, jj2Params) => {
@@ -245,8 +245,8 @@ namespace Jazz2.Compatibility
                 }
 
                 return new ConversionResult {
-                    eventType = EventType.AreaHForce,
-                    eventParams = new ushort[] { left, right, 0, 0, 0, 0, 0, 0 }
+                    Type = EventType.AreaHForce,
+                    Params = new ushort[] { left, right, 0, 0, 0, 0, 0, 0 }
                 };
             });
             Add(JJ2Event.MODIFIER_ACC_BELT_LEFT, (level, jj2Params) => {
@@ -255,8 +255,8 @@ namespace Jazz2.Compatibility
                 }
 
                 return new ConversionResult {
-                    eventType = EventType.AreaHForce,
-                    eventParams = new ushort[] { 0, 0, (ushort)jj2Params, 0, 0, 0, 0, 0 }
+                    Type = EventType.AreaHForce,
+                    Params = new ushort[] { 0, 0, (ushort)jj2Params, 0, 0, 0, 0, 0 }
                 };
             });
             Add(JJ2Event.MODIFIER_ACC_BELT_RIGHT, (level, jj2Params) => {
@@ -265,8 +265,8 @@ namespace Jazz2.Compatibility
                 }
 
                 return new ConversionResult {
-                    eventType = EventType.AreaHForce,
-                    eventParams = new ushort[] { 0, 0, 0, (ushort)jj2Params, 0, 0, 0, 0 }
+                    Type = EventType.AreaHForce,
+                    Params = new ushort[] { 0, 0, 0, (ushort)jj2Params, 0, 0, 0, 0 }
                 };
             });
 
@@ -281,14 +281,14 @@ namespace Jazz2.Compatibility
                 }
 
                 return new ConversionResult {
-                    eventType = EventType.AreaHForce,
-                    eventParams = new ushort[] { 0, 0, 0, 0, left, right, 0, 0 }
+                    Type = EventType.AreaHForce,
+                    Params = new ushort[] { 0, 0, 0, 0, left, right, 0, 0 }
                 };
             });
             Add(JJ2Event.MODIFIER_WIND_RIGHT, (level, jj2Params) => {
                 return new ConversionResult {
-                    eventType = EventType.AreaHForce,
-                    eventParams = new ushort[] { 0, 0, 0, 0, 0, (ushort)jj2Params, 0, 0 }
+                    Type = EventType.AreaHForce,
+                    Params = new ushort[] { 0, 0, 0, 0, 0, (ushort)jj2Params, 0, 0 }
                 };
             });
 
@@ -299,8 +299,8 @@ namespace Jazz2.Compatibility
                     Pair.Create(JJ2EventParamType.UInt, 2)); // Lighting [ToDo]
 
                 return new ConversionResult {
-                    eventType = EventType.ModifierSetWater,
-                    eventParams = new ushort[] { (ushort)(eventParams[0] * 32), eventParams[1], eventParams[2], 0, 0, 0, 0, 0 }
+                    Type = EventType.ModifierSetWater,
+                    Params = new ushort[] { (ushort)(eventParams[0] * 32), eventParams[1], eventParams[2], 0, 0, 0, 0, 0 }
                 };
             });
 
@@ -310,8 +310,8 @@ namespace Jazz2.Compatibility
                     Pair.Create(JJ2EventParamType.UInt, 10)); // Width (Tiles)
 
                 return new ConversionResult {
-                    eventType = EventType.ModifierLimitCameraView,
-                    eventParams = new ushort[] { eventParams[0], eventParams[1], 0, 0, 0, 0, 0, 0 }
+                    Type = EventType.ModifierLimitCameraView,
+                    Params = new ushort[] { eventParams[0], eventParams[1], 0, 0, 0, 0, 0, 0 }
                 };
             });
 
@@ -335,8 +335,8 @@ namespace Jazz2.Compatibility
                 }
 
                 return new ConversionResult {
-                    eventType = EventType.AreaEndOfLevel,
-                    eventParams = new ushort[] { (ushort)(eventParams[0] == 1 ? 4 : 1), eventParams[1], eventParams[2], eventParams[3], 0 }
+                    Type = EventType.AreaEndOfLevel,
+                    Params = new ushort[] { (ushort)(eventParams[0] == 1 ? 4 : 1), eventParams[1], eventParams[2], eventParams[3], 0 }
                 };
             });
             Add(JJ2Event.AREA_EOL_WARP, (level, jj2Params) => {
@@ -352,8 +352,8 @@ namespace Jazz2.Compatibility
                 }
 
                 return new ConversionResult {
-                    eventType = EventType.AreaEndOfLevel,
-                    eventParams = new ushort[] { 2, eventParams[1], eventParams[2], eventParams[3], 0 }
+                    Type = EventType.AreaEndOfLevel,
+                    Params = new ushort[] { 2, eventParams[1], eventParams[2], eventParams[3], 0 }
                 };
             });
             Add(JJ2Event.AREA_SECRET_WARP, (level, jj2Params) => {
@@ -368,8 +368,8 @@ namespace Jazz2.Compatibility
                 }
 
                 return new ConversionResult {
-                    eventType = EventType.AreaEndOfLevel,
-                    eventParams = new ushort[] { 3, 0, eventParams[1], eventParams[2], eventParams[0] }
+                    Type = EventType.AreaEndOfLevel,
+                    Params = new ushort[] { 3, 0, eventParams[1], eventParams[2], eventParams[0] }
                 };
             });
 
@@ -378,8 +378,8 @@ namespace Jazz2.Compatibility
                     Pair.Create(JJ2EventParamType.Bool, 1)); // Secret
 
                 return new ConversionResult {
-                    eventType = EventType.SignEOL,
-                    eventParams = new ushort[] { (ushort)(eventParams[0] == 1 ? 4 : 1), 0, 0, 0, 0 }
+                    Type = EventType.SignEOL,
+                    Params = new ushort[] { (ushort)(eventParams[0] == 1 ? 4 : 1), 0, 0, 0, 0 }
                 };
             });
 
@@ -394,19 +394,45 @@ namespace Jazz2.Compatibility
 
                 if (eventParams[2] != 0) {
                     return new ConversionResult {
-                        eventType = EventType.AreaCallback,
-                        eventParams = new[] { eventParams[0], eventParams[3], eventParams[1] }
+                        Type = EventType.AreaCallback,
+                        Params = new[] { eventParams[0], eventParams[3], eventParams[1] }
                     };
                 } else {
                     return new ConversionResult {
-                        eventType = EventType.AreaText,
-                        eventParams = new[] { eventParams[0], eventParams[3], eventParams[1] }
+                        Type = EventType.AreaText,
+                        Params = new[] { eventParams[0], eventParams[3], eventParams[1] }
                     };
                 }
             });
 
             Add(JJ2Event.AREA_FLY_OFF, NoParamList(EventType.AreaFlyOff));
             Add(JJ2Event.AREA_REVERT_MORPH, NoParamList(EventType.AreaRevertMorph));
+            Add(JJ2Event.AREA_MORPH_FROG, NoParamList(EventType.AreaMorphToFrog));
+
+            Add(JJ2Event.AREA_NO_FIRE, (level, jj2Params) => {
+                ushort[] eventParams = ConvertParamInt(jj2Params,
+                    Pair.Create(JJ2EventParamType.UInt, 2), // Set To (JJ2+)
+                    Pair.Create(JJ2EventParamType.UInt, 2)  // Var (JJ2+)
+                );
+
+                // ToDo: Gravity (1) and Invisibility (2) is not supported yet
+                if (eventParams[1] != 0) {
+                    return new ConversionResult { Type = EventType.Empty };
+                }
+                // ToDo: Toggle is not supported yet
+                if (eventParams[0] == 3) {
+                    return new ConversionResult { Type = EventType.Empty };
+                }
+
+                return new ConversionResult {
+                    Type = EventType.AreaNoFire,
+                    Params = new ushort[] { eventParams[0] }
+                };
+            });
+
+            Add(JJ2Event.WATER_BLOCK, ParamIntToParamList(EventType.AreaWaterBlock,
+                Pair.Create(JJ2EventParamType.Int, 8)  // Adjust Y
+            ));
 
             // Triggers
             Add(JJ2Event.TRIGGER_CRATE, (level, jj2Params) => {
@@ -416,8 +442,8 @@ namespace Jazz2.Compatibility
                     Pair.Create(JJ2EventParamType.Bool, 1)); // Switch
 
                 return new ConversionResult {
-                    eventType = EventType.TriggerCrate, // Swap values - 0: off, 1: on
-                    eventParams = new[] { eventParams[0], (ushort)(eventParams[1] == 0 ? 1 : 0), eventParams[2] }
+                    Type = EventType.TriggerCrate, // Swap values - 0: off, 1: on
+                    Params = new[] { eventParams[0], (ushort)(eventParams[1] == 0 ? 1 : 0), eventParams[2] }
                 };
             });
             Add(JJ2Event.TRIGGER_AREA, ParamIntToParamList(EventType.TriggerArea,
@@ -440,13 +466,13 @@ namespace Jazz2.Compatibility
 
                 if (eventParams[1] > 0 || eventParams[3] != 0) {
                     return new ConversionResult {
-                        eventType = EventType.WarpCoinBonus,
-                        eventParams = new[] { eventParams[0], eventParams[4], eventParams[2], eventParams[1], eventParams[3] }
+                        Type = EventType.WarpCoinBonus,
+                        Params = new[] { eventParams[0], eventParams[4], eventParams[2], eventParams[1], eventParams[3] }
                     };
                 } else {
                     return new ConversionResult {
-                        eventType = EventType.WarpOrigin,
-                        eventParams = new[] { eventParams[0], eventParams[4], eventParams[2] }
+                        Type = EventType.WarpOrigin,
+                        Params = new[] { eventParams[0], eventParams[4], eventParams[2] }
                     };
                 }
             });
@@ -476,21 +502,21 @@ namespace Jazz2.Compatibility
                         ushort radiusFar = (ushort)(radiusNear * 1.666f);
 
                         return new ConversionResult {
-                            eventType = EventType.LightSteady,
-                            eventParams = new ushort[] { 255, 10, radiusNear, radiusFar, 0, 0, 0, 0 }
+                            Type = EventType.LightSteady,
+                            Params = new ushort[] { 255, 10, radiusNear, radiusFar, 0, 0, 0, 0 }
                         };
                     }
 
                     case 1: // Single point (ignores the "Size" parameter)
                         return new ConversionResult {
-                            eventType = EventType.LightSteady,
-                            eventParams = new ushort[] { 127, 10, 0, 16, 0, 0, 0, 0 }
+                            Type = EventType.LightSteady,
+                            Params = new ushort[] { 127, 10, 0, 16, 0, 0, 0, 0 }
                         };
 
                     case 2: // Single point (brighter) (ignores the "Size" parameter)
                         return new ConversionResult {
-                            eventType = EventType.LightSteady,
-                            eventParams = new ushort[] { 255, 200, 0, 16, 0, 0, 0, 0 }
+                            Type = EventType.LightSteady,
+                            Params = new ushort[] { 255, 200, 0, 16, 0, 0, 0, 0 }
                         };
 
                     case 3: { // Flicker light
@@ -498,8 +524,8 @@ namespace Jazz2.Compatibility
                         ushort radiusFar = (ushort)(radiusNear * 1.666f);
 
                         return new ConversionResult {
-                            eventType = EventType.LightFlicker,
-                            eventParams = new ushort[] { (ushort)Math.Min(110 + eventParams[1] * 2, 255), 40, radiusNear, radiusFar, 0, 0, 0, 0 }
+                            Type = EventType.LightFlicker,
+                            Params = new ushort[] { (ushort)Math.Min(110 + eventParams[1] * 2, 255), 40, radiusNear, radiusFar, 0, 0, 0, 0 }
                         };
                     }
 
@@ -508,28 +534,28 @@ namespace Jazz2.Compatibility
                         ushort radiusFar = (ushort)(radiusNear * 1.25f);
 
                         return new ConversionResult {
-                            eventType = EventType.LightSteady,
-                            eventParams = new ushort[] { 255, 200, radiusNear, radiusFar, 0, 0, 0, 0 }
+                            Type = EventType.LightSteady,
+                            Params = new ushort[] { 255, 200, radiusNear, radiusFar, 0, 0, 0, 0 }
                         };
                     }
 
                     case 5: { // Laser shield/Illuminate Surroundings
                         return new ConversionResult {
-                            eventType = EventType.LightIlluminate,
-                            eventParams = new ushort[] { (ushort)(eventParams[1] < 1 ? 1 : eventParams[1]), 0, 0, 0, 0, 0, 0, 0 }
+                            Type = EventType.LightIlluminate,
+                            Params = new ushort[] { (ushort)(eventParams[1] < 1 ? 1 : eventParams[1]), 0, 0, 0, 0, 0, 0, 0 }
                         };
                     }
 
                     case 6: // Ring of light
                         // ToDo
                         return new ConversionResult {
-                            eventType = EventType.Empty
+                            Type = EventType.Empty
                         };
 
                     case 7: // Ring of light 2
                         // ToDo
                         return new ConversionResult {
-                            eventType = EventType.Empty
+                            Type = EventType.Empty
                         };
                 }
             });
@@ -553,23 +579,23 @@ namespace Jazz2.Compatibility
                     default:
                     case 0: { // Normal
                         return new ConversionResult {
-                            eventType = EventType.LightPulse,
-                            eventParams = new ushort[] { 255, 10, radiusNear1, radiusNear2, radiusFar, speed, sync, 0 }
+                            Type = EventType.LightPulse,
+                            Params = new ushort[] { 255, 10, radiusNear1, radiusNear2, radiusFar, speed, sync, 0 }
                         };
                     }
 
                     case 4: { // Bright normal light
                         return new ConversionResult {
-                            eventType = EventType.LightPulse,
-                            eventParams = new ushort[] { 255, 200, radiusNear1, radiusNear2, radiusFar, speed, sync, 0 }
+                            Type = EventType.LightPulse,
+                            Params = new ushort[] { 255, 200, radiusNear1, radiusNear2, radiusFar, speed, sync, 0 }
                         };
                     }
 
                     case 5: { // Laser shield/Illuminate Surroundings
                         // ToDo: Not pulsating yet
                         return new ConversionResult {
-                            eventType = EventType.LightIlluminate,
-                            eventParams = new ushort[] { (ushort)(eventParams[1] < 1 ? 1 : eventParams[1]), 0, 0, 0, 0, 0, 0, 0 }
+                            Type = EventType.LightIlluminate,
+                            Params = new ushort[] { (ushort)(eventParams[1] < 1 ? 1 : eventParams[1]), 0, 0, 0, 0, 0, 0, 0 }
                         };
                     }
                 }
@@ -580,8 +606,8 @@ namespace Jazz2.Compatibility
                 );
 
                 return new ConversionResult {
-                    eventType = EventType.LightFlicker,
-                    eventParams = new ushort[] { 110, 40, 60, 110, 0, 0, 0, 0 }
+                    Type = EventType.LightFlicker,
+                    Params = new ushort[] { 110, 40, 60, 110, 0, 0, 0, 0 }
                 };
             });
 
@@ -607,8 +633,8 @@ namespace Jazz2.Compatibility
                 );
 
                 return new ConversionResult {
-                    eventType = EventType.SpikeBall,
-                    eventParams = new[] { eventParams[0], eventParams[1], eventParams[2], eventParams[3], eventParams[4] }
+                    Type = EventType.SpikeBall,
+                    Params = new[] { eventParams[0], eventParams[1], eventParams[2], eventParams[3], eventParams[4] }
                 };
             });
 
@@ -628,8 +654,8 @@ namespace Jazz2.Compatibility
                     Pair.Create(JJ2EventParamType.UInt, 4)); // Toughness
 
                 return new ConversionResult {
-                    eventType = EventType.Bridge,
-                    eventParams = new ushort[] { (ushort)(eventParams[0] * 2), eventParams[1], eventParams[2], 0, 0, 0, 0, 0 }
+                    Type = EventType.Bridge,
+                    Params = new ushort[] { (ushort)(eventParams[0] * 2), eventParams[1], eventParams[2], 0, 0, 0, 0, 0 }
                 };
             });
 
@@ -707,8 +733,8 @@ namespace Jazz2.Compatibility
                 );
 
                 return new ConversionResult {
-                    eventType = EventType.BossDevanRemote,
-                    eventParams = new ushort[] { 0, eventParams[0], eventParams[1], 0, 0, 0, 0, 0 }
+                    Type = EventType.BossDevanRemote,
+                    Params = new ushort[] { 0, eventParams[0], eventParams[1], 0, 0, 0, 0, 0 }
                 };
             });
             Add(JJ2Event.BOSS_BOLLY, GetBossConverter(EventType.BossBolly));
@@ -734,8 +760,8 @@ namespace Jazz2.Compatibility
                     Pair.Create(JJ2EventParamType.Bool, 8)); // Event
 
                 return new ConversionResult {
-                    eventType = EventType.GemRing,
-                    eventParams = new[] { eventParams[0], eventParams[1] }
+                    Type = EventType.GemRing,
+                    Params = new[] { eventParams[0], eventParams[1] }
                 };
             });
 
@@ -822,18 +848,18 @@ namespace Jazz2.Compatibility
 
                 if (eventParams[0] > 0 && eventParams[1] > 0) {
                     return new ConversionResult {
-                        eventType = EventType.Crate,
-                        eventParams = new[] { eventParams[0], eventParams[1] }
+                        Type = EventType.Crate,
+                        Params = new[] { eventParams[0], eventParams[1] }
                     };
                 } else if (eventParams[3] == 0) {
                     return new ConversionResult {
-                        eventType = EventType.Crate,
-                        eventParams = new ushort[] { (ushort)EventType.Bomb, 1 }
+                        Type = EventType.Crate,
+                        Params = new ushort[] { (ushort)EventType.Bomb, 1 }
                     };
                 } else {
                     return new ConversionResult {
-                        eventType = EventType.Crate,
-                        eventParams = new ushort[] { 0, 0 }
+                        Type = EventType.Crate,
+                        Params = new ushort[] { 0, 0 }
                     };
                 }
             });
@@ -856,13 +882,13 @@ namespace Jazz2.Compatibility
             Add(JJ2Event.POWERUP_SWAP, (level, jj2Params) => {
                 if (level.Version == JJ2Version.TSF || level.Version == JJ2Version.CC) {
                     return new ConversionResult {
-                        eventType = EventType.PowerUpMorph,
-                        eventParams = new ushort[] { 1 }
+                        Type = EventType.PowerUpMorph,
+                        Params = new ushort[] { 1 }
                     };
                 } else {
                     return new ConversionResult {
-                        eventType = EventType.PowerUpMorph,
-                        eventParams = new ushort[] { 0 }
+                        Type = EventType.PowerUpMorph,
+                        Params = new ushort[] { 0 }
                     };
                 }
             });
@@ -874,8 +900,8 @@ namespace Jazz2.Compatibility
                     Pair.Create(JJ2EventParamType.Bool, 1)); // Chuck (Yellow)
 
                 return new ConversionResult {
-                    eventType = EventType.BirdCage,
-                    eventParams = new ushort[] { eventParams[0], 0 }
+                    Type = EventType.BirdCage,
+                    Params = new ushort[] { eventParams[0], 0 }
                 };
             });
 
@@ -899,8 +925,8 @@ namespace Jazz2.Compatibility
                     Pair.Create(JJ2EventParamType.UInt, 2)); // Type
 
                 return new ConversionResult {
-                    eventType = EventType.Weather,
-                    eventParams = new ushort[] { (ushort)(eventParams[2] == 1 ? 0 : eventParams[3] + 1), (ushort)((eventParams[0] + 1) * 5 / 3), eventParams[1], 0, 0, 0, 0, 0 }
+                    Type = EventType.Weather,
+                    Params = new ushort[] { (ushort)(eventParams[2] == 1 ? 0 : eventParams[3] + 1), (ushort)((eventParams[0] + 1) * 5 / 3), eventParams[1], 0, 0, 0, 0, 0 }
                 };
             });
 
@@ -916,8 +942,8 @@ namespace Jazz2.Compatibility
                     Pair.Create(JJ2EventParamType.UInt, 4)); // Speed
 
                 return new ConversionResult {
-                    eventType = EventType.AmbientBubbles,
-                    eventParams = new ushort[] { (ushort)((eventParams[0] + 1) * 5 / 3), 0, 0, 0, 0, 0, 0, 0 }
+                    Type = EventType.AmbientBubbles,
+                    Params = new ushort[] { (ushort)((eventParams[0] + 1) * 5 / 3), 0, 0, 0, 0, 0, 0, 0 }
                 };
             });
 
@@ -926,13 +952,17 @@ namespace Jazz2.Compatibility
                     Pair.Create(JJ2EventParamType.UInt, 5)); // Delay (Secs.) - Default: 30
 
                 return new ConversionResult {
-                    eventType = EventType.AirboardGenerator,
-                    eventParams = new ushort[] { (ushort)(eventParams[0] == 0 ? 30 : eventParams[0]), 0, 0, 0, 0, 0, 0, 0 }
+                    Type = EventType.AirboardGenerator,
+                    Params = new ushort[] { (ushort)(eventParams[0] == 0 ? 30 : eventParams[0]), 0, 0, 0, 0, 0, 0, 0 }
                 };
             });
 
             Add(JJ2Event.COPTER, NoParamList(EventType.Copter));
 
+            Add(JJ2Event.CTF_BASE, ParamIntToParamList(EventType.CtfBase,
+                Pair.Create(JJ2EventParamType.UInt, 1),  // Team
+                Pair.Create(JJ2EventParamType.UInt, 1)   // Direction
+            ));
 
             Add(JJ2Event.SHIELD_FIRE, ConstantParamList(EventType.PowerUpShield, 1));
             Add(JJ2Event.SHIELD_WATER, ConstantParamList(EventType.PowerUpShield, 2));
@@ -953,8 +983,8 @@ namespace Jazz2.Compatibility
                 );
 
                 return new ConversionResult {
-                    eventType = EventType.Spring,
-                    eventParams = new ushort[] { type, (ushort)(horizontal ? (eventParams[4] != 0 ? 5 : 4) : eventParams[0] * 2), eventParams[1], eventParams[2], eventParams[3], (ushort)(frozen ? 1 : 0), 0, 0 }
+                    Type = EventType.Spring,
+                    Params = new ushort[] { type, (ushort)(horizontal ? (eventParams[4] != 0 ? 5 : 4) : eventParams[0] * 2), eventParams[1], eventParams[2], eventParams[3], (ushort)(frozen ? 1 : 0), 0, 0 }
                 };
             };
         }
@@ -970,8 +1000,8 @@ namespace Jazz2.Compatibility
                 );
 
                 return new ConversionResult {
-                    eventType = EventType.MovingPlatform,
-                    eventParams = new ushort[] { type, eventParams[0], eventParams[1], eventParams[2], eventParams[3], 0, 0, 0 }
+                    Type = EventType.MovingPlatform,
+                    Params = new ushort[] { type, eventParams[0], eventParams[1], eventParams[2], eventParams[3], 0, 0, 0 }
                 };
             };
         }
@@ -991,8 +1021,8 @@ namespace Jazz2.Compatibility
                 ushort y = unchecked((ushort)((eventParams[0] == 0 ? 24 : eventParams[0]) - AdjustY));
 
                 return new ConversionResult {
-                    eventType = EventType.Pole,
-                    eventParams = new ushort[] { theme, x, y }
+                    Type = EventType.Pole,
+                    Params = new ushort[] { theme, x, y }
                 };
             };
         }
@@ -1001,8 +1031,8 @@ namespace Jazz2.Compatibility
         {
             return (level, jj2Params) => {
                 return new ConversionResult {
-                    eventType = EventType.CrateAmmo,
-                    eventParams = new ushort[] { type, 0, 0, 0, 0, 0, 0, 0 }
+                    Type = EventType.CrateAmmo,
+                    Params = new ushort[] { type, 0, 0, 0, 0, 0, 0, 0 }
                 };
             };
         }
@@ -1015,8 +1045,8 @@ namespace Jazz2.Compatibility
                 );
 
                 return new ConversionResult {
-                    eventType = ev,
-                    eventParams = new ushort[] { customParam, eventParams[0], 0, 0, 0, 0, 0, 0 }
+                    Type = ev,
+                    Params = new ushort[] { customParam, eventParams[0], 0, 0, 0, 0, 0, 0 }
                 };
             };
         }

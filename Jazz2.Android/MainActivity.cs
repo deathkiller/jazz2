@@ -140,7 +140,7 @@ namespace Jazz2.Android
             }
 
             if (!File.Exists(Path.Combine(rootPath, "Content", "Main.dz"))) {
-                ShowInfoScreen("Content files not found", "Content should be placed in&nbsp;" + rootPath.Substring(0, storagePathLength) + "<b><u>" + rootPath.Substring(storagePathLength) + "Content/</u></b>…<br>It includes <b>Main.dz</b> file and <b>Episodes</b>, <b>Music</b>, <b>Tilesets</b> directories.", true);
+                ShowInfoScreen("Content files not found", "Content should be placed in&nbsp;" + rootPath.Substring(0, storagePathLength) + "<b><u>" + rootPath.Substring(storagePathLength) + "Content/</u></b>…<br>It includes <b>Main.dz</b> file and <b>Episodes</b>, <b>i18n</b>, <b>Music</b>, <b>Tilesets</b> directories.", true);
                 return;
             }
 

@@ -16,7 +16,7 @@ namespace Jazz2.Actors.Environment
 
             speed = details.Params[0];
 
-            collisionFlags = CollisionFlags.None;
+            collisionFlags = CollisionFlags.ForceDisableCollisions;
 
             RequestMetadata("Common/AmbientBubbles");
         }

@@ -341,6 +341,8 @@ namespace Jazz2.Game
                 public float YAutoSpeed { get; set; }
                 public bool XRepeat { get; set; }
                 public bool YRepeat { get; set; }
+                public float XOffset { get; set; }
+                public float YOffset { get; set; }
 
                 public int Depth { get; set; }
                 public bool InherentOffset { get; set; }
@@ -495,22 +497,23 @@ namespace Jazz2.Game
         public virtual void AddActor(ActorBase actor)
         {
             actors.Add(actor);
-
             AddObject(actor);
 
-            actor.UpdateAABB();
-
-            collisions.AddProxy(actor);
-            actor.Transform.EventTransformChanged += OnActorTransformChanged;
+            if ((actor.CollisionFlags & CollisionFlags.ForceDisableCollisions) == 0) {
+                actor.UpdateAABB();
+                collisions.AddProxy(actor);
+                actor.Transform.EventTransformChanged += OnActorTransformChanged;
+            }
         }
 
         public virtual void RemoveActor(ActorBase actor)
         {
-            actor.Transform.EventTransformChanged -= OnActorTransformChanged;
-            collisions.RemoveProxy(actor);
+            if ((actor.CollisionFlags & CollisionFlags.ForceDisableCollisions) == 0) {
+                actor.Transform.EventTransformChanged -= OnActorTransformChanged;
+                collisions.RemoveProxy(actor);
+            }
 
             actors.Remove(actor);
-
             RemoveObject(actor);
         }
 

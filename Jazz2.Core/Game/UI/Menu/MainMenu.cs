@@ -25,7 +25,7 @@ namespace Jazz2.Game.UI.Menu
 
         private TransitionManager transitionManager;
         private Action transitionAction;
-        private float transitionText = 1f;
+        private float transitionText = 0.8f;
 
         private Metadata metadata;
 
@@ -59,7 +59,7 @@ namespace Jazz2.Game.UI.Menu
             }
         }
 
-        public MainMenu(App root)
+        public MainMenu(App root, bool isInstallationComplete)
         {
             this.root = root;
 
@@ -117,7 +117,11 @@ namespace Jazz2.Game.UI.Menu
             // Show Begin section
             sectionStack = new Stack<MenuSection>();
 
-            SwitchToSection(new BeginSection());
+            if (isInstallationComplete) {
+                SwitchToSection(new BeginSection());
+            } else {
+                SwitchToSection(new ReinstallNeededSection());
+            }
 
             if (newVersion == null) {
                 Updater.CheckUpdates(OnCheckUpdates);
@@ -337,7 +341,7 @@ namespace Jazz2.Game.UI.Menu
             }
 
             if (transitionText > 0f) {
-                transitionText -= 0.01f * Time.TimeMult;
+                transitionText -= 0.02f * Time.TimeMult;
             }
 
             canvas.End();

@@ -15,7 +15,7 @@ namespace Jazz2.Actors.Environment
             pos.Y -= 2f;
             Transform.Pos = pos;
 
-            collisionFlags = CollisionFlags.None;
+            collisionFlags = CollisionFlags.ForceDisableCollisions;
 
             RequestMetadata("Object/SteamNote");
             SetAnimation("SteamNote");

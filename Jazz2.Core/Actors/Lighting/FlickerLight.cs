@@ -13,7 +13,7 @@ namespace Jazz2.Actors.Lighting
             ushort radiusNear = details.Params[2];
             ushort radiusFar = details.Params[3];
 
-            collisionFlags = CollisionFlags.None;
+            collisionFlags = CollisionFlags.ForceDisableCollisions;
 
             LightEmitter light = AddComponent<LightEmitter>();
             light.Intensity = (intensity / 255f);

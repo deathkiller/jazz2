@@ -164,7 +164,7 @@ namespace Jazz2.Actors
             }
         }
 
-        public void MorphToOriginal()
+        public void MorphRevent()
         {
             MorphTo(playerTypeOriginal);
         }
@@ -291,7 +291,7 @@ namespace Jazz2.Actors
             {
                 base.OnActivated(details);
 
-                collisionFlags = CollisionFlags.None;
+                collisionFlags = CollisionFlags.ForceDisableCollisions;
 
                 health = int.MaxValue;
 

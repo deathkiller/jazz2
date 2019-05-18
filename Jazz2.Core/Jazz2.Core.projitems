@@ -128,6 +128,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\ILevelHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\IMenuContainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\MainMenu.Background.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\ReinstallNeededSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\RescaleSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\SliderControl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\TransitionManager.cs" />

@@ -12,7 +12,8 @@ namespace Jazz2.Game
 {
     public partial class App
     {
-        private readonly INativeWindow window;
+        private INativeWindow window;
+        private bool isInstallationComplete;
 
         public string Title
         {
@@ -74,6 +75,8 @@ namespace Jazz2.Game
         {
             this.window = window;
 
+            this.isInstallationComplete = IsInstallationComplete();
+
             // Load settings to cache
             SettingsCache.Resize = (SettingsCache.ResizeMode)Preferences.Get<byte>("Resize", (byte)SettingsCache.Resize);
             SettingsCache.MusicVolume = Preferences.Get<byte>("MusicVolume", (byte)(SettingsCache.MusicVolume * 100)) * 0.01f;
@@ -90,12 +93,17 @@ namespace Jazz2.Game
             }
 #endif
 
+            if (!this.isInstallationComplete) {
+                // If it's incomplete, check it again to be sure
+                this.isInstallationComplete = IsInstallationComplete();
+            }
+
             System.Runtime.GCSettings.LatencyMode = System.Runtime.GCLatencyMode.Interactive;
 
             ContentResolver.Current.ResetReferenceFlag();
 
             Scene.Current.DisposeLater();
-            Scene.SwitchTo(new MainMenu(this));
+            Scene.SwitchTo(new MainMenu(this, this.isInstallationComplete));
 
             ContentResolver.Current.ReleaseUnreferencedResources();
         }
@@ -234,6 +242,20 @@ namespace Jazz2.Game
             } else {
                 return null;
             }
+        }
+
+        private bool IsInstallationComplete()
+        {
+#if UNCOMPRESSED_CONTENT
+            return true;
+#else 
+            return Directory.Exists(PathOp.Combine(DualityApp.DataDirectory, "Episodes")) &&
+                Directory.Exists(PathOp.Combine(DualityApp.DataDirectory, "i18n")) &&
+                //Directory.Exists(PathOp.Combine(DualityApp.DataDirectory, "Music")) &&
+                Directory.Exists(PathOp.Combine(DualityApp.DataDirectory, "Tilesets")) &&
+                File.Exists(PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Animations", "Jazz", "idle.png")) &&
+                File.Exists(PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Metadata", "UI", "MainMenu.res"));
+#endif
         }
     }
 }

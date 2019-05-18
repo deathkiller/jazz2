@@ -15,7 +15,7 @@ namespace Jazz2.Actors.Environment
 
             // ToDo: Implement Fade:1|Sine:1
 
-            collisionFlags = CollisionFlags.None;
+            collisionFlags = CollisionFlags.ForceDisableCollisions;
 
             RequestMetadata("Common/AmbientSound");
 
