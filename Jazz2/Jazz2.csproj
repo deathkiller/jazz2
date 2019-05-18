@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET45 UNSAFE MULTIPLAYER ENABLE_SPLITSCREEN UNCOMPRESSED_CONTENT</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET45 UNSAFE MULTIPLAYER ENABLE_SPLITSCREEN UNCOMPRESSED_CONTENT ENABLE_UPNP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -47,6 +47,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />

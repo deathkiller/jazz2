@@ -2,40 +2,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using System.Reflection;
+using Jazz2.Networking;
 using Lidgren.Network;
-
-namespace Jazz2
-{
-    public static class App
-    {
-        public static string AssemblyTitle
-        {
-            get
-            {
-                object[] attributes = Assembly.GetEntryAssembly().GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
-                if (attributes.Length > 0) {
-                    AssemblyTitleAttribute titleAttribute = (AssemblyTitleAttribute)attributes[0];
-                    if (!string.IsNullOrEmpty(titleAttribute.Title)) {
-                        return titleAttribute.Title;
-                    }
-                }
-                return Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location);
-            }
-        }
-
-        public static string AssemblyVersion
-        {
-            get
-            {
-                Version v = Assembly.GetEntryAssembly().GetName().Version;
-                return v.Major.ToString(CultureInfo.InvariantCulture) + "." + v.Minor.ToString(CultureInfo.InvariantCulture) + (v.Build != 0 ? "." + v.Build.ToString(CultureInfo.InvariantCulture) : "");
-            }
-        }
-    }
-}
 
 namespace Jazz2.Server
 {
@@ -80,6 +49,7 @@ namespace Jazz2.Server
             }
 
             bool isPrivate = TryRemoveArg(ref args, "/private");
+            bool enableUPnP = TryRemoveArg(ref args, "/upnp");
 
             // Initialization
             Version v = Assembly.GetEntryAssembly().GetName().Version;
@@ -89,16 +59,14 @@ namespace Jazz2.Server
 
             Log.Write(LogType.Info, "Starting server...");
             Log.PushIndent();
-            Log.Write(LogType.Info, "Port: " + port);
-            Log.Write(LogType.Info, "Server Name: " + name);
-            Log.Write(LogType.Info, "Max. Players: " + maxPlayers);
-
-            Log.PopIndent();
 
             // Start game server
             gameServer = new GameServer();
-            gameServer.Run(port, name, maxPlayers, isPrivate, neededMajor, neededMinor, neededBuild);
-            gameServer.ChangeLevel(levelName);
+            gameServer.Run(port, name, maxPlayers, isPrivate, enableUPnP, neededMajor, neededMinor, neededBuild);
+
+            Log.PopIndent();
+
+            gameServer.ChangeLevel(levelName, MultiplayerLevelType.Battle);
 
             Log.Write(LogType.Info, "Ready!");
             Console.WriteLine();
@@ -144,10 +112,20 @@ namespace Jazz2.Server
 
                     case "set": {
                         string key = GetPartFromInput(ref input);
-                        string value = GetPartFromInput(ref input);
                         switch (key) {
+                            case "name": {
+                                if (!string.IsNullOrWhiteSpace(input)) {
+                                    gameServer.Name = input;
+                                    Log.Write(LogType.Info, "Server name was set to \"" + input + "\"!");
+                                } else {
+                                    Log.Write(LogType.Error, "Cannot set server name to \"" + input + "\"!");
+                                }
+                                break;
+                            }
+
                             case "level": {
-                                if (gameServer.ChangeLevel(value)) {
+                                string value = GetPartFromInput(ref input);
+                                if (gameServer.ChangeLevel(value, MultiplayerLevelType.Battle)) {
                                     Log.Write(LogType.Info, "OK!");
                                 } else {
                                     Log.Write(LogType.Error, "Cannot load level \"" + value + "\"!");
@@ -156,13 +134,14 @@ namespace Jazz2.Server
                             }
 
                             case "spawning": {
+                                string value = GetPartFromInput(ref input);
                                 gameServer.EnablePlayerSpawning(value == "true" || value == "yes" || value == "1");
                                 Log.Write(LogType.Info, "OK!");
                                 break;
                             }
 
                             default: {
-                                Log.Write(LogType.Info, "Error!");
+                                Log.Write(LogType.Warning, "Unknown command: " + command + " " + key);
                                 break;
                             }
                         }

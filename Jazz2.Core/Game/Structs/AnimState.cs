@@ -33,7 +33,7 @@ namespace Jazz2.Game.Structs
         Swim = 0x00001000,
         Copter = 0x00002000,
         Push = 0x00004000,
-        SwingRope = 0x00008000, // ToDo: Not implemented yes
+        SwingRope = 0x00008000, // ToDo: Not implemented yet
 
         Freefall = 0x00010000,
         Lift = 0x00020000,

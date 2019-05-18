@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using System.Threading;
-using Jazz2.Networking.Packets.Client;
 using Lidgren.Network;
 
 namespace Jazz2.Server
@@ -33,7 +32,19 @@ namespace Jazz2.Server
         public string CurrentLevel => currentLevel;
         public Dictionary<NetConnection, Player> Players => players;
 
-        public void Run(int port, string name, int maxPlayers, bool isPrivate, byte neededMajor, byte neededMinor, byte neededBuild)
+        public string Name
+        {
+            get
+            {
+                return name;
+            }
+            set
+            {
+                name = value;
+            }
+        }
+
+        public void Run(int port, string name, int maxPlayers, bool isPrivate, bool enableUPnP, byte neededMajor, byte neededMinor, byte neededBuild)
         {
             this.port = port;
             this.name = name;
@@ -49,13 +60,18 @@ namespace Jazz2.Server
 
             remotableActors = new Dictionary<int, RemotableActor>();
 
-            server = new ServerConnection(Token, port, maxPlayers);
+            server = new ServerConnection(Token, port, maxPlayers, !isPrivate && enableUPnP);
             server.MessageReceived += OnMessageReceived;
             server.DiscoveryRequest += OnDiscoveryRequest;
             server.ClientConnected += OnClientConnected;
             server.ClientStatusChanged += OnClientStatusChanged;
 
             RegisterPacketCallbacks();
+
+            Log.Write(LogType.Info, "Endpoint: " + server.LocalIPAddress + ":" + port + (server.PublicIPAddress != null ? " / " + server.PublicIPAddress + ":" + port : ""));
+            Log.Write(LogType.Info, "Server Name: " + name);
+            Log.Write(LogType.Info, "Players: 0/" + maxPlayers);
+
 
             // Create game loop
             threadGame = new Thread(OnGameLoop);
@@ -99,10 +115,9 @@ namespace Jazz2.Server
 
             while (threadPublishToServerList != null) {
                 try {
-                    string currentVersion = Jazz2.App.AssemblyVersion;
+                    string currentVersion = Game.App.AssemblyVersion;
 
-                    IPAddress mask;
-                    string endpoint = NetUtility.GetMyAddress(out mask).ToString() + ":" + port;
+                    string endpoint = (server.PublicIPAddress ?? server.LocalIPAddress).ToString() + ":" + port;
 
                     string dataString = "0|" + endpoint + "|" + currentVersion + "|" + players.Count + "|" + maxPlayers + "|" + name;
                     string data = "add=" + Convert.ToBase64String(Encoding.UTF8.GetBytes(dataString))
@@ -110,7 +125,7 @@ namespace Jazz2.Server
 
                     WebClient client = new WebClient();
                     client.Encoding = Encoding.UTF8;
-                    client.Headers["User-Agent"] = Jazz2.App.AssemblyTitle;
+                    client.Headers["User-Agent"] = Game.App.AssemblyTitle;
                     client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
 
                     string content = client.UploadString(ServerListUrl, data);

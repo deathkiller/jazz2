@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET45 MULTIPLAYER UNSAFE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET45 MULTIPLAYER UNSAFE ENABLE_UPNP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

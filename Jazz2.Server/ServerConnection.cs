@@ -18,6 +18,7 @@ namespace Jazz2.Server
 
         private NetServer server;
         private Thread threadUpdate;
+        private IPAddress publicIpAddress;
 
         public int ConnectionsCount => server.ConnectionsCount;
 
@@ -26,7 +27,24 @@ namespace Jazz2.Server
         public event Action<MessageReceivedEventArgs> MessageReceived;
         public event Action<DiscoveryRequestEventArgs> DiscoveryRequest;
 
-        public ServerConnection(string appId, int port, int maxPlayers)
+        public IPAddress LocalIPAddress
+        {
+            get
+            {
+                IPAddress mask;
+                return NetUtility.GetMyAddress(out mask);
+            }
+        }
+
+        public IPAddress PublicIPAddress
+        {
+            get
+            {
+                return publicIpAddress;
+            }
+        }
+
+        public ServerConnection(string appId, int port, int maxPlayers, bool enableUPnP)
         {
             if (maxPlayers < 0 || maxPlayers >= byte.MaxValue)
                 throw new ArgumentOutOfRangeException("Max. number of players must be smaller than " + byte.MaxValue);
@@ -40,7 +58,7 @@ namespace Jazz2.Server
             config.EnableMessageType(NetIncomingMessageType.DiscoveryRequest);
             config.EnableMessageType(NetIncomingMessageType.NatIntroductionSuccess);
             config.EnableMessageType(NetIncomingMessageType.UnconnectedData);
-            config.EnableUPnP = true;
+            config.EnableUPnP = enableUPnP;
 
 #if DEBUG
             //config.SimulatedMinimumLatency = 50 / 1000f;
@@ -65,7 +83,11 @@ namespace Jazz2.Server
             threadUpdate.IsBackground = true;
             threadUpdate.Start();
 
-            //server.UPnP.ForwardPort(port, "Jazz2");
+            if (config.EnableUPnP) {
+                publicIpAddress = server.UPnP.GetExternalIP();
+                server.UPnP.ForwardPort(port, "Jazz2");
+                
+            }
         }
 
         public void Close()
@@ -76,12 +98,13 @@ namespace Jazz2.Server
 
             threadUpdate = null;
 
-            //server.UPnP.DeleteForwardingRule(port);
+            if (server.Configuration.EnableUPnP) {
+                server.UPnP.DeleteForwardingRule(port);
+            }
 
             server.Shutdown("Server is shutting down");
         }
 
-#region Messages
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
@@ -137,7 +160,6 @@ namespace Jazz2.Server
         {
             server.Introduce(hostInternal, hostExternal, clientInternal, clientExternal, token);
         }
-#endregion
 
         private void OnHandleMessagesThread()
         {

@@ -112,10 +112,15 @@ namespace Jazz2.Game.UI.Menu
                         }
                     }
 
+                    string name = server.Name;
+                    if (name.Length > 32) {
+                        name = name.Substring(0, 31) + "...";
+                    }
+
                     if (selectedIndex == idx) {
                         charOffset = 0;
 
-                        float xMultiplier = server.Name.Length * 0.5f;
+                        float xMultiplier = name.Length * 0.5f;
                         float easing = Ease.OutElastic(animation);
                         float x = column1 + xMultiplier - easing * xMultiplier;
                         float size = 0.7f + easing * 0.1f;
@@ -129,7 +134,7 @@ namespace Jazz2.Game.UI.Menu
                             new ColorRgba(0.48f, 0.5f), 0.8f, 0.4f, 1f, 1f, 8f, charSpacing: 0.88f);
 
                         // Column 1
-                        api.DrawStringShadow(ref charOffset, server.Name, x, currentItem, Alignment.Left,
+                        api.DrawStringShadow(ref charOffset, name, x, currentItem, Alignment.Left,
                             null, size, 0.4f, 1f, 1f, 8f, charSpacing: 0.88f);
                         
                     } else {
@@ -142,7 +147,7 @@ namespace Jazz2.Game.UI.Menu
                             ColorRgba.TransparentBlack, 0.7f);
 
                         // Column 1
-                        api.DrawString(ref charOffset, server.Name, column1, currentItem, Alignment.Left,
+                        api.DrawString(ref charOffset, name, column1, currentItem, Alignment.Left,
                             ColorRgba.TransparentBlack, 0.7f);
                     }
 

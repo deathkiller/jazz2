@@ -45,11 +45,14 @@ namespace Jazz2.Server
                     players[args.SenderConnection].Index = lastPlayerIndex;
                 }
 
-                Send(new LoadLevel {
-                    LevelName = currentLevel,
-                    LevelType = MultiplayerLevelType.Battle,
-                    AssignedPlayerIndex = lastPlayerIndex
-                }, 64, args.SenderConnection, NetDeliveryMethod.ReliableSequenced, PacketChannels.Main);
+                if (currentLevel != null) {
+                    Send(new LoadLevel {
+                        LevelName = currentLevel,
+                        LevelType = currentLevelType,
+                        AssignedPlayerIndex = lastPlayerIndex
+                    }, 64, args.SenderConnection, NetDeliveryMethod.ReliableSequenced, PacketChannels.Main);
+                }
+
             } else if (args.Status == NetConnectionStatus.Disconnected) {
                 lock (sync) {
                     byte index = players[args.SenderConnection].Index;
@@ -62,7 +65,7 @@ namespace Jazz2.Server
                     players.Remove(args.SenderConnection);
                     playerConnections.Remove(args.SenderConnection);
 
-                    foreach (var to in players) {
+                    foreach (KeyValuePair<NetConnection, Player> to in players) {
                         if (to.Key == args.SenderConnection) {
                             continue;
                         }
@@ -79,8 +82,8 @@ namespace Jazz2.Server
         private void OnMessageReceived(MessageReceivedEventArgs args)
         {
             if (args.IsUnconnected) {
-                if (args.Message.LengthBytes == 1 && args.Message.ReadByte() == PacketTypes.Ping) {
-                    // It's probably only ping request
+                if (args.Message.LengthBytes == 1 && args.Message.PeekByte() == PacketTypes.Ping) {
+                    // Fast path for Ping request
                     NetOutgoingMessage m = server.CreateMessage();
                     m.Write(PacketTypes.Ping);
                     server.SendUnconnected(m, args.Message.SenderEndPoint);

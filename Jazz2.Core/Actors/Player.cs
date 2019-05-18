@@ -660,7 +660,6 @@ namespace Jazz2.Actors
                         MoveInstantly(new Vector2(0f, 10f), MoveType.RelativeTime, true);
                         suspendType = SuspendType.None;
 
-                        // ToDo: Workaround
                         collisionFlags |= CollisionFlags.ApplyGravitation;
                     } else if (!wasDownPressed && dizzyTime <= 0f) {
                         if (canJump) {

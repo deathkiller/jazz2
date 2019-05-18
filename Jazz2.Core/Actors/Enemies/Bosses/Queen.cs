@@ -44,7 +44,7 @@ namespace Jazz2.Actors.Bosses
 
             lastHealth = health;
 
-            collisionFlags |= CollisionFlags.IsSolidObject;
+            collisionFlags |= CollisionFlags.IsSolidObject | CollisionFlags.SkipPerPixelCollisions;
 
             stepSize = 0.3f;
             switch (api.Difficulty) {
@@ -284,7 +284,7 @@ namespace Jazz2.Actors.Bosses
             {
                 base.OnActivated(details);
 
-                collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation;
+                collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation | CollisionFlags.SkipPerPixelCollisions;
 
                 health = 1;
 

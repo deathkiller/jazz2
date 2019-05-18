@@ -13,6 +13,7 @@ using Jazz2.Game;
 using Jazz2.Game.Collisions;
 using Jazz2.Game.Structs;
 using Jazz2.Game.UI;
+using Jazz2.Networking;
 using Jazz2.Networking.Packets;
 using Jazz2.Networking.Packets.Server;
 using Jazz2.Storage.Content;
@@ -109,6 +110,7 @@ namespace Jazz2.Server
         }
 
         private string currentLevel;
+        private MultiplayerLevelType currentLevelType;
 
         private Dictionary<NetConnection, Player> players;
         private List<NetConnection> playerConnections;
@@ -222,7 +224,7 @@ namespace Jazz2.Server
             }
         }
         
-        public bool ChangeLevel(string levelName)
+        public bool ChangeLevel(string levelName, MultiplayerLevelType levelType)
         {
             string path = Path.Combine(DualityApp.DataDirectory, "Episodes", levelName + ".level");
             if (!File.Exists(path)) {
@@ -233,6 +235,7 @@ namespace Jazz2.Server
 
             lock (sync) {
                 currentLevel = levelName;
+                currentLevelType = levelType;
 
                 // Load new level
                 using (Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
@@ -244,7 +247,7 @@ namespace Jazz2.Server
                         throw new NotSupportedException("Version not supported");
                     }
 
-                    Log.Write(LogType.Info, "Loading level \"" + BitmapFont.StripFormatting(config.Description.Name) + "\"...");
+                    Log.Write(LogType.Info, "Loading level \"" + BitmapFont.StripFormatting(config.Description.Name) + "\" (" + currentLevelType + ")...");
 
                     Point2 tileMapSize;
                     using (Stream s2 = levelPackage.OpenFile("Sprite.layer", FileAccessMode.Read))
@@ -277,6 +280,7 @@ namespace Jazz2.Server
                 foreach (KeyValuePair<NetConnection, Player> pair in players) {
                     Send(new LoadLevel {
                         LevelName = currentLevel,
+                        LevelType = currentLevelType,
                         AssignedPlayerIndex = pair.Value.Index
                     }, 64, pair.Key, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
                 }
