@@ -41,12 +41,14 @@ namespace Jazz2.Game.UI.Menu.Settings
             api.DrawStringShadow(ref charOffset, new string('1', 22), pos.X - 47f, pos.Y + 22f, Alignment.Left,
                 new ColorRgba(0.38f, 0.37f, 0.34f, 0.36f), 1f, charSpacing: 0.44f);
 
+            string slider = new string('1', (int)((currentValue - minValue) / (maxValue - minValue) * 22));
+
             if (focused) {
                 float size = 0.5f + Ease.OutElastic(animation) * 0.6f;
 
                 api.DrawMaterial("MenuGlow", pos.X, pos.Y, Alignment.Center, ColorRgba.White.WithAlpha(0.4f * size), (title.Length + 3) * 0.5f * size, 4f * size);
 
-                api.DrawString(ref charOffset2, new string('1', (int)(currentValue * 22)), pos.X - 47f, pos.Y + 22f, Alignment.Left,
+                api.DrawString(ref charOffset2, slider, pos.X - 47f, pos.Y + 22f, Alignment.Left,
                     null, 1f, charSpacing: 0.44f);
 
                 api.DrawStringShadow(ref charOffset, title, pos.X, pos.Y,
@@ -58,7 +60,7 @@ namespace Jazz2.Game.UI.Menu.Settings
                 api.DrawString(ref charOffset, title, pos.X, pos.Y, Alignment.Center,
                     ColorRgba.TransparentBlack, 0.9f);
 
-                api.DrawString(ref charOffset2, new string('1', (int)(currentValue * 22)), pos.X - 47f, pos.Y + 22f, Alignment.Left,
+                api.DrawString(ref charOffset2, slider, pos.X - 47f, pos.Y + 22f, Alignment.Left,
                     ColorRgba.TransparentBlack, 1f, charSpacing: 0.44f);
             }
 

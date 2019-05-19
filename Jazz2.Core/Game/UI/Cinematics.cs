@@ -131,7 +131,7 @@ namespace Jazz2.Game.UI
 
             Vector2 targetSize = device.TargetSize;
 
-            float ratioTarget = targetSize.Y / targetSize.X; ;
+            float ratioTarget = targetSize.Y / targetSize.X;
             float ratioSource = (float)height / width;
             float ratio = MathF.Clamp(ratioTarget, ratioSource - 0.16f, ratioSource);
 
@@ -204,8 +204,7 @@ namespace Jazz2.Game.UI
                     byte r = streams[3].ReadUInt8(ref internalBuffer);
                     byte g = streams[3].ReadUInt8(ref internalBuffer);
                     byte b = streams[3].ReadUInt8(ref internalBuffer);
-                    /*byte a =*/
-                    streams[3].ReadUInt8(ref internalBuffer);
+                    /*byte a =*/streams[3].ReadUInt8(ref internalBuffer);
                     palette[i] = new ColorRgba(r, g, b);
                 }
             }

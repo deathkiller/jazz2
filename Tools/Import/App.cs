@@ -203,7 +203,7 @@ namespace Import
 
             Console.WriteLine();
             Console.WriteLine("  The application will automatically import all animations, sounds, music,");
-            Console.WriteLine("  tilesets, levels and episodes. It could take several minutes.");
+            Console.WriteLine("  cinematics, tilesets, levels and episodes. It could take several minutes.");
             Console.WriteLine("  Holiday Hare '98, Christmas Chronicles and The Secret Files is supported.");
 
             Console.WriteLine();
@@ -214,7 +214,8 @@ namespace Import
             //Console.WriteLine("   /skip-music     Don't convert music files (*.j2b files).");
             //Console.WriteLine("   /skip-tilesets  Don't convert tileset files (*.j2t files).");
             //Console.WriteLine("   /skip-all       Don't convert anything.");
-            Console.WriteLine("   /skip-anims | /skip-levels | /skip-music | /skip-tilesets | /skip-all");
+            Console.WriteLine("   /skip-anims   | /skip-levels    | /skip-cinematics");
+            Console.WriteLine("   /skip-music   | /skip-tilesets  | /skip-all");
             Console.WriteLine();
             Console.WriteLine("   /all            Convert all (even unused) music and tileset files.");
             Console.WriteLine("                   Otherwise only files referenced in levels will be converted.");

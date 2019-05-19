@@ -161,7 +161,7 @@ namespace Jazz2.Game.Collisions
                  && a.UpperBound.Y >= b.LowerBound.Y;
         }
 
-        public AABB Intersection(ref AABB a, ref AABB b)
+        public static AABB Intersection(ref AABB a, ref AABB b)
         {
             if (!TestOverlap(ref a, ref b)) {
                 return new AABB(0, 0, 0, 0);

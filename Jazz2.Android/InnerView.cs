@@ -54,7 +54,9 @@ namespace Jazz2.Android
             viewportHeight = Height;
 
             DualityApp.WindowSize = new Point2(viewportWidth, viewportHeight);
-            INativeWindow window = DualityApp.OpenWindow(new WindowOptions());
+            INativeWindow window = DualityApp.OpenWindow(new WindowOptions {
+                ScreenMode = ScreenMode.Immersive
+            });
 
             ContentResolver.Current.InitPostWindow();
 

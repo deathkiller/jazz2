@@ -266,12 +266,12 @@ namespace Jazz2.Game
 #if UNCOMPRESSED_CONTENT
             return true;
 #else 
-            return Directory.Exists(PathOp.Combine(DualityApp.DataDirectory, "Episodes")) &&
-                Directory.Exists(PathOp.Combine(DualityApp.DataDirectory, "i18n")) &&
-                //Directory.Exists(PathOp.Combine(DualityApp.DataDirectory, "Music")) &&
-                Directory.Exists(PathOp.Combine(DualityApp.DataDirectory, "Tilesets")) &&
-                File.Exists(PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Animations", "Jazz", "idle.png")) &&
-                File.Exists(PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Metadata", "UI", "MainMenu.res"));
+            return DirectoryOp.Exists(PathOp.Combine(DualityApp.DataDirectory, "Episodes")) &&
+                DirectoryOp.Exists(PathOp.Combine(DualityApp.DataDirectory, "i18n")) &&
+                //DirectoryOp.Exists(PathOp.Combine(DualityApp.DataDirectory, "Music")) &&
+                DirectoryOp.Exists(PathOp.Combine(DualityApp.DataDirectory, "Tilesets")) &&
+                FileOp.Exists(PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Animations", "Jazz", "idle.png")) &&
+                FileOp.Exists(PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Metadata", "UI", "MainMenu.res"));
 #endif
         }
     }

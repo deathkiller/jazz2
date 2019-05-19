@@ -987,10 +987,10 @@ namespace Jazz2.Game
             collisionsCountC = 0;
         }
 
-        private bool ActivateBoss(ushort musicFile)
+        private void ActivateBoss(ushort musicFile)
         {
             if (activeBoss != null) {
-                return false;
+                return;
             }
 
             foreach (GameObject obj in ActiveObjects) {
@@ -1001,7 +1001,7 @@ namespace Jazz2.Game
             }
 
             if (activeBoss == null) {
-                return false;
+                return;
             }
 
             activeBoss.OnBossActivated();
@@ -1021,8 +1021,6 @@ namespace Jazz2.Game
             music = new OpenMptStream(musicPath, true);
             music.BeginFadeIn(1f);
             DualityApp.Sound.PlaySound(music);
-
-            return true;
         }
 
         private void ResolveCollisions()

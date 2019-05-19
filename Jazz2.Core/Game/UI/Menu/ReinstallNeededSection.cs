@@ -23,8 +23,13 @@ namespace Jazz2.Game.UI.Menu
                     ColorRgba.White, 0.9f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
 
             charOffset = 2;
+#if __ANDROID__
+            api.DrawString(ref charOffset, "\f[c:6]Press \f[c:-1]Back\f[c:6] to exit", center.X, center.Y + 110, Alignment.Center,
+                ColorRgba.White, 0.8f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
+#else
             api.DrawString(ref charOffset, "\f[c:6]Press \f[c:-1]Escape\f[c:6] to exit", center.X, center.Y + 110, Alignment.Center,
-                    ColorRgba.White, 0.8f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
+                ColorRgba.White, 0.8f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
+#endif
         }
 
         public override void OnUpdate()

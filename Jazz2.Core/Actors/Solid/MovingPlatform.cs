@@ -55,7 +55,7 @@ namespace Jazz2.Actors.Solid
 
             pieces = new ChainPiece[length];
             for (int i = 0; i < length; i++) {
-                pieces[i] = new ChainPiece(api, originPos + new Vector3(0f, 0f, 4f), type, i);
+                pieces[i] = new ChainPiece(api, originPos + new Vector3(0f, 0f, 4f), type);
                 api.AddActor(pieces[i]);
             }
         }
@@ -156,7 +156,7 @@ namespace Jazz2.Actors.Solid
 
         private class ChainPiece : ActorBase
         {
-            public ChainPiece(ActorApi api, Vector3 pos, PlatformType type, int distance)
+            public ChainPiece(ActorApi api, Vector3 pos, PlatformType type)
             {
                 this.api = api;
 
