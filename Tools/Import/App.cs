@@ -62,7 +62,7 @@ namespace Import
                     case "/skip-cinematics": processCinematics = false; break;
                     case "/skip-music": processMusic = false; break;
                     case "/skip-tilesets": processTilesets = false; break;
-                    case "/skip-all": processAnims = processLevels = processMusic = processTilesets = false; break;
+                    case "/skip-all": processAnims = processLevels = processCinematics = processMusic = processTilesets = false; break;
 
                     case "/all": all = true; break;
                     case "/no-wait": noWait = true; break;
@@ -73,7 +73,7 @@ namespace Import
 
                     case "/minimal":
                         minimal = true;
-                        processAnims = processLevels = processMusic = processTilesets = false;
+                        processAnims = processLevels = processCinematics = processMusic = processTilesets = false;
                         break;
 
 #if DEBUG
@@ -121,7 +121,7 @@ namespace Import
             }
 
             if (sourcePath == null) {
-                if (processAnims || processLevels || processMusic || processTilesets) {
+                if (processAnims || processLevels || processCinematics || processMusic || processTilesets) {
                     Log.Write(LogType.Error, "You must specify path to Jazz Jackrabbit™ 2 game.");
                     return;
                 }
@@ -165,7 +165,7 @@ namespace Import
                 CreateMinimalCompressedContent(targetPath);
             }
 
-            OnPostImport(targetPath, verbose, !noWait, keep || minimal, !minimal, check || (processAnims && processLevels && processMusic && processTilesets));
+            OnPostImport(targetPath, verbose, !noWait, keep || minimal, !minimal, check || (processAnims && processLevels && processCinematics && processMusic && processTilesets));
         }
 
         private static void OnShowHelp(int cursorTop)
