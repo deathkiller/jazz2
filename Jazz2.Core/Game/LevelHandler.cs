@@ -461,7 +461,7 @@ namespace Jazz2.Game
 
             // Load default music
             musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", json.Description.DefaultMusic);
-            music = new OpenMptStream(musicPath);
+            music = new OpenMptStream(musicPath, true);
             music.BeginFadeIn(0.5f);
             DualityApp.Sound.PlaySound(music);
 
@@ -659,7 +659,7 @@ namespace Jazz2.Game
         public void HandleGameOver()
         {
             // ToDo: Implement Game Over screen
-            root.ShowMainMenu();
+            root.ShowMainMenu(false);
         }
 
         public virtual bool HandlePlayerDied(Player player)
@@ -678,7 +678,7 @@ namespace Jazz2.Game
                 }
 
                 // Load default music again
-                music = new OpenMptStream(musicPath);
+                music = new OpenMptStream(musicPath, true);
                 music.BeginFadeIn(0.4f);
                 DualityApp.Sound.PlaySound(music);
             }
@@ -766,44 +766,6 @@ namespace Jazz2.Game
             }
         }
 
-        public bool ActivateBoss(ushort musicFile)
-        {
-            if (activeBoss != null) {
-                return false;
-            }
-
-            foreach (GameObject obj in ActiveObjects) {
-                activeBoss = obj as BossBase;
-                if (activeBoss != null) {
-                    break;
-                }
-            }
-
-            if (activeBoss == null) {
-                return false;
-            }
-
-            activeBoss.OnBossActivated();
-
-            Hud hud = rootObject.GetComponent<Hud>();
-            if (hud != null) {
-                hud.ActiveBoss = activeBoss;
-            }
-
-            if (music != null) {
-                music.FadeOut(3f);
-            }
-
-            // ToDo: Hardcoded music file
-            string musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", "boss" + (musicFile + 1).ToString(CultureInfo.InvariantCulture) + ".j2b");
-
-            music = new OpenMptStream(musicPath);
-            music.BeginFadeIn(1f);
-            DualityApp.Sound.PlaySound(music);
-
-            return true;
-        }
-
         public void BroadcastLevelText(string text)
         {
             foreach (Player player in players) {
@@ -813,6 +775,10 @@ namespace Jazz2.Game
 
         public virtual void BroadcastTriggeredEvent(EventType eventType, ushort[] eventParams)
         {
+            if (eventType == EventType.AreaActivateBoss) {
+                ActivateBoss(eventParams[0]);
+            }
+
             foreach (ActorBase actor in actors) {
                 actor.OnTriggeredEvent(eventType, eventParams);
             }
@@ -1019,6 +985,44 @@ namespace Jazz2.Game
             collisionsCountA = 0;
             collisionsCountB = 0;
             collisionsCountC = 0;
+        }
+
+        private bool ActivateBoss(ushort musicFile)
+        {
+            if (activeBoss != null) {
+                return false;
+            }
+
+            foreach (GameObject obj in ActiveObjects) {
+                activeBoss = obj as BossBase;
+                if (activeBoss != null) {
+                    break;
+                }
+            }
+
+            if (activeBoss == null) {
+                return false;
+            }
+
+            activeBoss.OnBossActivated();
+
+            Hud hud = rootObject.GetComponent<Hud>();
+            if (hud != null) {
+                hud.ActiveBoss = activeBoss;
+            }
+
+            if (music != null) {
+                music.FadeOut(3f);
+            }
+
+            // ToDo: Hardcoded music file
+            string musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", "boss" + (musicFile + 1).ToString(CultureInfo.InvariantCulture) + ".j2b");
+
+            music = new OpenMptStream(musicPath, true);
+            music.BeginFadeIn(1f);
+            DualityApp.Sound.PlaySound(music);
+
+            return true;
         }
 
         private void ResolveCollisions()

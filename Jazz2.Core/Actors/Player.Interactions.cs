@@ -7,6 +7,8 @@ namespace Jazz2.Actors
 {
     partial class Player
     {
+        private Bird activeBird;
+
         public void AddScore(int plus)
         {
             score = Math.Min(score + plus, 999999999);
@@ -241,18 +243,23 @@ namespace Jazz2.Actors
             }
         }
 
-        public void SpawnBird(ushort type, Vector3 pos)
+        public bool SpawnBird(ushort type, Vector3 pos)
         {
+            if (activeBird != null) {
+                return false;
+            }
+
             pos.Z = Transform.Pos.Z - 100f;
 
-            Bird bird = new Bird();
-            bird.OnActivated(new ActorActivationDetails {
+            activeBird = new Bird();
+            activeBird.OnActivated(new ActorActivationDetails {
                 Api = api,
                 Pos = pos,
                 Params = new ushort[] { type }
             });
-            bird.OnLinkWithPlayer(this);
-            api.AddActor(bird);
+            activeBird.OnLinkWithPlayer(this);
+            api.AddActor(activeBird);
+            return true;
         }
 
         public bool DisableControllableWithTimeout(float timeout)

@@ -35,7 +35,7 @@ namespace Jazz2.Game
         private void OnNetworkDisconnected()
         {
             DispatchToMainThread(delegate {
-                ShowMainMenu();
+                ShowMainMenu(false);
             });
         }
 

@@ -1,10 +1,12 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text.Json;
 using Duality;
 using Duality.Backend;
 using Duality.IO;
 using Duality.Resources;
 using Jazz2.Game.Structs;
+using Jazz2.Game.UI;
 using Jazz2.Game.UI.Menu;
 using Jazz2.Storage;
 
@@ -83,7 +85,7 @@ namespace Jazz2.Game
             SettingsCache.SfxVolume = Preferences.Get<byte>("SfxVolume", (byte)(SettingsCache.SfxVolume * 100)) * 0.01f;
         }
 
-        public void ShowMainMenu()
+        public void ShowMainMenu(bool afterIntro)
         {
 #if MULTIPLAYER
             if (net != null) {
@@ -103,7 +105,7 @@ namespace Jazz2.Game
             ContentResolver.Current.ResetReferenceFlag();
 
             Scene.Current.DisposeLater();
-            Scene.SwitchTo(new MainMenu(this, this.isInstallationComplete));
+            Scene.SwitchTo(new MainMenu(this, this.isInstallationComplete, afterIntro));
 
             ContentResolver.Current.ReleaseUnreferencedResources();
         }
@@ -116,7 +118,7 @@ namespace Jazz2.Game
 
             if (string.IsNullOrEmpty(carryOver.LevelName)) {
                 // Next level not specified, so show main menu
-                ShowMainMenu();
+                ShowMainMenu(false);
             } else if (carryOver.LevelName == ":end") {
                 // End of episode
 
@@ -167,11 +169,11 @@ namespace Jazz2.Game
                         Scene.SwitchTo(handler);
                     } else {
                         // Next episode not found...
-                        ShowMainMenu();
+                        ShowMainMenu(false);
                     }
                 } else {
                     // Shouldn't happen...
-                    ShowMainMenu();
+                    ShowMainMenu(false);
                 }
             } else if (carryOver.LevelName == ":credits") {
                 // End of game
@@ -190,7 +192,10 @@ namespace Jazz2.Game
                 }
 
                 // ToDo: Show credits
-                ShowMainMenu();
+
+                PlayCinematics("ending", endOfStream => {
+                    ShowMainMenu(false);
+                });
             } else {
                 if (!string.IsNullOrEmpty(carryOver.EpisodeName) && carryOver.EpisodeName != "unknown") {
                     Episode nextEpisode = GetEpisode(carryOver.EpisodeName);
@@ -225,6 +230,18 @@ namespace Jazz2.Game
             }
 
             ContentResolver.Current.ReleaseUnreferencedResources();
+        }
+
+        public void PlayCinematics(string name, Action<bool> endCallback)
+        {
+            //System.Runtime.GCSettings.LatencyMode = System.Runtime.GCLatencyMode.Interactive;
+
+            //ContentResolver.Current.ResetReferenceFlag();
+
+            Scene.Current.DisposeLater();
+            Scene.SwitchTo(new Cinematics(this, name, endCallback));
+
+            //ContentResolver.Current.ReleaseUnreferencedResources();
         }
 
         private static Episode GetEpisode(string name)

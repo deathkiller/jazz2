@@ -142,7 +142,7 @@ namespace Jazz2.Game.UI.Menu.InGame
         {
             levelHandler.Dispose();
 
-            root.ShowMainMenu();
+            root.ShowMainMenu(false);
         }
 
         public void DrawString(ref int charOffset, string text, float x,

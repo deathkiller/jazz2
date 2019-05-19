@@ -66,7 +66,14 @@ namespace Jazz2.Android
 
             // Initialize the game
             current = new App(window);
-            current.ShowMainMenu();
+
+            if (Preferences.IsFirstRun) {
+                current.PlayCinematics("intro", endOfStream => {
+                    current.ShowMainMenu(endOfStream);
+                });
+            } else {
+                current.ShowMainMenu(false);
+            }
 
             // Run the render loop
             Run(60);
@@ -172,7 +179,7 @@ namespace Jazz2.Android
 
             // Reinitialize the game
             current = new App(window);
-            current.ShowMainMenu();
+            current.ShowMainMenu(false);
         }
     }
 }

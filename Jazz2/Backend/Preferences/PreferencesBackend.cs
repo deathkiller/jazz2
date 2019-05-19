@@ -13,12 +13,15 @@ namespace Jazz2.Backend
     {
         private Dictionary<string, object> data;
         private bool dirty;
+        private bool isFirstRun;
 
         string IDualityBackend.Id => "PreferencesBackend";
 
         string IDualityBackend.Name => "Preferences";
 
         int IDualityBackend.Priority => 0;
+
+        bool IPreferencesBackend.IsFirstRun => isFirstRun;
 
         bool IDualityBackend.CheckAvailable()
         {
@@ -32,6 +35,8 @@ namespace Jazz2.Backend
             string path = PathOp.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location) + ".settings";
 
             if (!FileOp.Exists(path)) {
+                isFirstRun = true;
+                dirty = true;
                 return;
             }
 

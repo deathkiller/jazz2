@@ -36,11 +36,18 @@ namespace Jazz2.Game.UI.Menu.Settings
         public override void OnDraw(Canvas canvas, ref Vector2 pos, bool focused, float animation)
         {
             int charOffset = 0;
+            int charOffset2 = 0;
+
+            api.DrawStringShadow(ref charOffset, new string('1', 22), pos.X - 47f, pos.Y + 22f, Alignment.Left,
+                new ColorRgba(0.38f, 0.37f, 0.34f, 0.36f), 1f, charSpacing: 0.44f);
 
             if (focused) {
                 float size = 0.5f + Ease.OutElastic(animation) * 0.6f;
 
                 api.DrawMaterial("MenuGlow", pos.X, pos.Y, Alignment.Center, ColorRgba.White.WithAlpha(0.4f * size), (title.Length + 3) * 0.5f * size, 4f * size);
+
+                api.DrawString(ref charOffset2, new string('1', (int)(currentValue * 22)), pos.X - 47f, pos.Y + 22f, Alignment.Left,
+                    null, 1f, charSpacing: 0.44f);
 
                 api.DrawStringShadow(ref charOffset, title, pos.X, pos.Y,
                     Alignment.Center, null, size, 0.7f, 1.1f, 1.1f, charSpacing: 0.9f);
@@ -50,10 +57,10 @@ namespace Jazz2.Game.UI.Menu.Settings
             } else {
                 api.DrawString(ref charOffset, title, pos.X, pos.Y, Alignment.Center,
                     ColorRgba.TransparentBlack, 0.9f);
-            }
 
-            api.DrawString(ref charOffset, (int)(currentValue * 100) + " %", pos.X, pos.Y + 20f, Alignment.Center,
-                ColorRgba.TransparentBlack, 0.8f, charSpacing: 0.9f);
+                api.DrawString(ref charOffset2, new string('1', (int)(currentValue * 22)), pos.X - 47f, pos.Y + 22f, Alignment.Left,
+                    ColorRgba.TransparentBlack, 1f, charSpacing: 0.44f);
+            }
 
             api.DrawStringShadow(ref charOffset, "<", pos.X - 110f, pos.Y + 20f, Alignment.Center,
                 ColorRgba.TransparentBlack, 0.7f);

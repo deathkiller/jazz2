@@ -21,9 +21,11 @@ namespace Jazz2.Actors.Environment
             switch (type) {
                 case 0: // Chuck (red)
                     RequestMetadata("Object/BirdCageChuck");
+                    PreloadMetadata("Object/BirdChuck");
                     break;
                 case 1: // Birdy (yellow)
                     RequestMetadata("Object/BirdCageBirdy");
+                    PreloadMetadata("Object/BirdBirdy");
                     break;
             }
             
@@ -64,7 +66,9 @@ namespace Jazz2.Actors.Environment
 
         private void ApplyToPlayer(Player player)
         {
-            player.SpawnBird(type, Transform.Pos);
+            if (!player.SpawnBird(type, Transform.Pos)) {
+                return;
+            }
 
             activated = true;
             SetAnimation(activated ? AnimState.Activated : AnimState.Idle);

@@ -107,7 +107,15 @@ namespace Jazz2.Game
                 ContentResolver.Current.InitPostWindow();
 
                 current = new App(window);
-                current.ShowMainMenu();
+
+                if (Preferences.IsFirstRun) {
+                    current.PlayCinematics("intro", endOfStream => {
+                        current.ShowMainMenu(endOfStream);
+                    });
+                } else {
+                    current.ShowMainMenu(false);
+                }
+                
                 window.Run();
             }
 

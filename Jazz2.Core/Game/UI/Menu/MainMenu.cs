@@ -15,8 +15,7 @@ namespace Jazz2.Game.UI.Menu
 {
     public partial class MainMenu : Scene, IMenuContainer
     {
-        private readonly App root;
-        private readonly GameObject rootObject;
+        private App root;
 
         private Stack<MenuSection> sectionStack;
 
@@ -26,6 +25,7 @@ namespace Jazz2.Game.UI.Menu
         private TransitionManager transitionManager;
         private Action transitionAction;
         private float transitionText = 0.8f;
+        private float transitionWhite;
 
         private Metadata metadata;
 
@@ -59,14 +59,16 @@ namespace Jazz2.Game.UI.Menu
             }
         }
 
-        public MainMenu(App root, bool isInstallationComplete)
+        public MainMenu(App root, bool isInstallationComplete, bool afterIntro)
         {
             this.root = root;
+
+            transitionWhite = (afterIntro ? 1f : 0f);
 
             root.Title = null;
             root.Immersive = true;
 
-            rootObject = new GameObject();
+            GameObject rootObject = new GameObject();
             rootObject.AddComponent(new LocalController(this));
             AddObject(rootObject);
 
@@ -108,7 +110,7 @@ namespace Jazz2.Game.UI.Menu
             if (!FileOp.Exists(musicPath)) {
                 musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", "menu.j2b");
             }
-            music = new OpenMptStream(musicPath);
+            music = new OpenMptStream(musicPath, true);
             music.BeginFadeIn(0.5f);
             DualityApp.Sound.PlaySound(music);
 
@@ -342,6 +344,13 @@ namespace Jazz2.Game.UI.Menu
 
             if (transitionText > 0f) {
                 transitionText -= 0.02f * Time.TimeMult;
+            }
+
+            if (transitionWhite > 0f) {
+                canvas.State.SetMaterial(DrawTechnique.Alpha);
+                canvas.State.ColorTint = new ColorRgba(1f, transitionWhite);
+                canvas.FillRect(0, 0, size.X, size.Y);
+                transitionWhite -= 0.02f * Time.TimeMult;
             }
 
             canvas.End();

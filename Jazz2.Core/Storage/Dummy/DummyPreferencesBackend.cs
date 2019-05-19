@@ -10,6 +10,8 @@ namespace Jazz2.Storage.Dummy
 
         int IDualityBackend.Priority => int.MinValue;
 
+        bool IPreferencesBackend.IsFirstRun => false;
+
         bool IDualityBackend.CheckAvailable()
         {
             return true;

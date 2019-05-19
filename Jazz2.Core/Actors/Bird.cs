@@ -9,7 +9,6 @@ namespace Jazz2.Actors
     {
         private ushort type;
         private Player owner;
-        private int lastPlayerHealth;
         private float fireCooldown = 80f;
         private bool flyAway;
         private float attackTime;
@@ -36,7 +35,6 @@ namespace Jazz2.Actors
         public void OnLinkWithPlayer(Player owner)
         {
             this.owner = owner;
-            this.lastPlayerHealth = owner.Health;
         }
 
         protected override void OnUpdate()
@@ -107,22 +105,6 @@ namespace Jazz2.Actors
             } else {
                 fireCooldown -= timeMult;
             }
-
-            // Check player health
-            int playerHealth = owner.Health;
-            if (playerHealth < lastPlayerHealth) {
-                flyAway = true;
-                fireCooldown = 300f;
-
-                if (attackTime > 0f) {
-                    SetAnimation(AnimState.Idle);
-                    attackTime = 0f;
-                    collisionFlags = CollisionFlags.None;
-                    Transform.Angle = 0f;
-                }
-            }
-
-            lastPlayerHealth = playerHealth;
         }
 
         public override void OnHandleCollision(ActorBase other)
@@ -148,6 +130,19 @@ namespace Jazz2.Actors
             base.OnAnimationFinished();
 
             PlaySound("Fly", 0.3f);
+        }
+
+        public void FlyAway()
+        {
+            flyAway = true;
+            fireCooldown = 300f;
+
+            if (attackTime > 0f) {
+                SetAnimation(AnimState.Idle);
+                attackTime = 0f;
+                collisionFlags = CollisionFlags.None;
+                Transform.Angle = 0f;
+            }
         }
 
         private void TryFire()

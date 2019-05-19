@@ -47,7 +47,7 @@ namespace Jazz2
 
         public int Priority => int.MaxValue;
 
-        public OpenMptStream(string path)
+        public OpenMptStream(string path, bool looping)
         {
             if (!FileOp.Exists(path)) {
                 App.Log("Music file \""  + path + "\" not found!");
@@ -64,8 +64,8 @@ namespace Jazz2
                 // Load module file
                 openmpt_module = openmpt_module_create(stream_callbacks, IntPtr.Zero, null, IntPtr.Zero, IntPtr.Zero);
 
-                // Turn on infinite repeat
-                openmpt_module_set_repeat_count(openmpt_module, -1);
+                // Turn on infinite repeat if required
+                openmpt_module_set_repeat_count(openmpt_module, looping ? -1 : 0);
             } catch (Exception ex) {
                 App.Log("libopenmpt failed to load: " + ex);
                 return;

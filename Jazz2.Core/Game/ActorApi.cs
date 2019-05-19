@@ -202,14 +202,6 @@ namespace Jazz2.Game
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public bool ActivateBoss(ushort musicFile)
-        {
-            return levelHandler.ActivateBoss(musicFile);
-        }
-
-#if NET45
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public string GetLevelText(int textID)
         {
             return levelHandler.GetLevelText(textID);

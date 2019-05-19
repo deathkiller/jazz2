@@ -210,6 +210,11 @@ namespace Jazz2.Actors
 
         public bool OnLevelChanging(ExitType exitType)
         {
+            if (activeBird != null) {
+                activeBird.FlyAway();
+                activeBird = null;
+            }
+
             if (levelExiting != LevelExitingState.None) {
                 if (levelExiting == LevelExitingState.Waiting) {
                     if (canJump && speedX < 1f && speedY < 1f) {
@@ -1616,7 +1621,7 @@ namespace Jazz2.Actors
                     break;
                 }
                 case EventType.AreaActivateBoss: { // Music
-                    api.ActivateBoss(p[0]);
+                    api.BroadcastTriggeredEvent(tileEvent, p);
                     break;
                 }
                 case EventType.AreaFlyOff: {
@@ -1942,6 +1947,11 @@ namespace Jazz2.Actors
                 isAttachedToPole = false;
 
                 fireFramesLeft = copterFramesLeft = pushFramesLeft = 0f;
+
+                if (activeBird != null) {
+                    activeBird.FlyAway();
+                    activeBird = null;
+                }
 
                 if (health > 0) {
                     externalForceX = pushForce;

@@ -46,6 +46,7 @@ namespace Import
             string sourcePath = null;
             bool processAnims = true;
             bool processLevels = true;
+            bool processCinematics = true;
             bool processMusic = true;
             bool processTilesets = true;
             bool all = false;
@@ -58,6 +59,7 @@ namespace Import
                 switch (args[i]) {
                     case "/skip-anims": processAnims = false; break;
                     case "/skip-levels": processLevels = false; break;
+                    case "/skip-cinematics": processCinematics = false; break;
                     case "/skip-music": processMusic = false; break;
                     case "/skip-tilesets": processTilesets = false; break;
                     case "/skip-all": processAnims = processLevels = processMusic = processTilesets = false; break;
@@ -144,6 +146,9 @@ namespace Import
                 usedMusic.Add("menu");
             } else {
                 all = true;
+            }
+            if (processCinematics) {
+                ConvertJJ2Cinematics(sourcePath, targetPath, usedMusic, verbose);
             }
             if (processMusic) {
                 ConvertJJ2Music(sourcePath, targetPath, all ? null : usedMusic, verbose);
@@ -503,6 +508,38 @@ namespace Import
                     e.Convert(output, LevelTokenConversion, EpisodeNameConversion, EpisodePrevNext);
 
                     Log.Write(LogType.Info, "Custom episode \"" + e.Token + "\" (" + e.Name + ") created.");
+                }
+            }
+
+            Log.PopIndent();
+        }
+
+        public static void ConvertJJ2Cinematics(string sourcePath, string targetPath, HashSet<string> usedMusic, bool verbose)
+        {
+            Log.Write(LogType.Info, "Importing cinematics...");
+            Log.PushIndent();
+
+            // Known cinematics files
+            string[] knownFiles = { "intro.j2v", "ending.j2v" };
+
+            Directory.CreateDirectory(Path.Combine(targetPath, "Content", "Cinematics"));
+
+            for (int i = 0; i < knownFiles.Length; i++) {
+                string targetFile = Path.Combine(targetPath, "Content", "Cinematics", knownFiles[i].ToLowerInvariant());
+                if (File.Exists(targetFile)) {
+                    usedMusic.Add(Path.GetFileNameWithoutExtension(knownFiles[i]));
+                    if (verbose) {
+                        Log.Write(LogType.Verbose, "File \"" + knownFiles[i] + "\" already exists! Skipped.");
+                    }
+                    continue;
+                }
+
+                string sourceFile = Path.Combine(sourcePath, knownFiles[i]);
+                if (Utils.FileResolveCaseInsensitive(ref sourceFile)) {
+                    File.Copy(sourceFile, targetFile);
+                    usedMusic.Add(Path.GetFileNameWithoutExtension(knownFiles[i]));
+                } else {
+                    Log.Write(LogType.Warning, "File \"" + Path.GetFileName(knownFiles[i]) + "\" does not exists.");
                 }
             }
 
@@ -1298,7 +1335,7 @@ namespace Import
                     normalMap.Save(Path.ChangeExtension(path, ".n.new" + Path.GetExtension(path)));
                 }*/
 
-                for (int x = 0; x < img.Width; x++) {
+            for (int x = 0; x < img.Width; x++) {
                     for (int y = 0; y < img.Height; y++) {
                         ColorRgba color = img.GetPixel(x, y);
 
