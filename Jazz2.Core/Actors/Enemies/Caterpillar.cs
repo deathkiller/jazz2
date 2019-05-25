@@ -126,8 +126,11 @@ namespace Jazz2.Actors.Enemies
             {
                 base.OnActivated(details);
 
-                collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.SkipPerPixelCollisions;
-                canHurtPlayer = false;
+                base.canBeFrozen = false;
+                base.canHurtPlayer = false;
+                base.canCollideWithAmmo = false;
+                base.isInvulnerable = true;
+                base.collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.SkipPerPixelCollisions;
 
                 health = int.MaxValue;
 

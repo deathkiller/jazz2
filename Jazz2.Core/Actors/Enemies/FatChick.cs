@@ -10,6 +10,7 @@ namespace Jazz2.Actors.Enemies
     {
         private const float DefaultSpeed = 0.9f;
 
+        private bool isAttacking;
         private bool stuck;
 
         public override void OnActivated(ActorActivationDetails details)

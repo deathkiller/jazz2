@@ -132,18 +132,8 @@ namespace Jazz2.Game.UI
                 // Weapon
                 if (owner.PlayerType != PlayerType.Frog) {
                     WeaponType weapon = owner.CurrentWeapon;
-                    string currentWeaponString = GetCurrentWeapon(weapon);
-
-                    GraphicResource res;
-                    if (graphics.TryGetValue(currentWeaponString, out res)) {
-                        float y = bottom;
-                        if (res.Base.FrameDimensions.Y < 20) {
-                            y -= MathF.Round((20 - res.Base.FrameDimensions.Y) * 0.5f);
-                        }
-
-                        DrawMaterial(currentWeaponString, -1, right - 40, y + 1.6f, Alignment.BottomRight, new ColorRgba(0f, 0.4f));
-                        DrawMaterial(currentWeaponString, -1, right - 40, y, Alignment.BottomRight, ColorRgba.White);
-                    }
+                    Vector2 pos = new Vector2(right - 40, bottom);
+                    string currentWeaponString = GetCurrentWeapon(weapon, ref pos);
 
                     string ammoCount;
                     if (owner.WeaponAmmo[(int)weapon] < 0) {
@@ -155,6 +145,16 @@ namespace Jazz2.Game.UI
                         new ColorRgba(0f, 0.32f), charSpacing: 0.96f);
                     fontSmall.DrawString(ref charOffset, ammoCount, right - 40, bottom, Alignment.BottomLeft,
                         ColorRgba.TransparentBlack, charSpacing: 0.96f);
+
+                    GraphicResource res;
+                    if (graphics.TryGetValue(currentWeaponString, out res)) {
+                        if (res.Base.FrameDimensions.Y < 20) {
+                            pos.Y -= MathF.Round((20 - res.Base.FrameDimensions.Y) * 0.5f);
+                        }
+
+                        DrawMaterial(currentWeaponString, -1, pos.X, pos.Y + 1.6f, Alignment.BottomRight, new ColorRgba(0f, 0.4f));
+                        DrawMaterial(currentWeaponString, -1, pos.X, pos.Y, Alignment.BottomRight, ColorRgba.White);
+                    }
                 }
             }
 
@@ -431,8 +431,20 @@ namespace Jazz2.Game.UI
             }
         }
 
-        public string GetCurrentWeapon(WeaponType weapon)
+        public string GetCurrentWeapon(WeaponType weapon, ref Vector2 offset)
         {
+            if (weapon == WeaponType.Toaster && owner.InWater) {
+                offset.X += 2;
+                offset.Y += 2;
+                return "WeaponToasterDisabled";
+            } else if (weapon == WeaponType.Seeker) {
+                offset.X += 2;
+            } else if (weapon == WeaponType.TNT) {
+                offset.X += 2;
+            } else if (weapon == WeaponType.Electro) {
+                offset.X += 6;
+            }
+
             if ((owner.WeaponUpgrades[(int)weapon] & 0x1) != 0) {
                 switch (weapon) {
                     case WeaponType.Blaster:

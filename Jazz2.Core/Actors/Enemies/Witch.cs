@@ -132,15 +132,19 @@ namespace Jazz2.Actors.Enemies
             public MagicBullet(Witch owner)
             {
                 this.owner = owner;
+
+                base.canCollideWithAmmo = false;
             }
 
             public override void OnActivated(ActorActivationDetails details)
             {
                 base.OnActivated(details);
 
-                canHurtPlayer = false;
-                canBeFrozen = false;
-                collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.SkipPerPixelCollisions;
+                base.canBeFrozen = false;
+                base.canCollideWithAmmo = false;
+                base.canHurtPlayer = false;
+                base.isInvulnerable = true;
+                base.collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.SkipPerPixelCollisions;
 
                 health = int.MaxValue;
 

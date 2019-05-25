@@ -9,6 +9,7 @@ namespace Jazz2.Actors.Enemies
     {
         private const float DefaultSpeed = 1f;
 
+        private bool isAttacking;
         private bool canAttack = true;
         private bool idling;
         private bool canIdle;

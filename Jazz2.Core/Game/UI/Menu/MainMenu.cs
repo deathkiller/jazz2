@@ -347,10 +347,10 @@ namespace Jazz2.Game.UI.Menu
             }
 
             if (transitionWhite > 0f) {
-                canvas.State.SetMaterial(DrawTechnique.Alpha);
-                canvas.State.ColorTint = new ColorRgba(1f, transitionWhite);
+                canvas.State.SetMaterial(DrawTechnique.Add);
+                canvas.State.ColorTint = new ColorRgba(transitionWhite);
                 canvas.FillRect(0, 0, size.X, size.Y);
-                transitionWhite -= 0.02f * Time.TimeMult;
+                transitionWhite -= 0.03f * Time.TimeMult;
             }
 
             canvas.End();

@@ -1302,7 +1302,7 @@ namespace Import
             }
         }
 
-        // :: Dev-only methods ::
+        // :: Only for development ::
 #if DEBUG
         private static readonly int[] UsableIndexRanges = {
             0, 1,       // Transparent, Black
@@ -1338,7 +1338,7 @@ namespace Import
                 }
             }
 
-            Log.Write(LogType.Info, $"Adapting image to default palette with {noise}% noise...");
+            Log.Write(LogType.Info, "Adapting image to default palette with " + noise + "% noise...");
             Log.PushIndent();
 
             Random r = new Random();
@@ -1356,7 +1356,7 @@ namespace Import
                     normalMap.Save(Path.ChangeExtension(path, ".n.new" + Path.GetExtension(path)));
                 }*/
 
-            for (int x = 0; x < img.Width; x++) {
+                for (int x = 0; x < img.Width; x++) {
                     for (int y = 0; y < img.Height; y++) {
                         ColorRgba color = img.GetPixel(x, y);
 
@@ -1438,6 +1438,9 @@ namespace Import
 
         private static void ApplyDefaultPaletteToPng(string path)
         {
+            Log.Write(LogType.Info, "Applying default palette to image...");
+            Log.PushIndent();
+
             Png source;
             using (Stream s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
                 source = new Png(s);
@@ -1455,10 +1458,16 @@ namespace Import
             }
 
             target.Save(path + ".c.png");
+
+            Log.Write(LogType.Info, "Done!");
+            Log.PopIndent();
         }
 
         private static void ConvertFontToJson(string path)
         {
+            Log.Write(LogType.Info, "Exporting font configuration to JSON...");
+            Log.PushIndent();
+
             using (Stream s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
             using (Stream s2 = File.Create(path + ".json"))
             using (StreamWriter w = new StreamWriter(s2, new UTF8Encoding(false))) {
@@ -1528,6 +1537,9 @@ namespace Import
                 w.WriteLine("    }");
                 w.WriteLine("}");
             }
+
+            Log.Write(LogType.Info, "Done!");
+            Log.PopIndent();
         }
 
         public class FontJson
@@ -1544,6 +1556,9 @@ namespace Import
 
         private static void ConvertJsonToFont(string path, string targetPath)
         {
+            Log.Write(LogType.Info, "Assembling font configuration from JSON...");
+            Log.PushIndent();
+
             JsonParser jsonParser = new JsonParser();
             FontJson json;
 
@@ -1579,6 +1594,9 @@ namespace Import
                     s.WriteByte((byte)pair.Value);
                 }
             }
+
+            Log.Write(LogType.Info, "Done!");
+            Log.PopIndent();
         }
 
         private static void ExtractTranslationsForLevels(string sourcePath, string targetPath, string langSuffix)

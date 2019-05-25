@@ -161,9 +161,12 @@ namespace Jazz2.Compatibility
 
                                 for (ushort j = 0; j < frameCount; j++) {
                                     if (currentFrame >= currentAnim.FrameCount) {
-                                        // Jump to the next animation
                                         currentAnim = setAnims[++currentAnimIdx];
                                         currentFrame = 0;
+
+                                        while (currentAnim.FrameCount == 0 && currentAnimIdx < setAnims.Count) {
+                                            currentAnim = setAnims[++currentAnimIdx];
+                                        }
                                     }
 
                                     ref AnimFrameSection frame = ref currentAnim.Frames[currentFrame];
@@ -457,6 +460,9 @@ namespace Jazz2.Compatibility
                 Parallel.ForEach(Partitioner.Create(0, anims.Count), range => {
                     for (int i = range.Item1; i < range.Item2; i++) {
                         AnimSection currentAnim = anims[i];
+                        if (currentAnim.FrameCount == 0) {
+                            continue;
+                        }
 
                         AnimSetMapping.Entry data = animMapping.Get(currentAnim.Set, currentAnim.Anim);
                         if (data.Category == AnimSetMapping.Discard) {

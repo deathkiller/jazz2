@@ -72,7 +72,7 @@ namespace Jazz2.Actors.Bosses
 
                             Vector3 pos = Transform.Pos;
 
-                            BilsyFireball fireball = new BilsyFireball();
+                            Fireball fireball = new Fireball();
                             fireball.OnActivated(new ActorActivationDetails {
                                 Api = api,
                                 Pos = new Vector3(pos.X + 26f * (IsFacingLeft ? -1f : 1f), pos.Y - 20f, pos.Z - 2f),
@@ -174,7 +174,7 @@ namespace Jazz2.Actors.Bosses
             PlaySound("Appear", 0.8f);
         }
 
-        public class BilsyFireball : EnemyBase
+        private class Fireball : EnemyBase
         {
             private float time = 90f;
 
@@ -185,8 +185,9 @@ namespace Jazz2.Actors.Bosses
                 ushort theme = details.Params[0];
                 bool isFacingLeft = (details.Params[1] != 0);
 
-                canBeFrozen = false;
-                collisionFlags = CollisionFlags.CollideWithOtherActors;
+                base.canBeFrozen = false;
+                base.isInvulnerable = true;
+                base.collisionFlags = CollisionFlags.CollideWithOtherActors;
 
                 health = int.MaxValue;
 

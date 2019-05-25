@@ -126,7 +126,9 @@ namespace Jazz2.Actors.Enemies
 
                 IsFacingLeft = (details.Params[0] != 0);
 
-                collisionFlags &= ~CollisionFlags.ApplyGravitation;
+                base.canBeFrozen = false;
+                base.isInvulnerable = true;
+                base.collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
                 RequestMetadata("Weapon/Toaster");
                 SetAnimation("Fire");

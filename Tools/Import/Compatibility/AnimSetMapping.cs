@@ -817,7 +817,7 @@ namespace Jazz2.Compatibility
                 m.Add("Pickup", "food_burger");
                 m.Add("Pickup", "food_cake");
                 m.Add("Pickup", "food_candy");
-                m.Add("Object", "Savepoint");
+                m.Add("Object", "checkpoint");
                 m.Add("Pickup", "food_cheese");
                 m.Add("Pickup", "food_cherry");
                 m.Add("Pickup", "food_chicken");

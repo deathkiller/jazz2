@@ -77,7 +77,7 @@ namespace Jazz2.Actors.Bosses
                                     float x = (IsFacingLeft ? -16f : 16f);
                                     float y = -5f;
 
-                                    BubbaFireball fireball = new BubbaFireball();
+                                    Fireball fireball = new Fireball();
                                     fireball.OnActivated(new ActorActivationDetails {
                                         Api = api,
                                         Pos = new Vector3(pos.X + x, pos.Y + y, pos.Z + 2f),
@@ -218,7 +218,7 @@ namespace Jazz2.Actors.Bosses
             }
         }
 
-        private class BubbaFireball : EnemyBase
+        private class Fireball : EnemyBase
         {
             private float time = 50f;
 
@@ -229,7 +229,10 @@ namespace Jazz2.Actors.Bosses
                 IsFacingLeft = (details.Params[0] != 0);
                 speedX = (IsFacingLeft ? -4.8f : 4.8f);
 
-                collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors;
+                base.canBeFrozen = false;
+                base.canCollideWithAmmo = false;
+                base.isInvulnerable = true;
+                base.collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors;
 
                 health = int.MaxValue;
 

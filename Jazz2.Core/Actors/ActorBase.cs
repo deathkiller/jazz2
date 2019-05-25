@@ -311,7 +311,17 @@ namespace Jazz2.Actors
 
         protected void TryStandardMovement(float timeMult)
         {
-            float gravity = ((collisionFlags & CollisionFlags.ApplyGravitation) != 0 ? api.Gravity : 0);
+            float currentGravity;
+            float currentElasticity = elasticity;
+            if ((collisionFlags & CollisionFlags.ApplyGravitation) != 0) {
+                currentGravity = api.Gravity;
+                if (Transform.Pos.Y >= api.WaterLevel) {
+                    currentGravity *= 0.5f;
+                    currentElasticity *= 0.7f;
+                }
+            } else {
+                currentGravity = 0f;
+            }
 
             speedX = MathF.Clamp(speedX, -16f, 16f);
             speedY = MathF.Clamp(speedY - (internalForceY + externalForceY) * timeMult, -16f, 16f);
@@ -319,7 +329,7 @@ namespace Jazz2.Actors
             float effectiveSpeedX, effectiveSpeedY;
             if (frozenTimeLeft > 0f) {
                 effectiveSpeedX = MathF.Clamp(externalForceX * timeMult, -16f, 16f);
-                effectiveSpeedY = MathF.Clamp((/*speedY*/(gravity * 2f) + internalForceY) * timeMult, -16f, 16f);
+                effectiveSpeedY = MathF.Clamp(((currentGravity * 2f) + internalForceY) * timeMult, -16f, 16f);
             } else {
                 effectiveSpeedX = speedX + externalForceX * timeMult;
                 effectiveSpeedY = speedY;
@@ -362,8 +372,8 @@ namespace Jazz2.Actors
                     }
 
                     // If no angle worked in the previous step, the actor is facing a wall.
-                    if (xDiff > CollisionCheckStep || (xDiff > 0f && elasticity > 0f)) {
-                        speedX = -(elasticity * speedX);
+                    if (xDiff > CollisionCheckStep || (xDiff > 0f && currentElasticity > 0f)) {
+                        speedX = -(currentElasticity * speedX);
                     }
                     OnHitWall();
                 }
@@ -409,7 +419,7 @@ namespace Jazz2.Actors
                     // collides with a wall from the side while in the air)
                     if (yDiff < Math.Abs(effectiveSpeedY)) {
                         if (effectiveSpeedY > 0f) {
-                            speedY = -(elasticity * effectiveSpeedY / timeMult);
+                            speedY = -(currentElasticity * effectiveSpeedY / timeMult);
                             
                             OnHitFloor();
 
@@ -426,8 +436,8 @@ namespace Jazz2.Actors
                     // If the actor didn't move all the way horizontally,
                     // it hit a wall (or was already touching it)
                     if (xDiff < MathF.Abs(effectiveSpeedX)) {
-                        if (xDiff > CollisionCheckStep || (xDiff > 0f && elasticity > 0f)) {
-                            speedX = -(elasticity * speedX);
+                        if (xDiff > CollisionCheckStep || (xDiff > 0f && currentElasticity > 0f)) {
+                            speedX = -(currentElasticity * speedX);
                         }
                         OnHitWall();
                     }
@@ -437,7 +447,7 @@ namespace Jazz2.Actors
             // Set the actor as airborne if there seems to be enough space below it
             AABB aabb = (AABBInner + new Vector2(0f, CollisionCheckStep));
             if (api.IsPositionEmpty(this, ref aabb, effectiveSpeedY >= 0)) {
-                speedY += gravity * timeMult;
+                speedY += currentGravity * timeMult;
                 canJump = false;
             }
 
@@ -449,8 +459,8 @@ namespace Jazz2.Actors
                     externalForceX = MathF.Min(externalForceX + friction * timeMult, 0f);
                 }
             }
-            externalForceY = MathF.Max(externalForceY - gravity * 0.33f * timeMult, 0f);
-            internalForceY = MathF.Max(internalForceY - gravity * 0.33f * timeMult, 0f);
+            externalForceY = MathF.Max(externalForceY - currentGravity * 0.33f * timeMult, 0f);
+            internalForceY = MathF.Max(internalForceY - currentGravity * 0.33f * timeMult, 0f);
         }
 
         public virtual bool OnTileDeactivate(int tx1, int ty1, int tx2, int ty2)

@@ -142,7 +142,7 @@ namespace Jazz2.Actors.Enemies
 
                 IsFacingLeft = (details.Params[0] != 0);
 
-                health = int.MaxValue;
+                health = 2;
 
                 speedX = (IsFacingLeft ? -8f : 8f);
                 speedY = -3f;

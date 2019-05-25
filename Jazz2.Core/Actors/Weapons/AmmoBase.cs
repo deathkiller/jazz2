@@ -116,7 +116,9 @@ namespace Jazz2.Actors.Weapons
                 } else if (lastRicochetFrame + 2 >= Time.FrameCount) {
                     DecreaseHealth(int.MaxValue);
                 }
-            } else if (other is EnemyBase || other is SolidObjectBase) {
+            } else if (other is EnemyBase && ((EnemyBase)other).CanCollideWithAmmo) {
+                DecreaseHealth(int.MaxValue);
+            } else if (other is SolidObjectBase) {
                 DecreaseHealth(int.MaxValue);
             }
         }

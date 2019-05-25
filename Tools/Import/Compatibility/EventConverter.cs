@@ -141,7 +141,14 @@ namespace Jazz2.Compatibility
                 Pair.Create(JJ2EventParamType.UInt, 2)  // Team (JJ2+)
             ));
 
-            Add(JJ2Event.SAVE_POINT, NoParamList(EventType.Checkpoint));
+            Add(JJ2Event.SAVE_POINT, (level, jj2Params) => {
+                ushort theme = (ushort)(level.Tileset.IndexOf("xmas", StringComparison.InvariantCultureIgnoreCase) != -1 ? 1 : 0);
+
+                return new ConversionResult {
+                    Type = EventType.Checkpoint,
+                    Params = new ushort[] { theme, 0 }
+                };
+            });
 
             // Scenery
             Add(JJ2Event.SCENERY_DESTRUCT, (level, jj2Params) => {

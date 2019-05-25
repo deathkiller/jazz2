@@ -228,8 +228,8 @@ namespace Jazz2.Actors.Bosses
             {
                 base.OnActivated(details);
 
-                canBeFrozen = false;
-                collisionFlags = CollisionFlags.CollideWithOtherActors;
+                base.canBeFrozen = false;
+                base.collisionFlags = CollisionFlags.CollideWithOtherActors;
 
                 elasticity = 0.3f;
 

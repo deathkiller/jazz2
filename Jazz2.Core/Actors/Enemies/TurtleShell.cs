@@ -122,8 +122,13 @@ namespace Jazz2.Actors.Enemies
                 }
 
                 case EnemyBase enemy: {
-                    enemy.DecreaseHealth(1, this);
-                    speedX = MathF.Max(MathF.Abs(speedX), 2f) * (speedX >= 0f ? -1f : 1f);
+                    if (enemy.CanCollideWithAmmo) {
+                        if (!enemy.IsInvulnerable) {
+                            enemy.DecreaseHealth(1, this);
+                        }
+                        
+                        speedX = MathF.Max(MathF.Abs(speedX), 2f) * (speedX >= 0f ? -1f : 1f);
+                    }
                     break;
                 }
 

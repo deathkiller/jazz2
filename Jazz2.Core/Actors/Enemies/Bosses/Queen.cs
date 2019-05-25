@@ -284,7 +284,8 @@ namespace Jazz2.Actors.Bosses
             {
                 base.OnActivated(details);
 
-                collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation | CollisionFlags.SkipPerPixelCollisions;
+                base.isInvulnerable = true;
+                base.collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation | CollisionFlags.SkipPerPixelCollisions;
 
                 health = 1;
 

@@ -155,7 +155,8 @@ namespace Jazz2.Actors.Weapons
 
         public override void OnHandleCollision(ActorBase other)
         {
-            if (other is EnemyBase && other.IsInvulnerable) {
+            EnemyBase enemy = other as EnemyBase;
+            if (enemy != null && (enemy.IsInvulnerable || !enemy.CanCollideWithAmmo)) {
                 return;
             }
 

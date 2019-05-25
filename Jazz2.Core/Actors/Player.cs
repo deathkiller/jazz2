@@ -103,6 +103,8 @@ namespace Jazz2.Actors
 
         public bool CanBreakSolidObjects => (currentSpecialMove != SpecialMoveType.None || sugarRushLeft > 0f);
 
+        public bool InWater => inWater;
+
         public override void OnActivated(ActorActivationDetails details)
         {
             base.OnActivated(details);
@@ -1622,6 +1624,11 @@ namespace Jazz2.Actors
                 }
                 case EventType.AreaActivateBoss: { // Music
                     api.BroadcastTriggeredEvent(tileEvent, p);
+
+                    // Deactivate sugar rush if it's active
+                    if (sugarRushLeft > 1f) {
+                        sugarRushLeft = 1f;
+                    }
                     break;
                 }
                 case EventType.AreaFlyOff: {

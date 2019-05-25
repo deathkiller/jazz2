@@ -969,7 +969,7 @@ namespace Jazz2.Game
                 }
 
                 InitLevelChange(ExitType.Normal, null);
-                levelChangeTimer *= 2;
+                levelChangeTimer = 300;
             }
 
             if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {

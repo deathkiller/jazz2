@@ -25,18 +25,14 @@ namespace Jazz2.Actors.Enemies
 
         protected int scoreValue;
         protected bool canHurtPlayer = true;
-        protected bool isAttacking;
+        protected bool canCollideWithAmmo = true;
         protected LastHitDirection lastHitDir;
 
         private float blinkingTimeout;
 
-        public bool CanHurtPlayer
-        {
-            get
-            {
-                return (canHurtPlayer && frozenTimeLeft <= 0f);
-            }
-        }
+        public bool CanHurtPlayer => (canHurtPlayer && frozenTimeLeft <= 0f);
+
+        public bool CanCollideWithAmmo => canCollideWithAmmo;
 
         protected override void OnUpdate()
         {

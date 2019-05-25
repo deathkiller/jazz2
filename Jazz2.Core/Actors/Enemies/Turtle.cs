@@ -9,6 +9,7 @@ namespace Jazz2.Actors.Enemies
         private float DefaultSpeed = 1f;
 
         private ushort theme;
+        private bool isAttacking;
         private bool isTurning;
         private bool isWithdrawn;
 

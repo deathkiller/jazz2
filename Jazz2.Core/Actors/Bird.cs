@@ -151,7 +151,7 @@ namespace Jazz2.Actors
 
             foreach (GameObject o in api.ActiveObjects) {
                 EnemyBase enemy = o as EnemyBase;
-                if (enemy != null && !enemy.IsInvulnerable) {
+                if (enemy != null && !enemy.IsInvulnerable && enemy.CanCollideWithAmmo) {
                     Vector3 newPos = enemy.Transform.Pos;
 
                     if ((IsFacingLeft && newPos.X > pos.X) || (!IsFacingLeft && newPos.X < pos.X)) {

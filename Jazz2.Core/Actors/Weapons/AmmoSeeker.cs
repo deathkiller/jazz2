@@ -133,7 +133,7 @@ namespace Jazz2.Actors.Weapons
 
             foreach (GameObject obj in api.ActiveObjects) {
                 EnemyBase enemy = obj as EnemyBase;
-                if (enemy != null) {
+                if (enemy != null && !enemy.IsInvulnerable && enemy.CanCollideWithAmmo) {
                     Vector3 newPos = enemy.Transform.Pos;
                     if ((pos - newPos).Length < (pos - targetPos).Length) {
                         targetPos = newPos;

@@ -301,8 +301,10 @@ namespace Jazz2.Actors.Bosses
             {
                 base.OnActivated(details);
 
-                collisionFlags = CollisionFlags.CollideWithOtherActors;
-                isInvulnerable = true;
+                base.canBeFrozen = false;
+                base.canCollideWithAmmo = false;
+                base.isInvulnerable = true;
+                base.collisionFlags = CollisionFlags.CollideWithOtherActors;
 
                 health = int.MaxValue;
 
@@ -334,8 +336,10 @@ namespace Jazz2.Actors.Bosses
             {
                 base.OnActivated(details);
 
-                canBeFrozen = false;
-                collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors | CollisionFlags.SkipPerPixelCollisions;
+                base.canBeFrozen = false;
+                base.canCollideWithAmmo = false;
+                base.isInvulnerable = true;
+                base.collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors | CollisionFlags.SkipPerPixelCollisions;
 
                 health = int.MaxValue;
 

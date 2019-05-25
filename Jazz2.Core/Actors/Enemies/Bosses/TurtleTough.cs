@@ -189,10 +189,11 @@ namespace Jazz2.Actors.Bosses
             {
                 base.OnActivated(details);
 
-                canBeFrozen = false;
-                collisionFlags = CollisionFlags.CollideWithOtherActors;
+                base.canBeFrozen = false;
+                base.canCollideWithAmmo = false;
+                base.collisionFlags = CollisionFlags.CollideWithOtherActors;
 
-                health = int.MaxValue;
+                base.health = int.MaxValue;
 
                 RequestMetadata("Boss/TurtleTough");
                 SetAnimation((AnimState)1073741827);

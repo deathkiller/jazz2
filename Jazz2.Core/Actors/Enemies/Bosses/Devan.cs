@@ -358,7 +358,9 @@ namespace Jazz2.Actors.Bosses
 
                 IsFacingLeft = (details.Params[0] != 0);
 
-                collisionFlags &= ~CollisionFlags.ApplyGravitation;
+                base.canCollideWithAmmo = false;
+                base.isInvulnerable = true;
+                base.collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
                 canBeFrozen = false;
                 health = int.MaxValue;
@@ -428,9 +430,10 @@ namespace Jazz2.Actors.Bosses
 
                 IsFacingLeft = (details.Params[0] != 0);
 
-                collisionFlags &= ~CollisionFlags.ApplyGravitation;
+                base.canBeFrozen = false;
+                base.isInvulnerable = true;
+                base.collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
-                canBeFrozen = false;
                 health = int.MaxValue;
 
                 speedX = (IsFacingLeft ? -5f : 5f);

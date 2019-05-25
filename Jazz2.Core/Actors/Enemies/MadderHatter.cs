@@ -111,6 +111,10 @@ namespace Jazz2.Actors.Enemies
             {
                 base.OnActivated(details);
 
+                base.canBeFrozen = false;
+                base.canCollideWithAmmo = false;
+                base.isInvulnerable = true;
+
                 IsFacingLeft = (details.Params[0] != 0);
                 speedX = (IsFacingLeft ? -6f : 6f);
                 externalForceY = 0.6f;

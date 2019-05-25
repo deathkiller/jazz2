@@ -78,6 +78,10 @@
         "WeaponPowerUpThunderbolt": {
             "Path": "_custom/thunderbolt_ammo.png"
         },
+        
+        "WeaponToasterDisabled": {
+            "Path": "_custom/ammo_toaster_disabled.png"
+        },
 
         "CharacterJazz": {
             "Path": "UI/icon_jazz.png",

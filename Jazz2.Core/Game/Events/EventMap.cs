@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Runtime.CompilerServices;
 using Duality;
-using Duality.IO;
 using Jazz2.Actors;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
@@ -304,11 +302,13 @@ namespace Jazz2.Game.Events
                 return;
             }
 
-            EventTile tile = new EventTile {
+            ref EventTile previousEvent = ref eventLayout[x + y * layoutWidth];
+
+            EventTile newEvent = new EventTile {
                 EventType = eventType,
                 EventFlags = eventFlags,
                 EventParams = new ushort[8],
-                IsEventActive = false
+                IsEventActive = (previousEvent.EventType == eventType && previousEvent.IsEventActive)
             };
 
             // Store event parameters
@@ -316,11 +316,11 @@ namespace Jazz2.Game.Events
             if (tileParams != null) {
                 int n = MathF.Min(tileParams.Length, 8);
                 for (; i < n; ++i) {
-                    tile.EventParams[i] = tileParams[i];
+                    newEvent.EventParams[i] = tileParams[i];
                 }
             }
 
-            eventLayout[x + y * layoutWidth] = tile;
+            previousEvent = newEvent;
         }
 
         public void ProcessGenerators()

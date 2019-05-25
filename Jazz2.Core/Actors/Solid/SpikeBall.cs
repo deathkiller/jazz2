@@ -32,9 +32,9 @@ namespace Jazz2.Actors.Solid
 
             phase = (BaseCycleFrames - (float)(Time.GameTimer.TotalMilliseconds % BaseCycleFrames - sync * 175) * speed) % BaseCycleFrames;
 
-            isInvulnerable = true;
-            collisionFlags = CollisionFlags.CollideWithOtherActors;
-            canBeFrozen = false;
+            base.canBeFrozen = false;
+            base.isInvulnerable = true;
+            base.collisionFlags = CollisionFlags.CollideWithOtherActors;
 
             RequestMetadata("MovingPlatform/SpikeBall");
             SetAnimation("Platform");
