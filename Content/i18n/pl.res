@@ -28,7 +28,7 @@
     "menu/settings/language": "Język",
     "menu/settings/music": "Głośność muzyki",
     "menu/settings/refresh": "Limit szybkości klatek",
-    "menu/settings/refresh/0": "Brak (nie zalecane)",
+    "menu/settings/refresh/0": "Brak",
     "menu/settings/refresh/1": "60 fps",
     "menu/settings/refresh/2": "V-Sync",
     "menu/settings/refresh/3": "Adaptacyjny V-Sync",

@@ -46,7 +46,7 @@
     "menu/settings/language": "Sprache",
     "menu/settings/music": "Musik-lautstärke",
     "menu/settings/refresh": "Bildratenbegrenzung",
-    "menu/settings/refresh/0": "Keine (nicht empfohlen)",
+    "menu/settings/refresh/0": "Keine",
     "menu/settings/refresh/1": "60 fps",
     "menu/settings/refresh/2": "V-Sync",
     "menu/settings/refresh/3": "Adaptiv V-Sync",

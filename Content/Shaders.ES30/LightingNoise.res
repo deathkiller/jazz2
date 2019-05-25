@@ -17,6 +17,10 @@ in vec4 vCornerColor;
 
 out vec4 vFragColor;
 
+float light_blend(float t) {
+    return t * t;
+}
+
 void main() {
     vec2 center = vTexcoord0.xy;
     float radiusNear = vTexcoord0.z;
@@ -41,7 +45,7 @@ void main() {
 
     float noise = 0.3 + 0.7 * texture(noiseTex, (gl_FragCoord.xy / ViewSize.xx) + vec2(GameTime * 1.5, GameTime)).r;
 
-    float strength = noise * diffuseFactor * clamp(1.0 - ((dist - radiusNear) / (radiusFar - radiusNear)), 0.0, 1.0);
+    float strength = noise * diffuseFactor * light_blend(clamp(1.0 - ((dist - radiusNear) / (radiusFar - radiusNear)), 0.0, 1.0));
     vFragColor = vec4(strength * intensity, strength * brightness, 0.0, 1.0);
 }"
 

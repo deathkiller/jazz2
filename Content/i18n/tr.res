@@ -49,7 +49,7 @@
     "menu/settings/left padding": "Sol Kontrol Panel Yeri",
     "menu/settings/music": "Müzik Ses Seviyesi",
     "menu/settings/refresh": "Kare Hızı (fps) Limiti",
-    "menu/settings/refresh/0": "Hiçbiri (Tavsiye Edilmez)",
+    "menu/settings/refresh/0": "Hiçbiri",
     "menu/settings/refresh/1": "60 fps",
     "menu/settings/refresh/2": "V-Sync",
     "menu/settings/refresh/3": "Uyumlu V-Sync",

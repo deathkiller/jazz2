@@ -99,7 +99,9 @@ namespace Jazz2.Actors
                 case WeaponType.RF: FireWeaponRF(); break;
 
                 case WeaponType.Toaster: {
-                    FireWeaponToaster();
+                    if (!FireWeaponToaster()) {
+                        return;
+                    }
                     ammoDecrease = 20;
                     break;
                 }
@@ -149,7 +151,7 @@ namespace Jazz2.Actors
 
                 int size = (currentAnimation.Base.FrameDimensions.X / 2);
                 gunspotPos.X += (MathF.Cos(angle) * size) * (IsFacingLeft ? -1f : 1f);
-                gunspotPos.Y += (MathF.Sin(angle) * size) * (IsFacingLeft ? -1f : 1f);
+                gunspotPos.Y += (MathF.Sin(angle) * size) * (IsFacingLeft ? -1f : 1f) - (currentAnimation.Base.Hotspot.Y - currentAnimation.Base.Gunspot.Y);
             } else {
                 gunspotPos.X += (currentAnimation.Base.Hotspot.X - currentAnimation.Base.Gunspot.X) * (IsFacingLeft ? 1 : -1);
                 gunspotPos.Y -= (currentAnimation.Base.Hotspot.Y - currentAnimation.Base.Gunspot.Y);
@@ -250,7 +252,7 @@ namespace Jazz2.Actors
             newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft);
             api.AddActor(newAmmo);
 
-            weaponCooldown = 46f - (weaponUpgrades[(int)WeaponType.Blaster] >> 1) * 1.4f;
+            weaponCooldown = 100f;
         }
 
         private void FireWeaponRF()
@@ -305,11 +307,15 @@ namespace Jazz2.Actors
                 api.AddActor(newAmmo);
             }
 
-            weaponCooldown = 34f - (weaponUpgrades[(int)WeaponType.Blaster] >> 1) * 1.4f;
+            weaponCooldown = 100f;
         }
 
-        private void FireWeaponToaster()
+        private bool FireWeaponToaster()
         {
+            if (inWater) {
+                return false;
+            }
+
             Vector3 initialPos, gunspotPos; float angle;
             GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
 
@@ -325,6 +331,7 @@ namespace Jazz2.Actors
             //PlaySound("WeaponToaster", 0.6f);
 
             weaponCooldown = 6f;
+            return true;
         }
 
         private void FireWeaponTNT()

@@ -6,6 +6,10 @@ uniform vec2 ViewSize;
 
 uniform sampler2D normalBuffer;
 
+float light_blend(float t) {
+    return t * t;
+}
+
 void main() {
     vec2 center = gl_TexCoord[0].xy;
     float radiusNear = gl_TexCoord[0].z;
@@ -53,7 +57,7 @@ void main() {
     //float specularFactor = pow(max(dot(normal, normalize(eyeDir + lightDir)), 0.000001), clrSpecular.a * 64.0);
     //finalColor.rgb += _lightColor[i] * clrSpecular.rgb * specularFactor * diffuseFactor * attenFactor;
 
-    float strength = diffuseFactor * clamp(1.0 - ((dist - radiusNear) / (radiusFar - radiusNear)), 0.0, 1.0);
+    float strength = diffuseFactor * light_blend(clamp(1.0 - ((dist - radiusNear) / (radiusFar - radiusNear)), 0.0, 1.0));
     gl_FragColor = vec4(strength * intensity, strength * brightness, 0.0, 1.0);
 }"
 

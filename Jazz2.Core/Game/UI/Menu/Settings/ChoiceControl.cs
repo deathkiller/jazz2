@@ -57,38 +57,14 @@ namespace Jazz2.Game.UI.Menu.Settings
                 return;
             }
 
-            if (choices.Length > 2) {
-                api.DrawMaterial("MenuGlow", pos.X, pos.Y + 20f, Alignment.Center, ColorRgba.White.WithAlpha(0.2f), (choices[selectedIndex].Length + 3) * 0.4f, 2.2f);
+            api.DrawMaterial("MenuGlow", pos.X, pos.Y + 20f, Alignment.Center, ColorRgba.White.WithAlpha(0.2f), (choices[selectedIndex].Length + 3) * 0.4f, 2.2f);
 
-                api.DrawStringShadow(ref charOffset, choices[selectedIndex], pos.X, pos.Y + 20f, Alignment.Center,
-                    null, 0.9f, 0.4f, 0.55f, 0.55f, 8f, 0.9f);
-            } else {
-                float offset, spacing;
-                if (choices.Length == 1) {
-                    offset = 0f;
-                    spacing = 0f;
-                } else {
-                    offset = 50f;
-                    spacing = 100f;
-                }
+            api.DrawStringShadow(ref charOffset, choices[selectedIndex], pos.X, pos.Y + 20f, Alignment.Center,
+                null, 0.9f, 0.4f, 0.55f, 0.55f, 8f, 0.9f);
 
-                for (int i = 0; i < choices.Length; i++) {
-                    float x = pos.X - offset + i * spacing;
-                    if (selectedIndex == i) {
-                        api.DrawMaterial("MenuGlow", x, pos.Y + 20f, Alignment.Center, ColorRgba.White.WithAlpha(0.2f), (choices[i].Length + 3) * 0.4f, 2.2f);
-
-                        api.DrawStringShadow(ref charOffset, choices[i], x, pos.Y + 20f, Alignment.Center,
-                            null, 0.9f, 0.4f, 0.55f, 0.55f, 8f, 0.9f);
-                    } else {
-                        api.DrawString(ref charOffset, choices[i], x, pos.Y + 20f, Alignment.Center,
-                            ColorRgba.TransparentBlack, 0.8f, charSpacing: 0.9f);
-                    }
-                }
-            }
-
-            api.DrawStringShadow(ref charOffset, "<", pos.X - 110f, pos.Y + 20f, Alignment.Center,
+            api.DrawStringShadow(ref charOffset, "<", pos.X - 80f, pos.Y + 20f, Alignment.Center,
                 ColorRgba.TransparentBlack, 0.7f);
-            api.DrawStringShadow(ref charOffset, ">", pos.X + 110f, pos.Y + 20f, Alignment.Center,
+            api.DrawStringShadow(ref charOffset, ">", pos.X + 80f, pos.Y + 20f, Alignment.Center,
                 ColorRgba.TransparentBlack, 0.7f);
 
             pos.Y += 55f;

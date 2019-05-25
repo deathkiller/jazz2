@@ -8,6 +8,10 @@ uniform float GameTime;
 uniform sampler2D normalBuffer;
 uniform sampler2D noiseTex;
 
+float light_blend(float t) {
+    return t * t;
+}
+
 void main() {
     vec2 center = gl_TexCoord[0].xy;
     float radiusNear = gl_TexCoord[0].z;
@@ -32,7 +36,7 @@ void main() {
 
     float noise = 0.3 + 0.7 * texture2D(noiseTex, (gl_FragCoord.xy / ViewSize.xx) + vec2(GameTime * 5.0, GameTime * 3.0)).r;
 
-    float strength = noise * diffuseFactor * clamp(1.0 - ((dist - radiusNear) / (radiusFar - radiusNear)), 0.0, 1.0);
+    float strength = noise * diffuseFactor * light_blend(clamp(1.0 - ((dist - radiusNear) / (radiusFar - radiusNear)), 0.0, 1.0));
     gl_FragColor = vec4(strength * intensity, strength * brightness, 0.0, 1.0);
 }"
 

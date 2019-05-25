@@ -49,7 +49,7 @@
     "menu/settings/left padding": "Odsazení ovládání zleva",
     "menu/settings/music": "Hlasitost hudby",
     "menu/settings/refresh": "Omezení obnovovací frekvence",
-    "menu/settings/refresh/0": "Žádné (nedoporučeno)",
+    "menu/settings/refresh/0": "Žádné",
     "menu/settings/refresh/1": "60 snímků/s",
     "menu/settings/refresh/2": "V-Sync",
     "menu/settings/refresh/3": "Adaptivní V-Sync",
@@ -59,7 +59,7 @@
     "menu/settings/right padding": "Odsazení ovládání zprava",
     "menu/settings/screen": "Režim obrazovky",
     "menu/settings/screen/0": "Okno",
-    "menu/settings/screen/1": "Celá obraz.",
+    "menu/settings/screen/1": "Celá obrazovka",
     "menu/settings/sfx": "Hlasitost zvuků",
     "menu/settings/vibrations": "Vibrace",
     "menu/update": "Je k dispozici nová verze!"

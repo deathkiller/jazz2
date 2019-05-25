@@ -148,7 +148,7 @@ namespace Jazz2
                 case PlayerActions.Right: return DualityApp.Keyboard.KeyPressed(Key.Right);
                 case PlayerActions.Up: return DualityApp.Keyboard.KeyPressed(Key.Up);
                 case PlayerActions.Down: return DualityApp.Keyboard.KeyPressed(Key.Down);
-                case PlayerActions.Fire: return DualityApp.Keyboard.KeyPressed(Key.Enter);
+                case PlayerActions.Fire: return DualityApp.Keyboard.KeyPressed(Key.Enter) || PlayerActionPressed(0, PlayerActions.Fire);
                 case PlayerActions.Menu: return DualityApp.Keyboard.KeyPressed(Key.Escape);
             }
 
@@ -172,7 +172,7 @@ namespace Jazz2
                 case PlayerActions.Right: return DualityApp.Keyboard.KeyHit(Key.Right);
                 case PlayerActions.Up: return DualityApp.Keyboard.KeyHit(Key.Up);
                 case PlayerActions.Down: return DualityApp.Keyboard.KeyHit(Key.Down);
-                case PlayerActions.Fire: return DualityApp.Keyboard.KeyHit(Key.Enter);
+                case PlayerActions.Fire: return DualityApp.Keyboard.KeyHit(Key.Enter) || PlayerActionHit(0, PlayerActions.Fire);
                 case PlayerActions.Menu: return DualityApp.Keyboard.KeyHit(Key.Escape);
             }
 

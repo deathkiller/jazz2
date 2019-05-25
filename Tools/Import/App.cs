@@ -361,6 +361,8 @@ namespace Import
                     return "The Secret Files";
                 } else if (episode.Token == "hh17" && episode.Name == "Holiday Hare 17") {
                     return "Holiday Hare '17";
+                } else if (episode.Token == "hh18" && episode.Name == "Holiday Hare 18") {
+                    return "Holiday Hare '18";
                 } else {
                     // @ is new line, # is random color
                     return episode.Name.Replace("#", "").Replace("@", " ");
@@ -1253,6 +1255,24 @@ namespace Import
                 ["hh17_level07_save"] = Tuple.Create("hh17", (string)null),
                 ["hh17_ending"] = Tuple.Create("hh17", (string)null),
                 ["hh17_guardian"] = Tuple.Create("hh17", (string)null),
+
+                // Holiday Hare '18
+                ["hh18_level01"] = Tuple.Create("hh18", (string)null),
+                ["hh18_level02"] = Tuple.Create("hh18", (string)null),
+                ["hh18_level03"] = Tuple.Create("hh18", (string)null),
+                ["hh18_level04"] = Tuple.Create("hh18", (string)null),
+                ["hh18_level05"] = Tuple.Create("hh18", (string)null),
+                ["hh18_level06"] = Tuple.Create("hh18", (string)null),
+                ["hh18_level07"] = Tuple.Create("hh18", (string)null),
+                ["hh18_save01"] = Tuple.Create("hh18", (string)null),
+                ["hh18_save02"] = Tuple.Create("hh18", (string)null),
+                ["hh18_save03"] = Tuple.Create("hh18", (string)null),
+                ["hh18_save04"] = Tuple.Create("hh18", (string)null),
+                ["hh18_save05"] = Tuple.Create("hh18", (string)null),
+                ["hh18_save06"] = Tuple.Create("hh18", (string)null),
+                ["hh18_save07"] = Tuple.Create("hh18", (string)null),
+                ["hh18_ending"] = Tuple.Create("hh18", (string)null),
+                ["hh18_guardian"] = Tuple.Create("hh18", (string)null),
 
                 // Special names
                 ["endepis"] = Tuple.Create((string)null, ":end"),

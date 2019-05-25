@@ -881,7 +881,7 @@ namespace Jazz2.Game
             }
 
             // Weather
-            if (weatherType != WeatherType.None) {
+            if (weatherType != WeatherType.None && commonResources.Graphics != null) {
                 // ToDo: Apply weather effect to all other cameras too
                 Vector3 viewPos = cameras[0].Transform.Pos;
                 for (int i = 0; i < weatherIntensity; i++) {

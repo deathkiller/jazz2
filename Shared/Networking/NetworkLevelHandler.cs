@@ -18,6 +18,7 @@ namespace Jazz2.Game.Multiplayer
         private byte localPlayerIndex;
         private float lastUpdate;
         private long lastServerUpdateTime;
+        private int isStillLoading;
 
         private RemotePlayer[] remotePlayers = new RemotePlayer[256];
 
@@ -40,6 +41,9 @@ namespace Jazz2.Game.Multiplayer
             net.RegisterCallback<DestroyRemoteObject>(OnDestroyRemoteObject);
             net.RegisterCallback<DecreasePlayerHealth>(OnDecreasePlayerHealth);
             net.RegisterCallback<RemotePlayerDied>(OnRemotePlayerDied);
+
+            // Wait 3 frames and then inform server that loading is complete
+            isStillLoading = 3;
         }
 
         protected override void OnDisposing(bool manually)
@@ -61,6 +65,16 @@ namespace Jazz2.Game.Multiplayer
         protected override void OnUpdate()
         {
             base.OnUpdate();
+
+            if (isStillLoading > 0) {
+                isStillLoading--;
+
+                if (isStillLoading <= 0) {
+                    net.Send(new LevelReady {
+                        Index = localPlayerIndex
+                    }, 2, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+                }
+            }
 
 #if DEBUG
             Hud.ShowDebugText("- Local Player Index: " + localPlayerIndex);

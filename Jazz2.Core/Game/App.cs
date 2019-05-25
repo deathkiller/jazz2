@@ -223,10 +223,16 @@ namespace Jazz2.Game
                     }
                 }
 
-                LevelHandler handler = new LevelHandler(this, carryOver);
+                try {
+                    LevelHandler handler = new LevelHandler(this, carryOver);
 
-                Scene.Current.DisposeLater();
-                Scene.SwitchTo(handler);
+                    Scene.Current.DisposeLater();
+                    Scene.SwitchTo(handler);
+                } catch (Exception ex) {
+                    Console.WriteLine("Cannot load level: " + ex);
+
+                    ShowMainMenu(false);
+                }
             }
 
             ContentResolver.Current.ReleaseUnreferencedResources();

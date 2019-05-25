@@ -45,7 +45,7 @@ namespace Jazz2.Actors.Lighting
             LightEmitter light = AddComponent<LightEmitter>();
             light.Intensity = intensity * 0.7f;
             light.Brightness = intensity;
-            light.RadiusFar = intensity * 38f * size;
+            light.RadiusFar = intensity * 60f * size;
             light.Type = LightType.Solid;
         }
 

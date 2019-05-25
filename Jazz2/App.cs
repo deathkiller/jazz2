@@ -108,13 +108,9 @@ namespace Jazz2.Game
 
                 current = new App(window);
 
-                if (Preferences.IsFirstRun) {
-                    current.PlayCinematics("intro", endOfStream => {
-                        current.ShowMainMenu(endOfStream);
-                    });
-                } else {
-                    current.ShowMainMenu(false);
-                }
+                current.PlayCinematics("intro", endOfStream => {
+                    current.ShowMainMenu(endOfStream);
+                });
                 
                 window.Run();
             }

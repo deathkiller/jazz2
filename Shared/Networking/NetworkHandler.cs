@@ -52,11 +52,6 @@ namespace Jazz2.Game.Multiplayer
             threadUpdate.Start();
         }
 
-        public void Connect(string host, int port)
-        {
-            Connect(new IPEndPoint(NetUtility.Resolve(host), port));
-        }
-
         public void Connect(IPEndPoint host)
         {
             NetOutgoingMessage message = client.CreateMessage(4);

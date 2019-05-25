@@ -5,10 +5,7 @@ using Duality;
 using Duality.Resources;
 using Jazz2.Game.Multiplayer;
 using Jazz2.Game.Structs;
-using Jazz2.Networking.Packets;
-using Jazz2.Networking.Packets.Client;
 using Jazz2.Networking.Packets.Server;
-using Lidgren.Network;
 
 namespace Jazz2.Game
 {
@@ -61,17 +58,12 @@ namespace Jazz2.Game
                     playerIndex);
 
                 Scene.SwitchTo(handler);
-
-                net.Send(new LevelReady {
-                    Index = playerIndex
-                }, 2, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
             });
         }
 
 
-        public void DispatchToMainThread(System.Action action)
+        public void DispatchToMainThread(Action action)
         {
-            // ToDo: This is not thread-safe
             DualityApp.DisposeLater(new ActionDisposable(action));
         }
 

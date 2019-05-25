@@ -83,7 +83,7 @@ namespace Jazz2.Game.UI
             }
 
             if (music != null) {
-                music.Dispose();
+                music.FadeOut(1f);
                 music = null;
             }
 
@@ -100,7 +100,8 @@ namespace Jazz2.Game.UI
 
         private void OnUpdate()
         {
-            if (ControlScheme.MenuActionPressed(PlayerActions.Menu)) {
+            if (ControlScheme.MenuActionPressed(PlayerActions.Menu) ||
+                ControlScheme.MenuActionPressed(PlayerActions.Fire)) {
                 framesLeft = 0;
                 OnCinematicsEnd(false);
             }
@@ -113,9 +114,9 @@ namespace Jazz2.Game.UI
                 return;
             }
 
-            if (frameProgress < frameDelay) {
-                frameProgress += Time.TimeMult;
-            } else {
+            frameProgress += Time.TimeMult;
+
+            if (frameProgress >= frameDelay) {
                 frameProgress -= frameDelay;
                 framesLeft--;
 
@@ -161,7 +162,7 @@ namespace Jazz2.Game.UI
                 width = s.ReadInt32(ref internalBuffer);
                 height = s.ReadInt32(ref internalBuffer);
                 s.Seek(2, SeekOrigin.Current); // Bits per pixel
-                frameDelay = s.ReadUInt16(ref internalBuffer) * 0.5f / Time.MillisecondsPerFrame;
+                frameDelay = s.ReadUInt16(ref internalBuffer) * 0.9f / Time.MillisecondsPerFrame;
                 framesLeft = s.ReadInt32(ref internalBuffer);
                 s.Seek(20, SeekOrigin.Current);
 

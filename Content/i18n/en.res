@@ -38,7 +38,7 @@
     "menu/settings/screen/1": "Fullscreen",
     
     "menu/settings/refresh": "Frame Rate Limit",
-    "menu/settings/refresh/0": "None (Not Recommended)",
+    "menu/settings/refresh/0": "None",
     "menu/settings/refresh/1": "60 fps",
     "menu/settings/refresh/2": "V-Sync",
     "menu/settings/refresh/3": "Adaptive V-Sync",
