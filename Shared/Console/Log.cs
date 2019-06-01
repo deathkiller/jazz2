@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading;
 
 namespace Jazz2
 {
@@ -15,6 +18,261 @@ namespace Jazz2
         private static int indent;
         private static string[] lastLogLines = new string[3];
         private static int lastLogLineIndex;
+
+        private static bool initialCursorVisible;
+        private static bool activeInput;
+        private static int activeInputX;
+        private static int activeInputY;
+
+        private static History inputHistory;
+
+        private static Thread inputThread;
+        private static ConsoleCtrlDelegate ctrlHandlerRef;
+
+        static Log()
+        {
+            if (!ConsoleUtils.IsOutputRedirected) {
+                initialCursorVisible = Console.CursorVisible;
+                Console.CursorVisible = false;
+
+                try {
+                    ctrlHandlerRef = OnCtrlHandler;
+                    SetConsoleCtrlHandler(ctrlHandlerRef, true);
+                } catch {
+                    // Nothing to do...
+                }
+                AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
+            }
+        }
+
+        private static bool Cleanup()
+        {
+            Console.CursorVisible = initialCursorVisible;
+            Console.ResetColor();
+
+            if (activeInput) {
+                activeInput = false;
+                inputThread.Abort();
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        private static bool OnCtrlHandler(int type)
+        {
+            return Cleanup();
+        }
+
+        private static void OnProcessExit(object sender, EventArgs e)
+        {
+            Cleanup();
+        }
+
+        public static string FetchLine(Func<string, string> suggestionsCallback)
+        {
+            if (ConsoleUtils.IsOutputRedirected) {
+                return Console.ReadLine();
+            }
+
+            inputThread = Thread.CurrentThread;
+            activeInput = true;
+
+            ShowActivePrompt();
+
+            Console.CursorVisible = true;
+
+            if (inputHistory == null) {
+                inputHistory = new History();
+            }
+
+            inputHistory.CursorToEnd();
+            inputHistory.Append("");
+
+            try {
+                StringBuilder sb = new StringBuilder();
+                int bufferPosition = 0;
+                int bufferLastLength = 0;
+                string activeSuggestion = null;
+                int consoleWidth;
+
+                while (activeInput) {
+                    ConsoleModifiers mod;
+
+                    ConsoleKeyInfo cki = Console.ReadKey(true);
+                    if (cki.Key == ConsoleKey.Escape) {
+                        cki = Console.ReadKey(true);
+                        mod = ConsoleModifiers.Alt;
+                    } else {
+                        mod = cki.Modifiers;
+                    }
+
+                    bool changed = false;
+
+                    // Process input
+                    switch (cki.Key) {
+                        case ConsoleKey.Enter: {
+                            if (sb.Length > 0) {
+                                activeInput = false;
+                            }
+                            break;
+                        }
+                        case ConsoleKey.LeftArrow: {
+                            if (bufferPosition > 0) {
+                                bufferPosition--;
+                            }
+                            break;
+                        }
+                        case ConsoleKey.RightArrow: {
+                            if (bufferPosition < sb.Length) {
+                                bufferPosition++;
+                            } else if (activeSuggestion != null) {
+                                sb.Clear();
+                                sb.Append(activeSuggestion);
+                                bufferPosition = sb.Length;
+                                changed = true;
+                            }
+                            break;
+                        }
+                        case ConsoleKey.UpArrow: {
+                            if (inputHistory != null && inputHistory.IsPreviousAvailable) {
+                                inputHistory.UpdateCurrent(sb.ToString());
+                                sb.Clear();
+                                sb.Append(inputHistory.GetPrevious());
+                                bufferPosition = sb.Length;
+                                changed = true;
+                            }
+                            break;
+                        }
+                        case ConsoleKey.DownArrow: {
+                            if (inputHistory != null && inputHistory.IsNextAvailable) {
+                                inputHistory.UpdateCurrent(sb.ToString());
+                                sb.Clear();
+                                sb.Append(inputHistory.GetNext());
+                                bufferPosition = sb.Length;
+                                changed = true;
+                            }
+                            break;
+                        }
+                        case ConsoleKey.Home: {
+                            bufferPosition = 0;
+                            break;
+                        }
+                        case ConsoleKey.End: {
+                            bufferPosition = sb.Length;
+                            break;
+                        }
+                        case ConsoleKey.Backspace: {
+                            if (bufferPosition > 0) {
+                                bufferPosition--;
+                                sb.Remove(bufferPosition, 1);
+                                changed = true;
+                            }
+                            break;
+                        }
+                        case ConsoleKey.Delete: {
+                            if (bufferPosition < sb.Length) {
+                                sb.Remove(bufferPosition, 1);
+                                changed = true;
+                            }
+                            break;
+                        }
+                        case ConsoleKey.Tab: {
+                            if (activeSuggestion != null) {
+                                sb.Clear();
+                                sb.Append(activeSuggestion);
+                                bufferPosition = sb.Length;
+                                changed = true;
+                            }
+                            break;
+                        }
+
+                        default: {
+                            if (mod == ConsoleModifiers.Control && cki.Key == ConsoleKey.L) {
+                                // CTRL+L: Clear screen
+                                Console.Clear();
+                                Console.SetCursorPosition(0, 0);
+                                ShowActivePrompt();
+                                changed = true;
+                            } else if (cki.KeyChar != (char)0 && !char.IsControl(cki.KeyChar)) {
+                                sb.Insert(bufferPosition, cki.KeyChar);
+                                bufferPosition++;
+                                changed = true;
+                            }
+                            break;
+                        }
+                    }
+
+                    // Fetch suggestions
+                    if (changed) {
+                        if (suggestionsCallback != null) {
+                            activeSuggestion = suggestionsCallback(sb.ToString());
+                        }
+                    }
+
+                    // Render
+                    if (activeInput) {
+                        lock (lastLogLines) {
+                            if (changed) {
+                                Console.SetCursorPosition(activeInputX, activeInputY);
+
+                                Console.ForegroundColor = ConsoleColor.Gray;
+                                string inputToRender = sb.ToString();
+                                Console.Write(inputToRender);
+                                int currentLength = sb.Length;
+
+                                if (activeSuggestion != null && activeSuggestion.Length > inputToRender.Length) {
+                                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                                    Console.Write(activeSuggestion.Substring(inputToRender.Length));
+                                    currentLength = activeSuggestion.Length;
+                                }
+
+                                Console.ResetColor();
+
+                                int extraLength = bufferLastLength - currentLength;
+                                if (extraLength > 0) {
+                                    for (int i = 0; i <= extraLength; i++) {
+                                        Console.Write(' ');
+                                    }
+                                }
+
+                                bufferLastLength = currentLength;
+                            }
+
+                            consoleWidth = Console.BufferWidth;
+                            Console.SetCursorPosition((activeInputX + bufferPosition) % consoleWidth, activeInputY + (activeInputX + bufferPosition) / consoleWidth);
+                        }
+
+                        changed = false;
+                    }
+                }
+
+                // Set cursor position to the end and create a new line
+                consoleWidth = Console.BufferWidth;
+                Console.SetCursorPosition((activeInputX + sb.Length) % consoleWidth, activeInputY + (activeInputX + sb.Length) / consoleWidth);
+                Console.WriteLine();
+
+                Console.CursorVisible = false;
+
+                string input = sb.ToString();
+
+                if (string.IsNullOrEmpty(input)) {
+                    inputHistory.Discard();
+                } else {
+                    inputHistory.Accept(input);
+                }
+
+                activeInput = false;
+                inputThread = null;
+                return input;
+            } catch (ThreadAbortException) {
+                Thread.ResetAbort();
+
+                activeInput = false;
+                inputThread = null;
+                return null;
+            }
+        }
 
         public static void PushIndent()
         {
@@ -61,6 +319,10 @@ namespace Jazz2
                     }
                 }
 
+                if (activeInput) {
+                    Console.SetCursorPosition(0, activeInputY);
+                }
+
                 // Dot
                 SetBrightConsoleColor(type, highlight);
                 Console.Write(new string(' ', indent * 2) + (ConsoleUtils.SupportsUnicode ? " · " : " ˙ "));
@@ -88,6 +350,10 @@ namespace Jazz2
                 lastLogLineIndex = (lastLogLineIndex + 1) % lastLogLines.Length;
                 Console.ForegroundColor = clrFg;
                 Console.BackgroundColor = clrBg;
+
+                if (activeInput) {
+                    ShowActivePrompt();
+                }
             }
         }
 
@@ -175,5 +441,135 @@ namespace Jazz2
             }
             return minLen;
         }
+
+        private static void ShowActivePrompt()
+        {
+            Console.CursorLeft = 0;
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("²");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write(">");
+
+            Console.ResetColor();
+
+            // Refresh initial cursor position
+            activeInputX = Console.CursorLeft;
+            activeInputY = Console.CursorTop;
+        }
+
+        private class History
+        {
+            private string[] lines = new string[16];
+            private int head;
+            private int tail;
+            private int current;
+            private int count;
+
+            public bool IsPreviousAvailable
+            {
+                get
+                {
+                    if (count == 0) {
+                        return false;
+                    }
+                    int next = current - 1;
+                    if (next < 0) {
+                        next = count - 1;
+                    }
+                    if (next == head) {
+                        return false;
+                    }
+                    return true;
+                }
+            }
+
+            public bool IsNextAvailable
+            {
+                get
+                {
+                    if (count == 0) {
+                        return false;
+                    }
+                    int next = (current + 1) % lines.Length;
+                    if (next == head) {
+                        return false;
+                    }
+                    return true;
+                }
+            }
+
+            public void Append(string s)
+            {
+                lines[head] = s;
+                head = (head + 1) % lines.Length;
+                if (head == tail) {
+                    tail = (tail + 1 % lines.Length);
+                }
+                if (count != lines.Length) {
+                    count++;
+                }
+            }
+
+            public void UpdateCurrent(string s)
+            {
+                lines[current] = s;
+            }
+
+            public void Accept(string s)
+            {
+                int t = head - 1;
+                if (t < 0) {
+                    t = lines.Length - 1;
+                }
+                lines[t] = s;
+            }
+
+            public void Discard()
+            {
+                head = head - 1;
+                if (head < 0) {
+                    head = lines.Length - 1;
+                }
+            }
+
+            public string GetPrevious()
+            {
+                if (!IsPreviousAvailable) {
+                    return null;
+                }
+
+                current--;
+                if (current < 0) {
+                    current = lines.Length - 1;
+                }
+                return lines[current];
+            }
+
+            public string GetNext()
+            {
+                if (!IsNextAvailable) {
+                    return null;
+                }
+
+                current = (current + 1) % lines.Length;
+                return lines[current];
+            }
+
+            public void CursorToEnd()
+            {
+                if (head == tail) {
+                    return;
+                }
+
+                current = head;
+            }
+        }
+
+        #region Native Methods
+        private delegate bool ConsoleCtrlDelegate(int type);
+
+        [DllImport("kernel32")]
+        private static extern bool SetConsoleCtrlHandler(ConsoleCtrlDelegate handler, bool add);
+        #endregion
     }
 }

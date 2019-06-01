@@ -23,6 +23,7 @@ namespace Jazz2.Server
         private Thread threadGame, threadPublishToServerList;
         private ServerConnection server;
         private byte neededMajor, neededMinor, neededBuild;
+        private string customHostname;
 
         private Dictionary<byte, Action<NetIncomingMessage, bool>> callbacks;
 
@@ -68,7 +69,7 @@ namespace Jazz2.Server
 
             RegisterPacketCallbacks();
 
-            Log.Write(LogType.Info, "Endpoint: " + server.LocalIPAddress + ":" + port + (server.PublicIPAddress != null ? " / " + server.PublicIPAddress + ":" + port : ""));
+            Log.Write(LogType.Info, "Endpoint: " + server.LocalIPAddress + ":" + port + (server.PublicIPAddress != null ? " / " + server.PublicIPAddress + ":" + port : "") + (customHostname != null ? " / " + customHostname + ":" + port : ""));
             Log.Write(LogType.Info, "Server Name: " + name);
             Log.Write(LogType.Info, "Players: 0/" + maxPlayers);
 
@@ -109,6 +110,11 @@ namespace Jazz2.Server
             server = null;
         }
 
+        public void OverrideHostname(string hostname)
+        {
+            customHostname = hostname;
+        }
+
         private void OnPublishToServerList()
         {
             bool isPublished = true;
@@ -117,7 +123,7 @@ namespace Jazz2.Server
                 try {
                     string currentVersion = Game.App.AssemblyVersion;
 
-                    string endpoint = (server.PublicIPAddress ?? server.LocalIPAddress).ToString() + ":" + port;
+                    string endpoint = (customHostname ?? (server.PublicIPAddress ?? server.LocalIPAddress).ToString()) + ":" + port;
 
                     string dataString = "0|" + endpoint + "|" + currentVersion + "|" + players.Count + "|" + maxPlayers + "|" + name;
                     string data = "add=" + Convert.ToBase64String(Encoding.UTF8.GetBytes(dataString))
@@ -143,11 +149,11 @@ namespace Jazz2.Server
                     }
 
                     isPublished = true;
-                } catch {
+                } catch (Exception ex) {
                     // Try it again later
                     if (isPublished) {
                         isPublished = false;
-                        Log.Write(LogType.Error, "Server list is unreachable!");
+                        Log.Write(LogType.Error, "Server list is unreachable! " + ex.Message);
                     }
                 }
 

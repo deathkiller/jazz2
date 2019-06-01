@@ -12,21 +12,34 @@ namespace Jazz2
             public byte Attributes;
         }
 
-        public static void RenderFromManifestResource(string name)
+        public static bool RenderFromManifestResource(string name, out int imageTop)
         {
+            if (ConsoleUtils.IsOutputRedirected) {
+                imageTop = -1;
+                return false;
+            }
+
             Assembly a = Assembly.GetExecutingAssembly();
             string[] resources = a.GetManifestResourceNames();
             for (int j = 0; j < resources.Length; j++) {
                 if (resources[j].EndsWith("." + name, StringComparison.Ordinal)) {
                     using (Stream s = a.GetManifestResourceStream(resources[j])) {
-                        Render(s);
+                        return Render(s, out imageTop);
                     }
                 }
             }
+
+            imageTop = -1;
+            return false;
         }
 
-        public static void Render(Stream s)
+        public static bool Render(Stream s, out int imageTop)
         {
+            if (ConsoleUtils.IsOutputRedirected) {
+                imageTop = -1;
+                return false;
+            }
+
             using (BinaryReader r = new BinaryReader(s)) {
                 byte flags = r.ReadByte();
 
@@ -50,13 +63,15 @@ namespace Jazz2
                 while (r.BaseStream.Position < r.BaseStream.Length) {
                     byte n = r.ReadByte();
                     if (n == 0) { // New frame - not supported
-                        return;
+                        imageTop = -1;
+                        return false;
                     } else {
                         byte paletteIndex = r.ReadByte();
 
                         for (int k = 0; k < n; k++) {
                             if (i >= frameLength) {
-                                return;
+                                imageTop = -1;
+                                return false;
                             }
 
                             indices[i] = paletteIndex;
@@ -65,29 +80,80 @@ namespace Jazz2
                     }
                 }
 
-                // Render to console (multi-platform)
                 ConsoleColor originalForeground = Console.ForegroundColor;
                 ConsoleColor originalBackground = Console.BackgroundColor;
 
+                int cursorTop = Console.CursorTop;
                 int cursorLeft = ((Console.BufferWidth - width) >> 1);
-                for (int y = 0; y < height; y++) {
-                    Console.CursorLeft = cursorLeft;
-
-                    for (int x = 0; x < width; x++) {
-                        ref PaletteEntry entry = ref palette[indices[x + y * width]];
-                        Console.ForegroundColor = (ConsoleColor)(entry.Attributes & 0x0F);
-                        Console.BackgroundColor = (ConsoleColor)((entry.Attributes >> 4) & 0x0F);
-                        Console.Write(entry.Character);
-                    }
-
-                    Console.CursorTop++;
+                if (cursorLeft < 0) {
+                    // Window is too small to show the image
+                    imageTop = -1;
+                    return false;
                 }
 
-                Console.SetCursorPosition(0, Console.CursorTop + 1);
+                bool tryResize = true;
 
-                Console.ForegroundColor = originalForeground;
-                Console.BackgroundColor = originalBackground;
-                Console.ResetColor();
+            Retry:
+                imageTop = cursorTop;
+
+                try {
+                    for (int y = 0; y < height; y++) {
+                        Console.CursorLeft = cursorLeft;
+
+                        for (int x = 0; x < width; x++) {
+                            ref PaletteEntry entry = ref palette[indices[x + y * width]];
+                            Console.ForegroundColor = (ConsoleColor)(entry.Attributes & 0x0F);
+                            Console.BackgroundColor = (ConsoleColor)((entry.Attributes >> 4) & 0x0F);
+                            Console.Write(entry.Character);
+                        }
+
+                        cursorTop++;
+                        Console.CursorTop = cursorTop;
+                    }
+
+                    cursorTop++;
+                    Console.SetCursorPosition(0, cursorTop);
+
+                    Console.ForegroundColor = originalForeground;
+                    Console.BackgroundColor = originalBackground;
+                    Console.ResetColor();
+                    return true;
+                } catch {
+                    try {
+                        if (tryResize && Environment.OSVersion.Platform != PlatformID.Win32NT) {
+                            tryResize = false;
+
+                            int requiredLineCount = height + 2 - (cursorTop - imageTop);
+
+                            // Try to scroll buffer up to make a space for the image
+                            for (i = 0; i < requiredLineCount; i++) {
+                                Console.WriteLine();
+                            }
+                            cursorTop -= height + 2;
+                            Console.CursorTop = cursorTop;
+
+                            goto Retry;
+                        }
+                    
+                        // Something doesn't work, so reset colors and try to erase current line
+                        Console.ForegroundColor = originalForeground;
+                        Console.BackgroundColor = originalBackground;
+                        Console.ResetColor();
+
+                        Console.CursorLeft = cursorLeft;
+
+                        for (int x = 0; x < width; x++) {
+                            Console.Write(' ');
+                        }
+
+                        Console.CursorLeft = 0;
+                    } catch {
+                        // Do nothing on faulty terminals
+                    }
+
+                    imageTop = -1;
+                    return false;
+                }
             }
         }
     }

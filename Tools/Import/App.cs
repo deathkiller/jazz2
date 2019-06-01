@@ -27,17 +27,23 @@ namespace Import
 
             Console.Title = Jazz2.Game.App.AssemblyTitle;
 
-            int cursorTop;
-            if (!ConsoleUtils.IsOutputRedirected) {
-                cursorTop = Console.CursorTop;
+            int imageTop;
+            if (ConsoleImage.RenderFromManifestResource("ConsoleImage.udl", out imageTop) && imageTop >= 0) {
+                int width = Console.BufferWidth;
 
-                ConsoleImage.RenderFromManifestResource("ConsoleImage.udl");
-            } else {
-                cursorTop = 0;
+                // Show version number in the right corner
+                string appVersion = "v" + Jazz2.Game.App.AssemblyVersion;
+
+                int currentCursorTop = Console.CursorTop;
+                Console.SetCursorPosition(width - appVersion.Length - 2, imageTop + 1);
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.WriteLine(appVersion);
+                Console.ResetColor();
+                Console.CursorTop = currentCursorTop;
             }
 
             if (args.Length < 1) {
-                OnShowHelp(cursorTop);
+                OnShowHelp();
                 return;
             }
 
@@ -85,7 +91,7 @@ namespace Import
                     }
                     case "/from-palette": {
                         if (i + 1 < args.Length && File.Exists(args[i + 1])) {
-                            ApplyDefaultPaletteToPng(args[i + 1]);
+                            ApplyDefaultPaletteToPng(args[i + 1], args);
                         }
                         return;
                     }
@@ -168,21 +174,13 @@ namespace Import
             OnPostImport(targetPath, verbose, !noWait, keep || minimal, !minimal, check || (processAnims && processLevels && processCinematics && processMusic && processTilesets));
         }
 
-        private static void OnShowHelp(int cursorTop)
+        private static void OnShowHelp()
         {
             string exeName = Path.GetFileName(Assembly.GetEntryAssembly().Location);
 
             int width;
             if (!ConsoleUtils.IsOutputRedirected) {
                 width = Console.BufferWidth;
-
-                // Show version number in the right corner
-                string appVersion = "v" + Jazz2.Game.App.AssemblyVersion;
-
-                int currentCursorTop = Console.CursorTop;
-                Console.SetCursorPosition(width - appVersion.Length - 2, cursorTop + 1);
-                Console.WriteLine(appVersion);
-                Console.CursorTop = currentCursorTop;
             } else {
                 width = 80;
             }
@@ -253,7 +251,9 @@ namespace Import
             // Clear console window and show logo
             if (!ConsoleUtils.IsOutputRedirected) {
                 Console.Clear();
-                ConsoleImage.RenderFromManifestResource("ConsoleImage.udl");
+
+                int imageTop;
+                ConsoleImage.RenderFromManifestResource("ConsoleImage.udl", out imageTop);
             }
 
             // Download and import...
@@ -1436,10 +1436,26 @@ namespace Import
             }
         }
 
-        private static void ApplyDefaultPaletteToPng(string path)
+        private static void ApplyDefaultPaletteToPng(string path, string[] args)
         {
             Log.Write(LogType.Info, "Applying default palette to image...");
             Log.PushIndent();
+
+            bool generateNormals = false;
+            Point frameConfiguration = default(Point);
+            for (int i = 0; i < args.Length; i++) {
+                if (args[i] == "/normals") {
+                    generateNormals = true;
+                } else if (args[i].StartsWith("/frames:")) {
+                    string[] parts = args[i].Substring(8).Split(',');
+
+                    int x, y;
+                    int.TryParse(parts[0], out x);
+                    int.TryParse(parts[1], out y);
+                    frameConfiguration.X = x;
+                    frameConfiguration.Y = y;
+                }
+            }
 
             Png source;
             using (Stream s = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) {
@@ -1458,6 +1474,13 @@ namespace Import
             }
 
             target.Save(path + ".c.png");
+
+            if (generateNormals) {
+                PngWriter normalMap = NormalMapGenerator.FromSprite(target,
+                        frameConfiguration, null);
+
+                normalMap.Save(path + ".n.png");
+            }
 
             Log.Write(LogType.Info, "Done!");
             Log.PopIndent();

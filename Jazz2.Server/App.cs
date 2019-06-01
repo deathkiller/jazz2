@@ -11,26 +11,47 @@ namespace Jazz2.Server
     internal static partial class App
     {
         private static GameServer gameServer;
+        private static Dictionary<string, Func<string, bool>> availableCommands;
 
         private static void Main(string[] args)
         {
             ConsoleUtils.TryEnableUnicode();
 
 #if DEBUG
-            if (Console.BufferWidth < 90) {
-                Console.BufferWidth = 90;
-                Console.WindowWidth = 90;
+            try {
+                if (Console.BufferWidth < 90) {
+                    Console.BufferWidth = 90;
+                    Console.WindowWidth = 90;
+                }
+            } catch {
+                // Do nothing on Linux (and faulty) terminals
             }
 #endif
 
-            if (!ConsoleUtils.IsOutputRedirected) {
-                ConsoleImage.RenderFromManifestResource("ConsoleImage.udl");
+            int imageTop;
+            if (ConsoleImage.RenderFromManifestResource("ConsoleImage.udl", out imageTop) && imageTop >= 0) {
+                int width = Console.BufferWidth;
+
+                // Show version number in the right corner
+                string appVersion = "v" + Game.App.AssemblyVersion;
+
+                int currentCursorTop = Console.CursorTop;
+                Console.SetCursorPosition(width - appVersion.Length - 2, imageTop + 1);
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.WriteLine(appVersion);
+                Console.ResetColor();
+                Console.CursorTop = currentCursorTop;
             }
 
             // Process parameters
             int port;
             if (!TryRemoveArg(ref args, "/port:", out port)) {
                 port = 10666;
+            }
+
+            string overrideHostname;
+            if (!TryRemoveArg(ref args, "/override-hostname:", out overrideHostname)) {
+                overrideHostname = null;
             }
 
             string name;
@@ -62,6 +83,15 @@ namespace Jazz2.Server
 
             // Start game server
             gameServer = new GameServer();
+
+            if (overrideHostname != null) {
+                try {
+                    gameServer.OverrideHostname(overrideHostname);
+                } catch {
+                    Log.Write(LogType.Error, "Cannot set custom public IP address!");
+                }
+            }
+
             gameServer.Run(port, name, maxPlayers, isPrivate, enableUPnP, neededMajor, neededMinor, neededBuild);
 
             Log.PopIndent();
@@ -83,76 +113,125 @@ namespace Jazz2.Server
 
         private static void ProcessConsoleCommands()
         {
+            // Register all available commands
+            availableCommands = new Dictionary<string, Func<string, bool>>();
+            availableCommands.Add("quit", HandleCommandExit);
+            availableCommands.Add("exit", HandleCommandExit);
+            availableCommands.Add("help", HandleCommandHelp);
+            availableCommands.Add("info", HandleCommandInfo);
+            availableCommands.Add("set", HandleCommandSet);
+
+            // Start process command loop
             while (true) {
-                string input = Console.ReadLine().Trim();
-                if (string.IsNullOrEmpty(input)) {
-                    continue;
+                string input = Log.FetchLine(GetConsoleSuggestions);
+                if (input == null) {
+                    break;
                 }
+
+                input = input.Trim();
 
                 string command = GetPartFromInput(ref input);
-                switch (command) {
-                    case "quit":
-                    case "exit":
-                        return;
 
-                    case "info": {
-                        Log.Write(LogType.Info, "Server Load: " + gameServer.LoadMs + " ms");
-                        Log.Write(LogType.Info, "Players: " + gameServer.PlayerCount + "/" + gameServer.MaxPlayers);
-                        Log.Write(LogType.Info, "Current Level: " + gameServer.CurrentLevel);
-
-                        Log.Write(LogType.Info, "Players:");
-                        Log.PushIndent();
-                        foreach (KeyValuePair<NetConnection, GameServer.Player> pair in gameServer.Players) {
-                            Log.Write(LogType.Info, "#" + pair.Value.Index + " | " + pair.Key.RemoteEndPoint + " | " + pair.Value.State + " | " + pair.Value.Pos);
-                        }
-                        Log.PopIndent();
-
+                Func<string, bool> handler;
+                if (availableCommands.TryGetValue(command, out handler)) {
+                    if (!handler(input)) {
                         break;
                     }
-
-                    case "set": {
-                        string key = GetPartFromInput(ref input);
-                        switch (key) {
-                            case "name": {
-                                if (!string.IsNullOrWhiteSpace(input)) {
-                                    gameServer.Name = input;
-                                    Log.Write(LogType.Info, "Server name was set to \"" + input + "\"!");
-                                } else {
-                                    Log.Write(LogType.Error, "Cannot set server name to \"" + input + "\"!");
-                                }
-                                break;
-                            }
-
-                            case "level": {
-                                string value = GetPartFromInput(ref input);
-                                if (gameServer.ChangeLevel(value, MultiplayerLevelType.Battle)) {
-                                    Log.Write(LogType.Info, "OK!");
-                                } else {
-                                    Log.Write(LogType.Error, "Cannot load level \"" + value + "\"!");
-                                }
-                                break;
-                            }
-
-                            case "spawning": {
-                                string value = GetPartFromInput(ref input);
-                                gameServer.EnablePlayerSpawning(value == "true" || value == "yes" || value == "1");
-                                Log.Write(LogType.Info, "OK!");
-                                break;
-                            }
-
-                            default: {
-                                Log.Write(LogType.Warning, "Unknown command: " + command + " " + key);
-                                break;
-                            }
-                        }
-                        break;
-                    }
-
-                    default:
-                        Log.Write(LogType.Warning, "Unknown command: " + input);
-                        break;
+                } else {
+                    Log.Write(LogType.Warning, "Unknown command: " + command);
                 }
             }
+        }
+
+        private static string GetConsoleSuggestions(string input)
+        {
+            if (string.IsNullOrEmpty(input)) {
+                return null;
+            }
+
+            foreach (KeyValuePair<string, Func<string, bool>> pair in availableCommands) {
+                if (pair.Key.StartsWith(input, StringComparison.InvariantCultureIgnoreCase)) {
+                    if (input == pair.Key) {
+                        return null;
+                    } else {
+                        return pair.Key;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private static bool HandleCommandExit(string input)
+        {
+            return false;
+        }
+
+        private static bool HandleCommandHelp(string input)
+        {
+            Log.Write(LogType.Info, "Visit http://deat.tk/jazz2/ for more info!");
+            return true;
+        }
+
+        private static bool HandleCommandInfo(string input)
+        {
+            Log.Write(LogType.Info, "Server Load: " + gameServer.LoadMs + " ms");
+            Log.Write(LogType.Info, "Players: " + gameServer.PlayerCount + "/" + gameServer.MaxPlayers);
+            Log.Write(LogType.Info, "Current Level: " + gameServer.CurrentLevel);
+
+            Log.Write(LogType.Info, "Players:");
+            Log.PushIndent();
+            foreach (KeyValuePair<NetConnection, GameServer.Player> pair in gameServer.Players) {
+                Log.Write(LogType.Info, "#" + pair.Value.Index + " | " + pair.Key.RemoteEndPoint + " | " + pair.Value.State + " | " + pair.Value.Pos);
+            }
+            Log.PopIndent();
+            return true;
+        }
+
+        private static bool HandleCommandSet(string input)
+        {
+            string key = GetPartFromInput(ref input);
+            switch (key) {
+                case "name": {
+                    if (!string.IsNullOrWhiteSpace(input)) {
+                        gameServer.Name = input;
+                        Log.Write(LogType.Info, "Server name was set to \"" + input + "\"!");
+                    } else {
+                        Log.Write(LogType.Error, "Cannot set server name to \"" + input + "\"!");
+                    }
+                    break;
+                }
+
+                case "level": {
+                    string value = GetPartFromInput(ref input);
+                    if (gameServer.ChangeLevel(value, MultiplayerLevelType.Battle)) {
+                        Log.Write(LogType.Info, "OK!");
+                    } else {
+                        Log.Write(LogType.Error, "Cannot load level \"" + value + "\"!");
+                    }
+                    break;
+                }
+
+                case "spawning": {
+                    string value = GetPartFromInput(ref input);
+                    gameServer.EnablePlayerSpawning(value == "true" || value == "yes" || value == "1");
+                    Log.Write(LogType.Info, "OK!");
+                    break;
+                }
+
+                default: {
+                    if (string.IsNullOrEmpty(key)) {
+                        Log.Write(LogType.Info, "name = " + gameServer.Name);
+                        Log.Write(LogType.Info, "level = " + gameServer.CurrentLevel);
+                        Log.Write(LogType.Info, "spawning = ?");
+                    } else {
+                        Log.Write(LogType.Warning, "Unknown command: set " + key);
+                    }
+                    break;
+                }
+            }
+
+            return true;
         }
 
         private static string GetPartFromInput(ref string input)

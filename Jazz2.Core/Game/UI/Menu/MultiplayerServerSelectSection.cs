@@ -57,6 +57,8 @@ namespace Jazz2.Game.UI.Menu
             api.DrawMaterial("MenuDim", center.X, (topLine + bottomLine) * 0.5f, Alignment.Center, ColorRgba.White, 55f, (bottomLine - topLine) * 0.063f, new Rect(0f, 0.3f, 1f, 0.4f));
 
             int charOffset = 0;
+            int itemCount = 0;
+
             if (serverList.Count > 0) {
                 const float itemSpacing = 17f;
 
@@ -69,8 +71,6 @@ namespace Jazz2.Game.UI.Menu
 
                 float currentItem = topItem + itemSpacing + (maxVisibleItemsFloat - maxVisibleItems) * 0.5f * itemSpacing;
 
-
-                // ToDo: ...
                 float column2 = device.TargetSize.X * 0.55f;
                 float sx = column2 * 1.52f;
                 float column1 = column2;
@@ -86,7 +86,10 @@ namespace Jazz2.Game.UI.Menu
                     }
 
                     ServerDiscovery.Server server = serverList[idx];
-
+                    if (server.IsLost && server.LatencyMs < 0) {
+                        continue;
+                    }
+                   
                     string infoText = server.CurrentPlayers + " / " + server.MaxPlayers + "   ";
                     ColorRgba infoColor;
                     if (server.LatencyMs < 0) {
@@ -152,13 +155,14 @@ namespace Jazz2.Game.UI.Menu
                     }
 
                     currentItem += itemSpacing;
+                    itemCount++;
                 }
 
                 // Scrollbar
-                if (serverList.Count > maxVisibleItems) {
+                if (itemCount > maxVisibleItems) {
                     const float sw = 3f;
-                    float sy = ((float)scrollOffset / serverList.Count) * 18f * maxVisibleItems + topLine;
-                    float sh = ((float)maxVisibleItems / serverList.Count) * 16f * maxVisibleItems;
+                    float sy = ((float)scrollOffset / itemCount) * 18f * maxVisibleItems + topLine;
+                    float sh = ((float)maxVisibleItems / itemCount) * 16f * maxVisibleItems;
 
                     BatchInfo mat1 = device.RentMaterial();
                     mat1.Technique = DrawTechnique.Alpha;
@@ -172,7 +176,9 @@ namespace Jazz2.Game.UI.Menu
                     canvas.State.SetMaterial(mat2);
                     canvas.FillRect(sx, sy, sw, sh);
                 }
-            } else {
+            }
+
+            if (itemCount == 0) {
                 api.DrawStringShadow(ref charOffset, "menu/play custom/multi/empty".T(), center.X, center.Y, Alignment.Center,
                     new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f), 0.9f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
             }
@@ -221,6 +227,9 @@ namespace Jazz2.Game.UI.Menu
                         } else {
                             selectedIndex = serverList.Count - 1;
                             scrollOffset = selectedIndex - (maxVisibleItems - 1);
+                            if (scrollOffset < 0) {
+                                scrollOffset = 0;
+                            }
                         }
                         pressedCount = Math.Min(pressedCount + 4, 19);
                     }

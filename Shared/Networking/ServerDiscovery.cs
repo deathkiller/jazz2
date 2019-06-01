@@ -13,7 +13,7 @@ namespace Jazz2.Game.Multiplayer
 {
     public class ServerDiscovery : IDisposable
     {
-        public delegate void ServerFoundCallbackDelegate(Server server, bool isNew);
+        public delegate void ServerUpdatedCallbackDelegate(Server server, bool isNew);
 
         public class Server
         {
@@ -52,20 +52,20 @@ namespace Jazz2.Game.Multiplayer
         private AutoResetEvent waitEvent;
 
         private int port;
-        private ServerFoundCallbackDelegate serverFoundAction;
+        private ServerUpdatedCallbackDelegate serverUpdatedAction;
 
         private Dictionary<IPEndPoint, Server> foundServers;
         private Dictionary<string, IPEndPoint> publicEndPoints;
         private JsonParser jsonParser;
 
-        public ServerDiscovery(string appId, int port, ServerFoundCallbackDelegate serverFoundAction)
+        public ServerDiscovery(string appId, int port, ServerUpdatedCallbackDelegate serverUpdatedAction)
         {
-            if (serverFoundAction == null) {
-                throw new ArgumentNullException(nameof(serverFoundAction));
+            if (serverUpdatedAction == null) {
+                throw new ArgumentNullException(nameof(serverUpdatedAction));
             }
 
             this.port = port;
-            this.serverFoundAction = serverFoundAction;
+            this.serverUpdatedAction = serverUpdatedAction;
 
             foundServers = new Dictionary<IPEndPoint, Server>();
             publicEndPoints = new Dictionary<string, IPEndPoint>();
@@ -170,7 +170,7 @@ namespace Jazz2.Game.Multiplayer
                             server.CurrentPlayers = msg.ReadVariableInt32();
                             server.MaxPlayers = msg.ReadVariableInt32();
 
-                            serverFoundAction(server, isNew);
+                            serverUpdatedAction(server, isNew);
 
                             // Send ping request
                             server.LastPingTime = (long)(NetTime.Now * 1000);
@@ -192,7 +192,7 @@ namespace Jazz2.Game.Multiplayer
                                     if (server.LatencyMs < 0) {
                                         server.LatencyMs = 0;
                                     }
-                                    serverFoundAction(server, false);
+                                    serverUpdatedAction(server, false);
                                 }
                             }
                             break;
@@ -310,24 +310,16 @@ namespace Jazz2.Game.Multiplayer
             }
 
             // Remove lost local servers
-            List<IPEndPoint> lostEndPoints = new List<IPEndPoint>();
-
             foreach (KeyValuePair<IPEndPoint, Server> pair in foundServers) {
                 if (!pair.Value.IsPublic) {
                     continue;
                 }
 
                 if (pair.Value.IsLost) {
-                    lostEndPoints.Add(pair.Key);
-                    continue;
-                }
-
-                pair.Value.IsLost = true;
-            }
-
-            if (lostEndPoints.Count > 0) {
-                for (int i = 0; i < lostEndPoints.Count; i++) {
-                    foundServers.Remove(lostEndPoints[i]);
+                    pair.Value.LatencyMs = -1;
+                    serverUpdatedAction(pair.Value, false);
+                } else {
+                    pair.Value.IsLost = true;
                 }
             }
 
@@ -395,7 +387,7 @@ namespace Jazz2.Game.Multiplayer
                     server.CurrentPlayers = s.current_players;
                     server.MaxPlayers = s.max_players;
 
-                    serverFoundAction(server, isNew);
+                    serverUpdatedAction(server, isNew);
 
                     // Send ping request
                     server.LastPingTime = (long)(NetTime.Now * 1000);
@@ -410,24 +402,16 @@ namespace Jazz2.Game.Multiplayer
         private void DiscoverLocalServers()
         {
             // Remove lost local servers
-            List<IPEndPoint> lostEndPoints = new List<IPEndPoint>();
-
             foreach (KeyValuePair<IPEndPoint, Server> pair in foundServers) {
                 if (pair.Value.IsPublic) {
                     continue;
                 }
 
                 if (pair.Value.IsLost) {
-                    lostEndPoints.Add(pair.Key);
-                    continue;
-                }
-
-                pair.Value.IsLost = true;
-            }
-
-            if (lostEndPoints.Count > 0) {
-                for (int i = 0; i < lostEndPoints.Count; i++) {
-                    foundServers.Remove(lostEndPoints[i]);
+                    pair.Value.LatencyMs = -1;
+                    serverUpdatedAction(pair.Value, false);
+                } else {
+                    pair.Value.IsLost = true;
                 }
             }
 
