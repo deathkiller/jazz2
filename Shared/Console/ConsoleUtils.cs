@@ -65,7 +65,7 @@ namespace Jazz2
         public static void TryEnableUnicode()
         {
             if (Environment.OSVersion.Platform == PlatformID.Win32NT && !IsOutputRedirected) {
-                var prevEncoding = Console.OutputEncoding;
+                Encoding prevEncoding = Console.OutputEncoding;
                 int startLeft = Console.CursorLeft;
                 Console.OutputEncoding = Encoding.UTF8;
                 Console.Write("≠");

@@ -290,16 +290,94 @@ namespace Jazz2
             }
         }
 
-        public static void Write(LogType type, string formattedLine)
+        public static void Write(LogType type, string formattedLine, bool pushIndent = false)
+        {
+            if (string.IsNullOrEmpty(formattedLine)) {
+                lock (lastLogLines) {
+                    // End the current line
+                    Console.WriteLine();
+
+                    if (activeInput) {
+                        ShowActivePrompt();
+                    }
+                }
+                return;
+            }
+
+            lock (lastLogLines) {
+                bool highlight = IsHighlightLine(formattedLine);
+
+                // If we're writing the same kind of text again, "grey out" the repeating parts
+                int beginGreyLength = 0;
+                int endGreyLength = 0;
+                if (!highlight) {
+                    for (int i = 0; i < lastLogLines.Length; i++) {
+                        string lastLogLine = lastLogLines[i] ?? string.Empty;
+                        beginGreyLength = Math.Max(beginGreyLength, GetEqualBeginChars(lastLogLine, formattedLine));
+                        endGreyLength = Math.Max(endGreyLength, GetEqualEndChars(lastLogLine, formattedLine));
+                    }
+                    if (beginGreyLength == formattedLine.Length) {
+                        endGreyLength = 0;
+                    }
+                    if (beginGreyLength + endGreyLength >= formattedLine.Length) {
+                        endGreyLength = 0;
+                    }
+                }
+
+                if (activeInput) {
+                    Console.SetCursorPosition(0, activeInputY);
+                }
+
+                // Dot
+                if (pushIndent && ConsoleUtils.SupportsUnicode) {
+                    SetBrightConsoleColor(type, false);
+                    Console.Write(new string(' ', indent * 2) + " ◿ ");
+                } else {
+                    SetBrightConsoleColor(type, highlight);
+                    Console.Write(new string(' ', indent * 2) + (ConsoleUtils.SupportsUnicode ? " · " : " ˙ "));
+                }
+
+                // Dark beginning
+                if (beginGreyLength != 0) {
+                    SetDarkConsoleColor(type);
+                    Console.Write(formattedLine.Substring(0, beginGreyLength));
+                }
+
+                // Bright main part
+                SetBrightConsoleColor(type, highlight);
+                Console.Write(formattedLine.Substring(beginGreyLength, formattedLine.Length - beginGreyLength - endGreyLength));
+
+                // Dark ending
+                if (endGreyLength != 0) {
+                    SetDarkConsoleColor(type);
+                    Console.Write(formattedLine.Substring(formattedLine.Length - endGreyLength, endGreyLength));
+                }
+
+                Console.ResetColor();
+
+                // End the current line
+                Console.WriteLine();
+
+                lastLogLines[lastLogLineIndex] = formattedLine;
+                lastLogLineIndex = (lastLogLineIndex + 1) % lastLogLines.Length;
+
+                if (pushIndent) {
+                    PushIndent();
+                }
+
+                if (activeInput) {
+                    ShowActivePrompt();
+                }
+            }
+        }
+
+        public static void Write(LogType type, string category, string formattedLine)
         {
             if (string.IsNullOrEmpty(formattedLine)) {
                 return;
             }
 
             lock (lastLogLines) {
-                ConsoleColor clrBg = Console.BackgroundColor;
-                ConsoleColor clrFg = Console.ForegroundColor;
-
                 bool highlight = IsHighlightLine(formattedLine);
 
                 // If we're writing the same kind of text again, "grey out" the repeating parts
@@ -327,19 +405,22 @@ namespace Jazz2
                 SetBrightConsoleColor(type, highlight);
                 Console.Write(new string(' ', indent * 2) + (ConsoleUtils.SupportsUnicode ? " · " : " ˙ "));
 
+                SetBrightConsoleColor(type, false);
+                Console.Write(category);
+
                 // Dark beginning
                 if (beginGreyLength != 0) {
-                    SetDarkConsoleColor(type);
+                    SetDarkConsoleColor(LogType.Info);
                     Console.Write(formattedLine.Substring(0, beginGreyLength));
                 }
 
                 // Bright main part
-                SetBrightConsoleColor(type, highlight);
+                SetBrightConsoleColor(LogType.Info, false);
                 Console.Write(formattedLine.Substring(beginGreyLength, formattedLine.Length - beginGreyLength - endGreyLength));
 
                 // Dark ending
                 if (endGreyLength != 0) {
-                    SetDarkConsoleColor(type);
+                    SetDarkConsoleColor(LogType.Info);
                     Console.Write(formattedLine.Substring(formattedLine.Length - endGreyLength, endGreyLength));
                 }
 
@@ -348,8 +429,7 @@ namespace Jazz2
 
                 lastLogLines[lastLogLineIndex] = formattedLine;
                 lastLogLineIndex = (lastLogLineIndex + 1) % lastLogLines.Length;
-                Console.ForegroundColor = clrFg;
-                Console.BackgroundColor = clrBg;
+                Console.ResetColor();
 
                 if (activeInput) {
                     ShowActivePrompt();
@@ -445,10 +525,16 @@ namespace Jazz2
         private static void ShowActivePrompt()
         {
             Console.CursorLeft = 0;
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write("²");
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write(">");
+
+            if (ConsoleUtils.SupportsUnicode) {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("²");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write("›");
+            } else {
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write(">");
+            }
 
             Console.ResetColor();
 

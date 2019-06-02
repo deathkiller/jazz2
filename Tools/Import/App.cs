@@ -132,8 +132,7 @@ namespace Import
                     return;
                 }
             } else {
-                Log.Write(LogType.Info, "Importing path \"" + sourcePath + "\"...");
-                Log.PushIndent();
+                Log.Write(LogType.Info, "Importing path \"" + sourcePath + "\"...", true);
             }
 
             if (processAnims) {
@@ -284,8 +283,7 @@ namespace Import
 
         public static void ConvertJJ2Anims(string sourcePath, string targetPath)
         {
-            Log.Write(LogType.Info, "Importing assets...");
-            Log.PushIndent();
+            Log.Write(LogType.Info, "Importing assets...", true);
 
             string animationsPath = Path.Combine(targetPath, "Content", "Animations");
             Directory.CreateDirectory(animationsPath);
@@ -317,8 +315,7 @@ namespace Import
 
         public static void ConvertJJ2Levels(string sourcePath, string targetPath, HashSet<string> usedTilesets, HashSet<string> usedMusic)
         {
-            Log.Write(LogType.Info, "Importing episodes...");
-            Log.PushIndent();
+            Log.Write(LogType.Info, "Importing episodes...", true);
 
             Dictionary<string, Tuple<string, string>> knownLevels = GetKnownLevels(sourcePath);
 
@@ -407,8 +404,7 @@ namespace Import
             });
 
             Log.PopIndent();
-            Log.Write(LogType.Info, "Importing levels...");
-            Log.PushIndent();
+            Log.Write(LogType.Info, "Importing levels...", true);
 
             Parallel.ForEach(Directory.EnumerateFiles(sourcePath, "*.j2l"), file => {
                 try {
@@ -519,8 +515,7 @@ namespace Import
 
         public static void ConvertJJ2Cinematics(string sourcePath, string targetPath, HashSet<string> usedMusic, bool verbose)
         {
-            Log.Write(LogType.Info, "Importing cinematics...");
-            Log.PushIndent();
+            Log.Write(LogType.Info, "Importing cinematics...", true);
 
             // Known cinematics files
             string[] knownFiles = { "intro.j2v", "ending.j2v" };
@@ -551,8 +546,7 @@ namespace Import
 
         public static void ConvertJJ2Music(string sourcePath, string targetPath, HashSet<string> usedMusic, bool verbose)
         {
-            Log.Write(LogType.Info, "Importing music...");
-            Log.PushIndent();
+            Log.Write(LogType.Info, "Importing music...", true);
 
             // Known music extensions
             string[] exts = { ".j2b", ".xm", ".it", ".s3m", ".mo3" };
@@ -586,8 +580,7 @@ namespace Import
 
         public static void ConvertJJ2Tilesets(string sourcePath, string targetPath, HashSet<string> usedTilesets, bool verbose)
         {
-            Log.Write(LogType.Info, "Importing tilesets...");
-            Log.PushIndent();
+            Log.Write(LogType.Info, "Importing tilesets...", true);
 
             Directory.CreateDirectory(Path.Combine(targetPath, "Content", "Tilesets"));
 
@@ -639,8 +632,7 @@ namespace Import
 
             // Clean music and tilesets
             if (Directory.Exists(Path.Combine(targetPath, "Content", "Episodes"))) {
-                Log.Write(LogType.Info, "Cleaning \"Music\" and \"Tileset\" directories...");
-                Log.PushIndent();
+                Log.Write(LogType.Info, "Cleaning \"Music\" and \"Tileset\" directories...", true);
 
                 int removedCount = 0;
 
@@ -713,8 +705,7 @@ namespace Import
 
             // Clean animations and sounds
             if (Directory.Exists(Path.Combine(targetPath, "Content", "Animations"))) {
-                Log.Write(LogType.Info, "Cleaning \"Animations\" directory...");
-                Log.PushIndent();
+                Log.Write(LogType.Info, "Cleaning \"Animations\" directory...", true);
 
                 int removedCount = 0;
                 bool metadataExists = false;
@@ -851,8 +842,7 @@ namespace Import
             JsonParser jsonParser = new JsonParser();
 
             // Check music and tilesets
-            Log.Write(LogType.Info, "Checking \"Music\" and \"Tileset\" directories for missing files...");
-            Log.PushIndent();
+            Log.Write(LogType.Info, "Checking \"Music\" and \"Tileset\" directories for missing files...", true);
 
             foreach (string unreferenced in new[] { "boss1.j2b", "boss2.j2b", "bonus2.j2b", "bonus3.j2b", "menu.j2b" }) {
                 if (!Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Music", unreferenced))) {
@@ -892,8 +882,7 @@ namespace Import
             Log.PopIndent();
 
             // Check animations and sounds
-            Log.Write(LogType.Info, "Checking \"Animations\" directory for missing files...");
-            Log.PushIndent();
+            Log.Write(LogType.Info, "Checking \"Animations\" directory for missing files...", true);
 
             if (File.Exists(Path.Combine(targetPath, "Content", "Main.dz"))) {
                 IFileSystem fs = new CompressedContent(Path.Combine(targetPath, "Content", "Main.dz"));
@@ -982,8 +971,7 @@ namespace Import
 
         private static void CreateMinimalCompressedContent(string targetPath)
         {
-            Log.Write(LogType.Info, "Creating minimal compressed content...");
-            Log.PushIndent();
+            Log.Write(LogType.Info, "Creating minimal compressed content...", true);
 
             string animationsPath = Path.Combine(targetPath, "Content", "Animations");
             RecreateDefaultPalette(animationsPath);
@@ -1061,8 +1049,7 @@ namespace Import
 
         private static void MergeToCompressedContent(string targetPath, bool keep)
         {
-            Log.Write(LogType.Info, "Compressing content into \".\\Content\\Main.dz\" file...");
-            Log.PushIndent();
+            Log.Write(LogType.Info, "Compressing content into \".\\Content\\Main.dz\" file...", true);
 
             string oldContent = Path.Combine(targetPath, "Content", "Main.dz");
             string newContent = oldContent + ".new";
@@ -1338,8 +1325,7 @@ namespace Import
                 }
             }
 
-            Log.Write(LogType.Info, "Adapting image to default palette with " + noise + "% noise...");
-            Log.PushIndent();
+            Log.Write(LogType.Info, "Adapting image to default palette with " + noise + "% noise...", true);
 
             Random r = new Random();
             int diffMax = 0, diffMaxX = 0, diffMaxY = 0, diffSum = 0;

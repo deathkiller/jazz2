@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Duality;
 using Jazz2.Networking;
 using Lidgren.Network;
 
@@ -12,6 +13,7 @@ namespace Jazz2.Server
     {
         private static GameServer gameServer;
         private static Dictionary<string, Func<string, bool>> availableCommands;
+        private static DateTime started;
 
         private static void Main(string[] args)
         {
@@ -78,8 +80,7 @@ namespace Jazz2.Server
             byte neededMinor = (byte)v.Minor;
             byte neededBuild = (byte)v.Build;
 
-            Log.Write(LogType.Info, "Starting server...");
-            Log.PushIndent();
+            Log.Write(LogType.Info, "Starting server...", true);
 
             // Start game server
             gameServer = new GameServer();
@@ -88,7 +89,7 @@ namespace Jazz2.Server
                 try {
                     gameServer.OverrideHostname(overrideHostname);
                 } catch {
-                    Log.Write(LogType.Error, "Cannot set custom public IP address!");
+                    Log.Write(LogType.Error, "Cannot set override public hostname!");
                 }
             }
 
@@ -99,13 +100,14 @@ namespace Jazz2.Server
             gameServer.ChangeLevel(levelName, MultiplayerLevelType.Battle);
 
             Log.Write(LogType.Info, "Ready!");
-            Console.WriteLine();
+            Log.Write(LogType.Info, "");
+
+            started = DateTime.Now;
 
             // Processing of console commands
             ProcessConsoleCommands();
 
             // Shutdown
-            Console.WriteLine();
             Log.Write(LogType.Info, "Closing...");
 
             gameServer.Dispose();
@@ -115,11 +117,19 @@ namespace Jazz2.Server
         {
             // Register all available commands
             availableCommands = new Dictionary<string, Func<string, bool>>();
+
             availableCommands.Add("quit", HandleCommandExit);
             availableCommands.Add("exit", HandleCommandExit);
+
             availableCommands.Add("help", HandleCommandHelp);
             availableCommands.Add("info", HandleCommandInfo);
+
             availableCommands.Add("set", HandleCommandSet);
+
+            availableCommands.Add("ban", HandleCommandBan);
+            availableCommands.Add("unban", HandleCommandUnban);
+            availableCommands.Add("kick", HandleCommandKick);
+            availableCommands.Add("kill", HandleCommandKill);
 
             // Start process command loop
             while (true) {
@@ -138,7 +148,7 @@ namespace Jazz2.Server
                         break;
                     }
                 } else {
-                    Log.Write(LogType.Warning, "Unknown command: " + command);
+                    HandleUnknownCommand();
                 }
             }
         }
@@ -162,6 +172,23 @@ namespace Jazz2.Server
             return null;
         }
 
+        private static void HandleUnknownCommand()
+        {
+            string[] answers = new[] {
+                "What do you mean?",
+                "I really don't know what do you mean.",
+                "What?",
+                "Wut?",
+                "This command never existed.",
+                "Did you type it correctly?",
+                "Ensure that you typed it correctly.",
+                "What do you need?",
+                "I'm not sure what do you need."
+            };
+
+            Log.Write(LogType.Error, answers[MathF.Rnd.Next(answers.Length)]);
+        }
+
         private static bool HandleCommandExit(string input)
         {
             return false;
@@ -169,22 +196,55 @@ namespace Jazz2.Server
 
         private static bool HandleCommandHelp(string input)
         {
-            Log.Write(LogType.Info, "Visit http://deat.tk/jazz2/ for more info!");
+            Log.Write(LogType.Info, "Visit \"http://deat.tk/jazz2/\" for more info!");
+            Log.Write(LogType.Info, "Available commands:", true);
+
+            foreach (KeyValuePair<string, Func<string, bool>> pair in availableCommands) {
+                Log.Write(LogType.Info, pair.Key);
+            }
+
+            Log.PopIndent();
+            Log.Write(LogType.Info, "");
+
             return true;
         }
 
         private static bool HandleCommandInfo(string input)
         {
+            TimeSpan uptime = (DateTime.Now - started);
+            Log.Write(LogType.Info, "Uptime: " + uptime);
+
             Log.Write(LogType.Info, "Server Load: " + gameServer.LoadMs + " ms");
-            Log.Write(LogType.Info, "Players: " + gameServer.PlayerCount + "/" + gameServer.MaxPlayers);
             Log.Write(LogType.Info, "Current Level: " + gameServer.CurrentLevel);
 
-            Log.Write(LogType.Info, "Players:");
-            Log.PushIndent();
-            foreach (KeyValuePair<NetConnection, GameServer.Player> pair in gameServer.Players) {
-                Log.Write(LogType.Info, "#" + pair.Value.Index + " | " + pair.Key.RemoteEndPoint + " | " + pair.Value.State + " | " + pair.Value.Pos);
+            int playerCount = gameServer.PlayerCount;
+            if (playerCount > 0) {
+                Log.Write(LogType.Info, "Players (" + playerCount + "/" + gameServer.MaxPlayers + ")".PadRight(12) + "Pos              Remote Endpoint", true);
+
+                foreach (KeyValuePair<NetConnection, GameServer.Player> pair in gameServer.Players) {
+                    string line;
+                    if (ConsoleUtils.SupportsUnicode) {
+                        line = "";
+                        int playerIndex = pair.Value.Index;
+                        do {
+                            int digit = playerIndex % 10;
+                            playerIndex /= 10;
+                            line = (char)((int)'₀' + digit) + line;
+                        } while (playerIndex > 0);
+                        line = "℘" + line;
+                    } else {
+                        line = "#" + pair.Value.Index;
+                    }
+
+                    Log.Write(LogType.Info, line.PadRight(6) + " " + pair.Value.State.ToString().PadRight(15) + " [" + ((int)pair.Value.Pos.X).ToString().PadLeft(5) + "; " + ((int)pair.Value.Pos.Y).ToString().PadLeft(5) + "]   " + pair.Key.RemoteEndPoint);
+                }
+            } else {
+                Log.Write(LogType.Info, "Players (0/" + gameServer.MaxPlayers + ")");
             }
+
             Log.PopIndent();
+            Log.Write(LogType.Info, "");
+
             return true;
         }
 
@@ -205,7 +265,7 @@ namespace Jazz2.Server
                 case "level": {
                     string value = GetPartFromInput(ref input);
                     if (gameServer.ChangeLevel(value, MultiplayerLevelType.Battle)) {
-                        Log.Write(LogType.Info, "OK!");
+                        Log.Write(LogType.Info, "Level was changed to \"" + value + "\"!");
                     } else {
                         Log.Write(LogType.Error, "Cannot load level \"" + value + "\"!");
                     }
@@ -214,8 +274,9 @@ namespace Jazz2.Server
 
                 case "spawning": {
                     string value = GetPartFromInput(ref input);
-                    gameServer.EnablePlayerSpawning(value == "true" || value == "yes" || value == "1");
-                    Log.Write(LogType.Info, "OK!");
+                    bool enabled = (value == "true" || value == "yes" || value == "1");
+                    gameServer.EnablePlayerSpawning(enabled);
+                    Log.Write(LogType.Info, "Player spawning is " + (enabled ? "enabled" : "disabled") + "!");
                     break;
                 }
 
@@ -225,10 +286,58 @@ namespace Jazz2.Server
                         Log.Write(LogType.Info, "level = " + gameServer.CurrentLevel);
                         Log.Write(LogType.Info, "spawning = ?");
                     } else {
-                        Log.Write(LogType.Warning, "Unknown command: set " + key);
+                        HandleUnknownCommand();
                     }
                     break;
                 }
+            }
+
+            return true;
+        }
+
+        private static bool HandleCommandBan(string input)
+        {
+            // ToDo
+            Log.Write(LogType.Error, "Not supported yet!");
+
+            return true;
+        }
+
+        private static bool HandleCommandUnban(string input)
+        {
+            // ToDo
+            Log.Write(LogType.Error, "Not supported yet!");
+
+            return true;
+        }
+
+        private static bool HandleCommandKick(string input)
+        {
+            int playerIndex;
+            if (int.TryParse(input, out playerIndex)) {
+                if (gameServer.KickPlayer((byte)playerIndex)) {
+                    Log.Write(LogType.Info, "Player kicked!");
+                } else {
+                    Log.Write(LogType.Error, "Player was not found!");
+                }
+            } else {
+                Log.Write(LogType.Error, "You have to specify player index!");
+            }
+
+            return true;
+        }
+
+        private static bool HandleCommandKill(string input)
+        {
+            int playerIndex;
+            if (int.TryParse(input, out playerIndex)) {
+                if (gameServer.KillPlayer((byte)playerIndex)) {
+                    Log.Write(LogType.Info, "Player killed!");
+                } else {
+                    Log.Write(LogType.Error, "Player was not found!");
+                }
+            } else {
+                Log.Write(LogType.Error, "You have to specify player index!");
             }
 
             return true;

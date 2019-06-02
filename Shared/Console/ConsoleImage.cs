@@ -80,9 +80,6 @@ namespace Jazz2
                     }
                 }
 
-                ConsoleColor originalForeground = Console.ForegroundColor;
-                ConsoleColor originalBackground = Console.BackgroundColor;
-
                 int cursorTop = Console.CursorTop;
                 int cursorLeft = ((Console.BufferWidth - width) >> 1);
                 if (cursorLeft < 0) {
@@ -102,9 +99,14 @@ namespace Jazz2
 
                         for (int x = 0; x < width; x++) {
                             ref PaletteEntry entry = ref palette[indices[x + y * width]];
-                            Console.ForegroundColor = (ConsoleColor)(entry.Attributes & 0x0F);
-                            Console.BackgroundColor = (ConsoleColor)((entry.Attributes >> 4) & 0x0F);
-                            Console.Write(entry.Character);
+                            if (entry.Attributes == 0 || (entry.Character == ' ' && (entry.Attributes & 0xF0) == 0)) {
+                                Console.ResetColor();
+                                Console.Write(' ');
+                            } else {
+                                Console.ForegroundColor = (ConsoleColor)(entry.Attributes & 0x0F);
+                                Console.BackgroundColor = (ConsoleColor)((entry.Attributes >> 4) & 0x0F);
+                                Console.Write(entry.Character);
+                            }
                         }
 
                         cursorTop++;
@@ -114,8 +116,6 @@ namespace Jazz2
                     cursorTop++;
                     Console.SetCursorPosition(0, cursorTop);
 
-                    Console.ForegroundColor = originalForeground;
-                    Console.BackgroundColor = originalBackground;
                     Console.ResetColor();
                     return true;
                 } catch {
@@ -136,8 +136,6 @@ namespace Jazz2
                         }
                     
                         // Something doesn't work, so reset colors and try to erase current line
-                        Console.ForegroundColor = originalForeground;
-                        Console.BackgroundColor = originalBackground;
                         Console.ResetColor();
 
                         Console.CursorLeft = cursorLeft;

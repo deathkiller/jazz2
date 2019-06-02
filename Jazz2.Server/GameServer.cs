@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using System.Threading;
+using Jazz2.Networking.Packets;
+using Jazz2.Networking.Packets.Server;
 using Lidgren.Network;
 
 namespace Jazz2.Server
@@ -159,6 +161,37 @@ namespace Jazz2.Server
 
                 Thread.Sleep(300000); // 5 minutes
             }
+        }
+
+        public bool KickPlayer(byte playerIndex)
+        {
+            lock (sync) {
+                foreach (var player in players) {
+                    if (player.Value.Index == playerIndex) {
+                        player.Key.Disconnect("kicked");
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public bool KillPlayer(byte playerIndex)
+        {
+            lock (sync) {
+                foreach (var player in players) {
+                    if (player.Value.Index == playerIndex) {
+                        Send(new DecreasePlayerHealth {
+                            Index = playerIndex,
+                            Amount = byte.MaxValue
+                        }, 3, playerConnections, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }
