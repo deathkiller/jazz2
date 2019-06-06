@@ -19,17 +19,6 @@ namespace Jazz2.Server
         {
             ConsoleUtils.TryEnableUnicode();
 
-#if DEBUG
-            try {
-                if (Console.BufferWidth < 90) {
-                    Console.BufferWidth = 90;
-                    Console.WindowWidth = 90;
-                }
-            } catch {
-                // Do nothing on Linux (and faulty) terminals
-            }
-#endif
-
             int imageTop;
             if (ConsoleImage.RenderFromManifestResource("ConsoleImage.udl", out imageTop) && imageTop >= 0) {
                 int width = Console.BufferWidth;
@@ -222,21 +211,10 @@ namespace Jazz2.Server
                 Log.Write(LogType.Info, "Players (" + playerCount + "/" + gameServer.MaxPlayers + ")".PadRight(12) + "Pos              Remote Endpoint", true);
 
                 foreach (KeyValuePair<NetConnection, GameServer.Player> pair in gameServer.Players) {
-                    string line;
-                    if (ConsoleUtils.SupportsUnicode) {
-                        line = "";
-                        int playerIndex = pair.Value.Index;
-                        do {
-                            int digit = playerIndex % 10;
-                            playerIndex /= 10;
-                            line = (char)((int)'₀' + digit) + line;
-                        } while (playerIndex > 0);
-                        line = "℘" + line;
-                    } else {
-                        line = "#" + pair.Value.Index;
-                    }
-
-                    Log.Write(LogType.Info, line.PadRight(6) + " " + pair.Value.State.ToString().PadRight(15) + " [" + ((int)pair.Value.Pos.X).ToString().PadLeft(5) + "; " + ((int)pair.Value.Pos.Y).ToString().PadLeft(5) + "]   " + pair.Key.RemoteEndPoint);
+                    Log.Write(LogType.Info, GameServer.PlayerNameToConsole(pair.Value).PadRight(6) + " " +
+                        pair.Value.State.ToString().PadRight(15) +
+                        " [" + ((int)pair.Value.Pos.X).ToString().PadLeft(5) + "; " + ((int)pair.Value.Pos.Y).ToString().PadLeft(5) + "]   " +
+                        pair.Key.RemoteEndPoint);
                 }
             } else {
                 Log.Write(LogType.Info, "Players (0/" + gameServer.MaxPlayers + ")");
@@ -401,21 +379,6 @@ namespace Jazz2.Server
 
             argSuffix = 0;
             return false;
-        }
-
-        public static void ReportProgress(string text, int progress = -1)
-        {
-            if (progress < 0) {
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.Write("    ˙ ");
-                Console.ForegroundColor = ConsoleColor.Gray;
-                Console.WriteLine(text);
-            } else {
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.Write((progress + "%").PadLeft(5) + " ");
-                Console.ForegroundColor = ConsoleColor.Gray;
-                Console.WriteLine(text);
-            }
         }
     }
 }

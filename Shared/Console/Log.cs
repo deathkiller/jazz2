@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
 
 namespace Jazz2
 {
@@ -24,10 +22,12 @@ namespace Jazz2
         private static int activeInputX;
         private static int activeInputY;
 
-        private static History inputHistory;
+        private static StringBuilder buffer;
+        private static int bufferPosition;
+        private static int bufferLastLength;
+        private static string activeSuggestion;
 
-        private static Thread inputThread;
-        private static ConsoleCtrlDelegate ctrlHandlerRef;
+        private static History inputHistory;
 
         static Log()
         {
@@ -35,38 +35,8 @@ namespace Jazz2
                 initialCursorVisible = Console.CursorVisible;
                 Console.CursorVisible = false;
 
-                try {
-                    ctrlHandlerRef = OnCtrlHandler;
-                    SetConsoleCtrlHandler(ctrlHandlerRef, true);
-                } catch {
-                    // Nothing to do...
-                }
                 AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
             }
-        }
-
-        private static bool Cleanup()
-        {
-            Console.CursorVisible = initialCursorVisible;
-            Console.ResetColor();
-
-            if (activeInput) {
-                activeInput = false;
-                inputThread.Abort();
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        private static bool OnCtrlHandler(int type)
-        {
-            return Cleanup();
-        }
-
-        private static void OnProcessExit(object sender, EventArgs e)
-        {
-            Cleanup();
         }
 
         public static string FetchLine(Func<string, string> suggestionsCallback)
@@ -75,12 +45,19 @@ namespace Jazz2
                 return Console.ReadLine();
             }
 
-            inputThread = Thread.CurrentThread;
             activeInput = true;
 
-            ShowActivePrompt();
+            RenderInputPrompt();
 
             Console.CursorVisible = true;
+            Console.TreatControlCAsInput = true;
+
+            int consoleWidth;
+
+            buffer = new StringBuilder();
+            bufferPosition = 0;
+            bufferLastLength = 0;
+            activeSuggestion = null;
 
             if (inputHistory == null) {
                 inputHistory = new History();
@@ -89,172 +66,138 @@ namespace Jazz2
             inputHistory.CursorToEnd();
             inputHistory.Append("");
 
-            try {
-                StringBuilder sb = new StringBuilder();
-                int bufferPosition = 0;
-                int bufferLastLength = 0;
-                string activeSuggestion = null;
-                int consoleWidth;
+            while (activeInput) {
+                bool isChanged = false;
 
-                while (activeInput) {
-                    ConsoleModifiers mod;
+                ConsoleModifiers mod;
+                ConsoleKeyInfo cki = Console.ReadKey(true);
+                if (cki.Key == ConsoleKey.Escape) {
+                    cki = Console.ReadKey(true);
+                    mod = ConsoleModifiers.Alt;
+                } else {
+                    mod = cki.Modifiers;
+                }
 
-                    ConsoleKeyInfo cki = Console.ReadKey(true);
-                    if (cki.Key == ConsoleKey.Escape) {
-                        cki = Console.ReadKey(true);
-                        mod = ConsoleModifiers.Alt;
-                    } else {
-                        mod = cki.Modifiers;
+                // Process input
+                switch (cki.Key) {
+                    case ConsoleKey.Enter: {
+                        if (buffer.Length > 0) {
+                            activeInput = false;
+                            isChanged = true;
+                        }
+                        break;
+                    }
+                    case ConsoleKey.LeftArrow: {
+                        if (bufferPosition > 0) {
+                            bufferPosition--;
+                        }
+                        break;
+                    }
+                    case ConsoleKey.RightArrow: {
+                        if (bufferPosition < buffer.Length) {
+                            bufferPosition++;
+                        } else if (activeSuggestion != null) {
+                            buffer.Clear();
+                            buffer.Append(activeSuggestion);
+                            bufferPosition = buffer.Length;
+                            isChanged = true;
+                        }
+                        break;
+                    }
+                    case ConsoleKey.UpArrow: {
+                        if (inputHistory != null && inputHistory.IsPreviousAvailable) {
+                            inputHistory.UpdateCurrent(buffer.ToString());
+                            buffer.Clear();
+                            buffer.Append(inputHistory.GetPrevious());
+                            bufferPosition = buffer.Length;
+                            isChanged = true;
+                        }
+                        break;
+                    }
+                    case ConsoleKey.DownArrow: {
+                        if (inputHistory != null && inputHistory.IsNextAvailable) {
+                            inputHistory.UpdateCurrent(buffer.ToString());
+                            buffer.Clear();
+                            buffer.Append(inputHistory.GetNext());
+                            bufferPosition = buffer.Length;
+                            isChanged = true;
+                        }
+                        break;
+                    }
+                    case ConsoleKey.Home: {
+                        bufferPosition = 0;
+                        break;
+                    }
+                    case ConsoleKey.End: {
+                        bufferPosition = buffer.Length;
+                        break;
+                    }
+                    case ConsoleKey.Backspace: {
+                        if (bufferPosition > 0) {
+                            bufferPosition--;
+                            buffer.Remove(bufferPosition, 1);
+                            isChanged = true;
+                        }
+                        break;
+                    }
+                    case ConsoleKey.Delete: {
+                        if (bufferPosition < buffer.Length) {
+                            buffer.Remove(bufferPosition, 1);
+                            isChanged = true;
+                        }
+                        break;
+                    }
+                    case ConsoleKey.Tab: {
+                        if (activeSuggestion != null) {
+                            buffer.Clear();
+                            buffer.Append(activeSuggestion);
+                            bufferPosition = buffer.Length;
+                            isChanged = true;
+                        }
+                        break;
                     }
 
-                    bool changed = false;
-
-                    // Process input
-                    switch (cki.Key) {
-                        case ConsoleKey.Enter: {
-                            if (sb.Length > 0) {
-                                activeInput = false;
-                            }
-                            break;
+                    default: {
+                        if (mod == ConsoleModifiers.Control && cki.Key == ConsoleKey.C) {
+                            // CTRL+C: Close
+                            activeInput = false;
+                            buffer = null;
+                        } else if (mod == ConsoleModifiers.Control && cki.Key == ConsoleKey.L) {
+                            // CTRL+L: Clear screen
+                            Console.Clear();
+                            Console.SetCursorPosition(0, 0);
+                            RenderInputPrompt();
+                            isChanged = true;
+                        } else if (cki.KeyChar != (char)0 && !char.IsControl(cki.KeyChar)) {
+                            buffer.Insert(bufferPosition, cki.KeyChar);
+                            bufferPosition++;
+                            isChanged = true;
                         }
-                        case ConsoleKey.LeftArrow: {
-                            if (bufferPosition > 0) {
-                                bufferPosition--;
-                            }
-                            break;
-                        }
-                        case ConsoleKey.RightArrow: {
-                            if (bufferPosition < sb.Length) {
-                                bufferPosition++;
-                            } else if (activeSuggestion != null) {
-                                sb.Clear();
-                                sb.Append(activeSuggestion);
-                                bufferPosition = sb.Length;
-                                changed = true;
-                            }
-                            break;
-                        }
-                        case ConsoleKey.UpArrow: {
-                            if (inputHistory != null && inputHistory.IsPreviousAvailable) {
-                                inputHistory.UpdateCurrent(sb.ToString());
-                                sb.Clear();
-                                sb.Append(inputHistory.GetPrevious());
-                                bufferPosition = sb.Length;
-                                changed = true;
-                            }
-                            break;
-                        }
-                        case ConsoleKey.DownArrow: {
-                            if (inputHistory != null && inputHistory.IsNextAvailable) {
-                                inputHistory.UpdateCurrent(sb.ToString());
-                                sb.Clear();
-                                sb.Append(inputHistory.GetNext());
-                                bufferPosition = sb.Length;
-                                changed = true;
-                            }
-                            break;
-                        }
-                        case ConsoleKey.Home: {
-                            bufferPosition = 0;
-                            break;
-                        }
-                        case ConsoleKey.End: {
-                            bufferPosition = sb.Length;
-                            break;
-                        }
-                        case ConsoleKey.Backspace: {
-                            if (bufferPosition > 0) {
-                                bufferPosition--;
-                                sb.Remove(bufferPosition, 1);
-                                changed = true;
-                            }
-                            break;
-                        }
-                        case ConsoleKey.Delete: {
-                            if (bufferPosition < sb.Length) {
-                                sb.Remove(bufferPosition, 1);
-                                changed = true;
-                            }
-                            break;
-                        }
-                        case ConsoleKey.Tab: {
-                            if (activeSuggestion != null) {
-                                sb.Clear();
-                                sb.Append(activeSuggestion);
-                                bufferPosition = sb.Length;
-                                changed = true;
-                            }
-                            break;
-                        }
-
-                        default: {
-                            if (mod == ConsoleModifiers.Control && cki.Key == ConsoleKey.L) {
-                                // CTRL+L: Clear screen
-                                Console.Clear();
-                                Console.SetCursorPosition(0, 0);
-                                ShowActivePrompt();
-                                changed = true;
-                            } else if (cki.KeyChar != (char)0 && !char.IsControl(cki.KeyChar)) {
-                                sb.Insert(bufferPosition, cki.KeyChar);
-                                bufferPosition++;
-                                changed = true;
-                            }
-                            break;
-                        }
-                    }
-
-                    // Fetch suggestions
-                    if (changed) {
-                        if (suggestionsCallback != null) {
-                            activeSuggestion = suggestionsCallback(sb.ToString());
-                        }
-                    }
-
-                    // Render
-                    if (activeInput) {
-                        lock (lastLogLines) {
-                            if (changed) {
-                                Console.SetCursorPosition(activeInputX, activeInputY);
-
-                                Console.ForegroundColor = ConsoleColor.Gray;
-                                string inputToRender = sb.ToString();
-                                Console.Write(inputToRender);
-                                int currentLength = sb.Length;
-
-                                if (activeSuggestion != null && activeSuggestion.Length > inputToRender.Length) {
-                                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                                    Console.Write(activeSuggestion.Substring(inputToRender.Length));
-                                    currentLength = activeSuggestion.Length;
-                                }
-
-                                Console.ResetColor();
-
-                                int extraLength = bufferLastLength - currentLength;
-                                if (extraLength > 0) {
-                                    for (int i = 0; i <= extraLength; i++) {
-                                        Console.Write(' ');
-                                    }
-                                }
-
-                                bufferLastLength = currentLength;
-                            }
-
-                            consoleWidth = Console.BufferWidth;
-                            Console.SetCursorPosition((activeInputX + bufferPosition) % consoleWidth, activeInputY + (activeInputX + bufferPosition) / consoleWidth);
-                        }
-
-                        changed = false;
+                        break;
                     }
                 }
 
+                // Fetch suggestions
+                if (activeInput && isChanged && suggestionsCallback != null) {
+                    activeSuggestion = suggestionsCallback(buffer.ToString());
+                }
+
+                RenderInput(isChanged);
+                isChanged = false;
+            }
+
+            Console.TreatControlCAsInput = false;
+            Console.CursorVisible = false;
+
+            activeInput = false;
+
+            if (buffer != null) {
                 // Set cursor position to the end and create a new line
                 consoleWidth = Console.BufferWidth;
-                Console.SetCursorPosition((activeInputX + sb.Length) % consoleWidth, activeInputY + (activeInputX + sb.Length) / consoleWidth);
+                Console.SetCursorPosition((activeInputX + buffer.Length) % consoleWidth, activeInputY + (activeInputX + buffer.Length) / consoleWidth);
                 Console.WriteLine();
 
-                Console.CursorVisible = false;
-
-                string input = sb.ToString();
+                string input = buffer.ToString();
 
                 if (string.IsNullOrEmpty(input)) {
                     inputHistory.Discard();
@@ -262,14 +205,18 @@ namespace Jazz2
                     inputHistory.Accept(input);
                 }
 
-                activeInput = false;
-                inputThread = null;
                 return input;
-            } catch (ThreadAbortException) {
-                Thread.ResetAbort();
+            } else {
+                // Erase input line
+                Console.SetCursorPosition(0, activeInputY);
+                Console.ResetColor();
 
-                activeInput = false;
-                inputThread = null;
+                for (int i = 0; i <= activeInputX + bufferLastLength; i++) {
+                    Console.Write(' ');
+                }
+
+                Console.SetCursorPosition(0, activeInputY);
+
                 return null;
             }
         }
@@ -298,7 +245,8 @@ namespace Jazz2
                     Console.WriteLine();
 
                     if (activeInput) {
-                        ShowActivePrompt();
+                        RenderInputPrompt();
+                        RenderInput(true);
                     }
                 }
                 return;
@@ -366,73 +314,8 @@ namespace Jazz2
                 }
 
                 if (activeInput) {
-                    ShowActivePrompt();
-                }
-            }
-        }
-
-        public static void Write(LogType type, string category, string formattedLine)
-        {
-            if (string.IsNullOrEmpty(formattedLine)) {
-                return;
-            }
-
-            lock (lastLogLines) {
-                bool highlight = IsHighlightLine(formattedLine);
-
-                // If we're writing the same kind of text again, "grey out" the repeating parts
-                int beginGreyLength = 0;
-                int endGreyLength = 0;
-                if (!highlight) {
-                    for (int i = 0; i < lastLogLines.Length; i++) {
-                        string lastLogLine = lastLogLines[i] ?? string.Empty;
-                        beginGreyLength = Math.Max(beginGreyLength, GetEqualBeginChars(lastLogLine, formattedLine));
-                        endGreyLength = Math.Max(endGreyLength, GetEqualEndChars(lastLogLine, formattedLine));
-                    }
-                    if (beginGreyLength == formattedLine.Length) {
-                        endGreyLength = 0;
-                    }
-                    if (beginGreyLength + endGreyLength >= formattedLine.Length) {
-                        endGreyLength = 0;
-                    }
-                }
-
-                if (activeInput) {
-                    Console.SetCursorPosition(0, activeInputY);
-                }
-
-                // Dot
-                SetBrightConsoleColor(type, highlight);
-                Console.Write(new string(' ', indent * 2) + (ConsoleUtils.SupportsUnicode ? " · " : " ˙ "));
-
-                SetBrightConsoleColor(type, false);
-                Console.Write(category);
-
-                // Dark beginning
-                if (beginGreyLength != 0) {
-                    SetDarkConsoleColor(LogType.Info);
-                    Console.Write(formattedLine.Substring(0, beginGreyLength));
-                }
-
-                // Bright main part
-                SetBrightConsoleColor(LogType.Info, false);
-                Console.Write(formattedLine.Substring(beginGreyLength, formattedLine.Length - beginGreyLength - endGreyLength));
-
-                // Dark ending
-                if (endGreyLength != 0) {
-                    SetDarkConsoleColor(LogType.Info);
-                    Console.Write(formattedLine.Substring(formattedLine.Length - endGreyLength, endGreyLength));
-                }
-
-                // End the current line
-                Console.WriteLine();
-
-                lastLogLines[lastLogLineIndex] = formattedLine;
-                lastLogLineIndex = (lastLogLineIndex + 1) % lastLogLines.Length;
-                Console.ResetColor();
-
-                if (activeInput) {
-                    ShowActivePrompt();
+                    RenderInputPrompt();
+                    RenderInput(true);
                 }
             }
         }
@@ -522,7 +405,45 @@ namespace Jazz2
             return minLen;
         }
 
-        private static void ShowActivePrompt()
+        private static void RenderInput(bool isChanged)
+        {
+            lock (lastLogLines) {
+                if (isChanged) {
+                    // Hide cursor while we're rendering
+                    Console.CursorVisible = false;
+                    Console.SetCursorPosition(activeInputX, activeInputY);
+
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                    string inputToRender = buffer.ToString();
+                    Console.Write(inputToRender);
+                    int currentLength = buffer.Length;
+
+                    if (activeInput && activeSuggestion != null && activeSuggestion.Length > inputToRender.Length) {
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
+                        Console.Write(activeSuggestion.Substring(inputToRender.Length));
+                        currentLength = activeSuggestion.Length;
+                    }
+
+                    Console.ResetColor();
+
+                    int extraLength = bufferLastLength - currentLength;
+                    if (extraLength > 0) {
+                        for (int i = 0; i <= extraLength; i++) {
+                            Console.Write(' ');
+                        }
+                    }
+
+                    bufferLastLength = currentLength;
+
+                    Console.CursorVisible = true;
+                }
+
+                int consoleWidth = Console.BufferWidth;
+                Console.SetCursorPosition((activeInputX + bufferPosition) % consoleWidth, activeInputY + (activeInputX + bufferPosition) / consoleWidth);
+            }
+        }
+
+        private static void RenderInputPrompt()
         {
             Console.CursorLeft = 0;
 
@@ -541,6 +462,12 @@ namespace Jazz2
             // Refresh initial cursor position
             activeInputX = Console.CursorLeft;
             activeInputY = Console.CursorTop;
+        }
+
+        private static void OnProcessExit(object sender, EventArgs e)
+        {
+            Console.CursorVisible = initialCursorVisible;
+            Console.ResetColor();
         }
 
         private class History
@@ -650,12 +577,5 @@ namespace Jazz2
                 current = head;
             }
         }
-
-        #region Native Methods
-        private delegate bool ConsoleCtrlDelegate(int type);
-
-        [DllImport("kernel32")]
-        private static extern bool SetConsoleCtrlHandler(ConsoleCtrlDelegate handler, bool add);
-        #endregion
     }
 }

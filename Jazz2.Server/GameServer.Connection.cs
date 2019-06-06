@@ -15,7 +15,8 @@ namespace Jazz2.Server
         private void OnClientConnected(ClientConnectedEventArgs args)
         {
             if (args.Message.LengthBytes < 4) {
-                Console.WriteLine("        - Corrupted OnClientConnected message!");
+                args.DenyReason = "incompatible version";
+                Log.Write(LogType.Error, "Connection of unsupported client (" + args.Message.SenderConnection.RemoteEndPoint + ") was denied!");
                 return;
             }
 
@@ -25,14 +26,32 @@ namespace Jazz2.Server
             byte minor = args.Message.ReadByte();
             byte build = args.Message.ReadByte();
             if (major < neededMajor || (major == neededMajor && (minor < neededMinor || (major == neededMajor && build < neededBuild)))) {
-                Console.WriteLine("        - Incompatible version!");
+                args.DenyReason = "incompatible version";
+                Log.Write(LogType.Error, "Connection of outdated client (" + args.Message.SenderConnection.RemoteEndPoint + ") was denied!");
                 return;
             }
 
-            args.Allow = true;
+            byte[] clientIdentifier = args.Message.ReadBytes(16);
+            lock (sync) {
+                foreach (var pair in players) {
+                    bool isSame = true;
+                    for (int i = 0; i < 16; i++) {
+                        if (clientIdentifier[i] != pair.Value.ClientIdentifier[i]) {
+                            isSame = false;
+                            break;
+                        }
+                    }
+
+                    if (isSame) {
+                        args.DenyReason = "already connected";
+                        return;
+                    }
+                }
+            }
 
             players[args.Message.SenderConnection] = new Player {
                 Connection = args.Message.SenderConnection,
+                ClientIdentifier = clientIdentifier,
                 State = PlayerState.NotReady
             };
         }
@@ -45,6 +64,8 @@ namespace Jazz2.Server
                     players[args.SenderConnection].Index = lastPlayerIndex;
                 }
 
+                Log.Write(LogType.Verbose, "Client " + PlayerNameToConsole(players[args.SenderConnection]) + " (" + args.SenderConnection.RemoteEndPoint + ") connected!");
+
                 if (currentLevel != null) {
                     Send(new LoadLevel {
                         LevelName = currentLevel,
@@ -54,6 +75,8 @@ namespace Jazz2.Server
                 }
 
             } else if (args.Status == NetConnectionStatus.Disconnected) {
+                Log.Write(LogType.Verbose, "Client " + PlayerNameToConsole(players[args.SenderConnection]) + " (" + args.SenderConnection.RemoteEndPoint + ") disconnected!");
+
                 lock (sync) {
                     byte index = players[args.SenderConnection].Index;
 
@@ -92,7 +115,7 @@ namespace Jazz2.Server
 
                 string identifier = args.Message.ReadString();
                 if (identifier != Token) {
-                    Console.WriteLine("        - Bad identifier!");
+                    Log.Write(LogType.Error, "Request from unsupported client (" + args.Message.SenderConnection?.RemoteEndPoint + ") was denied!");
                     return;
                 }
 
@@ -100,7 +123,7 @@ namespace Jazz2.Server
                 byte minor = args.Message.ReadByte();
                 byte build = args.Message.ReadByte();
                 if (major < neededMajor || (major == neededMajor && (minor < neededMinor || (major == neededMajor && build < neededBuild)))) {
-                    Console.WriteLine("        - Incompatible version!");
+                    Log.Write(LogType.Error, "Request from outdated client (" + args.Message.SenderConnection?.RemoteEndPoint + ") was denied!");
                     return;
                 }
             }
@@ -110,8 +133,6 @@ namespace Jazz2.Server
             Action<NetIncomingMessage, bool> callback;
             if (callbacks.TryGetValue(type, out callback)) {
                 callback(args.Message, args.IsUnconnected);
-            } else {
-                Console.WriteLine("        - Unknown packet type!");
             }
         }
 
@@ -155,13 +176,13 @@ namespace Jazz2.Server
         {
             T packet = default(T);
             if (isUnconnected && !packet.SupportsUnconnected) {
-#if DEBUG__
+#if NETWORK_DEBUG__
                 Console.WriteLine("        - Packet<" + typeof(T).Name + "> not allowed for unconnected clients!");
 #endif
                 return;
             }
 
-#if DEBUG__
+#if NETWORK_DEBUG__
             Console.WriteLine("        - Packet<" + typeof(T).Name + ">");
 #endif
 
@@ -179,7 +200,7 @@ namespace Jazz2.Server
             packet.Write(msg);
             NetSendResult result = server.Send(msg, recipient, method, channel);
 
-#if DEBUG__
+#if NETWORK_DEBUG__
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.Write("Debug: ");
             Console.ForegroundColor = ConsoleColor.Gray;
@@ -195,7 +216,7 @@ namespace Jazz2.Server
             packet.Write(msg);
 
             if (recipients.Count > 0) {
-#if DEBUG__
+#if NETWORK_DEBUG__
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.Write("Debug: ");
                 Console.ForegroundColor = ConsoleColor.Gray;

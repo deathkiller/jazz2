@@ -7,7 +7,7 @@ namespace Jazz2.Server.EventArgs
     public class ClientConnectedEventArgs
     {
         public readonly NetIncomingMessage Message;
-        public bool Allow;
+        public string DenyReason;
 
         public ClientConnectedEventArgs(NetIncomingMessage message)
         {

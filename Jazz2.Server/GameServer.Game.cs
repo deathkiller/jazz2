@@ -36,6 +36,7 @@ namespace Jazz2.Server
         public class Player : ICollisionable
         {
             public NetConnection Connection;
+            public byte[] ClientIdentifier;
 
             public byte Index;
             public PlayerState State;

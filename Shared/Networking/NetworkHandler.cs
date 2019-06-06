@@ -11,6 +11,7 @@ namespace Jazz2.Game.Multiplayer
 {
     public class NetworkHandler
     {
+        private byte[] clientIdentifier;
         private NetClient client;
         private Thread threadUpdate;
 
@@ -28,12 +29,18 @@ namespace Jazz2.Game.Multiplayer
 
         public float AverageRoundtripTime => (client != null && client.ServerConnection != null ? client.ServerConnection.AverageRoundtripTime : 0);
 
-        public NetworkHandler(string appId)
+        public NetworkHandler(string appId, byte[] clientIdentifier)
         {
+            if (clientIdentifier == null || clientIdentifier.Length != 16) {
+                throw new ArgumentException("Client identifier must be 16 bytes long");
+            }
+
+            this.clientIdentifier = clientIdentifier;
+
             callbacks = new Dictionary<byte, Action<NetIncomingMessage>>();
 
             NetPeerConfiguration config = new NetPeerConfiguration(appId);
-#if DEBUG
+#if NETWORK_DEBUG
             config.EnableMessageType(NetIncomingMessageType.DebugMessage);
             config.EnableMessageType(NetIncomingMessageType.ErrorMessage);
             config.EnableMessageType(NetIncomingMessageType.VerboseDebugMessage);
@@ -63,6 +70,10 @@ namespace Jazz2.Game.Multiplayer
             message.Write((byte)minor);
             message.Write((byte)build);
 
+            for (int i = 0; i < 16; i++) {
+                message.Write((byte)clientIdentifier[i]);
+            }
+
             client.Connect(host, message);
         }
 
@@ -74,7 +85,7 @@ namespace Jazz2.Game.Multiplayer
 
             threadUpdate = null;
 
-            client.Shutdown("Client is disconnecting");
+            client.Shutdown("disconnecting");
         }
 
         private void OnHandleMessagesThread()
@@ -98,7 +109,7 @@ namespace Jazz2.Game.Multiplayer
                     switch (msg.MessageType) {
                         case NetIncomingMessageType.StatusChanged:
                             NetConnectionStatus status = (NetConnectionStatus)msg.ReadByte();
-#if DEBUG
+#if NETWORK_DEBUG
                             Console.ForegroundColor = ConsoleColor.DarkCyan;
                             Console.Write("    S ");
                             Console.ForegroundColor = ConsoleColor.Gray;
@@ -130,7 +141,7 @@ namespace Jazz2.Game.Multiplayer
                             break;
                         }
 
-#if DEBUG
+#if NETWORK_DEBUG
                         case NetIncomingMessageType.VerboseDebugMessage:
                             Console.ForegroundColor = ConsoleColor.DarkGray;
                             Console.Write("    D ");
@@ -183,7 +194,7 @@ namespace Jazz2.Game.Multiplayer
 #if DEBUG
             upLast += msg.LengthBytes;
 #endif
-#if DEBUG__
+#if NETWORK_DEBUG__
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.Write("Debug: ");
             Console.ForegroundColor = ConsoleColor.Gray;
@@ -214,7 +225,7 @@ namespace Jazz2.Game.Multiplayer
         private static void ProcessCallback<T>(NetIncomingMessage msg, PacketCallback<T> callback) where T : struct, IServerPacket
         {
             T packet = default(T);
-#if DEBUG__
+#if NETWORK_DEBUG__
             Console.WriteLine("        - Packet<" + typeof(T).Name + ">");
 #endif
 

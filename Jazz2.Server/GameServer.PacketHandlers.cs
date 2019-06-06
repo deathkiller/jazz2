@@ -203,8 +203,6 @@ namespace Jazz2.Server
                     return;
                 }
 
-                //Console.WriteLine("UPDATE ACTOR: " + index + " | " + p.Pos);
-
                 RemotableActor remotableActor;
                 if (!remotableActors.TryGetValue(index, out remotableActor)) {
                     return;

@@ -60,7 +60,7 @@ namespace Jazz2.Server
             config.EnableMessageType(NetIncomingMessageType.UnconnectedData);
             config.EnableUPnP = enableUPnP;
 
-#if DEBUG
+#if NETWORK_DEBUG
             //config.SimulatedMinimumLatency = 50 / 1000f;
             //config.SimulatedRandomLatency = 50 / 1000f;
             //config.SimulatedDuplicatesChance = 0.2f;
@@ -96,13 +96,14 @@ namespace Jazz2.Server
                 return;
             }
 
-            threadUpdate = null;
-
             if (server.Configuration.EnableUPnP) {
                 server.UPnP.DeleteForwardingRule(port);
             }
 
-            server.Shutdown("Server is shutting down");
+            server.Shutdown("shutting down");
+
+            threadUpdate.Join();
+            threadUpdate = null;
         }
 
 #if NET45
@@ -163,7 +164,7 @@ namespace Jazz2.Server
 
         private void OnHandleMessagesThread()
         {
-            while (threadUpdate != null) {
+            while (server.Status != NetPeerStatus.NotRunning) {
                 server.MessageReceivedEvent.WaitOne();
 
                 NetIncomingMessage msg;
@@ -172,7 +173,7 @@ namespace Jazz2.Server
                     switch (msg.MessageType) {
                         case NetIncomingMessageType.StatusChanged: {
                             NetConnectionStatus status = (NetConnectionStatus)msg.ReadByte();
-#if DEBUG
+#if NETWORK_DEBUG
                             Console.ForegroundColor = ConsoleColor.DarkCyan;
                             Console.Write("    S ");
                             Console.ForegroundColor = ConsoleColor.Gray;
@@ -184,7 +185,7 @@ namespace Jazz2.Server
                         }
 
                         case NetIncomingMessageType.Data: {
-#if DEBUG__
+#if NETWORK_DEBUG__
                             Console.ForegroundColor = ConsoleColor.Cyan;
                             Console.Write("    R ");
                             Console.ForegroundColor = ConsoleColor.Gray;
@@ -198,7 +199,7 @@ namespace Jazz2.Server
                         }
 
                         case NetIncomingMessageType.UnconnectedData: {
-#if DEBUG
+#if NETWORK_DEBUG
                             Console.ForegroundColor = ConsoleColor.Cyan;
                             Console.Write("    R ");
                             Console.ForegroundColor = ConsoleColor.Gray;
@@ -215,16 +216,16 @@ namespace Jazz2.Server
                             ClientConnectedEventArgs args = new ClientConnectedEventArgs(msg);
                             ClientConnected?.Invoke(args);
 
-                            if (args.Allow) {
+                            if (args.DenyReason == null) {
                                 msg.SenderConnection.Approve();
                             } else {
-                                msg.SenderConnection.Deny("Incompatible version");
+                                msg.SenderConnection.Deny(args.DenyReason);
                             }
                             break;
                         }
 
                         case NetIncomingMessageType.DiscoveryRequest: {
-#if DEBUG
+#if NETWORK_DEBUG
                             Console.ForegroundColor = ConsoleColor.Cyan;
                             Console.Write("    Q ");
                             Console.ForegroundColor = ConsoleColor.Gray;
@@ -238,7 +239,7 @@ namespace Jazz2.Server
                             break;
                         }
 
-#if DEBUG
+#if NETWORK_DEBUG
                         case NetIncomingMessageType.VerboseDebugMessage:
                             Console.ForegroundColor = ConsoleColor.DarkGray;
                             Console.Write("    D ");

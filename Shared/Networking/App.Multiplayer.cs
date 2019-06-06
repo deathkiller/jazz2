@@ -6,6 +6,7 @@ using Duality.Resources;
 using Jazz2.Game.Multiplayer;
 using Jazz2.Game.Structs;
 using Jazz2.Networking.Packets.Server;
+using Jazz2.Storage;
 
 namespace Jazz2.Game
 {
@@ -23,7 +24,16 @@ namespace Jazz2.Game
                 net.Close();
             }
 
-            net = new NetworkHandler(token);
+            byte[] clientIdentifier = Preferences.Get<byte[]>("ClientIdentifier");
+            if (clientIdentifier == null) {
+                // Generate new client identifier
+                Guid guid = Guid.NewGuid();
+                clientIdentifier = guid.ToByteArray();
+                Preferences.Set<byte[]>("ClientIdentifier", clientIdentifier);
+                Preferences.Commit();
+            }
+
+            net = new NetworkHandler(token, clientIdentifier);
             net.OnDisconnected += OnNetworkDisconnected;
             net.RegisterCallback<LoadLevel>(OnNetworkLoadLevel);
             net.Connect(endPoint);

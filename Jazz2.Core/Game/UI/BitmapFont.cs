@@ -303,8 +303,13 @@ namespace Jazz2.Game.UI
                     Vector3 pos = new Vector3(originPos);
 
                     if (angleOffset > 0f) {
-                        pos.X += MathF.Cos((phase + charOffset) * angleOffset * MathF.Pi) * varianceX * scale;
-                        pos.Y += MathF.Sin((phase + charOffset) * angleOffset * MathF.Pi) * varianceY * scale;
+                        float currentPhase = (phase + charOffset) * angleOffset * MathF.Pi;
+                        if (charOffset % 2 == 1) {
+                            currentPhase = -currentPhase;
+                        }
+
+                        pos.X += MathF.Cos(currentPhase) * varianceX * scale;
+                        pos.Y += MathF.Sin(currentPhase) * varianceY * scale;
                     }
 
                     pos.X = MathF.Round(pos.X);

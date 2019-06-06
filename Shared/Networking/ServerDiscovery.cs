@@ -74,7 +74,7 @@ namespace Jazz2.Game.Multiplayer
             NetPeerConfiguration config = new NetPeerConfiguration(appId);
             config.EnableMessageType(NetIncomingMessageType.DiscoveryResponse);
             config.EnableMessageType(NetIncomingMessageType.UnconnectedData);
-#if DEBUG
+#if NETWORK_DEBUG
             config.EnableMessageType(NetIncomingMessageType.DebugMessage);
             config.EnableMessageType(NetIncomingMessageType.ErrorMessage);
             config.EnableMessageType(NetIncomingMessageType.VerboseDebugMessage);
@@ -123,7 +123,7 @@ namespace Jazz2.Game.Multiplayer
                 while (client.ReadMessage(out msg)) {
                     switch (msg.MessageType) {
                         case NetIncomingMessageType.DiscoveryResponse: {
-#if DEBUG
+#if NETWORK_DEBUG
                             Console.ForegroundColor = ConsoleColor.Cyan;
                             Console.Write("    Q ");
                             Console.ForegroundColor = ConsoleColor.Gray;
@@ -198,7 +198,7 @@ namespace Jazz2.Game.Multiplayer
                             break;
                         }
 
-#if DEBUG
+#if NETWORK_DEBUG
                         case NetIncomingMessageType.VerboseDebugMessage:
                             Console.ForegroundColor = ConsoleColor.DarkGray;
                             Console.Write("    D ");

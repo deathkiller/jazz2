@@ -80,7 +80,6 @@ namespace Jazz2
                     }
                 }
 
-                int cursorTop = Console.CursorTop;
                 int cursorLeft = ((Console.BufferWidth - width) >> 1);
                 if (cursorLeft < 0) {
                     // Window is too small to show the image
@@ -88,9 +87,10 @@ namespace Jazz2
                     return false;
                 }
 
-                bool tryResize = true;
+                ConsoleUtils.ScrollBufferIfNeeded(height + 1);
 
-            Retry:
+                int cursorTop = Console.CursorTop;
+
                 imageTop = cursorTop;
 
                 try {
@@ -119,22 +119,7 @@ namespace Jazz2
                     Console.ResetColor();
                     return true;
                 } catch {
-                    try {
-                        if (tryResize && Environment.OSVersion.Platform != PlatformID.Win32NT) {
-                            tryResize = false;
-
-                            int requiredLineCount = height + 2 - (cursorTop - imageTop);
-
-                            // Try to scroll buffer up to make a space for the image
-                            for (i = 0; i < requiredLineCount; i++) {
-                                Console.WriteLine();
-                            }
-                            cursorTop -= height + 2;
-                            Console.CursorTop = cursorTop;
-
-                            goto Retry;
-                        }
-                    
+                    try {                    
                         // Something doesn't work, so reset colors and try to erase current line
                         Console.ResetColor();
 

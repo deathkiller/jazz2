@@ -87,6 +87,26 @@ namespace Jazz2
             }
         }
 
+        public static void ScrollBufferIfNeeded(int rowsNeeded)
+        {
+            int bufferHeight = Console.BufferHeight;
+            int cursorTop = Console.CursorTop;
+
+            int remainingRows = cursorTop + rowsNeeded - bufferHeight;
+            if (remainingRows <= 0) {
+                return;
+            }
+
+            Console.CursorTop = bufferHeight - 1;
+
+            while (remainingRows > 0) {
+                Console.WriteLine();
+                remainingRows--;
+            }
+
+            Console.CursorTop -= (rowsNeeded - 1);
+        }
+
         #region Native Methods
         [DllImport("libc")]
         private static extern int isatty(int desc);

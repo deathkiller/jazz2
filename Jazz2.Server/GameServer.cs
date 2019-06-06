@@ -193,6 +193,22 @@ namespace Jazz2.Server
 
             return false;
         }
+
+        public static string PlayerNameToConsole(Player player)
+        {
+            if (ConsoleUtils.SupportsUnicode) {
+                string line = "";
+                int playerIndex = player.Index;
+                do {
+                    int digit = playerIndex % 10;
+                    playerIndex /= 10;
+                    line = (char)((int)'₀' + digit) + line;
+                } while (playerIndex > 0);
+                return "℘" + line;
+            } else {
+                return "#" + player.Index;
+            }
+        }
     }
 }
 
