@@ -13,7 +13,6 @@ namespace Jazz2.Game
     public class ActorApi
     {
         private readonly LevelHandler levelHandler;
-        private readonly bool isMultiplayerSession;
 
         public TileMap TileMap
         {
@@ -80,14 +79,6 @@ namespace Jazz2.Game
             set { levelHandler.AmbientLightCurrent = value; }
         }
 
-        public bool IsMultiplayerSession
-        {
-#if NET45
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-            get { return isMultiplayerSession; }
-        }
-
         public int WaterLevel
         {
 #if NET45
@@ -105,10 +96,9 @@ namespace Jazz2.Game
             get { return levelHandler.Players; }
         }
 
-        public ActorApi(LevelHandler levelHandler, bool isMultiplayerSession)
+        public ActorApi(LevelHandler levelHandler)
         {
             this.levelHandler = levelHandler;
-            this.isMultiplayerSession = isMultiplayerSession;
         }
 
 #if NET45

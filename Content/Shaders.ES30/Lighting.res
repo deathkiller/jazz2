@@ -15,7 +15,7 @@ in vec4 vCornerColor;
 
 out vec4 vFragColor;
 
-float light_blend(float t) {
+float lightBlend(float t) {
     return t * t;
 }
 
@@ -40,8 +40,9 @@ void main() {
 
     // Diffuse lighting
     float diffuseFactor = 1.0 - max(dot(normal, normalize(lightDir)), 0.0);
-
-    float strength = diffuseFactor * light_blend(clamp(1.0 - ((dist - radiusNear) / (radiusFar - radiusNear)), 0.0, 1.0));
+    diffuseFactor = diffuseFactor * 0.8 + 0.2;
+    
+    float strength = diffuseFactor * lightBlend(clamp(1.0 - ((dist - radiusNear) / (radiusFar - radiusNear)), 0.0, 1.0));
     vFragColor = vec4(strength * intensity, strength * brightness, 0.0, 1.0);
 }"
 

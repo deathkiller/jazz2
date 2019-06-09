@@ -132,6 +132,7 @@ namespace Jazz2.Game.Events
             RegisterSpawnable<Copter>(EventType.Copter);
 
             RegisterSpawnable<RollingRock>(EventType.RollingRock);
+            RegisterSpawnable<SwingingVine>(EventType.SwingingVine);
 
             RegisterSpawnable<PowerUpShieldMonitor>(EventType.PowerUpShield);
             RegisterSpawnable<Stopwatch>(EventType.Stopwatch);

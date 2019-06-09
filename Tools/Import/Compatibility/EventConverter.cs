@@ -686,6 +686,8 @@ namespace Jazz2.Compatibility
                 Pair.Create(JJ2EventParamType.UInt, 8)  // ID
             ));
 
+            Add(JJ2Event.SWINGING_VINE, NoParamList(EventType.SwingingVine));
+
             // Enemies
             Add(JJ2Event.ENEMY_TURTLE_NORMAL, ConstantParamList(EventType.EnemyTurtle, 0));
             Add(JJ2Event.ENEMY_NORMAL_TURTLE_XMAS, ConstantParamList(EventType.EnemyTurtle, 1));

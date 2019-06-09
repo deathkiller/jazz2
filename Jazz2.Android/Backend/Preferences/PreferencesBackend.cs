@@ -14,15 +14,13 @@ namespace Jazz2.Backend.Android
     {
         private ISharedPreferences sharedPrefs;
         private Dictionary<string, object> data;
-        private bool dirty, isFirstRun;
+        private bool dirty;
 
         string IDualityBackend.Id => "SharedPreferencesBackend";
 
         string IDualityBackend.Name => "Android SharedPreferences";
 
         int IDualityBackend.Priority => 0;
-
-        bool IPreferencesBackend.IsFirstRun => isFirstRun;
 
         bool IDualityBackend.CheckAvailable()
         {
@@ -38,7 +36,6 @@ namespace Jazz2.Backend.Android
             string base64 = sharedPrefs.GetString("Root", null);
             if (string.IsNullOrEmpty(base64)) {
                 // No preferences found
-                isFirstRun = true;
                 dirty = true;
                 return;
             }

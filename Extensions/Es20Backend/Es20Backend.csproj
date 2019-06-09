@@ -48,15 +48,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CorePlugin.cs" />
-    <Compile Include="Drawing\ExtMethodsColorDataElementType.cs" />
-    <Compile Include="Drawing\ExtMethodsColorDataLayout.cs" />
-    <Compile Include="Drawing\GraphicsBackend.cs" />
-    <Compile Include="Drawing\NativeGraphicsBuffer.cs" />
-    <Compile Include="Drawing\NativeRenderTarget.cs" />
-    <Compile Include="Drawing\NativeShaderPart.cs" />
-    <Compile Include="Drawing\NativeShaderProgram.cs" />
-    <Compile Include="Drawing\NativeTexture.cs" />
-    <Compile Include="Drawing\NativeWindow.cs" />
+    <Compile Include="Es20\ExtMethodsColorDataElementType.cs" />
+    <Compile Include="Es20\ExtMethodsColorDataLayout.cs" />
+    <Compile Include="Es20\GraphicsBackend.cs" />
+    <Compile Include="Es20\NativeGraphicsBuffer.cs" />
+    <Compile Include="Es20\NativeRenderTarget.cs" />
+    <Compile Include="Es20\NativeShaderPart.cs" />
+    <Compile Include="Es20\NativeShaderProgram.cs" />
+    <Compile Include="Es20\NativeTexture.cs" />
+    <Compile Include="Es20\NativeWindow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

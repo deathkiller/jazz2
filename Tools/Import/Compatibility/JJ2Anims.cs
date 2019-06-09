@@ -502,6 +502,11 @@ namespace Jazz2.Compatibility
                             Log.Write(LogType.Verbose, "Applying \"Toaster PowerUp\" palette fix.");
                         }
 
+                        bool applyVineFix = (data.Category == "Object" && data.Name == "vine");
+                        if (applyVineFix) {
+                            Log.Write(LogType.Verbose, "Applying \"Vine\" palette fix.");
+                        }
+
                         for (int j = 0; j < currentAnim.Frames.Length; j++) {
                             ref AnimFrameSection frame = ref currentAnim.Frames[j];
 
@@ -522,6 +527,10 @@ namespace Jazz2.Compatibility
                                     if (applyToasterPowerUpFix) {
                                         if ((x >= 3 && y >= 4 && x <= 15 && y <= 20) || (x >= 2 && y >= 7 && x <= 15 && y <= 19)) {
                                             colorIdx = JJ2DefaultPalette.ToasterPowerUpFix[colorIdx];
+                                        }
+                                    } else if (applyVineFix) {
+                                        if (colorIdx == 128) {
+                                            colorIdx = 0;
                                         }
                                     }
 

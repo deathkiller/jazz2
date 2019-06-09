@@ -71,6 +71,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\Copter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\RollingRock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\SteamNote.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\SwingingVine.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Eva.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Explosion.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\FrozenBlock.cs" />

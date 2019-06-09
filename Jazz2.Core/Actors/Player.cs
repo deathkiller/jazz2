@@ -74,6 +74,7 @@ namespace Jazz2.Actors
 
         private bool inIdleTransition, inLedgeTransition;
         private MovingPlatform carryingObject;
+        private SwingingVine currentVine;
         private bool canDoubleJump = true;
 
         private int lives, score, coins, foodEaten;
@@ -97,6 +98,7 @@ namespace Jazz2.Actors
         private float dizzyTime;
 
         private Hud attachedHud;
+
 
         public int Lives => lives;
         public PlayerType PlayerType => playerType;
@@ -532,7 +534,8 @@ namespace Jazz2.Actors
             // Controls
             // Move
             if (keepRunningTime <= 0f) {
-                bool canWalk = (controllable && !isLifting && (playerType != PlayerType.Frog || !ControlScheme.PlayerActionPressed(index, PlayerActions.Fire)));
+                bool canWalk = (controllable && !isLifting && suspendType != SuspendType.SwingingVine &&
+                    (playerType != PlayerType.Frog || !ControlScheme.PlayerActionPressed(index, PlayerActions.Fire)));
 
                 bool isRightPressed;
                 if (canWalk && ((isRightPressed = ControlScheme.PlayerActionPressed(index, PlayerActions.Right)) ^ ControlScheme.PlayerActionPressed(index, PlayerActions.Left))) {
@@ -550,8 +553,7 @@ namespace Jazz2.Actors
                         speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxDizzySpeed, MaxDizzySpeed);
                     } else {
                         bool isDashPressed = ControlScheme.PlayerActionPressed(index, PlayerActions.Run);
-                        if (suspendType == SuspendType.None && isDashPressed)
-                        {
+                        if (suspendType == SuspendType.None && isDashPressed) {
                             speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxDashingSpeed, MaxDashingSpeed);
                         } else if (suspendType == SuspendType.Vine) {
                             if (wasFirePressed) {
@@ -661,7 +663,9 @@ namespace Jazz2.Actors
 
                 // Crouch
                 if (ControlScheme.PlayerActionPressed(index, PlayerActions.Down)) {
-                    if (suspendType != SuspendType.None) {
+                    if (suspendType == SuspendType.SwingingVine) {
+                        // ToDo
+                    } else if (suspendType != SuspendType.None) {
                         wasDownPressed = true;
 
                         MoveInstantly(new Vector2(0f, 10f), MoveType.RelativeTime, true);
@@ -805,7 +809,13 @@ namespace Jazz2.Actors
                         }
                     } else {
                         if (suspendType != SuspendType.None) {
-                            MoveInstantly(new Vector2(0f, -8f), MoveType.RelativeTime, true);
+                            if (suspendType == SuspendType.SwingingVine) {
+                                suspendType = SuspendType.None;
+                                currentVine = null;
+                                collisionFlags |= CollisionFlags.ApplyGravitation;
+                            } else {
+                                MoveInstantly(new Vector2(0f, -8f), MoveType.RelativeTime, true);
+                            }
                             canJump = true;
                         }
                         if (canJump && currentSpecialMove == SpecialMoveType.None && !ControlScheme.PlayerActionPressed(index, PlayerActions.Down)) {
@@ -837,7 +847,7 @@ namespace Jazz2.Actors
 
             // Fire
             if (weaponAllowed && areaWeaponAllowed && ControlScheme.PlayerActionPressed(index, PlayerActions.Fire)) {
-                if (!isLifting && (currentAnimationState & AnimState.Push) == 0 && pushFramesLeft <= 0f) {
+                if (!isLifting && suspendType != SuspendType.SwingingVine && (currentAnimationState & AnimState.Push) == 0 && pushFramesLeft <= 0f) {
                     if (playerType == PlayerType.Frog) {
                         if (currentTransitionState == AnimState.Idle && MathF.Abs(speedX) < 0.1f && MathF.Abs(speedY) < 0.1f && MathF.Abs(externalForceX) < 0.1f && MathF.Abs(externalForceY) < 0.1f) {
                             PlaySound("Tongue", 0.8f);
@@ -1022,7 +1032,7 @@ namespace Jazz2.Actors
                 ForceCancelTransition();
 
                 SetPlayerTransition(AnimState.TransitionDeath, false, true, SpecialMoveType.None, delegate {
-                    if (lives > 1 || api.IsMultiplayerSession) {
+                    if (lives > 1 || api.Difficulty == GameDifficulty.Multiplayer) {
                         if (lives > 1) {
                             lives--;
                         }
@@ -1114,13 +1124,15 @@ namespace Jazz2.Actors
                     newState = AnimState.Copter;
                 } else if (activeModifier == Modifier.LizardCopter) {
                     newState = AnimState.Hook;
+                } else if (suspendType == SuspendType.SwingingVine) {
+                    newState = AnimState.Swing;
                 } else if (isLifting) {
                     newState = AnimState.Lift;
                 } else if (canJump && isActivelyPushing && pushFramesLeft > 0f) {
                     newState = AnimState.Push;
                 } else {
                     // Only certain ones don't need to be preserved from earlier state, others should be set as expected
-                    AnimState composite = unchecked(currentAnimationState & (AnimState)0xFFF8BF60);
+                    AnimState composite = unchecked(currentAnimationState & (AnimState)0xFFF83F60);
 
                     if (isActivelyPushing == wasActivelyPushing) {
                         float absSpeedX = MathF.Abs(speedX);
@@ -1366,6 +1378,10 @@ namespace Jazz2.Actors
 
         private void CheckSuspendedStatus(Vector3 lastPos)
         {
+            if (suspendType == SuspendType.SwingingVine) {
+                return;
+            }
+
             TileMap tiles = api.TileMap;
             if (tiles == null) {
                 return;
@@ -1376,19 +1392,6 @@ namespace Jazz2.Actors
             AnimState currentState = currentAnimationState;
 
             SuspendType newSuspendState = tiles.GetTileSuspendState(pos.X, pos.Y - 1f);
-
-            //int n = 3;
-            //float dx = (pos.X - lastPos.X) / n;
-            //float dy = (pos.Y - lastPos.Y) / n;
-            //
-            //SuspendType newSuspendState = SuspendType.None;
-            //
-            //for (int i = 1; i < n; i++) {
-            //    newSuspendState = tiles.GetTileSuspendState(pos.X + dx * i, pos.Y + dx * i - 1f);
-            //    if (newSuspendState != SuspendType.None) {
-            //        break;
-            //    }
-            //}
 
             if (newSuspendState == suspendType) {
                 if (newSuspendState == SuspendType.None) {
@@ -1880,6 +1883,15 @@ namespace Jazz2.Actors
                     break;
                 }
 
+                case SwingingVine vine: {
+                    if (currentVine == null && speedY > 1f) {
+                        currentVine = vine;
+                        suspendType = SuspendType.SwingingVine;
+                        collisionFlags &= ~CollisionFlags.ApplyGravitation;
+                    }
+                    break;
+                }
+
                 case BonusWarp warp: {
                     if (currentTransitionState == AnimState.Idle || currentTransitionCancellable) {
                         if (warp.Cost <= coins) {
@@ -2190,24 +2202,40 @@ namespace Jazz2.Actors
 
         private void FollowCarryingPlatform()
         {
-            if (carryingObject == null) {
-                return;
-            }
+            if (carryingObject != null) {
+                if (!canJump || !controllable || (collisionFlags & CollisionFlags.ApplyGravitation) == 0) {
+                    carryingObject = null;
+                } else {
+                    Vector2 delta = carryingObject.GetLocationDelta();
 
-            if (!canJump || !controllable || (collisionFlags & CollisionFlags.ApplyGravitation) == 0) {
-                carryingObject = null;
-            } else {
-                Vector2 delta = carryingObject.GetLocationDelta();
+                    // Try to adjust Y, because it collides with carrying platform sometimes
+                    for (int i = 0; i < 4; i++) {
+                        delta.Y -= 1f;
+                        if (MoveInstantly(delta, MoveType.Relative)) {
+                            return;
+                        }
+                    }
 
-                // Try to adjust Y, because it collides with carrying platform sometimes
-                for (int i = 0; i < 4; i++) {
-                    delta.Y -= 1f;
-                    if (MoveInstantly(delta, MoveType.Relative)) {
-                        return;
+                    MoveInstantly(new Vector2(0f, delta.Y), MoveType.Relative);
+                }
+            } else if (currentVine != null) {
+                Vector3 pos = Transform.Pos;
+                Vector2 newPos = currentVine.AttachPoint + new Vector2(0f, 14f);
+                MoveInstantly(newPos, MoveType.Absolute);
+
+                if (playerType != PlayerType.Lori) {
+                    if (IsFacingLeft) {
+                        if (newPos.X < pos.X) {
+                            renderer.AnimTime = 0;
+                            IsFacingLeft = false;
+                        }
+                    } else {
+                        if (newPos.X > pos.X) {
+                            renderer.AnimTime = 0;
+                            IsFacingLeft = true;
+                        }
                     }
                 }
-
-                MoveInstantly(new Vector2(0f, delta.Y), MoveType.Relative);
             }
         }
 

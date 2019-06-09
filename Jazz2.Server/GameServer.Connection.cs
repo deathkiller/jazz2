@@ -32,19 +32,21 @@ namespace Jazz2.Server
             }
 
             byte[] clientIdentifier = args.Message.ReadBytes(16);
-            lock (sync) {
-                foreach (var pair in players) {
-                    bool isSame = true;
-                    for (int i = 0; i < 16; i++) {
-                        if (clientIdentifier[i] != pair.Value.ClientIdentifier[i]) {
-                            isSame = false;
-                            break;
+            if (allowOnlyUniqueClients) {
+                lock (sync) {
+                    foreach (KeyValuePair<NetConnection, Player> pair in players) {
+                        bool isSame = true;
+                        for (int i = 0; i < 16; i++) {
+                            if (clientIdentifier[i] != pair.Value.ClientIdentifier[i]) {
+                                isSame = false;
+                                break;
+                            }
                         }
-                    }
 
-                    if (isSame) {
-                        args.DenyReason = "already connected";
-                        return;
+                        if (isSame) {
+                            args.DenyReason = "already connected";
+                            return;
+                        }
                     }
                 }
             }

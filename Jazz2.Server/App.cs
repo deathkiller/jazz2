@@ -250,10 +250,18 @@ namespace Jazz2.Server
                     break;
                 }
 
+                case "only_unique_clients": {
+                    string value = GetPartFromInput(ref input);
+                    bool enabled = (value == "true" || value == "yes" || value == "1");
+                    gameServer.AllowOnlyUniqueClients = enabled;
+                    Log.Write(LogType.Info, "Allow only unique clients is " + (enabled ? "enabled" : "disabled") + "!");
+                    break;
+                }
+
                 case "spawning": {
                     string value = GetPartFromInput(ref input);
                     bool enabled = (value == "true" || value == "yes" || value == "1");
-                    gameServer.EnablePlayerSpawning(enabled);
+                    gameServer.IsPlayerSpawningEnabled = enabled;
                     Log.Write(LogType.Info, "Player spawning is " + (enabled ? "enabled" : "disabled") + "!");
                     break;
                 }
@@ -262,7 +270,9 @@ namespace Jazz2.Server
                     if (string.IsNullOrEmpty(key)) {
                         Log.Write(LogType.Info, "name = " + gameServer.Name);
                         Log.Write(LogType.Info, "level = " + gameServer.CurrentLevel);
-                        Log.Write(LogType.Info, "spawning = ?");
+                        Log.Write(LogType.Info, "only_unique_clients = " + gameServer.AllowOnlyUniqueClients);
+                        Log.Write(LogType.Info, "spawning = " + gameServer.IsPlayerSpawningEnabled);
+                        Log.Write(LogType.Info, "");
                     } else {
                         HandleUnknownCommand();
                     }
@@ -292,14 +302,17 @@ namespace Jazz2.Server
         private static bool HandleCommandKick(string input)
         {
             int playerIndex;
-            if (int.TryParse(input, out playerIndex)) {
+            if (input == ":all") {
+                gameServer.KickAllPlayers();
+                Log.Write(LogType.Info, "All players were kicked from the server!");
+            } else if (int.TryParse(input, out playerIndex)) {
                 if (gameServer.KickPlayer((byte)playerIndex)) {
-                    Log.Write(LogType.Info, "Player kicked!");
+                    Log.Write(LogType.Info, "Player was kicked from the server!");
                 } else {
                     Log.Write(LogType.Error, "Player was not found!");
                 }
             } else {
-                Log.Write(LogType.Error, "You have to specify player index!");
+                Log.Write(LogType.Error, "You have to specify player index! (or :all to kick all players)");
             }
 
             return true;
@@ -308,14 +321,17 @@ namespace Jazz2.Server
         private static bool HandleCommandKill(string input)
         {
             int playerIndex;
-            if (int.TryParse(input, out playerIndex)) {
+            if (input == ":all") {
+                gameServer.KillAllPlayers();
+                Log.Write(LogType.Info, "All players were killed!");
+            } else if (int.TryParse(input, out playerIndex)) {
                 if (gameServer.KillPlayer((byte)playerIndex)) {
-                    Log.Write(LogType.Info, "Player killed!");
+                    Log.Write(LogType.Info, "Player was killed!");
                 } else {
                     Log.Write(LogType.Error, "Player was not found!");
                 }
             } else {
-                Log.Write(LogType.Error, "You have to specify player index!");
+                Log.Write(LogType.Error, "You have to specify player index! (or :all to kill all players)");
             }
 
             return true;

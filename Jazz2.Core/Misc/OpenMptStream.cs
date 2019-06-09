@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Security;
 using Duality;
 using Duality.Audio;
 using Duality.Backend;
@@ -279,24 +280,24 @@ namespace Jazz2
             public openmpt_stream_tell_func tell;
         }
 
-        [DllImport("libopenmpt", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("libopenmpt", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
         private static extern IntPtr openmpt_module_create(openmpt_stream_callbacks stream_callbacks, IntPtr stream, openmpt_log_func logfunc, IntPtr user, /*openmpt_module_initial_ctl**/IntPtr ctls);
 
-        //[DllImport("libopenmpt", CallingConvention = CallingConvention.Cdecl)]
+        //[DllImport("libopenmpt", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
         //private static extern IntPtr openmpt_module_create_from_memory(IntPtr filedata, int filesize, openmpt_log_func logfunc, IntPtr user, /*openmpt_module_initial_ctl**/IntPtr ctls);
 
-        [DllImport("libopenmpt", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("libopenmpt", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
         private static extern void openmpt_module_destroy(IntPtr mod);
 
-        //[DllImport("libopenmpt", CallingConvention = CallingConvention.Cdecl)]
+        //[DllImport("libopenmpt", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
         //private static extern int openmpt_module_read_stereo(IntPtr mod, int samplerate, int count, ushort[] left, ushort[] right);
 
-        [DllImport("libopenmpt", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("libopenmpt", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
         private static extern int openmpt_module_read_interleaved_stereo(IntPtr mod, int samplerate, int count, ushort[] interleaved_stereo);
 
-        [DllImport("libopenmpt", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("libopenmpt", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
         private static extern int openmpt_module_set_repeat_count(IntPtr mod, int repeat_count);
-        [DllImport("libopenmpt", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("libopenmpt", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
         private static extern int openmpt_get_library_version();
         #endregion
     }

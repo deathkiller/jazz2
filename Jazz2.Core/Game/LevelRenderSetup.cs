@@ -110,7 +110,6 @@ namespace Jazz2.Game
 
             lightingNoiseMaterial = new Material(lightingNoiseShader, ColorRgba.White);
             lightingNoiseMaterial.Res.SetTexture("normalBuffer", normalTexture);
-            lightingNoiseMaterial.Res.SetTexture("noiseTex", noiseTexture);
 
             // Render steps
             AddRenderStep(RenderStepPosition.Last, new RenderStep {

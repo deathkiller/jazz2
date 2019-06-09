@@ -167,6 +167,7 @@
 
         RollingRock = 0x006E,
         RollingRockTrigger = 0x006F,
+        SwingingVine = 0x0070,
 
         // Multiplayer-only remotable actors
         WeaponBlaster = 0x0601,

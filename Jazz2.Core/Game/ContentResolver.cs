@@ -123,11 +123,19 @@ namespace Jazz2.Game
             paletteNormal = RequestShader("PaletteNormal");
 
             AllowAsyncLoading();
+
+#if DEBUG && UNCOMPRESSED_CONTENT
+            InitWatchForFileChanges();
+#endif
         }
 
         private void OnDualityAppTerminating(object sender, EventArgs e)
         {
             DualityApp.Terminating -= OnDualityAppTerminating;
+
+#if DEBUG && UNCOMPRESSED_CONTENT
+            DestroyWatchForFileChanges();
+#endif
 
             asyncThread = null;
 
@@ -514,8 +522,6 @@ namespace Jazz2.Game
 
             ContentRef<DrawTechnique> shader;
             if (!cachedShaders.TryGetValue(path, out shader)) {
-                // Shaders for Android are always uncompressed for now, so the compressed
-                // content package can be used in Android version as well.
 #if UNCOMPRESSED_CONTENT
                 string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Shaders", path + ".res");
 #elif __ANDROID__
@@ -668,6 +674,159 @@ namespace Jazz2.Game
 
             materialRef = material;
         }
+
+#if DEBUG && UNCOMPRESSED_CONTENT
+        private FileSystemWatcher shaderDirWatcher;
+        private HashSet<string> changedShaders;
+
+        private void InitWatchForFileChanges()
+        {
+            changedShaders = new HashSet<string>();
+
+            shaderDirWatcher = new FileSystemWatcher();
+            shaderDirWatcher.EnableRaisingEvents = false;
+            shaderDirWatcher.IncludeSubdirectories = true;
+            shaderDirWatcher.NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite;
+            shaderDirWatcher.Path = Path.Combine(DualityApp.DataDirectory, "Shaders");
+            shaderDirWatcher.Created += OnFileChanged;
+            shaderDirWatcher.Changed += OnFileChanged;
+            shaderDirWatcher.Deleted += OnFileChanged;
+            shaderDirWatcher.Renamed += OnFileChanged;
+            shaderDirWatcher.EnableRaisingEvents = true;
+        }
+
+        private void DestroyWatchForFileChanges()
+        {
+            changedShaders.Clear();
+
+            shaderDirWatcher.EnableRaisingEvents = false;
+            shaderDirWatcher.Created -= OnFileChanged;
+            shaderDirWatcher.Changed -= OnFileChanged;
+            shaderDirWatcher.Deleted -= OnFileChanged;
+            shaderDirWatcher.Renamed -= OnFileChanged;
+            shaderDirWatcher.Dispose();
+            shaderDirWatcher = null;
+        }
+
+        private void OnFileChanged(object sender, FileSystemEventArgs e)
+        {
+            string path = Path.GetFileNameWithoutExtension(e.FullPath);
+
+            lock (changedShaders) {
+                changedShaders.Add(path);
+            }
+
+            DualityApp.DisposeLater(new ActionDisposable(ReloadChangedShaders));
+        }
+
+        private void ReloadChangedShaders()
+        {
+            lock (changedShaders) {
+
+                foreach (string path in changedShaders) {
+                    ContentRef<DrawTechnique> shader;
+                    if (cachedShaders.TryGetValue(path, out shader)) {
+
+                        string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Shaders", path + ".res");
+
+                        ShaderJson json;
+                        using (Stream s = FileOp.Open(pathAbsolute, FileAccessMode.Read)) {
+                            lock (jsonParser) {
+                                json = jsonParser.Parse<ShaderJson>(s);
+                            }
+                        }
+
+                        if (json.Fragment == null && json.Vertex == null) {
+                            // ToDo: ...
+                            /*switch (json.BlendMode) {
+                                default:
+                                case BlendMode.Solid: shader = DrawTechnique.Solid; break;
+                                case BlendMode.Mask: shader = DrawTechnique.Mask; break;
+                                case BlendMode.Add: shader = DrawTechnique.Add; break;
+                                case BlendMode.Alpha: shader = DrawTechnique.Alpha; break;
+                                case BlendMode.Multiply: shader = DrawTechnique.Multiply; break;
+                                case BlendMode.Light: shader = DrawTechnique.Light; break;
+                                case BlendMode.Invert: shader = DrawTechnique.Invert; break;
+                            }*/
+                            return;
+                        } else {
+                            requestShaderNesting++;
+
+                            ContentRef<VertexShader> vertex;
+                            ContentRef<FragmentShader> fragment;
+                            try {
+                                if (json.Vertex == null) {
+                                    vertex = VertexShader.Minimal;
+                                } else if (json.Vertex.StartsWith("#inherit ")) {
+                                    string parentPath = json.Vertex.Substring(9).Trim();
+                                    ContentRef<DrawTechnique> parent = RequestShader(parentPath);
+                                    vertex = parent.Res.Vertex;
+                                } else if (json.Vertex.StartsWith("#include ")) {
+                                    string includePath = Path.Combine(DualityApp.DataDirectory, "Shaders", json.Vertex.Substring(9).Trim());
+                                    using (Stream s = FileOp.Open(includePath, FileAccessMode.Read))
+                                    using (StreamReader r = new StreamReader(s)) {
+                                        vertex = new VertexShader(r.ReadToEnd());
+                                    }
+                                } else {
+                                    vertex = new VertexShader(json.Vertex.TrimStart());
+                                }
+
+                                if (json.Fragment == null) {
+                                    fragment = FragmentShader.Minimal;
+                                } else if (json.Fragment.StartsWith("#inherit ")) {
+                                    string parentPath = json.Fragment.Substring(9).Trim();
+                                    ContentRef<DrawTechnique> parent = RequestShader(parentPath);
+                                    fragment = parent.Res.Fragment;
+                                } else if (json.Fragment.StartsWith("#include ")) {
+                                    string includePath = Path.Combine(DualityApp.DataDirectory, "Shaders", json.Fragment.Substring(9).Trim());
+                                    using (Stream s = FileOp.Open(includePath, FileAccessMode.Read))
+                                    using (StreamReader r = new StreamReader(s)) {
+                                        fragment = new FragmentShader(r.ReadToEnd());
+                                    }
+                                } else {
+                                    fragment = new FragmentShader(json.Fragment.TrimStart());
+                                }
+                            } finally {
+                                requestShaderNesting--;
+                            }
+
+                            VertexDeclaration vertexFormat;
+                            switch (json.VertexFormat) {
+                                case "C1P3": vertexFormat = VertexC1P3.Declaration; break;
+                                case "C1P3T2": vertexFormat = VertexC1P3T2.Declaration; break;
+                                case "C1P3T4A1": vertexFormat = VertexC1P3T4A1.Declaration; break;
+                                default: vertexFormat = null; break;
+                            }
+
+                            // Update shader
+                            shader.Res.Blending = json.BlendMode;
+                            shader.Res.PreferredVertexFormat = vertexFormat;
+                            shader.Res.Vertex = vertex;
+                            shader.Res.Fragment = fragment;
+                        }
+                    }
+                }
+
+                changedShaders.Clear();
+            }
+        }
+
+        // ToDo: Refactor this
+        private class ActionDisposable : IDisposable
+        {
+            private Action action;
+
+            public ActionDisposable(Action action)
+            {
+                this.action = action;
+            }
+
+            void IDisposable.Dispose()
+            {
+                System.Threading.Interlocked.Exchange(ref action, null)();
+            }
+        }
+#endif
     }
 }
  

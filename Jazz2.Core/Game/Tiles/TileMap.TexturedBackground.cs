@@ -213,6 +213,7 @@ namespace Jazz2.Game.Tiles
             material.MainTexture = cachedTexturedBackground;
             material.SetValue("horizonColor", layer.BackgroundColor);
             material.SetValue("shift", new Vector2(x, y));
+            material.SetValue("parallaxStarsEnabled", layer.ParallaxStarsEnabled ? 1f : 0f);
 
             device.AddVertices(material, VertexMode.Quads, cachedVertices, 0, 4);
         }

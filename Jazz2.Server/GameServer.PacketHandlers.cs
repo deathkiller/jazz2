@@ -38,7 +38,7 @@ namespace Jazz2.Server
 
                     playerConnections.Add(p.SenderConnection);
 
-                    if (!enablePlayerSpawning) {
+                    if (!playerSpawningEnabled) {
                         player.State = PlayerState.HasLevelLoaded;
 
                         foreach (KeyValuePair<NetConnection, Player> pair in players) {

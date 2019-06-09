@@ -302,6 +302,7 @@ namespace Jazz2.Game.UI.Menu
             material.MainTexture = cachedTexturedBackground;
             material.SetValue("horizonColor", horizonColor);
             material.SetValue("shift", new Vector2(backgroundX, backgroundY));
+            material.SetValue("parallaxStarsEnabled", 0f);
 
             device.AddVertices(material, VertexMode.Quads, cachedVertices, 0, 4);
         }

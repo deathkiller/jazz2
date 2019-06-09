@@ -32,7 +32,8 @@ namespace Jazz2.Game.Structs
     {
         None,
         Vine,
-        Hook
+        Hook,
+        SwingingVine
     }
 
     public struct LayerTile
@@ -84,6 +85,6 @@ namespace Jazz2.Game.Structs
 
         public BackgroundStyle BackgroundStyle;
         public Vector4 BackgroundColor;
-        public bool UseStarsTextured;
+        public bool ParallaxStarsEnabled;
     }
 }

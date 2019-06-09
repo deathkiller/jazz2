@@ -8,7 +8,9 @@ namespace Jazz2.Game.Structs
 
         Easy,
         Normal,
-        Hard
+        Hard,
+
+        Multiplayer
     }
 
     public enum ExitType

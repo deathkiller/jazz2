@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Text;
 
 namespace Jazz2
@@ -108,19 +109,19 @@ namespace Jazz2
         }
 
         #region Native Methods
-        [DllImport("libc")]
+        [DllImport("libc"), SuppressUnmanagedCodeSecurity]
         private static extern int isatty(int desc);
 
-        [DllImport("kernel32", SetLastError = true)]
+        [DllImport("kernel32", SetLastError = true), SuppressUnmanagedCodeSecurity]
         private static extern IntPtr GetStdHandle(int nStdHandle);
 
-        [DllImport("kernel32")]
+        [DllImport("kernel32"), SuppressUnmanagedCodeSecurity]
         private static extern uint GetFileType(IntPtr hFile);
 
-        [DllImport("kernel32", SetLastError = true)]
+        [DllImport("kernel32", SetLastError = true), SuppressUnmanagedCodeSecurity]
         private static extern bool GetConsoleMode(IntPtr hConsole, out uint lpMode);
 
-        [DllImport("kernel32", SetLastError = true)]
+        [DllImport("kernel32", SetLastError = true), SuppressUnmanagedCodeSecurity]
         private static extern unsafe int GetConsoleProcessList(int* lpdwProcessList, int dwProcessCount);
         #endregion
     }

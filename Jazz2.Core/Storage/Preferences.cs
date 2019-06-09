@@ -7,18 +7,6 @@ namespace Jazz2.Storage
     {
         private static IPreferencesBackend prefBack;
 
-        public static bool IsFirstRun
-        {
-            get
-            {
-                if (prefBack == null) {
-                    Initialize();
-                }
-
-                return prefBack.IsFirstRun;
-            }
-        }
-
         public static T Get<T>(string key, T defaultValue = default(T))
         {
             if (prefBack == null) {

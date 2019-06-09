@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Duality
 {
@@ -73,6 +74,9 @@ namespace Duality
 		/// </summary>
 		public static Random Rnd
 		{
+#if NET45
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 			get { return rnd; }
 			set { rnd = value ?? new Random(); }
 		}
@@ -100,6 +104,9 @@ namespace Duality
 		/// </summary>
 		/// <param name="v">A number.</param>
 		/// <returns>The absolute value of the number.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Abs(float v)
 		{
 			return v < 0 ? -v : v;
@@ -109,6 +116,9 @@ namespace Duality
 		/// </summary>
 		/// <param name="v">A number.</param>
 		/// <returns>The absolute value of the number.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static int Abs(int v)
 		{
 			return v < 0 ? -v : v;
@@ -120,6 +130,9 @@ namespace Duality
 		/// <param name="v">A number.</param>
 		/// <returns>The rounded number.</returns>
 		/// <seealso cref="Floor"/>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Ceiling(float v)
 		{
 			return (float)System.Math.Ceiling(v);
@@ -130,6 +143,9 @@ namespace Duality
 		/// <param name="v">A number.</param>
 		/// <returns>The rounded number.</returns>
 		/// <seealso cref="Ceiling"/>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Floor(float v)
 		{
 			return (float)System.Math.Floor(v);
@@ -140,6 +156,9 @@ namespace Duality
 		/// </summary>
 		/// <param name="v">A number.</param>
 		/// <returns>The rounded number.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Round(float v)
 		{
 			return (float)System.Math.Round(v);
@@ -150,6 +169,9 @@ namespace Duality
 		/// <param name="v">A number.</param>
 		/// <param name="digits">The number of fraction digits to round to.</param>
 		/// <returns>The rounded number.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Round(float v, int digits)
 		{
 			return (float)System.Math.Round(v, digits);
@@ -160,6 +182,9 @@ namespace Duality
 		/// <param name="v">A number.</param>
 		/// <param name="mode">Specifies what happens if the value is exactly inbetween two numbers.</param>
 		/// <returns>The rounded number.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Round(float v, MidpointRounding mode)
 		{
 			return (float)System.Math.Round(v, mode);
@@ -171,6 +196,9 @@ namespace Duality
 		/// <param name="digits">The number of fraction digits to round to.</param>
 		/// <param name="mode">Specifies what happens if the value is exactly inbetween two numbers.</param>
 		/// <returns>The rounded number.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Round(float v, int digits, MidpointRounding mode)
 		{
 			return (float)System.Math.Round(v, digits, mode);
@@ -182,6 +210,9 @@ namespace Duality
 		/// <param name="v">A number.</param>
 		/// <returns>The rounded number as <see cref="System.Int32"/>.</returns>
 		/// <seealso cref="Round(float)"/>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static int RoundToInt(float v)
 		{
 			return (int)System.Math.Round(v);
@@ -193,6 +224,9 @@ namespace Duality
 		/// <param name="mode">Specifies what happens if the value is exactly inbetween two numbers.</param>
 		/// <returns>The rounded number as <see cref="System.Int32"/>.</returns>
 		/// <seealso cref="Round(float, MidpointRounding)"/>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static int RoundToInt(float v, MidpointRounding mode)
 		{
 			return (int)System.Math.Round(v, mode);
@@ -203,6 +237,9 @@ namespace Duality
 		/// </summary>
 		/// <param name="v">A number.</param>
 		/// <returns>-1 if negative, 1 if positive and 0 if zero.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Sign(float v)
 		{
 			return v < 0.0f ? -1.0f : (v > 0.0f ? 1.0f : 0.0f);
@@ -212,6 +249,9 @@ namespace Duality
 		/// </summary>
 		/// <param name="v">A number.</param>
 		/// <returns>-1 if negative, 1 if positive and 0 if zero.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static int Sign(int v)
 		{
 			return v < 0 ? -1 : (v > 0 ? 1 : 0);
@@ -222,6 +262,9 @@ namespace Duality
 		/// </summary>
 		/// <param name="v">A number.</param>
 		/// <returns>The numbers square root.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Sqrt(float v)
 		{
 			return (float)System.Math.Sqrt(v);
@@ -232,6 +275,9 @@ namespace Duality
 		/// </summary>
 		/// <param name="n">A number.</param>
 		/// <returns>The factorial of the number.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static int Factorial(int n)
 		{
 			int r = 1;
@@ -245,6 +291,9 @@ namespace Duality
 		/// <param name="v1"></param>
 		/// <param name="v2"></param>
 		/// <returns>The lowest value.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Min(float v1, float v2)
 		{
 			return v1 < v2 ? v1 : v2;
@@ -256,6 +305,9 @@ namespace Duality
 		/// <param name="v2"></param>
 		/// <param name="v3"></param>
 		/// <returns>The lowest value.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Min(float v1, float v2, float v3)
 		{
 			float min = v1;
@@ -271,6 +323,9 @@ namespace Duality
 		/// <param name="v3"></param>
 		/// <param name="v4"></param>
 		/// <returns>The lowest value.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Min(float v1, float v2, float v3, float v4)
 		{
 			float min = v1;
@@ -284,6 +339,9 @@ namespace Duality
 		/// </summary>
 		/// <param name="v"></param>
 		/// <returns>The lowest value.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Min(params float[] v)
 		{
 			float min = v[0];
@@ -299,6 +357,9 @@ namespace Duality
 		/// <param name="v1"></param>
 		/// <param name="v2"></param>
 		/// <returns>The lowest value.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static int Min(int v1, int v2)
 		{
 			return v1 < v2 ? v1 : v2;
@@ -310,6 +371,9 @@ namespace Duality
 		/// <param name="v2"></param>
 		/// <param name="v3"></param>
 		/// <returns>The lowest value.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static int Min(int v1, int v2, int v3)
 		{
 			int min = v1;
@@ -325,6 +389,9 @@ namespace Duality
 		/// <param name="v3"></param>
 		/// <param name="v4"></param>
 		/// <returns>The lowest value.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static int Min(int v1, int v2, int v3, int v4)
 		{
 			int min = v1;
@@ -338,6 +405,9 @@ namespace Duality
 		/// </summary>
 		/// <param name="v"></param>
 		/// <returns>The lowest value.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static int Min(params int[] v)
 		{
 			int min = v[0];
@@ -347,13 +417,16 @@ namespace Duality
 			}
 			return min;
 		}
-		
+
 		/// <summary>
 		/// Returns the higher of two values.
 		/// </summary>
 		/// <param name="v1"></param>
 		/// <param name="v2"></param>
 		/// <returns>The highest value.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Max(float v1, float v2)
 		{
 			return v1 > v2 ? v1 : v2;
@@ -365,6 +438,9 @@ namespace Duality
 		/// <param name="v2"></param>
 		/// <param name="v3"></param>
 		/// <returns>The highest value.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Max(float v1, float v2, float v3)
 		{
 			float max = v1;
@@ -380,6 +456,9 @@ namespace Duality
 		/// <param name="v3"></param>
 		/// <param name="v4"></param>
 		/// <returns>The highest value.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Max(float v1, float v2, float v3, float v4)
 		{
 			float max = v1;
@@ -393,6 +472,9 @@ namespace Duality
 		/// </summary>
 		/// <param name="v"></param>
 		/// <returns>The highest value.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Max(params float[] v)
 		{
 			float max = v[0];
@@ -408,6 +490,9 @@ namespace Duality
 		/// <param name="v1"></param>
 		/// <param name="v2"></param>
 		/// <returns>The highest value.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static int Max(int v1, int v2)
 		{
 			return v1 > v2 ? v1 : v2;
@@ -419,6 +504,9 @@ namespace Duality
 		/// <param name="v2"></param>
 		/// <param name="v3"></param>
 		/// <returns>The highest value.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static int Max(int v1, int v2, int v3)
 		{
 			int max = v1;
@@ -434,6 +522,9 @@ namespace Duality
 		/// <param name="v3"></param>
 		/// <param name="v4"></param>
 		/// <returns>The highest value.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static int Max(int v1, int v2, int v3, int v4)
 		{
 			int max = v1;
@@ -447,6 +538,9 @@ namespace Duality
 		/// </summary>
 		/// <param name="v"></param>
 		/// <returns>The highest value.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static int Max(params int[] v)
 		{
 			int max = v[0];
@@ -464,6 +558,9 @@ namespace Duality
 		/// <param name="min">The minimum value that can't be deceeded.</param>
 		/// <param name="max">The maximum value that can't be exceeded.</param>
 		/// <returns>The clamped value.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Clamp(float v, float min, float max)
 		{
 			return v < min ? min : (v > max ? max : v);
@@ -475,6 +572,9 @@ namespace Duality
 		/// <param name="min">The minimum value that can't be deceeded.</param>
 		/// <param name="max">The maximum value that can't be exceeded.</param>
 		/// <returns>The clamped value.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static int Clamp(int v, int min, int max)
 		{
 			return v < min ? min : (v > max ? max : v);
@@ -487,6 +587,9 @@ namespace Duality
 		/// <param name="b">The second anchor value.</param>
 		/// <param name="ratio">Ratio between first and second anchor. Zero will result in anchor a, one will result in anchor b.</param>
 		/// <returns></returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Lerp(float a, float b, float ratio)
 		{
 			return a + ratio * (b - a);
@@ -498,6 +601,9 @@ namespace Duality
 		/// <param name="b">The second anchor value.</param>
 		/// <param name="ratio">Ratio between first and second anchor. Zero will result in anchor a, one will result in anchor b.</param>
 		/// <returns></returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static int Lerp(int a, int b, float ratio)
 		{
 			return MathF.RoundToInt(a + ratio * (float)(b - a));
@@ -508,6 +614,9 @@ namespace Duality
 		/// </summary>
 		/// <param name="v"></param>
 		/// <returns></returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Exp(float v)
 		{
 			return (float)System.Math.Exp(v);
@@ -517,6 +626,9 @@ namespace Duality
 		/// </summary>
 		/// <param name="v"></param>
 		/// <returns></returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Log(float v)
 		{
 			return (float)System.Math.Log(v);
@@ -527,6 +639,9 @@ namespace Duality
 		/// <param name="v">The base value.</param>
 		/// <param name="e">Specifies the power to return.</param>
 		/// <returns></returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Pow(float v, float e)
 		{
 			return (float)System.Math.Pow(v, e);
@@ -537,6 +652,9 @@ namespace Duality
 		/// <param name="v">The value whichs logarithm is to be calculated.</param>
 		/// <param name="newBase">The base of the logarithm.</param>
 		/// <returns></returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Log(float v, float newBase)
 		{
 			return (float)System.Math.Log(v, newBase);
@@ -547,6 +665,9 @@ namespace Duality
 		/// </summary>
 		/// <param name="angle">A radian angle.</param>
 		/// <returns></returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Sin(float angle)
 		{
 			return (float)System.Math.Sin(angle);
@@ -556,6 +677,9 @@ namespace Duality
 		/// </summary>
 		/// <param name="angle">A radian angle.</param>
 		/// <returns></returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Cos(float angle)
 		{
 			return (float)System.Math.Cos(angle);
@@ -565,6 +689,9 @@ namespace Duality
 		/// </summary>
 		/// <param name="angle">A radian angle.</param>
 		/// <returns></returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Tan(float angle)
 		{
 			return (float)System.Math.Tan(angle);
@@ -574,6 +701,9 @@ namespace Duality
 		/// </summary>
 		/// <param name="sin">A radian angle.</param>
 		/// <returns></returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Asin(float sin)
 		{
 			return (float)System.Math.Asin(sin);
@@ -583,6 +713,9 @@ namespace Duality
 		/// </summary>
 		/// <param name="cos">A radian angle.</param>
 		/// <returns></returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Acos(float cos)
 		{
 			return (float)System.Math.Acos(cos);
@@ -592,6 +725,9 @@ namespace Duality
 		/// </summary>
 		/// <param name="tan">A radian angle.</param>
 		/// <returns></returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Atan(float tan)
 		{
 			return (float)System.Math.Atan(tan);
@@ -602,6 +738,9 @@ namespace Duality
 		/// <param name="y">The y coordinate of a point. </param>
 		/// <param name="x">The x coordinate of a point. </param>
 		/// <returns></returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Atan2(float y, float x)
 		{
 			return (float)System.Math.Atan2(y, x);
@@ -612,6 +751,9 @@ namespace Duality
 		/// </summary>
 		/// <param name="deg"></param>
 		/// <returns></returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float DegToRad(float deg)
 		{
 			const float factor = (float)System.Math.PI / 180.0f;
@@ -622,6 +764,9 @@ namespace Duality
 		/// </summary>
 		/// <param name="rad"></param>
 		/// <returns></returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float RadToDeg(float rad)
 		{
 			const float factor = 180.0f / (float)System.Math.PI;
@@ -691,6 +836,9 @@ namespace Duality
 		/// <param name="x2">The x-Coordinate of the second point.</param>
 		/// <param name="y2">The y-Coordinate of the second point.</param>
 		/// <returns>The distance between both points.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Distance(float x1, float y1, float x2, float y2)
 		{
 			return ((float)System.Math.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)));
@@ -701,6 +849,9 @@ namespace Duality
 		/// <param name="x">The x-Coordinate of the point.</param>
 		/// <param name="y">The y-Coordinate of the point.</param>
 		/// <returns>The distance between the point and [0,0].</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Distance(float x, float y)
 		{
 			return ((float)System.Math.Sqrt(x * x + y * y));
@@ -717,6 +868,9 @@ namespace Duality
 		/// This method is faster than <see cref="Distance(float,float,float,float)"/>. 
 		/// If sufficient, such as for distance comparison, consider using this method instead.
 		/// </remarks>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float DistanceQuad(float x1, float y1, float x2, float y2)
 		{
 			return (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
@@ -731,6 +885,9 @@ namespace Duality
 		/// This method is faster than <see cref="Distance(float,float)"/>. 
 		/// If sufficient, such as for distance comparison, consider using this method instead.
 		/// </remarks>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float DistanceQuad(float x, float y)
 		{
 			return x * x + y * y;
@@ -744,6 +901,9 @@ namespace Duality
 		/// <param name="x2">The x-Coordinate of the second point.</param>
 		/// <param name="y2">The y-Coordinate of the second point.</param>
 		/// <returns>The angle between [x1,y1] and [x2,y2] in radians.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Angle(float x1, float y1, float x2, float y2)
 		{
 			return (float)((System.Math.Atan2((y2 - y1), (x2 - x1)) + PiOver2 + TwoPi) % TwoPi);
@@ -754,6 +914,9 @@ namespace Duality
 		/// <param name="x">The x-Coordinate of the point.</param>
 		/// <param name="y">The y-Coordinate of the point.</param>
 		/// <returns>The angle between [0,0] and [x,y] in radians.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static float Angle(float x, float y)
 		{
 			return (float)((System.Math.Atan2(y, x) + PiOver2 + TwoPi) % TwoPi);
@@ -1215,12 +1378,15 @@ namespace Duality
 
 			return true;
 		}
-		
+
 		/// <summary>
 		/// Returns the next power of two that is larger than the specified number.
 		/// </summary>
 		/// <param name="n">The specified number.</param>
 		/// <returns>The next power of two.</returns>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static int NextPowerOfTwo(int n)
 		{
 			if (n < 0) throw new ArgumentOutOfRangeException("n", "Must be positive.");
@@ -1233,6 +1399,9 @@ namespace Duality
 		/// <typeparam name="T"></typeparam>
 		/// <param name="first"></param>
 		/// <param name="second"></param>
+#if NET45
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
 		public static void Swap<T>(ref T first, ref T second)
 		{
 			T temp = first;

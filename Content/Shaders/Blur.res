@@ -5,24 +5,15 @@ uniform vec2 blurDirection;
 uniform vec2 pixelOffset;
 
 void main() {
-    //ivec2 texSize = textureSize(mainTex, 0);
-    //vec2 pixelOffsetBlur = 1.1 * vec2(1.0 / texSize.x, 1.0 / texSize.y) * blurDirection;
-    vec2 pixelOffsetBlur = 1.1 * pixelOffset * blurDirection;
-
-    vec4 samples = vec4(0, 0, 0, 0);
-    samples += texture2D(mainTex, gl_TexCoord[0].xy - pixelOffsetBlur * vec2(5)) * vec4(1.0);
-    samples += texture2D(mainTex, gl_TexCoord[0].xy - pixelOffsetBlur * vec2(4)) * vec4(10.0);
-    samples += texture2D(mainTex, gl_TexCoord[0].xy - pixelOffsetBlur * vec2(3)) * vec4(45.0);
-    samples += texture2D(mainTex, gl_TexCoord[0].xy - pixelOffsetBlur * vec2(2)) * vec4(120.0);
-    samples += texture2D(mainTex, gl_TexCoord[0].xy - pixelOffsetBlur * vec2(1)) * vec4(210.0);
-    samples += texture2D(mainTex, gl_TexCoord[0].xy + pixelOffsetBlur * vec2(0)) * vec4(252.0);
-    samples += texture2D(mainTex, gl_TexCoord[0].xy + pixelOffsetBlur * vec2(1)) * vec4(210.0);
-    samples += texture2D(mainTex, gl_TexCoord[0].xy + pixelOffsetBlur * vec2(2)) * vec4(120.0);
-    samples += texture2D(mainTex, gl_TexCoord[0].xy + pixelOffsetBlur * vec2(3)) * vec4(45.0);
-    samples += texture2D(mainTex, gl_TexCoord[0].xy + pixelOffsetBlur * vec2(4)) * vec4(10.0);
-    samples += texture2D(mainTex, gl_TexCoord[0].xy + pixelOffsetBlur * vec2(5)) * vec4(1.0);
-
-    gl_FragColor = gl_Color * samples / vec4(1024.0);
+    vec4 color = vec4(0, 0, 0, 0);
+    vec2 off1 = vec2(1.3846153846) * pixelOffset * blurDirection;
+    vec2 off2 = vec2(3.2307692308) * pixelOffset * blurDirection;
+    color += texture2D(mainTex, gl_TexCoord[0].xy) * 0.2270270270;
+    color += texture2D(mainTex, gl_TexCoord[0].xy + off1) * 0.3162162162;
+    color += texture2D(mainTex, gl_TexCoord[0].xy - off1) * 0.3162162162;
+    color += texture2D(mainTex, gl_TexCoord[0].xy + off2) * 0.0702702703;
+    color += texture2D(mainTex, gl_TexCoord[0].xy - off2) * 0.0702702703;
+    gl_FragColor = gl_Color * color;
 }"
 
 }

@@ -42,7 +42,7 @@
     "menu/settings/controls/left": "Doleva",
     "menu/settings/controls/right": "Doprava",
     "menu/settings/controls/run": "Běh",
-    "menu/settings/controls/switch weapon": "Přepnout zbraň",
+    "menu/settings/controls/switch weapon": "Změnit zbraň",
     "menu/settings/controls/title": "Ovládání pro hráče {0}",
     "menu/settings/controls/up": "Nahoru",
     "menu/settings/language": "Jazyk",

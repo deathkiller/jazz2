@@ -281,6 +281,12 @@
             "FrameRate": 8,
             "States": [ 1073741862 ]
         },
+        "Swing": {
+            "Path": "Spaz/swing.png",
+            "FrameRate": 4,
+            "States": [ 32768 ],
+            "Flags": 1
+        },
         
         "IdleBored1": {
             "Path": "Spaz/idle_flavor_2.png",

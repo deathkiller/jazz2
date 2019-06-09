@@ -64,7 +64,7 @@ namespace Jazz2.Game
                 Scene.Current.Dispose();
 
                 NetworkLevelHandler handler = new NetworkLevelHandler(this, net,
-                    new LevelInitialization(episodeName, levelName, GameDifficulty.Default),
+                    new LevelInitialization(episodeName, levelName, GameDifficulty.Multiplayer),
                     playerIndex);
 
                 Scene.SwitchTo(handler);

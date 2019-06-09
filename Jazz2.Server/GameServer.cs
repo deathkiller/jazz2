@@ -26,6 +26,7 @@ namespace Jazz2.Server
         private ServerConnection server;
         private byte neededMajor, neededMinor, neededBuild;
         private string customHostname;
+        private bool allowOnlyUniqueClients = true;
 
         private Dictionary<byte, Action<NetIncomingMessage, bool>> callbacks;
 
@@ -44,6 +45,18 @@ namespace Jazz2.Server
             set
             {
                 name = value;
+            }
+        }
+
+        public bool AllowOnlyUniqueClients
+        {
+            get
+            {
+                return allowOnlyUniqueClients;
+            }
+            set
+            {
+                allowOnlyUniqueClients = value;
             }
         }
 
@@ -177,6 +190,15 @@ namespace Jazz2.Server
             return false;
         }
 
+        public void KickAllPlayers()
+        {
+            lock (sync) {
+                foreach (var player in players) {
+                    player.Key.Disconnect("kicked");
+                }
+            }
+        }
+
         public bool KillPlayer(byte playerIndex)
         {
             lock (sync) {
@@ -192,6 +214,18 @@ namespace Jazz2.Server
             }
 
             return false;
+        }
+
+        public void KillAllPlayers()
+        {
+            lock (sync) {
+                foreach (var player in players) {
+                    Send(new DecreasePlayerHealth {
+                        Index = player.Value.Index,
+                        Amount = byte.MaxValue
+                    }, 3, playerConnections, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+                }
+            }
         }
 
         public static string PlayerNameToConsole(Player player)

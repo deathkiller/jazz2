@@ -284,6 +284,12 @@
             "FrameRate": 8,
             "States": [ 1073741862 ]
         },
+        "Swing": {
+            "Path": "Jazz/swing.png",
+            "FrameRate": 4,
+            "States": [ 32768 ],
+            "Flags": 1
+        },
         
         "IdleBored1": {
             "Path": "Jazz/idle_flavor_1.png",

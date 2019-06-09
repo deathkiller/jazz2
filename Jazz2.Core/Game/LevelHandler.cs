@@ -136,11 +136,7 @@ namespace Jazz2.Game
 
             collisions = new DynamicTreeBroadPhase<ActorBase>();
 
-#if MULTIPLAYER
-            api = new ActorApi(this, this is Multiplayer.NetworkLevelHandler);
-#else
-            api = new ActorApi(this, false);
-#endif
+            api = new ActorApi(this);
             eventSpawner = new EventSpawner(api);
 
             rootObject = new GameObject();
@@ -821,52 +817,54 @@ namespace Jazz2.Game
                 }
             }
 
-            if (players.Count > 0) {
-                Vector3 pos = players[0].Transform.Pos;
-                int tx1 = (int)pos.X >> 5;
-                int ty1 = (int)pos.Y >> 5;
-                int tx2 = tx1;
-                int ty2 = ty1;
+            if (difficulty != GameDifficulty.Multiplayer) {
+                if (players.Count > 0) {
+                    Vector3 pos = players[0].Transform.Pos;
+                    int tx1 = (int)pos.X >> 5;
+                    int ty1 = (int)pos.Y >> 5;
+                    int tx2 = tx1;
+                    int ty2 = ty1;
 
 #if ENABLE_SPLITSCREEN
-                for (int i = 1; i < players.Count; i++) {
-                    Vector3 pos2 = players[i].Transform.Pos;
-                    int tx = (int)pos2.X >> 5;
-                    int ty = (int)pos2.Y >> 5;
-                    if (tx1 > tx) {
-                        tx1 = tx;
-                    } else if (tx2 < tx) {
-                        tx2 = tx;
+                    for (int i = 1; i < players.Count; i++) {
+                        Vector3 pos2 = players[i].Transform.Pos;
+                        int tx = (int)pos2.X >> 5;
+                        int ty = (int)pos2.Y >> 5;
+                        if (tx1 > tx) {
+                            tx1 = tx;
+                        } else if (tx2 < tx) {
+                            tx2 = tx;
+                        }
+                        if (ty1 > ty) {
+                            ty1 = ty;
+                        } else if (ty2 < ty) {
+                            ty2 = ty;
+                        }
                     }
-                    if (ty1 > ty) {
-                        ty1 = ty;
-                    } else if (ty2 < ty) {
-                        ty2 = ty;
-                    }
-                }
 #endif
 
-                // ToDo: Remove this branching
+                    // ToDo: Remove this branching
 #if __ANDROID__
                 const int ActivateTileRange = 20;
 #else
-                const int ActivateTileRange = 26;
+                    const int ActivateTileRange = 26;
 #endif
-                tx1 -= ActivateTileRange;
-                ty1 -= ActivateTileRange;
-                tx2 += ActivateTileRange;
-                ty2 += ActivateTileRange;
+                    tx1 -= ActivateTileRange;
+                    ty1 -= ActivateTileRange;
+                    tx2 += ActivateTileRange;
+                    ty2 += ActivateTileRange;
 
-                for (int i = 0; i < actors.Count; i++) {
-                    if (actors[i].OnTileDeactivate(tx1 - 2, ty1 - 2, tx2 + 2, ty2 + 2)) {
-                        i--;
+                    for (int i = 0; i < actors.Count; i++) {
+                        if (actors[i].OnTileDeactivate(tx1 - 2, ty1 - 2, tx2 + 2, ty2 + 2)) {
+                            i--;
+                        }
                     }
+
+                    eventMap.ActivateEvents(tx1, ty1, tx2, ty2);
                 }
 
-                eventMap.ActivateEvents(tx1, ty1, tx2, ty2);
+                eventMap.ProcessGenerators();
             }
-
-            eventMap.ProcessGenerators();
 
             ResolveCollisions();
 

@@ -190,6 +190,8 @@ namespace Jazz2.Game.Events
                         difficultyBit = 6;
                         break;
                     case GameDifficulty.Normal:
+                    //case GameDifficulty.Default:
+                    //case GameDifficulty.Multiplayer:
                     default:
                         difficultyBit = 5;
                         break;

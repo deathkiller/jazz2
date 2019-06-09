@@ -279,6 +279,11 @@
             "FrameRate": 6,
             "States": [ 1024 ]
         },
+        "Swing": {
+            "Path": "Lori/swing.png",
+            "FrameRate": 2,
+            "States": [ 32768 ]
+        },
         
         "IdleBored1": {
             "Path": "Lori/idle_flavor_2.png",

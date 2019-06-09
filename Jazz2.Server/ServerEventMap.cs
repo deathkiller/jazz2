@@ -38,7 +38,7 @@ namespace Jazz2.Server
                 int width = r.ReadInt32();
                 int height = r.ReadInt32();
 
-                byte difficultyBit = 5;
+                byte difficultyBit = 5; // Normal difficulty
 
                 for (int y = 0; y < height; y++) {
                     for (int x = 0; x < width; x++) {

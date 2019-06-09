@@ -71,7 +71,7 @@
     
     "menu/resume": "Resume",
     
-    "menu/exit": "Exit",
+    "menu/exit": "Quit",
     "menu/save exit": "Save & Exit",
     "menu/disconnect exit": "Disconnect & Exit",
     

@@ -294,7 +294,7 @@ namespace Jazz2.Game.Tiles
 
                 Vector2 edge1 = new Vector2(0, 0);
                 Vector2 edge2 = new Vector2(0, debris.Size.Y);
-                Vector2 edge3 = new Vector2(debris.Size.Y, debris.Size.Y);
+                Vector2 edge3 = new Vector2(debris.Size.X, debris.Size.Y);
                 Vector2 edge4 = new Vector2(debris.Size.X, 0);
                 MathF.TransformDotVec(ref edge1, ref xDot, ref yDot);
                 MathF.TransformDotVec(ref edge2, ref xDot, ref yDot);
@@ -309,23 +309,25 @@ namespace Jazz2.Game.Tiles
                 cachedVertices[vertexIndex].Pos.Z = pos.Z;
                 cachedVertices[vertexIndex].TexCoord = debris.MaterialOffset.TopLeft;
                 cachedVertices[vertexIndex].Color = mainColor;
+                vertexIndex++;
 
-                cachedVertices[vertexIndex + 1].Pos.Xy = edge2;
-                cachedVertices[vertexIndex + 1].Pos.Z = pos.Z;
-                cachedVertices[vertexIndex + 1].TexCoord = debris.MaterialOffset.BottomLeft;
-                cachedVertices[vertexIndex + 1].Color = mainColor;
+                cachedVertices[vertexIndex].Pos.Xy = edge2;
+                cachedVertices[vertexIndex].Pos.Z = pos.Z;
+                cachedVertices[vertexIndex].TexCoord = debris.MaterialOffset.BottomLeft;
+                cachedVertices[vertexIndex].Color = mainColor;
+                vertexIndex++;
 
-                cachedVertices[vertexIndex + 2].Pos.Xy = edge3;
-                cachedVertices[vertexIndex + 2].Pos.Z = pos.Z;
-                cachedVertices[vertexIndex + 2].TexCoord = debris.MaterialOffset.BottomRight;
-                cachedVertices[vertexIndex + 2].Color = mainColor;
+                cachedVertices[vertexIndex].Pos.Xy = edge3;
+                cachedVertices[vertexIndex].Pos.Z = pos.Z;
+                cachedVertices[vertexIndex].TexCoord = debris.MaterialOffset.BottomRight;
+                cachedVertices[vertexIndex].Color = mainColor;
+                vertexIndex++;
 
-                cachedVertices[vertexIndex + 3].Pos.Xy = edge4;
-                cachedVertices[vertexIndex + 3].Pos.Z = pos.Z;
-                cachedVertices[vertexIndex + 3].TexCoord = debris.MaterialOffset.TopRight;
-                cachedVertices[vertexIndex + 3].Color = mainColor;
-
-                vertexIndex += 4;
+                cachedVertices[vertexIndex].Pos.Xy = edge4;
+                cachedVertices[vertexIndex].Pos.Z = pos.Z;
+                cachedVertices[vertexIndex].TexCoord = debris.MaterialOffset.TopRight;
+                cachedVertices[vertexIndex].Color = mainColor;
+                vertexIndex++;
             }
 
             // Submit all the vertices as one draw batch

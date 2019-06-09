@@ -116,7 +116,7 @@ namespace Jazz2.Server
         private Dictionary<NetConnection, Player> players;
         private List<NetConnection> playerConnections;
         private byte lastPlayerIndex;
-        private bool enablePlayerSpawning = true;
+        private bool playerSpawningEnabled = true;
 
         private Dictionary<int, RemotableActor> remotableActors;
 
@@ -126,6 +126,64 @@ namespace Jazz2.Server
         private ServerEventMap eventMap;
         private DynamicTreeBroadPhase<ICollisionable> collisions = new DynamicTreeBroadPhase<ICollisionable>();
 
+        public bool IsPlayerSpawningEnabled
+        {
+            get
+            {
+                return playerSpawningEnabled;
+            }
+            set
+            {
+                if (playerSpawningEnabled == value) {
+                    return;
+                }
+
+                playerSpawningEnabled = value;
+
+                if (playerSpawningEnabled) {
+                    List<NetConnection> playersWithLoadedLevel = new List<NetConnection>();
+
+                    foreach (KeyValuePair<NetConnection, Player> pair in players) {
+                        Player player = pair.Value;
+                        if (player.State != PlayerState.HasLevelLoaded) {
+                            continue;
+                        }
+
+                        // ToDo: Set character requested by the player
+                        player.PlayerType = MathF.Rnd.OneOf(new[] { PlayerType.Jazz, PlayerType.Spaz, PlayerType.Lori });
+
+                        player.Pos = new Vector3(eventMap.GetRandomSpawnPosition(), LevelHandler.PlayerZ);
+                        player.State = PlayerState.Spawned;
+
+                        player.AABB = new AABB(player.Pos.Xy, 20, 30);
+                        collisions.AddProxy(player);
+
+                        Send(new CreateControllablePlayer {
+                            Index = player.Index,
+                            Type = player.PlayerType,
+                            Pos = player.Pos
+                        }, 9, pair.Key, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+
+                        playersWithLoadedLevel.Clear();
+                        foreach (KeyValuePair<NetConnection, Player> pair2 in players) {
+                            if (pair.Key == pair2.Key) {
+                                continue;
+                            }
+
+                            if (pair2.Value.State == PlayerState.HasLevelLoaded || pair2.Value.State == PlayerState.Spawned || pair2.Value.State == PlayerState.Dead) {
+                                playersWithLoadedLevel.Add(pair2.Key);
+                            }
+                        }
+
+                        Send(new CreateRemotePlayer {
+                            Index = player.Index,
+                            Type = player.PlayerType,
+                            Pos = player.Pos
+                        }, 9, playersWithLoadedLevel, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+                    }
+                }
+            }
+        }
 
         private void OnGameLoop()
         {
@@ -143,7 +201,7 @@ namespace Jazz2.Server
                     // Update objects
                     foreach (KeyValuePair<NetConnection, Player> pair in players) {
                         if (pair.Value.State == PlayerState.Dead) {
-                            if (enablePlayerSpawning) {
+                            if (playerSpawningEnabled) {
                                 RespawnPlayer(pair.Value);
                             }
                             continue;
@@ -288,58 +346,6 @@ namespace Jazz2.Server
             }
 
             return true;
-        }
-
-        public void EnablePlayerSpawning(bool enable)
-        {
-            if (enablePlayerSpawning == enable) {
-                return;
-            }
-
-            enablePlayerSpawning = enable;
-
-            if (enablePlayerSpawning) {
-                List<NetConnection> playersWithLoadedLevel = new List<NetConnection>();
-                
-                foreach (KeyValuePair<NetConnection, Player> pair in players) {
-                    Player player = pair.Value;
-                    if (player.State != PlayerState.HasLevelLoaded) {
-                        continue;
-                    }
-
-                    // ToDo: Set character requested by the player
-                    player.PlayerType = MathF.Rnd.OneOf(new[] { PlayerType.Jazz, PlayerType.Spaz, PlayerType.Lori });
-
-                    player.Pos = new Vector3(eventMap.GetRandomSpawnPosition(), LevelHandler.PlayerZ);
-                    player.State = PlayerState.Spawned;
-
-                    player.AABB = new AABB(player.Pos.Xy, 20, 30);
-                    collisions.AddProxy(player);
-
-                    Send(new CreateControllablePlayer {
-                        Index = player.Index,
-                        Type = player.PlayerType,
-                        Pos = player.Pos
-                    }, 9, pair.Key, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
-
-                    playersWithLoadedLevel.Clear();
-                    foreach (KeyValuePair<NetConnection, Player> pair2 in players) {
-                        if (pair.Key == pair2.Key) {
-                            continue;
-                        }
-
-                        if (pair2.Value.State == PlayerState.HasLevelLoaded || pair2.Value.State == PlayerState.Spawned || pair2.Value.State == PlayerState.Dead) {
-                            playersWithLoadedLevel.Add(pair2.Key);
-                        }
-                    }
-
-                    Send(new CreateRemotePlayer {
-                        Index = player.Index,
-                        Type = player.PlayerType,
-                        Pos = player.Pos
-                    }, 9, playersWithLoadedLevel, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
-                }
-            }
         }
 
         public void RespawnPlayer(Player player)
