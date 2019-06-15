@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Duality;
 using Jazz2.Actors.Enemies;
 using Jazz2.Actors.Weapons;
@@ -27,10 +28,8 @@ namespace Jazz2.Actors.Bosses
 
         private ushort endText;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             endText = details.Params[1];
 
             canBeFrozen = false;
@@ -42,7 +41,7 @@ namespace Jazz2.Actors.Bosses
 
             lastPos = details.Pos;
 
-            RequestMetadata("Boss/Uterus");
+            await RequestMetadataAsync("Boss/Uterus");
             SetAnimation(AnimState.Idle);
 
             renderer.Active = false;
@@ -224,10 +223,8 @@ namespace Jazz2.Actors.Bosses
             public float Phase;
             public float FallTime;
 
-            public override void OnActivated(ActorActivationDetails details)
+            protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                base.OnActivated(details);
-
                 base.canBeFrozen = false;
                 base.collisionFlags = CollisionFlags.CollideWithOtherActors;
 
@@ -235,10 +232,8 @@ namespace Jazz2.Actors.Bosses
 
                 health = 3;
 
-                RequestMetadata("Boss/Uterus");
+                await RequestMetadataAsync("Boss/Uterus");
                 SetAnimation((AnimState)1073741827);
-
-                OnUpdateHitbox();
             }
 
             protected override void OnUpdate()

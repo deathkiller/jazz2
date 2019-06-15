@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Duality;
 using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
@@ -7,10 +8,8 @@ namespace Jazz2.Actors.Solid
 {
     public class AmmoBarrel : GenericContainer
     {
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             Movable = true;
 
             WeaponType weaponType = (WeaponType)details.Params[0];
@@ -18,7 +17,7 @@ namespace Jazz2.Actors.Solid
                 GenerateContents(EventType.Ammo, 5, (ushort)weaponType);
             }
 
-            RequestMetadata("Object/BarrelContainer");
+            await RequestMetadataAsync("Object/BarrelContainer");
             SetAnimation(AnimState.Idle);
         }
 

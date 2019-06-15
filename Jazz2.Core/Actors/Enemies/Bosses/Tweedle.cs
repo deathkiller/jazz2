@@ -1,14 +1,13 @@
-﻿using Jazz2.Game.Structs;
+﻿using System.Threading.Tasks;
+using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Bosses
 {
     public class Tweedle : BossBase
     {
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
-            RequestMetadata("Boss/Tweedle");
+            await RequestMetadataAsync("Boss/Tweedle");
             SetAnimation(AnimState.Idle);
         }
 

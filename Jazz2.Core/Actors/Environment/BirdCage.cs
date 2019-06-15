@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
 
@@ -9,22 +10,22 @@ namespace Jazz2.Actors.Environment
         private ushort type;
         private bool activated;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            details.Pos.Z -= 50f;
-
-            base.OnActivated(details);
+            Vector3 pos = Transform.Pos;
+            pos.Z -= 50f;
+            Transform.Pos = pos;
 
             type = details.Params[0];
             activated = (details.Params[1] != 0);
 
             switch (type) {
                 case 0: // Chuck (red)
-                    RequestMetadata("Object/BirdCageChuck");
+                    await RequestMetadataAsync("Object/BirdCageChuck");
                     PreloadMetadata("Object/BirdChuck");
                     break;
                 case 1: // Birdy (yellow)
-                    RequestMetadata("Object/BirdCageBirdy");
+                    await RequestMetadataAsync("Object/BirdCageBirdy");
                     PreloadMetadata("Object/BirdBirdy");
                     break;
             }

@@ -1,4 +1,5 @@
-﻿using Jazz2.Game.Structs;
+﻿using System.Threading.Tasks;
+using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Collectibles
 {
@@ -6,15 +7,15 @@ namespace Jazz2.Actors.Collectibles
     {
         private WeaponType weaponType;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
+            await base.OnActivatedAsync(details);
 
             weaponType = (WeaponType)details.Params[0];
 
             scoreValue = 100;
 
-            RequestMetadata("Collectible/Ammo" + weaponType.ToString("G"));
+            await RequestMetadataAsync("Collectible/Ammo" + weaponType.ToString("G"));
             SetAnimation("Ammo");
 
             SetFacingDirection();

@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Actors.Solid;
 
 namespace Jazz2.Actors
@@ -7,14 +8,12 @@ namespace Jazz2.Actors
     {
         private float timeLeft = 250f;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             collisionFlags = CollisionFlags.CollideWithOtherActors;
             canBeFrozen = false;
 
-            RequestMetadata("Object/FrozenBlock");
+            await RequestMetadataAsync("Object/FrozenBlock");
             SetAnimation("FrozenBlock");
         }
 

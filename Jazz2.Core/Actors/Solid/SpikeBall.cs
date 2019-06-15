@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Duality.Components;
 using Duality.Drawing;
 using Jazz2.Actors.Enemies;
@@ -18,10 +19,8 @@ namespace Jazz2.Actors.Solid
         private Vector3 originPos;
         private ChainPiece[] pieces;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             originPos = Transform.Pos;
 
             length = details.Params[2];
@@ -36,7 +35,7 @@ namespace Jazz2.Actors.Solid
             base.isInvulnerable = true;
             base.collisionFlags = CollisionFlags.CollideWithOtherActors;
 
-            RequestMetadata("MovingPlatform/SpikeBall");
+            await RequestMetadataAsync("MovingPlatform/SpikeBall");
             SetAnimation("Platform");
 
             pieces = new ChainPiece[length];

@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Enemies
@@ -12,14 +13,12 @@ namespace Jazz2.Actors.Enemies
         private bool canJumpPrev;
         private bool stuck;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             SetHealthByDifficulty(3);
             scoreValue = 300;
 
-            RequestMetadata("Enemy/Crab");
+            await RequestMetadataAsync("Enemy/Crab");
             SetAnimation(AnimState.Fall);
 
             IsFacingLeft = MathF.Rnd.NextBool();

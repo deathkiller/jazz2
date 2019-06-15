@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Environment
@@ -8,11 +9,9 @@ namespace Jazz2.Actors.Environment
         private Vector3 originPos;
         private float anglePhase;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
-            RequestMetadata("Enemy/LizardFloat");
+            await RequestMetadataAsync("Enemy/LizardFloat");
             SetAnimation(AnimState.Activated);
 
             collisionFlags &= ~CollisionFlags.ApplyGravitation;

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Duality;
 using Jazz2.Game.Structs;
 
@@ -11,10 +12,8 @@ namespace Jazz2.Actors.Enemies
         private float attackTime = 160f;
         private bool attacking;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
             SetHealthByDifficulty(2);
@@ -22,7 +21,7 @@ namespace Jazz2.Actors.Enemies
 
             originPos = lastPos = targetPos = details.Pos;
 
-            RequestMetadata("Enemy/Raven");
+            await RequestMetadataAsync("Enemy/Raven");
             SetAnimation(AnimState.Idle);
 
             IsFacingLeft = MathF.Rnd.NextBool();

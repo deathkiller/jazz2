@@ -1,37 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using Duality.Drawing;
-using Jazz2.Game.Structs;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Duality.Resources;
 using Duality;
+using Duality.Drawing;
+using Duality.Resources;
+using Jazz2.Game.Structs;
 
 namespace Jazz2.Game
 {
-    public class ResourcesNotReady : Exception
-    {
-        public string Path;
-
-        public ResourcesNotReady(string path)
-        {
-            this.Path = path;
-        }
-    }
-
     partial class ContentResolver
     {
-        public delegate void ResourceReadyDelegate(string path);
-
         private HashSet<string> metadataAsyncRequests;
 
         private Thread asyncThread;
         private AutoResetEvent asyncThreadEvent;
         private AutoResetEvent asyncResourceReadyEvent;
 
-        public event ResourceReadyDelegate ResourceReady;
-
-        public Metadata RequestMetadataAsync(string path)
+        public Metadata TryFetchMetadata(string path)
         {
             Metadata metadata;
             if (!cachedMetadata.TryGetValue(path, out metadata)) {
@@ -41,9 +26,10 @@ namespace Jazz2.Game
                     }
                 }
 
-                throw new ResourcesNotReady(path);
+                return null;
             } else {
-                MarkAsReferenced(metadata);
+                // ToDo
+                //MarkAsReferenced(metadata);
             }
 
             if (metadata.AsyncFinalizingRequired) {
@@ -133,6 +119,7 @@ namespace Jazz2.Game
 
             asyncThread = new Thread(OnAsyncThread);
             asyncThread.IsBackground = true;
+            asyncThread.Priority = ThreadPriority.BelowNormal;
             asyncThread.Start();
 
             DualityApp.Terminating += OnDualityAppTerminating;
@@ -160,8 +147,6 @@ namespace Jazz2.Game
                     }
 
                     asyncResourceReadyEvent.Set();
-
-                    ResourceReady?.Invoke(path);
                 }
             }
         }

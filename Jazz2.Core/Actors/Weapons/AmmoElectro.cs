@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Duality.Components;
 using Duality.Drawing;
 using Duality.Resources;
@@ -21,9 +22,9 @@ namespace Jazz2.Actors.Weapons
 
         public override WeaponType WeaponType => WeaponType.Electro;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
+            await base.OnActivatedAsync(details);
 
             base.upgrades = (byte)details.Params[0];
 
@@ -31,7 +32,7 @@ namespace Jazz2.Actors.Weapons
             collisionFlags &= ~(CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset);
             collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
 
-            RequestMetadata("Weapon/Electro");
+            await RequestMetadataAsync("Weapon/Electro");
 
             ColorRgba color1, color2;
             if ((upgrades & 0x1) != 0) {

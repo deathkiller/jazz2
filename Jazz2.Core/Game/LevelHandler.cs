@@ -59,7 +59,7 @@ namespace Jazz2.Game
         private GameDifficulty difficulty;
         private string musicPath;
 
-        private bool exiting;
+        private InitState initState;
         private float ambientLightCurrent;
         private float ambientLightTarget;
         private int ambientLightDefault;
@@ -511,6 +511,7 @@ namespace Jazz2.Game
 
             actors.Remove(actor);
             RemoveObject(actor);
+            actor.Dispose();
         }
 
         public void AddPlayer(Player actor)
@@ -610,11 +611,11 @@ namespace Jazz2.Game
 
         public void InitLevelChange(ExitType exitType, string nextLevel)
         {
-            if (exiting) {
+            if (initState == InitState.Disposing) {
                 return;
             }
 
-            exiting = true;
+            initState = InitState.Disposing;
 
             foreach (Player player in players) {
                 player.OnLevelChanging(exitType);
@@ -734,16 +735,17 @@ namespace Jazz2.Game
             }
         }
 
-        public void PlayCommonSound(string name, ActorBase target, float gain = 1f)
+        public void PlayCommonSound(string name, ActorBase target, float gain = 1f, float pitch = 1f)
         {
             SoundResource resource;
             if (commonResources.Sounds.TryGetValue(name, out resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, target);
                 instance.Volume = gain * SettingsCache.SfxVolume;
+                instance.Pitch = pitch;
 
                 if (target.Transform.Pos.Y >= api.WaterLevel) {
                     instance.Lowpass = 0.2f;
-                    instance.Pitch = 0.7f;
+                    instance.Pitch *= 0.7f;
                 }
             }
         }
@@ -812,6 +814,7 @@ namespace Jazz2.Game
                     } else {
                         root.ChangeLevel(currentCarryOver.Value);
                         currentCarryOver = null;
+                        initState = InitState.Disposed;
                         return;
                     }
                 }
@@ -860,7 +863,7 @@ namespace Jazz2.Game
                         }
                     }
 
-                    eventMap.ActivateEvents(tx1, ty1, tx2, ty2);
+                    eventMap.ActivateEvents(tx1, ty1, tx2, ty2, initState != InitState.Initializing);
                 }
 
                 eventMap.ProcessGenerators();
@@ -972,6 +975,10 @@ namespace Jazz2.Game
 
             if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
                 Scene.SwitchTo(new InGameMenu(root, this));
+            }
+
+            if (initState == InitState.Initializing) {
+                initState = InitState.Initialized;
             }
 
             Hud.ShowDebugText("- FPS: " + Time.Fps.ToString("N0") + "  (" + Math.Round(Time.UnscaledDeltaTime * 1000, 1).ToString("N1") + " ms)");

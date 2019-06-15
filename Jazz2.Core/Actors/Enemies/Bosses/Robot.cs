@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Duality;
 using Jazz2.Actors.Enemies;
 using Jazz2.Game;
@@ -19,13 +20,11 @@ namespace Jazz2.Actors.Bosses
         private float stateTime;
         private int shots;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             scoreValue = 2000;
 
-            RequestMetadata("Boss/Robot");
+            await RequestMetadataAsync("Boss/Robot");
             SetAnimation(AnimState.Idle);
 
             renderer.Active = false;
@@ -213,10 +212,8 @@ namespace Jazz2.Actors.Bosses
 
         private class SpikeBall : EnemyBase
         {
-            public override void OnActivated(ActorActivationDetails details)
+            protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                base.OnActivated(details);
-
                 IsFacingLeft = (details.Params[0] != 0);
 
                 canBeFrozen = false;
@@ -224,10 +221,8 @@ namespace Jazz2.Actors.Bosses
 
                 speedX = (IsFacingLeft ? -8f : 8f);
 
-                RequestMetadata("Boss/Robot");
+                await RequestMetadataAsync("Boss/Robot");
                 SetAnimation((AnimState)1073741827);
-
-                OnUpdateHitbox();
 
                 LightEmitter light = AddComponent<LightEmitter>();
                 light.Intensity = 0.1f;

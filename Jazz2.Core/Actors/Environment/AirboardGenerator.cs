@@ -1,5 +1,5 @@
-﻿using Duality;
-using Jazz2.Game.Structs;
+﻿using System.Threading.Tasks;
+using Duality;
 
 namespace Jazz2.Actors.Environment
 {
@@ -10,13 +10,11 @@ namespace Jazz2.Actors.Environment
         private float timeLeft;
         private bool active;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             delay = details.Params[0];
 
-            RequestMetadata("Object/Airboard");
+            await RequestMetadataAsync("Object/Airboard");
             SetAnimation("Airboard");
 
             collisionFlags &= ~CollisionFlags.ApplyGravitation;

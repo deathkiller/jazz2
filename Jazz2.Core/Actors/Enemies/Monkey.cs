@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Duality;
 using Duality.Audio;
 using Jazz2.Game.Structs;
@@ -12,16 +13,14 @@ namespace Jazz2.Actors.Enemies
         private bool isWalking;
         private bool stuck;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             isWalking = (details.Params[0] != 0);
 
             SetHealthByDifficulty(3);
             scoreValue = 200;
 
-            RequestMetadata("Enemy/Monkey");
+            await RequestMetadataAsync("Enemy/Monkey");
 
             if (isWalking) {
                 SetAnimation(AnimState.Walk);
@@ -136,10 +135,8 @@ namespace Jazz2.Actors.Enemies
         {
             private SoundInstance soundThrow;
 
-            public override void OnActivated(ActorActivationDetails details)
+            protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                base.OnActivated(details);
-
                 IsFacingLeft = (details.Params[0] != 0);
 
                 health = 2;
@@ -147,12 +144,10 @@ namespace Jazz2.Actors.Enemies
                 speedX = (IsFacingLeft ? -8f : 8f);
                 speedY = -3f;
 
-                RequestMetadata("Enemy/Monkey");
+                await RequestMetadataAsync("Enemy/Monkey");
                 SetAnimation((AnimState)1073741828);
 
                 soundThrow = PlaySound("BananaThrow");
-
-                OnUpdateHitbox();
             }
 
             protected override void OnUpdate()

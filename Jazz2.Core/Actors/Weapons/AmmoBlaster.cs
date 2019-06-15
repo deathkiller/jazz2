@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Actors.Bosses;
 using Jazz2.Game;
 using Jazz2.Game.Collisions;
@@ -13,15 +14,15 @@ namespace Jazz2.Actors.Weapons
 
         public override WeaponType WeaponType => WeaponType.Blaster;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
+            await base.OnActivatedAsync(details);
 
             base.upgrades = (byte)details.Params[0];
 
             collisionFlags = (collisionFlags & ~CollisionFlags.ApplyGravitation) | CollisionFlags.SkipPerPixelCollisions;
 
-            RequestMetadata("Weapon/Blaster");
+            await RequestMetadataAsync("Weapon/Blaster");
 
             AnimState state = AnimState.Idle;
             if ((upgrades & 0x1) != 0) {

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Duality;
 using Jazz2.Game.Structs;
 
@@ -10,14 +11,12 @@ namespace Jazz2.Actors.Enemies
         private bool attacking;
         private bool stuck;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             SetHealthByDifficulty(2);
             scoreValue = 100;
 
-            RequestMetadata("Enemy/Demon");
+            await RequestMetadataAsync("Enemy/Demon");
             SetAnimation(AnimState.Idle);
 
             IsFacingLeft = MathF.Rnd.NextBool();

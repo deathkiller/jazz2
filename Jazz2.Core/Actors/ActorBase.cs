@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Duality;
+using Duality.Async;
 using Duality.Audio;
 using Duality.Components;
 using Duality.Components.Renderers;
@@ -23,10 +25,16 @@ namespace Jazz2.Actors
     {
         None = 0,
 
+        // Actor is created from event map 
         IsCreatedFromEventMap = 1 << 0,
+        // Actor is created by generator
         IsFromGenerator = 1 << 1,
 
+        // Actor should be illuminated
         Illuminated = 1 << 2,
+
+        // Actor can be created asynchronously
+        Async = 1 << 3
     }
 
     public struct ActorActivationDetails
@@ -62,8 +70,8 @@ namespace Jazz2.Actors
 
     public abstract class ActorBase : GameObject, ICollisionable
     {
-        private const float CollisionCheckStep = 0.5f;
-        private const int PerPixelCollisionStep = 3;
+        protected const float CollisionCheckStep = 0.5f;
+        protected const int PerPixelCollisionStep = 3;
 
         protected ActorApi api;
 
@@ -144,8 +152,10 @@ namespace Jazz2.Actors
             }
         }
 
-        public virtual void OnActivated(ActorActivationDetails details)
+        public async void OnActivated(ActorActivationDetails details)
         {
+            initState = InitState.Initializing;
+
             this.api = details.Api;
             this.flags = details.Flags;
 
@@ -158,7 +168,18 @@ namespace Jazz2.Actors
 
             AddComponent(new LocalController(this));
 
+            await OnActivatedAsync(details);
+
             OnUpdateHitbox();
+
+            if (initState == InitState.Initializing) {
+                initState = InitState.Initialized;
+            }
+        }
+
+        protected async virtual Task OnActivatedAsync(ActorActivationDetails details)
+        {
+            // Nothing to do...
         }
 
         protected virtual void OnUpdateHitbox()
@@ -360,7 +381,7 @@ namespace Jazz2.Actors
                     }
                 }
 
-                // Also try to move horizontally as far as possible.
+                // Also try to move horizontally as far as possible
                 float xDiff = MathF.Abs(effectiveSpeedX);
                 float maxXDiff = -xDiff;
                 if (!success) {
@@ -371,26 +392,26 @@ namespace Jazz2.Actors
                         }
                     }
 
-                    // If no angle worked in the previous step, the actor is facing a wall.
+                    // If no angle worked in the previous step, the actor is facing a wall
                     if (xDiff > CollisionCheckStep || (xDiff > 0f && currentElasticity > 0f)) {
                         speedX = -(currentElasticity * speedX);
                     }
                     OnHitWall();
                 }
 
-                // Run all floor-related hooks, such as the player's check for hurting positions.
+                // Run all floor-related hooks, such as the player's check for hurting positions
                 OnHitFloor();
             } else {
-                // Airborne movement is handled here.
-                // First, attempt to move directly based on the current speed values.
+                // Airborne movement is handled here
+                // First, attempt to move directly based on the current speed values
                 if (MoveInstantly(new Vector2(effectiveSpeedX, effectiveSpeedY), MoveType.Relative)) {
                     if (MathF.Abs(effectiveSpeedY) < float.Epsilon) {
                         canJump = true;
                     }
                 } else if (!success) {
-                    // There is an obstacle so we need to make compromises.
+                    // There is an obstacle so we need to make compromises
 
-                    // First, attempt to move horizontally as much as possible.
+                    // First, attempt to move horizontally as much as possible
                     float maxDiff = MathF.Abs(effectiveSpeedX);
                     int sign = (effectiveSpeedX > 0f ? 1 : -1);
                     float xDiff = maxDiff;
@@ -400,7 +421,7 @@ namespace Jazz2.Actors
                         }
                     }
 
-                    // Then, try the same vertically.
+                    // Then, try the same vertically
                     maxDiff = MathF.Abs(effectiveSpeedY);
                     sign = (effectiveSpeedY > 0f ? 1 : -1);
                     float yDiff = maxDiff;
@@ -1012,9 +1033,26 @@ namespace Jazz2.Actors
 
         protected void RequestMetadata(string path)
         {
+            Metadata metadata = ContentResolver.Current.RequestMetadata(path);
+
+            boundingBox = metadata.BoundingBox;
+            availableAnimations = metadata.Graphics;
+            availableSounds = metadata.Sounds;
+        }
+
+        protected async Task RequestMetadataAsync(string path)
+        {
             Metadata metadata;
-            if ((flags & ActorInstantiationFlags.IsCreatedFromEventMap) != 0) {
-                metadata = ContentResolver.Current.RequestMetadataAsync(path);
+
+            if ((flags & ActorInstantiationFlags.Async) != 0) {
+                while (true) {
+                    metadata = ContentResolver.Current.TryFetchMetadata(path);
+                    if (metadata != null) {
+                        break;
+                    }
+
+                    await Await.NextUpdate().ConfigureAwait(this);
+                }
             } else {
                 metadata = ContentResolver.Current.RequestMetadata(path);
             }
@@ -1291,7 +1329,9 @@ namespace Jazz2.Actors
 
             void ICmpUpdatable.OnUpdate()
             {
-                actor.OnUpdate();
+                if (actor.initState == InitState.Initialized) {
+                    actor.OnUpdate();
+                }
             }
         }
     }

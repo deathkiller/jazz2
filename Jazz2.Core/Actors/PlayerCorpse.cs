@@ -1,24 +1,24 @@
-﻿namespace Jazz2.Actors
+﻿using System.Threading.Tasks;
+
+namespace Jazz2.Actors
 {
     public class PlayerCorpse : ActorBase
     {
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             PlayerType playerType = (PlayerType)details.Params[0];
             IsFacingLeft = (details.Params[1] != 0);
 
             switch (playerType) {
                 default:
                 case PlayerType.Jazz:
-                    RequestMetadata("Interactive/PlayerJazz");
+                    await RequestMetadataAsync("Interactive/PlayerJazz");
                     break;
                 case PlayerType.Spaz:
-                    RequestMetadata("Interactive/PlayerSpaz");
+                    await RequestMetadataAsync("Interactive/PlayerSpaz");
                     break;
                 case PlayerType.Lori:
-                    RequestMetadata("Interactive/PlayerLori");
+                    await RequestMetadataAsync("Interactive/PlayerLori");
                     break;
             }
 

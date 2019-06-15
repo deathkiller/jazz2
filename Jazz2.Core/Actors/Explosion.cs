@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Game;
 
 namespace Jazz2.Actors
@@ -39,15 +40,13 @@ namespace Jazz2.Actors
             api.AddActor(explosion);
         }
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             collisionFlags = CollisionFlags.ForceDisableCollisions;
 
             type = details.Params[0];
 
-            RequestMetadata("Common/Explosions");
+            await RequestMetadataAsync("Common/Explosions");
 
             switch (type)
             {

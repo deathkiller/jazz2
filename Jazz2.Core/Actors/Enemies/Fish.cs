@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Duality;
 using Jazz2.Game.Structs;
 
@@ -15,16 +16,14 @@ namespace Jazz2.Actors.Enemies
         private float attackCooldown = 60f;
         private Vector2 direction;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
             SetHealthByDifficulty(1);
             scoreValue = 100;
 
-            RequestMetadata("Enemy/Fish");
+            await RequestMetadataAsync("Enemy/Fish");
             SetAnimation(AnimState.Idle);
 
             IsFacingLeft = MathF.Rnd.NextBool();

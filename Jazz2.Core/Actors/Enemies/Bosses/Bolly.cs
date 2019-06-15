@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Duality;
 using Jazz2.Actors.Enemies;
 using Jazz2.Game;
@@ -28,10 +29,8 @@ namespace Jazz2.Actors.Bosses
 
         private ushort endText;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             endText = details.Params[1];
 
             canBeFrozen = false;
@@ -40,7 +39,7 @@ namespace Jazz2.Actors.Bosses
 
             collisionFlags = CollisionFlags.CollideWithOtherActors;
 
-            RequestMetadata("Boss/Bolly");
+            await RequestMetadataAsync("Boss/Bolly");
             SetAnimation(AnimState.Idle);
 
             // Bottom
@@ -240,15 +239,13 @@ namespace Jazz2.Actors.Bosses
 
         private class Bottom : EnemyBase
         {
-            public override void OnActivated(ActorActivationDetails details)
+            protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                base.OnActivated(details);
-
                 collisionFlags = CollisionFlags.CollideWithOtherActors;
 
                 health = int.MaxValue;
 
-                RequestMetadata("Boss/Bolly");
+                await RequestMetadataAsync("Boss/Bolly");
                 SetAnimation((AnimState)1);
             }
 
@@ -268,15 +265,13 @@ namespace Jazz2.Actors.Bosses
 
         private class Turret : EnemyBase
         {
-            public override void OnActivated(ActorActivationDetails details)
+            protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                base.OnActivated(details);
-
                 collisionFlags = CollisionFlags.ForceDisableCollisions;
 
                 health = int.MaxValue;
 
-                RequestMetadata("Boss/Bolly");
+                await RequestMetadataAsync("Boss/Bolly");
                 SetAnimation((AnimState)2);
             }
 
@@ -297,10 +292,8 @@ namespace Jazz2.Actors.Bosses
             public float Size;
             public float ZOffset;
 
-            public override void OnActivated(ActorActivationDetails details)
+            protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                base.OnActivated(details);
-
                 base.canBeFrozen = false;
                 base.canCollideWithAmmo = false;
                 base.isInvulnerable = true;
@@ -308,7 +301,7 @@ namespace Jazz2.Actors.Bosses
 
                 health = int.MaxValue;
 
-                RequestMetadata("Boss/Bolly");
+                await RequestMetadataAsync("Boss/Bolly");
 
                 AnimState animState;
                 if (details.Params[0] == 0) {
@@ -332,10 +325,8 @@ namespace Jazz2.Actors.Bosses
         {
             private float time = 300f;
 
-            public override void OnActivated(ActorActivationDetails details)
+            protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                base.OnActivated(details);
-
                 base.canBeFrozen = false;
                 base.canCollideWithAmmo = false;
                 base.isInvulnerable = true;
@@ -343,7 +334,7 @@ namespace Jazz2.Actors.Bosses
 
                 health = int.MaxValue;
 
-                RequestMetadata("Boss/Bolly");
+                await RequestMetadataAsync("Boss/Bolly");
                 SetAnimation((AnimState)5);
 
                 LightEmitter light = AddComponent<LightEmitter>();

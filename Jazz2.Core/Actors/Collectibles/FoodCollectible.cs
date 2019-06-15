@@ -1,4 +1,6 @@
-﻿namespace Jazz2.Actors.Collectibles
+﻿using System.Threading.Tasks;
+
+namespace Jazz2.Actors.Collectibles
 {
     public class FoodCollectible : Collectible
     {
@@ -44,13 +46,13 @@
 
         private bool isDrinkable;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
+            await base.OnActivatedAsync(details);
 
             scoreValue = 50;
 
-            RequestMetadata("Collectible/Food" + ((FoodType)details.Params[0]).ToString("G"));
+            await RequestMetadataAsync("Collectible/Food" + ((FoodType)details.Params[0]).ToString("G"));
             SetAnimation("Food");
 
             switch ((FoodType)details.Params[0]) {

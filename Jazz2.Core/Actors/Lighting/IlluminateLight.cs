@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Duality.Components;
 using Jazz2.Game;
 
@@ -6,10 +7,8 @@ namespace Jazz2.Actors.Lighting
 {
     public class IlluminateLight : ActorBase
     {
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             ushort size = details.Params[0];
 
             collisionFlags = CollisionFlags.ForceDisableCollisions;

@@ -1,4 +1,6 @@
-﻿using Duality;
+﻿using System;
+using System.Threading.Tasks;
+using Duality;
 using Jazz2.Game.Collisions;
 using Jazz2.Game.Structs;
 
@@ -13,10 +15,8 @@ namespace Jazz2.Actors.Enemies
         private bool isTurning;
         private bool isWithdrawn;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             SetHealthByDifficulty(1);
             scoreValue = 100;
 
@@ -25,11 +25,11 @@ namespace Jazz2.Actors.Enemies
             switch (theme) {
                 case 0:
                 default:
-                    RequestMetadata("Enemy/Turtle");
+                    await RequestMetadataAsync("Enemy/Turtle");
                     break;
 
                 case 1: // Xmas
-                    RequestMetadata("Enemy/TurtleXmas");
+                    await RequestMetadataAsync("Enemy/TurtleXmas");
                     break;
             }
 

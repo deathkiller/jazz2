@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 
 namespace Jazz2.Actors.Environment
 {
@@ -7,17 +8,15 @@ namespace Jazz2.Actors.Environment
         private float timer;
         private int direction;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             Vector3 pos = Transform.Pos;
             pos.Z += 20f;
             Transform.Pos = pos;
 
             ushort theme = details.Params[0];
 
-            RequestMetadata("Object/Moth");
+            await RequestMetadataAsync("Object/Moth");
 
             switch (theme) {
                 default:

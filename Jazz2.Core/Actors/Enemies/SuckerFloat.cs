@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Enemies
@@ -8,10 +9,8 @@ namespace Jazz2.Actors.Enemies
         private float phase;
         private Vector2 originPos;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             originPos = new Vector2(details.Pos.X, details.Pos.Y);
 
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
@@ -19,7 +18,7 @@ namespace Jazz2.Actors.Enemies
             SetHealthByDifficulty(1);
             scoreValue = 200;
 
-            RequestMetadata("Enemy/SuckerFloat");
+            await RequestMetadataAsync("Enemy/SuckerFloat");
             SetAnimation(AnimState.Idle);
         }
 

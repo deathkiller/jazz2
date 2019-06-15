@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Duality;
 using Duality.Audio;
 using Jazz2.Game.Structs;
@@ -14,10 +15,8 @@ namespace Jazz2.Actors.Enemies
 
         private SoundInstance noise;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             collisionFlags = CollisionFlags.CollideWithOtherActors;
 
             SetHealthByDifficulty(1);
@@ -25,7 +24,7 @@ namespace Jazz2.Actors.Enemies
 
             originPos = lastPos = targetPos = details.Pos;
 
-            RequestMetadata("Enemy/Bee");
+            await RequestMetadataAsync("Enemy/Bee");
             SetAnimation(AnimState.Idle);
         }
 

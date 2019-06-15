@@ -72,7 +72,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\RollingRock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\SteamNote.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\SwingingVine.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\Eva.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\Eva.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Explosion.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\FrozenBlock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Lighting\IlluminateLight.cs" />
@@ -88,7 +88,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Player.Weapons.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\PlayerCorpse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\Pole.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\Checkpoint.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\Checkpoint.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\SignEol.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\AmmoBarrel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\AmmoCrate.cs" />
@@ -108,7 +108,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\SolidObjectBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\SpikeBall.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Solid\TriggerCrate.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\Spring.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Environment\Spring.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoBlaster.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoBouncer.cs" />
@@ -126,6 +126,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\Collisions\ICollisionable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Collisions\Pair.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Collisions\TreeNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\Editor\EditorLevelHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\ILevelHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Cinematics.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\IMenuContainer.cs" />

@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Actors.Weapons;
 using Jazz2.Game.Collisions;
 
@@ -21,10 +22,8 @@ namespace Jazz2.Actors.Environment
         private float fallTime;
         private int bouncesLeft = BouncesMax;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             ushort theme = details.Params[0];
             short x = unchecked((short)(details.Params[1]));
             short y = unchecked((short)(details.Params[2]));
@@ -41,11 +40,11 @@ namespace Jazz2.Actors.Environment
             bool isSolid = true;
             switch (theme) {
                 default:
-                case 0: RequestMetadata("Pole/Carrotus"); break;
-                case 1: RequestMetadata("Pole/Diamondus"); break;
-                case 2: RequestMetadata("Pole/DiamondusTree"); isSolid = false; break;
-                case 3: RequestMetadata("Pole/Jungle"); break;
-                case 4: RequestMetadata("Pole/Psych"); break;
+                case 0: await RequestMetadataAsync("Pole/Carrotus"); break;
+                case 1: await RequestMetadataAsync("Pole/Diamondus"); break;
+                case 2: await RequestMetadataAsync("Pole/DiamondusTree"); isSolid = false; break;
+                case 3: await RequestMetadataAsync("Pole/Jungle"); break;
+                case 4: await RequestMetadataAsync("Pole/Psych"); break;
             }
 
             if (isSolid) {

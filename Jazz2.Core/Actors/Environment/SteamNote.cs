@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 
 namespace Jazz2.Actors.Environment
 {
@@ -6,10 +7,8 @@ namespace Jazz2.Actors.Environment
     {
         private float cooldown;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             Vector3 pos = Transform.Pos;
             pos.X -= 10f;
             pos.Y -= 2f;
@@ -17,7 +16,7 @@ namespace Jazz2.Actors.Environment
 
             collisionFlags = CollisionFlags.ForceDisableCollisions;
 
-            RequestMetadata("Object/SteamNote");
+            await RequestMetadataAsync("Object/SteamNote");
             SetAnimation("SteamNote");
 
             PlaySound("Appear", 0.4f);

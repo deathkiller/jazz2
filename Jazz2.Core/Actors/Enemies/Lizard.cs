@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Enemies
@@ -10,10 +11,8 @@ namespace Jazz2.Actors.Enemies
         private bool stuck;
         private bool isFalling;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             Vector3 pos = Transform.Pos;
             pos.Y -= 6f;
             Transform.Pos = pos;
@@ -27,11 +26,11 @@ namespace Jazz2.Actors.Enemies
             switch (theme) {
                 case 0:
                 default:
-                    RequestMetadata("Enemy/Lizard");
+                    await RequestMetadataAsync("Enemy/Lizard");
                     break;
 
                 case 1: // Xmas
-                    RequestMetadata("Enemy/LizardXmas");
+                    await RequestMetadataAsync("Enemy/LizardXmas");
                     break;
             }
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Duality;
 using Jazz2.Game.Structs;
 
@@ -8,17 +9,15 @@ namespace Jazz2.Actors.Enemies
     {
         private const float DefaultSpeed = -2f;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             collisionFlags = CollisionFlags.CollideWithOtherActors;
             //friction = 40f;
 
             SetHealthByDifficulty(1);
             scoreValue = 100;
 
-            RequestMetadata("Enemy/Sparks");
+            await RequestMetadataAsync("Enemy/Sparks");
             SetAnimation(AnimState.Idle);
 
             IsFacingLeft = true;

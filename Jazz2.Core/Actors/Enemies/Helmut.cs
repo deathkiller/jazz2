@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Enemies
@@ -11,10 +12,8 @@ namespace Jazz2.Actors.Enemies
         private double stateTime;
         private bool stuck;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             Vector3 pos = Transform.Pos;
             pos.Y -= 6f;
             Transform.Pos = pos;
@@ -22,7 +21,7 @@ namespace Jazz2.Actors.Enemies
             SetHealthByDifficulty(1);
             scoreValue = 100;
 
-            RequestMetadata("Enemy/Helmut");
+            await RequestMetadataAsync("Enemy/Helmut");
             SetAnimation(AnimState.Walk);
 
             IsFacingLeft = MathF.Rnd.NextBool();

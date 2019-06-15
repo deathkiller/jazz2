@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Duality.Resources;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
@@ -10,15 +11,13 @@ namespace Jazz2.Actors.Environment
         private ushort speed;
         private float cooldown;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             speed = details.Params[0];
 
             collisionFlags = CollisionFlags.ForceDisableCollisions;
 
-            RequestMetadata("Common/AmbientBubbles");
+            await RequestMetadataAsync("Common/AmbientBubbles");
         }
 
         protected override void OnUpdate()

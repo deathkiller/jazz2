@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Enemies
@@ -10,14 +11,12 @@ namespace Jazz2.Actors.Enemies
         private bool onWater;
         private float phase;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             SetHealthByDifficulty(2);
             scoreValue = 200;
 
-            RequestMetadata("Enemy/TurtleTube");
+            await RequestMetadataAsync("Enemy/TurtleTube");
             SetAnimation(AnimState.Idle);
 
             Vector3 pos = Transform.Pos;

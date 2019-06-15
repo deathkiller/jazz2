@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Actors.Enemies;
 using Jazz2.Actors.Environment;
 using Jazz2.Actors.Solid;
@@ -17,13 +18,11 @@ namespace Jazz2.Actors.Weapons
 
         public Player Owner => owner;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             collisionFlags = CollisionFlags.None;
 
-            RequestMetadata("Weapon/TNT");
+            await RequestMetadataAsync("Weapon/TNT");
             SetAnimation(AnimState.Idle);
         }
 

@@ -184,9 +184,9 @@ namespace Jazz2.Game
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public void PlayCommonSound(ActorBase target, string name, float gain = 1f)
+        public void PlayCommonSound(ActorBase target, string name, float gain = 1f, float pitch = 1f)
         {
-            levelHandler.PlayCommonSound(name, target, gain);
+            levelHandler.PlayCommonSound(name, target, gain, pitch);
         }
 
 #if NET45

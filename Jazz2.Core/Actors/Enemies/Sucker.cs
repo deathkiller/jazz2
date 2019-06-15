@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Enemies
@@ -10,16 +11,14 @@ namespace Jazz2.Actors.Enemies
 
         private bool stuck;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             LastHitDirection parentLastHitDir = (LastHitDirection)details.Params[0];
 
             SetHealthByDifficulty(1);
             scoreValue = 100;
 
-            RequestMetadata("Enemy/Sucker");
+            await RequestMetadataAsync("Enemy/Sucker");
             maxHealth = 4;
             SetAnimation(AnimState.Walk);
 

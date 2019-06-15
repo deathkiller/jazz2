@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Duality;
 using Jazz2.Game.Structs;
 
@@ -12,10 +13,8 @@ namespace Jazz2.Actors.Enemies
         private bool attacking;
         private float noiseCooldown;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             originPos = Transform.Pos;
 
             collisionFlags = CollisionFlags.CollideWithOtherActors;
@@ -23,7 +22,7 @@ namespace Jazz2.Actors.Enemies
             SetHealthByDifficulty(1);
             scoreValue = 100;
 
-            RequestMetadata("Enemy/Bat");
+            await RequestMetadataAsync("Enemy/Bat");
             SetAnimation(AnimState.Idle);
         }
 

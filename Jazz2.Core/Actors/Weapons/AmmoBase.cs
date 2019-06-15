@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Actors.Enemies;
 using Jazz2.Actors.Solid;
 using Jazz2.Game.Collisions;
@@ -26,10 +27,8 @@ namespace Jazz2.Actors.Weapons
 
         public virtual WeaponType WeaponType => WeaponType.Unknown;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation;
             canBeFrozen = false;
         }

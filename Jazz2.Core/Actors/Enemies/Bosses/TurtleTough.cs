@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Duality;
 using Duality.Audio;
 using Jazz2.Actors.Enemies;
@@ -21,10 +22,8 @@ namespace Jazz2.Actors.Bosses
 
         private ushort endText;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             endText = details.Params[1];
 
             SetHealthByDifficulty(100);
@@ -32,7 +31,7 @@ namespace Jazz2.Actors.Bosses
 
             IsFacingLeft = true;
 
-            RequestMetadata("Boss/TurtleTough");
+            await RequestMetadataAsync("Boss/TurtleTough");
             SetAnimation(AnimState.Idle);
         }
 
@@ -185,24 +184,20 @@ namespace Jazz2.Actors.Bosses
 
             private SoundInstance sound;
 
-            public override void OnActivated(ActorActivationDetails details)
+            protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                base.OnActivated(details);
-
                 base.canBeFrozen = false;
                 base.canCollideWithAmmo = false;
                 base.collisionFlags = CollisionFlags.CollideWithOtherActors;
 
                 base.health = int.MaxValue;
 
-                RequestMetadata("Boss/TurtleTough");
+                await RequestMetadataAsync("Boss/TurtleTough");
                 SetAnimation((AnimState)1073741827);
 
                 originPos = details.Pos;
 
                 FollowNearestPlayer();
-
-                OnUpdateHitbox();
 
                 sound = PlaySound("Mace", 0.7f);
                 sound.Looped = true;

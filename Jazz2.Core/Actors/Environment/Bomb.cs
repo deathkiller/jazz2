@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 
 namespace Jazz2.Actors.Environment
 {
@@ -6,10 +7,8 @@ namespace Jazz2.Actors.Environment
     {
         private float timeLeft = MathF.Rnd.NextFloat(40f, 90f);
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             ushort theme = details.Params[0];
             IsFacingLeft = (details.Params[1] != 0);
 
@@ -17,9 +16,9 @@ namespace Jazz2.Actors.Environment
             elasticity = 0.3f;
 
             switch (theme) {
-                case 0: RequestMetadata("Object/Bomb"); break;
-                case 1: RequestMetadata("Enemy/LizardFloat"); break;
-                case 2: RequestMetadata("Enemy/LizardFloatXmas"); break;
+                case 0: await RequestMetadataAsync("Object/Bomb"); break;
+                case 1: await RequestMetadataAsync("Enemy/LizardFloat"); break;
+                case 2: await RequestMetadataAsync("Enemy/LizardFloatXmas"); break;
             }
 
             SetAnimation("Bomb");

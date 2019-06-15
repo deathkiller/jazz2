@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Duality.Audio;
 using Duality.Components.Renderers;
 using Jazz2.Game;
@@ -16,16 +17,16 @@ namespace Jazz2.Actors.Weapons
 
         public override WeaponType WeaponType => WeaponType.Thunderbolt;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
+            await base.OnActivatedAsync(details);
 
             base.upgrades = (byte)details.Params[0];
 
             health = int.MaxValue;
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
-            RequestMetadata("Weapon/Thunderbolt");
+            await RequestMetadataAsync("Weapon/Thunderbolt");
 
             light = AddComponent<LightEmitter>();
             light.Intensity = 0.4f;

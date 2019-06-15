@@ -1,12 +1,14 @@
-﻿namespace Jazz2.Actors.Collectibles
+﻿using System.Threading.Tasks;
+
+namespace Jazz2.Actors.Collectibles
 {
     public class Stopwatch : Collectible
     {
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
+            await base.OnActivatedAsync(details);
 
-            RequestMetadata("Collectible/Stopwatch");
+            await RequestMetadataAsync("Collectible/Stopwatch");
             SetAnimation("Stopwatch");
 
             SetFacingDirection();

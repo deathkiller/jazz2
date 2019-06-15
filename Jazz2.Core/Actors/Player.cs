@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Duality;
 using Duality.Drawing;
 using Duality.Resources;
@@ -70,6 +71,7 @@ namespace Jazz2.Actors
         private float copterFramesLeft, fireFramesLeft, pushFramesLeft;
         private LevelExitingState levelExiting;
         private bool isFreefall, inWater, isLifting, isSpring;
+        private int inShallowWater = -1;
         private Modifier activeModifier;
 
         private bool inIdleTransition, inLedgeTransition;
@@ -107,26 +109,24 @@ namespace Jazz2.Actors
 
         public bool InWater => inWater;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             playerTypeOriginal = (PlayerType)details.Params[0];
             playerType = playerTypeOriginal;
             index = details.Params[1];
 
             switch (playerType) {
                 case PlayerType.Jazz:
-                    RequestMetadata("Interactive/PlayerJazz");
+                    await RequestMetadataAsync("Interactive/PlayerJazz");
                     break;
                 case PlayerType.Spaz:
-                    RequestMetadata("Interactive/PlayerSpaz");
+                    await RequestMetadataAsync("Interactive/PlayerSpaz");
                     break;
                 case PlayerType.Lori:
-                    RequestMetadata("Interactive/PlayerLori");
+                    await RequestMetadataAsync("Interactive/PlayerLori");
                     break;
                 case PlayerType.Frog:
-                    RequestMetadata("Interactive/PlayerFrog");
+                    await RequestMetadataAsync("Interactive/PlayerFrog");
                     break;
             }
 
@@ -347,7 +347,7 @@ namespace Jazz2.Actors
 
             FollowCarryingPlatform();
             UpdateAnimation(timeMult, lastPos.X, lastSpeedX, lastForceX);
-            
+
             CheckSuspendedStatus(lastPos);
             CheckDestructibleTiles(timeMult);
             CheckEndOfSpecialMoves(timeMult);
@@ -355,13 +355,35 @@ namespace Jazz2.Actors
             OnHandleWater();
 
             bool areaWeaponAllowed;
-            OnHandleAreaEvents(out areaWeaponAllowed);
+            int areaWaterBlock;
+            OnHandleAreaEvents(out areaWeaponAllowed, out areaWaterBlock);
 
-            // Timers
-            if (weaponCooldown > 0f) {
-                weaponCooldown -= timeMult;
+            // Invulnerability
+            if (invulnerableTime > 0f) {
+                invulnerableTime -= timeMult;
+
+                if (invulnerableTime <= 0f) {
+                    isInvulnerable = false;
+
+                    renderer.AnimHidden = false;
+
+                    if (currentCircleEffectRenderer != null) {
+                        SetCircleEffect(false);
+                    }
+                } else if (currentTransitionState != AnimState.Hurt && currentCircleEffectRenderer == null) {
+                    if (invulnerableBlinkTime > 0f) {
+                        invulnerableBlinkTime -= timeMult;
+                    } else {
+                        renderer.AnimHidden ^= true;
+
+                        invulnerableBlinkTime = 3f;
+                    }
+                } else {
+                    renderer.AnimHidden = false;
+                }
             }
 
+            // Timers
             if (controllableTimeout > 0f) {
                 controllableTimeout -= timeMult;
 
@@ -387,37 +409,8 @@ namespace Jazz2.Actors
                 }
             }
 
-            if (gemsTimer > 0f) {
-                gemsTimer -= timeMult;
-
-                if (gemsTimer <= 0f) {
-                    gemsPitch = 0;
-                }
-            }
-
-            if (invulnerableTime > 0f) {
-                invulnerableTime -= timeMult;
-
-                if (invulnerableTime <= 0f) {
-                    isInvulnerable = false;
-
-                    renderer.AnimHidden = false;
-
-                    if (currentCircleEffectRenderer != null) {
-                        SetCircleEffect(false);
-                    }
-
-                } else if (currentTransitionState != AnimState.Hurt && currentCircleEffectRenderer == null) {
-                    if (invulnerableBlinkTime > 0f) {
-                        invulnerableBlinkTime -= timeMult;
-                    } else {
-                        renderer.AnimHidden ^= true;
-
-                        invulnerableBlinkTime = 3f;
-                    }
-                } else {
-                    renderer.AnimHidden = false;
-                }
+            if (weaponCooldown > 0f) {
+                weaponCooldown -= timeMult;
             }
 
             if (bonusWarpTimer > 0f) {
@@ -428,6 +421,15 @@ namespace Jazz2.Actors
                 lastPoleTime -= timeMult;
             }
 
+            if (gemsTimer > 0f) {
+                gemsTimer -= timeMult;
+
+                if (gemsTimer <= 0f) {
+                    gemsPitch = 0;
+                }
+            }
+
+            // Weapons
             if (fireFramesLeft > 0f) {
                 fireFramesLeft -= timeMult;
 
@@ -452,6 +454,7 @@ namespace Jazz2.Actors
                 }
             }
 
+            // Shield
             if (shieldTime > 0f) {
                 shieldTime -= timeMult;
 
@@ -460,22 +463,12 @@ namespace Jazz2.Actors
                 }
             }
 
-            if (inTubeTime > 0f) {
-                inTubeTime -= timeMult;
-
-                if (inTubeTime <= 0f) {
-                    controllable = true;
-                    collisionFlags |= (CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset);
-                } else {
-                    // Skip controls, player is not controllable in tube
-                    return;
-                }
-            }
-
+            // Dizziness
             if (dizzyTime > 0f) {
                 dizzyTime -= timeMult;
             }
 
+            // Sugar Rush
             if (sugarRushLeft > 0f) {
                 sugarRushLeft -= timeMult;
 
@@ -522,12 +515,49 @@ namespace Jazz2.Actors
                 }
             }
 
+            // Copter
             if (activeModifier != Modifier.None) {
                 if (activeModifier == Modifier.Copter || activeModifier == Modifier.LizardCopter) {
                     copterFramesLeft -= timeMult;
                     if (copterFramesLeft <= 0) {
                         SetModifier(Modifier.None);
                     }
+                }
+            }
+
+            // Shallow Water
+            if (areaWaterBlock != -1) {
+                if (inShallowWater == -1) {
+                    Vector3 pos = Transform.Pos;
+                    pos.Y = areaWaterBlock;
+                    pos.Z -= 2f;
+
+                    Explosion.Create(api, pos, Explosion.WaterSplash);
+                    api.PlayCommonSound(this, "WaterSplash", 0.7f, 0.5f);
+                }
+
+                inShallowWater = areaWaterBlock;
+            } else if (inShallowWater != -1) {
+                Vector3 pos = Transform.Pos;
+                pos.Y = inShallowWater;
+                pos.Z -= 2f;
+
+                Explosion.Create(api, pos, Explosion.WaterSplash);
+                api.PlayCommonSound(this, "WaterSplash", 1f, 0.5f);
+
+                inShallowWater = -1;
+            }
+
+            // Tube
+            if (inTubeTime > 0f) {
+                inTubeTime -= timeMult;
+
+                if (inTubeTime <= 0f) {
+                    controllable = true;
+                    collisionFlags |= (CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset);
+                } else {
+                    // Skip controls, player is not controllable in tube
+                    return;
                 }
             }
 
@@ -549,7 +579,7 @@ namespace Jazz2.Actors
 
                     isActivelyPushing = wasActivelyPushing = true;
 
-                    if (dizzyTime > 0f || playerType == PlayerType.Frog) {
+                    if (dizzyTime > 0f || playerType == PlayerType.Frog || inShallowWater != -1) {
                         speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxDizzySpeed, MaxDizzySpeed);
                     } else {
                         bool isDashPressed = ControlScheme.PlayerActionPressed(index, PlayerActions.Run);
@@ -1051,6 +1081,7 @@ namespace Jazz2.Actors
                         pushFramesLeft = 0f;
                         weaponCooldown = 0f;
                         controllable = true;
+                        inShallowWater = -1;
                         SetModifier(Modifier.None);
 
                         // Spawn corpse
@@ -1077,6 +1108,11 @@ namespace Jazz2.Actors
                             api.AmbientLight = checkpointLight;
                             api.LimitCameraView(0, 0);
                             api.WarpCameraToTarget(this);
+
+                            if (api.Difficulty != GameDifficulty.Multiplayer) {
+                                api.EventMap.RollbackToCheckpoint();
+                            }
+                            
                         } else {
                             // Respawn is delayed
                             controllable = false;
@@ -1489,8 +1525,8 @@ namespace Jazz2.Actors
 
                     SetAnimation(AnimState.Jump);
 
-                    Explosion.Create(api, Transform.Pos - new Vector3(0f, 4f, 0f), Explosion.WaterSplash);
-                    api.PlayCommonSound(this, "WaterSplash", 1f);
+                    Explosion.Create(api, Transform.Pos - new Vector3(0f, 4f, 2f), Explosion.WaterSplash);
+                    api.PlayCommonSound(this, "WaterSplash", 1f, 0.5f);
                 }
             } else {
                 if (Transform.Pos.Y >= api.WaterLevel) {
@@ -1499,15 +1535,16 @@ namespace Jazz2.Actors
                     controllable = true;
                     EndDamagingMove();
 
-                    Explosion.Create(api, Transform.Pos - new Vector3(0f, 4f, 0f), Explosion.WaterSplash);
-                    api.PlayCommonSound(this, "WaterSplash", 0.7f);
+                    Explosion.Create(api, Transform.Pos - new Vector3(0f, 4f, 2f), Explosion.WaterSplash);
+                    api.PlayCommonSound(this, "WaterSplash", 0.7f, 0.5f);
                 }
             }
         }
 
-        private void OnHandleAreaEvents(out bool areaWeaponAllowed)
+        private void OnHandleAreaEvents(out bool areaWeaponAllowed, out int areaWaterBlock)
         {
             areaWeaponAllowed = true;
+            areaWaterBlock = -1;
 
             EventMap events = api.EventMap;
             if (events == null) {
@@ -1685,6 +1722,11 @@ namespace Jazz2.Actors
 
                 case EventType.RollingRockTrigger: { // Rock ID
                     api.BroadcastTriggeredEvent(tileEvent, p);
+                    break;
+                }
+
+                case EventType.AreaWaterBlock: {
+                    areaWaterBlock = ((int)pos.Y / 32) * 32 + p[0];
                     break;
                 }
             }
@@ -2225,12 +2267,12 @@ namespace Jazz2.Actors
 
                 if (playerType != PlayerType.Lori) {
                     if (IsFacingLeft) {
-                        if (newPos.X < pos.X) {
+                        if (newPos.X > pos.X) {
                             renderer.AnimTime = 0;
                             IsFacingLeft = false;
                         }
                     } else {
-                        if (newPos.X > pos.X) {
+                        if (newPos.X < pos.X) {
                             renderer.AnimTime = 0;
                             IsFacingLeft = true;
                         }

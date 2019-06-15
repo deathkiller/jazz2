@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Actors.Enemies;
 using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
@@ -13,17 +14,15 @@ namespace Jazz2.Actors
         private bool flyAway;
         private float attackTime;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             type = details.Params[0];
             switch (type) {
                 case 0: // Chuck (red)
-                    RequestMetadata("Object/BirdChuck");
+                    await RequestMetadataAsync("Object/BirdChuck");
                     break;
                 case 1: // Birdy (yellow)
-                    RequestMetadata("Object/BirdBirdy");
+                    await RequestMetadataAsync("Object/BirdBirdy");
                     break;
             }
 

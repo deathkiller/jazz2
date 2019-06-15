@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Game.Collisions;
 
 namespace Jazz2.Actors.Collectibles
@@ -12,9 +13,9 @@ namespace Jazz2.Actors.Collectibles
         private bool collected;
         private float collectedPhase;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
+            await base.OnActivatedAsync(details);
 
             int length = (details.Params[0] > 0 ? details.Params[0] : 8);
             speed = (details.Params[1] > 0 ? details.Params[1] : 8) * 0.00625f;
@@ -24,18 +25,16 @@ namespace Jazz2.Actors.Collectibles
 
             untouched = false;
 
-            RequestMetadata("Collectible/Gems");
+            await RequestMetadataAsync("Collectible/Gems");
 
             parts = new GemPart[length];
             for (int i = 0; i < parts.Length; i++) {
-                ref GemPart part = ref parts[i];
-                part = new GemPart();
+                GemPart part = new GemPart();
                 part.OnActivated(details);
                 part.Parent = this;
                 part.Transform.Scale = 0.8f;
+                parts[i] = part;
             }
-
-            OnUpdateHitbox();
         }
 
         protected override void OnUpdate()
@@ -55,7 +54,7 @@ namespace Jazz2.Actors.Collectibles
                     float distance = 8 * 4 + collectedPhase * 3.6f;
                     parts[i].Transform.RelativePos = new Vector3(MathF.Cos(angle) * distance, MathF.Sin(angle) * distance, 0f);
                     parts[i].Transform.Angle = angle + MathF.PiOver2;
-                    parts[i].Transform.Scale += 0.02f;
+                    parts[i].Transform.Scale += 0.02f * timeMult;
                 }
 
                 phase += timeMult * speed * 3f;
@@ -98,13 +97,11 @@ namespace Jazz2.Actors.Collectibles
 
         public class GemPart : ActorBase
         {
-            public override void OnActivated(ActorActivationDetails details)
+            protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                base.OnActivated(details);
-
                 collisionFlags = CollisionFlags.ForceDisableCollisions;
 
-                RequestMetadata("Collectible/Gems");
+                await RequestMetadataAsync("Collectible/Gems");
                 SetAnimation("GemRed");
             }
 

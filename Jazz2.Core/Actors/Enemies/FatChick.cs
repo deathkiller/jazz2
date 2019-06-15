@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Duality;
 using Jazz2.Game.Structs;
 using MathF = Duality.MathF;
@@ -13,10 +14,8 @@ namespace Jazz2.Actors.Enemies
         private bool isAttacking;
         private bool stuck;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             Vector3 pos = Transform.Pos;
             pos.Y -= 18f;
             Transform.Pos = pos;
@@ -24,7 +23,7 @@ namespace Jazz2.Actors.Enemies
             SetHealthByDifficulty(3);
             scoreValue = 300;
 
-            RequestMetadata("Enemy/FatChick");
+            await RequestMetadataAsync("Enemy/FatChick");
             SetAnimation(AnimState.Walk);
 
             IsFacingLeft = MathF.Rnd.NextBool();

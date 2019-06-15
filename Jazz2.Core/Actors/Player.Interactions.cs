@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Duality;
 using Jazz2.Game.Structs;
 using MathF = Duality.MathF;
@@ -294,15 +295,13 @@ namespace Jazz2.Actors
 
         public class CopterDecor : ActorBase
         {
-            public override void OnActivated(ActorActivationDetails details)
+            protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                base.OnActivated(details);
-
                 collisionFlags = CollisionFlags.ForceDisableCollisions;
 
                 health = int.MaxValue;
 
-                RequestMetadata("Enemy/LizardFloat");
+                await RequestMetadataAsync("Enemy/LizardFloat");
                 SetAnimation(AnimState.Activated);
             }
 

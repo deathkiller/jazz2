@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Actors;
 using Jazz2.Game.Structs;
 
@@ -6,14 +7,12 @@ namespace Jazz2.Game.Multiplayer
 {
     public class RemoteObject : ActorBase
     {
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             health = int.MaxValue;
 
             // ToDo: Load metadata
-            RequestMetadata("Weapon/Blaster");
+            await RequestMetadataAsync("Weapon/Blaster");
 
             SetAnimation(AnimState.Fall);
 

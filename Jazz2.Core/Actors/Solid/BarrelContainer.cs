@@ -1,14 +1,13 @@
-﻿using Jazz2.Actors.Weapons;
+﻿using System.Threading.Tasks;
+using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Solid
 {
     public class BarrelContainer : GenericContainer
     {
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             Movable = true;
 
             collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
@@ -18,7 +17,7 @@ namespace Jazz2.Actors.Solid
                     details.Params[4], details.Params[5], details.Params[6], details.Params[7]);
             }
 
-            RequestMetadata("Object/BarrelContainer");
+            await RequestMetadataAsync("Object/BarrelContainer");
             SetAnimation(AnimState.Idle);
         }
 

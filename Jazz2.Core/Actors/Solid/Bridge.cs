@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Duality;
 using Jazz2.Game;
 using Jazz2.Game.Collisions;
@@ -40,10 +41,8 @@ namespace Jazz2.Actors.Solid
         private List<ActorBase> collisions = new List<ActorBase>();
         private Player lastPlayer;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             bridgeWidth = details.Params[0];
             bridgeType = (BridgeType)details.Params[1];
             if (bridgeType > BridgeType.Lab) {
@@ -54,7 +53,7 @@ namespace Jazz2.Actors.Solid
             heightFactor = MathF.Sqrt((16 - toughness) * bridgeWidth) * 4f;
 
             // Request metadata here to allow async loading
-            RequestMetadata("Bridge/" + bridgeType.ToString("G"));
+            await RequestMetadataAsync("Bridge/" + bridgeType.ToString("G"));
 
             Vector3 pos = Transform.Pos;
             originalY = pos.Y - 6;
@@ -79,8 +78,6 @@ namespace Jazz2.Actors.Solid
             }
 
             collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.SkipPerPixelCollisions;
-
-            OnUpdateHitbox();
         }
 
         public override bool OnTileDeactivate(int tx1, int ty1, int tx2, int ty2)
@@ -105,7 +102,7 @@ namespace Jazz2.Actors.Solid
         protected override void OnUpdateHitbox()
         {
             Vector3 pos = Transform.Pos;
-            AABBInner = new AABB(pos.X, pos.Y - 10, pos.X + bridgeWidth * 16, pos.Y + 16);
+            AABBInner = new AABB(pos.X - 16, pos.Y - 10, pos.X - 16 + bridgeWidth * 16, pos.Y + 16);
         }
 
         protected override void OnUpdate()
@@ -113,9 +110,6 @@ namespace Jazz2.Actors.Solid
             collisions.Clear();
 
             api.FindCollisionActorsByAABB(this, AABBInner, ResolveCollisions);
-            for (int j = 0; j < bridgePieces.Count; ++j) {
-                api.FindCollisionActorsByAABB(this, bridgePieces[j].GetHitboxForParent(), ResolveCollisions);
-            }
 
             Vector3 pos = Transform.Pos;
 
@@ -180,7 +174,6 @@ namespace Jazz2.Actors.Solid
                         piece.Transform.Pos = coords;
                     }
                 }
-
             }
 
             if (!found) {
@@ -207,15 +200,13 @@ namespace Jazz2.Actors.Solid
 
         public class Piece : SolidObjectBase
         {
-            public override void OnActivated(ActorActivationDetails details)
+            protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                base.OnActivated(details);
-
                 BridgeType type = (BridgeType)details.Params[0];
 
                 canBeFrozen = false;
 
-                RequestMetadata("Bridge/" + type.ToString("G"));
+                await RequestMetadataAsync("Bridge/" + type.ToString("G"));
                 SetAnimation("Piece");
 
                 int variations = currentAnimation.FrameCount;
@@ -246,11 +237,6 @@ namespace Jazz2.Actors.Solid
             protected override void OnUpdateHitbox()
             {
                 UpdateHitbox(20, 10);
-            }
-
-            public AABB GetHitboxForParent()
-            {
-                return AABBInner.Extend(0, 4);
             }
         }
     }

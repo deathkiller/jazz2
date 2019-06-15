@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Game.Structs;
 using static Duality.Component;
 
@@ -10,10 +11,8 @@ namespace Jazz2.Actors.Bosses
 
         private ushort introText, endText;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             introText = details.Params[1];
             endText = details.Params[2];
 
@@ -21,7 +20,7 @@ namespace Jazz2.Actors.Bosses
             collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.ApplyGravitation;
             IsFacingLeft = true;
 
-            RequestMetadata("Boss/DevanRemote");
+            await RequestMetadataAsync("Boss/DevanRemote");
             SetAnimation(AnimState.Idle);
         }
 

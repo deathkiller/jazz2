@@ -1,4 +1,5 @@
-﻿using Jazz2.Actors.Weapons;
+﻿using System.Threading.Tasks;
+using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
 
@@ -9,10 +10,8 @@ namespace Jazz2.Actors.Solid
         private ushort triggerID;
         private bool? newState;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             triggerID = details.Params[0];
             if (details.Params[2] != 0) {
                 newState = null;
@@ -24,7 +23,7 @@ namespace Jazz2.Actors.Solid
 
             collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
 
-            RequestMetadata("Object/TriggerCrate");
+            await RequestMetadataAsync("Object/TriggerCrate");
             SetAnimation("Crate");
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using Duality.Async;
 using Duality.Audio;
 using Duality.Backend;
 using Duality.Input;
@@ -309,6 +310,8 @@ namespace Duality
         /// </summary>
         public static void InitPostWindow()
         {
+            AsyncManager.Init();
+
             DefaultContent.Init();
         }
         /// <summary>
@@ -386,7 +389,13 @@ namespace Duality
 
             pluginManager.InvokeBeforeUpdate();
             UpdateUserInput();
+
+            AsyncManager.InvokeBeforeUpdate();
+
             Scene.Current.Update();
+
+            AsyncManager.InvokeAfterUpdate();
+
             sound.Update();
             pluginManager.InvokeAfterUpdate();
 

@@ -1,4 +1,5 @@
-﻿using Jazz2.Game.Structs;
+﻿using System.Threading.Tasks;
+using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Environment
 {
@@ -8,15 +9,13 @@ namespace Jazz2.Actors.Environment
 
         public ExitType ExitType => exitType;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             exitType = (ExitType)details.Params[0];
 
             canBeFrozen = false;
 
-            RequestMetadata("Object/SignEol");
+            await RequestMetadataAsync("Object/SignEol");
             SetAnimation("SignEol");
         }
 

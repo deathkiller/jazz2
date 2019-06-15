@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using Duality;
 using Jazz2.Game.Collisions;
 using Jazz2.Game.Structs;
@@ -17,14 +18,12 @@ namespace Jazz2.Actors.Enemies
         private double stateTime;
         private double attackTime;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             SetHealthByDifficulty(1);
             scoreValue = 200;
 
-            RequestMetadata("Enemy/LabRat");
+            await RequestMetadataAsync("Enemy/LabRat");
             SetAnimation(AnimState.Walk);
 
             IsFacingLeft = MathF.Rnd.NextBool();

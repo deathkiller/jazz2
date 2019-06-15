@@ -23,7 +23,7 @@ Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** releas
 [![License](https://img.shields.io/github/license/deathkiller/jazz2.svg)](https://github.com/deathkiller/jazz2/blob/master/LICENSE)
 [![Discord](https://img.shields.io/discord/355651795390955520.svg?color=839ef7&label=chat&logo=discord&logoColor=ffffff&labelColor=586eb5)](https://discord.gg/Y7SBvkD)
 
-Uses parts of [Duality - A 2D GameDev Framework](https://www.duality2d.net/).
+This project uses parts of [Duality - A 2D GameDev Framework](https://www.duality2d.net/).
 
 
 ## Preview

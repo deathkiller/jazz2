@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Game;
 using Jazz2.Game.Structs;
 
@@ -9,15 +10,13 @@ namespace Jazz2.Actors.Environment
         private float cooldown;
         private LightEmitter light;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             ushort theme = details.Params[0];
 
             collisionFlags = CollisionFlags.CollideWithOtherActors;
 
-            RequestMetadata("Object/PinballBumper");
+            await RequestMetadataAsync("Object/PinballBumper");
 
             switch (theme) {
                 case 0: SetAnimation((AnimState)0x000); break;

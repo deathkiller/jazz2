@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Duality.Components.Renderers;
 using Duality.Drawing;
 
@@ -18,11 +19,9 @@ namespace Jazz2.Actors.Environment
             }
         }
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
-            RequestMetadata("Object/SwingingVine");
+            await RequestMetadataAsync("Object/SwingingVine");
 
             var anim = availableAnimations["Vine"];
 

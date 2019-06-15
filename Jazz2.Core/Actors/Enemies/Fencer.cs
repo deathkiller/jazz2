@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Duality;
 using Jazz2.Game.Structs;
 
@@ -8,14 +9,12 @@ namespace Jazz2.Actors.Enemies
     {
         private double stateTime;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             SetHealthByDifficulty(3);
             scoreValue = 400;
 
-            RequestMetadata("Enemy/Fencer");
+            await RequestMetadataAsync("Enemy/Fencer");
             SetAnimation(AnimState.Idle);
 
             IsFacingLeft = true;

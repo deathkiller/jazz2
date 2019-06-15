@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
 
@@ -11,10 +12,8 @@ namespace Jazz2.Actors.Enemies
         private float noiseCooldown = 120f;
         private bool stuck;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             Vector3 pos = Transform.Pos;
             pos.Y -= 6f;
             Transform.Pos = pos;
@@ -27,12 +26,12 @@ namespace Jazz2.Actors.Enemies
             switch (theme) {
                 case 0:
                 default:
-                    RequestMetadata("Enemy/Doggy");
+                    await RequestMetadataAsync("Enemy/Doggy");
                     attackSpeed = 3.2f;
                     break;
 
                 case 1: // TSF Cat
-                    RequestMetadata("Enemy/Cat");
+                    await RequestMetadataAsync("Enemy/Cat");
                     attackSpeed = 3.8f;
                     break;
             }

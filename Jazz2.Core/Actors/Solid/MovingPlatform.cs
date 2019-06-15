@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Duality.Components;
 using Jazz2.Game;
 using Jazz2.Game.Collisions;
@@ -31,10 +32,8 @@ namespace Jazz2.Actors.Solid
         private Vector3 originPos, lastPos;
         private ChainPiece[] pieces;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             originPos = Transform.Pos;
             lastPos = originPos;
 
@@ -50,7 +49,7 @@ namespace Jazz2.Actors.Solid
             IsOneWay = true;
             canBeFrozen = false;
 
-            RequestMetadata("MovingPlatform/" + type.ToString("G"));
+            await RequestMetadataAsync("MovingPlatform/" + type.ToString("G"));
             SetAnimation("Platform");
 
             pieces = new ChainPiece[length];

@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 
 namespace Jazz2.Actors.Collectibles
 {
@@ -6,18 +7,18 @@ namespace Jazz2.Actors.Collectibles
     {
         private bool maxCarrot;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
+            await base.OnActivatedAsync(details);
 
             maxCarrot = (details.Params[0] != 0);
 
             if (maxCarrot) {
                 scoreValue = 500;
-                RequestMetadata("Collectible/CarrotFull");
+                await RequestMetadataAsync("Collectible/CarrotFull");
             } else {
                 scoreValue = 200;
-                RequestMetadata("Collectible/Carrot");
+                await RequestMetadataAsync("Collectible/Carrot");
             }
 
             SetAnimation("Carrot");

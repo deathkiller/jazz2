@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Duality;
 using Duality.Components;
 using Duality.Drawing;
@@ -180,11 +181,9 @@ namespace Jazz2.Actors
                 this.front = front;
             }
 
-            public override void OnActivated(ActorActivationDetails details)
+            protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                base.OnActivated(details);
-
-                RequestMetadata("Interactive/Shields");
+                await RequestMetadataAsync("Interactive/Shields");
 
                 switch (shieldType)
                 {

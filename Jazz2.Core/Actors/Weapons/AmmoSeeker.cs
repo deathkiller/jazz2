@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Actors.Enemies;
 using Jazz2.Game;
 using Jazz2.Game.Structs;
@@ -18,16 +19,16 @@ namespace Jazz2.Actors.Weapons
 
         public override WeaponType WeaponType => WeaponType.Seeker;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
+            await base.OnActivatedAsync(details);
 
             base.upgrades = (byte)details.Params[0];
 
             //strength = 2;
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
-            RequestMetadata("Weapon/Seeker");
+            await RequestMetadataAsync("Weapon/Seeker");
 
             AnimState state = AnimState.Idle;
             if ((upgrades & 0x1) != 0) {

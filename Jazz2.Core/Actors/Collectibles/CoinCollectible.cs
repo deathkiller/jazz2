@@ -1,16 +1,18 @@
-﻿namespace Jazz2.Actors.Collectibles
+﻿using System.Threading.Tasks;
+
+namespace Jazz2.Actors.Collectibles
 {
     public class CoinCollectible : Collectible
     {
         private int coinValue;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
+            await base.OnActivatedAsync(details);
 
             ushort coinType = details.Params[0];
 
-            RequestMetadata("Collectible/Coins");
+            await RequestMetadataAsync("Collectible/Coins");
 
             switch (coinType) {
                 default:

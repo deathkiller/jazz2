@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Actors.Enemies;
 using Jazz2.Actors.Weapons;
 
@@ -12,10 +13,8 @@ namespace Jazz2.Actors.Collectibles
         private float phase, timeLeft;
         private float startingY;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             elasticity = 0.6f;
 
             collisionFlags |= CollisionFlags.SkipPerPixelCollisions;

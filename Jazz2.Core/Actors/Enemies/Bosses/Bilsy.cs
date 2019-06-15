@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Duality;
 using Jazz2.Actors.Enemies;
 using Jazz2.Game;
@@ -19,10 +20,8 @@ namespace Jazz2.Actors.Bosses
 
         private ushort theme, endText;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             theme = details.Params[0];
             endText = details.Params[1];
 
@@ -37,11 +36,11 @@ namespace Jazz2.Actors.Bosses
             {
                 case 0:
                 default:
-                    RequestMetadata("Boss/Bilsy");
+                    await RequestMetadataAsync("Boss/Bilsy");
                     break;
 
                 case 1: // Xmas
-                    RequestMetadata("Boss/BilsyXmas");
+                    await RequestMetadataAsync("Boss/BilsyXmas");
                     break;
             }
 
@@ -178,10 +177,8 @@ namespace Jazz2.Actors.Bosses
         {
             private float time = 90f;
 
-            public override void OnActivated(ActorActivationDetails details)
+            protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                base.OnActivated(details);
-
                 ushort theme = details.Params[0];
                 bool isFacingLeft = (details.Params[1] != 0);
 
@@ -197,11 +194,11 @@ namespace Jazz2.Actors.Bosses
                 switch (theme) {
                     case 0:
                     default:
-                        RequestMetadata("Boss/Bilsy");
+                        await RequestMetadataAsync("Boss/Bilsy");
                         break;
 
                     case 1: // Xmas
-                        RequestMetadata("Boss/BilsyXmas");
+                        await RequestMetadataAsync("Boss/BilsyXmas");
                         break;
                 }
 

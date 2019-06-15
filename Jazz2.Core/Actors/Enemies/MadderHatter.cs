@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Duality;
 using Jazz2.Game.Structs;
 
@@ -11,14 +12,12 @@ namespace Jazz2.Actors.Enemies
         private float attackTime;
         private bool stuck;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             SetHealthByDifficulty(3);
             scoreValue = 200;
 
-            RequestMetadata("Enemy/MadderHatter");
+            await RequestMetadataAsync("Enemy/MadderHatter");
             SetAnimation(AnimState.Walk);
 
             IsFacingLeft = MathF.Rnd.NextBool();
@@ -107,10 +106,8 @@ namespace Jazz2.Actors.Enemies
 
         private class BulletSpit : EnemyBase
         {
-            public override void OnActivated(ActorActivationDetails details)
+            protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                base.OnActivated(details);
-
                 base.canBeFrozen = false;
                 base.canCollideWithAmmo = false;
                 base.isInvulnerable = true;
@@ -121,10 +118,8 @@ namespace Jazz2.Actors.Enemies
 
                 health = int.MaxValue;
 
-                RequestMetadata("Enemy/MadderHatter");
+                await RequestMetadataAsync("Enemy/MadderHatter");
                 SetAnimation((AnimState)1073741826);
-
-                OnUpdateHitbox();
             }
 
             protected override void OnUpdateHitbox()

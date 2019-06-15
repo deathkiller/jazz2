@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Duality;
 using Jazz2.Game;
 using Jazz2.Game.Structs;
@@ -12,16 +13,14 @@ namespace Jazz2.Actors.Enemies
         private float attackTime;
         private bool playerHit;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
             SetHealthByDifficulty(30);
             scoreValue = 1000;
 
-            RequestMetadata("Enemy/Witch");
+            await RequestMetadataAsync("Enemy/Witch");
             SetAnimation(AnimState.Idle);
 
             PreloadMetadata("Interactive/PlayerFrog");
@@ -136,10 +135,8 @@ namespace Jazz2.Actors.Enemies
                 base.canCollideWithAmmo = false;
             }
 
-            public override void OnActivated(ActorActivationDetails details)
+            protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                base.OnActivated(details);
-
                 base.canBeFrozen = false;
                 base.canCollideWithAmmo = false;
                 base.canHurtPlayer = false;
@@ -148,7 +145,7 @@ namespace Jazz2.Actors.Enemies
 
                 health = int.MaxValue;
 
-                RequestMetadata("Enemy/Witch");
+                await RequestMetadataAsync("Enemy/Witch");
 
                 SetAnimation((AnimState)1073741828);
 

@@ -1,5 +1,6 @@
 ﻿
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Duality;
 using Duality.Drawing;
 using Jazz2.Actors.Enemies;
@@ -24,16 +25,14 @@ namespace Jazz2.Actors.Bosses
 
         private ushort endText;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             endText = details.Params[1];
 
             SetHealthByDifficulty(93);
             scoreValue = 4000;
 
-            RequestMetadata("Boss/Bubba");
+            await RequestMetadataAsync("Boss/Bubba");
             SetAnimation(AnimState.Idle);
         }
 
@@ -222,10 +221,8 @@ namespace Jazz2.Actors.Bosses
         {
             private float time = 50f;
 
-            public override void OnActivated(ActorActivationDetails details)
+            protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                base.OnActivated(details);
-
                 IsFacingLeft = (details.Params[0] != 0);
                 speedX = (IsFacingLeft ? -4.8f : 4.8f);
 
@@ -236,10 +233,8 @@ namespace Jazz2.Actors.Bosses
 
                 health = int.MaxValue;
 
-                RequestMetadata("Boss/Bubba");
+                await RequestMetadataAsync("Boss/Bubba");
                 SetAnimation((AnimState)1073741834);
-
-                OnUpdateHitbox();
 
                 LightEmitter light = AddComponent<LightEmitter>();
                 light.Intensity = 0.85f;

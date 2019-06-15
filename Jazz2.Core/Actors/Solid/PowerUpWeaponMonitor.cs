@@ -1,4 +1,5 @@
-﻿using Jazz2.Actors.Weapons;
+﻿using System.Threading.Tasks;
+using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Solid
@@ -7,17 +8,15 @@ namespace Jazz2.Actors.Solid
     {
         private WeaponType weaponType;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             weaponType = (WeaponType)details.Params[0];
 
             Movable = true;
 
             collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
 
-            RequestMetadata("Object/PowerUpMonitor");
+            await RequestMetadataAsync("Object/PowerUpMonitor");
 
             switch (weaponType) {
                 case WeaponType.Blaster:

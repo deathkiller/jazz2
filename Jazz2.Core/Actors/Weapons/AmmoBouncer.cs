@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Actors.Bosses;
 using Jazz2.Game;
 using Jazz2.Game.Structs;
@@ -15,15 +16,15 @@ namespace Jazz2.Actors.Weapons
 
         public override WeaponType WeaponType => WeaponType.Bouncer;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
+            await base.OnActivatedAsync(details);
 
             base.upgrades = (byte)details.Params[0];
 
             strength = 1;
 
-            RequestMetadata("Weapon/Bouncer");
+            await RequestMetadataAsync("Weapon/Bouncer");
 
             ushort upgrades = details.Params[0];
 
@@ -38,8 +39,6 @@ namespace Jazz2.Actors.Weapons
             }
 
             SetAnimation(state);
-
-            OnUpdateHitbox();
 
             renderer.Active = false;
 
@@ -77,7 +76,6 @@ namespace Jazz2.Actors.Weapons
             TryStandardMovement(timeMult);
             OnUpdateHitbox();
             CheckCollisions(timeMult);
-            
 
             base.OnUpdate();
 

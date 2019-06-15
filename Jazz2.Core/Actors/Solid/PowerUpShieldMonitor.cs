@@ -1,4 +1,5 @@
-﻿using Jazz2.Actors.Weapons;
+﻿using System.Threading.Tasks;
+using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Solid
@@ -7,17 +8,15 @@ namespace Jazz2.Actors.Solid
     {
         private Player.ShieldType shieldType;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             shieldType = (Player.ShieldType)details.Params[0];
 
             Movable = true;
 
             collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
 
-            RequestMetadata("Object/PowerUpMonitorShield");
+            await RequestMetadataAsync("Object/PowerUpMonitorShield");
 
             switch (shieldType) {
                 case Player.ShieldType.Fire: SetAnimation("ShieldFire"); break;

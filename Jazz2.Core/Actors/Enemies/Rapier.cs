@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Duality;
 using Duality.Resources;
 using Jazz2.Game.Structs;
@@ -14,10 +15,8 @@ namespace Jazz2.Actors.Enemies
         private bool attacking;
         private float noiseCooldown = MathF.Rnd.NextFloat(180, 300);
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             collisionFlags = CollisionFlags.CollideWithOtherActors;
 
             SetHealthByDifficulty(2);
@@ -25,7 +24,7 @@ namespace Jazz2.Actors.Enemies
 
             originPos = lastPos = targetPos = details.Pos;
 
-            RequestMetadata("Enemy/Rapier");
+            await RequestMetadataAsync("Enemy/Rapier");
             SetAnimation(AnimState.Idle);
         }
 

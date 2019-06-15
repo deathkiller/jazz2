@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Duality;
 using Jazz2.Game;
 using Jazz2.Game.Structs;
@@ -11,14 +12,12 @@ namespace Jazz2.Actors.Enemies
         private float stateTime;
         private float attackTime;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             SetHealthByDifficulty(1);
             scoreValue = 200;
 
-            RequestMetadata("Enemy/Dragon");
+            await RequestMetadataAsync("Enemy/Dragon");
             SetAnimation(AnimState.Idle);
 
             IsFacingLeft = MathF.Rnd.NextBool();
@@ -120,17 +119,15 @@ namespace Jazz2.Actors.Enemies
         {
             private float timeLeft = 60;
 
-            public override void OnActivated(ActorActivationDetails details)
+            protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                base.OnActivated(details);
-
                 IsFacingLeft = (details.Params[0] != 0);
 
                 base.canBeFrozen = false;
                 base.isInvulnerable = true;
                 base.collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
-                RequestMetadata("Weapon/Toaster");
+                await RequestMetadataAsync("Weapon/Toaster");
                 SetAnimation("Fire");
 
                 const float baseSpeed = 1.2f;

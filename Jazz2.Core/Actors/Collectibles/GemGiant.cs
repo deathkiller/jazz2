@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
 
@@ -6,13 +7,13 @@ namespace Jazz2.Actors.Collectibles
 {
     public class GemGiant : ActorBase
     {
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
+            await base.OnActivatedAsync(details);
 
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
 
-            RequestMetadata("Object/GemGiant");
+            await RequestMetadataAsync("Object/GemGiant");
             SetAnimation("GemGiant");
         }
 

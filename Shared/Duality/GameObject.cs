@@ -28,7 +28,7 @@ namespace Duality
 		private		Dictionary<Type,Component>	compMap		= new Dictionary<Type,Component>();
 		private		string						name		= string.Empty;
 		private		bool						active		= true;
-		private		InitState					initState	= InitState.Initialized;
+		protected	InitState					initState	= InitState.Initialized;
 
 		// Built-in heavily used component lookup
 		private		Transform					compTransform	= null;

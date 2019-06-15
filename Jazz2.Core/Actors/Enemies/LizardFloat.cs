@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Duality;
 using Jazz2.Actors.Environment;
 using Jazz2.Game.Structs;
@@ -16,20 +17,18 @@ namespace Jazz2.Actors.Enemies
 
         private ushort theme;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             theme = details.Params[0];
 
             switch (theme) {
                 case 0:
                 default:
-                    RequestMetadata("Enemy/LizardFloat");
+                    await RequestMetadataAsync("Enemy/LizardFloat");
                     break;
 
                 case 1: // Xmas
-                    RequestMetadata("Enemy/LizardFloatXmas");
+                    await RequestMetadataAsync("Enemy/LizardFloatXmas");
                     break;
             }
 
@@ -133,10 +132,8 @@ namespace Jazz2.Actors.Enemies
 
         public class CopterDecor : ActorBase
         {
-            public override void OnActivated(ActorActivationDetails details)
+            protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                base.OnActivated(details);
-
                 collisionFlags = CollisionFlags.ForceDisableCollisions;
 
                 health = int.MaxValue;
@@ -146,11 +143,11 @@ namespace Jazz2.Actors.Enemies
                 switch (theme) {
                     case 0:
                     default:
-                        RequestMetadata("Enemy/LizardFloat");
+                        await RequestMetadataAsync("Enemy/LizardFloat");
                         break;
 
                     case 1: // Xmas
-                        RequestMetadata("Enemy/LizardFloatXmas");
+                        await RequestMetadataAsync("Enemy/LizardFloatXmas");
                         break;
                 }
 

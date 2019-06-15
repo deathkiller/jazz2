@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Duality.Audio;
 using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
@@ -15,10 +16,8 @@ namespace Jazz2.Actors.Enemies
         private int smokesLeft;
         private float attackTime;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             canBeFrozen = false;
             IsFacingLeft = true;
             collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation;
@@ -27,7 +26,7 @@ namespace Jazz2.Actors.Enemies
 
             health = int.MaxValue;
 
-            RequestMetadata("Enemy/Caterpillar");
+            await RequestMetadataAsync("Enemy/Caterpillar");
             SetAnimation(AnimState.Idle);
         }
 
@@ -122,10 +121,8 @@ namespace Jazz2.Actors.Enemies
             private float time = 500f;
             private Vector2 baseSpeed;
 
-            public override void OnActivated(ActorActivationDetails details)
+            protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                base.OnActivated(details);
-
                 base.canBeFrozen = false;
                 base.canHurtPlayer = false;
                 base.canCollideWithAmmo = false;
@@ -134,7 +131,7 @@ namespace Jazz2.Actors.Enemies
 
                 health = int.MaxValue;
 
-                RequestMetadata("Enemy/Caterpillar");
+                await RequestMetadataAsync("Enemy/Caterpillar");
                 SetAnimation("Smoke");
 
                 baseSpeed.X = MathF.Rnd.NextFloat(-1.4f, -0.8f);

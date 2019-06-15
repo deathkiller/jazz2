@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Game.Events;
 
 namespace Jazz2.Actors.Environment
@@ -10,10 +11,8 @@ namespace Jazz2.Actors.Environment
 
         public ushort Cost => cost;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             warpTarget = details.Params[0];
             fast = (details.Params[1] != 0);
             //setLaps = details.Params[2] != 0;
@@ -23,7 +22,7 @@ namespace Jazz2.Actors.Environment
 
             canBeFrozen = false;
 
-            RequestMetadata("Object/BonusWarp");
+            await RequestMetadataAsync("Object/BonusWarp");
 
             switch (cost) {
                 case 10:

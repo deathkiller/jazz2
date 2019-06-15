@@ -1,14 +1,13 @@
-﻿using Jazz2.Actors.Weapons;
+﻿using System.Threading.Tasks;
+using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Solid
 {
     public class GemBarrel : GenericContainer
     {
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             Movable = true;
 
             collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
@@ -18,7 +17,7 @@ namespace Jazz2.Actors.Solid
             GenerateContents(EventType.Gem, details.Params[2], 2);
             GenerateContents(EventType.Gem, details.Params[3], 3);
 
-            RequestMetadata("Object/BarrelContainer");
+            await RequestMetadataAsync("Object/BarrelContainer");
             SetAnimation(AnimState.Idle);
         }
 

@@ -1,16 +1,17 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 
 namespace Jazz2.Actors.Collectibles
 {
     public class CarrotInvincibleCollectible : Collectible
     {
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
+            await base.OnActivatedAsync(details);
 
             scoreValue = 500;
 
-            RequestMetadata("Collectible/CarrotInvincible");
+            await RequestMetadataAsync("Collectible/CarrotInvincible");
             SetAnimation("Carrot");
 
             SetFacingDirection();

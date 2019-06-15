@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Game;
 using Jazz2.Game.Structs;
 
@@ -11,9 +12,9 @@ namespace Jazz2.Actors.Weapons
 
         public override WeaponType WeaponType => WeaponType.Pepper;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
+            await base.OnActivatedAsync(details);
 
             base.upgrades = (byte)details.Params[0];
 
@@ -21,7 +22,7 @@ namespace Jazz2.Actors.Weapons
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
             collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
 
-            RequestMetadata("Weapon/Pepper");
+            await RequestMetadataAsync("Weapon/Pepper");
 
             AnimState state = AnimState.Idle;
             if ((upgrades & 0x1) != 0) {

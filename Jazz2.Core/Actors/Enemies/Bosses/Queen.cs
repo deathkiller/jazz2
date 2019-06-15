@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Duality;
 using Jazz2.Actors.Enemies;
+using Jazz2.Actors.Environment;
 using Jazz2.Game.Collisions;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
@@ -29,10 +31,8 @@ namespace Jazz2.Actors.Bosses
 
         private ushort endText;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             endText = details.Params[1];
 
             canHurtPlayer = false;
@@ -52,7 +52,7 @@ namespace Jazz2.Actors.Bosses
                 case GameDifficulty.Hard: stepSize *= 0.7f; break;
             }
 
-            RequestMetadata("Boss/Queen");
+            await RequestMetadataAsync("Boss/Queen");
             SetAnimation(AnimState.Idle);
 
             // Invisible block above the queen
@@ -217,7 +217,7 @@ namespace Jazz2.Actors.Bosses
 
                 case StateScreaming: {
                     foreach (Player player in api.Players) {
-                        player.AddExternalForce(-1.51f, 0f);
+                        player.AddExternalForce(-1.51f * Time.TimeMult, 0f);
                     }
                     break;
                 }
@@ -280,16 +280,14 @@ namespace Jazz2.Actors.Bosses
         {
             private float time = 50f;
 
-            public override void OnActivated(ActorActivationDetails details)
+            protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                base.OnActivated(details);
-
                 base.isInvulnerable = true;
                 base.collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation | CollisionFlags.SkipPerPixelCollisions;
 
                 health = 1;
 
-                RequestMetadata("Boss/Queen");
+                await RequestMetadataAsync("Boss/Queen");
                 SetAnimation((AnimState)1073741829);
 
                 PlaySound("BrickFalling", 0.3f);
@@ -318,15 +316,13 @@ namespace Jazz2.Actors.Bosses
 
         private class InvisibleBlock : ActorBase
         {
-            public override void OnActivated(ActorActivationDetails details)
+            protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                base.OnActivated(details);
-
                 collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.IsSolidObject | CollisionFlags.SkipPerPixelCollisions;
 
                 health = int.MaxValue;
 
-                RequestMetadata("Boss/Queen");
+                await RequestMetadataAsync("Boss/Queen");
                 SetAnimation(AnimState.Idle);
 
                 renderer.Active = false;

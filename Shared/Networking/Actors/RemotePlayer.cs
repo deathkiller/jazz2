@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Actors;
 using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
@@ -23,10 +24,8 @@ namespace Jazz2.Game.Multiplayer
         private int stateBufferPos = 0;
         private float posZ;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             PlayerType = (PlayerType)details.Params[0];
             Index = details.Params[1];
 
@@ -41,16 +40,16 @@ namespace Jazz2.Game.Multiplayer
 
             switch (PlayerType) {
                 case PlayerType.Jazz:
-                    RequestMetadata("Interactive/PlayerJazz");
+                    await RequestMetadataAsync("Interactive/PlayerJazz");
                     break;
                 case PlayerType.Spaz:
-                    RequestMetadata("Interactive/PlayerSpaz");
+                    await RequestMetadataAsync("Interactive/PlayerSpaz");
                     break;
                 case PlayerType.Lori:
-                    RequestMetadata("Interactive/PlayerLori");
+                    await RequestMetadataAsync("Interactive/PlayerLori");
                     break;
                 case PlayerType.Frog:
-                    RequestMetadata("Interactive/PlayerFrog");
+                    await RequestMetadataAsync("Interactive/PlayerFrog");
                     break;
             }
 

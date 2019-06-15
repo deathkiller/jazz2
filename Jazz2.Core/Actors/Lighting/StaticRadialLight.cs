@@ -1,13 +1,12 @@
-﻿using Jazz2.Game;
+﻿using System.Threading.Tasks;
+using Jazz2.Game;
 
 namespace Jazz2.Actors.Lighting
 {
     public class StaticRadialLight : ActorBase
     {
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             ushort intensity = details.Params[0];
             ushort brightness = details.Params[1];
             ushort radiusNear = details.Params[2];

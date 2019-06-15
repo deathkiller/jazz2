@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Duality;
 using Jazz2.Actors.Enemies;
 using Jazz2.Game;
@@ -28,16 +29,14 @@ namespace Jazz2.Actors.Bosses
 
         private ushort endText;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             endText = details.Params[1];
 
             SetHealthByDifficulty(140 * 2);
             scoreValue = 10000;
 
-            RequestMetadata("Boss/Devan");
+            await RequestMetadataAsync("Boss/Devan");
             SetAnimation(AnimState.Idle);
 
             renderer.Active = false;
@@ -352,10 +351,8 @@ namespace Jazz2.Actors.Bosses
 
         private class Bullet : EnemyBase
         {
-            public override void OnActivated(ActorActivationDetails details)
+            protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                base.OnActivated(details);
-
                 IsFacingLeft = (details.Params[0] != 0);
 
                 base.canCollideWithAmmo = false;
@@ -367,10 +364,8 @@ namespace Jazz2.Actors.Bosses
 
                 speedX = (IsFacingLeft ? -8f : 8f);
 
-                RequestMetadata("Boss/Devan");
+                await RequestMetadataAsync("Boss/Devan");
                 SetAnimation((AnimState)668);
-
-                OnUpdateHitbox();
 
                 LightEmitter light = AddComponent<LightEmitter>();
                 light.Intensity = 0.8f;
@@ -424,10 +419,8 @@ namespace Jazz2.Actors.Bosses
 
         private class Fireball : EnemyBase
         {
-            public override void OnActivated(ActorActivationDetails details)
+            protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                base.OnActivated(details);
-
                 IsFacingLeft = (details.Params[0] != 0);
 
                 base.canBeFrozen = false;
@@ -439,10 +432,8 @@ namespace Jazz2.Actors.Bosses
                 speedX = (IsFacingLeft ? -5f : 5f);
                 speedY = 5f;
 
-                RequestMetadata("Boss/Devan");
+                await RequestMetadataAsync("Boss/Devan");
                 SetAnimation((AnimState)675);
-
-                OnUpdateHitbox();
 
                 LightEmitter light = AddComponent<LightEmitter>();
                 light.Intensity = 0.85f;

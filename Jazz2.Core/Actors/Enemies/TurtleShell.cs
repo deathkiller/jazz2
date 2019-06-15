@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Actors.Collectibles;
 using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
@@ -21,24 +22,22 @@ namespace Jazz2.Actors.Enemies
             this.externalForceY = speedY;
         }
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             ushort theme = details.Params[0];
 
             switch (theme) {
                 case 0:
                 default: // Normal
-                    RequestMetadata("Enemy/TurtleShell");
+                    await RequestMetadataAsync("Enemy/TurtleShell");
                     break;
 
                 case 1: // Xmas
-                    RequestMetadata("Enemy/TurtleShellXmas");
+                    await RequestMetadataAsync("Enemy/TurtleShellXmas");
                     break;
 
                 case 2: // Tough (Boss)
-                    RequestMetadata("Boss/TurtleShellTough");
+                    await RequestMetadataAsync("Boss/TurtleShellTough");
                     break;
             }
 

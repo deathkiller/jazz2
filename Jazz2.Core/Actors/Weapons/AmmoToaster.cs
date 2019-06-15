@@ -1,4 +1,5 @@
-﻿using Duality;
+﻿using System.Threading.Tasks;
+using Duality;
 using Jazz2.Game;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
@@ -12,9 +13,9 @@ namespace Jazz2.Actors.Weapons
 
         public override WeaponType WeaponType => WeaponType.Toaster;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
+            await base.OnActivatedAsync(details);
 
             base.upgrades = (byte)details.Params[0];
 
@@ -22,7 +23,7 @@ namespace Jazz2.Actors.Weapons
 
             strength = 1;
 
-            RequestMetadata("Weapon/Toaster");
+            await RequestMetadataAsync("Weapon/Toaster");
 
             AnimState state = AnimState.Idle;
             if ((upgrades & 0x1) != 0) {

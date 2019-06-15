@@ -1,4 +1,5 @@
-﻿using Duality.Audio;
+﻿using System.Threading.Tasks;
+using Duality.Audio;
 using static Duality.Component;
 
 namespace Jazz2.Actors.Environment
@@ -9,15 +10,13 @@ namespace Jazz2.Actors.Environment
     {
         private SoundInstance sound;
 
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
-
             // ToDo: Implement Fade:1|Sine:1
 
             collisionFlags = CollisionFlags.ForceDisableCollisions;
-
-            RequestMetadata("Common/AmbientSound");
+            
+            await RequestMetadataAsync("Common/AmbientSound");
 
             string name;
             switch (details.Params[0])

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Duality;
+using Duality.Async;
 using Duality.Audio;
 using Duality.Components;
 using Duality.Drawing;

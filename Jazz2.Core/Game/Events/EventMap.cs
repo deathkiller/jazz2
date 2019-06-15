@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Duality;
@@ -30,22 +31,16 @@ namespace Jazz2.Game.Events
             public ActorBase SpawnedActor;
         }
 
-        private struct DelayedSpawnInfo
-        {
-            public string Path;
-            public int X, Y;
-        }
-
         private LevelHandler levelHandler;
 
         private EventTile[] eventLayout;
+        private EventTile[] eventLayoutForRollback;
         private int layoutWidth, layoutHeight;
 
         private Dictionary<uint, List<Vector2>> warpTargets;
         private Dictionary<PlayerType, List<Vector2>> spawnPositions;
 
         private RawList<GeneratorInfo> generators = new RawList<GeneratorInfo>();
-        private RawList<DelayedSpawnInfo> delayedSpawn = new RawList<DelayedSpawnInfo>();
 
         public EventMap(LevelHandler levelHandler, Point2 size)
         {
@@ -55,19 +50,14 @@ namespace Jazz2.Game.Events
             layoutHeight = size.Y;
 
             eventLayout = new EventTile[size.X * size.Y];
+            eventLayoutForRollback = new EventTile[size.X * size.Y];
 
             warpTargets = new Dictionary<uint, List<Vector2>>();
             spawnPositions = new Dictionary<PlayerType, List<Vector2>>();
-
-            ContentResolver.Current.ResourceReady += OnResourceReady;
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (DualityApp.ExecContext != DualityApp.ExecutionContext.Terminated) {
-                ContentResolver.Current.ResourceReady -= OnResourceReady;
-            }
-
             levelHandler = null;
         }
 
@@ -296,6 +286,8 @@ namespace Jazz2.Game.Events
                     }
                 }
             }
+
+            Array.Copy(eventLayout, eventLayoutForRollback, eventLayout.Length);
         }
 
         public void StoreTileEvent(int x, int y, EventType eventType, ActorInstantiationFlags eventFlags = ActorInstantiationFlags.None, ushort[] tileParams = null)
@@ -355,7 +347,7 @@ namespace Jazz2.Game.Events
             }
         }
 
-        public void ActivateEvents(int tx1, int ty1, int tx2, int ty2)
+        public void ActivateEvents(int tx1, int ty1, int tx2, int ty2, bool allowAsync)
         {
             TileMap tiles = levelHandler.TileMap;
             if (tiles == null) {
@@ -377,52 +369,19 @@ namespace Jazz2.Game.Events
                     if (!tile.IsEventActive && tile.EventType != EventType.Empty) {
                         tile.IsEventActive = true;
 
-                        try {
-                            if (tile.EventType == EventType.Weather) {
-                                levelHandler.ApplyWeather((LevelHandler.WeatherType)tile.EventParams[0], tile.EventParams[1], tile.EventParams[2] != 0);
-                            } else if (tile.EventType != EventType.Generator) {
-                                ActorBase actor = levelHandler.EventSpawner.SpawnEvent(ActorInstantiationFlags.IsCreatedFromEventMap | tile.EventFlags, tile.EventType, x, y, LevelHandler.MainPlaneZ, tile.EventParams);
-                                if (actor != null) {
-                                    levelHandler.AddActor(actor);
-                                }
-                            }
-                        } catch (ResourcesNotReady ex) {
-                            // A spawned actor needs resources that are not loaded in memory yet.
-                            // Request is added into queue. Second thread starts to fetch these resources
-                            // and current thread tries to spawn this actor again in next frames.
-                            lock (delayedSpawn) {
-                                delayedSpawn.Add(new DelayedSpawnInfo {
-                                    Path = ex.Path,
-                                    X = x,
-                                    Y = y
-                                });
-                            }
-
-                            Explosion.Create(levelHandler.Api, new Vector3(x * 32 + 16, y * 32 + 16, LevelHandler.MainPlaneZ), Explosion.Generator);
-                        }
-                    }
-                }
-            }
-
-            lock (delayedSpawn) {
-                for (int i = 0; i < delayedSpawn.Count;) {
-                    if (delayedSpawn.Data[i].Path == null) {
-                        int x = delayedSpawn.Data[i].X;
-                        int y = delayedSpawn.Data[i].Y;
-                        int tileID = x + y * layoutWidth;
-                        ref EventTile tile = ref eventLayout[tileID];
-                        delayedSpawn.RemoveAtFast(i);
-
                         if (tile.EventType == EventType.Weather) {
                             levelHandler.ApplyWeather((LevelHandler.WeatherType)tile.EventParams[0], tile.EventParams[1], tile.EventParams[2] != 0);
                         } else if (tile.EventType != EventType.Generator) {
-                            ActorBase actor = levelHandler.EventSpawner.SpawnEvent(ActorInstantiationFlags.IsCreatedFromEventMap | tile.EventFlags, tile.EventType, x, y, LevelHandler.MainPlaneZ, tile.EventParams);
+                            ActorInstantiationFlags flags = ActorInstantiationFlags.IsCreatedFromEventMap | tile.EventFlags;
+                            if (allowAsync) {
+                                flags |= ActorInstantiationFlags.Async;
+                            }
+
+                            ActorBase actor = levelHandler.EventSpawner.SpawnEvent(flags, tile.EventType, x, y, LevelHandler.MainPlaneZ, tile.EventParams);
                             if (actor != null) {
                                 levelHandler.AddActor(actor);
                             }
                         }
-                    } else {
-                        i++;
                     }
                 }
             }
@@ -451,15 +410,14 @@ namespace Jazz2.Game.Events
             generators.Data[generatorIdx].TimeLeft = 0f;
         }
 
-        public void OnResourceReady(string path)
+        public void CreateCheckpointForRollback()
         {
-            lock (delayedSpawn) {
-                for (int i = 0; i < delayedSpawn.Count; i++) {
-                    if (delayedSpawn.Data[i].Path == path) {
-                        delayedSpawn.Data[i].Path = null;
-                    }
-                }
-            }
+            Array.Copy(eventLayout, eventLayoutForRollback, eventLayout.Length);
+        }
+
+        public void RollbackToCheckpoint()
+        {
+            Array.Copy(eventLayoutForRollback, eventLayout, eventLayout.Length);
         }
     }
 }

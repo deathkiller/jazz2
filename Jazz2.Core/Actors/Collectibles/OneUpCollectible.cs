@@ -1,14 +1,16 @@
-﻿namespace Jazz2.Actors.Collectibles
+﻿using System.Threading.Tasks;
+
+namespace Jazz2.Actors.Collectibles
 {
     public class OneUpCollectible : Collectible
     {
-        public override void OnActivated(ActorActivationDetails details)
+        protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            base.OnActivated(details);
+            await base.OnActivatedAsync(details);
 
             scoreValue = 1000;
 
-            RequestMetadata("Collectible/OneUp");
+            await RequestMetadataAsync("Collectible/OneUp");
             SetAnimation("OneUp");
         }
 
