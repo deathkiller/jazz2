@@ -31,9 +31,9 @@ namespace Jazz2.Actors.Enemies
             UpdateHitbox(30, 40);
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (frozenTimeLeft > 0) {
                 return;

@@ -26,9 +26,9 @@ namespace Jazz2.Actors.Enemies
             SetAnimation(AnimState.Idle);
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (frozenTimeLeft > 0) {
                 return;
@@ -50,7 +50,7 @@ namespace Jazz2.Actors.Enemies
                     speedY = direction.Y * DefaultSpeed;
 
                     if (noiseCooldown > 0f) {
-                        noiseCooldown -= Time.TimeMult;
+                        noiseCooldown -= timeMult;
                     } else {
                         noiseCooldown = 60f;
                         PlaySound("Noise");

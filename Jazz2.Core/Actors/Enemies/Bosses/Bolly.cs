@@ -74,12 +74,12 @@ namespace Jazz2.Actors.Bosses
             FollowNearestPlayer(StateFlying, 100);
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
             OnUpdateHitbox();
-            HandleBlinking();
+            HandleBlinking(timeMult);
 
-            MoveInstantly(new Vector2(speedX, speedY), MoveType.RelativeTime, true);
+            MoveInstantly(new Vector2(speedX * timeMult, speedY * timeMult), MoveType.Relative, true);
 
             switch (state) {
                 case StateFlying: {
@@ -134,8 +134,6 @@ namespace Jazz2.Actors.Bosses
                     break;
                 }
             }
-
-            float timeMult = Time.TimeMult;
 
             Vector3 pos = Transform.Pos;
             float distance = 30;
@@ -249,7 +247,7 @@ namespace Jazz2.Actors.Bosses
                 SetAnimation((AnimState)1);
             }
 
-            protected override void OnUpdate()
+            protected override void OnFixedUpdate(float timeMult)
             {
                 IsFacingLeft = (Parent as Bolly).IsFacingLeft;
 
@@ -275,7 +273,7 @@ namespace Jazz2.Actors.Bosses
                 SetAnimation((AnimState)2);
             }
 
-            protected override void OnUpdate()
+            protected override void OnFixedUpdate(float timeMult)
             {
                 IsFacingLeft = (Parent as Bolly).IsFacingLeft;
 
@@ -316,7 +314,7 @@ namespace Jazz2.Actors.Bosses
                 SetAnimation(animState);
             }
 
-            protected override void OnUpdate()
+            protected override void OnFixedUpdate(float timeMult)
             {
             }
         }
@@ -344,15 +342,13 @@ namespace Jazz2.Actors.Bosses
                 light.RadiusFar = 12f;
             }
 
-            protected override void OnUpdate()
+            protected override void OnFixedUpdate(float timeMult)
             {
-                float timeMult = Time.TimeMult;
-
                 float angle = Transform.Angle;
                 speedX += MathF.Cos(angle) * 0.14f * timeMult;
                 speedY += MathF.Sin(angle) * 0.14f * timeMult;
 
-                base.OnUpdate();
+                base.OnFixedUpdate(timeMult);
 
                 if (time <= 0f) {
                     DecreaseHealth(int.MaxValue);

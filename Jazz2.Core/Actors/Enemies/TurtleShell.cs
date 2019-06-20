@@ -56,12 +56,12 @@ namespace Jazz2.Actors.Enemies
             UpdateHitbox(24, 16);
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
             speedX = MathF.Max(MathF.Abs(speedX) - friction, 0f) * (speedX < 0f ? -1f : 1f);
 
             double posYBefore = Transform.Pos.Y;
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             Vector3 pos = Transform.Pos;
             if (posYBefore - pos.Y > 0.5 && MathF.Abs(speedY) < 1) {
@@ -75,7 +75,7 @@ namespace Jazz2.Actors.Enemies
                 tiles.CheckWeaponDestructible(ref AABBInner, WeaponType.Blaster, 1);
             }
 
-            lastAngle = MathF.Lerp(lastAngle, speedX * 0.06f, Time.TimeMult * 0.2f);
+            lastAngle = MathF.Lerp(lastAngle, speedX * 0.06f, timeMult * 0.2f);
             if (MathF.Abs(Transform.Angle - MathF.NormalizeAngle(lastAngle)) > 0.01f) {
                 Transform.Angle = lastAngle;
             }

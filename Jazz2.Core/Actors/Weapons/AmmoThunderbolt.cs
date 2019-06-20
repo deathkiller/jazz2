@@ -73,15 +73,13 @@ namespace Jazz2.Actors.Weapons
             Transform.RelativePos = Transform.Pos - owner.Transform.Pos + new Vector3(0f, 0f, 4f);
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            float timeMult = Time.TimeMult;
-
             OnUpdateHitbox();
             CheckCollisions(timeMult);
             //TryStandardMovement();
 
-            //base.OnUpdate();
+            //base.OnFixedUpdate(timeMult);
 
             if (light.Intensity > 0f) {
                 light.Intensity -= timeMult * 0.05f;

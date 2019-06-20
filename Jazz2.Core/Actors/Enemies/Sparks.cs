@@ -23,17 +23,17 @@ namespace Jazz2.Actors.Enemies
             IsFacingLeft = true;
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
             OnUpdateHitbox();
-            HandleBlinking();
+            HandleBlinking(timeMult);
 
             if (frozenTimeLeft > 0) {
-                frozenTimeLeft -= Time.TimeMult;
+                frozenTimeLeft -= timeMult;
                 return;
             }
 
-            MoveInstantly(new Vector2(speedX, speedY), MoveType.RelativeTime, true);
+            MoveInstantly(new Vector2(speedX * timeMult, speedY * timeMult), MoveType.Relative, true);
 
             Vector3 pos = Transform.Pos;
             Vector3 targetPos;

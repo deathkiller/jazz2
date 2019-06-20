@@ -34,7 +34,7 @@ namespace Jazz2.Actors.Environment
             sound.BeginFadeIn(1f);
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
             // Nothing to do...
         }

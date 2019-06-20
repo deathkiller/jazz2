@@ -27,9 +27,9 @@ namespace Jazz2.Actors.Enemies
             UpdateHitbox(28, 26);
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (frozenTimeLeft > 0) {
                 return;
@@ -58,7 +58,7 @@ namespace Jazz2.Actors.Enemies
                             stuck = false;
                         }
 
-                        attackTime -= Time.TimeMult;
+                        attackTime -= timeMult;
                     }
                 } else {
                     if (attackTime <= 0f) {
@@ -80,7 +80,7 @@ namespace Jazz2.Actors.Enemies
                             }
                         }
                     } else {
-                        attackTime -= Time.TimeMult;
+                        attackTime -= timeMult;
                     }
                 }
             }

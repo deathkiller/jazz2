@@ -37,11 +37,9 @@ namespace Jazz2.Actors.Collectibles
             }
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            //base.OnUpdate();
-
-            float timeMult = Time.TimeMult;
+            //base.OnFixedUpdate(timeMult);
 
             if (collected) {
                 if (collectedPhase > 100f) {
@@ -105,7 +103,7 @@ namespace Jazz2.Actors.Collectibles
                 SetAnimation("GemRed");
             }
 
-            protected override void OnUpdate()
+            protected override void OnFixedUpdate(float timeMult)
             {
                 // Nothing to do...
             }

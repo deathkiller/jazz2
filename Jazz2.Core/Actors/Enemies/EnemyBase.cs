@@ -34,11 +34,11 @@ namespace Jazz2.Actors.Enemies
 
         public bool CanCollideWithAmmo => canCollideWithAmmo;
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
-            HandleBlinking();
+            HandleBlinking(timeMult);
         }
 
         protected override void OnHealthChanged(ActorBase collider)
@@ -106,10 +106,10 @@ namespace Jazz2.Actors.Enemies
             }
         }
 
-        protected void HandleBlinking()
+        protected void HandleBlinking(float timeMult)
         {
             if (blinkingTimeout > 0f) {
-                blinkingTimeout -= Time.TimeMult;
+                blinkingTimeout -= timeMult;
 
                 if (blinkingTimeout <= 0f) {
                     // Reset renderer

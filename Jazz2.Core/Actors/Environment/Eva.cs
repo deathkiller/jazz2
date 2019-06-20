@@ -16,16 +16,16 @@ namespace Jazz2.Actors.Environment
             collisionFlags &= ~CollisionFlags.ApplyGravitation;
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (currentTransitionState == AnimState.Idle) {
                 if (animationTime <= 0f) {
                     SetTransition(AnimState.TransitionIdleBored, true);
                     animationTime = MathF.Rnd.NextFloat(160f, 200f);
                 } else {
-                    animationTime -= Time.TimeMult;
+                    animationTime -= timeMult;
                 }
             }
         }

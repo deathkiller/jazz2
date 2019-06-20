@@ -30,9 +30,9 @@ namespace Jazz2.Actors.Enemies
             SetAnimation(AnimState.Idle);
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (frozenTimeLeft > 0) {
                 return;
@@ -79,7 +79,7 @@ namespace Jazz2.Actors.Enemies
                             }
                         });
                     } else {
-                        attackTime -= Time.TimeMult;
+                        attackTime -= timeMult;
                     }
                     break;
                 }
@@ -140,19 +140,19 @@ namespace Jazz2.Actors.Enemies
                 //OnUpdateHitbox();
             }
 
-            protected override void OnUpdate()
+            protected override void OnFixedUpdate(float timeMult)
             {
                 speedX = baseSpeed.X + MathF.Cos((500 - time) * 0.09f) * 0.5f;
                 speedY = baseSpeed.Y + MathF.Sin((500 - time) * 0.05f) * 0.5f;
 
-                MoveInstantly(new Vector2(speedX, speedY), MoveType.RelativeTime, true);
+                MoveInstantly(new Vector2(speedX * timeMult, speedY * timeMult), MoveType.Relative, true);
 
-                Transform.Scale -= 0.0011f * Time.TimeMult;
+                Transform.Scale -= 0.0011f * timeMult;
 
                 if (time <= 0f) {
                     DecreaseHealth(int.MaxValue);
                 } else {
-                    time -= Time.TimeMult;
+                    time -= timeMult;
                 }
             }
 

@@ -32,9 +32,9 @@ namespace Jazz2.Actors.Enemies
             }
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (!isWalking || frozenTimeLeft > 0) {
                 return;
@@ -148,11 +148,6 @@ namespace Jazz2.Actors.Enemies
                 SetAnimation((AnimState)1073741828);
 
                 soundThrow = PlaySound("BananaThrow");
-            }
-
-            protected override void OnUpdate()
-            {
-                base.OnUpdate();
             }
 
             protected override void OnUpdateHitbox()

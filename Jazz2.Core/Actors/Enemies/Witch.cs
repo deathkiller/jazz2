@@ -26,21 +26,21 @@ namespace Jazz2.Actors.Enemies
             PreloadMetadata("Interactive/PlayerFrog");
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
             OnUpdateHitbox();
-            HandleBlinking();
+            HandleBlinking(timeMult);
 
             if (frozenTimeLeft > 0) {
-                frozenTimeLeft -= Time.TimeMult;
+                frozenTimeLeft -= timeMult;
                 return;
             }
 
-            MoveInstantly(new Vector2(speedX, speedY), MoveType.RelativeTime, true);
+            MoveInstantly(new Vector2(speedX * timeMult, speedY * timeMult), MoveType.Relative, true);
 
             if (playerHit) {
                 if (attackTime > 0f) {
-                    attackTime -= Time.TimeMult;
+                    attackTime -= timeMult;
                 } else {
                     base.OnPerish(null);
                 }
@@ -48,7 +48,7 @@ namespace Jazz2.Actors.Enemies
             }
 
             if (attackTime > 0f) {
-                attackTime -= Time.TimeMult;
+                attackTime -= timeMult;
             }
 
             Vector3 pos = Transform.Pos;
@@ -155,16 +155,16 @@ namespace Jazz2.Actors.Enemies
                 light.RadiusFar = 18f;
             }
 
-            protected override void OnUpdate()
+            protected override void OnFixedUpdate(float timeMult)
             {
-                //base.OnUpdate();
-                MoveInstantly(new Vector2(speedX, speedY), MoveType.RelativeTime, true);
+                //base.OnFixedUpdate(timeMult);
+                MoveInstantly(new Vector2(speedX * timeMult, speedY * timeMult), MoveType.Relative, true);
                 OnUpdateHitbox();
 
                 if (time <= 0f) {
                     DecreaseHealth(int.MaxValue);
                 } else {
-                    time -= Time.TimeMult;
+                    time -= timeMult;
 
                     FollowNearestPlayer();
                 }

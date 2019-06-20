@@ -50,15 +50,15 @@ namespace Jazz2.Actors.Bosses
             stateTime = 120f;
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
             if (isDemon) {
                 OnUpdateHitbox();
-                HandleBlinking();
+                HandleBlinking(timeMult);
 
-                MoveInstantly(new Vector2(speedX, speedY), MoveType.RelativeTime, true);
+                MoveInstantly(new Vector2(speedX * timeMult, speedY * timeMult), MoveType.Relative, true);
             } else {
-                base.OnUpdate();
+                base.OnFixedUpdate(timeMult);
             }
             
             if (frozenTimeLeft > 0) {
@@ -170,8 +170,8 @@ namespace Jazz2.Actors.Bosses
                     if (attackTime <= 0f) {
                         state = StateDemonSpewingFireball;
                     } else {
-                        attackTime -= Time.TimeMult;
-                        FollowNearestPlayerDemon();
+                        attackTime -= timeMult;
+                        FollowNearestPlayerDemon(timeMult);
                     }
                     break;
                 }
@@ -219,7 +219,7 @@ namespace Jazz2.Actors.Bosses
                 }
             }
 
-            stateTime -= Time.TimeMult;
+            stateTime -= timeMult;
         }
 
         protected override bool OnPerish(ActorBase collider)
@@ -277,7 +277,7 @@ namespace Jazz2.Actors.Bosses
             }
         }
 
-        private void FollowNearestPlayerDemon()
+        private void FollowNearestPlayerDemon(float timeMult)
         {
             bool found = false;
             Vector3 foundPos = new Vector3(float.MaxValue, float.MaxValue, lastPos.Z);
@@ -297,7 +297,7 @@ namespace Jazz2.Actors.Bosses
                 targetPos = foundPos;
                 targetPos.Y -= 70f;
 
-                anglePhase += Time.TimeMult * 0.04f;
+                anglePhase += timeMult * 0.04f;
 
                 Vector3 speed = ((targetPos - lastPos) / 70f + lastSpeed * 1.4f) / 2.4f;
                 lastPos.X += speed.X;
@@ -374,11 +374,6 @@ namespace Jazz2.Actors.Bosses
                 light.RadiusFar = 28f;
             }
 
-            protected override void OnUpdate()
-            {
-                base.OnUpdate();
-            }
-
             protected override void OnUpdateHitbox()
             {
                 UpdateHitbox(6, 6);
@@ -440,11 +435,6 @@ namespace Jazz2.Actors.Bosses
                 light.Brightness = 0.4f;
                 light.RadiusNear = 0f;
                 light.RadiusFar = 30f;
-            }
-
-            protected override void OnUpdate()
-            {
-                base.OnUpdate();
             }
 
             protected override void OnUpdateHitbox()

@@ -54,18 +54,17 @@ namespace Jazz2.Actors.Environment
             SetAnimation("Pole");
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
             const float FallMultiplier = 0.0036f;
             const float Bounce = -0.2f;
 
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (fall != FallDirection.Left && fall != FallDirection.Right) {
                 return;
             }
 
-            float timeMult = Time.TimeMult;
             fallTime += timeMult;
 
             if (fall == FallDirection.Right) {

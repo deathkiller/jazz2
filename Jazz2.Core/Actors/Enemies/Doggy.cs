@@ -47,9 +47,9 @@ namespace Jazz2.Actors.Enemies
             UpdateHitbox(50, 30);
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (frozenTimeLeft > 0) {
                 return;
@@ -63,16 +63,16 @@ namespace Jazz2.Actors.Enemies
                     noiseCooldown = MathF.Rnd.NextFloat(100, 300);
                     PlaySound("Noise", 0.4f);
                 } else {
-                    noiseCooldown -= Time.TimeMult;
+                    noiseCooldown -= timeMult;
                 }
             } else {
-                attackTime -= Time.TimeMult;
+                attackTime -= timeMult;
 
                 if (noiseCooldown <= 0f) {
                     noiseCooldown = MathF.Rnd.NextFloat(25, 40);
                     PlaySound("Woof");
                 } else {
-                    noiseCooldown -= Time.TimeMult;
+                    noiseCooldown -= timeMult;
                 }
             }
 

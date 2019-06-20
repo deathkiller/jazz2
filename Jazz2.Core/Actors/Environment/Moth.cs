@@ -29,15 +29,15 @@ namespace Jazz2.Actors.Environment
             renderer.AnimPaused = true;
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (timer > 0f) {
                 if (canJump) {
                     timer = 0f;
                 } else {
-                    timer -= Time.TimeMult;
+                    timer -= timeMult;
 
                     externalForceX = MathF.Sin((100f - timer) / 6f) * 4f * direction;
                     externalForceY = timer * timer * 0.000046f;

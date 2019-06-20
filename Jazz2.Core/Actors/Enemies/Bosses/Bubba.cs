@@ -41,9 +41,9 @@ namespace Jazz2.Actors.Bosses
             FollowNearestPlayer();
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (frozenTimeLeft > 0) {
                 return;
@@ -120,7 +120,7 @@ namespace Jazz2.Actors.Bosses
                 }
             }
 
-            stateTime -= Time.TimeMult;
+            stateTime -= timeMult;
         }
 
         protected override void OnUpdateHitbox()
@@ -243,15 +243,15 @@ namespace Jazz2.Actors.Bosses
                 light.RadiusFar = 30f;
             }
 
-            protected override void OnUpdate()
+            protected override void OnFixedUpdate(float timeMult)
             {
-                //base.OnUpdate();
-                MoveInstantly(new Vector2(speedX, speedY), MoveType.RelativeTime, true);
+                //base.OnFixedUpdate(timeMult);
+                MoveInstantly(new Vector2(speedX * timeMult, speedY * timeMult), MoveType.Relative, true);
 
                 if (time <= 0f) {
                     DecreaseHealth(int.MaxValue);
                 } else {
-                    time -= Time.TimeMult;
+                    time -= timeMult;
                 }
             }
 

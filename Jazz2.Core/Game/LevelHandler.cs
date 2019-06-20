@@ -212,7 +212,7 @@ namespace Jazz2.Game
                     cameraTransform.Pos = new Vector3(currentPlayer.Transform.Pos.Xy, 0);
                     cameraController.TargetObject = currentPlayer;
 
-                    ((ICmpUpdatable)cameraController).OnUpdate();
+                    ((ICmpFixedUpdatable)cameraController).OnFixedUpdate(1f);
                     camera.Parent = rootObject;
 
                     cameras.Add(camera);
@@ -799,7 +799,32 @@ namespace Jazz2.Game
             weatherOutdoors = outdoors;
         }
 
+        public void EnableLowpassOnMusic(bool enable)
+        {
+            if (music == null) {
+                return;
+            }
+
+            if (enable) {
+                music.Lowpass = 0.1f;
+            } else {
+                music.Lowpass = 1f;
+            }
+        }
+
         protected virtual void OnUpdate()
+        {
+            if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
+                Scene.SwitchTo(new InGameMenu(root, this));
+            }
+
+            Hud.ShowDebugText("- FPS: " + Time.Fps.ToString("N0") + "  (" + Math.Round(Time.UnscaledDeltaTime * 1000, 1).ToString("N1") + " ms)");
+            Hud.ShowDebugText("  Diff.: " + difficulty + " | Actors: " + actors.Count.ToString("N0"));
+            Hud.ShowDebugText("  Ambient Light: " + ambientLightCurrent.ToString("0.00") + " / " + ambientLightTarget.ToString("0.00"));
+            Hud.ShowDebugText("  Collisions: " + collisionsCountA + " > " + collisionsCountB + " > " + collisionsCountC);
+        }
+
+        protected virtual void OnFixedUpdate(float timeMult)
         {
             if (currentCarryOver.HasValue) {
                 bool playersReady = true;
@@ -810,7 +835,7 @@ namespace Jazz2.Game
 
                 if (playersReady) {
                     if (levelChangeTimer > 0) {
-                        levelChangeTimer -= Time.TimeMult;
+                        levelChangeTimer -= timeMult;
                     } else {
                         root.ChangeLevel(currentCarryOver.Value);
                         currentCarryOver = null;
@@ -848,7 +873,7 @@ namespace Jazz2.Game
 
                     // ToDo: Remove this branching
 #if __ANDROID__
-                const int ActivateTileRange = 20;
+                    const int ActivateTileRange = 20;
 #else
                     const int ActivateTileRange = 26;
 #endif
@@ -866,14 +891,14 @@ namespace Jazz2.Game
                     eventMap.ActivateEvents(tx1, ty1, tx2, ty2, initState != InitState.Initializing);
                 }
 
-                eventMap.ProcessGenerators();
+                eventMap.ProcessGenerators(timeMult);
             }
 
             ResolveCollisions();
 
             // Ambient Light Transition
             if (ambientLightCurrent != ambientLightTarget) {
-                float step = Time.TimeMult * 0.012f;
+                float step = timeMult * 0.012f;
                 if (MathF.Abs(ambientLightCurrent - ambientLightTarget) < step) {
                     ambientLightCurrent = ambientLightTarget;
                 } else {
@@ -973,20 +998,11 @@ namespace Jazz2.Game
                 levelChangeTimer = 300;
             }
 
-            if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
-                Scene.SwitchTo(new InGameMenu(root, this));
-            }
-
             if (initState == InitState.Initializing) {
                 initState = InitState.Initialized;
             }
 
-            Hud.ShowDebugText("- FPS: " + Time.Fps.ToString("N0") + "  (" + Math.Round(Time.UnscaledDeltaTime * 1000, 1).ToString("N1") + " ms)");
-            Hud.ShowDebugText("  Diff.: " + difficulty + " | Actors: " + actors.Count.ToString("N0"));
-            Hud.ShowDebugText("  Ambient Light: " + ambientLightCurrent.ToString("0.00") + " / " + ambientLightTarget.ToString("0.00"));
 
-
-            Hud.ShowDebugText("  Collisions: " + collisionsCountA + " > " + collisionsCountB + " > " + collisionsCountC);
             collisionsCountA = 0;
             collisionsCountB = 0;
             collisionsCountC = 0;
@@ -1062,7 +1078,7 @@ namespace Jazz2.Game
         }
 
         [ExecutionOrder(ExecutionRelation.After, typeof(Transform))]
-        private class LocalController : Component, ICmpUpdatable
+        private class LocalController : Component, ICmpUpdatable, ICmpFixedUpdatable
         {
             private readonly LevelHandler levelHandler;
 
@@ -1074,6 +1090,11 @@ namespace Jazz2.Game
             void ICmpUpdatable.OnUpdate()
             {
                 levelHandler.OnUpdate();
+            }
+
+            void ICmpFixedUpdatable.OnFixedUpdate(float timeMult)
+            {
+                levelHandler.OnFixedUpdate(timeMult);
             }
         }
     }

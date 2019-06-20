@@ -49,9 +49,9 @@ namespace Jazz2.Actors.Bosses
             base.OnTileDeactivate(int.MinValue, int.MinValue, int.MinValue, int.MinValue);
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (frozenTimeLeft > 0) {
                 return;
@@ -67,7 +67,7 @@ namespace Jazz2.Actors.Bosses
                             FollowNearestPlayer(StateRunning1, MathF.Rnd.NextFloat(20, 40));
                         });
                     } else {
-                        speedY -= 0.27f * Time.TimeMult;
+                        speedY -= 0.27f * timeMult;
                     }
                     break;
                 }
@@ -105,7 +105,7 @@ namespace Jazz2.Actors.Bosses
                 }
             }
 
-            stateTime -= Time.TimeMult;
+            stateTime -= timeMult;
         }
 
         protected override bool OnPerish(ActorBase collider)
@@ -229,11 +229,6 @@ namespace Jazz2.Actors.Bosses
                 light.Brightness = 0.8f;
                 light.RadiusNear = 0f;
                 light.RadiusFar = 22f;
-            }
-
-            protected override void OnUpdate()
-            {
-                base.OnUpdate();
             }
 
             protected override void OnUpdateHitbox()

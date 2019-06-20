@@ -38,10 +38,8 @@ namespace Jazz2.Actors.Environment
             SetAnimation(AnimState.Idle);
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            float timeMult = Time.TimeMult;
-
             // Movement
             if ((collisionFlags & CollisionFlags.ApplyGravitation) != 0) {
                 float currentGravity = api.Gravity;

@@ -317,14 +317,14 @@ namespace Jazz2.Game.Events
             previousEvent = newEvent;
         }
 
-        public void ProcessGenerators()
+        public void ProcessGenerators(float timeMult)
         {
             for (int i = 0; i < generators.Count; i++) {
                 ref GeneratorInfo generator = ref generators.Data[i];
 
                 if (!eventLayout[generator.EventPos].IsEventActive) {
                     // Generator is inactive (and recharging)
-                    generator.TimeLeft -= Time.TimeMult;
+                    generator.TimeLeft -= timeMult;
                 } else if (generator.SpawnedActor == null || generator.SpawnedActor.Scene == null) {
                     if (generator.TimeLeft <= 0f) {
                         // Generator is active and is ready to spawn new actor
@@ -341,7 +341,7 @@ namespace Jazz2.Game.Events
                         }
                     } else {
                         // Generator is active and recharging
-                        generator.TimeLeft -= Time.TimeMult;
+                        generator.TimeLeft -= timeMult;
                     }
                 }
             }

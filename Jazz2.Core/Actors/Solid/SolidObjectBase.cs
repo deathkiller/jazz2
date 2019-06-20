@@ -12,11 +12,11 @@ namespace Jazz2.Actors.Solid
             collisionFlags |= CollisionFlags.CollideWithSolidObjects | CollisionFlags.IsSolidObject | CollisionFlags.SkipPerPixelCollisions;
         }
 
-        public bool Push(bool left)
+        public bool Push(bool left, float timeMult)
         {
             if (Movable) {
                 for (int i = 0; i >= -4; i -= 2) {
-                    if (MoveInstantly(new Vector2(left ? -0.5f : 0.5f, i), MoveType.RelativeTime)) {
+                    if (MoveInstantly(new Vector2((left ? -0.5f : 0.5f) * timeMult, i * timeMult), MoveType.Relative)) {
                         return true;
                     }
                 }

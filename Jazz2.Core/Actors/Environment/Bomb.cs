@@ -24,12 +24,12 @@ namespace Jazz2.Actors.Environment
             SetAnimation("Bomb");
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (timeLeft > 0f) {
-                timeLeft -= Time.TimeMult;
+                timeLeft -= timeMult;
             } else {
                 DecreaseHealth(int.MaxValue);
             }

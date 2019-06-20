@@ -66,20 +66,20 @@ namespace Jazz2.Actors.Solid
             }
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
             if (length > 0) {
                 lastPos = Transform.Pos;
 
-                phase -= speed * Time.TimeMult;
+                phase -= speed * timeMult;
                 if (phase < 0f) {
                     phase += BaseCycleFrames;
                 }
 
-                MoveInstantly(GetPhasePosition(false, length), MoveType.Absolute, true);
+                MoveInstantly(GetPhasePosition(false, length, timeMult), MoveType.Absolute, true);
 
                 for (int i = 0; i < length; i++) {
-                    pieces[i].Transform.Pos = new Vector3(GetPhasePosition(false, i), pieces[i].Transform.Pos.Z);
+                    pieces[i].Transform.Pos = new Vector3(GetPhasePosition(false, i, timeMult), pieces[i].Transform.Pos.Z);
                 }
 
                 AABB aabb = AABBInner;
@@ -105,7 +105,7 @@ namespace Jazz2.Actors.Solid
                 }
             }
 
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
         }
 
         protected override void OnUpdateHitbox()
@@ -120,12 +120,12 @@ namespace Jazz2.Actors.Solid
             return Transform.Pos.Xy - lastPos.Xy;
         }
 
-        public Vector2 GetPhasePosition(bool next, int distance)
+        public Vector2 GetPhasePosition(bool next, int distance, float timeMult)
         {
             float effectivePhase = phase;
 
             if (next) {
-                effectivePhase -= speed * Time.TimeMult;
+                effectivePhase -= speed * timeMult;
             }
 
             if (isSwing) {
@@ -168,7 +168,7 @@ namespace Jazz2.Actors.Solid
                 SetAnimation("Chain");
             }
 
-            protected override void OnUpdate()
+            protected override void OnFixedUpdate(float timeMult)
             {
                 // Controlled by MovingPlatform
             }

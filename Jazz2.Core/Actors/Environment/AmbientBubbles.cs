@@ -20,10 +20,10 @@ namespace Jazz2.Actors.Environment
             await RequestMetadataAsync("Common/AmbientBubbles");
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
             if (cooldown > 0f) {
-                cooldown -= Time.TimeMult;
+                cooldown -= timeMult;
             } else {
                 GraphicResource res = availableAnimations["AmbientBubbles"];
                 Material material = res.Material.Res;

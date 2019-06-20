@@ -35,9 +35,9 @@ namespace Jazz2.Actors.Enemies
             UpdateHitbox(20, 24);
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (frozenTimeLeft > 0) {
                 return;
@@ -80,7 +80,7 @@ namespace Jazz2.Actors.Enemies
         {
             // ToDo: Play sound in the middle of transition
             // ToDo: Apply force in the middle of transition
-            PlaySound("Attack");
+            PlaySound("Attack", 0.8f, 0.6f);
 
             SetTransition(AnimState.TransitionAttack, false, delegate {
                 speedX = (IsFacingLeft ? -1f : 1f) * DefaultSpeed;

@@ -22,7 +22,7 @@ namespace Jazz2.Actors.Lighting
             light.Type = LightType.WithNoise;
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
         }
     }

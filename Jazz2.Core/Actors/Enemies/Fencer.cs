@@ -20,9 +20,9 @@ namespace Jazz2.Actors.Enemies
             IsFacingLeft = true;
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (frozenTimeLeft > 0) {
                 return;
@@ -49,7 +49,7 @@ namespace Jazz2.Actors.Enemies
 
                     stateTime = MathF.Rnd.NextFloat(180f, 300f);
                 } else {
-                    stateTime -= Time.TimeMult;
+                    stateTime -= timeMult;
                 }
             }
         }

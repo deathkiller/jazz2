@@ -29,9 +29,9 @@ namespace Jazz2.Actors.Enemies
             IsFacingLeft = MathF.Rnd.NextBool();
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (frozenTimeLeft > 0) {
                 return;
@@ -67,8 +67,6 @@ namespace Jazz2.Actors.Enemies
                     }
                 }
             } else {
-                float timeMult = Time.TimeMult;
-
                 if (state == StateAttacking) {
                     speedX += direction.X * 0.12f * timeMult;
                     speedY += direction.Y * 0.12f * timeMult;

@@ -65,23 +65,23 @@ namespace Jazz2.Actors.Weapons
             Transform.Angle = angle;
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            float timeMult = Time.TimeMult * 0.5f;
+            float halfTimeMult = timeMult * 0.5f;
 
             for (int i = 0; i < 2; i++) {
-                TryMovement(timeMult);
+                TryMovement(halfTimeMult);
                 OnUpdateHitbox();
-                CheckCollisions(timeMult);
+                CheckCollisions(halfTimeMult);
             }
 
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             speedX *= 1.06f;
             speedY *= 1.06f;
 
             if (smokeTimer > 0f) {
-                smokeTimer -= Time.TimeMult;
+                smokeTimer -= timeMult;
             } else {
                 Explosion.Create(api, Transform.Pos, Explosion.TinyBlue);
                 smokeTimer = 6f;

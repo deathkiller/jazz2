@@ -36,15 +36,14 @@ namespace Jazz2.Actors
             this.owner = owner;
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            //base.OnUpdate();
+            //base.OnFixedUpdate(timeMult);
 
             if (owner == null) {
                 return;
             }
 
-            float timeMult = Time.TimeMult;
             Vector3 currentPos = Transform.Pos;
 
             if (flyAway) {

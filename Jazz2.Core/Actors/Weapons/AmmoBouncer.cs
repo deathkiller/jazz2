@@ -69,10 +69,8 @@ namespace Jazz2.Actors.Weapons
             elasticity = 0.9f;
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            float timeMult = Time.TimeMult;
-
             TryStandardMovement(timeMult);
             OnUpdateHitbox();
             CheckCollisions(timeMult);

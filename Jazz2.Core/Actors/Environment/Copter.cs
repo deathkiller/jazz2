@@ -19,11 +19,11 @@ namespace Jazz2.Actors.Environment
             originPos = details.Pos;
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
             OnUpdateHitbox();
 
-            anglePhase += Time.TimeMult * 0.05f;
+            anglePhase += timeMult * 0.05f;
 
             Transform.Pos = originPos + new Vector3(0f, MathF.Sin(anglePhase) * 4f, 0f);
         }

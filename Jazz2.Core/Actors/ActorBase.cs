@@ -64,8 +64,7 @@ namespace Jazz2.Actors
     public enum MoveType
     {
         Absolute,
-        Relative,
-        RelativeTime
+        Relative
     }
 
     public abstract class ActorBase : GameObject, ICollisionable
@@ -120,7 +119,11 @@ namespace Jazz2.Actors
 
         public CollisionFlags CollisionFlags => collisionFlags;
         public bool IsInvulnerable => isInvulnerable;
-        public int Health => health;
+        public int Health
+        {
+            get => health;
+            set => health = value;
+        }
         public int MaxHealth => maxHealth;
 
         public Vector3 Speed => new Vector3(speedX, speedY, 0f);
@@ -531,15 +534,6 @@ namespace Jazz2.Actors
                     newPos = new Vector2(pos.X + Transform.Pos.X, pos.Y + Transform.Pos.Y);
                     break;
                 }
-                case MoveType.RelativeTime: {
-                    if (pos == Vector2.Zero) {
-                        return true;
-                    }
-
-                    float mult = Time.TimeMult;
-                    newPos = new Vector2(pos.X * mult + Transform.Pos.X, pos.Y * mult + Transform.Pos.Y);
-                    break;
-                }
             }
 
             AABB aabb = AABBInner + newPos - new Vector2(Transform.Pos.X, Transform.Pos.Y);
@@ -580,8 +574,11 @@ namespace Jazz2.Actors
 
         protected virtual void OnUpdate()
         {
-            float timeMult = Time.TimeMult;
 
+        }
+
+        protected virtual void OnFixedUpdate(float timeMult)
+        {
             TryStandardMovement(timeMult);
             OnUpdateHitbox();
 
@@ -1307,7 +1304,7 @@ namespace Jazz2.Actors
         }
         #endregion
 
-        private class LocalController : Component, ICmpUpdatable, ICmpInitializable
+        private class LocalController : Component, ICmpInitializable, ICmpUpdatable, ICmpFixedUpdatable
         {
             private readonly ActorBase actor;
 
@@ -1331,6 +1328,13 @@ namespace Jazz2.Actors
             {
                 if (actor.initState == InitState.Initialized) {
                     actor.OnUpdate();
+                }
+            }
+
+            void ICmpFixedUpdatable.OnFixedUpdate(float timeMult)
+            {
+                if (actor.initState == InitState.Initialized) {
+                    actor.OnFixedUpdate(timeMult);
                 }
             }
         }

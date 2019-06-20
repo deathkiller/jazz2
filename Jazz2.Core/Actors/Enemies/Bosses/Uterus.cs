@@ -84,12 +84,12 @@ namespace Jazz2.Actors.Bosses
             }
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            //base.OnUpdate();
+            //base.OnFixedUpdate(timeMult);
 
             OnUpdateHitbox();
-            HandleBlinking();
+            HandleBlinking(timeMult);
 
             switch (state) {
                 case StateOpen: {
@@ -119,7 +119,7 @@ namespace Jazz2.Actors.Bosses
 
                         spawnCrabTime = (hasShield ? MathF.Rnd.NextFloat(160f, 220f) : MathF.Rnd.NextFloat(120f, 200f));
                     } else {
-                        spawnCrabTime -= Time.TimeMult;
+                        spawnCrabTime -= timeMult;
                     }
                     break;
                 }
@@ -141,12 +141,12 @@ namespace Jazz2.Actors.Bosses
                 }
             }
 
-            stateTime -= Time.TimeMult;
+            stateTime -= timeMult;
 
             if (state != StateWaiting) {
                 FollowNearestPlayer();
 
-                anglePhase += Time.TimeMult * 0.02f;
+                anglePhase += timeMult * 0.02f;
                 Transform.Angle = MathF.PiOver2 + MathF.Sin(anglePhase) * 0.2f;
 
                 Vector3 pos = lastPos + new Vector3(MathF.Cos(anglePhase) * 60f, MathF.Sin(anglePhase) * 60f, 0f);
@@ -236,14 +236,14 @@ namespace Jazz2.Actors.Bosses
                 SetAnimation((AnimState)1073741827);
             }
 
-            protected override void OnUpdate()
+            protected override void OnFixedUpdate(float timeMult)
             {
                 if (FallTime > 0f) {
-                    base.OnUpdate();
+                    base.OnFixedUpdate(timeMult);
 
-                    FallTime -= Time.TimeMult;
+                    FallTime -= timeMult;
                 } else {
-                    HandleBlinking();
+                    HandleBlinking(timeMult);
                 }
             }
 

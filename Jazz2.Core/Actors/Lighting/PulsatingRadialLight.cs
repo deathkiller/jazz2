@@ -38,5 +38,9 @@ namespace Jazz2.Actors.Lighting
             light.RadiusNear = radiusNear1 + MathF.Sin(MathF.TwoPi * phase / BaseCycleFrames) * radiusNear2;
             light.RadiusFar = light.RadiusNear + radiusFar;
         }
+
+        protected override void OnFixedUpdate(float timeMult)
+        {
+        }
     }
 }

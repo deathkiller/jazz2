@@ -54,6 +54,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Backend\PluginLoader\IAssemblyLoader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Component.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\Camera.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Components\ICmpInterfaces\ICmpFixedUpdatable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\ICmpInterfaces\ICmpInitializable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\ICmpInterfaces\ICmpRenderer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\ICmpInterfaces\ICmpUpdatable.cs" />

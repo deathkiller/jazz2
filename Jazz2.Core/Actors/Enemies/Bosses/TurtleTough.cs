@@ -50,9 +50,9 @@ namespace Jazz2.Actors.Bosses
             }
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (frozenTimeLeft > 0) {
                 return;
@@ -99,7 +99,7 @@ namespace Jazz2.Actors.Bosses
                 }
             }
 
-            stateTime -= Time.TimeMult;
+            stateTime -= timeMult;
         }
 
         public override void OnHandleCollision(ActorBase other)
@@ -211,10 +211,10 @@ namespace Jazz2.Actors.Bosses
                 }
             }
 
-            protected override void OnUpdate()
+            protected override void OnFixedUpdate(float timeMult)
             {
-                //base.OnUpdate();
-                MoveInstantly(new Vector2(speedX, speedY), MoveType.RelativeTime, true);
+                //base.OnFixedUpdate(timeMult);
+                MoveInstantly(new Vector2(speedX * timeMult, speedY * timeMult), MoveType.Relative, true);
 
                 Vector3 pos = Transform.Pos;
 
@@ -227,7 +227,7 @@ namespace Jazz2.Actors.Bosses
 
                 } else {
                     if (returnTime > 0f) {
-                        returnTime -= Time.TimeMult;
+                        returnTime -= timeMult;
                     } else {
                         returning = true;
 

@@ -38,24 +38,24 @@ namespace Jazz2.Actors.Enemies
             UpdateHitbox(30, 30);
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (frozenTimeLeft > 0) {
                 return;
             }
 
             if (idling) {
-                Idle();
+                Idle(timeMult);
             } else {
-                Walking();
+                Walking(timeMult);
             }
 
-            stateTime -= Time.TimeMult;
+            stateTime -= timeMult;
         }
 
-        private void Idle()
+        private void Idle(float timeMult)
         {
             if (stateTime <= 0f) {
                 idling = false;
@@ -65,15 +65,15 @@ namespace Jazz2.Actors.Enemies
 
                 stateTime = MathF.Rnd.NextFloat(420, 540);
             } else {
-                stateTime -= Time.TimeMult;
+                stateTime -= timeMult;
 
-                if (MathF.Rnd.NextFloat() < 0.008f * Time.TimeMult) {
+                if (MathF.Rnd.NextFloat() < 0.008f * timeMult) {
                     PlaySound("Idle", 0.4f);
                 }
             }
         }
 
-        private void Walking()
+        private void Walking(float timeMult)
         {
             if (!isAttacking) {
                 if (canJump && !CanMoveToPosition(speedX * 4, 0)) {
@@ -97,11 +97,11 @@ namespace Jazz2.Actors.Enemies
                         canAttack = true;
                         attackTime = 180;
                     } else {
-                        attackTime -= Time.TimeMult;
+                        attackTime -= timeMult;
                     }
                 }
 
-                if (MathF.Rnd.NextFloat() < 0.004f * Time.TimeMult) {
+                if (MathF.Rnd.NextFloat() < 0.004f * timeMult) {
                     PlaySound("Noise", 0.4f);
                 }
 
@@ -121,7 +121,7 @@ namespace Jazz2.Actors.Enemies
                     }
                 }
             } else {
-                internalForceY += 0.08f * Time.TimeMult;
+                internalForceY += 0.08f * timeMult;
             }
         }
 

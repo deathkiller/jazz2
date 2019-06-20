@@ -48,9 +48,9 @@ namespace Jazz2.Actors.Enemies
             copter.Parent = this;
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (frozenTimeLeft > 0) {
                 return;
@@ -102,10 +102,10 @@ namespace Jazz2.Actors.Enemies
                     moveTime = 8f;
                 }
 
-                attackTime -= Time.TimeMult;
+                attackTime -= timeMult;
             }
 
-            moveTime -= Time.TimeMult;
+            moveTime -= timeMult;
         }
 
         protected override bool OnPerish(ActorBase collider)
@@ -154,7 +154,7 @@ namespace Jazz2.Actors.Enemies
                 SetAnimation(AnimState.Activated);
             }
 
-            protected override void OnUpdate()
+            protected override void OnFixedUpdate(float timeMult)
             {
                 Transform.RelativePos = new Vector3(0f, 8f, 4f);
             }

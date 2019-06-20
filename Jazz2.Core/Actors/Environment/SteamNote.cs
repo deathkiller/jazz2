@@ -22,12 +22,12 @@ namespace Jazz2.Actors.Environment
             PlaySound("Appear", 0.4f);
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            //base.OnUpdate();
+            //base.OnFixedUpdate(timeMult);
 
             if (cooldown > 0f) {
-                cooldown -= Time.TimeMult;
+                cooldown -= timeMult;
 
                 if (cooldown <= 0f) {
                     renderer.AnimTime = 0f;

@@ -5,9 +5,10 @@
         Unknown = 0,
 
         Battle,
+        TeamBattle,
         CaptureTheFlag,
         Race,
         TreasureHunt,
-        Coop
+        CoopStory
     }
 }

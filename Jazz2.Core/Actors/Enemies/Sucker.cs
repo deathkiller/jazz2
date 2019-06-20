@@ -40,9 +40,9 @@ namespace Jazz2.Actors.Enemies
             }
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (frozenTimeLeft > 0) {
                 return;
@@ -85,7 +85,7 @@ namespace Jazz2.Actors.Enemies
 
                     cycleTimer = 5f;
                 } else {
-                    cycleTimer -= Time.TimeMult;
+                    cycleTimer -= timeMult;
                 }
             }
         }

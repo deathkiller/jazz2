@@ -113,25 +113,22 @@ namespace Jazz2.Actors
             DecreaseHealth(int.MaxValue);
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            //base.OnUpdate();
+            //base.OnFixedUpdate(timeMult);
 
             switch (type) {
                 case Large: {
-                    float timeMult = Time.TimeMult;
                     light.RadiusFar -= timeMult * 5f;
                     break;
                 }
 
                 case Pepper: {
-                    float timeMult = Time.TimeMult;
                     light.Intensity -= timeMult * 0.05f;
                     break;
                 }
 
                 case RF: {
-                    float timeMult = Time.TimeMult;
                     light.RadiusFar -= timeMult * 0.8f;
                     light.Intensity -= timeMult * 0.02f;
                     break;

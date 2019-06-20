@@ -70,7 +70,7 @@ namespace Jazz2.Actors.Weapons
             speedY += ax * MathF.Rnd.NextFloat(-0.5f, 0.5f);
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
             OnUpdateHitbox();
 
@@ -83,12 +83,12 @@ namespace Jazz2.Actors.Weapons
 
             TileMap tiles = api.TileMap;
             if (tiles == null || tiles.IsTileEmpty(ref AABBInner, false)) {
-                MoveInstantly(new Vector2(speedX, speedY), MoveType.RelativeTime, true);
-                CheckCollisions(Time.TimeMult);
+                MoveInstantly(new Vector2(speedX * timeMult, speedY * timeMult), MoveType.Relative, true);
+                CheckCollisions(timeMult);
             } else {
-                MoveInstantly(new Vector2(speedX, speedY), MoveType.RelativeTime, true);
-                CheckCollisions(Time.TimeMult);
-                MoveInstantly(new Vector2(-speedX, -speedY), MoveType.RelativeTime, true);
+                MoveInstantly(new Vector2(speedX * timeMult, speedY * timeMult), MoveType.Relative, true);
+                CheckCollisions(timeMult);
+                MoveInstantly(new Vector2(-speedX * timeMult, -speedY * timeMult), MoveType.Relative, true);
 
                 if ((upgrades & 0x1) == 0) {
                     DecreaseHealth(int.MaxValue);
@@ -102,7 +102,7 @@ namespace Jazz2.Actors.Weapons
                 renderer.Active = true;
             }
 
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
         }
 
         protected override void OnRicochet()

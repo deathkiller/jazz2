@@ -70,7 +70,8 @@ namespace Jazz2.Server
                     Send(new CreateControllablePlayer {
                         Index = player.Index,
                         Type = player.PlayerType,
-                        Pos = player.Pos
+                        Pos = player.Pos,
+                        Health = playerHealth
                     }, 9, p.SenderConnection, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
 
                     List<NetConnection> playersWithLoadedLevel = new List<NetConnection>();

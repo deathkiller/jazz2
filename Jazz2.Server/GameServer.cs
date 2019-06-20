@@ -60,6 +60,18 @@ namespace Jazz2.Server
             }
         }
 
+        public byte SpawnedPlayerHealth
+        {
+            get
+            {
+                return playerHealth;
+            }
+            set
+            {
+                playerHealth = value;
+            }
+        }
+
         public void Run(int port, string name, int maxPlayers, bool isPrivate, bool enableUPnP, byte neededMajor, byte neededMinor, byte neededBuild)
         {
             this.port = port;

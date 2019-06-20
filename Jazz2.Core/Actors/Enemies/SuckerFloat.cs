@@ -22,16 +22,16 @@ namespace Jazz2.Actors.Enemies
             SetAnimation(AnimState.Idle);
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
             if (frozenTimeLeft <= 0) {
-                phase = (phase + 0.05f * Time.TimeMult) % MathF.TwoPi;
+                phase = (phase + 0.05f * timeMult) % MathF.TwoPi;
                 MoveInstantly(new Vector2(originPos.X + 10 * MathF.Cos(phase), originPos.Y + 10 * MathF.Sin(phase)), MoveType.Absolute, true);
 
                 IsFacingLeft = (phase < MathF.PiOver2 || phase > 3 * MathF.PiOver2);
             }
 
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
         }
 
         protected override bool OnPerish(ActorBase collider)

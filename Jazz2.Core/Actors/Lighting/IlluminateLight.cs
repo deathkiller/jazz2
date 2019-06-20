@@ -20,7 +20,7 @@ namespace Jazz2.Actors.Lighting
             }
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
         }
     }

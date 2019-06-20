@@ -258,6 +258,18 @@ namespace Jazz2.Server
                     break;
                 }
 
+                case "player_health": {
+                    string value = GetPartFromInput(ref input);
+                    byte health;
+                    if (byte.TryParse(value, out health) && health > 0 && health < 20) {
+                        gameServer.SpawnedPlayerHealth = health;
+                        Log.Write(LogType.Info, "Player health was changed to " + health + "!");
+                    } else {
+                        Log.Write(LogType.Info, "Invalid value provided!");
+                    }
+                    break;
+                }
+
                 case "spawning": {
                     string value = GetPartFromInput(ref input);
                     bool enabled = (value == "true" || value == "yes" || value == "1");

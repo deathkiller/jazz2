@@ -33,9 +33,9 @@ namespace Jazz2.Actors.Enemies
             }
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             Vector3 pos = Transform.Pos;
 
@@ -43,7 +43,7 @@ namespace Jazz2.Actors.Enemies
                 // Floating on the water
                 speedX = MathF.Sin(phase);
 
-                phase += Time.TimeMult * 0.02f;
+                phase += timeMult * 0.02f;
 
                 if (api.WaterLevel + WaterDifference < pos.Y) {
                     // Water is above the enemy, return the enemy on the surface

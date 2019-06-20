@@ -108,10 +108,36 @@ namespace Jazz2.Game
 
                 current = new App(window);
 
-                current.PlayCinematics("intro", endOfStream => {
-                    current.ShowMainMenu(endOfStream);
-                });
-                
+                bool suppressMainMenu = false;
+#if MULTIPLAYER
+                for (int i = 0; i < args.Length; i++) {
+                    if (args[i].StartsWith("/connect:", StringComparison.InvariantCulture)) {
+                        int idx = args[i].LastIndexOf(':', 10);
+                        if (idx == -1) {
+                            continue;
+                        }
+
+                        int port;
+                        if (!int.TryParse(args[i].Substring(idx + 1), NumberStyles.Any, CultureInfo.InvariantCulture, out port)) {
+                            continue;
+                        }
+
+                        try {
+                            System.Net.IPAddress ip = Lidgren.Network.NetUtility.Resolve(args[i].Substring(9, idx - 9));
+                            current.ConnectToServer(new System.Net.IPEndPoint(ip, port));
+                            suppressMainMenu = true;
+                        } catch {
+                            // Nothing to do...
+                        }
+                    }
+                }
+#endif
+                if (!suppressMainMenu) {
+                    current.PlayCinematics("intro", endOfStream => {
+                        current.ShowMainMenu(endOfStream);
+                    });
+                }
+
                 window.Run();
             }
 

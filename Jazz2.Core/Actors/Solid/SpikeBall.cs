@@ -52,15 +52,15 @@ namespace Jazz2.Actors.Solid
             }
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            phase -= speed * Time.TimeMult;
+            phase -= speed * timeMult;
             if (phase < 0f) {
                 phase += BaseCycleFrames;
             }
 
             float scale;
-            Transform.Pos = GetPhasePosition(false, length, out scale);
+            Transform.Pos = GetPhasePosition(timeMult, false, length, out scale);
             OnUpdateHitbox();
 
             canHurtPlayer = MathF.Abs(1f - scale) < 0.06f;
@@ -76,16 +76,16 @@ namespace Jazz2.Actors.Solid
             }
 
             for (int i = 0; i < length; i++) {
-                pieces[i].Transform.Pos = GetPhasePosition(false, i, out scale);
+                pieces[i].Transform.Pos = GetPhasePosition(timeMult, false, i, out scale);
                 pieces[i].Transform.Scale = scale;
 
                 // ToDo: Shade chain pieces
             }
 
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
         }
 
-        public Vector3 GetPhasePosition(bool next, int distance, out float scale)
+        public Vector3 GetPhasePosition(float timeMult, bool next, int distance, out float scale)
         {
             if (length == 0) {
                 scale = 1f;
@@ -94,7 +94,7 @@ namespace Jazz2.Actors.Solid
 
             float effectivePhase = phase;
             if (next) {
-                effectivePhase -= speed * Time.TimeMult;
+                effectivePhase -= speed * timeMult;
             }
 
             if (isSwing) {
@@ -138,7 +138,7 @@ namespace Jazz2.Actors.Solid
                 SetAnimation("Chain");
             }
 
-            protected override void OnUpdate()
+            protected override void OnFixedUpdate(float timeMult)
             {
                 // Controlled by SpikeBall
             }

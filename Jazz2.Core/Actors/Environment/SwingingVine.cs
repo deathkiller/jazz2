@@ -2,6 +2,7 @@
 using Duality;
 using Duality.Components.Renderers;
 using Duality.Drawing;
+using Jazz2.Game.Collisions;
 
 namespace Jazz2.Actors.Environment
 {
@@ -32,9 +33,9 @@ namespace Jazz2.Actors.Environment
             collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.SkipPerPixelCollisions;
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             Vector3 pos = Transform.Pos;
             float distance = 0;
@@ -47,9 +48,9 @@ namespace Jazz2.Actors.Environment
                 distance += 17;
             }
 
-            AABBInner = new Game.Collisions.AABB(vineRenderer.ChunkPositions[vineRenderer.ChunkPositions.Length - 1], 20, 20);
+            AABBInner = new AABB(vineRenderer.ChunkPositions[vineRenderer.ChunkPositions.Length - 1], 20, 20);
 
-            phase += Time.TimeMult * 0.04f;
+            phase += timeMult * 0.04f;
 
             // ToDo
             Transform.Pos = Transform.Pos;

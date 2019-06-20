@@ -132,6 +132,10 @@ namespace Jazz2.Actors
 
             public override void Draw(IDrawDevice device)
             {
+                if (gameobj == null) {
+                    return;
+                }
+
                 float timeMult = Time.TimeMult;
 
                 for (int j = 0; j < circleEffectData.Length; j++) {
@@ -192,7 +196,7 @@ namespace Jazz2.Actors
                 }
             }
 
-            protected override void OnUpdate()
+            protected override void OnFixedUpdate(float timeMult)
             {
                 Transform.RelativePos = new Vector3(0f, 0f, front ? -2f : 2f);
             }

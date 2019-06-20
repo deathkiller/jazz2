@@ -45,8 +45,18 @@ namespace Jazz2
         private float fadeTarget = 1.0f;
         private float fadeTimeSec = 1.0f;
         private float fadeWaitEnd = 0.0f;
+        private float lowpass = 1.0f;
 
         public int Priority => int.MaxValue;
+
+        /// <summary>
+        /// [GET / SET] The sounds local lowpass value. Lower values cut off more frequencies.
+        /// </summary>
+        public float Lowpass
+        {
+            get { return this.lowpass; }
+            set { this.lowpass = value; }
+        }
 
         public OpenMptStream(string path, bool looping)
         {
@@ -151,6 +161,7 @@ namespace Jazz2
         {
             AudioSourceState nativeState = AudioSourceState.Default;
             nativeState.Volume = SettingsCache.MusicVolume * curFade;
+            nativeState.Lowpass = this.lowpass;
 
             bool fadeOut = this.fadeTarget <= 0.0f;
             if (this.fadeTarget != this.curFade) {

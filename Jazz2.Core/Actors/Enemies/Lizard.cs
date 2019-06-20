@@ -69,9 +69,9 @@ namespace Jazz2.Actors.Enemies
             UpdateHitbox(30, 30);
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (frozenTimeLeft > 0 || isFalling) {
                 return;
@@ -91,7 +91,7 @@ namespace Jazz2.Actors.Enemies
                 }
             }
 
-            if (MathF.Rnd.NextFloat() < 0.004f * Time.TimeMult) {
+            if (MathF.Rnd.NextFloat() < 0.004f * timeMult) {
                 PlaySound("Noise", 0.4f);
             }
         }

@@ -28,19 +28,19 @@ namespace Jazz2.Actors.Enemies
             SetAnimation(AnimState.Idle);
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
             OnUpdateHitbox();
-            HandleBlinking();
+            HandleBlinking(timeMult);
 
             if (frozenTimeLeft > 0) {
-                frozenTimeLeft -= Time.TimeMult;
+                frozenTimeLeft -= timeMult;
                 return;
             }
 
             if (currentTransitionState == AnimState.Idle) {
                 if (attackTime > 0f) {
-                    attackTime -= Time.TimeMult;
+                    attackTime -= timeMult;
                 } else {
                     if (attacking) {
                         SetAnimation(AnimState.Idle);
@@ -56,7 +56,7 @@ namespace Jazz2.Actors.Enemies
                 }
 
                 if (noiseCooldown > 0f) {
-                    noiseCooldown -= Time.TimeMult;
+                    noiseCooldown -= timeMult;
                 } else {
                     noiseCooldown = MathF.Rnd.NextFloat(300, 500);
 
@@ -66,7 +66,7 @@ namespace Jazz2.Actors.Enemies
                 }
             }
 
-            anglePhase += Time.TimeMult * 0.02f;
+            anglePhase += timeMult * 0.02f;
 
             Vector3 speed = ((targetPos - lastPos) / 26f + lastSpeed * 1.4f) / 2.4f;
             lastPos.X += speed.X;

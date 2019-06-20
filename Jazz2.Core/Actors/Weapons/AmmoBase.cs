@@ -33,9 +33,9 @@ namespace Jazz2.Actors.Weapons
             canBeFrozen = false;
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            timeLeft -= Time.TimeMult;
+            timeLeft -= timeMult;
             if (timeLeft <= 0) {
                 DecreaseHealth();
             }
@@ -99,7 +99,7 @@ namespace Jazz2.Actors.Weapons
 
         protected virtual void OnRicochet()
         {
-            MoveInstantly(new Vector2(-speedX, -speedY), MoveType.RelativeTime, true);
+            MoveInstantly(new Vector2(-speedX, -speedY), MoveType.Relative, true);
 
             speedY = speedY * -0.9f + (MathF.Rnd.Next() % 100 - 50) * 0.1f;
             speedX = speedX * -0.9f + (MathF.Rnd.Next() % 100 - 50) * 0.1f;

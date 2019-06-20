@@ -21,7 +21,7 @@ namespace Jazz2.Actors.Lighting
             light.RadiusFar = radiusFar;
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
         }
     }

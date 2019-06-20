@@ -28,9 +28,9 @@ namespace Jazz2.Actors.Environment
             //}
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            //base.OnUpdate();
+            //base.OnFixedUpdate(timeMult);
 
             if (!active) {
                 if (timeLeft <= 0f) {
@@ -38,7 +38,7 @@ namespace Jazz2.Actors.Environment
                     renderer.Active = true;
                 }
 
-                timeLeft -= Time.TimeMult;
+                timeLeft -= timeMult;
             }
         }
 

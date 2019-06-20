@@ -14,6 +14,7 @@ namespace Jazz2.Networking.Packets.Server
         public byte Index;
         public PlayerType Type;
         public Vector3 Pos;
+        public byte Health;
 
         void IServerPacket.Read(NetIncomingMessage msg)
         {
@@ -25,6 +26,8 @@ namespace Jazz2.Networking.Packets.Server
             float y = msg.ReadUInt16();
             float z = msg.ReadUInt16();
             Pos = new Vector3(x, y, z);
+
+            Health = msg.ReadByte();
         }
 
         void IServerPacket.Write(NetOutgoingMessage msg)
@@ -36,6 +39,8 @@ namespace Jazz2.Networking.Packets.Server
             msg.Write((ushort)Pos.X);
             msg.Write((ushort)Pos.Y);
             msg.Write((ushort)Pos.Z);
+
+            msg.Write((byte)Health);
         }
     }
 }

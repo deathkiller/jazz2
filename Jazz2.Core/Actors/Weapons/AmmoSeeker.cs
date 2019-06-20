@@ -73,16 +73,14 @@ namespace Jazz2.Actors.Weapons
             Transform.Angle = angleRel;
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            float timeMult = Time.TimeMult;
-
             // Seeker is slow, so it's not neccessary to do two-pass checking
             TryMovement(timeMult);
             OnUpdateHitbox();
             CheckCollisions(timeMult);
 
-            FollowNeareastEnemy();
+            FollowNeareastEnemy(timeMult);
 
             if (!fired) {
                 fired = true;
@@ -91,7 +89,7 @@ namespace Jazz2.Actors.Weapons
                 renderer.Active = true;
             }
 
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
         }
 
         protected override bool OnPerish(ActorBase collider)
@@ -121,10 +119,10 @@ namespace Jazz2.Actors.Weapons
         {
         }
 
-        private void FollowNeareastEnemy()
+        private void FollowNeareastEnemy(float timeMult)
         {
             if (followRecomputeTime > 0f) {
-                followRecomputeTime -= Time.TimeMult;
+                followRecomputeTime -= timeMult;
                 return;
             }
 

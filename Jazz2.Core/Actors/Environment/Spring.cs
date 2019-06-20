@@ -109,12 +109,12 @@ namespace Jazz2.Actors.Environment
             }
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (cooldown > 0f) {
-                cooldown -= Time.TimeMult;
+                cooldown -= timeMult;
             }
         }
 

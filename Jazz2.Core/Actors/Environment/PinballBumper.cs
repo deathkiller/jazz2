@@ -28,16 +28,16 @@ namespace Jazz2.Actors.Environment
             light.RadiusFar = 60f;
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (cooldown > 0f) {
-                cooldown -= Time.TimeMult;
+                cooldown -= timeMult;
             }
 
             if (light.Intensity > 0f) {
-                light.Intensity -= Time.TimeMult * 0.01f;
+                light.Intensity -= timeMult * 0.01f;
 
                 if (light.Intensity < 0f) {
                     light.Intensity = 0f;
@@ -45,7 +45,7 @@ namespace Jazz2.Actors.Environment
             }
 
             if (light.Brightness > 0f) {
-                light.Brightness -= Time.TimeMult * 0.02f;
+                light.Brightness -= timeMult * 0.02f;
 
                 if (light.Brightness < 0f) {
                     light.Brightness = 0f;

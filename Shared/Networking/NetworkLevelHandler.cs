@@ -62,9 +62,9 @@ namespace Jazz2.Game.Multiplayer
             base.OnDisposing(manually);
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (isStillLoading > 0) {
                 isStillLoading--;
@@ -84,7 +84,6 @@ namespace Jazz2.Game.Multiplayer
 #endif
 
             if (players.Count > 0) {
-                float timeMult = Time.TimeMult;
                 lastUpdate += timeMult;
 
                 if (lastUpdate < 1.4f) {
@@ -253,6 +252,7 @@ namespace Jazz2.Game.Multiplayer
 
             PlayerType type = p.Type;
             Vector3 pos = p.Pos;
+            byte health = p.Health;
 
             Root.DispatchToMainThread(delegate {
                 if (players.Count > 0) {
@@ -272,6 +272,7 @@ namespace Jazz2.Game.Multiplayer
                     Pos = pos,
                     Params = new[] { (ushort)type, (ushort)0 }
                 });
+                player.Health = health;
                 AddPlayer(player);
 
                 cameras[0].Transform.Pos = new Vector3(pos.Xy, 0);

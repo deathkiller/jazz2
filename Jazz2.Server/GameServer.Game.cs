@@ -117,6 +117,7 @@ namespace Jazz2.Server
         private List<NetConnection> playerConnections;
         private byte lastPlayerIndex;
         private bool playerSpawningEnabled = true;
+        private byte playerHealth = 5;
 
         private Dictionary<int, RemotableActor> remotableActors;
 
@@ -161,7 +162,8 @@ namespace Jazz2.Server
                         Send(new CreateControllablePlayer {
                             Index = player.Index,
                             Type = player.PlayerType,
-                            Pos = player.Pos
+                            Pos = player.Pos,
+                            Health = playerHealth
                         }, 9, pair.Key, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
 
                         playersWithLoadedLevel.Clear();
@@ -361,7 +363,8 @@ namespace Jazz2.Server
                 Send(new CreateControllablePlayer {
                     Index = player.Index,
                     Type = player.PlayerType,
-                    Pos = player.Pos
+                    Pos = player.Pos,
+                    Health = playerHealth
                 }, 9, player.Connection, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
             }
         }

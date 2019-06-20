@@ -105,7 +105,7 @@ namespace Jazz2.Actors.Solid
             AABBInner = new AABB(pos.X - 16, pos.Y - 10, pos.X - 16 + bridgeWidth * 16, pos.Y + 16);
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
             collisions.Clear();
 
@@ -226,10 +226,10 @@ namespace Jazz2.Actors.Solid
                 return false;
             }
 
-            protected override void OnUpdate()
+            protected override void OnFixedUpdate(float timeMult)
             {
                 // The bridge piece is controlled by the bridge
-                //base.OnUpdate();
+                //base.OnFixedUpdate(timeMult);
 
                 OnUpdateHitbox();
             }

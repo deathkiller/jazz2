@@ -4,7 +4,7 @@ using Jazz2.Actors;
 
 namespace Jazz2.Game
 {
-    public class CameraController : Component, ICmpUpdatable
+    public class CameraController : Component, ICmpFixedUpdatable
     {
         private ActorBase targetObj;
         private Rect viewBounds;
@@ -46,14 +46,11 @@ namespace Jazz2.Game
             }
         }
 
-        void ICmpUpdatable.OnUpdate()
+        void ICmpFixedUpdatable.OnFixedUpdate(float timeMult)
         {
             if (targetObj == null) {
                 return;
             }
-
-            // Max. time multplier is set to 2 (~30 fps)
-            float timeMult = MathF.Min(Time.TimeMult, 2f);
 
             // View Bounds Animation
             if (viewBounds != viewBoundsTarget) {

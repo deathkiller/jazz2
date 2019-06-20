@@ -17,11 +17,11 @@ namespace Jazz2.Actors
             SetAnimation("FrozenBlock");
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
-            timeLeft -= Time.TimeMult;
+            timeLeft -= timeMult;
             if (timeLeft <= 0) {
                 DecreaseHealth(int.MaxValue);
             }

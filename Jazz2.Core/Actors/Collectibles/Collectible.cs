@@ -47,19 +47,19 @@ namespace Jazz2.Actors.Collectibles
             }
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (untouched) {
-                phase += Time.TimeMult * 0.15f;
+                phase += timeMult * 0.15f;
 
                 float waveOffset = 3.2f * MathF.Cos((phase * 0.25f) * MathF.Pi) + 0.6f;
                 Vector3 pos = Transform.Pos;
                 pos.Y = startingY + waveOffset;
                 Transform.Pos = pos;
             } else if (timeLeft > 0f) {
-                timeLeft -= Time.TimeMult;
+                timeLeft -= timeMult;
 
                 if (timeLeft <= 0f) {
                     Explosion.Create(api, Transform.Pos, Explosion.Generator);

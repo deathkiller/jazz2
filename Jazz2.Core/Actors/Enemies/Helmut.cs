@@ -33,9 +33,9 @@ namespace Jazz2.Actors.Enemies
             UpdateHitbox(28, 26);
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (frozenTimeLeft > 0) {
                 return;
@@ -72,7 +72,7 @@ namespace Jazz2.Actors.Enemies
                 }
             }
 
-            stateTime -= Time.TimeMult;
+            stateTime -= timeMult;
         }
 
         protected override bool OnPerish(ActorBase collider)

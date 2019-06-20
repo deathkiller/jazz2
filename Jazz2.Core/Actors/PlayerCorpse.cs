@@ -27,9 +27,8 @@ namespace Jazz2.Actors
             collisionFlags = CollisionFlags.ForceDisableCollisions;
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            // Nothing to do...
         }
     }
 }

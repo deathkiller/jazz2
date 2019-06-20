@@ -49,9 +49,9 @@ namespace Jazz2.Actors.Bosses
             }
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (activeRobot != null) {
                 if (activeRobot.Scene == null) {

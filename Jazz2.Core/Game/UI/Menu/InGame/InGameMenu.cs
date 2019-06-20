@@ -65,6 +65,8 @@ namespace Jazz2.Game.UI.Menu.InGame
             bool isMultiplayerSession = false;
 #endif
 
+            levelHandler.EnableLowpassOnMusic(true);
+
             rootObject = new GameObject();
             rootObject.AddComponent(new LocalController(this));
             AddObject(rootObject);
@@ -136,6 +138,8 @@ namespace Jazz2.Game.UI.Menu.InGame
 
             Scene.Current.DisposeLater();
             Scene.SwitchTo(levelHandler);
+
+            levelHandler.EnableLowpassOnMusic(false);
         }
 
         public void SwitchToMainMenu()

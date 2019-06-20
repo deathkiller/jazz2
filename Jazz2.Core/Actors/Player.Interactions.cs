@@ -305,7 +305,7 @@ namespace Jazz2.Actors
                 SetAnimation(AnimState.Activated);
             }
 
-            protected override void OnUpdate()
+            protected override void OnFixedUpdate(float timeMult)
             {
                 Transform.RelativePos = new Vector3(0f, 0f, 4f);
             }

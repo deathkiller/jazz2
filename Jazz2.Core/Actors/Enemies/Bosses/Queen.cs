@@ -73,9 +73,9 @@ namespace Jazz2.Actors.Bosses
             base.OnDeactivated(context);
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (block != null) {
                 block.UpdateBlock(Transform.Pos);
@@ -207,7 +207,7 @@ namespace Jazz2.Actors.Bosses
 
                 case StateDead: {
                     // Thrown away by spring
-                    CheckDestructibleTiles();
+                    CheckDestructibleTiles(timeMult);
 
                     if (stateTime <= 0f) {
                         DecreaseHealth(int.MaxValue);
@@ -217,13 +217,13 @@ namespace Jazz2.Actors.Bosses
 
                 case StateScreaming: {
                     foreach (Player player in api.Players) {
-                        player.AddExternalForce(-1.51f * Time.TimeMult, 0f);
+                        player.AddExternalForce(-1.51f * timeMult, 0f);
                     }
                     break;
                 }
             }
 
-            stateTime -= Time.TimeMult;
+            stateTime -= timeMult;
         }
 
         public override void OnHandleCollision(ActorBase other)
@@ -261,14 +261,13 @@ namespace Jazz2.Actors.Bosses
             }
         }
 
-        private void CheckDestructibleTiles()
+        private void CheckDestructibleTiles(float timeMult)
         {
             TileMap tiles = api.TileMap;
             if (tiles == null) {
                 return;
             }
 
-            float timeMult = Time.TimeMult;
             AABB aabb = AABBInner + new Vector2((speedX + externalForceX) * 2f * timeMult, (speedY - externalForceY) * 2f * timeMult);
 
             if (tiles.CheckWeaponDestructible(ref aabb, WeaponType.Blaster, int.MaxValue) > 0) {
@@ -293,14 +292,14 @@ namespace Jazz2.Actors.Bosses
                 PlaySound("BrickFalling", 0.3f);
             }
 
-            protected override void OnUpdate()
+            protected override void OnFixedUpdate(float timeMult)
             {
-                base.OnUpdate();
+                base.OnFixedUpdate(timeMult);
 
                 if (time <= 0f) {
                     DecreaseHealth(int.MaxValue);
                 } else {
-                    time -= Time.TimeMult;
+                    time -= timeMult;
                 }
             }
 
@@ -328,7 +327,7 @@ namespace Jazz2.Actors.Bosses
                 renderer.Active = false;
             }
 
-            protected override void OnUpdate()
+            protected override void OnFixedUpdate(float timeMult)
             {
                 // Nothing to do...
             }

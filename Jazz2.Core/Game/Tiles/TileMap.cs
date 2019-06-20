@@ -7,7 +7,7 @@ using Jazz2.Game.Structs;
 
 namespace Jazz2.Game.Tiles
 {
-    public partial class TileMap : Component, ICmpUpdatable
+    public partial class TileMap : Component, ICmpFixedUpdatable
     {
         private const int TriggerCount = 32;
 
@@ -60,10 +60,8 @@ namespace Jazz2.Game.Tiles
             levelHandler = null;
         }
 
-        void ICmpUpdatable.OnUpdate()
+        void ICmpFixedUpdatable.OnFixedUpdate(float timeMult)
         {
-            float timeMult = Time.TimeMult;
-
             int n = animatedTiles.Count;
             AnimatedTile[] list = animatedTiles.Data;
             for (int i = 0; i < n; i++) {

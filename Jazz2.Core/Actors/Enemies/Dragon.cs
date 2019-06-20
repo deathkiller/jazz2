@@ -23,9 +23,9 @@ namespace Jazz2.Actors.Enemies
             IsFacingLeft = MathF.Rnd.NextBool();
         }
 
-        protected override void OnUpdate()
+        protected override void OnFixedUpdate(float timeMult)
         {
-            base.OnUpdate();
+            base.OnFixedUpdate(timeMult);
 
             if (frozenTimeLeft > 0) {
                 return;
@@ -94,13 +94,13 @@ namespace Jazz2.Actors.Enemies
 
                             attackTime = 10f;
                         } else {
-                            attackTime -= Time.TimeMult;
+                            attackTime -= timeMult;
                         }
                     }
                 }
             }
 
-            stateTime -= Time.TimeMult;
+            stateTime -= timeMult;
         }
 
         protected override bool OnPerish(ActorBase collider)
@@ -147,14 +147,14 @@ namespace Jazz2.Actors.Enemies
                 light.RadiusFar = 30f;
             }
 
-            protected override void OnUpdate()
+            protected override void OnFixedUpdate(float timeMult)
             {
-                base.OnUpdate();
+                base.OnFixedUpdate(timeMult);
 
                 if (timeLeft <= 0f) {
                     DecreaseHealth(int.MaxValue, null);
                 } else {
-                    timeLeft -= Time.TimeMult;
+                    timeLeft -= timeMult;
                 }
             }
         }
