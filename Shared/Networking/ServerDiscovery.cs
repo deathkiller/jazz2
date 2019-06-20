@@ -44,7 +44,7 @@ namespace Jazz2.Game.Multiplayer
             public IList<Server> servers { get; set; }
         }
 
-        private const string ServerListUrl = "http://deat.tk/jazz2/servers/";
+        private const string ServerListUrl = "http://deat.tk/jazz2/servers";
 
         private NetClient client;
         private Thread threadUpdate;
@@ -298,7 +298,7 @@ namespace Jazz2.Game.Multiplayer
                 client.Encoding = Encoding.UTF8;
                 client.Headers["User-Agent"] = App.AssemblyTitle;
 
-                string content = client.DownloadString(ServerListUrl + "?v=" + currentVersion + "&d=" + deviceId);
+                string content = client.DownloadString(ServerListUrl + "?fetch&v=" + currentVersion + "&d=" + deviceId);
                 if (content == null) {
                     return;
                 }

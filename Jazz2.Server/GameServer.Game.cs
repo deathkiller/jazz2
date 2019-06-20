@@ -111,6 +111,7 @@ namespace Jazz2.Server
         }
 
         private string currentLevel;
+        private string currentLevelFriendlyName;
         private MultiplayerLevelType currentLevelType;
 
         private Dictionary<NetConnection, Player> players;
@@ -308,7 +309,9 @@ namespace Jazz2.Server
                         throw new NotSupportedException("Version not supported");
                     }
 
-                    Log.Write(LogType.Info, "Loading level \"" + BitmapFont.StripFormatting(config.Description.Name) + "\" (" + currentLevelType + ")...");
+                    currentLevelFriendlyName = BitmapFont.StripFormatting(config.Description.Name);
+
+                    Log.Write(LogType.Info, "Loading level \"" + currentLevelFriendlyName + "\" (" + currentLevelType + ")...");
 
                     Point2 tileMapSize;
                     using (Stream s2 = levelPackage.OpenFile("Sprite.layer", FileAccessMode.Read))

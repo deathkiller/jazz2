@@ -14,7 +14,7 @@ namespace Jazz2.Server
     public partial class GameServer : IDisposable
     {
         private const string Token = "J²";
-        private const string ServerListUrl = "http://deat.tk/jazz2/servers/";
+        private const string ServerListUrl = "http://deat.tk/jazz2/servers";
 
         private object sync = new object();
 
@@ -27,6 +27,7 @@ namespace Jazz2.Server
         private byte neededMajor, neededMinor, neededBuild;
         private string customHostname;
         private bool allowOnlyUniqueClients = true;
+        private DateTime startedTime;
 
         private Dictionary<byte, Action<NetIncomingMessage, bool>> callbacks;
 
@@ -35,6 +36,7 @@ namespace Jazz2.Server
         public int MaxPlayers => maxPlayers;
         public string CurrentLevel => currentLevel;
         public Dictionary<NetConnection, Player> Players => players;
+        public DateTime StartedTime => startedTime;
 
         public string Name
         {
@@ -100,11 +102,12 @@ namespace Jazz2.Server
             Log.Write(LogType.Info, "Server Name: " + name);
             Log.Write(LogType.Info, "Players: 0/" + maxPlayers);
 
-
             // Create game loop
             threadGame = new Thread(OnGameLoop);
             threadGame.IsBackground = true;
             threadGame.Start();
+
+            startedTime = DateTime.Now;
 
             // Publish to server list
             if (!isPrivate) {
@@ -146,14 +149,19 @@ namespace Jazz2.Server
         {
             bool isPublished = true;
 
+            // Wait 15 seconds before the first publishing on server list
+            Thread.Sleep(15000);
+
             while (threadPublishToServerList != null) {
                 try {
                     string currentVersion = Game.App.AssemblyVersion;
 
                     string endpoint = (customHostname ?? (server.PublicIPAddress ?? server.LocalIPAddress).ToString()) + ":" + port;
 
-                    string dataString = "0|" + endpoint + "|" + currentVersion + "|" + players.Count + "|" + maxPlayers + "|" + name;
-                    string data = "add=" + Convert.ToBase64String(Encoding.UTF8.GetBytes(dataString))
+                    long uptimeSecs = (long)(TimeZoneInfo.ConvertTimeToUtc(startedTime) -  new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+
+                    string dataString = "0\n" + endpoint + "\n" + currentVersion + "\n" + players.Count + "\n" + maxPlayers + "\n" + uptimeSecs + "\n" + lastGameLoadMs + "\n" + (int)currentLevelType + "\n" + currentLevel + "\n" + currentLevelFriendlyName + "\n" + name;
+                    string data = "publish=" + Convert.ToBase64String(Encoding.UTF8.GetBytes(dataString))
                                 .Replace('+', '-').Replace('/', '_').TrimEnd('=');
 
                     WebClient client = new WebClient();

@@ -13,7 +13,6 @@ namespace Jazz2.Server
     {
         private static GameServer gameServer;
         private static Dictionary<string, Func<string, bool>> availableCommands;
-        private static DateTime started;
 
         private static void Main(string[] args)
         {
@@ -90,8 +89,6 @@ namespace Jazz2.Server
 
             Log.Write(LogType.Info, "Ready!");
             Log.Write(LogType.Info, "");
-
-            started = DateTime.Now;
 
             // Processing of console commands
             ProcessConsoleCommands();
@@ -200,7 +197,7 @@ namespace Jazz2.Server
 
         private static bool HandleCommandInfo(string input)
         {
-            TimeSpan uptime = (DateTime.Now - started);
+            TimeSpan uptime = (DateTime.Now - gameServer.StartedTime);
             Log.Write(LogType.Info, "Uptime: " + uptime);
 
             Log.Write(LogType.Info, "Server Load: " + gameServer.LoadMs + " ms");
@@ -283,6 +280,7 @@ namespace Jazz2.Server
                         Log.Write(LogType.Info, "name = " + gameServer.Name);
                         Log.Write(LogType.Info, "level = " + gameServer.CurrentLevel);
                         Log.Write(LogType.Info, "only_unique_clients = " + gameServer.AllowOnlyUniqueClients);
+                        Log.Write(LogType.Info, "player_health = " + gameServer.SpawnedPlayerHealth);
                         Log.Write(LogType.Info, "spawning = " + gameServer.IsPlayerSpawningEnabled);
                         Log.Write(LogType.Info, "");
                     } else {
