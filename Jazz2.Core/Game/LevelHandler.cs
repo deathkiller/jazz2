@@ -241,7 +241,7 @@ namespace Jazz2.Game
 
                 cameraTransform.Pos = new Vector3(levelBounds.Center, 0);
 
-                ((ICmpUpdatable)cameraController).OnUpdate();
+                ((ICmpFixedUpdatable)cameraController).OnFixedUpdate(1f);
                 camera.Parent = rootObject;
 
                 cameras.Add(camera);

@@ -259,6 +259,7 @@ namespace Jazz2.Game.Multiplayer
                     Player oldPlayer = players[0];
                     if (oldPlayer.PlayerType == type) {
                         oldPlayer.Respawn(pos.Xy);
+                        oldPlayer.Health = health;
                         return;
                     }
 
