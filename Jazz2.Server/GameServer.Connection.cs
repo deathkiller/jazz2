@@ -51,9 +51,12 @@ namespace Jazz2.Server
                 }
             }
 
+            string userName = args.Message.ReadString();
+
             players[args.Message.SenderConnection] = new Player {
                 Connection = args.Message.SenderConnection,
                 ClientIdentifier = clientIdentifier,
+                UserName = userName,
                 State = PlayerState.NotReady
             };
         }
@@ -66,7 +69,7 @@ namespace Jazz2.Server
                     players[args.SenderConnection].Index = lastPlayerIndex;
                 }
 
-                Log.Write(LogType.Verbose, "Client " + PlayerNameToConsole(players[args.SenderConnection]) + " (" + args.SenderConnection.RemoteEndPoint + ") connected!");
+                Log.Write(LogType.Verbose, "Client " + PlayerNameToConsole(players[args.SenderConnection]) + " - " + players[args.SenderConnection].UserName + " (" + args.SenderConnection.RemoteEndPoint + ") connected!");
 
                 if (currentLevel != null) {
                     Send(new LoadLevel {
@@ -77,7 +80,7 @@ namespace Jazz2.Server
                 }
 
             } else if (args.Status == NetConnectionStatus.Disconnected) {
-                Log.Write(LogType.Verbose, "Client " + PlayerNameToConsole(players[args.SenderConnection]) + " (" + args.SenderConnection.RemoteEndPoint + ") disconnected!");
+                Log.Write(LogType.Verbose, "Client " + PlayerNameToConsole(players[args.SenderConnection]) + " - " + players[args.SenderConnection].UserName + " (" + args.SenderConnection.RemoteEndPoint + ") disconnected!");
 
                 lock (sync) {
                     byte index = players[args.SenderConnection].Index;

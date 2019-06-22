@@ -166,7 +166,7 @@ namespace Jazz2.Game.UI.Menu
                     api.BeginFadeOut(() => {
                         ControlScheme.IsSuspended = false;
 
-                        LevelInitialization carryOver = new LevelInitialization(
+                        LevelInitialization levelInit = new LevelInitialization(
                             episodeName,
                             levelName,
                             (GameDifficulty.Easy + selectedDifficulty),
@@ -174,7 +174,7 @@ namespace Jazz2.Game.UI.Menu
                         );
 
                         if (!string.IsNullOrEmpty(previousEpisodeName)) {
-                            ref PlayerCarryOver player = ref carryOver.PlayerCarryOvers[0];
+                            ref PlayerCarryOver player = ref levelInit.PlayerCarryOvers[0];
 
                             byte lives = Preferences.Get<byte>("EpisodeEnd_Lives_" + previousEpisodeName);
                             short[] ammo = Preferences.Get<short[]>("EpisodeEnd_Ammo_" + previousEpisodeName);
@@ -191,7 +191,7 @@ namespace Jazz2.Game.UI.Menu
                             }
                         }
 
-                        api.SwitchToLevel(carryOver);
+                        api.SwitchToLevel(levelInit);
                     });
                 }
             } else if (ControlScheme.MenuActionHit(PlayerActions.Left)) {

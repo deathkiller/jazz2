@@ -157,13 +157,11 @@ namespace Jazz2.Game.UI
                                 hasColor = true;
                                 break;
                             case 's': // Scale
-                                      //if (int.TryParse(new string(ptr, formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
                                 if (int.TryParse(text.Substring(formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
                                     scalePre = paramInt * 0.01f;
                                 }
                                 break;
                             case 'w': // Char spacing
-                                      //if (int.TryParse(new string(ptr, formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
                                 if (int.TryParse(text.Substring(formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
                                     charSpacingPre = paramInt * 0.01f;
                                 }
@@ -254,7 +252,6 @@ namespace Jazz2.Game.UI
                         int paramInt;
                         switch (text[formatIndex]) {
                             case 'c': // Color
-                                //if (allowColorChange && int.TryParse(new string(ptr, formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
                                 if (allowColorChange && int.TryParse(text.Substring(formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
                                     if (paramInt == -1) {
                                         colorize = true;
@@ -265,13 +262,11 @@ namespace Jazz2.Game.UI
                                 }
                                 break;
                             case 's': // Scale
-                                //if (int.TryParse(new string(ptr, formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
                                 if (int.TryParse(text.Substring(formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
                                     scale = paramInt * 0.01f;
                                 }
                                 break;
                             case 'w': // Char spacing
-                                //if (int.TryParse(new string(ptr, formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
                                 if (int.TryParse(text.Substring(formatIndex + 2, i - (formatIndex + 2)), out paramInt)) {
                                     charSpacing = paramInt * 0.01f;
                                 }
@@ -304,7 +299,7 @@ namespace Jazz2.Game.UI
 
                     if (angleOffset > 0f) {
                         float currentPhase = (phase + charOffset) * angleOffset * MathF.Pi;
-                        if (charOffset % 2 == 1) {
+                        if (speed > 0f && charOffset % 2 == 1) {
                             currentPhase = -currentPhase;
                         }
 

@@ -37,6 +37,7 @@ namespace Jazz2.Server
         {
             public NetConnection Connection;
             public byte[] ClientIdentifier;
+            public string UserName;
 
             public byte Index;
             public PlayerState State;

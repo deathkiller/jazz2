@@ -10,7 +10,7 @@ using Jazz2.Storage;
 
 namespace Jazz2.Game
 {
-    public partial class App
+    partial class App
     {
         private NetworkHandler net;
 
@@ -33,7 +33,16 @@ namespace Jazz2.Game
                 Preferences.Commit();
             }
 
-            net = new NetworkHandler(token, clientIdentifier);
+            string userName = Preferences.Get<string>("UserName");
+            if (userName == null) {
+                userName = TryGetDefaultUserName();
+                if (!string.IsNullOrEmpty(userName)) {
+                    Preferences.Set<string>("UserName", userName);
+                    Preferences.Commit();
+                }
+            }
+
+            net = new NetworkHandler(token, clientIdentifier, userName);
             net.OnDisconnected += OnNetworkDisconnected;
             net.RegisterCallback<LoadLevel>(OnNetworkLoadLevel);
             net.Connect(endPoint);
@@ -63,11 +72,11 @@ namespace Jazz2.Game
             DispatchToMainThread(delegate {
                 Scene.Current.Dispose();
 
-                NetworkLevelHandler handler = new NetworkLevelHandler(this, net,
-                    new LevelInitialization(episodeName, levelName, GameDifficulty.Multiplayer),
-                    playerIndex);
+                LevelInitialization levelInit = new LevelInitialization(episodeName, levelName, GameDifficulty.Multiplayer);
 
-                Scene.SwitchTo(handler);
+                Scene.SwitchTo(new NetworkLevelHandler(this, net, levelInit, playerIndex));
+
+                UpdateRichPresence(levelInit);
             });
         }
 

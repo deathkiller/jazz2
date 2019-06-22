@@ -12,6 +12,7 @@ namespace Jazz2.Game.Multiplayer
     public class NetworkHandler
     {
         private byte[] clientIdentifier;
+        private string userName;
         private NetClient client;
         private Thread threadUpdate;
 
@@ -29,13 +30,14 @@ namespace Jazz2.Game.Multiplayer
 
         public float AverageRoundtripTime => (client != null && client.ServerConnection != null ? client.ServerConnection.AverageRoundtripTime : 0);
 
-        public NetworkHandler(string appId, byte[] clientIdentifier)
+        public NetworkHandler(string appId, byte[] clientIdentifier, string userName)
         {
             if (clientIdentifier == null || clientIdentifier.Length != 16) {
                 throw new ArgumentException("Client identifier must be 16 bytes long");
             }
 
             this.clientIdentifier = clientIdentifier;
+            this.userName = userName;
 
             callbacks = new Dictionary<byte, Action<NetIncomingMessage>>();
 
@@ -73,6 +75,8 @@ namespace Jazz2.Game.Multiplayer
             for (int i = 0; i < 16; i++) {
                 message.Write((byte)clientIdentifier[i]);
             }
+
+            message.Write(userName);
 
             client.Connect(host, message);
         }

@@ -259,14 +259,14 @@ namespace Jazz2.Game.UI.Menu
                                 // Lives, Difficulty and PlayerType is saved in Misc array [Jazz2.Core/Game/Controller.cs: ~146]
                                 byte[] misc = Preferences.Get<byte[]>("EpisodeContinue_Misc_" + episodeName);
 
-                                LevelInitialization carryOver = new LevelInitialization(
+                                LevelInitialization levelInit = new LevelInitialization(
                                     episodeName,
                                     levelName,
                                     (GameDifficulty)misc[1],
                                     (PlayerType)misc[2]
                                 );
 
-                                ref PlayerCarryOver player = ref carryOver.PlayerCarryOvers[0];
+                                ref PlayerCarryOver player = ref levelInit.PlayerCarryOvers[0];
 
                                 if (misc[0] > 0) {
                                     player.Lives = misc[0];
@@ -282,7 +282,7 @@ namespace Jazz2.Game.UI.Menu
                                     player.WeaponUpgrades = upgrades;
                                 }
 
-                                api.SwitchToLevel(carryOver);
+                                api.SwitchToLevel(levelInit);
                             });
                         }
                     } else {

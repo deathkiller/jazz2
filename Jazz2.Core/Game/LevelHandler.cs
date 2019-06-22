@@ -74,7 +74,7 @@ namespace Jazz2.Game
 
         private OpenMptStream music;
 
-        private LevelInitialization? currentCarryOver;
+        private LevelInitialization? nextLevelInit;
         private float levelChangeTimer;
 
         private WeatherType weatherType;
@@ -625,30 +625,30 @@ namespace Jazz2.Game
                 nextLevel = (exitType == ExitType.Bonus ? defaultSecretLevel : defaultNextLevel);
             }
 
-            LevelInitialization data = default(LevelInitialization);
+            LevelInitialization levelInit = default(LevelInitialization);
 
             if (nextLevel != null) {
                 int i = nextLevel.IndexOf('/');
                 if (i == -1) {
-                    data.EpisodeName = episodeName;
-                    data.LevelName = nextLevel;
+                    levelInit.EpisodeName = episodeName;
+                    levelInit.LevelName = nextLevel;
                 } else {
-                    data.EpisodeName = nextLevel.Substring(0, i);
-                    data.LevelName = nextLevel.Substring(i + 1);
+                    levelInit.EpisodeName = nextLevel.Substring(0, i);
+                    levelInit.LevelName = nextLevel.Substring(i + 1);
                 }
             }
 
-            data.Difficulty = difficulty;
-            data.ExitType = exitType;
+            levelInit.Difficulty = difficulty;
+            levelInit.ExitType = exitType;
 
-            data.PlayerCarryOvers = new PlayerCarryOver[players.Count];
+            levelInit.PlayerCarryOvers = new PlayerCarryOver[players.Count];
             for (int i = 0; i < players.Count; i++) {
-                data.PlayerCarryOvers[i] = players[i].PrepareLevelCarryOver();
+                levelInit.PlayerCarryOvers[i] = players[i].PrepareLevelCarryOver();
             }
 
-            data.LastEpisodeName = episodeName;
+            levelInit.LastEpisodeName = episodeName;
 
-            currentCarryOver = data;
+            nextLevelInit = levelInit;
 
             levelChangeTimer = 50f;
         }
@@ -826,7 +826,7 @@ namespace Jazz2.Game
 
         protected virtual void OnFixedUpdate(float timeMult)
         {
-            if (currentCarryOver.HasValue) {
+            if (nextLevelInit.HasValue) {
                 bool playersReady = true;
                 foreach (Player player in players) {
                     // Exit type is already provided
@@ -837,8 +837,8 @@ namespace Jazz2.Game
                     if (levelChangeTimer > 0) {
                         levelChangeTimer -= timeMult;
                     } else {
-                        root.ChangeLevel(currentCarryOver.Value);
-                        currentCarryOver = null;
+                        root.ChangeLevel(nextLevelInit.Value);
+                        nextLevelInit = null;
                         initState = InitState.Disposed;
                         return;
                     }

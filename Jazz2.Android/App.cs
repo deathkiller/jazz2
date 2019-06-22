@@ -3,7 +3,7 @@ using Android.App;
 
 namespace Jazz2.Game
 {
-    public partial class App
+    partial class App
     {
         public static string AssemblyTitle
         {
@@ -53,6 +53,11 @@ namespace Jazz2.Game
             major = byte.Parse(v[0]);
             minor = byte.Parse(v[1]);
             build = byte.Parse(v[2]);
+        }
+
+        public string TryGetDefaultUserName()
+        {
+            return null;
         }
     }
 }
