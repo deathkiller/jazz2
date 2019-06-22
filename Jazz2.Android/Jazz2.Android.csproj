@@ -68,7 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
-    <Compile Include="Backend\Drawing\OpenTK\NativeGraphicsBuffer.cs" />
+    <Compile Include="Backend\Es30\NativeGraphicsBuffer.cs" />
     <Compile Include="Backend\Sound\AudioBackend.cs" />
     <Compile Include="Backend\Sound\NativeAudioBuffer.cs" />
     <Compile Include="Backend\Sound\NativeAudioSource.cs" />
@@ -79,14 +79,14 @@
     <Compile Include="Game\UI\InGameMenu.Touch.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="InnerView.cs" />
-    <Compile Include="Backend\Drawing\OpenTK\ExtMethodsColorDataElementType.cs" />
-    <Compile Include="Backend\Drawing\OpenTK\ExtMethodsColorDataLayout.cs" />
-    <Compile Include="Backend\Drawing\OpenTK\GraphicsBackend.cs" />
-    <Compile Include="Backend\Drawing\OpenTK\NativeRenderTarget.cs" />
-    <Compile Include="Backend\Drawing\OpenTK\NativeShaderPart.cs" />
-    <Compile Include="Backend\Drawing\OpenTK\NativeShaderProgram.cs" />
-    <Compile Include="Backend\Drawing\OpenTK\NativeTexture.cs" />
-    <Compile Include="Backend\Drawing\OpenTK\NativeWindow.cs" />
+    <Compile Include="Backend\Es30\ExtMethodsColorDataElementType.cs" />
+    <Compile Include="Backend\Es30\ExtMethodsColorDataLayout.cs" />
+    <Compile Include="Backend\Es30\GraphicsBackend.cs" />
+    <Compile Include="Backend\Es30\NativeRenderTarget.cs" />
+    <Compile Include="Backend\Es30\NativeShaderPart.cs" />
+    <Compile Include="Backend\Es30\NativeShaderProgram.cs" />
+    <Compile Include="Backend\Es30\NativeTexture.cs" />
+    <Compile Include="Backend\Es30\NativeWindow.cs" />
     <Compile Include="Game\UI\MainMenu.Touch.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -1,0 +1,59 @@
+<Project Sdk="Mono.WebAssembly.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <MonoWasmLinkMode>Full</MonoWasmLinkMode>
+    <MonoWasmLinkSkip></MonoWasmLinkSkip>
+    <Product>Jazz² Resurrection</Product>
+    <Version>0.6.0</Version>
+    <Description>Reimplementation of the game Jazz Jackrabbit 2 released in 1998.</Description>
+    <Copyright>© 2016-2019 Dan R.</Copyright>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;NET45 WASM</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;NET45 WASM</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="SkiaSharp.Wasm">
+      <HintPath>.\Libs\SkiaSharp.Wasm.dll</HintPath>
+    </Reference>
+
+  </ItemGroup>
+ 
+  <ItemGroup>
+	<PackageReference Include="System.Memory" Version="4.5.2" />
+    <PackageReference Include="WebAssembly.Bindings" Version="0.1.0" />
+    <PackageReference Include="WebAssembly.Net.Http" Version="0.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="canvaskit.js" />
+    <None Remove="index.html" />
+    <None Remove="Scripts\mono_support.js" />
+    <None Remove="Scripts\SkiaSharp.js" />
+    
+    <None Remove="canvaskit.wasm" />
+    <Content Include="canvaskit.wasm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Backends\" />
+  </ItemGroup>
+
+  <Import Project="..\Jazz2.Core\Jazz2.Core.projitems" Label="Shared" />
+
+  <Import Project="..\Shared\Duality\Duality.projitems" Label="Shared" />
+
+  <Import Project="..\Shared\Primitives\Primitives.projitems" Label="Shared" />
+  
+</Project>

@@ -1,0 +1,33 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Jazz² Resurrection</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    
+    <script src="runtime.js"></script>
+    <script defer src="Scripts/mono_support.js"></script>
+    <script defer src="Scripts/SkiaSharp.js"></script>
+    <script defer src="canvaskit.js"></script>
+    <script defer src="mono.js"></script>
+</head>
+<body>
+    <div id="feedback-body" class="container-fluid">
+        <p id="loading">Loading...</p>
+    </div>        
+
+    <script>
+        var App = {
+            init: function() {
+                var feedback = document.getElementById("feedback-body");
+                if (feedback) {
+                    feedback.parentElement.removeChild(feedback);
+                }
+
+                BINDING.call_static_method("[Jazz2.Wasm] Jazz2.Game.App:Main", []);
+            }
+        };
+    </script>
+</body>
+</html>
