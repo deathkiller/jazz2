@@ -64,8 +64,17 @@ namespace Jazz2.Game
         public static async void Main()
         {
             // ToDo
+            await NativeFileSystem.DownloadToCache("Content/Cinematics/intro.j2v");
+
             await NativeFileSystem.DownloadToCache("Content/Main.dz");
-            await NativeFileSystem.DownloadToCache("Content/i18n/en.dz");
+            await NativeFileSystem.DownloadToCache("Content/i18n/en.res");
+
+            await NativeFileSystem.DownloadToCache("Content/Tilesets/easter99.set");
+            await NativeFileSystem.DownloadToCache("Content/Episodes/secretf/01_easter1.level");
+            await NativeFileSystem.DownloadToCache("Content/Episodes/secretf/02_easter2.level");
+            await NativeFileSystem.DownloadToCache("Content/Episodes/secretf/03_easter3.level");
+            await NativeFileSystem.DownloadToCache("Content/Episodes/secretf/Episode.res");
+            await NativeFileSystem.DownloadToCache("Content/Episodes/secretf/Logo.png");
 
 
             DualityApp.Init(DualityApp.ExecutionContext.Game, null, null);
@@ -76,24 +85,23 @@ namespace Jazz2.Game
 
             ContentResolver.Current.Init();
 
-            using (INativeWindow window = DualityApp.OpenWindow(new WindowOptions {
+            INativeWindow window = DualityApp.OpenWindow(new WindowOptions {
                 Title = AssemblyTitle,
                 RefreshMode = refreshMode,
                 Size = LevelRenderSetup.TargetSize,
                 ScreenMode = ScreenMode.Window
-            })) {
-                ContentResolver.Current.InitPostWindow();
+            });
 
-                current = new App(window);
+            ContentResolver.Current.InitPostWindow();
 
-                current.PlayCinematics("intro", endOfStream => {
-                    current.ShowMainMenu(endOfStream);
-                });
+            current = new App(window);
 
-                window.Run();
-            }
+            //current.PlayCinematics("intro", endOfStream => {
+                current.ShowMainMenu(false);
+            //});
 
-            DualityApp.Terminate();
+            window.Run();
+
         }
     }
 }

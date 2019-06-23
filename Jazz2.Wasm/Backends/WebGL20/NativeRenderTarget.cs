@@ -260,7 +260,7 @@ namespace Duality.Backend.Android.OpenTK
             }
 
             // Check status
-            uint status = GraphicsBackend.GL.CheckFramebufferStatus(WebGLRenderingContextBase.FRAMEBUFFER);
+            int status = GraphicsBackend.GL.CheckFramebufferStatus(WebGLRenderingContextBase.FRAMEBUFFER);
             if (status != WebGLRenderingContextBase.FRAMEBUFFER_COMPLETE) {
                 throw new BackendException(string.Format("Incomplete Framebuffer: {0}", status));
             }

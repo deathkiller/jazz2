@@ -103,8 +103,8 @@ namespace Duality.Backend.Android.OpenTK
             // Link the shader program
             GraphicsBackend.GL.LinkProgram(this.handle);
 
-            int result = (int)GraphicsBackend.GL.GetProgramParameter(this.handle, WebGLRenderingContextBase.LINK_STATUS);
-            if (result == 0) {
+            bool result = (bool)GraphicsBackend.GL.GetProgramParameter(this.handle, WebGLRenderingContextBase.LINK_STATUS);
+            if (!result) {
                 string errorLog = GraphicsBackend.GL.GetProgramInfoLog(this.handle);
                 this.RollbackAtFault();
                 throw new BackendException(string.Format("Linker error:{1}{0}", errorLog, Environment.NewLine));

@@ -12,7 +12,7 @@
             GB
         }
 
-#if __ANDROID__
+#if __ANDROID__ || WASM
         public static ResizeMode Resize = ResizeMode.None;
 #else
         public static ResizeMode Resize = ResizeMode.xBRZ3;

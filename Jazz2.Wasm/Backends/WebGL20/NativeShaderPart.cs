@@ -30,8 +30,8 @@ namespace Duality.Backend.Android.OpenTK
             GraphicsBackend.GL.ShaderSource(this.handle, sourceCode);
             GraphicsBackend.GL.CompileShader(this.handle);
 
-            int result = (int)GraphicsBackend.GL.GetShaderParameter(this.handle, WebGLRenderingContextBase.COMPILE_STATUS);
-            if (result == 0) {
+            bool result = (bool)GraphicsBackend.GL.GetShaderParameter(this.handle, WebGLRenderingContextBase.COMPILE_STATUS);
+            if (!result) {
                 string infoLog = GraphicsBackend.GL.GetShaderInfoLog(this.handle);
                 throw new BackendException(string.Format("{0} Compiler error:{2}{1}", type, infoLog, Environment.NewLine));
             }

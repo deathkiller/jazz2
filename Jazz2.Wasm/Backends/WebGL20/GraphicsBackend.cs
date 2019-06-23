@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Duality.Drawing;
@@ -15,7 +14,7 @@ namespace Duality.Backend.Android.OpenTK
 {
     public class GraphicsBackend : IGraphicsBackend
     {
-        private static readonly Version MinOpenGLVersion = new Version(3, 0);
+        private static readonly Version MinWebGLVersion = new Version(2, 0);
 
         private static GraphicsBackend activeInstance;
         public static GraphicsBackend ActiveInstance
@@ -72,38 +71,18 @@ namespace Duality.Backend.Android.OpenTK
 
         bool IDualityBackend.CheckAvailable()
         {
-            /*string versionString;
-            try {
-                versionString = gl.GetString(StringName.Version);
-                CheckOpenGLErrors();
-            } catch {
-                return false;
-            }
-
-            // Parse the OpenGL ES version string in order to determine if it's sufficient
-            if (versionString != null) {
-                string[] token = versionString.Split(' ');
-                for (int i = 0; i < token.Length; i++) {
-                    Version version;
-                    if (Version.TryParse(token[i], out version)) {
-                        return !(version.Major < MinOpenGLVersion.Major ||
-                                 (version.Major == MinOpenGLVersion.Major && version.Minor < MinOpenGLVersion.Minor));
-                    }
-                }
-            }
-            return false;*/
-
-            return true;
+            JSObject window = (JSObject)Runtime.GetGlobalObject();
+            return window.GetObjectProperty("WebGL2RenderingContext") != null;
         }
 
         void IDualityBackend.Init()
         {
-            GraphicsBackend.LogOpenGLSpecs();
-
             activeInstance = this;
 
             htmlCanvas = HtmlHelper.AddCanvas("div-game", "game", 720, 405);
             GL = new WebGL2RenderingContext(htmlCanvas);
+
+            GraphicsBackend.LogOpenGLSpecs();
         }
         void IDualityBackend.Shutdown()
         {
@@ -159,13 +138,15 @@ namespace Duality.Backend.Android.OpenTK
             GL.Scissor((int)openGLViewport.X, (int)openGLViewport.Y, (int)MathF.Ceiling(openGLViewport.W), (int)MathF.Ceiling(openGLViewport.H));
 
             // Clear buffers
-            uint glClearMask = 0;
-            ColorRgba clearColor = options.ClearColor;
-            if ((options.ClearFlags & ClearFlag.Color) != ClearFlag.None) glClearMask |= WebGLRenderingContextBase.COLOR_BUFFER_BIT;
-            if ((options.ClearFlags & ClearFlag.Depth) != ClearFlag.None) glClearMask |= WebGLRenderingContextBase.DEPTH_BUFFER_BIT;
-            GL.ClearColor(clearColor.R / 255.0f, clearColor.G / 255.0f, clearColor.B / 255.0f, clearColor.A / 255.0f);
-            GL.ClearDepth(options.ClearDepth);
-            GL.Clear(glClearMask);
+            if (options.ClearFlags != ClearFlag.None) {
+                uint glClearMask = 0;
+                ColorRgba clearColor = options.ClearColor;
+                if ((options.ClearFlags & ClearFlag.Color) != ClearFlag.None) glClearMask |= WebGLRenderingContextBase.COLOR_BUFFER_BIT;
+                if ((options.ClearFlags & ClearFlag.Depth) != ClearFlag.None) glClearMask |= WebGLRenderingContextBase.DEPTH_BUFFER_BIT;
+                GL.ClearColor(clearColor.R / 255.0f, clearColor.G / 255.0f, clearColor.B / 255.0f, clearColor.A / 255.0f);
+                GL.ClearDepth(options.ClearDepth);
+                GL.Clear(glClearMask);
+            }
 
             // Configure Rendering params
             GL.Enable(WebGLRenderingContextBase.SCISSOR_TEST);
@@ -789,20 +770,19 @@ namespace Duality.Backend.Android.OpenTK
 
         private static void LogOpenGLSpecs()
         {
-            // ToDo
-            /*string versionString = null;
+            string versionString = null;
             try {
                 CheckOpenGLErrors();
-                versionString = GL.GetString(StringName.Version);
+                versionString = (string)GL.GetParameter(WebGLRenderingContextBase.VERSION);
                 App.Log(
                     "OpenGL Version: {0}" + Environment.NewLine +
                     "  Vendor: {1}" + Environment.NewLine +
                     "  Renderer: {2}" + Environment.NewLine +
                     "  Shader Version: {3}",
                     versionString,
-                    GL.GetString(StringName.Vendor),
-                    GL.GetString(StringName.Renderer),
-                    GL.GetString(StringName.ShadingLanguageVersion));
+                    (string)GL.GetParameter(WebGLRenderingContextBase.VENDOR),
+                    (string)GL.GetParameter(WebGLRenderingContextBase.RENDERER),
+                    (string)GL.GetParameter(WebGLRenderingContextBase.SHADING_LANGUAGE_VERSION));
                 CheckOpenGLErrors();
             } catch (Exception e) {
                 App.Log("Can't determine OpenGL specs, because an error occurred: {0}", e);
@@ -814,16 +794,16 @@ namespace Duality.Backend.Android.OpenTK
                 for (int i = 0; i < token.Length; i++) {
                     Version version;
                     if (Version.TryParse(token[i], out version)) {
-                        if (version.Major < MinOpenGLVersion.Major || (version.Major == MinOpenGLVersion.Major && version.Minor < MinOpenGLVersion.Minor)) {
+                        if (version.Major < MinWebGLVersion.Major || (version.Major == MinWebGLVersion.Major && version.Minor < MinWebGLVersion.Minor)) {
                             App.Log(
                                 "The detected OpenGL version {0} appears to be lower than the required minimum. Version {1} or higher is required to run Duality applications.",
                                 version,
-                                MinOpenGLVersion);
+                                MinWebGLVersion);
                         }
                         break;
                     }
                 }
-            }*/
+            }
         }
         /// <summary>
         /// Checks for errors that might have occurred during video processing. You should avoid calling this method due to performance reasons.
@@ -833,7 +813,7 @@ namespace Duality.Backend.Android.OpenTK
         /// <returns>True, if an error occurred, false if not.</returns>
         public static bool CheckOpenGLErrors(bool silent = false, [CallerMemberName] string callerInfoMember = null, [CallerFilePath] string callerInfoFile = null, [CallerLineNumber] int callerInfoLine = -1)
         {
-            uint error;
+            int error;
             bool found = false;
             while ((error = GL.GetError()) != WebGLRenderingContextBase.NO_ERROR) {
                 if (!silent) {

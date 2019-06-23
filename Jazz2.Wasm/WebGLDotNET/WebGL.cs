@@ -697,7 +697,7 @@ namespace WebGLDotNET
 
         public void BufferSubData(uint target, uint offset, ITypedArray data) => Invoke("bufferSubData", target, offset, data);
 
-        public uint CheckFramebufferStatus(uint target) => InvokeForBasicType<uint>("checkFramebufferStatus", target);
+        public int CheckFramebufferStatus(uint target) => InvokeForBasicType<int>("checkFramebufferStatus", target);
 
         public void Clear(uint mask) => Invoke("clear", mask);
 
@@ -789,7 +789,7 @@ namespace WebGLDotNET
 
         public object GetParameter(uint pname) => Invoke("getParameter", pname);
 
-        public uint GetError() => InvokeForBasicType<uint>("getError");
+        public int GetError() => InvokeForBasicType<int>("getError");
 
         public object GetFramebufferAttachmentParameter(uint target, uint attachment, uint pname) => Invoke("getFramebufferAttachmentParameter", target, attachment, pname);
 

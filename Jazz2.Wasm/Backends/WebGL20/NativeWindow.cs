@@ -1,14 +1,20 @@
 ﻿using System;
+using WebAssembly;
 
 namespace Duality.Backend.Android.OpenTK
 {
     public class NativeWindow : INativeWindow
     {
         private ScreenMode screenMode;
+        private JSObject window;
+        private Action<double> updateDelegate;
 
         public NativeWindow(WindowOptions options)
         {
             this.ScreenMode = options.ScreenMode;
+
+            window = (JSObject)Runtime.GetGlobalObject();
+            updateDelegate = new Action<double>(OnUpdate);
         }
 
         void IDisposable.Dispose()
@@ -17,6 +23,7 @@ namespace Duality.Backend.Android.OpenTK
 
         void INativeWindow.Run()
         {
+            window.Invoke("requestAnimationFrame", updateDelegate);
         }
 
         public string Title
@@ -59,6 +66,25 @@ namespace Duality.Backend.Android.OpenTK
             {
                 // ToDo
             }
+        }
+
+        private void OnUpdate(double milliseconds)
+        {
+            if (DualityApp.ExecContext == DualityApp.ExecutionContext.Terminated) {
+                return;
+            }
+
+            DualityApp.Update();
+
+            Vector2 imageSize;
+            Rect viewportRect;
+            //DualityApp.CalculateGameViewport(this.Size, out viewportRect, out imageSize);
+            imageSize = new Vector2(720, 405);
+            viewportRect = new Rect(720, 405);
+
+            DualityApp.Render(null, viewportRect, imageSize);
+
+            window.Invoke("requestAnimationFrame", updateDelegate);
         }
     }
 }
