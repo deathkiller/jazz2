@@ -1,7 +1,7 @@
 ﻿using System;
 using WebAssembly;
 
-namespace Duality.Backend.Android.OpenTK
+namespace Duality.Backend.Wasm
 {
     public class NativeWindow : INativeWindow
     {
@@ -15,6 +15,10 @@ namespace Duality.Backend.Android.OpenTK
 
             window = (JSObject)Runtime.GetGlobalObject();
             updateDelegate = new Action<double>(OnUpdate);
+
+            // ToDo
+            //DualityApp.Mouse.Source = new GameWindowMouseInputSource(this.internalWindow);
+            DualityApp.Keyboard.Source = new KeyboardInputSource();
         }
 
         void IDisposable.Dispose()

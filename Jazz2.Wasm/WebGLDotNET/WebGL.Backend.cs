@@ -63,6 +63,8 @@ namespace WebGLDotNET
     {
         protected readonly JSObject gl;
 
+        public bool IsAvailable => (gl != null);
+
         public WebGLRenderingContextBase(JSObject canvas, string contextType)
         {
             gl = (JSObject)canvas.Invoke("getContext", contextType);
@@ -156,9 +158,9 @@ namespace WebGLDotNET
                 if (arg is JSHandler jsHandler) {
                     arg = jsHandler.Handle;
                 } else if (arg is System.Array array) {
-                    if (((System.Array)arg).GetType().GetElementType().IsPrimitive)
+                    if (((System.Array)arg).GetType().GetElementType().IsPrimitive) {
                         arg = CastNativeArray(array);
-                    else {
+                    } else {
                         // WebAssembly.Core.Array or Runtime should probably provide some type of
                         // helper functions for doing this.  I will put it on my todo list.
                         var argArray = new WebAssembly.Core.Array();

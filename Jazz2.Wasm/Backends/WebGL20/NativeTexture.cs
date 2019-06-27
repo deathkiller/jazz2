@@ -7,7 +7,7 @@ using TextureMagFilter = Duality.Drawing.TextureMagFilter;
 using TextureMinFilter = Duality.Drawing.TextureMinFilter;
 using TextureWrapMode = Duality.Drawing.TextureWrapMode;
 
-namespace Duality.Backend.Android.OpenTK
+namespace Duality.Backend.Wasm
 {
     public class NativeTexture : INativeTexture
     {
@@ -179,8 +179,12 @@ namespace Duality.Backend.Android.OpenTK
             if (DualityApp.ExecContext != DualityApp.ExecutionContext.Terminated &&
                 this.handle != null) {
                 // Removed thread guards because of performance
-                //DefaultOpenTKBackendPlugin.GuardSingleThreadState();
-                GraphicsBackend.GL.DeleteTexture(this.handle);
+                try {
+                    GraphicsBackend.GL.DeleteTexture(this.handle);
+                } catch (Exception ex) {
+                    Console.WriteLine("DeleteTexture() failed: " + ex);
+                }
+                
                 this.handle = null;
             }
         }

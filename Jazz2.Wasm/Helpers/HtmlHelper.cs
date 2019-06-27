@@ -64,5 +64,12 @@ namespace Jazz2.Wasm
                 button.SetObjectProperty("onclick", onClickAction);
             }
         }
+
+        public static void ShowWebGLNotSupported()
+        {
+            using (var app = (JSObject)Runtime.GetGlobalObject("App")) {
+                app.Invoke("webglNotSupported");
+            }
+        }
     }
 }

@@ -42,12 +42,6 @@ namespace Jazz2.Wasm
                 Console.WriteLine($"[Error] {nameof(WasmResourceLoader)}.{nameof(LoadAsync)}(): {ex}");
             }
 
-#if DEBUG
-            if (content != null) {
-                Console.WriteLine($"Content length: {content.Length} B");
-            }
-#endif
-
             return content;
         }
     }

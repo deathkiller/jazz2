@@ -5,7 +5,7 @@ using Duality.Resources;
 using WebGLDotNET;
 using ShaderType = Duality.Resources.ShaderType;
 
-namespace Duality.Backend.Android.OpenTK
+namespace Duality.Backend.Wasm
 {
     public class NativeShaderPart : INativeShaderPart
     {

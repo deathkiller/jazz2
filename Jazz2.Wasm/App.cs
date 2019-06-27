@@ -5,6 +5,8 @@ using System.Reflection;
 using Duality;
 using Duality.Backend;
 using Duality.Backend.DotNetFramework;
+using Jazz2.Actors;
+using Jazz2.Game.Structs;
 using Jazz2.Storage;
 
 namespace Jazz2.Game
@@ -97,11 +99,19 @@ namespace Jazz2.Game
             current = new App(window);
 
             //current.PlayCinematics("intro", endOfStream => {
-                current.ShowMainMenu(false);
+            //current.ShowMainMenu(false);
             //});
 
-            window.Run();
+            LevelInitialization levelInit = new LevelInitialization(
+                "share",
+                "01_share1",
+                GameDifficulty.Normal,
+                PlayerType.Jazz
+            );
 
+            current.ChangeLevel(levelInit);
+
+            window.Run();
         }
     }
 }

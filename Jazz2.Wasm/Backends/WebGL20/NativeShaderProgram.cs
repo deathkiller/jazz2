@@ -3,7 +3,7 @@ using System.Linq;
 using Duality.Resources;
 using WebGLDotNET;
 
-namespace Duality.Backend.Android.OpenTK
+namespace Duality.Backend.Wasm
 {
     public class NativeShaderProgram : INativeShaderProgram
     {

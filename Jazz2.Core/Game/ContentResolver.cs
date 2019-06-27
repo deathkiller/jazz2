@@ -122,7 +122,9 @@ namespace Jazz2.Game
             basicNormal = RequestShader("BasicNormal");
             paletteNormal = RequestShader("PaletteNormal");
 
+#if !DISABLE_ASYNC
             AllowAsyncLoading();
+#endif
 
 #if DEBUG && UNCOMPRESSED_CONTENT
             InitWatchForFileChanges();
@@ -137,6 +139,7 @@ namespace Jazz2.Game
             DestroyWatchForFileChanges();
 #endif
 
+#if !DISABLE_ASYNC
             asyncThread = null;
 
             lock (metadataAsyncRequests) {
@@ -145,6 +148,7 @@ namespace Jazz2.Game
 
             asyncThreadEvent.Set();
             asyncResourceReadyEvent.Set();
+#endif
 
             // Release this static instance
             current = null;
@@ -216,6 +220,7 @@ namespace Jazz2.Game
 
         public Metadata RequestMetadata(string path)
         {
+#if !DISABLE_ASYNC
             Metadata metadata;
             if (!cachedMetadata.TryGetValue(path, out metadata)) {
                 lock (metadataAsyncRequests) {
@@ -237,6 +242,9 @@ namespace Jazz2.Game
             }
 
             return metadata;
+#else
+            return RequestMetadataInner(path, false);
+#endif
         }
 
         private void MarkAsReferenced(Metadata metadata)
@@ -441,14 +449,21 @@ namespace Jazz2.Game
                     ColorRgba[] palette = paletteTexture.Res.BasePixmap.Res.MainLayer.Data;
 
                     ColorRgba[] data = pixelData.Data;
+#if !DISABLE_ASYNC
                     Parallel.ForEach(Partitioner.Create(0, data.Length), range => {
                         for (int i = range.Item1; i < range.Item2; i++) {
+#else
+                        for (int i = 0; i < data.Length; i++) {
+#endif
+
                             int colorIdx = data[i].R;
                             data[i] = palette[colorIdx].WithAlpha(palette[colorIdx].A * data[i].A / (255f * 255f));
 
                             // ToDo: Pinball sprites have strange palette (1-3 indices down), CandionV looks bad, other levels look different
                         }
+#if !DISABLE_ASYNC
                     });
+#endif
                 }
 
                 bool linearSampling = (json.Flags & 0x02) != 0x00;
@@ -524,7 +539,7 @@ namespace Jazz2.Game
             if (!cachedShaders.TryGetValue(path, out shader)) {
 #if UNCOMPRESSED_CONTENT
                 string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Shaders", path + ".res");
-#elif __ANDROID__
+#elif __ANDROID__ || WASM
                 string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Shaders.ES30", path + ".res");
 #else
                 string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Shaders", path + ".res");
@@ -650,12 +665,18 @@ namespace Jazz2.Game
             ColorRgba[] palette = paletteTexture.Res.BasePixmap.Res.MainLayer.Data;
 
             ColorRgba[] data = texturePixels.Data;
+#if !DISABLE_ASYNC
             Parallel.ForEach(Partitioner.Create(0, data.Length), range => {
                 for (int i = range.Item1; i < range.Item2; i++) {
+#else
+                for (int i = 0; i < data.Length; i++) {
+#endif
                     int colorIdx = data[i].R;
                     data[i] = palette[colorIdx].WithAlpha(palette[colorIdx].A * data[i].A / (255f * 255f));
                 }
+#if !DISABLE_ASYNC
             });
+#endif
 
             ContentRef<Texture> mainTex = new Texture(new Pixmap(texturePixels));
             ContentRef<Texture> normalTex;

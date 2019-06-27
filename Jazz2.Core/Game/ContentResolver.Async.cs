@@ -10,14 +10,17 @@ namespace Jazz2.Game
 {
     partial class ContentResolver
     {
+#if !DISABLE_ASYNC
         private HashSet<string> metadataAsyncRequests;
 
         private Thread asyncThread;
         private AutoResetEvent asyncThreadEvent;
         private AutoResetEvent asyncResourceReadyEvent;
+#endif
 
         public Metadata TryFetchMetadata(string path)
         {
+#if !DISABLE_ASYNC
             Metadata metadata;
             if (!cachedMetadata.TryGetValue(path, out metadata)) {
                 lock (metadataAsyncRequests) {
@@ -38,10 +41,14 @@ namespace Jazz2.Game
             }
 
             return metadata;
+#else
+            return RequestMetadataInner(path, false);
+#endif
         }
 
         public void PreloadAsync(string path)
         {
+#if !DISABLE_ASYNC
             Metadata metadata;
             if (!cachedMetadata.TryGetValue(path, out metadata)) {
                 lock (metadataAsyncRequests) {
@@ -52,8 +59,10 @@ namespace Jazz2.Game
             } else {
                 MarkAsReferenced(metadata);
             }
+#endif
         }
 
+#if !DISABLE_ASYNC
         private void FinalizeAsyncLoadedResources(Metadata metadata)
         {
             if (metadata.Graphics != null) {
@@ -150,5 +159,6 @@ namespace Jazz2.Game
                 }
             }
         }
+#endif
     }
 }

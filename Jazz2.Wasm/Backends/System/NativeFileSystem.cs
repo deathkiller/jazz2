@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
-
+using System.Linq;
+using System.Threading.Tasks;
 using Duality.IO;
 using Jazz2.Wasm;
-using System.Threading.Tasks;
 
 namespace Duality.Backend.DotNetFramework
 {
@@ -132,7 +131,7 @@ namespace Duality.Backend.DotNetFramework
         public static async Task<bool> DownloadToCache(string nativePath)
         {
             if (File.Exists(nativePath)) {
-                Console.WriteLine($"Already in cache: " + nativePath);
+                Console.WriteLine("Already in cache: " + nativePath);
                 return true;
             }
 
@@ -146,11 +145,10 @@ namespace Duality.Backend.DotNetFramework
             Directory.CreateDirectory(Path.GetDirectoryName(nativePath));
 
             using (Stream s = File.Open(nativePath, FileMode.Create, FileAccess.Write)) {
-                httpStream.CopyTo(s);
+                await httpStream.CopyToAsync(s);
             }
 
             Console.WriteLine("Downloaded to cache: " + nativePath);
-
             return true;
         }
     }

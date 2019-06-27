@@ -46,10 +46,6 @@
     </Content>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Backends\" />
-  </ItemGroup>
-
   <Import Project="..\Jazz2.Core\Jazz2.Core.projitems" Label="Shared" />
 
   <Import Project="..\Shared\Duality\Duality.projitems" Label="Shared" />

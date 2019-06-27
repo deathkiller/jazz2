@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -32,7 +33,6 @@ namespace Jazz2.Game.UI
 
         public int Height => charHeight;
 
-        // ToDo: Move parameters to .config file, rework .config file format
         public BitmapFont(Canvas canvas, string path)
         {
             this.canvas = canvas;
@@ -53,12 +53,18 @@ namespace Jazz2.Game.UI
                 ColorRgba[] palette = ContentResolver.Current.Palette.Res.BasePixmap.Res.MainLayer.Data;
 
                 ColorRgba[] data = pixelData.Data;
+#if !DISABLE_ASYNC
                 Parallel.ForEach(Partitioner.Create(0, data.Length), range => {
                     for (int i = range.Item1; i < range.Item2; i++) {
+#else
+                    for (int i = 0; i < data.Length; i++) {
+#endif
                         int colorIdx = data[i].R;
                         data[i] = palette[colorIdx].WithAlpha(palette[colorIdx].A * data[i].A / (255f * 255f));
                     }
+#if !DISABLE_ASYNC
                 });
+#endif
 
                 Texture texture = new Texture(new Pixmap(pixelData), TextureSizeMode.NonPowerOfTwo, TextureMagFilter.Linear, TextureMinFilter.Linear);
 

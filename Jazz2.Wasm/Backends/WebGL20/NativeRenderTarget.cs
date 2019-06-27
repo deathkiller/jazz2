@@ -5,7 +5,7 @@ using System.Linq;
 using Duality.Drawing;
 using WebGLDotNET;
 
-namespace Duality.Backend.Android.OpenTK
+namespace Duality.Backend.Wasm
 {
     public class NativeRenderTarget : INativeRenderTarget
     {
@@ -173,7 +173,7 @@ namespace Duality.Backend.Android.OpenTK
             // ToDo
             // Setup OpenGL resources
             //if (this.samples > 0)
-            //    this.SetupMultisampled();
+            //	this.SetupMultisampled();
             //else
                 this.SetupNonMultisampled();
         }
@@ -186,9 +186,9 @@ namespace Duality.Backend.Android.OpenTK
             //this.ApplyPostRender();
             //if (curBound != this) ApplyGLBind(this);
             //{
-            //    GraphicsBackend.GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, this.handleMainFBO);
-            //    GraphicsBackend.GL.ReadBuffer((ReadBufferMode)((int)ReadBufferMode.ColorAttachment0 + targetIndex));
-            //    GraphicsBackend.GL.ReadPixels(x, y, width, height, dataLayout.ToOpenTK(), dataElementType.ToOpenTK(), buffer);
+            //	GraphicsBackend.GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, this.handleMainFBO);
+            //	GraphicsBackend.GL.ReadBuffer((ReadBufferMode)((int)ReadBufferMode.ColorAttachment0 + targetIndex));
+            //	GraphicsBackend.GL.ReadPixels(x, y, width, height, dataLayout.ToOpenTK(), dataElementType.ToOpenTK(), buffer);
             //}
             //ApplyGLBind(curBound);
 
@@ -251,7 +251,7 @@ namespace Duality.Backend.Android.OpenTK
             if (this.depthBuffer) {
                 if (this.handleDepthRBO == null) GraphicsBackend.GL.CreateRenderbuffer();
                 GraphicsBackend.GL.BindRenderbuffer(WebGLRenderingContextBase.RENDERBUFFER, this.handleDepthRBO);
-                GraphicsBackend.GL.RenderbufferStorage(WebGLRenderingContextBase.RENDERBUFFER, WebGLRenderingContextBase.DEPTH_COMPONENT16, oglWidth, oglHeight);
+                GraphicsBackend.GL.RenderbufferStorage(WebGLRenderingContextBase.RENDERBUFFER, WebGL2RenderingContextBase.DEPTH_COMPONENT24, oglWidth, oglHeight);
                 GraphicsBackend.GL.FramebufferRenderbuffer(WebGLRenderingContextBase.FRAMEBUFFER, WebGLRenderingContextBase.DEPTH_ATTACHMENT, WebGLRenderingContextBase.RENDERBUFFER, this.handleDepthRBO);
             } else {
                 GraphicsBackend.GL.FramebufferRenderbuffer(WebGLRenderingContextBase.FRAMEBUFFER, WebGLRenderingContextBase.DEPTH_ATTACHMENT, WebGLRenderingContextBase.RENDERBUFFER, null);
@@ -270,94 +270,94 @@ namespace Duality.Backend.Android.OpenTK
         }
         //private void SetupMultisampled()
         //{
-        //    // Generate texture target FBO
-        //    if (this.handleMainFBO == null) GraphicsBackend.GL.GenFramebuffers(1, out this.handleMainFBO);
-        //    GraphicsBackend.GL.BindFramebuffer(WebGLRenderingContextBase.FRAMEBUFFER, this.handleMainFBO);
+        //	// Generate texture target FBO
+        //	if (this.handleMainFBO == null) GraphicsBackend.GL.GenFramebuffers(1, out this.handleMainFBO);
+        //	GraphicsBackend.GL.BindFramebuffer(WebGLRenderingContextBase.FRAMEBUFFER, this.handleMainFBO);
         //
-        //    // Attach textures
-        //    int oglWidth = 0;
-        //    int oglHeight = 0;
-        //    for (int i = 0; i < this.targetInfos.Count; i++) {
-        //        NativeTexture tex = this.targetInfos[i].Target;
+        //	// Attach textures
+        //	int oglWidth = 0;
+        //	int oglHeight = 0;
+        //	for (int i = 0; i < this.targetInfos.Count; i++) {
+        //		NativeTexture tex = this.targetInfos[i].Target;
         //
-        //        FramebufferSlot attachment = (FramebufferSlot)((int)FramebufferSlot.ColorAttachment0 + i);
-        //        GraphicsBackend.GL.FramebufferTexture2D(
-        //            WebGLRenderingContextBase.FRAMEBUFFER,
-        //            attachment,
-        //            WebGLRenderingContextBase.TEXTURE_2D,
-        //            tex.Handle,
-        //            0);
-        //        oglWidth = tex.Width;
-        //        oglHeight = tex.Height;
-        //    }
+        //		FramebufferSlot attachment = (FramebufferSlot)((int)FramebufferSlot.ColorAttachment0 + i);
+        //		GraphicsBackend.GL.FramebufferTexture2D(
+        //			WebGLRenderingContextBase.FRAMEBUFFER,
+        //			attachment,
+        //			WebGLRenderingContextBase.TEXTURE_2D,
+        //			tex.Handle,
+        //			0);
+        //		oglWidth = tex.Width;
+        //		oglHeight = tex.Height;
+        //	}
         //
-        //    // Check status
-        //    FramebufferErrorCode status = GraphicsBackend.GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
-        //    if (status != FramebufferErrorCode.FramebufferComplete) {
-        //        throw new BackendException(string.Format("Incomplete Framebuffer: {0}", status));
-        //    }
+        //	// Check status
+        //	FramebufferErrorCode status = GraphicsBackend.GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+        //	if (status != FramebufferErrorCode.FramebufferComplete) {
+        //		throw new BackendException(string.Format("Incomplete Framebuffer: {0}", status));
+        //	}
         //
-        //    // Generate rendering FBO
-        //    if (this.handleMsaaFBO == null) GraphicsBackend.GL.GenFramebuffers(1, out this.handleMsaaFBO);
-        //    GraphicsBackend.GL.BindFramebuffer(WebGLRenderingContextBase.FRAMEBUFFER, this.handleMsaaFBO);
+        //	// Generate rendering FBO
+        //	if (this.handleMsaaFBO == null) GraphicsBackend.GL.GenFramebuffers(1, out this.handleMsaaFBO);
+        //	GraphicsBackend.GL.BindFramebuffer(WebGLRenderingContextBase.FRAMEBUFFER, this.handleMsaaFBO);
         //
-        //    // Attach color renderbuffers
-        //    for (int i = 0; i < this.targetInfos.Count; i++) {
-        //        TargetInfo info = this.targetInfos.Data[i];
+        //	// Attach color renderbuffers
+        //	for (int i = 0; i < this.targetInfos.Count; i++) {
+        //		TargetInfo info = this.targetInfos.Data[i];
         //
-        //        FramebufferSlot attachment = (FramebufferSlot)((int)FramebufferSlot.ColorAttachment0 + i);
-        //        RenderbufferInternalFormat rbColorFormat = TexFormatToRboFormat(info.Target.Format);
+        //		FramebufferSlot attachment = (FramebufferSlot)((int)FramebufferSlot.ColorAttachment0 + i);
+        //		RenderbufferInternalFormat rbColorFormat = TexFormatToRboFormat(info.Target.Format);
         //
-        //        if (info.HandleMsaaColorRBO == null) GraphicsBackend.GL.GenRenderbuffers(1, out info.HandleMsaaColorRBO);
-        //        GraphicsBackend.GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, info.HandleMsaaColorRBO);
-        //        GraphicsBackend.GL.RenderbufferStorageMultisample(WebGLRenderingContextBase.RENDERBUFFER, this.samples, rbColorFormat, oglWidth, oglHeight);
-        //        GraphicsBackend.GL.FramebufferRenderbuffer(WebGLRenderingContextBase.FRAMEBUFFER, attachment, RenderbufferTarget.Renderbuffer, info.HandleMsaaColorRBO);
+        //		if (info.HandleMsaaColorRBO == null) GraphicsBackend.GL.GenRenderbuffers(1, out info.HandleMsaaColorRBO);
+        //		GraphicsBackend.GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, info.HandleMsaaColorRBO);
+        //		GraphicsBackend.GL.RenderbufferStorageMultisample(WebGLRenderingContextBase.RENDERBUFFER, this.samples, rbColorFormat, oglWidth, oglHeight);
+        //		GraphicsBackend.GL.FramebufferRenderbuffer(WebGLRenderingContextBase.FRAMEBUFFER, attachment, RenderbufferTarget.Renderbuffer, info.HandleMsaaColorRBO);
         //
-        //        this.targetInfos.Data[i] = info;
-        //    }
-        //    GraphicsBackend.GL.BindRenderbuffer(WebGLRenderingContextBase.RENDERBUFFER, null);
+        //		this.targetInfos.Data[i] = info;
+        //	}
+        //	GraphicsBackend.GL.BindRenderbuffer(WebGLRenderingContextBase.RENDERBUFFER, null);
         //
-        //    // Generate or delete depth renderbuffer
-        //    if (this.depthBuffer) {
-        //        if (this.handleDepthRBO == null) GraphicsBackend.GL.GenRenderbuffers(1, out this.handleDepthRBO);
-        //        GraphicsBackend.GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, this.handleDepthRBO);
-        //        GraphicsBackend.GL.RenderbufferStorageMultisample(RenderbufferTarget.Renderbuffer, this.samples, RenderbufferInternalFormat.DepthComponent24, oglWidth, oglHeight);
-        //        GraphicsBackend.GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferSlot.DepthAttachment, RenderbufferTarget.Renderbuffer, this.handleDepthRBO);
-        //        GraphicsBackend.GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
-        //    } else {
-        //        GraphicsBackend.GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferSlot.DepthAttachment, RenderbufferTarget.Renderbuffer, 0);
-        //        if (this.handleDepthRBO != null) GraphicsBackend.GL.DeleteRenderbuffers(1, ref this.handleDepthRBO);
-        //        this.handleDepthRBO = 0;
-        //    }
+        //	// Generate or delete depth renderbuffer
+        //	if (this.depthBuffer) {
+        //		if (this.handleDepthRBO == null) GraphicsBackend.GL.GenRenderbuffers(1, out this.handleDepthRBO);
+        //		GraphicsBackend.GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, this.handleDepthRBO);
+        //		GraphicsBackend.GL.RenderbufferStorageMultisample(RenderbufferTarget.Renderbuffer, this.samples, RenderbufferInternalFormat.DepthComponent24, oglWidth, oglHeight);
+        //		GraphicsBackend.GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferSlot.DepthAttachment, RenderbufferTarget.Renderbuffer, this.handleDepthRBO);
+        //		GraphicsBackend.GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
+        //	} else {
+        //		GraphicsBackend.GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferSlot.DepthAttachment, RenderbufferTarget.Renderbuffer, 0);
+        //		if (this.handleDepthRBO != null) GraphicsBackend.GL.DeleteRenderbuffers(1, ref this.handleDepthRBO);
+        //		this.handleDepthRBO = 0;
+        //	}
         //
-        //    // Check status
-        //    status = GraphicsBackend.GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
-        //    if (status != FramebufferErrorCode.FramebufferComplete) {
-        //        throw new BackendException(string.Format("Incomplete Multisample Framebuffer: {0}", status));
-        //    }
+        //	// Check status
+        //	status = GraphicsBackend.GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+        //	if (status != FramebufferErrorCode.FramebufferComplete) {
+        //		throw new BackendException(string.Format("Incomplete Multisample Framebuffer: {0}", status));
+        //	}
         //
-        //    GraphicsBackend.GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        //	GraphicsBackend.GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         //}
 
-        private static uint TexFormatToRboFormat(TexturePixelFormat format)
-        {
-            switch (format) {
-                case TexturePixelFormat.Single: return WebGL2RenderingContextBase.R8;
-                case TexturePixelFormat.Dual: return WebGL2RenderingContextBase.RG8;
-                case TexturePixelFormat.Rgb: return WebGL2RenderingContextBase.RGB8;
-                default:
-                case TexturePixelFormat.Rgba: return WebGL2RenderingContextBase.RGBA8;
-
-                case TexturePixelFormat.FloatSingle: return WebGL2RenderingContextBase.R16F;
-                case TexturePixelFormat.FloatDual: return WebGL2RenderingContextBase.RG16F;
-                case TexturePixelFormat.FloatRgb: return WebGL2RenderingContextBase.RGB16F;
-                case TexturePixelFormat.FloatRgba: return WebGL2RenderingContextBase.RGBA16F;
-
-                case TexturePixelFormat.CompressedSingle: return WebGL2RenderingContextBase.R8;
-                case TexturePixelFormat.CompressedDual: return WebGL2RenderingContextBase.RG8;
-                case TexturePixelFormat.CompressedRgb: return WebGL2RenderingContextBase.RGB8;
-                case TexturePixelFormat.CompressedRgba: return WebGL2RenderingContextBase.RGBA8;
-            }
-        }
+        //private static uint TexFormatToRboFormat(TexturePixelFormat format)
+        //{
+        //	switch (format) {
+        //		case TexturePixelFormat.Single: return WebGL2RenderingContextBase.R8;
+        //		case TexturePixelFormat.Dual: return WebGL2RenderingContextBase.RG8;
+        //		case TexturePixelFormat.Rgb: return WebGL2RenderingContextBase.RGB8;
+        //		default:
+        //		case TexturePixelFormat.Rgba: return WebGL2RenderingContextBase.RGBA8;
+        //
+        //		case TexturePixelFormat.FloatSingle: return WebGL2RenderingContextBase.R16F;
+        //		case TexturePixelFormat.FloatDual: return WebGL2RenderingContextBase.RG16F;
+        //		case TexturePixelFormat.FloatRgb: return WebGL2RenderingContextBase.RGB16F;
+        //		case TexturePixelFormat.FloatRgba: return WebGL2RenderingContextBase.RGBA16F;
+        //
+        //		case TexturePixelFormat.CompressedSingle: return WebGL2RenderingContextBase.R8;
+        //		case TexturePixelFormat.CompressedDual: return WebGL2RenderingContextBase.RG8;
+        //		case TexturePixelFormat.CompressedRgb: return WebGL2RenderingContextBase.RGB8;
+        //		case TexturePixelFormat.CompressedRgba: return WebGL2RenderingContextBase.RGBA8;
+        //	}
+        //}
     }
 }

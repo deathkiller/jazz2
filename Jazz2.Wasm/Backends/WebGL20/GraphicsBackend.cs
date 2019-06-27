@@ -10,7 +10,7 @@ using WebAssembly;
 using WebAssembly.Core;
 using WebGLDotNET;
 
-namespace Duality.Backend.Android.OpenTK
+namespace Duality.Backend.Wasm
 {
     public class GraphicsBackend : IGraphicsBackend
     {
@@ -58,11 +58,11 @@ namespace Duality.Backend.Android.OpenTK
 
         string IDualityBackend.Id
         {
-            get { return "AndroidGraphicsBackend"; }
+            get { return "WebGLGraphicsBackend"; }
         }
         string IDualityBackend.Name
         {
-            get { return "OpenGL ES 3.0"; }
+            get { return "WebGL 2.0"; }
         }
         int IDualityBackend.Priority
         {
@@ -79,8 +79,13 @@ namespace Duality.Backend.Android.OpenTK
         {
             activeInstance = this;
 
+            // ToDo: hardcoded size
             htmlCanvas = HtmlHelper.AddCanvas("div-game", "game", 720, 405);
             GL = new WebGL2RenderingContext(htmlCanvas);
+            if (!GL.IsAvailable) {
+                HtmlHelper.ShowWebGLNotSupported();
+                throw new NotSupportedException("This browser does not support WebGL 2");
+            }
 
             GraphicsBackend.LogOpenGLSpecs();
         }
@@ -90,7 +95,6 @@ namespace Duality.Backend.Android.OpenTK
                 activeInstance = null;
 
             if (DualityApp.ExecContext != DualityApp.ExecutionContext.Terminated) {
-                //DefaultOpenTKBackendPlugin.GuardSingleThreadState();
                 for (int i = 0; i < this.perVertexTypeVBO.Count; i++) {
                     WebGLBuffer handle = this.perVertexTypeVBO[i];
                     if (handle != null) {
@@ -126,9 +130,9 @@ namespace Duality.Backend.Android.OpenTK
             // Determine the available size on the active rendering surface
             //Point2 availableSize;
             //if (NativeRenderTarget.BoundRT != null) {
-            //    availableSize = new Point2(NativeRenderTarget.BoundRT.Width, NativeRenderTarget.BoundRT.Height);
+            //	availableSize = new Point2(NativeRenderTarget.BoundRT.Width, NativeRenderTarget.BoundRT.Height);
             //} else {
-            //    availableSize = this.externalBackbufferSize;
+            //	availableSize = this.externalBackbufferSize;
             //}
 
             Rect openGLViewport = options.Viewport;
@@ -269,8 +273,6 @@ namespace Duality.Backend.Android.OpenTK
 
         void IGraphicsBackend.GetOutputPixelData(IntPtr buffer, ColorDataLayout dataLayout, ColorDataElementType dataElementType, int x, int y, int width, int height)
         {
-            //DefaultOpenTKBackendPlugin.GuardSingleThreadState();
-
             NativeRenderTarget lastRt = NativeRenderTarget.BoundRT;
             NativeRenderTarget.Bind(null);
             {
@@ -426,7 +428,7 @@ namespace Duality.Backend.Android.OpenTK
                         continue;
 
                     //if (elements[elementIndex].Role != VertexElementRole.Unknown && varInfo[varIndex].Name != elements[elementIndex].Role.ToString()) {
-                    //    continue;
+                    //	continue;
                     //}
 
                     selectedVar = varIndex;
@@ -689,7 +691,6 @@ namespace Duality.Backend.Android.OpenTK
         }
         private void FinishMaterial(BatchInfo material)
         {
-            //DrawTechnique tech = material.Technique.Res;
             this.SetupBlendType(BlendMode.Reset);
             NativeShaderProgram.Bind(null);
             NativeTexture.ResetBinding(this.sharedSamplerBindings);

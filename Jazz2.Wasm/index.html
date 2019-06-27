@@ -26,6 +26,9 @@
                 }
 
                 BINDING.call_static_method("[Jazz2.Wasm] Jazz2.Game.App:Main", []);
+            },
+            webglNotSupported: function() {
+                document.body.className += " no-webgl";
             }
         };
     </script>
