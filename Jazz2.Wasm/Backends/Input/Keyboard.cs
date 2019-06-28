@@ -13,6 +13,8 @@ namespace Duality.Backend.Wasm
             using (JSObject document = (JSObject)Runtime.GetGlobalObject("document")) {
                 document.Invoke("addEventListener", "keydown", new Action<JSObject>(e => {
                     int keyCode = (int)e.GetObjectProperty("which");
+                    e.Invoke("preventDefault");
+                    e.Invoke("stopPropagation");
                     e.Dispose();
 
                     if (keyCode < keyState.Length) {
@@ -22,6 +24,8 @@ namespace Duality.Backend.Wasm
 
                 document.Invoke("addEventListener", "keyup", new Action<JSObject>(e => {
                     int keyCode = (int)e.GetObjectProperty("which");
+                    e.Invoke("preventDefault");
+                    e.Invoke("stopPropagation");
                     e.Dispose();
 
                     if (keyCode < keyState.Length) {
@@ -52,29 +56,29 @@ namespace Duality.Backend.Wasm
             switch (key) {
                 case Key.Unknown: return 0;
 
-                /*case Key.ShiftLeft: return OpenTK.Input.Key.ShiftLeft;
-                case Key.ShiftRight: return OpenTK.Input.Key.ShiftRight;
-                case Key.ControlLeft: return OpenTK.Input.Key.ControlLeft;
-                case Key.ControlRight: return OpenTK.Input.Key.ControlRight;
-                case Key.AltLeft: return OpenTK.Input.Key.AltLeft;
-                case Key.AltRight: return OpenTK.Input.Key.AltRight;
-                case Key.WinLeft: return OpenTK.Input.Key.WinLeft;
-                case Key.WinRight: return OpenTK.Input.Key.WinRight;
-                case Key.Menu: return OpenTK.Input.Key.Menu;
+                case Key.ShiftLeft: return 16;
+                //case Key.ShiftRight: return OpenTK.Input.Key.ShiftRight;
+                case Key.ControlLeft: return 17;
+                //case Key.ControlRight: return OpenTK.Input.Key.ControlRight;
+                case Key.AltLeft: return 18;
+                //case Key.AltRight: return OpenTK.Input.Key.AltRight;
+                case Key.WinLeft: return 91;
+                //case Key.WinRight: return OpenTK.Input.Key.WinRight;
+                case Key.Menu: return 93;
 
-                case Key.F1: return OpenTK.Input.Key.F1;
-                case Key.F2: return OpenTK.Input.Key.F2;
-                case Key.F3: return OpenTK.Input.Key.F3;
-                case Key.F4: return OpenTK.Input.Key.F4;
-                case Key.F5: return OpenTK.Input.Key.F5;
-                case Key.F6: return OpenTK.Input.Key.F6;
-                case Key.F7: return OpenTK.Input.Key.F7;
-                case Key.F8: return OpenTK.Input.Key.F8;
-                case Key.F9: return OpenTK.Input.Key.F9;
-                case Key.F10: return OpenTK.Input.Key.F10;
-                case Key.F11: return OpenTK.Input.Key.F11;
-                case Key.F12: return OpenTK.Input.Key.F12;
-                case Key.F13: return OpenTK.Input.Key.F13;
+                case Key.F1: return 112;
+                case Key.F2: return 113;
+                case Key.F3: return 114;
+                case Key.F4: return 115;
+                case Key.F5: return 116;
+                case Key.F6: return 117;
+                case Key.F7: return 118;
+                case Key.F8: return 119;
+                case Key.F9: return 120;
+                case Key.F10: return 121;
+                case Key.F11: return 122;
+                case Key.F12: return 123;
+                /*case Key.F13: return OpenTK.Input.Key.F13;
                 case Key.F14: return OpenTK.Input.Key.F14;
                 case Key.F15: return OpenTK.Input.Key.F15;
                 case Key.F16: return OpenTK.Input.Key.F16;
@@ -106,15 +110,15 @@ namespace Duality.Backend.Wasm
                 case Key.Enter: return 13;
                 case Key.Escape: return 27;
                 case Key.Space: return 32;
-                /*case Key.Tab: return OpenTK.Input.Key.Tab;
-                case Key.BackSpace: return OpenTK.Input.Key.BackSpace;
-                case Key.Insert: return OpenTK.Input.Key.Insert;
-                case Key.Delete: return OpenTK.Input.Key.Delete;
-                case Key.PageUp: return OpenTK.Input.Key.PageUp;
-                case Key.PageDown: return OpenTK.Input.Key.PageDown;
-                case Key.Home: return OpenTK.Input.Key.Home;
-                case Key.End: return OpenTK.Input.Key.End;
-                case Key.CapsLock: return OpenTK.Input.Key.CapsLock;
+                case Key.Tab: return 9;
+                case Key.BackSpace: return 8;
+                case Key.Insert: return 45;
+                case Key.Delete: return 46;
+                case Key.PageUp: return 33;
+                case Key.PageDown: return 34;
+                case Key.Home: return 36;
+                case Key.End: return 35;
+                /*case Key.CapsLock: return OpenTK.Input.Key.CapsLock;
                 case Key.ScrollLock: return OpenTK.Input.Key.ScrollLock;
                 case Key.PrintScreen: return OpenTK.Input.Key.PrintScreen;
                 case Key.Pause: return OpenTK.Input.Key.Pause;
@@ -137,36 +141,36 @@ namespace Duality.Backend.Wasm
                 case Key.KeypadSubtract: return OpenTK.Input.Key.KeypadSubtract;
                 case Key.KeypadAdd: return OpenTK.Input.Key.KeypadAdd;
                 case Key.KeypadDecimal: return OpenTK.Input.Key.KeypadDecimal;
-                case Key.KeypadEnter: return OpenTK.Input.Key.KeypadEnter;
+                case Key.KeypadEnter: return OpenTK.Input.Key.KeypadEnter;*/
 
-                case Key.A: return OpenTK.Input.Key.A;
-                case Key.B: return OpenTK.Input.Key.B;*/
+                case Key.A: return 65;
+                case Key.B: return 66;
                 case Key.C: return 67;
-                /*case Key.D: return OpenTK.Input.Key.D;
-                case Key.E: return OpenTK.Input.Key.E;
-                case Key.F: return OpenTK.Input.Key.F;
-                case Key.G: return OpenTK.Input.Key.G;
-                case Key.H: return OpenTK.Input.Key.H;
-                case Key.I: return OpenTK.Input.Key.I;
-                case Key.J: return OpenTK.Input.Key.J;
-                case Key.K: return OpenTK.Input.Key.K;
-                case Key.L: return OpenTK.Input.Key.L;
-                case Key.M: return OpenTK.Input.Key.M;
-                case Key.N: return OpenTK.Input.Key.N;
-                case Key.O: return OpenTK.Input.Key.O;
-                case Key.P: return OpenTK.Input.Key.P;
-                case Key.Q: return OpenTK.Input.Key.Q;
-                case Key.R: return OpenTK.Input.Key.R;
-                case Key.S: return OpenTK.Input.Key.S;
-                case Key.T: return OpenTK.Input.Key.T;
-                case Key.U: return OpenTK.Input.Key.U;*/
+                case Key.D: return 68;
+                case Key.E: return 69;
+                case Key.F: return 70;
+                case Key.G: return 71;
+                case Key.H: return 72;
+                case Key.I: return 73;
+                case Key.J: return 74;
+                case Key.K: return 75;
+                case Key.L: return 76;
+                case Key.M: return 77;
+                case Key.N: return 78;
+                case Key.O: return 79;
+                case Key.P: return 80;
+                case Key.Q: return 81;
+                case Key.R: return 82;
+                case Key.S: return 83;
+                case Key.T: return 84;
+                case Key.U: return 85;
                 case Key.V: return 86;
-                /*case Key.W: return OpenTK.Input.Key.W;*/
+                case Key.W: return 87;
                 case Key.X: return 88;
-                /*case Key.Y: return OpenTK.Input.Key.Y;
-                case Key.Z: return OpenTK.Input.Key.Z;
+                case Key.Y: return 89;
+                case Key.Z: return 90;
 
-                case Key.Number0: return OpenTK.Input.Key.Number0;
+                /*case Key.Number0: return OpenTK.Input.Key.Number0;
                 case Key.Number1: return OpenTK.Input.Key.Number1;
                 case Key.Number2: return OpenTK.Input.Key.Number2;
                 case Key.Number3: return OpenTK.Input.Key.Number3;

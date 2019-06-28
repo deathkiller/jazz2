@@ -13,7 +13,7 @@ namespace Duality.Backend.Wasm
         {
             this.ScreenMode = options.ScreenMode;
 
-            window = (JSObject)Runtime.GetGlobalObject();
+            window = (JSObject)Runtime.GetGlobalObject("window");
             updateDelegate = new Action<double>(OnUpdate);
 
             // ToDo
@@ -23,6 +23,10 @@ namespace Duality.Backend.Wasm
 
         void IDisposable.Dispose()
         {
+            if (window != null) {
+                window.Dispose();
+                window = null;
+            }
         }
 
         void INativeWindow.Run()
@@ -34,19 +38,22 @@ namespace Duality.Backend.Wasm
         {
             get
             {
-                // ToDo
-                return "";
+                using (var document = (JSObject)Runtime.GetGlobalObject("document")) {
+                    return (string)document.GetObjectProperty("title");
+                }
             }
             set
             {
-                // ToDo
+                using (var document = (JSObject)Runtime.GetGlobalObject("document")) {
+                    document.SetObjectProperty("title", value);
+                }
             }
         }
 
         public Point2 Size
         {
-            get { return Point2.Zero; }
-            set { }
+            get { return GraphicsBackend.GetCanvasSize(); }
+            set { GraphicsBackend.SetCanvasSize(value); }
         }
 
         public RefreshMode RefreshMode
@@ -82,9 +89,7 @@ namespace Duality.Backend.Wasm
 
             Vector2 imageSize;
             Rect viewportRect;
-            //DualityApp.CalculateGameViewport(this.Size, out viewportRect, out imageSize);
-            imageSize = new Vector2(720, 405);
-            viewportRect = new Rect(720, 405);
+            DualityApp.CalculateGameViewport(this.Size, out viewportRect, out imageSize);
 
             DualityApp.Render(null, viewportRect, imageSize);
 

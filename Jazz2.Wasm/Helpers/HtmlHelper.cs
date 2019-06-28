@@ -5,22 +5,15 @@ namespace Jazz2.Wasm
 {
     public static class HtmlHelper
     {
-        public static JSObject AddCanvas(string divId, string canvasId, int width, int height)
+        public static JSObject AddCanvas(string canvasId, int width, int height)
         {
             using (var document = (JSObject)Runtime.GetGlobalObject("document"))
-            using (var body = (JSObject)document.GetObjectProperty("body")) {
+            using (var container = (JSObject)document.Invoke("getElementById", "game-container")) {
                 var canvas = (JSObject)document.Invoke("createElement", "canvas");
                 canvas.SetObjectProperty("width", width);
                 canvas.SetObjectProperty("height", height);
                 canvas.SetObjectProperty("id", canvasId);
-
-                using (var canvasDiv = (JSObject)document.Invoke("createElement", "div")) {
-                    canvasDiv.SetObjectProperty("id", divId);
-                    canvasDiv.Invoke("appendChild", canvas);
-
-                    body.Invoke("appendChild", canvasDiv);
-                }
-
+                container.Invoke("appendChild", canvas);
                 return canvas;
             }
         }
@@ -62,13 +55,6 @@ namespace Jazz2.Wasm
             using (var document = (JSObject)Runtime.GetGlobalObject("document"))
             using (var button = (JSObject)document.Invoke("getElementById", id)) {
                 button.SetObjectProperty("onclick", onClickAction);
-            }
-        }
-
-        public static void ShowWebGLNotSupported()
-        {
-            using (var app = (JSObject)Runtime.GetGlobalObject("App")) {
-                app.Invoke("webglNotSupported");
             }
         }
     }

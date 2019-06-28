@@ -2,19 +2,18 @@
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 using Duality;
 using Duality.Backend;
 using Duality.Backend.DotNetFramework;
-using Jazz2.Actors;
-using Jazz2.Game.Structs;
 using Jazz2.Storage;
+using WebAssembly;
 
 namespace Jazz2.Game
 {
     public partial class App
     {
         private static App current;
-        private static string assemblyPath;
 
         public static string AssemblyTitle
         {
@@ -63,25 +62,47 @@ namespace Jazz2.Game
             build = (byte)v.Build;
         }
 
+        private static async Task<bool> DownloadFilesToCache(string[] files)
+        {
+            for (int i = 0; i < files.Length; i++) {
+                using (var app = (JSObject)Runtime.GetGlobalObject("App")) {
+                    app.Invoke("loadingProgress", i * 100 / files.Length);
+                }
+
+                bool success = await NativeFileSystem.DownloadToCache(files[i]);
+                if (!success) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public static async void Main()
         {
-            // ToDo
-            await NativeFileSystem.DownloadToCache("Content/Cinematics/intro.j2v");
-
-            await NativeFileSystem.DownloadToCache("Content/Main.dz");
-            await NativeFileSystem.DownloadToCache("Content/i18n/en.res");
-
-            await NativeFileSystem.DownloadToCache("Content/Tilesets/easter99.set");
-            await NativeFileSystem.DownloadToCache("Content/Episodes/secretf/01_easter1.level");
-            await NativeFileSystem.DownloadToCache("Content/Episodes/secretf/02_easter2.level");
-            await NativeFileSystem.DownloadToCache("Content/Episodes/secretf/03_easter3.level");
-            await NativeFileSystem.DownloadToCache("Content/Episodes/secretf/Episode.res");
-            await NativeFileSystem.DownloadToCache("Content/Episodes/secretf/Logo.png");
-
-
             DualityApp.Init(DualityApp.ExecutionContext.Game, null, null);
 
-            RefreshMode refreshMode = (RefreshMode)Preferences.Get<int>("RefreshMode", (int)RefreshMode.VSync);
+            // Download all needed files
+            bool assetsLoaded = await DownloadFilesToCache(new[] {
+                "Content/Main.dz",
+                "Content/i18n/en.res",
+
+                "Content/Tilesets/labrat1n.set",
+                "Content/Tilesets/psych2.set",
+                "Content/Tilesets/diam2.set",
+
+                "Content/Episodes/share/01_share1.level",
+                "Content/Episodes/share/02_share2.level",
+                "Content/Episodes/share/03_share3.level",
+                "Content/Episodes/share/Episode.res",
+                "Content/Episodes/share/Logo.png"
+            });
+            if (!assetsLoaded) {
+                using (var app = (JSObject)Runtime.GetGlobalObject("App")) {
+                    app.Invoke("loadingFailed");
+                }
+                return;
+            }
 
             i18n.Language = Preferences.Get<string>("Language", "en");
 
@@ -89,7 +110,7 @@ namespace Jazz2.Game
 
             INativeWindow window = DualityApp.OpenWindow(new WindowOptions {
                 Title = AssemblyTitle,
-                RefreshMode = refreshMode,
+                RefreshMode = RefreshMode.VSync,
                 Size = LevelRenderSetup.TargetSize,
                 ScreenMode = ScreenMode.Window
             });
@@ -98,18 +119,11 @@ namespace Jazz2.Game
 
             current = new App(window);
 
-            //current.PlayCinematics("intro", endOfStream => {
-            //current.ShowMainMenu(false);
-            //});
+            current.ShowMainMenu(false);
 
-            LevelInitialization levelInit = new LevelInitialization(
-                "share",
-                "01_share1",
-                GameDifficulty.Normal,
-                PlayerType.Jazz
-            );
-
-            current.ChangeLevel(levelInit);
+            using (var app = (JSObject)Runtime.GetGlobalObject("App")) {
+                app.Invoke("ready");
+            }
 
             window.Run();
         }

@@ -23,6 +23,7 @@ namespace Duality.Backend.Wasm
         }
 
         private static JSObject htmlCanvas;
+        private static Point2 cachedCanvasSize;
 
         internal static WebGLRenderingContextBase GL;
 
@@ -79,11 +80,21 @@ namespace Duality.Backend.Wasm
         {
             activeInstance = this;
 
-            // ToDo: hardcoded size
-            htmlCanvas = HtmlHelper.AddCanvas("div-game", "game", 720, 405);
-            GL = new WebGL2RenderingContext(htmlCanvas);
+            // ToDo: Hardcoded size
+            cachedCanvasSize = new Point2(720, 405);
+
+            htmlCanvas = HtmlHelper.AddCanvas("game", cachedCanvasSize.X, cachedCanvasSize.Y);
+
+            using (JSObject contextAttributes = new JSObject()) {
+                contextAttributes.SetObjectProperty("premultipliedAlpha", false);
+                GL = new WebGL2RenderingContext(htmlCanvas);
+            }
+
             if (!GL.IsAvailable) {
-                HtmlHelper.ShowWebGLNotSupported();
+                using (var app = (JSObject)Runtime.GetGlobalObject("App")) {
+                    app.Invoke("webglNotSupported");
+                }
+
                 throw new NotSupportedException("This browser does not support WebGL 2");
             }
 
@@ -839,6 +850,23 @@ namespace Duality.Backend.Wasm
         {
             if (!System.Diagnostics.Debugger.IsAttached) return;
             CheckOpenGLErrors(false, callerInfoMember, callerInfoFile, callerInfoLine);
+        }
+
+        internal static Point2 GetCanvasSize()
+        {
+            return cachedCanvasSize;
+        }
+
+        internal static void SetCanvasSize(Point2 size)
+        {
+            if (htmlCanvas == null) {
+                return;
+            }
+
+            htmlCanvas.SetObjectProperty("width", size.X);
+            htmlCanvas.SetObjectProperty("height", size.Y);
+
+            cachedCanvasSize = size;
         }
     }
 }

@@ -145,7 +145,7 @@ namespace Duality.Backend.DotNetFramework
             Directory.CreateDirectory(Path.GetDirectoryName(nativePath));
 
             using (Stream s = File.Open(nativePath, FileMode.Create, FileAccess.Write)) {
-                await httpStream.CopyToAsync(s);
+                httpStream.CopyTo(s);
             }
 
             Console.WriteLine("Downloaded to cache: " + nativePath);
