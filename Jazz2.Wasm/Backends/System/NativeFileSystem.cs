@@ -131,7 +131,7 @@ namespace Duality.Backend.DotNetFramework
         public static async Task<bool> DownloadToCache(string nativePath)
         {
             if (File.Exists(nativePath)) {
-                Console.WriteLine("Already in cache: " + nativePath);
+                //Console.WriteLine("Already in cache: " + nativePath);
                 return true;
             }
 
@@ -148,7 +148,7 @@ namespace Duality.Backend.DotNetFramework
                 httpStream.CopyTo(s);
             }
 
-            Console.WriteLine("Downloaded to cache: " + nativePath);
+            //Console.WriteLine("Downloaded to cache: " + nativePath);
             return true;
         }
     }

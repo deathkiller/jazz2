@@ -25,7 +25,7 @@ namespace Jazz2.Game.UI.Menu.Settings
         {
             base.OnShow(root);
 
-#if !__ANDROID__
+#if !__ANDROID__ && !WASM
             ScreenMode screenModeCurrent = api.ScreenMode;
             int screenModeValue;
             if ((screenModeCurrent & ScreenMode.FullWindow) != 0) {
@@ -57,8 +57,10 @@ namespace Jazz2.Game.UI.Menu.Settings
             }
             language = new ChoiceControl(api, "menu/settings/language".T(), currentLanguageIndex, languageNames);
 
+#if !WASM
             musicVolume = new SliderControl(api, "menu/settings/music".T(), MusicVolume, 0f, 1f);
             sfxVolume = new SliderControl(api, "menu/settings/sfx".T(), SfxVolume, 0f, 1f);
+#endif
 
 #if __ANDROID__
             vibrations = new ChoiceControl(api, "menu/settings/vibrations".T(), Android.InnerView.AllowVibrations ? 1 : 0, "disabled".T(), "enabled".T());
@@ -71,6 +73,12 @@ namespace Jazz2.Game.UI.Menu.Settings
                 language, vibrations, musicVolume, sfxVolume,
                 new LinkControl(api, "menu/settings/controls".T(), OnControlsPressed),
                 leftPadding, rightPadding
+            };
+#elif WASM
+            controls = new MenuControlBase[] {
+                new LinkControl(api, "menu/settings/rescale".T(), OnRescaleModePressed),
+                language,
+                new LinkControl(api, "menu/settings/controls".T(), OnControlsPressed)
             };
 #else
             controls = new MenuControlBase[] {
@@ -96,11 +104,13 @@ namespace Jazz2.Game.UI.Menu.Settings
             i18n.Language = currentLanguage;
             Preferences.Set("Language", currentLanguage);
 
+#if !WASM
             MusicVolume = musicVolume.CurrentValue;
             SfxVolume = sfxVolume.CurrentValue;
 
             Preferences.Set("MusicVolume", (byte)(MusicVolume * 100));
             Preferences.Set("SfxVolume", (byte)(SfxVolume * 100));
+#endif
 
 #if __ANDROID__
             Android.InnerView.AllowVibrations = (vibrations.SelectedIndex == 1);
@@ -111,7 +121,7 @@ namespace Jazz2.Game.UI.Menu.Settings
 
             Android.InnerView.RightPadding = rightPadding.CurrentValue;
             Preferences.Set("RightPadding", (byte)(Android.InnerView.RightPadding * 1000));
-#else
+#elif !WASM
             ScreenMode newScreenMode;
             switch (screenMode.SelectedIndex) {
                 default:

@@ -21,6 +21,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Backends\WebGL20\**" />
+    <EmbeddedResource Remove="Backends\WebGL20\**" />
+    <None Remove="Backends\WebGL20\**" />
+    <_WasmItem Remove="Backends\WebGL20\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="SkiaSharp.Wasm">
       <HintPath>.\Libs\SkiaSharp.Wasm.dll</HintPath>
     </Reference>

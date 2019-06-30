@@ -10,11 +10,11 @@ using WebAssembly;
 using WebAssembly.Core;
 using WebGLDotNET;
 
-namespace Duality.Backend.Wasm
+namespace Duality.Backend.Wasm.WebGL10
 {
     public class GraphicsBackend : IGraphicsBackend
     {
-        private static readonly Version MinWebGLVersion = new Version(2, 0);
+        private static readonly Version MinWebGLVersion = new Version(1, 0);
 
         private static GraphicsBackend activeInstance;
         public static GraphicsBackend ActiveInstance
@@ -25,7 +25,7 @@ namespace Duality.Backend.Wasm
         private static JSObject htmlCanvas;
         private static Point2 cachedCanvasSize;
 
-        internal static WebGL2RenderingContextBase GL;
+        internal static WebGLRenderingContextBase GL;
 
         private IDrawDevice currentDevice;
         private RenderOptions renderOptions;
@@ -63,7 +63,7 @@ namespace Duality.Backend.Wasm
         }
         string IDualityBackend.Name
         {
-            get { return "WebGL 2.0"; }
+            get { return "WebGL 1.0"; }
         }
         int IDualityBackend.Priority
         {
@@ -73,7 +73,7 @@ namespace Duality.Backend.Wasm
         bool IDualityBackend.CheckAvailable()
         {
             JSObject window = (JSObject)Runtime.GetGlobalObject();
-            return window.GetObjectProperty("WebGL2RenderingContext") != null;
+            return window.GetObjectProperty("WebGLRenderingContext") != null;
         }
 
         void IDualityBackend.Init()
@@ -87,7 +87,7 @@ namespace Duality.Backend.Wasm
 
             using (JSObject contextAttributes = new JSObject()) {
                 contextAttributes.SetObjectProperty("premultipliedAlpha", false);
-                GL = new WebGL2RenderingContext(htmlCanvas);
+                GL = new WebGLRenderingContext(htmlCanvas);
             }
 
             if (!GL.IsAvailable) {
@@ -95,7 +95,7 @@ namespace Duality.Backend.Wasm
                     app.Invoke("webglNotSupported");
                 }
 
-                throw new NotSupportedException("This browser does not support WebGL 2");
+                throw new NotSupportedException("This browser does not support WebGL 1");
             }
 
             GraphicsBackend.LogOpenGLSpecs();

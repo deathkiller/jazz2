@@ -5,7 +5,7 @@ using System.Linq;
 using Duality.Drawing;
 using WebGLDotNET;
 
-namespace Duality.Backend.Wasm
+namespace Duality.Backend.Wasm.WebGL10
 {
     public class NativeRenderTarget : INativeRenderTarget
     {
@@ -168,7 +168,7 @@ namespace Duality.Backend.Wasm
             {
                 this.targetInfos.Reserve(targets.Count);
                 int localIndex = 0;
-                for (int i = 0; i < targets.Count; i++) {
+                for (int i = 0; i < /*targets.Count*/1; i++) {
                     if (targets[i] == null) continue;
 
                     this.targetInfos.Count = Math.Max(this.targetInfos.Count, localIndex + 1);
@@ -272,7 +272,7 @@ namespace Duality.Backend.Wasm
             }
 
             // Generate or delete depth renderbuffer
-            /*if (this.depthBuffer) {
+            if (this.depthBuffer) {
                 if (this.handleDepthRBO == null) this.handleDepthRBO = GraphicsBackend.GL.CreateRenderbuffer();
                 GraphicsBackend.GL.BindRenderbuffer(WebGLRenderingContextBase.RENDERBUFFER, this.handleDepthRBO);
                 GraphicsBackend.GL.RenderbufferStorage(WebGLRenderingContextBase.RENDERBUFFER, WebGL2RenderingContextBase.DEPTH_COMPONENT24, oglWidth, oglHeight);
@@ -281,7 +281,7 @@ namespace Duality.Backend.Wasm
                 GraphicsBackend.GL.FramebufferRenderbuffer(WebGLRenderingContextBase.FRAMEBUFFER, WebGLRenderingContextBase.DEPTH_ATTACHMENT, WebGLRenderingContextBase.RENDERBUFFER, null);
                 if (this.handleDepthRBO != null) GraphicsBackend.GL.DeleteRenderbuffer(this.handleDepthRBO);
                 this.handleDepthRBO = null;
-            }*/
+            }
 
             // Check status
             int status = GraphicsBackend.GL.CheckFramebufferStatus(WebGLRenderingContextBase.FRAMEBUFFER);
@@ -289,7 +289,7 @@ namespace Duality.Backend.Wasm
                 throw new BackendException(string.Format("Incomplete Framebuffer: {0}", status));
             }
 
-            //GraphicsBackend.GL.BindRenderbuffer(WebGLRenderingContextBase.RENDERBUFFER, null);
+            GraphicsBackend.GL.BindRenderbuffer(WebGLRenderingContextBase.RENDERBUFFER, null);
             GraphicsBackend.GL.BindFramebuffer(WebGLRenderingContextBase.FRAMEBUFFER, null);
         }
         //private void SetupMultisampled()

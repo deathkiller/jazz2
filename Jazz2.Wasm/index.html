@@ -18,7 +18,7 @@
             position: relative;
             width: 720px;
             height: 405px;
-            margin: 80px auto 10px;
+            margin: 70px auto 10px;
             text-align: center;
 
             font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
@@ -39,6 +39,7 @@
             text-align: center;
             z-index: 100;
             background: #FFF;
+            background: radial-gradient(#fff 70%, #eee);
 
             transition: 1s opacity;
         }
@@ -46,6 +47,7 @@
         .jazz2-logo {
             display: block;
             margin: 33px auto 80px;
+            transform: translateX(-5px);
         }
 
         #game {
@@ -72,20 +74,24 @@
     </style>
 
     <script src="runtime.js"></script>
-    <script defer src="Scripts/mono_support.js"></script>
-    <script defer src="Scripts/SkiaSharp.js"></script>
+    <script defer src="scripts/mono_support.js"></script>
+    <script defer src="scripts/SkiaSharp.js"></script>
     <script defer src="canvaskit.js"></script>
     <script defer src="mono.js"></script>
 </head>
 <body>
     <div id="game-container">
         <div class="info-screen">
-            <img src="logo.gif" class="jazz2-logo" draggable="false">
+            <img src="../images/logo.gif" class="jazz2-logo" draggable="false">
             <span id="info-message">Loading runtime…</span>
         </div>
     </div>
     <div class="more-info">
-        This is a WebAssembly port of <b>Jazz² Resurrection</b> – <a href="http://deat.tk/jazz2/">http://deat.tk/jazz2/</a>.<br><br>This preview uses the game data coming from <b>Jazz Jackrabbit 2 Shareware Demo</b> available for free.
+        This is a WebAssembly port of <b>Jazz² Resurrection</b>. Further information can be found <a href="http://deat.tk/jazz2/">here</a>.<br>
+        It requires Chrome 57+, Firefox 53+ or other browser supporting <i>WebAssembly</i> and <i>WebGL</i>.<br><br>
+        This preview uses the game data coming from <b>Jazz Jackrabbit 2 Shareware Demo</b> available for free.<br>
+        The original <code>LICENSE.TXT</code> file of the demo can be found <a href="license.txt" target="_blank">here</a>.<br><br>
+        <i>This is a technical preview and might have some bugs and lower performance that will be resolved in final release.</i>
     </div>
 
     <script>
@@ -111,7 +117,7 @@
             },
             webglNotSupported: function() {
                 document.body.className += " no-webgl";
-                document.getElementById("info-message").innerHTML = "Your browser does not support WebGL 2";
+                document.getElementById("info-message").innerHTML = "Your browser does not support WebGL";
             }
         };
     </script>

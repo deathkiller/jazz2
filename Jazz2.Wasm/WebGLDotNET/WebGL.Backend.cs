@@ -88,6 +88,8 @@ namespace WebGLDotNET
                 array = Float32Array.From((float[])managedArray);
             } else if (arrayType == typeof(ushort[])) {
                 array = Uint16Array.From((ushort[])managedArray);
+            } else if (arrayType == typeof(uint[])) {
+                array = Uint32Array.From((uint[])managedArray);
             } else {
                 throw new NotImplementedException();
             }

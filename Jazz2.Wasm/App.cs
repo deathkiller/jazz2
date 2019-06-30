@@ -19,14 +19,7 @@ namespace Jazz2.Game
         {
             get
             {
-                object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
-                if (attributes.Length > 0) {
-                    AssemblyTitleAttribute titleAttribute = (AssemblyTitleAttribute)attributes[0];
-                    if (!string.IsNullOrEmpty(titleAttribute.Title)) {
-                        return titleAttribute.Title;
-                    }
-                }
-                return Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location);
+                return "Jazz² Resurrection";
             }
         }
 
@@ -66,7 +59,7 @@ namespace Jazz2.Game
         {
             for (int i = 0; i < files.Length; i++) {
                 using (var app = (JSObject)Runtime.GetGlobalObject("App")) {
-                    app.Invoke("loadingProgress", i * 100 / files.Length);
+                    app.Invoke("loadingProgress", i * 100 / (files.Length + 1));
                 }
 
                 bool success = await NativeFileSystem.DownloadToCache(files[i]);
