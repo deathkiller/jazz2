@@ -474,6 +474,7 @@ namespace Jazz2.Game
                     GenericGraphicResourceAsyncFinalize asyncFinalize = new GenericGraphicResourceAsyncFinalize();
                     asyncFinalize.TextureMap = map;
 
+#if !DISABLE_NORMAL_MAPPING
                     string filenameNormal = pathAbsolute.Replace(".png", ".n.png");
                     if (FileOp.Exists(filenameNormal)) {
                         using (Stream s = FileOp.Open(filenameNormal, FileAccessMode.Read)) {
@@ -482,6 +483,9 @@ namespace Jazz2.Game
                     } else {
                         resource.TextureNormal = defaultNormalMap;
                     }
+#else
+                    resource.TextureNormal = defaultNormalMap;
+#endif
 
                     asyncFinalize.LinearSampling = linearSampling;
 
@@ -499,6 +503,7 @@ namespace Jazz2.Game
                     resource.Texture = new Texture(map, TextureSizeMode.NonPowerOfTwo,
                         magFilter, minFilter, json.TextureWrap, json.TextureWrap);
 
+#if !DISABLE_NORMAL_MAPPING
                     string filenameNormal = pathAbsolute.Replace(".png", ".n.png");
                     if (FileOp.Exists(filenameNormal)) {
                         using (Stream s = FileOp.Open(filenameNormal, FileAccessMode.Read)) {
@@ -512,6 +517,9 @@ namespace Jazz2.Game
                     } else {
                         resource.TextureNormal = defaultNormalMap;
                     }
+#else
+                    resource.TextureNormal = defaultNormalMap;
+#endif
                 }
 
                 cachedGraphics[path] = resource;
@@ -648,6 +656,7 @@ namespace Jazz2.Game
                 texturePixels = new Png(s).GetPixelData();
             }
 
+#if !DISABLE_NORMAL_MAPPING
             PixelData normalPixels;
             if (tilesetPackage.FileExists("Normals.png")) {
                 using (Stream s = tilesetPackage.OpenFile("Normals.png", FileAccessMode.Read)) {
@@ -656,6 +665,7 @@ namespace Jazz2.Game
             } else {
                 normalPixels = null;
             }
+#endif
 
             using (Stream s = tilesetPackage.OpenFile("Mask.png", FileAccessMode.Read)) {
                 mask = new Png(s).GetPixelData();
@@ -679,13 +689,18 @@ namespace Jazz2.Game
 #endif
 
             ContentRef<Texture> mainTex = new Texture(new Pixmap(texturePixels));
+
             ContentRef<Texture> normalTex;
+#if !DISABLE_NORMAL_MAPPING
             if (normalPixels == null) {
                 normalTex = DefaultNormalMap;
             } else {
                 normalTex = new Texture(new Pixmap(normalPixels));
                 normalTex.Res.DetachSource();
             }
+#else
+            normalTex = DefaultNormalMap;
+#endif
 
             // Create material
             Material material = new Material(RequestShader("BasicNormal"));

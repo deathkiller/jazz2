@@ -80,8 +80,10 @@ namespace Duality.Backend.Wasm.WebGL10
         {
             activeInstance = this;
 
-            // ToDo: Hardcoded size
-            cachedCanvasSize = new Point2(720, 405);
+            using (var app = (JSObject)Runtime.GetGlobalObject("App")) {
+                cachedCanvasSize.X = (int)app.GetObjectProperty("defaultWidth");
+                cachedCanvasSize.Y = (int)app.GetObjectProperty("defaultHeight");
+            }
 
             htmlCanvas = HtmlHelper.AddCanvas("game", cachedCanvasSize.X, cachedCanvasSize.Y);
 
@@ -867,6 +869,14 @@ namespace Duality.Backend.Wasm.WebGL10
             htmlCanvas.SetObjectProperty("height", size.Y);
 
             cachedCanvasSize = size;
+        }
+
+        public static void InvalidateCanvasSize()
+        {
+            cachedCanvasSize.X = (int)htmlCanvas.GetObjectProperty("width");
+            cachedCanvasSize.Y = (int)htmlCanvas.GetObjectProperty("height");
+
+            Console.WriteLine("Changed resolution to " + cachedCanvasSize);
         }
     }
 }

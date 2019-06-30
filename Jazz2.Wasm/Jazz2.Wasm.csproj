@@ -11,12 +11,12 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;NET45 WASM DISABLE_ASYNC</DefineConstants>
+    <DefineConstants>TRACE;NET45 WASM DISABLE_ASYNC DISABLE_NORMAL_MAPPING</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>TRACE;NET45 WASM DISABLE_ASYNC</DefineConstants>
+    <DefineConstants>TRACE;NET45 WASM DISABLE_ASYNC DISABLE_NORMAL_MAPPING</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
