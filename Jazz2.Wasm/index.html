@@ -1,0 +1,266 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Jazz² Resurrection</title>
+
+    <link rel="shortcut icon" id="favicon" type="image/png" href="./favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+    <link href="/frontend/style.css?v=24" rel="stylesheet">
+    <style>
+        html, body {
+            height: unset;
+            overflow-y: auto;
+        }
+
+        #game-container {
+            display: block;
+            position: relative;
+            width: 720px;
+            height: 405px;
+            margin: 70px auto 10px;
+            text-align: center;
+
+            font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+            font-size: .74em;
+
+            color: #AAA;
+            background: #FFF;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+        }
+
+        .info-screen {
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            font-size: 120%;
+            font-weight: bold;
+            text-align: center;
+            z-index: 100;
+            background: #FFF;
+            background: radial-gradient(#fff 70%, #eee);
+
+            transition: 1s opacity;
+        }
+
+        .jazz2-logo {
+            display: block;
+            margin: 33px auto 80px;
+            transform: translateX(-5px);
+        }
+
+        #fullscreen-button {
+            display: none;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            background: none !important;
+            border: none !important;
+            box-shadow: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 32px !important;
+            width: 32px !important;
+            opacity: 0;
+            transition: .6s opacity;
+            z-index: 1000;
+        }
+        body.ready #fullscreen-button {
+            display: block;
+        }
+        #game-container:hover #fullscreen-button {
+            opacity: 1;
+        }
+        #fullscreen-button .c0, #fullscreen-button .c1, #fullscreen-button .c2, #fullscreen-button .c3 {
+            transform: none;
+        }
+        #fullscreen-button:hover .c0 {
+            animation: fullscreen-button-c0-anim .4s cubic-bezier(0.4,0.0,0.2,1);
+        }
+        #fullscreen-button:hover .c1 {
+            animation: fullscreen-button-c1-anim .4s cubic-bezier(0.4,0.0,0.2,1);
+        }
+        #fullscreen-button:hover .c2 {
+            animation: fullscreen-button-c2-anim .4s cubic-bezier(0.4,0.0,0.2,1);
+        }
+        #fullscreen-button:hover .c3 {
+            animation: fullscreen-button-c3-anim .4s cubic-bezier(0.4,0.0,0.2,1);
+        }
+        #fullscreen-button .s {
+            stroke: #000;
+            stroke-opacity: .15;
+            stroke-width: 2px;
+            fill: none;
+        }
+        #fullscreen-button .f {
+            fill: #fff;
+        }
+        @keyframes fullscreen-button-c0-anim {50%{transform:translate(-1px,-1px)}}
+        @keyframes fullscreen-button-c1-anim {50%{transform:translate(1px,-1px)}}
+        @keyframes fullscreen-button-c2-anim {50%{transform:translate(1px,1px)}}
+        @keyframes fullscreen-button-c3-anim {50%{transform:translate(-1px,1px)}}
+
+        #game {
+            position: absolute;
+            left: 0;
+            background: #FFF;
+            z-index: 10;
+        }
+
+        .more-info {
+            padding: 10px;
+            text-align: center;
+
+            font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+            font-size: .74em;
+        }
+
+        body.no-webgl #game {
+            display: none;
+        }
+        body.ready .info-screen {
+            opacity: 0;
+        }
+        
+        body.fullscreen #game-container {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+        body.fullscreen #game-container canvas {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+
+    <script src="runtime.js"></script>
+    <script defer src="scripts/mono_support.js"></script>
+    <script defer src="scripts/SkiaSharp.js"></script>
+    <script defer src="canvaskit.js"></script>
+    <script defer src="mono.js"></script>
+</head>
+<body>
+    <div id="game-container">
+        <div class="info-screen">
+            <img src="../images/logo.gif" class="jazz2-logo" draggable="false">
+            <span id="info-message">Loading runtime…</span>
+        </div>
+        <button id="fullscreen-button" title="Toggle Fullscreen"><svg viewBox="0 0 36 36">
+            <g class="c0"><path class="s" d="m 10,16 2,0 0,-4 4,0 0,-2 L 10,10 l 0,6 0,0 z"></path>
+            <path class="f" d="m 10,16 2,0 0,-4 4,0 0,-2 L 10,10 l 0,6 0,0 z"></path></g>
+            <g class="c1"><path class="s" d="m 20,10 0,2 4,0 0,4 2,0 L 26,10 l -6,0 0,0 z"></path>
+            <path class="f" d="m 20,10 0,2 4,0 0,4 2,0 L 26,10 l -6,0 0,0 z"></path></g>
+            <g class="c2"><path class="s" d="m 24,24 -4,0 0,2 L 26,26 l 0,-6 -2,0 0,4 0,0 z"></path>
+            <path class="f" d="m 24,24 -4,0 0,2 L 26,26 l 0,-6 -2,0 0,4 0,0 z"></path></g>
+            <g class="c3"><path class="s" d="M 12,20 10,20 10,26 l 6,0 0,-2 -4,0 0,-4 0,0 z"></path>
+            <path class="f" d="M 12,20 10,20 10,26 l 6,0 0,-2 -4,0 0,-4 0,0 z"></path></g>
+        </svg></button>
+    </div>
+    <div class="more-info">
+        This is a WebAssembly port of <b>Jazz² Resurrection</b>. Further information can be found <a href="http://deat.tk/jazz2/">here</a>.<br>
+        It requires Chrome 57+, Firefox 53+ or other browser supporting <i>WebAssembly</i> and <i>WebGL</i>.<br><br>
+        This preview uses the game data coming from <b>Jazz Jackrabbit 2 Shareware Demo</b> available for free.<br>
+        The original <code>LICENSE.TXT</code> file of the demo can be found <a href="license.txt" target="_blank">here</a>.<br><br>
+        <i>This is a technical preview and might have some bugs and lower performance that will be resolved in final release.</i>
+    </div>
+
+    <script>
+        if (typeof WebAssembly !== "object" || typeof WebAssembly.instantiate !== "function") {
+            document.body.className += " no-wasm";
+            document.getElementById("info-message").innerHTML = "Your browser does not support WebAssembly :(";
+        }
+
+        var App = {
+            defaultWidth: 720,
+            defaultHeight: 405,
+            canvas: null,
+
+            init: function() {
+                document.getElementById("info-message").innerHTML = "Loading game assets…";
+
+                BINDING.call_static_method("[Jazz2.Wasm] Jazz2.Game.App:Main", []);
+            },
+            loadingProgress: function(percentage) {
+                document.getElementById("info-message").innerHTML = "Loading game assets…<br><small>" + percentage + "%</small>";
+            },
+            loadingFailed: function(percentage) {
+                document.getElementById("info-message").innerHTML = "Cannot load game assets :(";
+            },
+            ready: function() {
+                document.body.className += " ready";
+
+                App.canvas = document.getElementById("game");
+
+                window.addEventListener('resize', App.onResizeHandler, true);
+
+                document.addEventListener('webkitfullscreenchange', App.onResizeHandler, false);
+                document.addEventListener('mozfullscreenchange', App.onResizeHandler, false);
+                document.addEventListener('fullscreenchange', App.onResizeHandler, false);
+                document.addEventListener('MSFullscreenChange', App.onResizeHandler, false);
+
+                document.getElementById("fullscreen-button").onclick = function() {
+                    App.requestFullscreen();
+                };
+            },
+            webglNotSupported: function() {
+                document.body.className += " no-webgl";
+                document.getElementById("info-message").innerHTML = "Your browser does not support WebGL :(";
+            },
+            requestFullscreen: function() {
+                if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement !== undefined) {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.mozCancelFullScreen) {
+                        document.mozCancelFullScreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    } else if (document.msExitFullscreen) {
+                        document.msExitFullscreen();
+                    }
+                } else {
+                    var e = document.documentElement;
+                    if (e.requestFullscreen) {
+                        e.requestFullscreen();
+                    } else if (e.mozRequestFullScreen) {
+                        e.mozRequestFullScreen();
+                    } else if (e.webkitRequestFullscreen) {
+                        e.webkitRequestFullscreen();
+                    } else if (e.msRequestFullscreen) {
+                        e.msRequestFullscreen();
+                    }
+                }
+            },
+            onResizeHandler: function() {
+                if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement !== undefined) {
+                    if (document.body.className.indexOf("fullscreen") == -1) {
+                        document.body.className += " fullscreen";
+                    }
+
+                    var w = App.canvas.clientWidth;
+                    var h = App.canvas.clientHeight;
+                    if (App.canvas.width !== w || App.canvas.height !== h) {
+                        App.canvas.width = w;
+                        App.canvas.height = h;
+                    }
+                } else {
+                    if (document.body.className.indexOf("fullscreen") != -1) {
+                        document.body.className = document.body.className.replace(new RegExp('(?:^|\\s)' + 'fullscreen' + '(?:\\s|$)'), ' ');
+                    
+                        App.canvas.width = App.defaultWidth;
+                        App.canvas.height = App.defaultHeight;
+                    }
+                }
+
+                BINDING.call_static_method("[Jazz2.Wasm] Duality.Backend.Wasm.WebGL10.GraphicsBackend:InvalidateCanvasSize", []);
+            }
+        };
+    </script>
+</body>
+</html>

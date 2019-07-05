@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Duality;
-using Jazz2.Actors.Collectibles;
 using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
@@ -13,10 +12,12 @@ namespace Jazz2.Actors.Enemies
 
         public TurtleShell()
         {
-            // Empty constructor for spawning
+            collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
+
+            scoreValue = 100;
         }
 
-        public TurtleShell(float speedX, float speedY)
+        public TurtleShell(float speedX, float speedY) : this()
         {
             this.speedX = speedX;
             this.externalForceY = speedY;
@@ -53,7 +54,7 @@ namespace Jazz2.Actors.Enemies
 
         protected override void OnUpdateHitbox()
         {
-            UpdateHitbox(24, 16);
+            UpdateHitbox(30, 16);
         }
 
         protected override void OnFixedUpdate(float timeMult)

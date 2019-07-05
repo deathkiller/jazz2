@@ -56,7 +56,7 @@ namespace Duality
 			InitType<T>(name => {
 #if UNCOMPRESSED_CONTENT
                 string path = PathOp.Combine(DualityApp.DataDirectory, "Shaders", name + nameExt);
-#elif __ANDROID__
+#elif __ANDROID__ || WASM
                 string path = PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Shaders.ES30", name + nameExt);
 #else
                 string path = PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Shaders", name + nameExt);

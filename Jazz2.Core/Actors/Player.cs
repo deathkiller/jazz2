@@ -104,6 +104,7 @@ namespace Jazz2.Actors
 
 
         public int Lives => lives;
+        public int Score => score;
         public PlayerType PlayerType => playerType;
 
         public bool CanBreakSolidObjects => (currentSpecialMove != SpecialMoveType.None || sugarRushLeft > 0f);
@@ -584,8 +585,7 @@ namespace Jazz2.Actors
                     } else if (inShallowWater != -1) {
                         speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxShallowWaterSpeed, MaxShallowWaterSpeed);
                     } else {
-                        bool isDashPressed = ControlScheme.PlayerActionPressed(index, PlayerActions.Run);
-                        if (suspendType == SuspendType.None && isDashPressed) {
+                        if (suspendType == SuspendType.None && !inWater && ControlScheme.PlayerActionPressed(index, PlayerActions.Run)) {
                             speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxDashingSpeed, MaxDashingSpeed);
                         } else if (suspendType == SuspendType.Vine) {
                             if (wasFirePressed) {

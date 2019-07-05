@@ -115,9 +115,10 @@ namespace Jazz2.Game.UI
                         fontSmall.DrawString(ref charOffset, healthString, view.X + 36 - 3, bottom - 16, Alignment.BottomLeft,
                             null, 0.7f, charSpacing: 1.1f);
 
-                        fontSmall.DrawString(ref charOffsetShadow, "x" + owner.Lives.ToString(CultureInfo.InvariantCulture), view.X + 36 - 4, bottom + 1f,
+                        string livesString = "x" + owner.Lives.ToString(CultureInfo.InvariantCulture);
+                        fontSmall.DrawString(ref charOffsetShadow, livesString, view.X + 36 - 4, bottom + 1f,
                             Alignment.BottomLeft, new ColorRgba(0f, 0.32f));
-                        fontSmall.DrawString(ref charOffset, "x" + owner.Lives.ToString(CultureInfo.InvariantCulture), view.X + 36 - 4, bottom,
+                        fontSmall.DrawString(ref charOffset, livesString, view.X + 36 - 4, bottom,
                             Alignment.BottomLeft, ColorRgba.TransparentBlack);
                     } else {
                         fontSmall.DrawString(ref charOffsetShadow, healthString, view.X + 36 - 3 - 0.5f, bottom - 3 + 0.5f,
@@ -127,6 +128,18 @@ namespace Jazz2.Game.UI
                         fontSmall.DrawString(ref charOffset, healthString, view.X + 36 - 3, bottom - 3, Alignment.BottomLeft,
                             null, 0.7f, charSpacing: 1.1f);
                     }
+                }
+
+                // Score
+                {
+                    DrawMaterial("PickupFood", -1, 3, 3 + 1.6f, Alignment.TopLeft, new ColorRgba(0f, 0.4f));
+                    DrawMaterial("PickupFood", -1, 3, 3, Alignment.TopLeft, ColorRgba.White);
+
+                    string scoreString = owner.Score.ToString("D8");
+                    fontSmall.DrawString(ref charOffsetShadow, scoreString, 14, 5 + 1, Alignment.TopLeft,
+                        new ColorRgba(0f, 0.32f), 1f, charSpacing: 0.88f);
+                    fontSmall.DrawString(ref charOffset, scoreString, 14, 5, Alignment.TopLeft,
+                        ColorRgba.TransparentBlack, 1f, charSpacing: 0.88f);
                 }
 
                 // Weapon

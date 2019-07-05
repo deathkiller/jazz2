@@ -108,6 +108,9 @@
         "PickupCoin": {
             "Path": "Pickup/coin_silver.png"
         },
+        "PickupFood": {
+            "Path": "Pickup/food_pizza.png"
+        },
         
         "BossHealthBar": {
             "Path": "UI/boss_health_bar.png"

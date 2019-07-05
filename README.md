@@ -17,7 +17,7 @@
 ## Introduction
 Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** released in 1998. Supports various versions of the game (Shareware Demo, Holiday Hare '98, The Secret Files and Christmas Chronicles). Also, it partially supports some features of JJ2+ extension and MLLE. Further information can be found [here](http://deat.tk/jazz2/).
 
-[![Build Status](https://img.shields.io/appveyor/ci/deathkiller/jazz2/master.svg?logo=visual-studio-code&logoColor=ffffff)](https://ci.appveyor.com/project/deathkiller/jazz2)
+[![Build Status](https://img.shields.io/appveyor/ci/deathkiller/jazz2/master.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTI0IDIuNXYxOUwxOCAyNCAwIDE4LjV2LS41NjFsMTggMS41NDVWMHpNMSAxMy4xMTFMNC4zODUgMTAgMSA2Ljg4OWwxLjQxOC0uODI3TDUuODUzIDguNjUgMTIgM2wzIDEuNDU2djExLjA4OEwxMiAxN2wtNi4xNDctNS42NS0zLjQzNCAyLjU4OXpNNy42NDQgMTBMMTIgMTMuMjgzVjYuNzE3eiI+PC9wYXRoPjwvc3ZnPg==)](https://ci.appveyor.com/project/deathkiller/jazz2)
 [![Latest Release](https://img.shields.io/github/release/deathkiller/jazz2.svg)](https://github.com/deathkiller/jazz2/releases)
 [![Code Quality](https://img.shields.io/codacy/grade/7ef344d34def41a9b36e4a083f8b9542.svg)](https://www.codacy.com/app/deathkiller/jazz2)
 [![License](https://img.shields.io/github/license/deathkiller/jazz2.svg)](https://github.com/deathkiller/jazz2/blob/master/LICENSE)
@@ -55,6 +55,12 @@ This project uses parts of [Duality - A 2D GameDev Framework](https://www.dualit
 *Requires device with Android 4.4 (or newer) and OpenGL ES 3.0 support.* `‹SDCard›` *could be internal or external storage.
 The application tries to autodetect correct path. Also, you can use* `‹SDCard›/Android/Data/Jazz2.Android` *or* `‹SDCard›/Download/Jazz2.Android` *instead.*
 
+### WebAssembly
+* Go to [Jazz² Resurrection WebAssembly](http://deat.tk/jazz2/wasm/) to play **Shareware Demo**
+  * Or build the solution and copy `Content` directory from **Desktop** release
+
+*Requires Google Chrome 57 (or newer), Firefox 53 (or newer) or other browser supporting WebAssembly and WebGL.*
+
 
 ## Dependencies
 ### Windows
@@ -85,6 +91,9 @@ The application tries to autodetect correct path. Also, you can use* `‹SDCard�
 
 Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) or newer (or equivalent Mono compiler) to build the solution.
 
+### WebAssembly
+* .NET Framework 4.5.2 (or newer) / Mono 4.6 (or newer)
+* Mono.WebAssembly.Sdk (included as NuGet)
 
 ## Building the solution
 ### Windows
@@ -113,6 +122,10 @@ Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) or newer 
 ### Android
 * Install **Mobile development in .NET** for Microsoft Visual Studio 2017 (or newer)
 * Open the solution and build `Jazz2.Android` project
+* Dependencies are already included for common configurations
+
+### WebAssembly
+* Open the solution and build `Jazz2.Wasm` project
 * Dependencies are already included for common configurations
 
 

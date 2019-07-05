@@ -119,7 +119,6 @@ namespace Jazz2.Game
                 DefaultClearColor = true,
 
                 Output = mainTarget
-                //Output = finalTarget
             });
 
             AddRenderStep(RenderStepPosition.Last, new RenderStep {

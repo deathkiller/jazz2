@@ -21,7 +21,9 @@ namespace Jazz2.Game.UI.Menu
                 Tuple.Create<string, Action>("menu/play custom".T(), OnPlayCustomGamePressed),
                 Tuple.Create<string, Action>("menu/settings".T(), OnSettingsPressed),
                 Tuple.Create<string, Action>("menu/about".T(), OnAboutPressed),
+#if !WASM
                 Tuple.Create<string, Action>("menu/exit".T(), OnExitPressed),
+#endif
             };
         }
 
@@ -66,11 +68,13 @@ namespace Jazz2.Game.UI.Menu
                 api.PlaySound("MenuSelect", 0.5f);
                 items[selectedIndex].Item2();
             } else if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
+#if !WASM
                 if (selectedIndex != items.Count - 1) {
                     api.PlaySound("MenuSelect", 0.5f);
                     animation = 0f;
                     selectedIndex = items.Count - 1;
                 }
+#endif
             } else if (ControlScheme.MenuActionHit(PlayerActions.Up)) {
                 api.PlaySound("MenuSelect", 0.4f);
                 animation = 0f;
@@ -114,9 +118,11 @@ namespace Jazz2.Game.UI.Menu
             api.SwitchToSection(new AboutSection());
         }
 
+#if !WASM
         private void OnExitPressed()
         {
             DualityApp.Terminate();
         }
+#endif
     }
 }

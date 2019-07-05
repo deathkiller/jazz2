@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 
 namespace Duality.Drawing
 {
-    /// <summary>
-    /// Represents a block of pixel data.
-    /// </summary>
-    public class PixelData
+	/// <summary>
+	/// Represents a block of pixel data.
+	/// </summary>
+	public class PixelData
 	{
 		private	int	width;
 		private	int height;
@@ -28,17 +28,17 @@ namespace Duality.Drawing
 		{
 			get { return this.height; }
 		}
-	    /// <summary>
-	    /// [GET] The image data's size in pixels
-	    /// </summary>
-	    public Point2 Size
-	    {
-	        get { return new Point2(this.width, this.height); }
-	    }
-        /// <summary>
-        /// [GET] The layers pixel data
-        /// </summary>
-        public ColorRgba[] Data
+		/// <summary>
+		/// [GET] The image data's size in pixels
+		/// </summary>
+		public Point2 Size
+		{
+			get { return new Point2(this.width, this.height); }
+		}
+		/// <summary>
+		/// [GET] The layers pixel data
+		/// </summary>
+		public ColorRgba[] Data
 		{
 			get { return this.data; }
 		}
@@ -300,15 +300,19 @@ namespace Duality.Drawing
 			ColorRgba[] dataCopy = new ColorRgba[this.data.Length];
 			Array.Copy(this.data, dataCopy, this.data.Length);
 
-			Parallel.ForEach(Partitioner.Create(0, this.data.Length), range =>
-			{
+#if !DISABLE_ASYNC
+			Parallel.ForEach(Partitioner.Create(0, this.data.Length), range => {
+#endif
 				Point2	pos		= new Point2();
 				int[]	nPos	= new int[8];
 				bool[]	nOk		= new bool[8];
 				int[]	mixClr	= new int[4];
 
-				for (int i = range.Item1; i < range.Item2; i++)
-				{
+#if !DISABLE_ASYNC
+				for (int i = range.Item1; i < range.Item2; i++) {
+#else
+				for (int i = 0; i < this.data.Length; i++) {
+#endif
 					if (dataCopy[i].A != 0) continue;
 
 					pos.Y	= i / this.width;
@@ -358,7 +362,9 @@ namespace Duality.Drawing
 						this.data[i].B = (byte)Math.Round((float)mixClr[2] / (float)mixClr[3]);
 					}
 				}
+#if !DISABLE_ASYNC
 			});
+#endif
 		}
 		/// <summary>
 		/// Sets the color of all transparent pixels to the specified color.
@@ -487,10 +493,12 @@ namespace Duality.Drawing
 			if (endX - beginX < 1) return;
 			if (endY - beginY < 1) return;
 
-			Parallel.ForEach(Partitioner.Create(beginX, endX), range =>
-			{
-				for (int i = range.Item1; i < range.Item2; i++)
-				{
+#if !DISABLE_ASYNC
+			Parallel.ForEach(Partitioner.Create(beginX, endX), range => {
+				for (int i = range.Item1; i < range.Item2; i++) {
+#else
+				for (int i = beginX; i < endX; i++) {
+#endif
 					for (int j = beginY; j < endY; j++)
 					{
 						int sourceN = srcX + i + this.width * (srcY + j);
@@ -502,7 +510,6 @@ namespace Duality.Drawing
 						}
 						else if (blend == BlendMode.Mask)
 						{
-                            // ToDo: it was >= 0? really?
 							if (this.data[sourceN].A > 0) target.data[targetN] = this.data[sourceN];
 						}
 						else if (blend == BlendMode.Add)
@@ -574,7 +581,9 @@ namespace Duality.Drawing
 						}
 					}
 				}
+#if !DISABLE_ASYNC
 			});
+#endif
 		}
 		/// <summary>
 		/// Performs a drawing operation from this Layer to a target layer.
@@ -607,10 +616,12 @@ namespace Duality.Drawing
 
 			ColorRgba clrSource;
 			ColorRgba clrTarget;
-			Parallel.ForEach(Partitioner.Create(beginX, endX), range =>
-			{
-				for (int i = range.Item1; i < range.Item2; i++)
-				{
+#if !DISABLE_ASYNC
+			Parallel.ForEach(Partitioner.Create(beginX, endX), range => {
+				for (int i = range.Item1; i < range.Item2; i++) {
+#else
+				for (int i = beginX; i < endX; i++) {
+#endif
 					for (int j = beginY; j < endY; j++)
 					{
 						int sourceN = srcX + i + this.width * (srcY + j);
@@ -624,8 +635,7 @@ namespace Duality.Drawing
 						}
 						else if (blend == BlendMode.Mask)
 						{
-                            // ToDo: it was >= 0? really?
-                            if (clrSource.A > 0) target.data[targetN] = this.data[sourceN];
+							if (clrSource.A > 0) target.data[targetN] = this.data[sourceN];
 						}
 						else if (blend == BlendMode.Add)
 						{
@@ -696,7 +706,9 @@ namespace Duality.Drawing
 						}
 					}
 				}
+#if !DISABLE_ASYNC
 			});
+#endif
 		}
 
 		private ColorRgba[] InternalRescale(int w, int h, ImageScaleFilter filter)
@@ -721,10 +733,12 @@ namespace Duality.Drawing
 			}
 			else if (filter == ImageScaleFilter.Linear)
 			{
-				Parallel.ForEach(Partitioner.Create(0, tempDestData.Length), range =>
-				{
-					for (int i = range.Item1; i < range.Item2; i++)
-					{
+#if !DISABLE_ASYNC
+				Parallel.ForEach(Partitioner.Create(0, tempDestData.Length), range => {
+					for (int i = range.Item1; i < range.Item2; i++) {
+#else
+					for (int i = 0; i < tempDestData.Length; i++) {
+#endif
 						int y = i / w;
 						int x = i - (y * w);
 
@@ -780,7 +794,9 @@ namespace Duality.Drawing
 								((float)this.data[nTmp3].A * xRatio * yRatio)
 							);
 					}
+#if !DISABLE_ASYNC
 				});
+#endif
 			}
 
 			return tempDestData;
