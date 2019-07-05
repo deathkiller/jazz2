@@ -259,5 +259,25 @@ namespace Jazz2.Actors.Enemies
                 }
             }
         }
+
+        protected override bool OnPerish(ActorBase collider)
+        {
+            switch (collider) {
+                case Player player: {
+                    player.AddScore(scoreValue);
+                    break;
+                }
+                case AmmoBase ammo: {
+                    ammo.Owner?.AddScore(scoreValue);
+                    break;
+                }
+                case AmmoTNT ammo: {
+                    ammo.Owner?.AddScore(scoreValue);
+                    break;
+                }
+            }
+
+            return base.OnPerish(collider);
+        }
     }
 }
