@@ -310,16 +310,16 @@ namespace Jazz2.Android
             }
 
             try {
-                FormUrlEncodedContent content = new FormUrlEncodedContent(new KeyValuePair<string, string>[] {
+                FormUrlEncodedContent content = new FormUrlEncodedContent(new[] {
                     new KeyValuePair<string, string>("secret", secret),
 
                     new KeyValuePair<string, string>("type", "crash"),
                     new KeyValuePair<string, string>("app_version", appVersion),
                     new KeyValuePair<string, string>("app_target", "android"),
 #if DEBUG
-                    new KeyValuePair<string, string>("app_configuration", "unofficial_debug"),
+                    new KeyValuePair<string, string>("app_configuration", "debug"),
 #else
-                    new KeyValuePair<string, string>("app_configuration", "unofficial_release"),
+                    new KeyValuePair<string, string>("app_configuration", "release"),
 #endif
                     new KeyValuePair<string, string>("title", title),
                     new KeyValuePair<string, string>("message", message),

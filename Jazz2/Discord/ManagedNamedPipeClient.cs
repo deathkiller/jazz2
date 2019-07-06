@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace Jazz2.Discord
 {
-    internal class ManagedNamedPipeClient
+    internal class ManagedNamedPipeClient : IDisposable
     {
         private const string PipeName = "discord-ipc-{0}";
 
@@ -261,7 +261,7 @@ namespace Jazz2.Discord
             }
         }
 
-        private string GetPipeName(int pipe, string sandbox)
+        private static string GetPipeName(int pipe, string sandbox)
         {
             switch (Environment.OSVersion.Platform) {
                 default:

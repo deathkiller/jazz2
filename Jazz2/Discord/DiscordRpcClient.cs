@@ -280,11 +280,7 @@ namespace Jazz2.Discord
                     continueWriting = false;
                 }
 
-                if (aborting) {
-                    lock (sendQueue) {
-                        sendQueue.Dequeue();
-                    }
-                } else if (namedPipe.WriteFrame(frame)) {
+                if (aborting || namedPipe.WriteFrame(frame)) {
                     lock (sendQueue) {
                         sendQueue.Dequeue();
                     }

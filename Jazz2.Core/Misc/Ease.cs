@@ -2,7 +2,7 @@
 
 namespace Jazz2
 {
-    public class Ease
+    public static class Ease
     {
         public static float OutElastic(float t)
         {

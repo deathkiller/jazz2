@@ -72,7 +72,7 @@ namespace Jazz2.Actors.Environment
             }
 
             activated = true;
-            SetAnimation(activated ? AnimState.Activated : AnimState.Idle);
+            SetAnimation(AnimState.Activated);
             
             Explosion.Create(api, Transform.Pos + new Vector3(-12f, -6f, -20f), Explosion.SmokeBrown);
             Explosion.Create(api, Transform.Pos + new Vector3(-8f, 28f, -20f), Explosion.SmokeBrown);

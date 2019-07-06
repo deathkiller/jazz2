@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Jazz2.Discord
@@ -60,29 +61,6 @@ namespace Jazz2.Discord
             }
         }
 
-        private int Min(int a, uint b)
-        {
-            if (b >= a) {
-                return a;
-            } else {
-                return (int)b;
-            }
-        }
-
-        private bool TryReadUInt32(Stream stream, out uint value)
-        {
-            byte[] bytes = new byte[4];
-            int count = stream.Read(bytes, 0, bytes.Length);
-
-            if (count != 4) {
-                value = default(uint);
-                return false;
-            }
-
-            value = BitConverter.ToUInt32(bytes, 0);
-            return true;
-        }
-
         public void WriteStream(Stream stream)
         {
             byte[] opcode = BitConverter.GetBytes((uint)Opcode);
@@ -94,6 +72,32 @@ namespace Jazz2.Discord
             Data.CopyTo(buffer, opcode.Length + length.Length);
 
             stream.Write(buffer, 0, buffer.Length);
+        }
+
+#if NET45
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        private static int Min(int a, uint b)
+        {
+            if (b >= a) {
+                return a;
+            } else {
+                return (int)b;
+            }
+        }
+
+        private static bool TryReadUInt32(Stream stream, out uint value)
+        {
+            byte[] bytes = new byte[4];
+            int count = stream.Read(bytes, 0, bytes.Length);
+
+            if (count != 4) {
+                value = default(uint);
+                return false;
+            }
+
+            value = BitConverter.ToUInt32(bytes, 0);
+            return true;
         }
     }
 }

@@ -102,7 +102,7 @@ namespace Jazz2.Game.Multiplayer
 
         public void Dispose()
         {
-            if (threadUpdate == null && threadUpdate == null) {
+            if (threadUpdate == null && threadDiscovery == null) {
                 return;
             }
 
@@ -294,11 +294,11 @@ namespace Jazz2.Game.Multiplayer
             try {
                 string currentVersion = App.AssemblyVersion;
 
-                WebClient client = new WebClient();
-                client.Encoding = Encoding.UTF8;
-                client.Headers["User-Agent"] = App.AssemblyTitle;
+                WebClient http = new WebClient();
+                http.Encoding = Encoding.UTF8;
+                http.Headers["User-Agent"] = App.AssemblyTitle;
 
-                string content = client.DownloadString(ServerListUrl + "?fetch&v=" + currentVersion + "&d=" + deviceId);
+                string content = http.DownloadString(ServerListUrl + "?fetch&v=" + currentVersion + "&d=" + deviceId);
                 if (content == null) {
                     return;
                 }

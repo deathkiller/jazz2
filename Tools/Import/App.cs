@@ -525,7 +525,7 @@ namespace Import
             for (int i = 0; i < knownFiles.Length; i++) {
                 string targetFile = Path.Combine(targetPath, "Content", "Cinematics", knownFiles[i].ToLowerInvariant());
                 if (File.Exists(targetFile)) {
-                    usedMusic.Add(Path.GetFileNameWithoutExtension(knownFiles[i]));
+                    usedMusic.Add(Path.GetFileNameWithoutExtension(knownFiles[i]).ToLowerInvariant());
                     if (verbose) {
                         Log.Write(LogType.Verbose, "File \"" + knownFiles[i] + "\" already exists! Skipped.");
                     }
@@ -535,7 +535,7 @@ namespace Import
                 string sourceFile = Path.Combine(sourcePath, knownFiles[i]);
                 if (Utils.FileResolveCaseInsensitive(ref sourceFile)) {
                     File.Copy(sourceFile, targetFile);
-                    usedMusic.Add(Path.GetFileNameWithoutExtension(knownFiles[i]));
+                    usedMusic.Add(Path.GetFileNameWithoutExtension(knownFiles[i]).ToLowerInvariant());
                 } else {
                     Log.Write(LogType.Warning, "File \"" + Path.GetFileName(knownFiles[i]) + "\" does not exists.");
                 }
@@ -642,6 +642,9 @@ namespace Import
                 usedMusic.Add("bonus2");
                 usedMusic.Add("bonus3");
                 usedMusic.Add("menu");
+
+                usedMusic.Add("intro");
+                usedMusic.Add("ending");
 
                 foreach (string episode in Directory.EnumerateDirectories(Path.Combine(targetPath, "Content", "Episodes"))) {
                     foreach (string level in Directory.EnumerateFiles(episode, "*.level")) {
@@ -797,7 +800,7 @@ namespace Import
                     string prefix = Path.Combine(targetPath, "Content", "Animations");
 
                     foreach (string animation in Directory.EnumerateFiles(prefix, "*", SearchOption.AllDirectories)) {
-                        string animationFile = animation.Substring(prefix.Length + 1).ToLowerInvariant().Replace('\\', '/').Replace(".png.res", ".png").Replace(".n.png", ".png").Replace(".png.config", ".png");
+                        string animationFile = animation.Substring(prefix.Length + 1).ToLowerInvariant().Replace('\\', '/').Replace(".png.res", ".png").Replace(".n.png", ".png").Replace(".png.font", ".png");
                         if (!usedAnimations.Contains(animationFile)) {
                             string pathWithoutPrefix = animation.Substring(prefix.Length);
                             try {
@@ -844,7 +847,7 @@ namespace Import
             // Check music and tilesets
             Log.Write(LogType.Info, "Checking \"Music\" and \"Tileset\" directories for missing files...", true);
 
-            foreach (string unreferenced in new[] { "boss1.j2b", "boss2.j2b", "bonus2.j2b", "bonus3.j2b", "menu.j2b" }) {
+            foreach (string unreferenced in new[] { "boss1.j2b", "boss2.j2b", "bonus2.j2b", "bonus3.j2b", "menu.j2b", "intro.j2b", "ending.j2b" }) {
                 if (!Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Music", unreferenced))) {
                     Log.Write(LogType.Warning, "\"" + Path.Combine("Music", unreferenced) + "\" is missing!");
                 }
@@ -988,7 +991,9 @@ namespace Import
 
             foreach (string unreferenced in new[] {
                 "Main.palette",
+                "_custom/font_medium.png",
                 "_custom/font_medium.png.font",
+                "_custom/font_small.png",
                 "_custom/font_small.png.font"
             }) {
                 string file = PathOp.Combine("Animations", unreferenced.Replace('/', PathOp.DirectorySeparatorChar));

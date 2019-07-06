@@ -85,6 +85,7 @@ namespace Duality.Backend.Wasm
 
             htmlCanvas = HtmlHelper.AddCanvas("game", cachedCanvasSize.X, cachedCanvasSize.Y);
 
+            // ToDo: Use WebGLContextAttributes instead
             using (JSObject contextAttributes = new JSObject()) {
                 contextAttributes.SetObjectProperty("premultipliedAlpha", false);
                 GL = new WebGL2RenderingContext(htmlCanvas);

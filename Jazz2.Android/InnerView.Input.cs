@@ -297,7 +297,7 @@ namespace Jazz2.Android
         }
 #endif
 
-        private Key ToDuality(Keycode key)
+        private static Key ToDuality(Keycode key)
         {
             switch (key) {
                 case Keycode.ShiftLeft: return Key.ShiftLeft;

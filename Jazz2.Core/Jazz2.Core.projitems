@@ -140,7 +140,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Storage\Content\CompressedContent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ControlScheme.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Disposable.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Ease.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Misc\Ease.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExtensionMethods.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\ActorApi.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\ContentResolver.Async.cs" />
