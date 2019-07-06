@@ -23,7 +23,7 @@ namespace Jazz2.Actors.Enemies
             Down
         }
 
-        protected int scoreValue;
+        protected uint scoreValue;
         protected bool canHurtPlayer = true;
         protected bool canCollideWithAmmo = true;
         protected LastHitDirection lastHitDir;

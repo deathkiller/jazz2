@@ -86,8 +86,6 @@ namespace Jazz2.Game.UI
             int charOffset = 0;
             int charOffsetShadow = 0;
 
-            DrawDebugStrings();
-
             if (owner != null) {
                 // Health & Lives
                 {
@@ -212,6 +210,8 @@ namespace Jazz2.Game.UI
                     transitionManager = null;
                 }
             }
+
+            DrawDebugStrings();
 
             canvas.End();
         }

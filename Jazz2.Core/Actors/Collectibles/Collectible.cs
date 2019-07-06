@@ -8,7 +8,7 @@ namespace Jazz2.Actors.Collectibles
     public abstract class Collectible : ActorBase
     {
         protected bool untouched;
-        protected int scoreValue;
+        protected uint scoreValue;
 
         private float phase, timeLeft;
         private float startingY;

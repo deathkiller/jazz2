@@ -75,7 +75,7 @@ namespace Jazz2.Actors.Weapons
                     AABB aabb = new AABB(pos.X - 34, pos.Y - 34, pos.X + 34, pos.Y + 34);
                     int destroyedCount = tiles.CheckWeaponDestructible(ref aabb, WeaponType.TNT, 8);
                     if (destroyedCount > 0 && owner != null) {
-                        owner.AddScore(destroyedCount * 50);
+                        owner.AddScore((uint)(destroyedCount * 50));
                     }
                 }
             } else {

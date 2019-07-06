@@ -10,9 +10,9 @@ namespace Jazz2.Actors
     {
         private Bird activeBird;
 
-        public void AddScore(int plus)
+        public void AddScore(uint plus)
         {
-            score = Math.Min(score + plus, 999999999);
+            score = Math.Min(score + plus, 999999999u);
         }
 
         public bool AddHealth(int count)

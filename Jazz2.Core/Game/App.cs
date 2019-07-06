@@ -135,6 +135,7 @@ namespace Jazz2.Game
                         ref PlayerCarryOver player = ref levelInit.PlayerCarryOvers[0];
 
                         Preferences.Set("EpisodeEnd_Lives_" + levelInit.LastEpisodeName, (byte)player.Lives);
+                        Preferences.Set("EpisodeEnd_Score_" + levelInit.LastEpisodeName, player.Score);
                         if (player.Ammo != null) {
                             Preferences.Set("EpisodeEnd_Ammo_" + levelInit.LastEpisodeName, player.Ammo);
                         }
@@ -152,6 +153,7 @@ namespace Jazz2.Game
 
                     // Remove existing continue data
                     Preferences.Remove("EpisodeContinue_Misc_" + levelInit.LastEpisodeName);
+                    Preferences.Remove("EpisodeContinue_Score_" + levelInit.LastEpisodeName);
                     Preferences.Remove("EpisodeContinue_Level_" + levelInit.LastEpisodeName);
                     Preferences.Remove("EpisodeContinue_Ammo_" + levelInit.LastEpisodeName);
                     Preferences.Remove("EpisodeContinue_Upgrades_" + levelInit.LastEpisodeName);
@@ -188,6 +190,7 @@ namespace Jazz2.Game
 
                     // Remove existing continue data
                     Preferences.Remove("EpisodeContinue_Misc_" + levelInit.LastEpisodeName);
+                    Preferences.Remove("EpisodeContinue_Score_" + levelInit.LastEpisodeName);
                     Preferences.Remove("EpisodeContinue_Level_" + levelInit.LastEpisodeName);
                     Preferences.Remove("EpisodeContinue_Ammo_" + levelInit.LastEpisodeName);
                     Preferences.Remove("EpisodeContinue_Upgrades_" + levelInit.LastEpisodeName);
@@ -208,6 +211,7 @@ namespace Jazz2.Game
                         ref PlayerCarryOver player = ref levelInit.PlayerCarryOvers[0];
 
                         Preferences.Set("EpisodeContinue_Misc_" + levelInit.EpisodeName, new[] { (byte)player.Lives, (byte)levelInit.Difficulty, (byte)player.Type });
+                        Preferences.Set("EpisodeContinue_Score_" + levelInit.EpisodeName, player.Score);
                         Preferences.Set("EpisodeContinue_Level_" + levelInit.EpisodeName, levelInit.LevelName);
                         if (player.Ammo != null) {
                             Preferences.Set("EpisodeContinue_Ammo_" + levelInit.EpisodeName, player.Ammo);

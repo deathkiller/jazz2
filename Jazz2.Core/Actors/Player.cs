@@ -80,7 +80,8 @@ namespace Jazz2.Actors
         private SwingingVine currentVine;
         private bool canDoubleJump = true;
 
-        private int lives, score, coins, foodEaten;
+        private int lives, coins, foodEaten;
+        private uint score;
         private Vector2 checkpointPos;
         private float checkpointLight;
 
@@ -104,7 +105,7 @@ namespace Jazz2.Actors
 
 
         public int Lives => lives;
-        public int Score => score;
+        public uint Score => score;
         public PlayerType PlayerType => playerType;
 
         public bool CanBreakSolidObjects => (currentSpecialMove != SpecialMoveType.None || sugarRushLeft > 0f);
@@ -681,7 +682,7 @@ namespace Jazz2.Actors
                 // Look-up
                 if (ControlScheme.PlayerActionPressed(index, PlayerActions.Up)) {
                     if (!wasUpPressed && dizzyTime <= 0f) {
-                        if ((canJump || suspendType != SuspendType.None) && !isLifting && Math.Abs(speedX) < float.Epsilon) {
+                        if ((canJump || (suspendType != SuspendType.None && suspendType != SuspendType.SwingingVine)) && !isLifting && Math.Abs(speedX) < float.Epsilon) {
                             wasUpPressed = true;
 
                             SetAnimation(AnimState.Lookup | (currentAnimationState & AnimState.Hook));
@@ -1395,7 +1396,7 @@ namespace Jazz2.Actors
             // Buttstomp/etc. tiles checking
             if (currentSpecialMove != SpecialMoveType.None || sugarRushLeft > 0f) {
                 int destroyedCount = tiles.CheckSpecialDestructible(ref aabb);
-                AddScore(destroyedCount * 50);
+                AddScore((uint)(destroyedCount * 50));
 
                 ActorBase solidObject;
                 if (!(api.IsPositionEmpty(this, ref aabb, false, out solidObject)) && solidObject != null) {
@@ -1408,7 +1409,7 @@ namespace Jazz2.Actors
                 int destroyedCount = tiles.CheckSpecialSpeedDestructible(ref aabb,
                     sugarRushLeft > 0f ? 64f : MathF.Max(MathF.Abs(speedX), MathF.Abs(speedY)));
 
-                AddScore(destroyedCount * 50);
+                AddScore((uint)(destroyedCount * 50));
             }
 
             tiles.CheckCollapseDestructible(ref aabb);
@@ -2266,17 +2267,15 @@ namespace Jazz2.Actors
                 Vector2 newPos = currentVine.AttachPoint + new Vector2(0f, 14f);
                 MoveInstantly(newPos, MoveType.Absolute);
 
-                if (playerType != PlayerType.Lori) {
-                    if (IsFacingLeft) {
-                        if (newPos.X > pos.X) {
-                            renderer.AnimTime = 0;
-                            IsFacingLeft = false;
-                        }
-                    } else {
-                        if (newPos.X < pos.X) {
-                            renderer.AnimTime = 0;
-                            IsFacingLeft = true;
-                        }
+                if (IsFacingLeft) {
+                    if (newPos.X > pos.X) {
+                        renderer.AnimTime = 0;
+                        IsFacingLeft = false;
+                    }
+                } else {
+                    if (newPos.X < pos.X) {
+                        renderer.AnimTime = 0;
+                        IsFacingLeft = true;
                     }
                 }
             }

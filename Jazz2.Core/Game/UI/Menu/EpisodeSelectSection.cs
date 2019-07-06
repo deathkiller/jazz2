@@ -232,6 +232,7 @@ namespace Jazz2.Game.UI.Menu
                             // Clear continue data
                             string episodeName = episodes[selectedIndex].Episode.Token;
                             Preferences.Remove("EpisodeContinue_Misc_" + episodeName);
+                            Preferences.Remove("EpisodeContinue_Score_" + episodeName);
                             Preferences.Remove("EpisodeContinue_Level_" + episodeName);
                             Preferences.Remove("EpisodeContinue_Ammo_" + episodeName);
                             Preferences.Remove("EpisodeContinue_Upgrades_" + episodeName);
@@ -271,6 +272,8 @@ namespace Jazz2.Game.UI.Menu
                                 if (misc[0] > 0) {
                                     player.Lives = misc[0];
                                 }
+
+                                player.Score = Preferences.Get<uint>("EpisodeContinue_Score_" + episodeName);
 
                                 short[] ammo = Preferences.Get<short[]>("EpisodeContinue_Ammo_" + episodeName);
                                 if (ammo != null) {

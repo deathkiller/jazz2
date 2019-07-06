@@ -281,8 +281,10 @@
         },
         "Swing": {
             "Path": "Lori/swing.png",
-            "FrameRate": 2,
-            "States": [ 32768 ]
+            "FrameRate": 4,
+            "States": [ 32768 ],
+            "Flags": 1,
+            "FrameOffset": 7
         },
         
         "IdleBored1": {

@@ -177,11 +177,15 @@ namespace Jazz2.Game.UI.Menu
                             ref PlayerCarryOver player = ref levelInit.PlayerCarryOvers[0];
 
                             byte lives = Preferences.Get<byte>("EpisodeEnd_Lives_" + previousEpisodeName);
+                            uint score = Preferences.Get<uint>("EpisodeEnd_Score_" + previousEpisodeName);
                             short[] ammo = Preferences.Get<short[]>("EpisodeEnd_Ammo_" + previousEpisodeName);
                             byte[] upgrades = Preferences.Get<byte[]>("EpisodeEnd_Upgrades_" + previousEpisodeName);
 
                             if (lives > 0) {
                                 player.Lives = lives;
+                            }
+                            if (score > 0) {
+                                player.Score = score;
                             }
                             if (ammo != null) {
                                 player.Ammo = ammo;
