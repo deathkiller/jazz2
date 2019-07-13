@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using Duality;
 using Jazz2.Actors;
+using Jazz2.Game;
 using Jazz2.Game.Structs;
 
 namespace Jazz2.Server
@@ -16,15 +17,23 @@ namespace Jazz2.Server
             public ActorInstantiationFlags EventFlags;
             public ushort[] EventParams;
             public bool IsEventActive;
+
+            public float Delay;
+            public float TimeLeft;
+
+            public ActorBase SpawnedActor;
         }
 
+        private GameServer server;
         private EventTile[] eventLayout;
         private int layoutWidth, layoutHeight;
 
         private List<Vector2> spawnPositions = new List<Vector2>();
 
-        public ServerEventMap(Point2 size)
+        public ServerEventMap(GameServer server, Point2 size)
         {
+            this.server = server;
+
             layoutWidth = size.X;
             layoutHeight = size.Y;
 
@@ -73,18 +82,9 @@ namespace Jazz2.Server
                         if ((flags & 0x02) != 0) {
                             if ((flags & (0x01 << difficultyBit)) != 0 || (flags & 0x80) != 0) {
                                 // ToDo
-                                /*ushort generatorIdx = (ushort)generators.Count;
                                 float timeLeft = ((generatorFlags & 0x01) != 0 ? generatorDelay : 0f);
 
-                                generators.Add(new GeneratorInfo {
-                                    EventPos = x + y * layoutWidth,
-                                    EventType = (EventType)eventID,
-                                    EventParams = eventParams,
-                                    Delay = generatorDelay,
-                                    TimeLeft = timeLeft
-                                });
-
-                                StoreTileEvent(x, y, EventType.Generator, eventFlags, new[] { generatorIdx });*/
+                                StoreTileEvent(x, y, (EventType)eventID, eventFlags, eventParams, generatorDelay, timeLeft);
                             }
                             continue;
                         }
@@ -134,13 +134,71 @@ namespace Jazz2.Server
                                     break;
 
                                 default:
-                                    //StoreTileEvent(x, y, (EventType)eventID, eventFlags, eventParams);
+                                    StoreTileEvent(x, y, (EventType)eventID, eventFlags, eventParams, 0, 0);
                                     break;
                             }
                         }
                     }
                 }
             }
+        }
+
+        public void ActivateEvents()
+        {
+            for (int i = 0; i < eventLayout.Length; i++) {
+                ref EventTile tile = ref eventLayout[i];
+                if (tile.IsEventActive || tile.EventType == EventType.Empty || tile.SpawnedActor != null) {
+                    continue;
+                }
+
+                tile.IsEventActive = true;
+
+                if (tile.EventType == EventType.Weather) {
+                    //levelHandler.ApplyWeather((LevelHandler.WeatherType)tile.EventParams[0], tile.EventParams[1], tile.EventParams[2] != 0);
+                } else if (tile.EventType != EventType.Generator) {
+                    int x = i % layoutWidth;
+                    int y = i / layoutWidth;
+
+                    ActorInstantiationFlags flags = ActorInstantiationFlags.IsCreatedFromEventMap | tile.EventFlags;
+                    //if (allowAsync) {
+                    //    flags |= ActorInstantiationFlags.Async;
+                    //}
+
+                    tile.SpawnedActor = server.EventSpawner.SpawnEvent(flags, tile.EventType, x, y, LevelHandler.MainPlaneZ, tile.EventParams);
+                    if (tile.SpawnedActor != null) {
+                        server.AddSpawnedActor(tile.SpawnedActor);
+                    }
+                }
+            }
+        }
+
+        public void StoreTileEvent(int x, int y, EventType eventType, ActorInstantiationFlags eventFlags, ushort[] tileParams, float delay, float timeLeft)
+        {
+            if (eventType == EventType.Empty && (x < 0 || y < 0 || y >= layoutHeight || x >= layoutWidth)) {
+                return;
+            }
+
+            ref EventTile previousEvent = ref eventLayout[x + y * layoutWidth];
+
+            EventTile newEvent = new EventTile {
+                EventType = eventType,
+                EventFlags = eventFlags,
+                EventParams = new ushort[8],
+                IsEventActive = (previousEvent.EventType == eventType && previousEvent.IsEventActive),
+                Delay = delay,
+                TimeLeft = timeLeft
+            };
+
+            // Store event parameters
+            int i = 0;
+            if (tileParams != null) {
+                int n = MathF.Min(tileParams.Length, 8);
+                for (; i < n; ++i) {
+                    newEvent.EventParams[i] = tileParams[i];
+                }
+            }
+
+            previousEvent = newEvent;
         }
 
         public void AddSpawnPosition(int x, int y)

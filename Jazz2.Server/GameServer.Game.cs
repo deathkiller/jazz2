@@ -7,11 +7,14 @@ using System.IO;
 using System.Text.Json;
 using System.Threading;
 using Duality;
+using Duality.Drawing;
 using Duality.IO;
 using Jazz2.Actors;
 using Jazz2.Game;
 using Jazz2.Game.Collisions;
+using Jazz2.Game.Events;
 using Jazz2.Game.Structs;
+using Jazz2.Game.Tiles;
 using Jazz2.Game.UI;
 using Jazz2.Networking;
 using Jazz2.Networking.Packets;
@@ -122,12 +125,20 @@ namespace Jazz2.Server
         private byte playerHealth = 5;
 
         private Dictionary<int, RemotableActor> remotableActors;
+        private List<ActorBase> spawnedActors;
+        private int lastSpawnedActorId;
 
         private int lastGameLoadMs;
 
         private Rect levelBounds;
+        private ActorApi api;
         private ServerEventMap eventMap;
+        private EventSpawner eventSpawner;
+        private TileMap tileMap;
         private DynamicTreeBroadPhase<ICollisionable> collisions = new DynamicTreeBroadPhase<ICollisionable>();
+
+        public ServerEventMap EventMap => eventMap;
+        public EventSpawner EventSpawner => eventSpawner;
 
         public bool IsPlayerSpawningEnabled
         {
@@ -314,6 +325,27 @@ namespace Jazz2.Server
 
                     Log.Write(LogType.Info, "Loading level \"" + currentLevelFriendlyName + "\" (" + currentLevelType + ")...");
 
+                    // Palette
+                    ColorRgba[] tileMapPalette;
+                    if (levelPackage.FileExists("Main.palette")) {
+                        using (Stream s2 = levelPackage.OpenFile("Main.palette", FileAccessMode.Read)) {
+                            tileMapPalette = TileSet.LoadPalette(s2);
+                        }
+                    } else {
+                        tileMapPalette = null;
+                    }
+
+                    // Tileset
+                    tileMap = new TileMap(this, config.Description.DefaultTileset, tileMapPalette, (config.Description.Flags & LevelHandler.LevelFlags.HasPit) != 0);
+
+                    // Additional tilesets
+                    if (config.Tilesets != null) {
+                        for (int i = 0; i < config.Tilesets.Count; i++) {
+                            LevelHandler.LevelConfigJson.TilesetSection part = config.Tilesets[i];
+                            tileMap.ReadTilesetPart(part.Name, part.Offset, part.Count);
+                        }
+                    }
+
                     Point2 tileMapSize;
                     using (Stream s2 = levelPackage.OpenFile("Sprite.layer", FileAccessMode.Read))
                     using (BinaryReader r = new BinaryReader(s2)) {
@@ -326,18 +358,24 @@ namespace Jazz2.Server
                     collisions = new DynamicTreeBroadPhase<ICollisionable>();
 
                     // Read events
-                    eventMap = new ServerEventMap(tileMapSize);
+                    eventMap = new ServerEventMap(this, tileMapSize);
 
                     if (levelPackage.FileExists("Events.layer")) {
                         using (Stream s2 = levelPackage.OpenFile("Events.layer", FileAccessMode.Read)) {
                             eventMap.ReadEvents(s2, config.Version.LayerFormat);
                         }
                     }
+
+                    spawnedActors.Clear();
+                    lastSpawnedActorId = 0;
+
+                    eventMap.ActivateEvents();
                 }
 
                 // Send request to change level to all players
                 foreach (KeyValuePair<NetConnection, Player> pair in players) {
                     pair.Value.State = PlayerState.NotReady;
+                    pair.Value.ProxyId = -1;
                 }
 
                 playerConnections.Clear();
@@ -352,6 +390,40 @@ namespace Jazz2.Server
             }
 
             return true;
+        }
+
+        public void AddSpawnedActor(ActorBase actor)
+        {
+            /*if ((actor.CollisionFlags & CollisionFlags.ForceDisableCollisions) == 0) {
+                actor.UpdateAABB();
+                collisions.AddProxy(actor);
+                actor.Transform.EventTransformChanged += OnActorTransformChanged;
+            }*/
+
+            EventType eventType = actor.EventType;
+            if (eventType == EventType.Empty) {
+                return;
+            }
+
+            int index;
+
+            lock (sync) {
+                index = (lastSpawnedActorId << 8) | 0xff;
+                lastSpawnedActorId++;
+
+                actor.Index = index;
+                spawnedActors.Add(actor);
+
+                //remotableActor.AABB = new AABB(remotableActor.Pos.Xy, 30, 30);
+                //collisions.AddProxy(remotableActor);
+            }
+
+            Send(new CreateRemoteObject {
+                Index = index,
+                EventType = eventType,
+                EventParams = actor.EventParams,
+                Pos = actor.Transform.Pos,
+            }, 35, playerConnections, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
         }
 
         public void RespawnPlayer(Player player)

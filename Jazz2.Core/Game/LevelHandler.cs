@@ -35,7 +35,7 @@ namespace Jazz2.Game
         public const int LayerFormatVersion = 1;
         public const int EventSetVersion = 2;
 
-        private const float DefaultGravity = 0.3f;
+        public const float DefaultGravity = 0.3f;
 
         private App root;
         private ActorApi api;
@@ -148,6 +148,7 @@ namespace Jazz2.Game
 
             // Create HUD
             Hud hud = rootObject.AddComponent<Hud>();
+            hud.LevelHandler = this;
 
             // Process carry overs
             if (data.PlayerCarryOvers != null) {
@@ -872,7 +873,7 @@ namespace Jazz2.Game
 #endif
 
                     // ToDo: Remove this branching
-#if __ANDROID__
+#if PLATFORM_ANDROID
                     const int ActivateTileRange = 20;
 #else
                     const int ActivateTileRange = 26;

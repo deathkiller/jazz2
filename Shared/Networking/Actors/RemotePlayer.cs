@@ -17,7 +17,7 @@ namespace Jazz2.Game.Multiplayer
 
         private const double ServerDelay = 2 * 1.0 / 30; // 66ms (2 server updates) delay to allow better interpolation
 
-        public int Index;
+        public int PlayerIndex;
         public PlayerType PlayerType;
 
         private StateFrame[] stateBuffer = new StateFrame[6];
@@ -27,7 +27,7 @@ namespace Jazz2.Game.Multiplayer
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             PlayerType = (PlayerType)details.Params[0];
-            Index = details.Params[1];
+            PlayerIndex = details.Params[1];
 
             double timeNow = NetTime.Now;
             for (int i = 0; i < stateBuffer.Length; i++) {
@@ -119,8 +119,10 @@ namespace Jazz2.Game.Multiplayer
         {
             switch (other) {
                 case AmmoBase ammo: {
-                    api.BroadcastTriggeredEvent(EventType.ModifierHurt, new ushort[] { (ushort)Index, 1 });
-                    ammo.DecreaseHealth(int.MaxValue);
+                    if ((ammo.Index & 0xff) != PlayerIndex) {
+                        api.BroadcastTriggeredEvent(EventType.ModifierHurt, new ushort[] { (ushort)PlayerIndex, 1 });
+                        ammo.DecreaseHealth(int.MaxValue);
+                    }
                     break;
                 }
             }

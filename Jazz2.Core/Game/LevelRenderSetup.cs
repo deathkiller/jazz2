@@ -8,7 +8,7 @@ namespace Jazz2.Game
     {
         public static Point2 TargetSize = new Point2(defaultWidth, defaultHeight);
 
-#if __ANDROID__
+#if PLATFORM_ANDROID
         private const int defaultWidth = 544, defaultHeight = 306;
 #else
         private const int defaultWidth = 720, defaultHeight = 405;
@@ -21,7 +21,7 @@ namespace Jazz2.Game
         private readonly ContentRef<Material> lightingMaterial, lightingNoiseMaterial;
         private readonly ContentRef<DrawTechnique> combineSceneShader, combineSceneWaterShader;
 
-#if !__ANDROID__
+#if !PLATFORM_ANDROID
         private readonly ContentRef<DrawTechnique> downsampleShader;
         private readonly ContentRef<DrawTechnique> blurShader;
 #endif
@@ -30,7 +30,7 @@ namespace Jazz2.Game
         private Texture lightingTexture, mainTexture, normalTexture, finalTexture;
         private RenderTarget lightingTarget, mainTarget, finalTarget;
 
-#if !__ANDROID__
+#if !PLATFORM_ANDROID
         private readonly RenderTarget[] targetPingPongA = new RenderTarget[PyramidSize];
         private readonly RenderTarget[] targetPingPongB = new RenderTarget[PyramidSize];
 #endif
@@ -54,7 +54,7 @@ namespace Jazz2.Game
             ContentRef<DrawTechnique> lightingShader = ContentResolver.Current.RequestShader("Lighting");
             ContentRef<DrawTechnique> lightingNoiseShader = ContentResolver.Current.RequestShader("LightingNoise");
 
-#if !__ANDROID__
+#if !PLATFORM_ANDROID
             downsampleShader = ContentResolver.Current.RequestShader("Downsample");
             blurShader = ContentResolver.Current.RequestShader("Blur");
 #endif
@@ -163,7 +163,7 @@ namespace Jazz2.Game
             Disposable.Free(ref finalTarget);
             Disposable.Free(ref finalTexture);
 
-#if !__ANDROID__
+#if !PLATFORM_ANDROID
             Disposable.FreeContents(targetPingPongA);
             Disposable.FreeContents(targetPingPongB);
 #endif
@@ -334,7 +334,7 @@ namespace Jazz2.Game
 
             device.Render();
 
-#if !__ANDROID__
+#if !PLATFORM_ANDROID
             // Resize Blur targets
             SetupTargets((Point2)device.TargetSize);
 
@@ -382,7 +382,7 @@ namespace Jazz2.Game
                 material.SetTexture("mainTex", mainTexture);
                 material.SetTexture("lightTex", lightingTexture);
                 material.SetTexture("displacementTex", noiseTexture); // Underwater displacement
-#if !__ANDROID__
+#if !PLATFORM_ANDROID
                 material.SetTexture("blurHalfTex", targetPingPongA[1].Targets[0]);
                 material.SetTexture("blurQuarterTex", targetPingPongA[2].Targets[0]);
 
@@ -399,7 +399,7 @@ namespace Jazz2.Game
                 material.Technique = combineSceneShader;
                 material.SetTexture("mainTex", mainTexture);
                 material.SetTexture("lightTex", lightingTexture);
-#if !__ANDROID__
+#if !PLATFORM_ANDROID
                 material.SetTexture("blurHalfTex", targetPingPongA[1].Targets[0]);
                 material.SetTexture("blurQuarterTex", targetPingPongA[2].Targets[0]);
 
@@ -411,7 +411,7 @@ namespace Jazz2.Game
             }
         }
 
-#if !__ANDROID__
+#if !PLATFORM_ANDROID
         private void SetupTargets(Point2 size)
         {
             for (int i = 0; i < targetPingPongA.Length; i++) {

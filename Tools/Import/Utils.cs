@@ -14,6 +14,10 @@ namespace Import
             }
 
             string directory = Path.GetDirectoryName(path);
+            if (!Directory.Exists(directory)) {
+                return false;
+            }
+
             string fileName = Path.GetFileName(path);
             string found = Directory.EnumerateFiles(directory).FirstOrDefault(current => string.Compare(Path.GetFileName(current), fileName, StringComparison.OrdinalIgnoreCase) == 0);
             if (found == null) {

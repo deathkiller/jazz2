@@ -6,6 +6,7 @@ using Duality;
 using Jazz2.Actors;
 using Jazz2.Game;
 using Jazz2.Game.Collisions;
+using Jazz2.Game.Structs;
 using Jazz2.Networking.Packets;
 using Jazz2.Networking.Packets.Client;
 using Jazz2.Networking.Packets.Server;
@@ -98,6 +99,26 @@ namespace Jazz2.Server
                         Type = player.PlayerType,
                         Pos = player.Pos
                     }, 9, playersWithLoadedLevel, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+
+                    foreach (KeyValuePair<int, RemotableActor> pair in remotableActors) {
+                        RemotableActor remotableActor = pair.Value;
+
+                        Send(new CreateRemoteObject {
+                            Index = remotableActor.Index,
+                            EventType = remotableActor.EventType,
+                            EventParams = remotableActor.EventParams,
+                            Pos = remotableActor.Pos,
+                        }, 35, p.SenderConnection, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+                    }
+
+                    foreach (ActorBase remotableActor in spawnedActors) {
+                        Send(new CreateRemoteObject {
+                            Index = remotableActor.Index,
+                            EventType = remotableActor.EventType,
+                            EventParams = remotableActor.EventParams,
+                            Pos = remotableActor.Transform.Pos,
+                        }, 35, p.SenderConnection, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+                    }
                 }
             }
         }
@@ -154,6 +175,10 @@ namespace Jazz2.Server
 
         private void OnCreateRemotableActor(ref CreateRemotableActor p)
         {
+            if (p.EventType == EventType.Empty) {
+                return;
+            }
+
             int index = p.Index;
 
             Player player;
@@ -186,7 +211,7 @@ namespace Jazz2.Server
                 EventType = remotableActor.EventType,
                 EventParams = remotableActor.EventParams,
                 Pos = remotableActor.Pos,
-            }, 13, playerConnections, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+            }, 35, playerConnections, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
         }
 
         private void OnUpdateRemotableActor(ref UpdateRemotableActor p)

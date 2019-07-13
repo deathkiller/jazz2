@@ -3,16 +3,16 @@ using Jazz2.Game.Structs;
 using Jazz2.Networking;
 using Jazz2.Networking.Packets.Client;
 
-namespace Jazz2.Actors.Weapons
+namespace Jazz2.Actors
 {
-    partial class AmmoToaster : IRemotableActor
+    partial class ActorBase : IRemotableActor
     {
         public int Index { get; set; }
 
         public void OnCreateRemotableActor(ref CreateRemotableActor p)
         {
-            p.EventType = EventType.WeaponToaster;
-            p.EventParams = new ushort[] { upgrades };
+            p.EventType = EventType;
+            p.EventParams = eventParams;
             p.Pos = Transform.Pos;
         }
 

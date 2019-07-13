@@ -67,7 +67,7 @@ namespace Jazz2.Actors
         Relative
     }
 
-    public abstract class ActorBase : GameObject, ICollisionable
+    public abstract partial class ActorBase : GameObject, ICollisionable
     {
         protected const float CollisionCheckStep = 0.5f;
         protected const int PerPixelCollisionStep = 3;
@@ -94,6 +94,7 @@ namespace Jazz2.Actors
         protected SuspendType suspendType;
         protected Point2 originTile;
         protected ActorInstantiationFlags flags;
+        protected ushort[] eventParams;
 
         protected ActorRenderer renderer;
         private Point2 boundingBox;
@@ -116,6 +117,9 @@ namespace Jazz2.Actors
         private Action currentTransitionCallback;
 
         private List<GraphicResource> cachedCandidates = new List<GraphicResource>();
+
+        public virtual EventType EventType => EventType.Empty;
+        public ushort[] EventParams => eventParams;
 
         public CollisionFlags CollisionFlags => collisionFlags;
         public bool IsInvulnerable => isInvulnerable;
@@ -161,6 +165,7 @@ namespace Jazz2.Actors
 
             this.api = details.Api;
             this.flags = details.Flags;
+            this.eventParams = details.Params;
 
             friction = 1.5f;
 

@@ -133,7 +133,7 @@ namespace Jazz2.Game.UI.Menu
                             infoColor, 0.8f, 0.4f, 1f, 1f, 8f, charSpacing: 0.88f);
 
                         // Column 3
-                        api.DrawStringShadow(ref charOffset, server.EndPointName, column3, currentItem, Alignment.Left,
+                        api.DrawStringShadow(ref charOffset, server.ActiveEndPointName, column3, currentItem, Alignment.Left,
                             new ColorRgba(0.48f, 0.5f), 0.8f, 0.4f, 1f, 1f, 8f, charSpacing: 0.88f);
 
                         // Column 1
@@ -146,7 +146,7 @@ namespace Jazz2.Game.UI.Menu
                             infoColor, 0.7f);
 
                         // Column 3
-                        api.DrawString(ref charOffset, server.EndPointName, column3, currentItem, Alignment.Left,
+                        api.DrawString(ref charOffset, server.ActiveEndPointName, column3, currentItem, Alignment.Left,
                             ColorRgba.TransparentBlack, 0.7f);
 
                         // Column 1
@@ -194,14 +194,14 @@ namespace Jazz2.Game.UI.Menu
             }
 
             if (ControlScheme.MenuActionHit(PlayerActions.Fire)) {
-                if (selectedIndex < serverList.Count && serverList[selectedIndex].LatencyMs <= 10000) {
+                if (selectedIndex < serverList.Count && serverList[selectedIndex].ActiveEndPoint != null && selectedIndex < serverList.Count && serverList[selectedIndex].LatencyMs <= 10000) {
                     ControlScheme.IsSuspended = true;
 
                     api.PlaySound("MenuSelect", 0.5f);
                     api.BeginFadeOut(() => {
                         ControlScheme.IsSuspended = false;
 
-                        api.SwitchToServer(serverList[selectedIndex].EndPoint);
+                        api.SwitchToServer(serverList[selectedIndex].ActiveEndPoint);
 
                         if (discovery != null) {
                             discovery.Dispose();

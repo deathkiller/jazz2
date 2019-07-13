@@ -197,6 +197,68 @@ namespace Lidgren.Network
             }
         }
 
+        public static bool IsAddressPrivate(NetAddress address)
+        {
+            return false;
+
+            if (address.AddressFamily == AddressFamily.InterNetworkV6 && address.IsIPv4MappedToIPv6) {
+                address = address.MapToIPv4();
+            }
+
+            if (address.AddressFamily == AddressFamily.InterNetwork) {
+                byte[] bytes = address.GetAddressBytes();
+                return (bytes[0] == 10 ||
+                        bytes[0] == 127 ||
+                        (bytes[0] == 192 && bytes[1] == 168) ||
+                        (bytes[0] == 172 && (bytes[1] >= 16 && bytes[1] <= 31)));
+            } else if (address.AddressFamily == AddressFamily.InterNetworkV6) {
+                string addressAsString = address.ToString();
+
+                // equivalent of 127.0.0.1 in IPv6
+                if (addressAsString == "::1") {
+                    return true;
+                }
+
+                // The original IPv6 Site Local addresses (fec0::/10) are deprecated. Unfortunately IsIPv6SiteLocal only checks for the original deprecated version:
+                if (address.IsIPv6SiteLocal) {
+                    return true;
+                }
+
+                int idx = addressAsString.IndexOf(':');
+                if (idx == -1) {
+                    return false;
+                }
+
+                string firstWord = addressAsString.Substring(0, idx);
+
+                // These days Unique Local Addresses (ULA) are used in place of Site Local. 
+                // ULA has two variants: 
+                //      fc00::/8 is not defined yet, but might be used in the future for internal-use addresses that are registered in a central place (ULA Central). 
+                //      fd00::/8 is in use and does not have to registered anywhere.
+                if (firstWord.Length >= 4 && firstWord.Substring(0, 2) == "fc") {
+                    return true;
+                }
+                if (firstWord.Length >= 4 && firstWord.Substring(0, 2) == "fd") {
+                    return true;
+                }
+
+                // Link local addresses (prefixed with fe80) are not routable
+                if (firstWord == "fe80") {
+                    return true;
+                }
+
+                // Discard Prefix
+                if (firstWord == "100") {
+                    return true;
+                }
+
+                // Any other IP address is not Unique Local Address (ULA)
+                return false;
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// Create a hex string from an Int64 value
         /// </summary>
@@ -228,25 +290,6 @@ namespace Lidgren.Network
                 c[i * 2 + 1] = (char)(b > 9 ? b + 0x37 : b + 0x30);
             }
             return new string(c);
-        }
-
-        /// <summary>
-        /// Returns true if the IPAddress supplied is on the same subnet as this host
-        /// </summary>
-        public static bool IsLocal(NetAddress remote)
-        {
-            NetAddress mask;
-            var local = GetMyAddress(out mask);
-
-            if (mask == null)
-                return false;
-
-            uint maskBits = BitConverter.ToUInt32(mask.GetAddressBytes(), 0);
-            uint remoteBits = BitConverter.ToUInt32(remote.GetAddressBytes(), 0);
-            uint localBits = BitConverter.ToUInt32(local.GetAddressBytes(), 0);
-
-            // compare network portions
-            return ((remoteBits & maskBits) == (localBits & maskBits));
         }
 
         /// <summary>
@@ -388,7 +431,7 @@ namespace Lidgren.Network
 
         public static byte[] ComputeSHAHash(byte[] bytes)
         {
-            // this is defined in the platform specific files
+            // This is defined in the platform specific files
             return ComputeSHAHash(bytes, 0, bytes.Length);
         }
 

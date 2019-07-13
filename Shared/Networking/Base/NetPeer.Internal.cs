@@ -451,7 +451,7 @@ namespace Lidgren.Network
                         {
                             resp = resp.Substring(resp.ToLower().IndexOf("location:") + 9);
                             resp = resp.Substring(0, resp.IndexOf("\r")).Trim();
-                            m_upnp.ExtractServiceUrl(resp);
+                            m_upnp.ExtractServiceUrl(ipsender, resp);
                             return;
                         }
                         catch (Exception ex)

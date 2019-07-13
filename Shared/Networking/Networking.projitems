@@ -9,16 +9,7 @@
     <Import_RootNamespace>Jazz2.Networking</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoBlaster.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoBouncer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoElectro.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoFreezer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoPepper.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoRF.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoSeeker.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoThunderbolt.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoTNT.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\Weapons\AmmoToaster.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\ActorBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)App.Multiplayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Base\NetBitVector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Base\NetBitWriter.cs" />

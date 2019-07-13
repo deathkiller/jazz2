@@ -18,6 +18,7 @@ namespace Jazz2.Game.UI
         private BitmapFont fontSmall;
         private Dictionary<string, GraphicResource> graphics;
 
+        private ILevelHandler levelHandler;
         private Player owner;
 
         private string levelText;
@@ -37,6 +38,12 @@ namespace Jazz2.Game.UI
         private static List<Rect> debugRects = new List<Rect>();
         private bool enableDebug;
 #endif
+
+        public ILevelHandler LevelHandler
+        {
+            get { return levelHandler; }
+            set { levelHandler = value; }
+        }
 
         public Player Owner
         {
@@ -129,6 +136,9 @@ namespace Jazz2.Game.UI
                 }
 
                 // Score
+#if MULTIPLAYER
+                if (!(levelHandler is Multiplayer.NetworkLevelHandler))
+#endif
                 {
                     DrawMaterial("PickupFood", -1, 3, 3 + 1.6f, Alignment.TopLeft, new ColorRgba(0f, 0.4f));
                     DrawMaterial("PickupFood", -1, 3, 3, Alignment.TopLeft, ColorRgba.White);

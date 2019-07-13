@@ -114,6 +114,7 @@ namespace Jazz2.Server
                     // Fast path for Ping request
                     NetOutgoingMessage m = server.CreateMessage();
                     m.Write(PacketTypes.Ping);
+                    m.Write(server.UniqueIdentifier);
                     server.SendUnconnected(m, args.Message.SenderEndPoint);
                     return;
                 }
@@ -151,7 +152,7 @@ namespace Jazz2.Server
             msg.Write(neededMinor);
             msg.Write(neededBuild);
 
-            // Message
+            msg.Write(server.UniqueIdentifier);
             msg.Write(name);
 
             byte flags = 0;

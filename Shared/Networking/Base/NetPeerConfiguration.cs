@@ -96,11 +96,6 @@ namespace Lidgren.Network
             m_networkThreadName = "Network thread";
             m_localAddress = IPAddress.IPv6Any;
             m_broadcastAddress = IPAddress.Broadcast;
-            var ip = NetUtility.GetBroadcastAddress();
-            if (ip != null)
-            {
-                m_broadcastAddress = ip;
-            }
             m_port = 0;
             m_receiveBufferSize = 131071;
             m_sendBufferSize = 131071;

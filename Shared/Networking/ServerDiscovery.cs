@@ -17,17 +17,18 @@ namespace Jazz2.Game.Multiplayer
 
         public class Server
         {
-            public IPEndPoint EndPoint;
+            public IPEndPoint ActiveEndPoint;
+            public List<IPEndPoint> PublicEndPointList;
 
+            public string UniqueIdentifier;
             public string Name;
-            public string EndPointName;
+            public string ActiveEndPointName;
             public int CurrentPlayers;
             public int MaxPlayers;
             public int LatencyMs;
 
             public long LastPingTime;
 
-            public bool IsPublic;
             public bool IsLost;
         }
 
@@ -35,13 +36,20 @@ namespace Jazz2.Game.Multiplayer
         {
             public class Server
             {
-                public string name { get; set; }
-                public string endpoint { get; set; }
-                public int current_players { get; set; }
-                public int max_players { get; set; }
+                // Name
+                public string n { get; set; }
+                // Unique Identifier
+                public string u { get; set; }
+                // Endpoints
+                public string e { get; set; }
+                // Current Players
+                public int c { get; set; }
+                // Max Players
+                public int m { get; set; }
             }
 
-            public IList<Server> servers { get; set; }
+            // Servers
+            public IList<Server> s { get; set; }
         }
 
         private const string ServerListUrl = "http://deat.tk/jazz2/servers";
@@ -54,8 +62,8 @@ namespace Jazz2.Game.Multiplayer
         private int port;
         private ServerUpdatedCallbackDelegate serverUpdatedAction;
 
-        private Dictionary<IPEndPoint, Server> foundServers;
-        private Dictionary<string, IPEndPoint> publicEndPoints;
+        private Dictionary<string, Server> foundServers;
+        private Dictionary<string, List<IPEndPoint>> publicEndPoints;
         private JsonParser jsonParser;
 
         public ServerDiscovery(string appId, int port, ServerUpdatedCallbackDelegate serverUpdatedAction)
@@ -67,8 +75,8 @@ namespace Jazz2.Game.Multiplayer
             this.port = port;
             this.serverUpdatedAction = serverUpdatedAction;
 
-            foundServers = new Dictionary<IPEndPoint, Server>();
-            publicEndPoints = new Dictionary<string, IPEndPoint>();
+            foundServers = new Dictionary<string, Server>();
+            publicEndPoints = new Dictionary<string, List<IPEndPoint>>();
             jsonParser = new JsonParser();
 
             NetPeerConfiguration config = new NetPeerConfiguration(appId);
@@ -129,38 +137,38 @@ namespace Jazz2.Game.Multiplayer
                             Console.ForegroundColor = ConsoleColor.Gray;
                             Console.WriteLine("[" + msg.SenderEndPoint + "] " + msg.LengthBytes + " bytes");
 #endif
-                            bool isNew;
-                            Server server;
-                            if (!foundServers.TryGetValue(msg.SenderEndPoint, out server)) {
-                                string endPointName;
-                                if (msg.SenderEndPoint.Address.IsIPv4MappedToIPv6) {
-                                    endPointName = msg.SenderEndPoint.Address.MapToIPv4().ToString();
-                                } else {
-                                    endPointName = msg.SenderEndPoint.Address.ToString();
-                                }
-                                endPointName += ":" + msg.SenderEndPoint.Port.ToString(CultureInfo.InvariantCulture);
-
-                                server = new Server {
-                                    EndPoint = msg.SenderEndPoint,
-                                    EndPointName = endPointName,
-                                    LatencyMs = -1
-                                };
-
-                                foundServers[msg.SenderEndPoint] = server;
-                                isNew = true;
-                            } else {
-                                if (server.IsPublic) {
-                                    break;
-                                }
-
-                                isNew = false;
-                            }
-
                             string token = msg.ReadString();
                             int neededMajor = msg.ReadByte();
                             int neededMinor = msg.ReadByte();
                             int neededBuild = msg.ReadByte();
                             // ToDo: Check server version
+
+                            string uniqueIdentifier = msg.ReadString();
+
+                            bool isNew;
+                            Server server;
+                            if (!foundServers.TryGetValue(uniqueIdentifier, out server)) {
+                                IPEndPoint endPoint = msg.SenderEndPoint;
+                                if (endPoint.Address.IsIPv4MappedToIPv6) {
+                                    endPoint.Address = endPoint.Address.MapToIPv4();
+                                }
+
+                                server = new Server {
+                                    UniqueIdentifier = uniqueIdentifier,
+                                    ActiveEndPoint = endPoint,
+                                    ActiveEndPointName = msg.SenderEndPoint.Address.ToString() + ":" + msg.SenderEndPoint.Port.ToString(CultureInfo.InvariantCulture),
+                                    LatencyMs = -1
+                                };
+
+                                foundServers[uniqueIdentifier] = server;
+                                isNew = true;
+                            } else {
+                                if (server.PublicEndPointList != null) {
+                                    break;
+                                }
+
+                                isNew = false;
+                            }
 
                             server.Name = msg.ReadString();
                             server.IsLost = false;
@@ -177,22 +185,44 @@ namespace Jazz2.Game.Multiplayer
 
                             NetOutgoingMessage m = client.CreateMessage();
                             m.Write(PacketTypes.Ping);
-                            client.SendUnconnectedMessage(m, server.EndPoint);
+                            client.SendUnconnectedMessage(m, server.ActiveEndPoint);
                             break;
                         }
 
                         case NetIncomingMessageType.UnconnectedData: {
-                            if (msg.LengthBytes == 1 && msg.ReadByte() == PacketTypes.Ping) {
+                            if (msg.LengthBytes > 1 && msg.PeekByte() == PacketTypes.Ping) {
                                 long nowTime = (long)(NetTime.Now * 1000);
 
+                                msg.ReadByte(); // Already checked
+                                string uniqueIdentifier = msg.ReadString();
+
                                 Server server;
-                                if (foundServers.TryGetValue(msg.SenderEndPoint, out server)) {
-                                    server.IsLost = false;
-                                    server.LatencyMs = (int)(nowTime - server.LastPingTime) / 2 - 1;
-                                    if (server.LatencyMs < 0) {
-                                        server.LatencyMs = 0;
+                                if (foundServers.TryGetValue(uniqueIdentifier, out server)) {
+                                    bool isUpdated;
+                                    if (server.PublicEndPointList != null) {
+                                        isUpdated = false;
+                                        foreach (IPEndPoint endpoint in server.PublicEndPointList) {
+                                            if (endpoint.Equals(msg.SenderEndPoint)) {
+                                                server.ActiveEndPoint = endpoint;
+                                                isUpdated = true;
+
+                                                server.ActiveEndPointName = endpoint.Address.ToString() + ":" + endpoint.Port.ToString(CultureInfo.InvariantCulture);
+                                                break;
+                                            }
+                                        }
+                                    } else {
+                                        isUpdated = true;
                                     }
-                                    serverUpdatedAction(server, false);
+
+                                    if (isUpdated) {
+                                        server.IsLost = false;
+                                        server.LatencyMs = (int)(nowTime - server.LastPingTime) / 2 - 1;
+                                        if (server.LatencyMs < 0) {
+                                            server.LatencyMs = 0;
+                                        }
+
+                                        serverUpdatedAction(server, false);
+                                    }
                                 }
                             }
                             break;
@@ -263,7 +293,7 @@ namespace Jazz2.Game.Multiplayer
         private void DiscoverPublicServers()
         {
             string deviceId;
-#if __ANDROID__
+#if PLATFORM_ANDROID
             try {
                 deviceId = global::Android.Provider.Settings.Secure.GetString(Android.MainActivity.Current.ContentResolver, global::Android.Provider.Settings.Secure.AndroidId);
                 if (deviceId == null) {
@@ -310,8 +340,8 @@ namespace Jazz2.Game.Multiplayer
             }
 
             // Remove lost local servers
-            foreach (KeyValuePair<IPEndPoint, Server> pair in foundServers) {
-                if (!pair.Value.IsPublic) {
+            foreach (KeyValuePair<string, Server> pair in foundServers) {
+                if (pair.Value.PublicEndPointList == null) {
                     continue;
                 }
 
@@ -324,68 +354,66 @@ namespace Jazz2.Game.Multiplayer
             }
 
             // Process server list
-            if (json.servers != null) {
-                foreach (ServerListJson.Server s in json.servers) {
+            if (json.s != null) {
+                foreach (ServerListJson.Server s in json.s) {
 
-                    IPEndPoint endPoint;
-                    if (!publicEndPoints.TryGetValue(s.endpoint, out endPoint)) {
-                        int idx = s.endpoint.LastIndexOf(':');
-                        if (idx == -1) {
-                            publicEndPoints[s.endpoint] = null;
-                            continue;
+                    List<IPEndPoint> endPoints;
+                    if (!publicEndPoints.TryGetValue(s.u, out endPoints)) {
+                        string[] endPointsRaw = s.e.Split('|');
+                        endPoints = new List<IPEndPoint>(endPointsRaw.Length);
+                        for (int i = 0; i < endPointsRaw.Length; i++) {
+                            int idx = endPointsRaw[i].LastIndexOf(':');
+                            if (idx == -1) {
+                                continue;
+                            }
+
+                            int port;
+                            if (!int.TryParse(endPointsRaw[i].Substring(idx + 1), NumberStyles.Any, CultureInfo.InvariantCulture, out port)) {
+                                continue;
+                            }
+
+                            try {
+                                IPAddress ip = NetUtility.Resolve(endPointsRaw[i].Substring(0, idx));
+
+                                if (ip.IsIPv4MappedToIPv6) {
+                                    ip = ip.MapToIPv4();
+                                }
+
+                                endPoints.Add(new IPEndPoint(ip, port));
+                            } catch {
+                                // Nothing to do...
+                            }
                         }
 
-                        int port;
-                        if (!int.TryParse(s.endpoint.Substring(idx + 1), NumberStyles.Any, CultureInfo.InvariantCulture, out port)) {
-                            publicEndPoints[s.endpoint] = null;
-                            continue;
-                        }
-
-                        try {
-                            IPAddress ip = NetUtility.Resolve(s.endpoint.Substring(0, idx));
-                            endPoint = new IPEndPoint(ip, port);
-                        } catch {
-                            endPoint = null;
-                        }
-                       
-                        publicEndPoints[s.endpoint] = endPoint;
+                        publicEndPoints[s.e] = endPoints;
                     }
 
-                    if (endPoint == null) {
-                        // Endpoint cannot be parsed, skip it
+                    if (endPoints.Count == 0) {
+                        // Endpoints cannot be parsed, skip this server
                         continue;
                     }
 
                     bool isNew;
                     Server server;
-                    if (!foundServers.TryGetValue(endPoint, out server)) {
-                        string endPointName;
-                        if (endPoint.Address.IsIPv4MappedToIPv6) {
-                            endPointName = endPoint.Address.MapToIPv4().ToString();
-                        } else {
-                            endPointName = endPoint.Address.ToString();
-                        }
-                        endPointName += ":" + endPoint.Port.ToString(CultureInfo.InvariantCulture);
-
+                    if (!foundServers.TryGetValue(s.u, out server)) {
                         server = new Server {
-                            EndPoint = endPoint,
-                            EndPointName = endPointName,
+                            UniqueIdentifier = s.u,
+                            ActiveEndPointName = endPoints[0].Address.ToString() + ":" + endPoints[0].Port.ToString(CultureInfo.InvariantCulture),
                             LatencyMs = -1,
-                            IsPublic = true,
                             IsLost = true
                         };
 
-                        foundServers[endPoint] = server;
+                        foundServers[s.u] = server;
                         isNew = true;
                     } else {
                         isNew = false;
-                        server.IsPublic = true;
                     }
 
-                    server.Name = s.name;
+                    server.PublicEndPointList = endPoints;
+                    server.Name = s.n;
 
-                    server.CurrentPlayers = s.current_players;
-                    server.MaxPlayers = s.max_players;
+                    server.CurrentPlayers = s.c;
+                    server.MaxPlayers = s.m;
 
                     serverUpdatedAction(server, isNew);
 
@@ -394,7 +422,7 @@ namespace Jazz2.Game.Multiplayer
 
                     NetOutgoingMessage m = client.CreateMessage();
                     m.Write(PacketTypes.Ping);
-                    client.SendUnconnectedMessage(m, server.EndPoint);
+                    client.SendUnconnectedMessage(m, endPoints);
                 }
             }
         }
@@ -402,8 +430,8 @@ namespace Jazz2.Game.Multiplayer
         private void DiscoverLocalServers()
         {
             // Remove lost local servers
-            foreach (KeyValuePair<IPEndPoint, Server> pair in foundServers) {
-                if (pair.Value.IsPublic) {
+            foreach (KeyValuePair<string, Server> pair in foundServers) {
+                if (pair.Value.PublicEndPointList != null) {
                     continue;
                 }
 

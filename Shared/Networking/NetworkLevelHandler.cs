@@ -136,7 +136,7 @@ namespace Jazz2.Game.Multiplayer
             base.AddActor(actor);
 
             IRemotableActor remotableActor = actor as IRemotableActor;
-            if (remotableActor == null) {
+            if (remotableActor == null || remotableActor.Index != 0) {
                 return;
             }
 
@@ -158,7 +158,7 @@ namespace Jazz2.Game.Multiplayer
             base.RemoveActor(actor);
 
             IRemotableActor remotableActor = actor as IRemotableActor;
-            if (remotableActor == null) {
+            if (remotableActor == null || (remotableActor.Index & 0xff) != localPlayerIndex) {
                 return;
             }
 
@@ -279,7 +279,9 @@ namespace Jazz2.Game.Multiplayer
                 cameras[0].Transform.Pos = new Vector3(pos.Xy, 0);
                 cameras[0].GetComponent<CameraController>().TargetObject = player;
 
-                player.AttachToHud(rootObject.AddComponent<Hud>());
+                Hud hud = rootObject.AddComponent<Hud>();
+                hud.LevelHandler = this;
+                player.AttachToHud(hud);
 
                 //player.ReceiveLevelCarryOver(data.ExitType, ref data.PlayerCarryOvers[i]);
             });
@@ -346,15 +348,17 @@ namespace Jazz2.Game.Multiplayer
 
             Root.DispatchToMainThread(delegate {
 
-                ActorBase actor = EventSpawner.SpawnEvent(ActorInstantiationFlags.None, eventType, pos, eventParams);
+                ActorBase actor = EventSpawner.SpawnEvent(ActorInstantiationFlags.IsCreatedFromEventMap, eventType, pos, eventParams);
                 IRemotableActor remotableActor = actor as IRemotableActor;
                 if (remotableActor == null) {
                     return;
                 }
 
+                remotableActor.Index = index;
                 remoteActors[index] = remotableActor;
 
-                AddObject(actor);
+                //AddObject(actor);
+                AddActor(actor);
             });
         }
 
@@ -370,7 +374,8 @@ namespace Jazz2.Game.Multiplayer
                 IRemotableActor actor;
                 if (remoteActors.TryGetValue(index, out actor)) {
                     remoteActors.Remove(index);
-                    RemoveObject(actor as ActorBase);
+                    //RemoveObject(actor as ActorBase);
+                    RemoveActor(actor as ActorBase);
                 }
             });
         }

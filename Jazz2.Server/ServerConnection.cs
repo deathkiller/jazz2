@@ -18,7 +18,8 @@ namespace Jazz2.Server
 
         private NetServer server;
         private Thread threadUpdate;
-        private IPAddress publicIpAddress;
+        private IList<IPAddress> publicIpAddresses;
+        private string uniqueIdentifier;
 
         public int ConnectionsCount => server.ConnectionsCount;
 
@@ -27,20 +28,27 @@ namespace Jazz2.Server
         public event Action<MessageReceivedEventArgs> MessageReceived;
         public event Action<DiscoveryRequestEventArgs> DiscoveryRequest;
 
-        public IPAddress LocalIPAddress
+        public IList<IPAddress> LocalIPAddresses
         {
             get
             {
-                IPAddress mask;
-                return NetUtility.GetMyAddress(out mask);
+                return NetUtility.GetSelfAddresses();
             }
         }
 
-        public IPAddress PublicIPAddress
+        public IList<IPAddress> PublicIPAddresses
         {
             get
             {
-                return publicIpAddress;
+                return publicIpAddresses;
+            }
+        }
+
+        public string UniqueIdentifier
+        {
+            get
+            {
+                return uniqueIdentifier;
             }
         }
 
@@ -79,12 +87,14 @@ namespace Jazz2.Server
             server = new NetServer(config);
             server.Start();
 
+            uniqueIdentifier = NetUtility.ToHexString(server.UniqueIdentifier);
+
             threadUpdate = new Thread(OnHandleMessagesThread);
             threadUpdate.IsBackground = true;
             threadUpdate.Start();
 
             if (config.EnableUPnP) {
-                publicIpAddress = server.UPnP.GetExternalIP();
+                publicIpAddresses = server.UPnP.GetExternalIP();
                 server.UPnP.ForwardPort(port, "Jazz2");
                 
             }

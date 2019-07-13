@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using System.Threading;
+using Duality;
+using Jazz2.Game;
+using Jazz2.Game.Events;
 using Jazz2.Networking.Packets;
 using Jazz2.Networking.Packets.Server;
 using Lidgren.Network;
@@ -26,7 +29,7 @@ namespace Jazz2.Server
         private ServerConnection server;
         private byte neededMajor, neededMinor, neededBuild;
         private string customHostname;
-        private bool allowOnlyUniqueClients = true;
+        private bool allowOnlyUniqueClients;
         private DateTime startedTime;
 
         private Dictionary<byte, Action<NetIncomingMessage, bool>> callbacks;
@@ -84,11 +87,20 @@ namespace Jazz2.Server
             this.neededMinor = neededMinor;
             this.neededBuild = neededBuild;
 
+            DualityApp.Init(DualityApp.ExecutionContext.Game, null, null);
+
+            ContentResolver.Current.Init();
+            ContentResolver.Current.InitPostWindow();
+
             callbacks = new Dictionary<byte, Action<NetIncomingMessage, bool>>();
             players = new Dictionary<NetConnection, Player>();
             playerConnections = new List<NetConnection>();
 
             remotableActors = new Dictionary<int, RemotableActor>();
+            spawnedActors = new List<Actors.ActorBase>();
+
+            api = new ActorApi(this);
+            eventSpawner = new EventSpawner(api);
 
             server = new ServerConnection(Token, port, maxPlayers, !isPrivate && enableUPnP);
             server.MessageReceived += OnMessageReceived;
@@ -98,7 +110,25 @@ namespace Jazz2.Server
 
             RegisterPacketCallbacks();
 
-            Log.Write(LogType.Info, "Endpoint: " + server.LocalIPAddress + ":" + port + (server.PublicIPAddress != null ? " / " + server.PublicIPAddress + ":" + port : "") + (customHostname != null ? " / " + customHostname + ":" + port : ""));
+            Log.Write(LogType.Info, "Endpoints:", true);
+
+            foreach (var address in server.LocalIPAddresses) {
+                Log.Write(LogType.Verbose, address + ":" + port + (NetUtility.IsAddressPrivate(address) ? " [Private]" : ""));
+            }
+
+            if (server.PublicIPAddresses != null) {
+                foreach (var address in server.PublicIPAddresses) {
+                    Log.Write(LogType.Verbose, address + ":" + port + (NetUtility.IsAddressPrivate(address) ? " [Private]" : "") + " [UPnP]");
+                }
+            }
+
+            if (customHostname != null) {
+                Log.Write(LogType.Verbose, customHostname + ":" + port + " [Custom]");
+            }
+
+            Log.PopIndent();
+
+            Log.Write(LogType.Info, "Unique Identifier: " + server.UniqueIdentifier);
             Log.Write(LogType.Info, "Server Name: " + name);
             Log.Write(LogType.Info, "Players: 0/" + maxPlayers);
 
@@ -154,36 +184,107 @@ namespace Jazz2.Server
 
             while (threadPublishToServerList != null) {
                 try {
-                    string currentVersion = Game.App.AssemblyVersion;
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append("0\n"); // Flags
 
-                    string endpoint = (customHostname ?? (server.PublicIPAddress ?? server.LocalIPAddress).ToString()) + ":" + port;
-
-                    long uptimeSecs = (long)(TimeZoneInfo.ConvertTimeToUtc(startedTime) -  new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
-
-                    string dataString = "0\n" + endpoint + "\n" + currentVersion + "\n" + players.Count + "\n" + maxPlayers + "\n" + uptimeSecs + "\n" + lastGameLoadMs + "\n" + (int)currentLevelType + "\n" + currentLevel + "\n" + currentLevelFriendlyName + "\n" + name;
-                    string data = "publish=" + Convert.ToBase64String(Encoding.UTF8.GetBytes(dataString))
-                                .Replace('+', '-').Replace('/', '_').TrimEnd('=');
-
-                    WebClient client = new WebClient();
-                    client.Encoding = Encoding.UTF8;
-                    client.Headers["User-Agent"] = Game.App.AssemblyTitle;
-                    client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
-
-                    string content = client.UploadString(ServerListUrl, data);
-                    if (content.Contains("\"r\":false")) {
-                        if (content.Contains("\"e\":1")) {
-                            Log.Write(LogType.Warning, "Cannot publish server with private IP address (" + endpoint + ")!");
-                        } else if (content.Contains("\"e\":2")) {
-                            Log.Write(LogType.Error, "Access to server list is denied! Try it later.");
-                        } else {
-                            Log.Write(LogType.Warning, "Server cannot be published to server list!");
+                    bool isFirst = true;
+                    foreach (IPAddress address in server.LocalIPAddresses) {
+                        if (NetUtility.IsAddressPrivate(address)) {
+                            continue;
                         }
-                        return;
-                    } else if (!isPublished) {
-                        Log.Write(LogType.Error, "Server was successfully published again!");
+
+                        if (isFirst) {
+                            isFirst = false;
+                        } else {
+                            sb.Append("|");
+                        }
+
+                        sb.Append(address)
+                            .Append(":")
+                            .Append(port);
+                    }
+                    if (server.PublicIPAddresses != null) {
+                        foreach (IPAddress address in server.PublicIPAddresses) {
+                            if (NetUtility.IsAddressPrivate(address)) {
+                                continue;
+                            }
+
+                            if (isFirst) {
+                                isFirst = false;
+                            } else {
+                                sb.Append("|");
+                            }
+
+                            sb.Append(address)
+                                .Append(":")
+                                .Append(port);
+                        }
+                    }
+                    if (customHostname != null) {
+                        if (isFirst) {
+                            isFirst = false;
+                        } else {
+                            sb.Append("|");
+                        }
+
+                        sb.Append(customHostname)
+                            .Append(":")
+                            .Append(port);
                     }
 
-                    isPublished = true;
+                    if (isFirst) {
+                        // No public IP address found
+                        Log.Write(LogType.Warning, "Server cannot be published to server list - no public IP address found!");
+                    } else {
+                        string currentVersion = Game.App.AssemblyVersion;
+
+                        long uptimeSecs = (long)(TimeZoneInfo.ConvertTimeToUtc(startedTime) - new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+
+                        sb.Append('\n')
+                            .Append(server.UniqueIdentifier)
+                            .Append('\n')
+                            .Append(currentVersion)
+                            .Append('\n')
+                            .Append(players.Count)
+                            .Append('\n')
+                            .Append(maxPlayers)
+                            .Append('\n')
+                            .Append(uptimeSecs)
+                            .Append('\n')
+                            .Append(lastGameLoadMs)
+                            .Append('\n')
+                            .Append((int)currentLevelType)
+                            .Append('\n')
+                            .Append(currentLevel)
+                            .Append('\n')
+                            .Append(currentLevelFriendlyName)
+                            .Append('\n')
+                            .Append(name);
+
+                        string data = "publish=" + Convert.ToBase64String(Encoding.UTF8.GetBytes(sb.ToString()))
+                                    .Replace('+', '-').Replace('/', '_').TrimEnd('=');
+
+                        WebClient client = new WebClient();
+                        client.Encoding = Encoding.UTF8;
+                        client.Headers["User-Agent"] = Game.App.AssemblyTitle;
+                        client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
+
+                        string content = client.UploadString(ServerListUrl, data);
+                        if (content.Contains("\"r\":false")) {
+                            if (content.Contains("\"e\":1")) {
+                                Log.Write(LogType.Warning, "Cannot publish server with private IP addresses!");
+                            } else if (content.Contains("\"e\":2")) {
+                                Log.Write(LogType.Error, "Access to server list is denied! Try it later.");
+                            } else {
+                                Log.Write(LogType.Warning, "Server cannot be published to server list!");
+                            }
+                            return;
+                        } else if (!isPublished) {
+                            Log.Write(LogType.Error, "Server was successfully published again!");
+                        }
+
+                        isPublished = true;
+                    }
                 } catch (Exception ex) {
                     // Try it again later
                     if (isPublished) {

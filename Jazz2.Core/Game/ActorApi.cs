@@ -12,7 +12,7 @@ namespace Jazz2.Game
 {
     public class ActorApi
     {
-        private readonly LevelHandler levelHandler;
+        private ILevelHandler levelHandler;
 
         public TileMap TileMap
         {
@@ -96,7 +96,7 @@ namespace Jazz2.Game
             get { return levelHandler.Players; }
         }
 
-        public ActorApi(LevelHandler levelHandler)
+        public ActorApi(ILevelHandler levelHandler)
         {
             this.levelHandler = levelHandler;
         }
