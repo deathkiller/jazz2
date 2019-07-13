@@ -27,7 +27,7 @@
     <DebugType>Full</DebugType>
     <Optimize>False</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET45 ENABLE_TOUCH FAIL_ON_SHADER_COMPILE_ERROR</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET45 PLATFORM_ANDROID ENABLE_TOUCH FAIL_ON_SHADER_COMPILE_ERROR</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AndroidUseSharedRuntime>True</AndroidUseSharedRuntime>
@@ -43,7 +43,7 @@
     <DebugSymbols>false</DebugSymbols>
     <Optimize>True</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NET45 ENABLE_TOUCH FAIL_ON_SHADER_COMPILE_ERROR</DefineConstants>
+    <DefineConstants>TRACE;NET45 PLATFORM_ANDROID ENABLE_TOUCH FAIL_ON_SHADER_COMPILE_ERROR</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AndroidUseSharedRuntime>False</AndroidUseSharedRuntime>

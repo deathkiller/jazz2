@@ -7,7 +7,7 @@ namespace Jazz2.Game.UI.Menu.Settings
 {
     public class SettingsSection : MenuSectionWithControls
     {
-#if __ANDROID__
+#if PLATFORM_ANDROID
         private ChoiceControl vibrations;
         private SliderControl leftPadding;
         private SliderControl rightPadding;
@@ -25,7 +25,7 @@ namespace Jazz2.Game.UI.Menu.Settings
         {
             base.OnShow(root);
 
-#if !__ANDROID__ && !WASM
+#if !PLATFORM_ANDROID && !PLATFORM_WASM
             ScreenMode screenModeCurrent = api.ScreenMode;
             int screenModeValue;
             if ((screenModeCurrent & ScreenMode.FullWindow) != 0) {
@@ -57,12 +57,12 @@ namespace Jazz2.Game.UI.Menu.Settings
             }
             language = new ChoiceControl(api, "menu/settings/language".T(), currentLanguageIndex, languageNames);
 
-#if !WASM
+#if !PLATFORM_WASM
             musicVolume = new SliderControl(api, "menu/settings/music".T(), MusicVolume, 0f, 1f);
             sfxVolume = new SliderControl(api, "menu/settings/sfx".T(), SfxVolume, 0f, 1f);
 #endif
 
-#if __ANDROID__
+#if PLATFORM_ANDROID
             vibrations = new ChoiceControl(api, "menu/settings/vibrations".T(), Android.InnerView.AllowVibrations ? 1 : 0, "disabled".T(), "enabled".T());
 
             leftPadding = new SliderControl(api, "menu/settings/left padding".T(), Android.InnerView.LeftPadding, 0f, 0.15f);
@@ -74,7 +74,7 @@ namespace Jazz2.Game.UI.Menu.Settings
                 new LinkControl(api, "menu/settings/controls".T(), OnControlsPressed),
                 leftPadding, rightPadding
             };
-#elif WASM
+#elif PLATFORM_WASM
             controls = new MenuControlBase[] {
                 new LinkControl(api, "menu/settings/rescale".T(), OnRescaleModePressed),
                 language,
@@ -104,7 +104,7 @@ namespace Jazz2.Game.UI.Menu.Settings
             i18n.Language = currentLanguage;
             Preferences.Set("Language", currentLanguage);
 
-#if !WASM
+#if !PLATFORM_WASM
             MusicVolume = musicVolume.CurrentValue;
             SfxVolume = sfxVolume.CurrentValue;
 
@@ -112,7 +112,7 @@ namespace Jazz2.Game.UI.Menu.Settings
             Preferences.Set("SfxVolume", (byte)(SfxVolume * 100));
 #endif
 
-#if __ANDROID__
+#if PLATFORM_ANDROID
             Android.InnerView.AllowVibrations = (vibrations.SelectedIndex == 1);
             Preferences.Set("Vibrations", Android.InnerView.AllowVibrations);
 
@@ -121,7 +121,7 @@ namespace Jazz2.Game.UI.Menu.Settings
 
             Android.InnerView.RightPadding = rightPadding.CurrentValue;
             Preferences.Set("RightPadding", (byte)(Android.InnerView.RightPadding * 1000));
-#elif !WASM
+#elif !PLATFORM_WASM
             ScreenMode newScreenMode;
             switch (screenMode.SelectedIndex) {
                 default:

@@ -549,7 +549,7 @@ namespace Import
             Log.Write(LogType.Info, "Importing music...", true);
 
             // Known music extensions
-            string[] exts = { ".j2b", ".xm", ".it", ".s3m", ".mo3" };
+            string[] exts = { ".j2b", ".xm", ".it", ".s3m", ".mo3", ".mod" };
 
             Directory.CreateDirectory(Path.Combine(targetPath, "Content", "Music"));
 
@@ -994,7 +994,20 @@ namespace Import
                 "_custom/font_medium.png",
                 "_custom/font_medium.png.font",
                 "_custom/font_small.png",
-                "_custom/font_small.png.font"
+                "_custom/font_small.png.font",
+
+                "Jazz/unused_jump_shoot_end.png",
+                "Jazz/unused_jump_shoot_end.png.res",
+                "Jazz/unused_jump_shoot_end.n.png",
+                "Jazz/unused_ledge_climb.png",
+                "Jazz/unused_ledge_climb.png.res",
+                "Jazz/unused_ledge_climb.n.png",
+                "Spaz/unused_jump_shoot_end.png",
+                "Spaz/unused_jump_shoot_end.png.res",
+                "Spaz/unused_jump_shoot_end.n.png",
+                "Spaz/unused_ledge_climb.png",
+                "Spaz/unused_ledge_climb.png.res",
+                "Spaz/unused_ledge_climb.n.png",
             }) {
                 string file = PathOp.Combine("Animations", unreferenced.Replace('/', PathOp.DirectorySeparatorChar));
                 string path = Path.Combine(animationsPath, unreferenced);

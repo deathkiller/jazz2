@@ -9,7 +9,7 @@ namespace Jazz2
     {
         public delegate void CheckUpdatesCallback(bool newAvailable, string version);
 
-#if __ANDROID__
+#if PLATFORM_ANDROID
         private const string Url = "http://deat.tk/downloads/android/jazz2/updates";
 #else
         private const string Url = "http://deat.tk/downloads/games/jazz2/updates";
@@ -17,13 +17,14 @@ namespace Jazz2
 
         public static void CheckUpdates(CheckUpdatesCallback callback)
         {
+#if !PLATFORM_WASM
             if (callback == null) {
                 return;
             }
 
             ThreadPool.UnsafeQueueUserWorkItem(delegate {
                 string deviceId;
-#if __ANDROID__
+#if PLATFORM_ANDROID
                 try {
                     deviceId = global::Android.Provider.Settings.Secure.GetString(Android.MainActivity.Current.ContentResolver, global::Android.Provider.Settings.Secure.AndroidId);
                     if (deviceId == null) {
@@ -70,6 +71,7 @@ namespace Jazz2
                     callback(false, null);
                 }
             }, null);
+#endif
         }
 
         private static bool IsVersionNewer(string currentVersion, string newVersion)

@@ -31,7 +31,7 @@ This project uses parts of [Duality - A 2D GameDev Framework](https://www.dualit
     <img src="https://raw.githubusercontent.com/deathkiller/jazz2/master/Docs/Screen2.gif" alt="Preview">
 </div>
 
-[:tv: Watch gameplay videos](https://www.youtube.com/playlist?list=PLfrN-pyVL7k6n2VJF197F0yVOZq4EPTsP)
+<div align="center"><a href="https://www.youtube.com/playlist?list=PLfrN-pyVL7k6n2VJF197F0yVOZq4EPTsP">:tv: Watch gameplay videos</a></div>
 
 
 ## Running the application
@@ -72,14 +72,14 @@ The application tries to autodetect correct path. Also, you can use* `‹SDCard�
   * Copy `libopenmpt.dll` (*x86*, and its dependencies) to `‹Game›` directory
 
 ### Linux
-* [Mono 4.6 (or newer)](http://www.mono-project.com/download/#download-lin)
+* [Mono 5.0 (or newer)](http://www.mono-project.com/download/#download-lin)
 * OpenAL
   * Run `sudo apt install openal1` if it's missing
 * [libopenmpt](https://lib.openmpt.org/libopenmpt/download/) (included in release)
   * Copy `libopenmpt.so` (*x86*, and its dependencies) to `‹Game›` directory
 
 ### macOS
-* [Mono 4.6 (or newer)](http://www.mono-project.com/download/#download-mac)
+* [Mono 5.0 (or newer)](http://www.mono-project.com/download/#download-mac)
 * OpenAL should be already installed by OS
 * [libopenmpt](https://lib.openmpt.org/libopenmpt/)
   * Copy `libopenmpt.dylib` (*x86*, and its dependencies) to `‹Game›` directory
@@ -92,8 +92,8 @@ The application tries to autodetect correct path. Also, you can use* `‹SDCard�
 Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) or newer (or equivalent Mono compiler) to build the solution.
 
 ### WebAssembly
-* .NET Framework 4.5.2 (or newer) / Mono 4.6 (or newer)
-* Mono.WebAssembly.Sdk (included as NuGet)
+* .NET Framework 4.5.2 (or newer) / Mono 5.0 (or newer)
+* `Mono.WebAssembly.Sdk` (included as NuGet)
 
 ## Building the solution
 ### Windows

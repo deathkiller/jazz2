@@ -547,7 +547,7 @@ namespace Jazz2.Game
             if (!cachedShaders.TryGetValue(path, out shader)) {
 #if UNCOMPRESSED_CONTENT
                 string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Shaders", path + ".res");
-#elif __ANDROID__ || WASM
+#elif PLATFORM_ANDROID || PLATFORM_WASM
                 string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Shaders.ES30", path + ".res");
 #else
                 string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Main.dz", "Shaders", path + ".res");
@@ -623,7 +623,7 @@ namespace Jazz2.Game
                     DrawTechnique result = new DrawTechnique(json.BlendMode, vertex, fragment);
                     result.PreferredVertexFormat = vertexFormat;
 
-#if FAIL_ON_SHADER_COMPILE_ERROR && __ANDROID__
+#if FAIL_ON_SHADER_COMPILE_ERROR && PLATFORM_ANDROID
                     if (requestShaderNesting == 0 && result.DeclaredFields.Count == 0) {
                         Android.CrashHandlerActivity.ShowErrorDialog(new InvalidDataException("Shader \"" + path + "\" cannot be compiled on your device."));
                     }

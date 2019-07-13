@@ -277,13 +277,13 @@ namespace Jazz2
                 }
 
                 // Dot
-                if (pushIndent && ConsoleUtils.SupportsUnicode) {
-                    SetBrightConsoleColor(type, false);
-                    Console.Write(new string(' ', indent * 2) + " ◿ ");
-                } else {
+                //if (pushIndent && ConsoleUtils.SupportsUnicode) {
+                //    SetBrightConsoleColor(type, false);
+                //    Console.Write(new string(' ', indent * 2) + " ◿ ");
+                //} else {
                     SetBrightConsoleColor(type, highlight);
                     Console.Write(new string(' ', indent * 2) + (ConsoleUtils.SupportsUnicode ? " · " : " ˙ "));
-                }
+                //}
 
                 // Dark beginning
                 if (beginGreyLength != 0) {

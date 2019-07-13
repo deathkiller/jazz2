@@ -38,7 +38,8 @@ using System.Reflection;
 
 namespace System.Text.Json
 {
-#if WASM
+#if PLATFORM_WASM
+    // Use Newtonsoft JSON serializer for WebAssembly platform
     public class JsonParser
     {
         private Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();

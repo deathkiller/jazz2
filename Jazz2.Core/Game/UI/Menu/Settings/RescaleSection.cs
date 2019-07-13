@@ -17,7 +17,7 @@ namespace Jazz2.Game.UI.Menu.Settings
         {
             base.OnShow(root);
 
-#if __ANDROID__
+#if PLATFORM_ANDROID
             availableModes = new[] {
                 ResizeMode.None,
                 ResizeMode.HQ2x,

@@ -12,7 +12,7 @@ namespace Jazz2
 {
     public class OpenMptStream : Disposable, ISoundInstance
     {
-#if __ANDROID__
+#if PLATFORM_ANDROID
         private const int SampleRate = 44100;
 #else
         private const int SampleRate = 48000;

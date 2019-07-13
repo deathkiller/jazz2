@@ -281,7 +281,7 @@ namespace Jazz2.Game
 
         private bool IsInstallationComplete()
         {
-#if UNCOMPRESSED_CONTENT || WASM
+#if UNCOMPRESSED_CONTENT || PLATFORM_WASM
             return true;
 #else 
             return DirectoryOp.Exists(PathOp.Combine(DualityApp.DataDirectory, "Episodes")) &&

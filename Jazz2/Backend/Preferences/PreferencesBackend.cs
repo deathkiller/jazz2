@@ -52,6 +52,7 @@ namespace Jazz2.Backend
                             case 3: data[key] = r.ReadInt32(); break; // Int
                             case 4: data[key] = r.ReadInt64(); break; // Long
                             case 5: data[key] = r.ReadInt16(); break; // Short
+                            case 6: data[key] = r.ReadUInt32(); break; // Uint
 
                             case 10: { // String Array
                                 byte count = r.ReadByte();
@@ -103,6 +104,15 @@ namespace Jazz2.Backend
                                 short[] values = new short[count];
                                 for (int j = 0; j < count; j++) {
                                     values[j] = r.ReadInt16();
+                                }
+                                data[key] = values;
+                                break;
+                            }
+                            case 16: { // Uint Array
+                                byte count = r.ReadByte();
+                                uint[] values = new uint[count];
+                                for (int j = 0; j < count; j++) {
+                                    values[j] = r.ReadUInt32();
                                 }
                                 data[key] = values;
                                 break;
@@ -195,6 +205,11 @@ namespace Jazz2.Backend
                                 w.Write(value);
                                 break;
                             }
+                            case uint value: {
+                                w.Write((byte)6);
+                                w.Write(value);
+                                break;
+                            }
 
                             case string[] value: {
                                 w.Write((byte)10);
@@ -244,6 +259,14 @@ namespace Jazz2.Backend
                                 }
                                 break;
                             }
+                            case uint[] value: {
+                                w.Write((byte)16);
+                                w.Write((byte)value.Length);
+                                for (int j = 0; j < value.Length; j++) {
+                                    w.Write(value[j]);
+                                }
+                                break;
+                            }
 
                             default:
                                 App.Log("Unknown preference type: " + pair.Value.GetType().FullName);
@@ -266,6 +289,8 @@ namespace Jazz2.Backend
                   value is byte[] ||
                   value is int ||
                   value is int[] ||
+                  value is uint ||
+                  value is uint[] ||
                   value is long ||
                   value is long[] ||
                   value is short ||
