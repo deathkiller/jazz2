@@ -8,6 +8,8 @@ namespace Jazz2.Actors.Environment
 {
     public class PinballPaddle : SolidObjectBase
     {
+        public override EventType EventType => EventType.PinballPaddle;
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             IsFacingLeft = (details.Params[0] != 0);

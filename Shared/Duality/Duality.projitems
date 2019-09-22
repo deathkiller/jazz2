@@ -37,6 +37,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Dummy\DummyNativeTexture.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Dummy\DummyNativeWindow.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Dummy\DummySystemBackend.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Backend\Graphics\GraphicsBackendCapabilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Graphics\IGraphicsBackend.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Graphics\INativeGraphicsBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Graphics\INativeRenderTarget.cs" />

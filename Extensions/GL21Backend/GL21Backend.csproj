@@ -52,6 +52,7 @@
     <Compile Include="GL21\NativeShaderProgram.cs" />
     <Compile Include="GL21\NativeTexture.cs" />
     <Compile Include="GL21\NativeWindow.cs" />
+    <Compile Include="GL21\OpenTKGraphicsCapabilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

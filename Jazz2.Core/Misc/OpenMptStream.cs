@@ -61,7 +61,7 @@ namespace Jazz2
         public OpenMptStream(string path, bool looping)
         {
             if (!FileOp.Exists(path)) {
-                App.Log("Music file \""  + path + "\" not found!");
+                Log.Write(LogType.Warning, "Music file \"" + path + "\" not found!");
                 return;
             }
 
@@ -78,7 +78,7 @@ namespace Jazz2
                 // Turn on infinite repeat if required
                 openmpt_module_set_repeat_count(openmpt_module, looping ? -1 : 0);
             } catch (Exception ex) {
-                App.Log("libopenmpt failed to load: " + ex);
+                Log.Write(LogType.Error, "libopenmpt failed to load: " + ex);
                 return;
             }
 

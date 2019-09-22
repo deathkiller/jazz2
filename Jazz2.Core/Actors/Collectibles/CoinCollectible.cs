@@ -1,10 +1,13 @@
 ﻿using System.Threading.Tasks;
+using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Collectibles
 {
     public class CoinCollectible : Collectible
     {
         private int coinValue;
+
+        public override EventType EventType => EventType.Coin;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {

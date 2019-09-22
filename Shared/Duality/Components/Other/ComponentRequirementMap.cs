@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Jazz2;
 using Jazz2.Game;
 
 namespace Duality
 {
-    /// <summary>
-    /// Retrieves, processes and caches type information about how different <see cref="Component"/>
-    /// types are interconnected using the <see cref="RequiredComponentAttribute"/>.
-    /// </summary>
-    public class ComponentRequirementMap
+	/// <summary>
+	/// Retrieves, processes and caches type information about how different <see cref="Component"/>
+	/// types are interconnected using the <see cref="RequiredComponentAttribute"/>.
+	/// </summary>
+	public class ComponentRequirementMap
 	{
 		private enum RecursiveInit
 		{
@@ -60,7 +61,7 @@ namespace Duality
 				if (this.initRequirements == RecursiveInit.Initialized) return;
 				if (this.initRequirements == RecursiveInit.InProgress)
 				{
-                    App.Log(
+					Log.Write(LogType.Error,
 						"Detected a cyclic Component requirement in {0}. Requirements can not be ensured for cyclic dependencies.", 
 						this.Component);
 					return;
@@ -75,7 +76,7 @@ namespace Duality
 				if (this.initCreationChain == RecursiveInit.Initialized) return;
 				if (this.initCreationChain == RecursiveInit.InProgress)
 				{
-                    App.Log(
+					Log.Write(LogType.Error,
 						"Detected a cyclic Component requirement in {0}. Requirements can not be ensured for cyclic dependencies.", 
 						this.Component);
 					return;

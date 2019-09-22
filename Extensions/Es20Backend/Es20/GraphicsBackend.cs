@@ -1,5 +1,6 @@
 ﻿using Duality.Drawing;
 using Duality.Resources;
+using Jazz2;
 using Jazz2.Game;
 using OpenTK;
 using OpenTK.Graphics.ES20;
@@ -67,6 +68,8 @@ namespace Duality.Backend.Es20
             get { return -1; }
         }
 
+        public GraphicsBackendCapabilities Capabilities => new GraphicsBackendCapabilities();
+
         bool IDualityBackend.CheckAvailable()
         {
             // AccessViolation is thrown because of this...
@@ -98,7 +101,7 @@ namespace Duality.Backend.Es20
         {
             activeInstance = this;
 
-            App.Log("Active graphics backend: OpenGL ES 2.0");
+            Log.Write(LogType.Info, "Active graphics backend: OpenGL ES 2.0");
         }
         void IDualityBackend.Shutdown()
         {
@@ -623,7 +626,7 @@ namespace Duality.Backend.Es20
                 // Rendering using index buffer
                 if (indexBuffer != null) {
                     if (ranges != null && ranges.Count > 0) {
-                        App.Log(
+                        Log.Write(LogType.Warning,
                             "Rendering {0} instances that use index buffers do not support specifying vertex ranges, " +
                             "since the two features are mutually exclusive.",
                             typeof(DrawBatch).Name,
@@ -768,7 +771,7 @@ namespace Duality.Backend.Es20
             try {
                 CheckOpenGLErrors();
                 versionString = GL.GetString(StringName.Version);
-                App.Log(
+                Log.Write(LogType.Verbose,
                     "OpenGL Version: {0}" + Environment.NewLine +
                     "  Vendor: {1}" + Environment.NewLine +
                     "  Renderer: {2}" + Environment.NewLine +
@@ -779,7 +782,7 @@ namespace Duality.Backend.Es20
                     GL.GetString(StringName.ShadingLanguageVersion));
                 CheckOpenGLErrors();
             } catch (Exception e) {
-                App.Log("Can't determine OpenGL specs, because an error occurred: {0}", e);
+                Log.Write(LogType.Error, "Can't determine OpenGL specs, because an error occurred: {0}", e);
             }
 
             // Parse the OpenGL version string in order to determine if it's sufficient
@@ -789,7 +792,7 @@ namespace Duality.Backend.Es20
                     Version version;
                     if (Version.TryParse(token[i], out version)) {
                         if (version.Major < MinOpenGLVersion.Major || (version.Major == MinOpenGLVersion.Major && version.Minor < MinOpenGLVersion.Minor)) {
-                            App.Log(
+                            Log.Write(LogType.Error,
                                 "The detected OpenGL version {0} appears to be lower than the required minimum. Version {1} or higher is required to run Duality applications.",
                                 version,
                                 MinOpenGLVersion);
@@ -811,7 +814,7 @@ namespace Duality.Backend.Es20
             bool found = false;
             while ((error = GL.GetError()) != ErrorCode.NoError) {
                 if (!silent) {
-                    App.Log(
+                    Log.Write(LogType.Error,
                         "Internal OpenGL error, code {0} at {1} in {2}, line {3}.",
                         error,
                         callerInfoMember,

@@ -20,6 +20,7 @@ namespace Jazz2.Actors.Weapons
         private Material material1, material2;
         private float currentStep;
 
+        public override EventType EventType => EventType.WeaponElectro;
         public override WeaponType WeaponType => WeaponType.Electro;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)

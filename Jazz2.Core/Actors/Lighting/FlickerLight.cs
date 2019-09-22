@@ -1,10 +1,13 @@
 ﻿using System.Threading.Tasks;
 using Jazz2.Game;
+using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Lighting
 {
     public class FlickerLight : ActorBase
     {
+        public override EventType EventType => EventType.LightFlicker;
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             ushort intensity = details.Params[0];

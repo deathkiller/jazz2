@@ -36,7 +36,7 @@ This project uses parts of [Duality - A 2D GameDev Framework](https://www.dualit
 
 ## Running the application
 ### Windows / Linux / macOS
-* Download **Desktop** release from GitHub (or build the solution and copy `Content` directory to `‹Game›/Content`)
+* Download **Desktop** release (or build the solution and copy `Content` directory to `‹Game›/Content`)
 * Run `‹Game›/Import.exe "Path to JJ2"` (or drag and drop JJ2 directory on `Import.exe`)
   * On Linux and macOS, you can run `mono Import.exe "Path to JJ2"`
 * Run `‹Game›/Jazz2.exe`
@@ -45,7 +45,7 @@ This project uses parts of [Duality - A 2D GameDev Framework](https://www.dualit
 `‹Game›` *is path to Jazz² Resurrection. You can run* `Import.exe` *without parameters to show additional options.*
 
 ### Android
-* Download **Desktop** and **Android** release from GitHub (or build the solution and copy `Content` directory to `‹Game›/Content`)
+* Download **Desktop** and **Android** release (or build the solution and copy `Content` directory to `‹Game›/Content`)
 * Run `‹Game›/Import.exe "Path to JJ2"` (or drag and drop JJ2 directory on `Import.exe`)
 * Copy `‹Game›/Content` directory to `‹SDCard›/jazz2.android/Content` 
   * Create empty file `.nomedia` in `‹SDCard›/jazz2.android` to hide files from Android Gallery
@@ -94,6 +94,7 @@ Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) or newer 
 ### WebAssembly
 * .NET Framework 4.5.2 (or newer) / Mono 5.0 (or newer)
 * `Mono.WebAssembly.Sdk` (included as NuGet)
+* [WebGL.NET](https://github.com/WaveEngine/WebGL.NET) (included)
 
 ## Building the solution
 ### Windows

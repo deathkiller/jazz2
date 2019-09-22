@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Duality;
+using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Environment
 {
@@ -7,6 +8,8 @@ namespace Jazz2.Actors.Environment
     {
         private float timer;
         private int direction;
+
+        public override EventType EventType => EventType.Moth;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {

@@ -1,9 +1,11 @@
 ﻿using System.Threading.Tasks;
+using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Collectibles
 {
     public class FastFireCollectible : Collectible
     {
+        public override EventType EventType => EventType.FastFire;
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             await base.OnActivatedAsync(details);

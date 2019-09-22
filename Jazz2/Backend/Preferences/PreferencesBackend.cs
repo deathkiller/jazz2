@@ -121,7 +121,7 @@ namespace Jazz2.Backend
                     }
                 }
             } catch (Exception ex) {
-                App.Log("Can't load preferences: " + ex);
+                Log.Write(LogType.Error, "Can't load preferences: " + ex);
             }
         }
 
@@ -269,13 +269,13 @@ namespace Jazz2.Backend
                             }
 
                             default:
-                                App.Log("Unknown preference type: " + pair.Value.GetType().FullName);
+                                Log.Write(LogType.Warning, "Unknown preference type: " + pair.Value.GetType().FullName);
                                 break;
                         }
                     }
                 }
             } catch (Exception ex) {
-                App.Log("Can't save preferences: " + ex);
+                Log.Write(LogType.Error, "Can't save preferences: " + ex);
             }
         }
 

@@ -1,11 +1,14 @@
 ﻿using System.Threading.Tasks;
 using Duality;
+using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Environment
 {
     public class SteamNote : ActorBase
     {
         private float cooldown;
+
+        public override EventType EventType => EventType.SteamNote;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {

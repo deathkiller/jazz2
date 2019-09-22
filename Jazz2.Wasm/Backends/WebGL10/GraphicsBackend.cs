@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Duality.Drawing;
 using Duality.Resources;
+using Jazz2;
 using Jazz2.Game;
 using Jazz2.Wasm;
 using WebAssembly;
@@ -70,6 +71,8 @@ namespace Duality.Backend.Wasm.WebGL10
             get { return 1; }
         }
 
+        public GraphicsBackendCapabilities Capabilities => new GraphicsBackendCapabilities();
+
         bool IDualityBackend.CheckAvailable()
         {
             JSObject window = (JSObject)Runtime.GetGlobalObject();
@@ -87,18 +90,18 @@ namespace Duality.Backend.Wasm.WebGL10
 
             htmlCanvas = HtmlHelper.AddCanvas("game", cachedCanvasSize.X, cachedCanvasSize.Y);
 
-            // ToDo: Use WebGLContextAttributes instead
-            using (JSObject contextAttributes = new JSObject()) {
-                contextAttributes.SetObjectProperty("premultipliedAlpha", false);
-                GL = new WebGLRenderingContext(htmlCanvas);
-            }
-
-            if (!GL.IsAvailable) {
+            if (!WebGLRenderingContext.IsSupported) {
                 using (var app = (JSObject)Runtime.GetGlobalObject("App")) {
                     app.Invoke("webglNotSupported");
                 }
 
                 throw new NotSupportedException("This browser does not support WebGL 1");
+            }
+
+            // ToDo: Use WebGLContextAttributes instead
+            using (JSObject contextAttributes = new JSObject()) {
+                contextAttributes.SetObjectProperty("premultipliedAlpha", false);
+                GL = new WebGLRenderingContext(htmlCanvas);
             }
 
             GraphicsBackend.LogOpenGLSpecs();
@@ -645,7 +648,7 @@ namespace Duality.Backend.Wasm.WebGL10
                 // Rendering using index buffer
                 if (indexBuffer != null) {
                     if (ranges != null && ranges.Count > 0) {
-                        App.Log(
+                        Log.Write(LogType.Warning,
                             "Rendering {0} instances that use index buffers do not support specifying vertex ranges, " +
                             "since the two features are mutually exclusive.",
                             typeof(DrawBatch).Name,
@@ -700,7 +703,7 @@ namespace Duality.Backend.Wasm.WebGL10
             for (int varIndex = 0; varIndex < varInfo.Length; varIndex++) {
                 if (locations[varIndex].Attrib == -1) continue;
 
-                GL.DisableVertexAttribArray(locations[varIndex].Attrib);
+                GL.DisableVertexAttribArray((uint)locations[varIndex].Attrib);
             }
         }
         private void FinishMaterial(BatchInfo material)
@@ -789,7 +792,7 @@ namespace Duality.Backend.Wasm.WebGL10
             try {
                 CheckOpenGLErrors();
                 versionString = (string)GL.GetParameter(WebGLRenderingContextBase.VERSION);
-                App.Log(
+                Log.Write(LogType.Info,
                     "OpenGL Version: {0}" + Environment.NewLine +
                     "  Vendor: {1}" + Environment.NewLine +
                     "  Renderer: {2}" + Environment.NewLine +
@@ -800,7 +803,7 @@ namespace Duality.Backend.Wasm.WebGL10
                     (string)GL.GetParameter(WebGLRenderingContextBase.SHADING_LANGUAGE_VERSION));
                 CheckOpenGLErrors();
             } catch (Exception e) {
-                App.Log("Can't determine OpenGL specs, because an error occurred: {0}", e);
+                Log.Write(LogType.Warning, "Can't determine OpenGL specs, because an error occurred: {0}", e);
             }
 
             // Parse the OpenGL version string in order to determine if it's sufficient
@@ -810,7 +813,7 @@ namespace Duality.Backend.Wasm.WebGL10
                     Version version;
                     if (Version.TryParse(token[i], out version)) {
                         if (version.Major < MinWebGLVersion.Major || (version.Major == MinWebGLVersion.Major && version.Minor < MinWebGLVersion.Minor)) {
-                            App.Log(
+                            Log.Write(LogType.Warning,
                                 "The detected OpenGL version {0} appears to be lower than the required minimum. Version {1} or higher is required to run Duality applications.",
                                 version,
                                 MinWebGLVersion);
@@ -828,11 +831,11 @@ namespace Duality.Backend.Wasm.WebGL10
         /// <returns>True, if an error occurred, false if not.</returns>
         public static bool CheckOpenGLErrors(bool silent = false, [CallerMemberName] string callerInfoMember = null, [CallerFilePath] string callerInfoFile = null, [CallerLineNumber] int callerInfoLine = -1)
         {
-            int error;
+            uint error;
             bool found = false;
             while ((error = GL.GetError()) != WebGLRenderingContextBase.NO_ERROR) {
                 if (!silent) {
-                    App.Log(
+                    Log.Write(LogType.Warning,
                         "Internal OpenGL error, code {0} at {1} in {2}, line {3}.",
                         error,
                         callerInfoMember,

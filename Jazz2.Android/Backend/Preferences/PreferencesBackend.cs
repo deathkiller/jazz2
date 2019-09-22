@@ -272,7 +272,7 @@ namespace Jazz2.Backend.Android
                             }
 
                             default:
-                                App.Log("Unknown preference type: " + pair.Value.GetType().FullName);
+                                Log.Write(LogType.Error, "Unknown preference type: " + pair.Value.GetType().FullName);
                                 break;
                         }
                     }
@@ -288,7 +288,7 @@ namespace Jazz2.Backend.Android
 
                     editor.Commit();
                 } else {
-                    App.Log("Can't get memory buffer to save preferences.");
+                    Log.Write(LogType.Error, "Can't get memory buffer to save preferences.");
                 }
             }
         }

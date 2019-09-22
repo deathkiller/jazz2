@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Duality.Components;
 using Duality.Resources;
+using Jazz2;
 using Jazz2.Game;
 
 namespace Duality
@@ -734,7 +735,7 @@ namespace Duality
 					if (this.children[i] == null || this.children[i].Disposed)
 					{
 						this.children.RemoveAt(i);
-						App.Log(
+						Log.Write(LogType.Error,
 							"Missing or Disposed Child in GameObject '{0}'. Check for serialization problems. Did you recently rename or remove classes?", 
 							this);
 					}
@@ -749,7 +750,7 @@ namespace Duality
 					if (this.compList[i] == null || this.compList[i].Disposed)
 					{
 						this.compList.RemoveAt(i);
-						App.Log(
+						Log.Write(LogType.Error,
 							"Missing or Disposed Component in GameObject '{0}'. Check for serialization problems. Did you recently rename or remove classes?", 
 							this);
 					}
@@ -758,7 +759,7 @@ namespace Duality
 			else
 			{
 				this.compList = new List<Component>();
-				App.Log(
+				Log.Write(LogType.Error,
 					"GameObject '{0}' didn't have a Component list. Check for serialization problems. Did you recently rename or remove classes?", 
 					this);
 			}
@@ -771,7 +772,7 @@ namespace Duality
 					if (this.compMap[key] == null || this.compMap[key].Disposed)
 					{
 						this.compMap.Remove(key);
-						App.Log(
+						Log.Write(LogType.Error,
 							"Missing or Disposed Component '{0}' in GameObject '{1}'. Check for serialization problems. Did you recently rename or remove classes?", 
 							key,
 							this);
@@ -781,7 +782,7 @@ namespace Duality
 			else
 			{
 				this.compMap = new Dictionary<Type,Component>();
-				App.Log(
+				Log.Write(LogType.Error,
 					"GameObject '{0}' didn't have a Component map. Check for serialization problems. Did you recently rename or remove classes?", 
 					this);
 			}

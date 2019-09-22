@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Jazz2;
 using Jazz2.Game;
 
 namespace Duality
 {
-    /// <summary>
-    /// Retrieves, processes and caches type information about the order in which initialization, 
-    /// shutdown and update of different <see cref="Component"/> types are executed.
-    /// </summary>
-    public class ComponentExecutionOrder
+	/// <summary>
+	/// Retrieves, processes and caches type information about the order in which initialization, 
+	/// shutdown and update of different <see cref="Component"/> types are executed.
+	/// </summary>
+	public class ComponentExecutionOrder
 	{
 		private struct IndexedTypeItem
 		{
@@ -382,7 +383,7 @@ namespace Duality
 				// If the loops weakest link was an explicit constraint, log a warning
 				if ((int)weakestLink.Priority >= (int)ConstraintPriority.ExplicitWeak)
 				{
-                    App.Log(
+					Log.Write(LogType.Warning,
 						"Found a loop in the component execution order constraint graph. Ignoring the weakest constraint " + 
 						"({0} must be executed before {1}). Please check your ExecutionOrder attributes.",
 						weakestLink.FirstType,

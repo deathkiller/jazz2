@@ -100,7 +100,7 @@ namespace Jazz2.Android
                 intent.PutExtra("Title", title);
                 intent.PutExtra("Message", message);
                 intent.PutExtra("Stacktrace", sbStacktrace.ToString());
-                intent.PutExtra("Log", App.GetLogBuffer());
+                intent.PutExtra("Log", Log.GetLogBuffer());
 
                 PendingIntent pendingIntent = PendingIntent.GetActivity(context, 0, intent, PendingIntentFlags.OneShot);
 

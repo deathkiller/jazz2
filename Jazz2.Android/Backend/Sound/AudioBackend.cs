@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Jazz2;
 using Jazz2.Game;
 using OpenTK.Audio;
 using OpenTK.Audio.OpenAL;
@@ -63,12 +64,12 @@ namespace Duality.Backend.Android
         }
         void IDualityBackend.Init()
         {
-            App.Log("Available audio devices:" + Environment.NewLine + "{0}",
+            Log.Write(LogType.Info, "Available audio devices:" + Environment.NewLine + "{0}",
             	AudioContext.AvailableDevices.ToString(d => "  " + d + (d == AudioContext.DefaultDevice ? " (Default)" : ""), Environment.NewLine));
 
             // Create OpenAL audio context
             this.context = new AudioContext();
-            App.Log("Current device: {0}", this.context.CurrentDevice);
+            Log.Write(LogType.Info, "Current device: {0}", this.context.CurrentDevice);
 
             // Create extension interfaces
             try {
@@ -234,8 +235,8 @@ namespace Duality.Backend.Android
             try {
                 CheckOpenALErrors();
                 string versionString = AL.Get(ALGetString.Version);
-                App.Log(
-					"  OpenAL Version: {0}" + Environment.NewLine +
+                Log.Write(LogType.Info,
+                    "  OpenAL Version: {0}" + Environment.NewLine +
 					"  Vendor: {1}" + Environment.NewLine +
 					"  Renderer: {2}" + Environment.NewLine +
 					"  Effects: {3}",
@@ -251,8 +252,8 @@ namespace Duality.Backend.Android
                     Version version;
                     if (Version.TryParse(token[i], out version)) {
                         if (version.Major < MinOpenALVersion.Major && version.Minor < MinOpenALVersion.Minor) {
-                            App.Log(
-								"The detected OpenAL version {0} appears to be lower than the required minimum. Version {1} or higher is required to run Duality applications.",
+                            Log.Write(LogType.Warning,
+                                "The detected OpenAL version {0} appears to be lower than the required minimum. Version {1} or higher is required to run Duality applications.",
 								version,
 								MinOpenALVersion);
                         }
@@ -260,7 +261,7 @@ namespace Duality.Backend.Android
                     }
                 }
             } catch (Exception e) {
-                App.Log("Can't determine OpenAL specs, because an error occurred: {0}", e);
+                Log.Write(LogType.Error, "Can't determine OpenAL specs, because an error occurred: {0}", e);
             }
         }
         public static bool CheckOpenALErrors(bool silent = false, [CallerMemberName] string callerInfoMember = null, [CallerFilePath] string callerInfoFile = null, [CallerLineNumber] int callerInfoLine = -1)
@@ -269,8 +270,8 @@ namespace Duality.Backend.Android
             bool found = false;
             while ((error = AL.GetError()) != ALError.NoError) {
                 if (!silent) {
-                    App.Log(
-						"Internal OpenAL error, code {0} at {1} in {2}, line {3}.",
+                    Log.Write(LogType.Error,
+                        "Internal OpenAL error, code {0} at {1} in {2}, line {3}.",
 						error,
 						callerInfoMember,
 						callerInfoFile,

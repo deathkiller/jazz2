@@ -372,7 +372,7 @@ namespace Jazz2.Game
                 throw new NotSupportedException("Level version not supported");
             }
 
-            App.Log("Loading level \"" + json.Description.Name + "\"...");
+            Log.Write(LogType.Info, "Loading level \"" + json.Description.Name + "\"...");
 
             root.Title = BitmapFont.StripFormatting(json.Description.Name);
             root.Immersive = false;
@@ -486,7 +486,7 @@ namespace Jazz2.Game
                         }
                     }
                 } catch (Exception ex) {
-                    App.Log("Cannot load i18n for this level: " + ex);
+                    Log.Write(LogType.Warning, "Cannot load i18n for this level: " + ex);
                 }
             }
         }
@@ -815,7 +815,7 @@ namespace Jazz2.Game
 
         protected virtual void OnUpdate()
         {
-            if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
+            if (ControlScheme.PlayerActionHit(0, PlayerActions.Menu)) {
                 Scene.SwitchTo(new InGameMenu(root, this));
             }
 

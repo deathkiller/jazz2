@@ -1106,7 +1106,7 @@ namespace Jazz2.Actors
                 if (availableAnimations.TryGetValue(identifier, out res)) {
                     tilemap.CreateSpriteDebris(res, Transform.Pos, count);
                 } else {
-                    App.Log("Can't create sprite debris \"" + identifier + "\" from " + GetType().FullName);
+                    Log.Write(LogType.Warning, "Can't create sprite debris \"" + identifier + "\" from " + GetType().FullName);
                 }
             }
         }

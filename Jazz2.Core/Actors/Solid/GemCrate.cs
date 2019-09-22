@@ -6,6 +6,8 @@ namespace Jazz2.Actors.Solid
 {
     public class GemCrate : GenericContainer
     {
+        public override EventType EventType => EventType.CrateGem;
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             Movable = true;

@@ -1,7 +1,8 @@
-<Project Sdk="Mono.WebAssembly.Sdk">
+﻿<Project Sdk="Mono.WebAssembly.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <NoWarn>NU1701;NU1604</NoWarn>
     <MonoWasmLinkMode>Full</MonoWasmLinkMode>
     <MonoWasmLinkSkip></MonoWasmLinkSkip>
     <Product>Jazz² Resurrection</Product>
@@ -36,8 +37,8 @@
  
   <ItemGroup>
 	<PackageReference Include="System.Memory" Version="4.5.2" />
-    <PackageReference Include="WebAssembly.Bindings" Version="0.1.0-preview1" />
-    <PackageReference Include="WebAssembly.Net.Http" Version="0.1.0-preview1" />
+    <PackageReference Include="WebAssembly.Bindings" Version="0.2.0" />
+    <PackageReference Include="WebAssembly.Net.Http" Version="0.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
   </ItemGroup>
 

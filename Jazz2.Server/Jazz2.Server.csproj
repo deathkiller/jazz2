@@ -67,6 +67,5 @@
   <ItemGroup>
     <None Include="Icon.ico" />
   </ItemGroup>
-  <Import Project="..\Shared\Console\Console.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

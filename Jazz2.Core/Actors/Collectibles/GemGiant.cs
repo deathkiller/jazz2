@@ -7,6 +7,8 @@ namespace Jazz2.Actors.Collectibles
 {
     public class GemGiant : ActorBase
     {
+        public override EventType EventType => EventType.GemGiant;
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             await base.OnActivatedAsync(details);

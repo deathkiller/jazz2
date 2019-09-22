@@ -15,6 +15,7 @@ namespace Jazz2.Actors.Weapons
 
         private float noDamageTimeLeft;
 
+        public override EventType EventType => EventType.WeaponThunderbolt;
         public override WeaponType WeaponType => WeaponType.Thunderbolt;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)

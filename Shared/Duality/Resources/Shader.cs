@@ -1,5 +1,6 @@
 ﻿using System;
 using Duality.Backend;
+using Jazz2;
 using Jazz2.Game;
 
 namespace Duality.Resources
@@ -66,13 +67,13 @@ namespace Duality.Resources
 			try {
 				this.native.LoadSource(this.source, this.Type);
 			} catch (Exception e) {
-                App.Log("");
-                App.Log("Error loading Shader:");
-                App.Log(e.ToString());
-                App.Log("```glsl");
-                App.Log(this.source);
-                App.Log("```");
-            }
+				Log.Write(LogType.Error, "");
+				Log.Write(LogType.Error, "Error loading Shader:");
+				Log.Write(LogType.Error, e.ToString());
+				Log.Write(LogType.Verbose, "```glsl");
+				Log.Write(LogType.Verbose, this.source);
+				Log.Write(LogType.Verbose, "```");
+			}
 
 			this.compiled = true;
 		}

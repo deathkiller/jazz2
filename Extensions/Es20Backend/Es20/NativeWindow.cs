@@ -1,5 +1,6 @@
 ﻿using Duality.Backend.DefaultOpenTK;
 using Duality.Drawing;
+using Jazz2;
 using Jazz2.Game;
 using OpenTK;
 using OpenTK.Graphics;
@@ -206,7 +207,7 @@ namespace Duality.Backend.Es20
 
             GraphicsBackend.LogOpenGLSpecs();
 
-            App.Log(
+            Log.Write(LogType.Info,
                 "Window Specification: " + Environment.NewLine +
                 "  Buffers: {0}" + Environment.NewLine +
                 "  Samples: {1}" + Environment.NewLine +
@@ -242,7 +243,7 @@ namespace Duality.Backend.Es20
             // icon extraction can fail with an exception under certain circumstances. Don't fail
             // just because of an icon. Log the error and continue.
             catch (Exception e) {
-                App.Log(
+                Log.Write(LogType.Warning,
                     "There was an exception while trying to extract the " +
                     "window icon from the game's main executable '{0}'. This is " +
                     "uncritical, but still an error: {1}",

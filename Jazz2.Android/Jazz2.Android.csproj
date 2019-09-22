@@ -37,6 +37,7 @@
     <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
     <AndroidSupportedAbis>armeabi-v7a;x86</AndroidSupportedAbis>
     <LangVersion>latest</LangVersion>
+    <MandroidI18n />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>PdbOnly</DebugType>
@@ -69,6 +70,7 @@
   <ItemGroup>
     <Compile Include="App.cs" />
     <Compile Include="Backend\Es30\NativeGraphicsBuffer.cs" />
+    <Compile Include="Backend\Es30\OpenTKGraphicsCapabilities.cs" />
     <Compile Include="Backend\Sound\AudioBackend.cs" />
     <Compile Include="Backend\Sound\NativeAudioBuffer.cs" />
     <Compile Include="Backend\Sound\NativeAudioSource.cs" />
@@ -77,6 +79,7 @@
     <Compile Include="CrashHandlerActivity.cs" />
     <Compile Include="Game\UI\Hud.Touch.cs" />
     <Compile Include="Game\UI\InGameMenu.Touch.cs" />
+    <Compile Include="Log.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="InnerView.cs" />
     <Compile Include="Backend\Es30\ExtMethodsColorDataElementType.cs" />

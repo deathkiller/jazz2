@@ -10,6 +10,8 @@ namespace Jazz2.Actors.Environment
         private float cooldown;
         private LightEmitter light;
 
+        public override EventType EventType => EventType.PinballBumper;
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             ushort theme = details.Params[0];

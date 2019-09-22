@@ -1,6 +1,7 @@
 ﻿using System;
 using Duality;
 using Duality.Drawing;
+using MathF = Duality.MathF;
 
 namespace Jazz2.Game.UI.Menu.Settings
 {

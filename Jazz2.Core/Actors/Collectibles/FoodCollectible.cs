@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Collectibles
 {
@@ -45,6 +46,8 @@ namespace Jazz2.Actors.Collectibles
         }
 
         private bool isDrinkable;
+
+        public override EventType EventType => EventType.Food;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {

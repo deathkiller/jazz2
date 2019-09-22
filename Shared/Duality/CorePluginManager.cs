@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Duality.IO;
 using Duality.Backend;
 using Jazz2.Game;
+using Jazz2;
 
 namespace Duality
 {
@@ -47,10 +48,10 @@ namespace Duality
 		/// </summary>
 		public override void LoadPlugins()
 		{
-            //this.PluginLog.Write("Scanning for core plugins...");
-            //this.PluginLog.PushIndent();
+			//this.PluginLog.Write("Scanning for core plugins...");
+			//this.PluginLog.PushIndent();
 
-            List<string> auxilLibs = new List<string>();
+			List<string> auxilLibs = new List<string>();
 			foreach (string dllPath in this.AssemblyLoader.AvailableAssemblyPaths)
 			{
 				if (!dllPath.EndsWith(".core.dll", StringComparison.OrdinalIgnoreCase))
@@ -73,7 +74,7 @@ namespace Duality
 			// to deserialization, which may happen before touching any related class in code.
 			if (auxilLibs.Count > 0)
 			{
-                App.Log("Loading auxiliary libraries...");
+				Log.Write(LogType.Verbose, "Loading auxiliary libraries...");
 				//this.PluginLog.PushIndent();
 
 				foreach (string dllPath in auxilLibs)
@@ -91,7 +92,7 @@ namespace Duality
 		/// </summary>
 		public override void InitPlugins()
 		{
-            App.Log("Initializing core plugins...");
+			Log.Write(LogType.Info, "Initializing core plugins...");
 			//this.PluginLog.PushIndent();
 			CorePlugin[] initPlugins = this.LoadedPlugins.ToArray();
 			foreach (CorePlugin plugin in initPlugins)

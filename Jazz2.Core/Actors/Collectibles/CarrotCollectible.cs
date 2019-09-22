@@ -1,11 +1,14 @@
 ﻿using System.Threading.Tasks;
 using Duality;
+using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Collectibles
 {
     public class CarrotCollectible : Collectible
     {
         private bool maxCarrot;
+
+        public override EventType EventType => EventType.Carrot;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {

@@ -1,10 +1,13 @@
 ﻿using System.Threading.Tasks;
 using Jazz2.Game;
+using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Lighting
 {
     public class StaticRadialLight : ActorBase
     {
+        public override EventType EventType => EventType.LightSteady;
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             ushort intensity = details.Params[0];

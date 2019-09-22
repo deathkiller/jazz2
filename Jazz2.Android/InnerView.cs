@@ -93,7 +93,7 @@ namespace Jazz2.Android
                 base.CreateFrameBuffer();
                 return;
             } catch (Exception ex) {
-                App.Log("GLView.CreateFrameBuffer() threw an exception: " + ex);
+                Log.Write(LogType.Error, "GLView.CreateFrameBuffer() threw an exception: " + ex);
             }
 
             // This is a graphics setting that sets everything to the lowest mode possible so
@@ -104,7 +104,7 @@ namespace Jazz2.Android
                 base.CreateFrameBuffer();
                 return;
             } catch (Exception ex) {
-                App.Log("GLView.CreateFrameBuffer() threw an exception: " + ex);
+                Log.Write(LogType.Error, "GLView.CreateFrameBuffer() threw an exception: " + ex);
             }
 
             throw new BackendException("Cannot initialize OpenGL ES 3.0 device");

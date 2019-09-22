@@ -569,33 +569,34 @@ namespace Jazz2.Actors
                 bool canWalk = (controllable && !isLifting && suspendType != SuspendType.SwingingVine &&
                     (playerType != PlayerType.Frog || !ControlScheme.PlayerActionPressed(index, PlayerActions.Fire)));
 
-                bool isRightPressed;
-                if (canWalk && ((isRightPressed = ControlScheme.PlayerActionPressed(index, PlayerActions.Right)) ^ ControlScheme.PlayerActionPressed(index, PlayerActions.Left))) {
+                float playerMovement = ControlScheme.PlayerMovement(index);
+                float playerMovementVelocity = MathF.Abs(playerMovement);
+                if (canWalk && playerMovementVelocity > 0.5f) {
                     SetAnimation(currentAnimationState & ~(AnimState.Lookup | AnimState.Crouch));
 
                     if (dizzyTime > 0f) {
-                        IsFacingLeft = isRightPressed;
+                        IsFacingLeft = (playerMovement > 0f);
                     } else {
-                        IsFacingLeft = !isRightPressed;
+                        IsFacingLeft = (playerMovement < 0f);
                     }
 
                     isActivelyPushing = wasActivelyPushing = true;
 
                     if (dizzyTime > 0f || playerType == PlayerType.Frog) {
-                        speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxDizzySpeed, MaxDizzySpeed);
+                        speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxDizzySpeed * playerMovementVelocity, MaxDizzySpeed * playerMovementVelocity);
                     } else if (inShallowWater != -1) {
-                        speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxShallowWaterSpeed, MaxShallowWaterSpeed);
+                        speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxShallowWaterSpeed * playerMovementVelocity, MaxShallowWaterSpeed * playerMovementVelocity);
                     } else {
                         if (suspendType == SuspendType.None && !inWater && ControlScheme.PlayerActionPressed(index, PlayerActions.Run)) {
-                            speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxDashingSpeed, MaxDashingSpeed);
+                            speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxDashingSpeed * playerMovementVelocity, MaxDashingSpeed * playerMovementVelocity);
                         } else if (suspendType == SuspendType.Vine) {
                             if (wasFirePressed) {
                                 speedX = 0f;
                             } else {
-                                speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxVineSpeed, MaxVineSpeed);
+                                speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxVineSpeed * playerMovementVelocity, MaxVineSpeed * playerMovementVelocity);
                             }
                         } else if (suspendType != SuspendType.Hook) {
-                            speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxRunningSpeed, MaxRunningSpeed);
+                            speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxRunningSpeed * playerMovementVelocity, MaxRunningSpeed * playerMovementVelocity);
                         }
                     }
 

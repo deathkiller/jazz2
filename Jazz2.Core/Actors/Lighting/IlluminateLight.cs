@@ -2,18 +2,21 @@
 using Duality;
 using Duality.Components;
 using Jazz2.Game;
+using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Lighting
 {
     public class IlluminateLight : ActorBase
     {
+        public override EventType EventType => EventType.LightIlluminate;
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             ushort size = details.Params[0];
 
             collisionFlags = CollisionFlags.ForceDisableCollisions;
 
-            const int lightCount = /*20*/8;
+            const int lightCount = 8;
 
             for (int i = 0; i < lightCount; i++) {
                 new IlluminateLightPart(size).Parent = this;

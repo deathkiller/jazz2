@@ -1,10 +1,13 @@
 ﻿using System.Threading.Tasks;
+using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Collectibles
 {
     public class GemCollectible : Collectible
     {
         private ushort gemType;
+
+        public override EventType EventType => EventType.Gem;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {

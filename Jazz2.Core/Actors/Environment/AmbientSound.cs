@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Duality.Audio;
+using Jazz2.Game.Structs;
 using static Duality.Component;
 
 namespace Jazz2.Actors.Environment
@@ -9,6 +10,8 @@ namespace Jazz2.Actors.Environment
     public class AmbientSound : ActorBase
     {
         private SoundInstance sound;
+
+        public override EventType EventType => EventType.AmbientSound;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {

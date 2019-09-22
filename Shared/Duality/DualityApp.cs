@@ -9,6 +9,7 @@ using Duality.Backend;
 using Duality.Input;
 using Duality.IO;
 using Duality.Resources;
+using Jazz2;
 using Jazz2.Game;
 
 namespace Duality
@@ -128,10 +129,10 @@ namespace Duality
             get { return audioBack; }
         }
         /// [GET / SET] The native client area size of the current game window in pixels. 
-		/// 
-		/// Note: Setting this will not actually change Duality's state - this is a pure 
-		/// "for your information" property that is set by the currently active backend.
-		/// To change window size at runtime, use <see cref="UserData"/>.
+        /// 
+        /// Note: Setting this will not actually change Duality's state - this is a pure 
+        /// "for your information" property that is set by the currently active backend.
+        /// To change window size at runtime, use <see cref="UserData"/>.
         /// </summary>
         public static Point2 WindowSize
         {
@@ -139,10 +140,10 @@ namespace Duality
             set { windowSize = value; }
         }
         /// <summary>
-		/// [GET] The target resolution of the game in rendering image space, e.g. the view
-		/// size when rendering to the game window.
-		/// </summary>
-		public static Vector2 TargetViewSize
+        /// [GET] The target resolution of the game in rendering image space, e.g. the view
+        /// size when rendering to the game window.
+        /// </summary>
+        public static Vector2 TargetViewSize
         {
             get
             {
@@ -237,25 +238,25 @@ namespace Duality
             // Initialize the plugin manager
             {
                 assemblyLoader = plugins ?? new Duality.Backend.Dummy.DummyAssemblyLoader();
-                App.Log("Using '" + assemblyLoader.GetType().Name + "' to load plugins.");
+                Log.Write(LogType.Verbose, "Using '" + assemblyLoader.GetType().Name + "' to load plugins.");
 
                 assemblyLoader.Init();
 
                 // Log assembly loading data for diagnostic purposes
                 {
-                    App.Log("Currently Loaded Assemblies:" + Environment.NewLine + "{0}",
+                    Log.Write(LogType.Verbose, "Currently Loaded Assemblies:" + Environment.NewLine + "{0}",
                         assemblyLoader.LoadedAssemblies.ToString(
                             assembly => "  " + assembly,
                             Environment.NewLine));
-                    App.Log("Plugin Base Directories:" + Environment.NewLine +
+                    Log.Write(LogType.Verbose, "Plugin Base Directories:" + Environment.NewLine +
                             assemblyLoader.BaseDirectories.ToString(
-							path => "  " + path,
-							Environment.NewLine));
-                    App.Log("Available Assembly Paths:" + Environment.NewLine +
+                            path => "  " + path,
+                            Environment.NewLine));
+                    Log.Write(LogType.Verbose, "Available Assembly Paths:" + Environment.NewLine +
                             assemblyLoader.AvailableAssemblyPaths.ToString(
-							path => "  " + path,
-							Environment.NewLine));
-				}
+                            path => "  " + path,
+                            Environment.NewLine));
+                }
 
                 pluginManager.Init(assemblyLoader);
                 pluginManager.PluginsRemoving += pluginManager_PluginsRemoving;
@@ -282,12 +283,12 @@ namespace Duality
             initialized = true;
 
             // Write environment specs as a debug log
-            App.Log(
-				"DualityApp initialized" + Environment.NewLine +
-				"Debug Mode: {0}" + Environment.NewLine +
-				"Command line arguments: {1}",
-				System.Diagnostics.Debugger.IsAttached,
-				commandLineArgs != null ? commandLineArgs.ToString(", ") : "null");
+            Log.Write(LogType.Info,
+                "DualityApp initialized" + Environment.NewLine +
+                "Debug Mode: {0}" + Environment.NewLine +
+                "Command line arguments: {1}",
+                System.Diagnostics.Debugger.IsAttached,
+                commandLineArgs != null ? commandLineArgs.ToString(", ") : "null");
         }
         /// <summary>
         /// Opens up a window for Duality to render into. This also initializes the part of Duality that requires a 
@@ -406,74 +407,74 @@ namespace Duality
 
             if (terminateScheduled) Terminate();
         }
-		internal static void EditorUpdate(IEnumerable<GameObject> updateObjects, bool simulateGame, bool forceFixedStep)
-		{
-			isUpdating = true;
+        internal static void EditorUpdate(IEnumerable<GameObject> updateObjects, bool simulateGame, bool forceFixedStep)
+        {
+            isUpdating = true;
 
-			Time.FrameTick(forceFixedStep, simulateGame);
+            Time.FrameTick(forceFixedStep, simulateGame);
 
-			if (simulateGame) {
-				pluginManager.InvokeBeforeUpdate();
+            if (simulateGame) {
+                pluginManager.InvokeBeforeUpdate();
 
-				UpdateUserInput();
-				Scene.Current.Update();
+                UpdateUserInput();
+                Scene.Current.Update();
 
-				List<ICmpUpdatable> updatables = new List<ICmpUpdatable>();
-				foreach (GameObject obj in updateObjects) {
-					if (obj.Scene == Scene.Current)
-						continue;
+                List<ICmpUpdatable> updatables = new List<ICmpUpdatable>();
+                foreach (GameObject obj in updateObjects) {
+                    if (obj.Scene == Scene.Current)
+                        continue;
 
-					updatables.Clear();
-					obj.GetComponents(updatables);
-					for (int i = 0; i < updatables.Count; i++) {
-						if (!(updatables[i] as Component).Active) continue;
-						updatables[i].OnUpdate();
-					}
-				}
+                    updatables.Clear();
+                    obj.GetComponents(updatables);
+                    for (int i = 0; i < updatables.Count; i++) {
+                        if (!(updatables[i] as Component).Active) continue;
+                        updatables[i].OnUpdate();
+                    }
+                }
 
-				pluginManager.InvokeAfterUpdate();
-			} else {
-				Scene.Current.EditorUpdate();
+                pluginManager.InvokeAfterUpdate();
+            } else {
+                Scene.Current.EditorUpdate();
 
-				List<ICmpUpdatable> updatables = new List<ICmpUpdatable>();
-				foreach (GameObject obj in updateObjects) {
-					updatables.Clear();
-					obj.GetComponents(updatables);
-					for (int i = 0; i < updatables.Count; i++) {
-						if (!(updatables[i] as Component).Active) continue;
-						updatables[i].OnUpdate();
-					}
-				}
-			}
+                List<ICmpUpdatable> updatables = new List<ICmpUpdatable>();
+                foreach (GameObject obj in updateObjects) {
+                    updatables.Clear();
+                    obj.GetComponents(updatables);
+                    for (int i = 0; i < updatables.Count; i++) {
+                        if (!(updatables[i] as Component).Active) continue;
+                        updatables[i].OnUpdate();
+                    }
+                }
+            }
 
-			sound.Update();
+            sound.Update();
 
-			RunCleanup();
+            RunCleanup();
 
-			isUpdating = false;
+            isUpdating = false;
 
-			if (terminateScheduled) Terminate();
-		}
+            if (terminateScheduled) Terminate();
+        }
 
-		/// <summary>
-		/// Performs a single render cycle.
-		/// </summary>
-		/// <param name="viewportRect">The viewport to render to, in pixel coordinates.</param>
-		/// <param name="imageSize">Target size of the rendered image before adjusting it to fit the specified viewport.</param>
-		public static void Render(ContentRef<RenderTarget> target, Rect viewportRect, Vector2 imageSize)
+        /// <summary>
+        /// Performs a single render cycle.
+        /// </summary>
+        /// <param name="viewportRect">The viewport to render to, in pixel coordinates.</param>
+        /// <param name="imageSize">Target size of the rendered image before adjusting it to fit the specified viewport.</param>
+        public static void Render(ContentRef<RenderTarget> target, Rect viewportRect, Vector2 imageSize)
         {
             Scene.Current.Render(target, viewportRect, imageSize);
         }
 
         /// <summary>
-		/// Given the specified window size, this method calculates the window rectangle of the rendered
-		/// viewport, as well as the game's rendered image size while taking into account application settings
-		/// regarding forced rendering sizes.
-		/// </summary>
-		/// <param name="windowSize"></param>
-		/// <param name="windowViewport"></param>
-		/// <param name="renderTargetSize"></param>
-		public static void CalculateGameViewport(Point2 windowSize, out Rect windowViewport, out Vector2 renderTargetSize)
+        /// Given the specified window size, this method calculates the window rectangle of the rendered
+        /// viewport, as well as the game's rendered image size while taking into account application settings
+        /// regarding forced rendering sizes.
+        /// </summary>
+        /// <param name="windowSize"></param>
+        /// <param name="windowViewport"></param>
+        /// <param name="renderTargetSize"></param>
+        public static void CalculateGameViewport(Point2 windowSize, out Rect windowViewport, out Vector2 renderTargetSize)
         {
             // ToDo: Rework this...
             /*Point2 forcedSize = DualityApp.AppData.ForcedRenderSize;
@@ -602,22 +603,22 @@ namespace Duality
             T selectedBackend = null;
             foreach (T backend in backends) {
                 /*if (appData != null && 
-					appData.SkipBackends != null && 
-					appData.SkipBackends.Any(s => string.Equals(s, backend.Id, StringComparison.OrdinalIgnoreCase)))
-				{
-					Log.Core.Write("Backend '{0}' skipped because of AppData settings.", backend.Name);
-					continue;
-				}*/
+                    appData.SkipBackends != null && 
+                    appData.SkipBackends.Any(s => string.Equals(s, backend.Id, StringComparison.OrdinalIgnoreCase)))
+                {
+                    Log.Core.Write("Backend '{0}' skipped because of AppData settings.", backend.Name);
+                    continue;
+                }*/
 
                 bool available = false;
                 try {
                     available = backend.CheckAvailable();
                     if (!available) {
-                        App.Log("Backend '{0}' reports to be unavailable. Skipping it.", backend.Name);
+                        Log.Write(LogType.Error, "Backend '{0}' reports to be unavailable. Skipping it.", backend.Name);
                     }
                 } catch (Exception e) {
                     available = false;
-                    App.Log("Backend '{0}' failed the availability check with an exception: {1}", backend.Name, e);
+                    Log.Write(LogType.Error, "Backend '{0}' failed the availability check with an exception: {1}", backend.Name, e);
                 }
                 if (!available) continue;
 
@@ -625,7 +626,7 @@ namespace Duality
                     backend.Init();
                     selectedBackend = backend;
                 } catch (Exception e) {
-                    App.Log("Backend '{0}' failed: {1}", backend.Name, e);
+                    Log.Write(LogType.Error, "Backend '{0}' failed: {1}", backend.Name, e);
                 }
 
                 if (selectedBackend != null)
@@ -654,7 +655,7 @@ namespace Duality
 
                 backend = null;
             } catch (Exception e) {
-                App.Log("Backend '{0}' failed: {1}", backend.Name, e);
+                Log.Write(LogType.Error, "Backend '{0}' failed: {1}", backend.Name, e);
             }
         }
 
@@ -701,16 +702,16 @@ namespace Duality
                 invalidAssembly.GetShortAssemblyName(),
                 "{0}");
 
-            if (ReflectionHelper.CleanEventBindings(typeof(DualityApp),      invalidAssembly)) App.Log(warningText, typeof(DualityApp));
-			if (ReflectionHelper.CleanEventBindings(typeof(Scene),           invalidAssembly)) App.Log(warningText, typeof(Scene));
-			if (ReflectionHelper.CleanEventBindings(typeof(Resource),        invalidAssembly)) App.Log(warningText, typeof(Resource));
-            //if (ReflectionHelper.CleanEventBindings(typeof(DefaultContentProvider), invalidAssembly)) App.Log(warningText, typeof(DefaultContentProvider));
-            if (ReflectionHelper.CleanEventBindings(DualityApp.Keyboard,     invalidAssembly)) App.Log(warningText, typeof(DualityApp) + ".Keyboard");
-			if (ReflectionHelper.CleanEventBindings(DualityApp.Mouse,        invalidAssembly)) App.Log(warningText, typeof(DualityApp) + ".Mouse");
-			foreach (JoystickInput joystick in DualityApp.Joysticks)
-				if (ReflectionHelper.CleanEventBindings(joystick,            invalidAssembly)) App.Log(warningText, typeof(DualityApp) + ".Joysticks");
-			foreach (GamepadInput gamepad in DualityApp.Gamepads)
-				if (ReflectionHelper.CleanEventBindings(gamepad,             invalidAssembly)) App.Log(warningText, typeof(DualityApp) + ".Gamepads");
+            if (ReflectionHelper.CleanEventBindings(typeof(DualityApp),      invalidAssembly)) Log.Write(LogType.Warning, warningText, typeof(DualityApp));
+            if (ReflectionHelper.CleanEventBindings(typeof(Scene),           invalidAssembly)) Log.Write(LogType.Warning, warningText, typeof(Scene));
+            if (ReflectionHelper.CleanEventBindings(typeof(Resource),        invalidAssembly)) Log.Write(LogType.Warning, warningText, typeof(Resource));
+            //if (ReflectionHelper.CleanEventBindings(typeof(DefaultContentProvider), invalidAssembly)) Log.Write(LogType.Warning, warningText, typeof(DefaultContentProvider));
+            if (ReflectionHelper.CleanEventBindings(DualityApp.Keyboard,     invalidAssembly)) Log.Write(LogType.Warning, warningText, typeof(DualityApp) + ".Keyboard");
+            if (ReflectionHelper.CleanEventBindings(DualityApp.Mouse,        invalidAssembly)) Log.Write(LogType.Warning, warningText, typeof(DualityApp) + ".Mouse");
+            foreach (JoystickInput joystick in DualityApp.Joysticks)
+                if (ReflectionHelper.CleanEventBindings(joystick,            invalidAssembly)) Log.Write(LogType.Warning, warningText, typeof(DualityApp) + ".Joysticks");
+            foreach (GamepadInput gamepad in DualityApp.Gamepads)
+                if (ReflectionHelper.CleanEventBindings(gamepad,             invalidAssembly)) Log.Write(LogType.Warning, warningText, typeof(DualityApp) + ".Gamepads");
         }
         private static void CleanInputSources(Assembly invalidAssembly)
         {
@@ -723,22 +724,22 @@ namespace Duality
                 "{0}");
 
             if (DualityApp.Mouse.Source != null && DualityApp.Mouse.Source.GetType().GetTypeInfo().Assembly == invalidAssembly) {
-                App.Log(warningText, DualityApp.Mouse.Source.GetType());
+                Log.Write(LogType.Warning, warningText, DualityApp.Mouse.Source.GetType());
                 DualityApp.Mouse.Source = null;
             }
             if (DualityApp.Keyboard.Source != null && DualityApp.Keyboard.Source.GetType().GetTypeInfo().Assembly == invalidAssembly) {
-                App.Log(warningText, DualityApp.Keyboard.Source.GetType());
+                Log.Write(LogType.Warning, warningText, DualityApp.Keyboard.Source.GetType());
                 DualityApp.Keyboard.Source = null;
             }
             foreach (JoystickInput joystick in DualityApp.Joysticks.ToArray()) {
                 if (joystick.Source != null && joystick.Source.GetType().GetTypeInfo().Assembly == invalidAssembly) {
-                    App.Log(warningText, joystick.Source.GetType());
+                    Log.Write(LogType.Warning, warningText, joystick.Source.GetType());
                     DualityApp.Joysticks.RemoveSource(joystick.Source);
                 }
             }
             foreach (GamepadInput gamepad in DualityApp.Gamepads.ToArray()) {
                 if (gamepad.Source != null && gamepad.Source.GetType().GetTypeInfo().Assembly == invalidAssembly) {
-                    App.Log(warningText, gamepad.Source.GetType());
+                    Log.Write(LogType.Warning, warningText, gamepad.Source.GetType());
                     DualityApp.Gamepads.RemoveSource(gamepad.Source);
                 }
             }

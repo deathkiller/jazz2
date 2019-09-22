@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using Duality.Input;
+using Jazz2;
 using Jazz2.Game;
 
 namespace Duality.Backend.DefaultOpenTK
@@ -136,7 +137,7 @@ namespace Duality.Backend.DefaultOpenTK
                 if (joystick.IsAvailable)
                 {
                     inputManager.AddSource(joystick);
-                    App.Log(
+                    Log.Write(LogType.Verbose,
                         "Detected new Joystick Input: \"{0}\" ({1} | {2}) at index {3}" + Environment.NewLine +
                         "Capabilities: {4} axes, {5} buttons, {6} hats",
                         joystick.Id,

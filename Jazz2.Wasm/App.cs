@@ -40,13 +40,6 @@ namespace Jazz2.Game
             }
         }
 
-        public static void Log(string message, params object[] messageParams)
-        {
-            string line = (messageParams != null && messageParams.Length > 0 ? string.Format(message, messageParams) : message);
-
-            Console.WriteLine(line);
-        }
-
         public static void GetAssemblyVersionNumber(out byte major, out byte minor, out byte build)
         {
             Version v = Assembly.GetEntryAssembly().GetName().Version;

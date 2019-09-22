@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Jazz2
 {
-    public class ConsoleUtils
+    public static class ConsoleUtils
     {
         private static bool? isOutputRedirected;
         private static bool? isShared;

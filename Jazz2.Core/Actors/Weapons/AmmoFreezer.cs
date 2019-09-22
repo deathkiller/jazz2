@@ -12,6 +12,7 @@ namespace Jazz2.Actors.Weapons
         private Vector2 gunspotPos;
         private bool fired;
 
+        public override EventType EventType => EventType.WeaponFreezer;
         public override WeaponType WeaponType => WeaponType.Freezer;
 
         public float FrozenDuration => ((upgrades & 0x1) != 0 ? 280f : 180f);

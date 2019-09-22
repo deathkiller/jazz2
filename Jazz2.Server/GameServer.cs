@@ -110,7 +110,8 @@ namespace Jazz2.Server
 
             RegisterPacketCallbacks();
 
-            Log.Write(LogType.Info, "Endpoints:", true);
+            Log.Write(LogType.Info, "Endpoints:");
+            Log.PushIndent();
 
             foreach (var address in server.LocalIPAddresses) {
                 Log.Write(LogType.Verbose, address + ":" + port + (NetUtility.IsAddressPrivate(address) ? " [Private]" : ""));

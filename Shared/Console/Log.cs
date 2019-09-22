@@ -237,9 +237,9 @@ namespace Jazz2
             }
         }
 
-        public static void Write(LogType type, string formattedLine, bool pushIndent = false)
+        public static void Write(LogType type, string message)
         {
-            if (string.IsNullOrEmpty(formattedLine)) {
+            if (string.IsNullOrEmpty(message)) {
                 lock (lastLogLines) {
                     // End the current line
                     Console.WriteLine();
@@ -253,7 +253,7 @@ namespace Jazz2
             }
 
             lock (lastLogLines) {
-                bool highlight = IsHighlightLine(formattedLine);
+                bool highlight = IsHighlightLine(message);
 
                 // If we're writing the same kind of text again, "grey out" the repeating parts
                 int beginGreyLength = 0;
@@ -261,13 +261,13 @@ namespace Jazz2
                 if (!highlight) {
                     for (int i = 0; i < lastLogLines.Length; i++) {
                         string lastLogLine = lastLogLines[i] ?? string.Empty;
-                        beginGreyLength = Math.Max(beginGreyLength, GetEqualBeginChars(lastLogLine, formattedLine));
-                        endGreyLength = Math.Max(endGreyLength, GetEqualEndChars(lastLogLine, formattedLine));
+                        beginGreyLength = Math.Max(beginGreyLength, GetEqualBeginChars(lastLogLine, message));
+                        endGreyLength = Math.Max(endGreyLength, GetEqualEndChars(lastLogLine, message));
                     }
-                    if (beginGreyLength == formattedLine.Length) {
+                    if (beginGreyLength == message.Length) {
                         endGreyLength = 0;
                     }
-                    if (beginGreyLength + endGreyLength >= formattedLine.Length) {
+                    if (beginGreyLength + endGreyLength >= message.Length) {
                         endGreyLength = 0;
                     }
                 }
@@ -277,28 +277,23 @@ namespace Jazz2
                 }
 
                 // Dot
-                //if (pushIndent && ConsoleUtils.SupportsUnicode) {
-                //    SetBrightConsoleColor(type, false);
-                //    Console.Write(new string(' ', indent * 2) + " ◿ ");
-                //} else {
-                    SetBrightConsoleColor(type, highlight);
-                    Console.Write(new string(' ', indent * 2) + (ConsoleUtils.SupportsUnicode ? " · " : " ˙ "));
-                //}
+                SetBrightConsoleColor(type, highlight);
+                Console.Write(new string(' ', indent * 2) + (ConsoleUtils.SupportsUnicode ? " · " : " ˙ "));
 
                 // Dark beginning
                 if (beginGreyLength != 0) {
                     SetDarkConsoleColor(type);
-                    Console.Write(formattedLine.Substring(0, beginGreyLength));
+                    Console.Write(message.Substring(0, beginGreyLength));
                 }
 
                 // Bright main part
                 SetBrightConsoleColor(type, highlight);
-                Console.Write(formattedLine.Substring(beginGreyLength, formattedLine.Length - beginGreyLength - endGreyLength));
+                Console.Write(message.Substring(beginGreyLength, message.Length - beginGreyLength - endGreyLength));
 
                 // Dark ending
                 if (endGreyLength != 0) {
                     SetDarkConsoleColor(type);
-                    Console.Write(formattedLine.Substring(formattedLine.Length - endGreyLength, endGreyLength));
+                    Console.Write(message.Substring(message.Length - endGreyLength, endGreyLength));
                 }
 
                 Console.ResetColor();
@@ -306,18 +301,19 @@ namespace Jazz2
                 // End the current line
                 Console.WriteLine();
 
-                lastLogLines[lastLogLineIndex] = formattedLine;
+                lastLogLines[lastLogLineIndex] = message;
                 lastLogLineIndex = (lastLogLineIndex + 1) % lastLogLines.Length;
-
-                if (pushIndent) {
-                    PushIndent();
-                }
 
                 if (activeInput) {
                     RenderInputPrompt();
                     RenderInput(true);
                 }
             }
+        }
+
+        public static void Write(LogType type, string message, params object[] messageParams)
+        {
+            Write(type, messageParams != null && messageParams.Length > 0 ? string.Format(message, messageParams) : message);
         }
 
         private static void SetDarkConsoleColor(LogType type)

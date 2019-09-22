@@ -12,6 +12,7 @@ namespace Jazz2.Actors.Weapons
 
         private float smokeTimer = 3f;
 
+        public override EventType EventType => EventType.WeaponRF;
         public override WeaponType WeaponType => WeaponType.RF;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)

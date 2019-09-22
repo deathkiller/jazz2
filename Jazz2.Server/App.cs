@@ -68,7 +68,8 @@ namespace Jazz2.Server
             byte neededMinor = (byte)v.Minor;
             byte neededBuild = (byte)v.Build;
 
-            Log.Write(LogType.Info, "Starting server...", true);
+            Log.Write(LogType.Info, "Starting server...");
+            Log.PushIndent();
 
             // Start game server
             gameServer = new GameServer();
@@ -183,7 +184,8 @@ namespace Jazz2.Server
         private static bool HandleCommandHelp(string input)
         {
             Log.Write(LogType.Info, "Visit \"http://deat.tk/jazz2/\" for more info!");
-            Log.Write(LogType.Info, "Available commands:", true);
+            Log.Write(LogType.Info, "Available commands:");
+            Log.PushIndent();
 
             foreach (KeyValuePair<string, Func<string, bool>> pair in availableCommands) {
                 Log.Write(LogType.Info, pair.Key);
@@ -205,7 +207,8 @@ namespace Jazz2.Server
 
             int playerCount = gameServer.PlayerCount;
             if (playerCount > 0) {
-                Log.Write(LogType.Info, "Players (" + playerCount + "/" + gameServer.MaxPlayers + ")".PadRight(12) + "Pos              Remote Endpoint", true);
+                Log.Write(LogType.Info, "Players (" + playerCount + "/" + gameServer.MaxPlayers + ")".PadRight(12) + "Pos              Remote Endpoint");
+                Log.PushIndent();
 
                 foreach (KeyValuePair<NetConnection, GameServer.Player> pair in gameServer.Players) {
                     Log.Write(LogType.Info, GameServer.PlayerNameToConsole(pair.Value).PadRight(6) + " " +

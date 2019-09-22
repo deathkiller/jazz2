@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Duality;
 using Jazz2.Game;
+using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Lighting
 {
@@ -11,6 +12,8 @@ namespace Jazz2.Actors.Lighting
         private LightEmitter light;
         private float radiusNear1, radiusNear2, radiusFar;
         private float phase, speed;
+
+        public override EventType EventType => EventType.LightPulse;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {

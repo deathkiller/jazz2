@@ -11,6 +11,7 @@ namespace Jazz2.Actors.Weapons
         private Vector2 gunspotPos;
         private bool fired;
 
+        public override EventType EventType => EventType.WeaponToaster;
         public override WeaponType WeaponType => WeaponType.Toaster;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)

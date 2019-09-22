@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Duality;
 using Jazz2.Game.Collisions;
 using Jazz2.Game.Structs;
+using MathF = Duality.MathF;
 
 namespace Jazz2.Actors.Enemies
 {

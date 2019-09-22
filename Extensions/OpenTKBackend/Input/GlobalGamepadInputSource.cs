@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using Duality.Input;
+using Jazz2;
 using Jazz2.Game;
 using OpenTK.Input;
 
@@ -144,7 +145,7 @@ namespace Duality.Backend.DefaultOpenTK
                 if (gamepad.IsAvailable)
                 {
                     inputManager.AddSource(gamepad);
-                    App.Log(
+                    Log.Write(LogType.Verbose,
                         "Detected new Gamepad Input: \"{0}\" ({1} | {2}) at index {3}",
                         gamepad.Id,
                         gamepad.ProductId,

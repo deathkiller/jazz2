@@ -90,7 +90,6 @@
     <None Include="App.manifest" />
     <None Include="Icon.ico" />
   </ItemGroup>
-  <Import Project="..\..\Shared\Console\Console.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(SolutionDir)Jazz2\Bin\$(ConfigurationName)\" SkipUnchangedFiles="true" />

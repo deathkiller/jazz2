@@ -29,24 +29,6 @@ namespace Jazz2.Game
             }
         }
 
-        private static StringBuilder logBuffer = new StringBuilder();
-
-        public static void Log(string message, params object[] messageParams)
-        {
-            string line = (messageParams != null && messageParams.Length > 0 ? string.Format(message, messageParams) : message);
-
-            logBuffer.AppendLine(line);
-
-#if DEBUG
-            global::Android.Util.Log.Info("Jazz2", line);
-#endif
-        }
-
-        public static string GetLogBuffer()
-        {
-            return logBuffer.ToString();
-        }
-
         public static void GetAssemblyVersionNumber(out byte major, out byte minor, out byte build)
         {
             string[] v = Application.Context.PackageManager.GetPackageInfo(Application.Context.PackageName, 0).VersionName.Split('.');

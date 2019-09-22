@@ -57,10 +57,22 @@ namespace WebGLDotNET
 
     public partial class WebGLActiveInfo
     {
+        public int Size => (int)Handle.GetObjectProperty("size");
+
+        public uint Type => (uint)(int)Handle.GetObjectProperty("type");
+
+        public string Name => (string)Handle.GetObjectProperty("name");
+
     }
 
     public partial class WebGLShaderPrecisionFormat
     {
+        public int RangeMin => (int)Handle.GetObjectProperty("rangeMin");
+
+        public int RangeMax => (int)Handle.GetObjectProperty("rangeMax");
+
+        public int Precision => (int)Handle.GetObjectProperty("precision");
+
     }
 
     public partial class WebGLRenderingContextBase
@@ -659,6 +671,12 @@ namespace WebGLDotNET
 
         public const uint BROWSER_DEFAULT_WEBGL = 0x9244;
 
+        public object Canvas => (object)Handle.GetObjectProperty("canvas");
+
+        public int DrawingBufferWidth => (int)Handle.GetObjectProperty("drawingBufferWidth");
+
+        public int DrawingBufferHeight => (int)Handle.GetObjectProperty("drawingBufferHeight");
+
         public WebGLContextAttributes GetContextAttributes() => Invoke<WebGLContextAttributes>("getContextAttributes");
 
         public bool IsContextLost() => InvokeForBasicType<bool>("isContextLost");
@@ -691,13 +709,13 @@ namespace WebGLDotNET
 
         public void BlendFuncSeparate(uint srcRGB, uint dstRGB, uint srcAlpha, uint dstAlpha) => Invoke("blendFuncSeparate", srcRGB, dstRGB, srcAlpha, dstAlpha);
 
-        public void BufferData(uint target, ulong size, uint usage) => Invoke("bufferData", target, size, usage);
+        public void BufferData(uint target, double size, uint usage) => Invoke("bufferData", target, size, usage);
 
         public void BufferData(uint target, ITypedArray data, uint usage) => Invoke("bufferData", target, data, usage);
 
         public void BufferSubData(uint target, uint offset, ITypedArray data) => Invoke("bufferSubData", target, offset, data);
 
-        public int CheckFramebufferStatus(uint target) => InvokeForBasicType<int>("checkFramebufferStatus", target);
+        public uint CheckFramebufferStatus(uint target) => (uint)InvokeForBasicType<int>("checkFramebufferStatus", target);
 
         public void Clear(uint mask) => Invoke("clear", mask);
 
@@ -755,7 +773,7 @@ namespace WebGLDotNET
 
         public void Disable(uint cap) => Invoke("disable", cap);
 
-        public void DisableVertexAttribArray(int index) => Invoke("disableVertexAttribArray", index);
+        public void DisableVertexAttribArray(uint index) => Invoke("disableVertexAttribArray", index);
 
         public void DrawArrays(uint mode, int first, int count) => Invoke("drawArrays", mode, first, count);
 
@@ -781,7 +799,7 @@ namespace WebGLDotNET
 
         public WebGLActiveInfo GetActiveUniform(WebGLProgram program, uint index) => Invoke<WebGLActiveInfo>("getActiveUniform", program, index);
 
-        public WebGLShader[] GetAttachedShaders(WebGLProgram program) => InvokeForArray<WebGLShader>("getAttachedShaders", program);
+        public WebGLShader[] GetAttachedShaders(WebGLProgram program) => InvokeForJavaScriptArray<WebGLShader>("getAttachedShaders", program);
 
         public int GetAttribLocation(WebGLProgram program, string name) => InvokeForBasicType<int>("getAttribLocation", program, name);
 
@@ -789,7 +807,7 @@ namespace WebGLDotNET
 
         public object GetParameter(uint pname) => Invoke("getParameter", pname);
 
-        public int GetError() => InvokeForBasicType<int>("getError");
+        public uint GetError() => (uint)InvokeForBasicType<int>("getError");
 
         public object GetFramebufferAttachmentParameter(uint target, uint attachment, uint pname) => Invoke("getFramebufferAttachmentParameter", target, attachment, pname);
 
@@ -815,7 +833,7 @@ namespace WebGLDotNET
 
         public object GetVertexAttrib(uint index, uint pname) => Invoke("getVertexAttrib", index, pname);
 
-        public ulong GetVertexAttribOffset(uint index, uint pname) => InvokeForBasicType<ulong>("getVertexAttribOffset", index, pname);
+        public double GetVertexAttribOffset(uint index, uint pname) => InvokeForBasicType<double>("getVertexAttribOffset", index, pname);
 
         public void Hint(uint target, uint mode) => Invoke("hint", target, mode);
 
@@ -1525,17 +1543,17 @@ namespace WebGLDotNET
 
         public const uint MAX_CLIENT_WAIT_TIMEOUT_WEBGL = 0x9247;
 
-        public new void BufferData(uint target, ulong size, uint usage) => Invoke("bufferData", target, size, usage);
+        public new void BufferData(uint target, double size, uint usage) => Invoke("bufferData", target, size, usage);
 
-        public void BufferData(uint target, object srcData, uint usage) => Invoke("bufferData", target, srcData, usage);
+        //public void BufferData(uint target, ITypedArray srcData, uint usage) => Invoke("bufferData", target, srcData, usage);
 
-        public void BufferSubData(uint target, uint dstByteOffset, object srcData) => Invoke("bufferSubData", target, dstByteOffset, srcData);
+        //public void BufferSubData(uint target, uint dstByteOffset, ITypedArray srcData) => Invoke("bufferSubData", target, dstByteOffset, srcData);
 
         public void BufferData(uint target, ITypedArray srcData, uint usage, uint srcOffset, uint length) => Invoke("bufferData", target, srcData, usage, srcOffset, length);
 
         public void BufferSubData(uint target, uint dstByteOffset, ITypedArray srcData, uint srcOffset, uint length) => Invoke("bufferSubData", target, dstByteOffset, srcData, srcOffset, length);
 
-        public void CopyBufferSubData(uint readTarget, uint writeTarget, uint readOffset, uint writeOffset, ulong size) => Invoke("copyBufferSubData", readTarget, writeTarget, readOffset, writeOffset, size);
+        public void CopyBufferSubData(uint readTarget, uint writeTarget, uint readOffset, uint writeOffset, double size) => Invoke("copyBufferSubData", readTarget, writeTarget, readOffset, writeOffset, size);
 
         public void GetBufferSubData(uint target, uint srcByteOffset, ITypedArray dstBuffer, uint dstOffset, uint length) => Invoke("getBufferSubData", target, srcByteOffset, dstBuffer, dstOffset, length);
 
@@ -1747,15 +1765,15 @@ namespace WebGLDotNET
 
         public void BindBufferBase(uint target, uint index, WebGLBuffer buffer) => Invoke("bindBufferBase", target, index, buffer);
 
-        public void BindBufferRange(uint target, uint index, WebGLBuffer buffer, uint offset, ulong size) => Invoke("bindBufferRange", target, index, buffer, offset, size);
+        public void BindBufferRange(uint target, uint index, WebGLBuffer buffer, uint offset, double size) => Invoke("bindBufferRange", target, index, buffer, offset, size);
 
         public object GetIndexedParameter(uint target, uint index) => Invoke("getIndexedParameter", target, index);
 
-        public uint[] GetUniformIndices(WebGLProgram program, string[] uniformNames) => InvokeForArray<uint>("getUniformIndices", program, uniformNames);
+        public uint[] GetUniformIndices(WebGLProgram program, string[] uniformNames) => InvokeForIntToUintArray("getUniformIndices", program, uniformNames);
 
         public object GetActiveUniforms(WebGLProgram program, uint[] uniformIndices, uint pname) => Invoke("getActiveUniforms", program, uniformIndices, pname);
 
-        public uint GetUniformBlockIndex(WebGLProgram program, string uniformBlockName) => InvokeForBasicType<uint>("getUniformBlockIndex", program, uniformBlockName);
+        public uint GetUniformBlockIndex(WebGLProgram program, string uniformBlockName) => (uint)InvokeForBasicType<int>("getUniformBlockIndex", program, uniformBlockName);
 
         public object GetActiveUniformBlockParameter(WebGLProgram program, uint uniformBlockIndex, uint pname) => Invoke("getActiveUniformBlockParameter", program, uniformBlockIndex, pname);
 
@@ -1777,5 +1795,5 @@ namespace WebGLDotNET
     {
     }
 
-#pragma warning restore MEN002 
+#pragma warning restore MEN002
 }

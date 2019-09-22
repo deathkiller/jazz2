@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Jazz2;
 using Jazz2.Game;
 
 namespace Duality.Backend
 {
-    public class DefaultAssemblyLoader : IAssemblyLoader
+	public class DefaultAssemblyLoader : IAssemblyLoader
 	{
 		private static readonly Assembly execAssembly = Assembly.GetEntryAssembly() ?? typeof(DualityApp).Assembly;
-        private static readonly string execAssemblyDir = App.AssemblyPath;
+		private static readonly string execAssemblyDir = App.AssemblyPath;
 
-        public event EventHandler<AssemblyResolveEventArgs> AssemblyResolve;
+		public event EventHandler<AssemblyResolveEventArgs> AssemblyResolve;
 		public event EventHandler<AssemblyLoadedEventArgs> AssemblyLoaded;
 
 		public IEnumerable<string> BaseDirectories
@@ -118,7 +119,7 @@ namespace Duality.Backend
 					else if (Environment.OSVersion.Version >= new Version(5, 0, 0))
 						osFriendlyName = "Windows 2000";
 				}
-				App.Log(
+				Log.Write(LogType.Verbose,
 					"Environment Info: " + Environment.NewLine +
 					"  Current Directory: {0}" + Environment.NewLine +
 					"  Command Line: {1}" + Environment.NewLine +
@@ -175,14 +176,14 @@ namespace Duality.Backend
 			{
 				if (args.RequestingAssembly != null)
 				{
-                    App.Log(
+					Log.Write(LogType.Error,
 						"Can't resolve Assembly '{0}' (as requested by '{1}'): None of the available assembly paths matches the requested name.",
 						args.Name,
 						args.RequestingAssembly);
 				}
 				else
 				{
-                    App.Log(
+					Log.Write(LogType.Error,
 						"Can't resolve Assembly '{0}': None of the available assembly paths matches the requested name.",
 						args.Name);
 				}
@@ -194,7 +195,7 @@ namespace Duality.Backend
 			if (this.AssemblyLoaded != null)
 				this.AssemblyLoaded(this, new AssemblyLoadedEventArgs(args.LoadedAssembly));
 
-            App.Log("Assembly loaded: {0}", args.LoadedAssembly);
+			Log.Write(LogType.Verbose, "Assembly loaded: {0}", args.LoadedAssembly);
 		}
 	}
 }

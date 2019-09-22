@@ -10,6 +10,7 @@ using OpenTK.Graphics.OpenGL;
 using Duality.Backend.DefaultOpenTK;
 using System.Runtime.InteropServices;
 using Jazz2.Game;
+using Jazz2;
 
 namespace Duality.Backend.GL21
 {
@@ -23,6 +24,7 @@ namespace Duality.Backend.GL21
 			get { return activeInstance; }
 		}
 
+		private OpenTKGraphicsCapabilities   capabilities = new OpenTKGraphicsCapabilities();
 		private IDrawDevice                  currentDevice           = null;
 		private RenderOptions                renderOptions           = null;
 		private RenderStats                  renderStats             = null;
@@ -37,8 +39,11 @@ namespace Duality.Backend.GL21
 		private HashSet<NativeShaderProgram> activeShaders           = new HashSet<NativeShaderProgram>();
 		private HashSet<string>              sharedShaderParameters  = new HashSet<string>();
 		private int                          sharedSamplerBindings   = 0;
-		
 
+		public GraphicsBackendCapabilities Capabilities
+		{
+			get { return this.capabilities; }
+		}
 		public GraphicsMode DefaultGraphicsMode
 		{
 			get { return this.defaultGraphicsMode; }
@@ -89,7 +94,7 @@ namespace Duality.Backend.GL21
 			// Initialize OpenTK, if not done yet
 			DefaultOpenTKBackendPlugin.InitOpenTK();
 
-            App.Log("Active graphics backend: OpenGL 2.1");
+			Log.Write(LogType.Info, "Active graphics backend: OpenGL 2.1");
 
 			// Log information about the available display devices
 			GraphicsBackend.LogDisplayDevices();
@@ -129,7 +134,7 @@ namespace Duality.Backend.GL21
 		void IGraphicsBackend.BeginRendering(IDrawDevice device, RenderOptions options, RenderStats stats)
 		{
 			DebugCheckOpenGLErrors();
-			this.CheckContextCaps();
+			this.CheckRenderingCapabilities();
 
 			this.currentDevice = device;
 			this.renderOptions = options;
@@ -193,13 +198,13 @@ namespace Duality.Backend.GL21
 			GL.MatrixMode(MatrixMode.Modelview);
 			GL.LoadMatrix(ref openTkView);
 
-            Matrix4 projectionMatrix = options.ProjectionMatrix;
-            if (NativeRenderTarget.BoundRT != null) {
-                Matrix4 flipOutput = Matrix4.CreateScale(1.0f, -1.0f, 1.0f);
-                projectionMatrix = projectionMatrix * flipOutput;
-            }
+			Matrix4 projectionMatrix = options.ProjectionMatrix;
+			if (NativeRenderTarget.BoundRT != null) {
+				Matrix4 flipOutput = Matrix4.CreateScale(1.0f, -1.0f, 1.0f);
+				projectionMatrix = projectionMatrix * flipOutput;
+			}
 
-            OpenTK.Matrix4 openTkProjection;
+			OpenTK.Matrix4 openTkProjection;
 			Matrix4 projection = projectionMatrix;
 			GetOpenTKMatrix(ref projection, out openTkProjection);
 
@@ -359,6 +364,21 @@ namespace Duality.Backend.GL21
 			NativeRenderTarget.Bind(lastRt);
 		}
 
+		public void QueryOpenGLCapabilities()
+		{
+			// Retrieve and log GL version as well as detected capabilities and limits
+			this.capabilities.RetrieveFromAPI();
+			this.capabilities.WriteToLog();
+
+			// Log a warning if the detected GL version is below our supported minspec
+			Version glVersion = this.capabilities.GLVersion;
+			if (glVersion < MinOpenGLVersion) {
+				Log.Write(LogType.Warning,
+					"The detected OpenGL version {0} appears to be lower than the required minimum. Version {1} or higher is required to run Duality applications.",
+					glVersion,
+					MinOpenGLVersion);
+			}
+		}
 		private void QueryGraphicsModes()
 		{
 			int[] aaLevels = new int[] { 0, 2, 4, 6, 8, 16 };
@@ -387,12 +407,12 @@ namespace Duality.Backend.GL21
 			int targetSampleCount = MathF.RoundToInt(MathF.Pow(2.0f, targetAALevel));
 			this.defaultGraphicsMode = this.availGraphicsModes.LastOrDefault(m => m.Samples <= targetSampleCount) ?? this.availGraphicsModes.Last();
 		}
-		private void CheckContextCaps()
+		private void CheckRenderingCapabilities()
 		{
 			if (this.contextCapsRetrieved) return;
 			this.contextCapsRetrieved = true;
 
-			//App.Log("Determining OpenGL context capabilities...");
+			//App.Log("Determining OpenGL rendering capabilities...");
 			//Logs.Core.PushIndent();
 
 			// Make sure we're not on a render target, which may override
@@ -414,11 +434,11 @@ namespace Duality.Backend.GL21
 			// actually zero, assume MSAA is driver-disabled.
 			if (targetSamples != actualSamples)
 			{
-                App.Log("Requested {0} MSAA samples, but got {1} samples instead.", targetSamples, actualSamples);
+				Log.Write(LogType.Warning, "Requested {0} MSAA samples, but got {1} samples instead.", targetSamples, actualSamples);
 				if (actualSamples == 0)
 				{
 					this.msaaIsDriverDisabled = true;
-                    App.Log("Assuming MSAA is unavailable. Duality will not use Alpha-to-Coverage masking techniques.");
+					Log.Write(LogType.Warning, "Assuming MSAA is unavailable. Duality will not use Alpha-to-Coverage masking techniques.");
 				}
 			}
 
@@ -695,7 +715,7 @@ namespace Duality.Backend.GL21
 			}
 		}
 
-        /// <summary>
+		/// <summary>
 		/// Draws the vertices of a single <see cref="DrawBatch"/>, after all other rendering state
 		/// has been set up accordingly outside this method.
 		/// </summary>
@@ -703,47 +723,47 @@ namespace Duality.Backend.GL21
 		/// <param name="ranges"></param>
 		/// <param name="mode"></param>
 		private void DrawVertexBatch(VertexBuffer buffer, RawList<VertexDrawRange> ranges, VertexMode mode)
-        {
-            NativeGraphicsBuffer indexBuffer = (buffer.IndexCount > 0 ? buffer.NativeIndex : null) as NativeGraphicsBuffer;
-            IndexDataElementType indexType = buffer.IndexType;
+		{
+			NativeGraphicsBuffer indexBuffer = (buffer.IndexCount > 0 ? buffer.NativeIndex : null) as NativeGraphicsBuffer;
+			IndexDataElementType indexType = buffer.IndexType;
 
-            // Rendering using index buffer
-            if (indexBuffer != null) {
-                if (ranges != null && ranges.Count > 0) {
-                    App.Log(
-                        "Rendering {0} instances that use index buffers do not support specifying vertex ranges, " +
-                        "since the two features are mutually exclusive.",
-                        typeof(DrawBatch).Name,
-                        typeof(VertexMode).Name);
-                }
+			// Rendering using index buffer
+			if (indexBuffer != null) {
+				if (ranges != null && ranges.Count > 0) {
+					Log.Write(LogType.Warning,
+						"Rendering {0} instances that use index buffers do not support specifying vertex ranges, " +
+						"since the two features are mutually exclusive.",
+						typeof(DrawBatch).Name,
+						typeof(VertexMode).Name);
+				}
 
-                NativeGraphicsBuffer.Bind(GraphicsBufferType.Index, indexBuffer);
+				NativeGraphicsBuffer.Bind(GraphicsBufferType.Index, indexBuffer);
 
-                PrimitiveType openTkMode = GetOpenTKVertexMode(mode);
-                DrawElementsType openTkIndexType = GetOpenTKIndexType(indexType);
-                GL.DrawElements(
-                    openTkMode,
-                    buffer.IndexCount,
-                    openTkIndexType,
-                    IntPtr.Zero);
-            }
-            // Rendering using an array of vertex ranges
-            else {
-                NativeGraphicsBuffer.Bind(GraphicsBufferType.Index, null);
+				PrimitiveType openTkMode = GetOpenTKVertexMode(mode);
+				DrawElementsType openTkIndexType = GetOpenTKIndexType(indexType);
+				GL.DrawElements(
+					openTkMode,
+					buffer.IndexCount,
+					openTkIndexType,
+					IntPtr.Zero);
+			}
+			// Rendering using an array of vertex ranges
+			else {
+				NativeGraphicsBuffer.Bind(GraphicsBufferType.Index, null);
 
-                PrimitiveType openTkMode = GetOpenTKVertexMode(mode);
-                VertexDrawRange[] rangeData = ranges.Data;
-                int rangeCount = ranges.Count;
-                for (int r = 0; r < rangeCount; r++) {
-                    GL.DrawArrays(
-                        openTkMode,
-                        rangeData[r].Index,
-                        rangeData[r].Count);
-                }
-            }
-        }
+				PrimitiveType openTkMode = GetOpenTKVertexMode(mode);
+				VertexDrawRange[] rangeData = ranges.Data;
+				int rangeCount = ranges.Count;
+				for (int r = 0; r < rangeCount; r++) {
+					GL.DrawArrays(
+						openTkMode,
+						rangeData[r].Index,
+						rangeData[r].Count);
+				}
+			}
+		}
 
-        private void FinishSharedParameters()
+		private void FinishSharedParameters()
 		{
 			NativeTexture.ResetBinding();
 
@@ -828,15 +848,15 @@ namespace Duality.Backend.GL21
 				case VertexMode.Quads:			return PrimitiveType.Quads;
 			}
 		}
-        private static DrawElementsType GetOpenTKIndexType(IndexDataElementType indexType)
-        {
-            switch (indexType) {
-                default:
-                case IndexDataElementType.UnsignedByte: return DrawElementsType.UnsignedByte;
-                case IndexDataElementType.UnsignedShort: return DrawElementsType.UnsignedShort;
-            }
-        }
-        private static void GetOpenTKMatrix(ref Matrix4 source, out OpenTK.Matrix4 target)
+		private static DrawElementsType GetOpenTKIndexType(IndexDataElementType indexType)
+		{
+			switch (indexType) {
+				default:
+				case IndexDataElementType.UnsignedByte: return DrawElementsType.UnsignedByte;
+				case IndexDataElementType.UnsignedShort: return DrawElementsType.UnsignedShort;
+			}
+		}
+		private static void GetOpenTKMatrix(ref Matrix4 source, out OpenTK.Matrix4 target)
 		{
 			target = new OpenTK.Matrix4(
 				source.M11, source.M12, source.M13, source.M14,
@@ -871,14 +891,14 @@ namespace Duality.Backend.GL21
 
 		public static void LogDisplayDevices()
 		{
-            App.Log("Available display devices:");
+			Log.Write(LogType.Info, "Available display devices:");
 			//Logs.Core.PushIndent();
 			foreach (DisplayIndex index in new[] { DisplayIndex.First, DisplayIndex.Second, DisplayIndex.Third, DisplayIndex.Fourth, DisplayIndex.Sixth } )
 			{
 				DisplayDevice display = DisplayDevice.GetDisplay(index);
 				if (display == null) continue;
 
-                App.Log(
+				Log.Write(LogType.Verbose,
 					"{0,-6}: {1,4}x{2,4} at {3,3} Hz, {4,2} bpp, pos [{5,4},{6,4}]{7}",
 					index,
 					display.Width,
@@ -890,53 +910,6 @@ namespace Duality.Backend.GL21
 					display.IsPrimary ? " (Primary)" : "");
 			}
 			//Logs.Core.PopIndent();
-		}
-		public static void LogOpenGLSpecs()
-		{
-			// Accessing OpenGL functionality requires context. Don't get confused by AccessViolationExceptions, fail better instead.
-			GraphicsContext.Assert();
-
-			string versionString = null;
-			try
-			{
-				CheckOpenGLErrors();
-				versionString = GL.GetString(StringName.Version);
-                App.Log(
-					"OpenGL Version: {0}" + Environment.NewLine +
-					"  Vendor: {1}" + Environment.NewLine +
-					"  Renderer: {2}" + Environment.NewLine +
-					"  Shader Version: {3}",
-					versionString,
-					GL.GetString(StringName.Vendor),
-					GL.GetString(StringName.Renderer),
-					GL.GetString(StringName.ShadingLanguageVersion));
-				CheckOpenGLErrors();
-			}
-			catch (Exception e)
-			{
-                App.Log("Can't determine OpenGL specs, because an error occurred: {0}", /*LogFormat.Exception(*/e/*)*/);
-			}
-
-			// Parse the OpenGL version string in order to determine if it's sufficient
-			if (versionString != null)
-			{
-				string[] token = versionString.Split(' ');
-				for (int i = 0; i < token.Length; i++)
-				{
-					Version version;
-					if (Version.TryParse(token[i], out version))
-					{
-						if (version.Major < MinOpenGLVersion.Major || (version.Major == MinOpenGLVersion.Major && version.Minor < MinOpenGLVersion.Minor))
-						{
-                            App.Log(
-								"The detected OpenGL version {0} appears to be lower than the required minimum. Version {1} or higher is required to run Duality applications.",
-								version,
-								MinOpenGLVersion);
-						}
-						break;
-					}
-				}
-			}
 		}
 		/// <summary>
 		/// Checks for errors that might have occurred during video processing. You should avoid calling this method due to performance reasons.
@@ -955,7 +928,7 @@ namespace Duality.Backend.GL21
 			{
 				if (!silent)
 				{
-                    App.Log(
+					Log.Write(LogType.Error,
 						"Internal OpenGL error, code {0} at {1} in {2}, line {3}.", 
 						error,
 						callerInfoMember,

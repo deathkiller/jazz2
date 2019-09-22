@@ -1,11 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using Jazz2;
 using Jazz2.Game;
 
 namespace Duality.Backend.DefaultOpenTK
 {
-    internal static class AudioLibraryLoader
+	internal static class AudioLibraryLoader
 	{
 		public static void LoadAudioLibrary()
 		{
@@ -71,13 +72,13 @@ namespace Duality.Backend.DefaultOpenTK
 		[System.Diagnostics.DebuggerNonUserCode]
 		private static void InstallSoftwareFallback(string sourceFilePath32, string sourceFilePath64, string targetFilePath)
 		{
-            App.Log("OpenAL Drivers not found. Using {0} software fallback.", Environment.Is64BitProcess ? "64 Bit" : "32 Bit");
+			Log.Write(LogType.Info, "OpenAL Drivers not found. Using {0} software fallback.", Environment.Is64BitProcess ? "64 Bit" : "32 Bit");
 			if (Environment.Is64BitProcess)
 			{
 				if (!File.Exists(sourceFilePath64)) return;
-                if (File.Exists(targetFilePath) && new FileInfo(targetFilePath).Length == new FileInfo(sourceFilePath64).Length) return;
+				if (File.Exists(targetFilePath) && new FileInfo(targetFilePath).Length == new FileInfo(sourceFilePath64).Length) return;
 
-                try
+				try
 				{
 					File.Copy(sourceFilePath64, targetFilePath, true);
 				}
@@ -86,7 +87,7 @@ namespace Duality.Backend.DefaultOpenTK
 			else
 			{
 				if (!File.Exists(sourceFilePath32)) return;
-                if (File.Exists(targetFilePath) && new FileInfo(targetFilePath).Length == new FileInfo(sourceFilePath32).Length) return;
+				if (File.Exists(targetFilePath) && new FileInfo(targetFilePath).Length == new FileInfo(sourceFilePath32).Length) return;
 
 				try
 				{

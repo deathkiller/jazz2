@@ -2,6 +2,7 @@
 using Duality;
 using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
+using MathF = Duality.MathF;
 
 namespace Jazz2.Actors
 {

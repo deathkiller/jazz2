@@ -284,7 +284,7 @@ namespace Duality.Backend.Wasm.WebGL10
             }
 
             // Check status
-            int status = GraphicsBackend.GL.CheckFramebufferStatus(WebGLRenderingContextBase.FRAMEBUFFER);
+            uint status = GraphicsBackend.GL.CheckFramebufferStatus(WebGLRenderingContextBase.FRAMEBUFFER);
             if (status != WebGLRenderingContextBase.FRAMEBUFFER_COMPLETE) {
                 throw new BackendException(string.Format("Incomplete Framebuffer: {0}", status));
             }

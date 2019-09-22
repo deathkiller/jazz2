@@ -17,6 +17,7 @@ namespace Jazz2.Actors.Weapons
 
         private float followRecomputeTime;
 
+        public override EventType EventType => EventType.WeaponSeeker;
         public override WeaponType WeaponType => WeaponType.Seeker;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)

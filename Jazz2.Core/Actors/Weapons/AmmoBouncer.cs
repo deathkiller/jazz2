@@ -14,6 +14,7 @@ namespace Jazz2.Actors.Weapons
         private float targetSpeedX;
         private float hitLimit;
 
+        public override EventType EventType => EventType.WeaponBouncer;
         public override WeaponType WeaponType => WeaponType.Bouncer;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)

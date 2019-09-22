@@ -33,7 +33,8 @@ namespace Jazz2.Android
         internal static float LeftPadding, RightPadding;
 #endif
 
-        private bool[] pressedButtons = new bool[(int)Key.Last + 1];
+        private bool[] pressedKeys = new bool[(int)Key.Last + 1];
+        private bool[] pressedButtons = new bool[(int)(GamepadButton.Last + 1)];
 
         private void InitializeInput()
         {
@@ -82,6 +83,8 @@ namespace Jazz2.Android
 #endif
 
             DualityApp.Keyboard.Source = new KeyboardInputSource(this);
+            DualityApp.Gamepads.ClearSources();
+            DualityApp.Gamepads.AddSource(new GamepadInputSource(this));
         }
 
         public override bool OnTouchEvent(MotionEvent e)
@@ -211,17 +214,12 @@ namespace Jazz2.Android
                 return true;
             } else {
                 ShowTouchButtons = false;
-                pressedButtons[(int)ToDuality(keyCode)] = true;
 
-                // ToDo: Remove this... gamepad to keyboard redirection
-                if (keyCode == Keycode.Button1) {
-                    pressedButtons[(int)Key.ShiftLeft] = true;
-                } else if (keyCode == Keycode.Button2) {
-                    pressedButtons[(int)Key.ControlLeft] = true;
-                } else if (keyCode == Keycode.Button3) {
-                    pressedButtons[(int)Key.X] = true;
-                } else if (keyCode == Keycode.Button4) {
-                    pressedButtons[(int)Key.C] = true;
+                GamepadButton gamepadButton = ToDualityButton(keyCode);
+                if (gamepadButton != (GamepadButton)(-1)) {
+                    pressedButtons[(int)gamepadButton] = true;
+                } else {
+                    pressedKeys[(int)ToDualityKey(keyCode)] = true;
                 }
 
                 return true;
@@ -237,17 +235,11 @@ namespace Jazz2.Android
                 return true;
             }
 
-            pressedButtons[(int)ToDuality(keyCode)] = false;
-
-            // ToDo: Remove this... gamepad to keyboard redirection
-            if (keyCode == Keycode.Button1) {
-                pressedButtons[(int)Key.ShiftLeft] = false;
-            } else if (keyCode == Keycode.Button2) {
-                pressedButtons[(int)Key.ControlLeft] = false;
-            } else if (keyCode == Keycode.Button3) {
-                pressedButtons[(int)Key.X] = false;
-            } else if (keyCode == Keycode.Button4) {
-                pressedButtons[(int)Key.C] = false;
+            GamepadButton gamepadButton = ToDualityButton(keyCode);
+            if (gamepadButton != (GamepadButton)(-1)) {
+                pressedButtons[(int)gamepadButton] = false;
+            } else {
+                pressedKeys[(int)ToDualityKey(keyCode)] = false;
             }
 
             return true;
@@ -297,7 +289,7 @@ namespace Jazz2.Android
         }
 #endif
 
-        private static Key ToDuality(Keycode key)
+        private static Key ToDualityKey(Keycode key)
         {
             switch (key) {
                 case Keycode.ShiftLeft: return Key.ShiftLeft;
@@ -309,11 +301,6 @@ namespace Jazz2.Android
                 case Keycode.MetaLeft: return Key.WinLeft;
                 case Keycode.MetaRight: return Key.WinRight;
                 case Keycode.Menu: return Key.Menu;
-
-                case Keycode.DpadUp: return Key.Up;
-                case Keycode.DpadDown: return Key.Down;
-                case Keycode.DpadLeft: return Key.Left;
-                case Keycode.DpadRight: return Key.Right;
 
                 case Keycode.Enter: return Key.Enter;
                 case Keycode.Escape: return Key.Escape;
@@ -364,11 +351,36 @@ namespace Jazz2.Android
             return Key.Unknown;
         }
 
+        private static GamepadButton ToDualityButton(Keycode key)
+        {
+            switch (key) {
+                case Keycode.DpadUp: return GamepadButton.DPadUp;
+                case Keycode.DpadDown: return GamepadButton.DPadDown;
+                case Keycode.DpadLeft: return GamepadButton.DPadLeft;
+                case Keycode.DpadRight: return GamepadButton.DPadRight;
+
+                case Keycode.ButtonA: return GamepadButton.A;
+                case Keycode.ButtonB: return GamepadButton.B;
+                case Keycode.ButtonX: return GamepadButton.X;
+                case Keycode.ButtonY: return GamepadButton.Y;
+
+                case Keycode.ButtonL1: return GamepadButton.LeftShoulder;
+                case Keycode.ButtonR1: return GamepadButton.RightShoulder;
+                case Keycode.ButtonThumbl: return GamepadButton.LeftStick;
+                case Keycode.ButtonThumbr: return GamepadButton.RightStick;
+
+                case Keycode.ButtonStart: return GamepadButton.Start;
+                case Keycode.ButtonSelect: return GamepadButton.Back;
+
+                default: return (GamepadButton)(-1);
+            }
+        }
+
         private class KeyboardInputSource : IKeyboardInputSource
         {
             private readonly InnerView owner;
 
-            public bool this[Key key] => owner.pressedButtons[(int)key];
+            public bool this[Key key] => owner.pressedKeys[(int)key];
 
             public string CharInput => "";
 
@@ -386,6 +398,48 @@ namespace Jazz2.Android
             public void UpdateState()
             {
                 // Nothing to do...
+            }
+        }
+
+        private class GamepadInputSource : IGamepadInputSource
+        {
+            private readonly InnerView owner;
+
+            public float this[GamepadAxis axis]
+            {
+                get
+                {
+                    return 0f;
+                }
+            }
+
+            public bool this[GamepadButton button]
+            {
+                get
+                {
+                    return owner.pressedButtons[(int)button];
+                }
+            }
+
+            string IUserInputSource.Id => "Android Gamepad Provider";
+            string IUserInputSource.ProductName => "Android Gamepad Provider";
+            Guid IUserInputSource.ProductId => new Guid("BCD8F847-79B4-410C-AF4C-B89E5A3E60F7");
+
+            bool IUserInputSource.IsAvailable => true;
+
+            public GamepadInputSource(InnerView owner)
+            {
+                this.owner = owner;
+            }
+
+            public void UpdateState()
+            {
+                // Nothing to do...
+            }
+
+            public void SetVibration(float left, float right)
+            {
+                
             }
         }
     }

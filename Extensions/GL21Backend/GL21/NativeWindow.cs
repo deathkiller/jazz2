@@ -8,6 +8,7 @@ using OpenTK;
 using OpenTK.Graphics;
 using Duality.Backend.DefaultOpenTK;
 using Jazz2.Game;
+using Jazz2;
 
 namespace Duality.Backend.GL21
 {
@@ -187,7 +188,7 @@ namespace Duality.Backend.GL21
                 this.internalWindow.Cursor = MouseCursor.Empty;
             this.internalWindow.VSync = vsyncMode;
 
-            App.Log(
+            Log.Write(LogType.Info,
                 "Window Specification: " + Environment.NewLine +
                 "  Buffers: {0}" + Environment.NewLine +
                 "  Samples: {1}" + Environment.NewLine +
@@ -221,7 +222,7 @@ namespace Duality.Backend.GL21
             // icon extraction can fail with an exception under certain circumstances. Don't fail
             // just because of an icon. Log the error and continue.
             catch (Exception e) {
-                App.Log(
+                Log.Write(LogType.Warning,
                     "There was an exception while trying to extract the " +
                     "window icon from the game's main executable '{0}'. This is " +
                     "uncritical, but still an error: {1}",
@@ -238,8 +239,8 @@ namespace Duality.Backend.GL21
             // Register events and input
             this.HookIntoDuality();
 
-            // Determine OpenGL capabilities and log them
-            GraphicsBackend.LogOpenGLSpecs();
+            // Let's see what rendering features we have available
+            GraphicsBackend.ActiveInstance.QueryOpenGLCapabilities();
         }
 
         void INativeWindow.Run()

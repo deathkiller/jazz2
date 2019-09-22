@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Duality.Components;
+using Jazz2;
 using Jazz2.Game;
 
 namespace Duality.Resources
@@ -156,7 +157,7 @@ namespace Duality.Resources
 			if (switchToScheduled) {
 				switchToTarget = null;
 				switchToScheduled = false;
-				App.Log(
+				Log.Write(LogType.Error,
 					"Potential Scene redirect loop detected: When performing previously " +
 					"scheduled switch to Scene '{0}', a awitch to Scene '{1}' was immediately scheduled. " +
 					"The second switch will not be performed to avoid entering a loop. Please " +

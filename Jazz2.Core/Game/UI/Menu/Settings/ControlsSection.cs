@@ -140,11 +140,11 @@ namespace Jazz2.Game.UI.Menu.Settings
             }
 
             if (waitForInput) {
-                if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
-                    api.PlaySound("MenuSelect", 0.5f);
-                    waitForInput = false;
-                    return;
-                }
+                //if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
+                //    api.PlaySound("MenuSelect", 0.5f);
+                //    waitForInput = false;
+                //    return;
+                //}
 
                 switch (selectedColumn) {
                     case 0: // Keyboard
@@ -168,7 +168,7 @@ namespace Jazz2.Game.UI.Menu.Settings
 
                     case 2: // Gamepad
                         for (int i = 0; i < DualityApp.Gamepads.Count; i++) {
-                            for (GamepadButton button = 0; button < GamepadButton.Last; button++) {
+                            for (GamepadButton button = 0; button <= GamepadButton.Last; button++) {
                                 if (DualityApp.Gamepads[i].ButtonHit(button)) {
                                     ref Mapping mapping = ref ControlScheme.GetCurrentMapping(0, (PlayerActions)selectedIndex);
 
@@ -186,7 +186,10 @@ namespace Jazz2.Game.UI.Menu.Settings
                 return;
             }
 
-            if (ControlScheme.MenuActionHit(PlayerActions.Fire)) {
+            if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
+                api.PlaySound("MenuSelect", 0.5f);
+                api.LeaveSection(this);
+            } else if (ControlScheme.MenuActionHit(PlayerActions.Fire)) {
                 if ((PlayerActions)selectedIndex == PlayerActions.Menu && selectedColumn == 0) {
                     return;
                 }
@@ -203,9 +206,6 @@ namespace Jazz2.Game.UI.Menu.Settings
                     case 1: mapping.Key2 = Key.Unknown; break;
                     case 2:mapping.GamepadIndex = -1; break;
                 }
-            } else if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
-                api.PlaySound("MenuSelect", 0.5f);
-                api.LeaveSection(this);
             }
 
             if (ControlScheme.MenuActionHit(PlayerActions.Up)) {

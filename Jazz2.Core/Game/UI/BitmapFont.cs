@@ -8,6 +8,7 @@ using Duality;
 using Duality.Drawing;
 using Duality.IO;
 using Duality.Resources;
+using MathF = Duality.MathF;
 
 namespace Jazz2.Game.UI
 {
