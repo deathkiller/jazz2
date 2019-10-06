@@ -44,20 +44,20 @@ namespace Jazz2.Android
 		public partial class Color
 		{
 			
-			// aapt resource value: 0x7f060001
-			public const int body_text_1 = 2131099649;
+			// aapt resource value: 0x7F010000
+			public const int body_text_1 = 2130771968;
 			
-			// aapt resource value: 0x7f060002
-			public const int body_text_2 = 2131099650;
+			// aapt resource value: 0x7F010001
+			public const int body_text_2 = 2130771969;
 			
-			// aapt resource value: 0x7f060003
-			public const int body_text_3 = 2131099651;
+			// aapt resource value: 0x7F010002
+			public const int body_text_3 = 2130771970;
 			
-			// aapt resource value: 0x7f060000
-			public const int light_primary = 2131099648;
+			// aapt resource value: 0x7F010003
+			public const int light_primary = 2130771971;
 			
-			// aapt resource value: 0x7f060004
-			public const int link_text = 2131099652;
+			// aapt resource value: 0x7F010004
+			public const int link_text = 2130771972;
 			
 			static Color()
 			{
@@ -72,7 +72,7 @@ namespace Jazz2.Android
 		public partial class Drawable
 		{
 			
-			// aapt resource value: 0x7f020000
+			// aapt resource value: 0x7F020000
 			public const int action_bar_bg = 2130837504;
 			
 			static Drawable()
@@ -88,20 +88,20 @@ namespace Jazz2.Android
 		public partial class Id
 		{
 			
-			// aapt resource value: 0x7f090000
-			public const int background_video = 2131296256;
+			// aapt resource value: 0x7F030000
+			public const int background_video = 2130903040;
 			
-			// aapt resource value: 0x7f090002
-			public const int content = 2131296258;
+			// aapt resource value: 0x7F030001
+			public const int content = 2130903041;
 			
-			// aapt resource value: 0x7f090001
-			public const int header = 2131296257;
+			// aapt resource value: 0x7F030002
+			public const int header = 2130903042;
 			
-			// aapt resource value: 0x7f090004
-			public const int retry_button = 2131296260;
+			// aapt resource value: 0x7F030003
+			public const int retry_button = 2130903043;
 			
-			// aapt resource value: 0x7f090003
-			public const int version = 2131296259;
+			// aapt resource value: 0x7F030004
+			public const int version = 2130903044;
 			
 			static Id()
 			{
@@ -116,7 +116,7 @@ namespace Jazz2.Android
 		public partial class Layout
 		{
 			
-			// aapt resource value: 0x7f040000
+			// aapt resource value: 0x7F040000
 			public const int activity_info = 2130968576;
 			
 			static Layout()
@@ -132,14 +132,14 @@ namespace Jazz2.Android
 		public partial class Mipmap
 		{
 			
-			// aapt resource value: 0x7f030000
-			public const int ic_background = 2130903040;
+			// aapt resource value: 0x7F050000
+			public const int ic_background = 2131034112;
 			
-			// aapt resource value: 0x7f030001
-			public const int ic_foreground = 2130903041;
+			// aapt resource value: 0x7F050001
+			public const int ic_foreground = 2131034113;
 			
-			// aapt resource value: 0x7f030002
-			public const int ic_launcher = 2130903042;
+			// aapt resource value: 0x7F050002
+			public const int ic_launcher = 2131034114;
 			
 			static Mipmap()
 			{
@@ -154,8 +154,8 @@ namespace Jazz2.Android
 		public partial class Raw
 		{
 			
-			// aapt resource value: 0x7f050000
-			public const int logo = 2131034112;
+			// aapt resource value: 0x7F060000
+			public const int logo = 2131099648;
 			
 			static Raw()
 			{
@@ -170,7 +170,7 @@ namespace Jazz2.Android
 		public partial class String
 		{
 			
-			// aapt resource value: 0x7f070000
+			// aapt resource value: 0x7F070000
 			public const int app_name = 2131165184;
 			
 			static String()
@@ -186,7 +186,7 @@ namespace Jazz2.Android
 		public partial class Style
 		{
 			
-			// aapt resource value: 0x7f080000
+			// aapt resource value: 0x7F080000
 			public const int AppTheme = 2131230720;
 			
 			static Style()

@@ -10,7 +10,6 @@ namespace Duality.Backend
 {
 	public class DefaultAssemblyLoader : IAssemblyLoader
 	{
-		private static readonly Assembly execAssembly = Assembly.GetEntryAssembly() ?? typeof(DualityApp).Assembly;
 		private static readonly string execAssemblyDir = App.AssemblyPath;
 
 		public event EventHandler<AssemblyResolveEventArgs> AssemblyResolve;
@@ -20,26 +19,7 @@ namespace Duality.Backend
 		{
 			get
 			{
-				List<string> searchDirectories = new List<string>();
-
-				// Add the working directory plugin folder
-				if (Directory.Exists(DualityApp.PluginDirectory)) 
-				{
-					searchDirectories.Add(DualityApp.PluginDirectory);
-				}
-
-				// Add the executing directory plugin folder
-				string execPluginDir = Path.Combine(execAssemblyDir, DualityApp.PluginDirectory);
-				bool sameDir = string.Equals(
-					Path.GetFullPath(execPluginDir), 
-					Path.GetFullPath(DualityApp.PluginDirectory),
-					StringComparison.InvariantCultureIgnoreCase);
-				if (!sameDir && Directory.Exists(execPluginDir))
-				{
-					searchDirectories.Add(execPluginDir);
-				}
-
-				return searchDirectories;
+                return new[] { Path.Combine(execAssemblyDir, DualityApp.PluginDirectory) };
 			}
 		}
 		public IEnumerable<string> AvailableAssemblyPaths
@@ -49,7 +29,7 @@ namespace Duality.Backend
 				IEnumerable<string> availLibFiles = Enumerable.Empty<string>();
 				foreach (string baseDir in this.BaseDirectories)
 				{
-					availLibFiles = availLibFiles.Concat(Directory.EnumerateFiles(baseDir, "*.dll", SearchOption.AllDirectories));
+					availLibFiles = availLibFiles.Concat(Directory.EnumerateFiles(baseDir, "*.dll", SearchOption.TopDirectoryOnly));
 				}
 				return availLibFiles;
 			}

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Jazz2.Discord
@@ -40,13 +39,13 @@ namespace Jazz2.Discord
                 return false;
             }
 
-            uint readsRemaining = length;
+            int readsRemaining = (int)length;
 
             using (MemoryStream ms = new MemoryStream()) {
-                byte[] buffer = new byte[Min(2048, length)];
+                byte[] buffer = new byte[Math.Min(2048, length)];
                 int bytesRead;
-                while ((bytesRead = stream.Read(buffer, 0, Min(buffer.Length, readsRemaining))) > 0) {
-                    readsRemaining -= length;
+                while ((bytesRead = stream.Read(buffer, 0, Math.Min(buffer.Length, readsRemaining))) > 0) {
+                    readsRemaining -= bytesRead;
                     ms.Write(buffer, 0, bytesRead);
                 }
 
@@ -72,18 +71,6 @@ namespace Jazz2.Discord
             Data.CopyTo(buffer, opcode.Length + length.Length);
 
             stream.Write(buffer, 0, buffer.Length);
-        }
-
-#if NET45
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        private static int Min(int a, uint b)
-        {
-            if (b >= a) {
-                return a;
-            } else {
-                return (int)b;
-            }
         }
 
         private static bool TryReadUInt32(Stream stream, out uint value)

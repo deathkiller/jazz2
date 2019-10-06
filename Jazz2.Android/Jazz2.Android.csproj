@@ -68,6 +68,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\..\Projekty\Jazz² Resurrection\Shared\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="App.cs" />
     <Compile Include="Backend\Es30\NativeGraphicsBuffer.cs" />
     <Compile Include="Backend\Es30\OpenTKGraphicsCapabilities.cs" />

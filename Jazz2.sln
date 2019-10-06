@@ -22,6 +22,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{551F2C0E-647C-4DE2-BB1C-DF57AB0F2663}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
+		Shared\SharedAssemblyInfo.cs = Shared\SharedAssemblyInfo.cs
 	EndProjectSection
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Networking", "Shared\Networking\Networking.shproj", "{64F6BE65-220B-4DE3-82AF-80E24D45CC67}"
@@ -36,7 +37,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Es20Backend", "Extensions\E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GL21Backend", "Extensions\GL21Backend\GL21Backend.csproj", "{93512E3A-307D-4855-8613-4A920531FC66}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jazz2.Wasm", "Jazz2.Wasm\Jazz2.Wasm.csproj", "{D9811A88-51E3-4225-AC54-149F4DAA7DB3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jazz2.Wasm", "Jazz2.Wasm\Jazz2.Wasm.csproj", "{D9811A88-51E3-4225-AC54-149F4DAA7DB3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jazz2.x86", "Jazz2.x86\Jazz2.x86.csproj", "{63CF0B6D-C79A-4852-A721-FC3B0EE91305}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -46,11 +49,6 @@ Global
 		Jazz2.Core\Jazz2.Core.projitems*{74e972a2-711f-4a9f-8d0b-aaef2f02dd48}*SharedItemsImports = 4
 		Shared\Duality\Duality.projitems*{74e972a2-711f-4a9f-8d0b-aaef2f02dd48}*SharedItemsImports = 4
 		Shared\Primitives\Primitives.projitems*{74e972a2-711f-4a9f-8d0b-aaef2f02dd48}*SharedItemsImports = 4
-		Jazz2.Core\Jazz2.Core.projitems*{7cc64746-8ba3-49ed-affc-ae4308ac1fa4}*SharedItemsImports = 4
-		Shared\Console\Console.projitems*{7cc64746-8ba3-49ed-affc-ae4308ac1fa4}*SharedItemsImports = 4
-		Shared\Duality\Duality.projitems*{7cc64746-8ba3-49ed-affc-ae4308ac1fa4}*SharedItemsImports = 4
-		Shared\Networking\Networking.projitems*{7cc64746-8ba3-49ed-affc-ae4308ac1fa4}*SharedItemsImports = 4
-		Shared\Primitives\Primitives.projitems*{7cc64746-8ba3-49ed-affc-ae4308ac1fa4}*SharedItemsImports = 4
 		Shared\Duality\Duality.projitems*{89366ac3-b408-492b-8ef5-714cdfe4feff}*SharedItemsImports = 13
 		Shared\Console\Console.projitems*{adc9a0c0-6830-49b6-858b-30395699ee30}*SharedItemsImports = 13
 	EndGlobalSection
@@ -92,6 +90,10 @@ Global
 		{D9811A88-51E3-4225-AC54-149F4DAA7DB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D9811A88-51E3-4225-AC54-149F4DAA7DB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9811A88-51E3-4225-AC54-149F4DAA7DB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63CF0B6D-C79A-4852-A721-FC3B0EE91305}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63CF0B6D-C79A-4852-A721-FC3B0EE91305}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63CF0B6D-C79A-4852-A721-FC3B0EE91305}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63CF0B6D-C79A-4852-A721-FC3B0EE91305}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

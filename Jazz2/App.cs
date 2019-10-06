@@ -66,7 +66,7 @@ namespace Jazz2.Game
         }
 
         [STAThread]
-        private static void Main(string[] args)
+        public static int Main(string[] args)
         {
             // Override working directory
             try {
@@ -137,6 +137,8 @@ namespace Jazz2.Game
 
             // ToDo: Linux-specific workaround
             Environment.Exit(0);
+
+            return 0;
         }
     }
 }

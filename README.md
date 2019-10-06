@@ -64,7 +64,7 @@ The application tries to autodetect correct path. Also, you can use* `‹SDCard�
 
 ## Dependencies
 ### Windows
-* .NET Framework 4.5.2 (or newer)
+* .NET Framework 4.5.2 (or newer) / [.NET Core 3.0](https://dotnet.microsoft.com/download) `experimental`
 * [OpenAL Soft](https://github.com/opentk/opentk-dependencies) (included in release)
   * Copy `x86/openal32.dll` to `‹Game›/Extensions/OpenALSoft.x86.dll`
   * Copy `x64/openal32.dll` to `‹Game›/Extensions/OpenALSoft.x64.dll`
@@ -72,24 +72,22 @@ The application tries to autodetect correct path. Also, you can use* `‹SDCard�
   * Copy `libopenmpt.dll` (*x86*, and its dependencies) to `‹Game›` directory
 
 ### Linux
-* [Mono 5.0 (or newer)](http://www.mono-project.com/download/#download-lin)
+* [Mono 5.0 (or newer)](http://www.mono-project.com/download/#download-lin) / [.NET Core 3.0](https://dotnet.microsoft.com/download) `experimental`
 * OpenAL
   * Run `sudo apt install openal1` if it's missing
 * [libopenmpt](https://lib.openmpt.org/libopenmpt/download/) (included in release)
   * Copy `libopenmpt.so` (*x86*, and its dependencies) to `‹Game›` directory
 
 ### macOS
-* [Mono 5.0 (or newer)](http://www.mono-project.com/download/#download-mac)
+* [Mono 5.0 (or newer)](http://www.mono-project.com/download/#download-mac) / [.NET Core 3.0](https://dotnet.microsoft.com/download) `experimental`
 * OpenAL should be already installed by OS
 * [libopenmpt](https://lib.openmpt.org/libopenmpt/)
   * Copy `libopenmpt.dylib` (*x86*, and its dependencies) to `‹Game›` directory
-  
+
 ### Android
 * Xamarin
 * [OpenAL Soft](https://github.com/kcat/openal-soft) (included for *armeabi-v7a* and *x86*)
 * [libopenmpt](https://lib.openmpt.org/libopenmpt/download/) (included for *armeabi-v7a* and *x86*)
-
-Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) or newer (or equivalent Mono compiler) to build the solution.
 
 ### WebAssembly
 * .NET Framework 4.5.2 (or newer) / Mono 5.0 (or newer)
@@ -118,7 +116,7 @@ Requires [Microsoft Visual Studio 2017](https://www.visualstudio.com/) or newer 
 * Obtain and copy `libopenmpt.dylib` to `/Jazz2/Bin/Debug/libopenmpt.dylib` to enable music playback
 * If you build Release configuration, you have to replace `Debug` with `Release` in paths above
 
-*Errors about* `Jazz2.Android` *project can be ignored, if you don't need Android build.*
+***.NET Core 3.0** build can be compiled in a similar way. Use* `Jazz2.DesktopCore` *project for this. Errors about* `Jazz2.Android` *project can be ignored, if the Android build is not needed.*
 
 ### Android
 * Install **Mobile development in .NET** for Microsoft Visual Studio 2017 (or newer)

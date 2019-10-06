@@ -52,6 +52,9 @@
     <Reference Include="System.IO.Compression.FileSystem" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\..\..\Projekty\Jazz² Resurrection\Shared\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Compatibility\EventConverter.cs" />
     <Compile Include="Compatibility\JJ2Anims.cs" />
     <Compile Include="Compatibility\JJ2DataFile.cs" />

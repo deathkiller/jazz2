@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <PublishTrimmed>true</PublishTrimmed>
+    <ApplicationManifest>App.manifest</ApplicationManifest>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
+    <RootNamespace>Jazz2</RootNamespace>
+    <AssemblyName>Jazz2</AssemblyName>
+    <StartupObject>Jazz2.Game.App</StartupObject>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;NET45 NET_CORE UNSAFE UNCOMPRESSED_CONTENT</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;NET45 NET_CORE UNSAFE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
+    <Compile Include="Backend\Preferences\PreferencesBackend.cs" Link="Backend\Preferences\PreferencesBackend.cs" />
+    <Compile Include="Backend\System\NativeFileSystem.cs" Link="Backend\System\NativeFileSystem.cs" />
+    <Compile Include="Backend\System\SystemBackend.cs" Link="Backend\System\SystemBackend.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+    <Compile Include="App.cs" Link="App.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Backend\System\" />
+    <Folder Include="Backend\Preferences\" />
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <Import Project="..\Shared\Console\Console.projitems" Label="Shared" />
+
+  <Import Project="..\Shared\Duality\Duality.projitems" Label="Shared" />
+
+  <Import Project="..\Jazz2.Core\Jazz2.Core.projitems" Label="Shared" />
+
+  <Import Project="..\Shared\Primitives\Primitives.projitems" Label="Shared" />
+
+</Project>

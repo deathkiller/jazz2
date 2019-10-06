@@ -41,6 +41,9 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\..\Projekty\Jazz² Resurrection\Shared\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="GameServer.Connection.cs" />
     <Compile Include="App.cs" />
     <Compile Include="GameServer.Game.cs" />
