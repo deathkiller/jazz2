@@ -52,7 +52,7 @@
     <Reference Include="System.IO.Compression.FileSystem" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\..\..\Projekty\Jazz² Resurrection\Shared\SharedAssemblyInfo.cs">
+    <Compile Include="..\Shared\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Compatibility\EventConverter.cs" />
