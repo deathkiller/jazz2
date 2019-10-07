@@ -29,7 +29,7 @@ namespace Jazz2.Backend
         {
             data = new Dictionary<string, object>();
 
-            string path = PathOp.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location) + ".settings";
+            string path = PathOp.Combine(PathOp.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Jazz2.settings");
 
             if (!FileOp.Exists(path)) {
                 dirty = true;

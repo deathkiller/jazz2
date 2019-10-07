@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
+using Jazz2.Game;
 
 namespace Jazz2
 {
@@ -22,6 +26,7 @@ namespace Jazz2
         private static int activeInputX;
         private static int activeInputY;
 
+        private static StreamWriter logStream;
         private static StringBuilder buffer;
         private static int bufferPosition;
         private static int bufferLastLength;
@@ -31,7 +36,20 @@ namespace Jazz2
 
         static Log()
         {
-            if (!ConsoleUtils.IsOutputRedirected) {
+            bool hasConsoleWindow = true;
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
+                hasConsoleWindow = (GetConsoleWindow() != IntPtr.Zero);
+            }
+
+            if (!hasConsoleWindow) {
+                if (!Debugger.IsAttached) {
+                    try {
+                        logStream = new StreamWriter(Path.Combine(App.AssemblyPath, "Jazz2.log"));
+                    } catch {
+                        // Nothing to do...
+                    }
+                }
+            } else if (!ConsoleUtils.IsOutputRedirected) {
                 initialCursorVisible = Console.CursorVisible;
                 Console.CursorVisible = false;
 
@@ -41,6 +59,10 @@ namespace Jazz2
 
         public static string FetchLine(Func<string, string> suggestionsCallback)
         {
+            if (logStream != null) {
+                throw new NotSupportedException("Log is redirected to file");
+            }
+
             if (ConsoleUtils.IsOutputRedirected) {
                 return Console.ReadLine();
             }
@@ -239,6 +261,12 @@ namespace Jazz2
 
         public static void Write(LogType type, string message)
         {
+            if (logStream != null) {
+                logStream.WriteLine(message);
+                logStream.Flush();
+                return;
+            }
+
             if (string.IsNullOrEmpty(message)) {
                 lock (lastLogLines) {
                     // End the current line
@@ -573,5 +601,8 @@ namespace Jazz2
                 current = head;
             }
         }
+
+        [DllImport("kernel32")]
+        private static extern IntPtr GetConsoleWindow();
     }
 }

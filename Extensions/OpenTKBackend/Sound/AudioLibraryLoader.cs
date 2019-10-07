@@ -2,7 +2,6 @@
 using System.IO;
 using System.Reflection;
 using Jazz2;
-using Jazz2.Game;
 
 namespace Duality.Backend.DefaultOpenTK
 {
@@ -21,8 +20,8 @@ namespace Duality.Backend.DefaultOpenTK
 			// Determine working data
 			Assembly execAssembly = Assembly.GetEntryAssembly() ?? typeof(DualityApp).Assembly;
 			string execAssemblyDir = Path.GetFullPath(Path.GetDirectoryName(execAssembly.Location));
-			string sourceFileName32 = Path.Combine(DualityApp.PluginDirectory, "x86", "OpenALSoft.dll");
-			string sourceFileName64 = Path.Combine(DualityApp.PluginDirectory, "x64", "OpenALSoft.dll");
+			string sourceFileName32 = Path.Combine(DualityApp.PluginDirectory, "OpenALSoft.x86.dll");
+			string sourceFileName64 = Path.Combine(DualityApp.PluginDirectory, "OpenALSoft.x64.dll");
 			string targetFileName = "OpenAL32.dll";
 
 			// Determine the location of fallback libraries

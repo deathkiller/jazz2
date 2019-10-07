@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Security;
 using Duality;
 using Duality.Audio;
 using Duality.Backend;
@@ -30,14 +31,6 @@ namespace Jazz2
             }
         }
 
-        private static DynamicLinkLibraryResolver library;
-        private static openmpt_module_create_func openmpt_module_create;
-        private static openmpt_module_create_from_memory_func openmpt_module_create_from_memory;
-        private static openmpt_module_destroy_func openmpt_module_destroy;
-        private static openmpt_module_read_interleaved_stereo_func openmpt_module_read_interleaved_stereo;
-        private static openmpt_module_set_repeat_count_func openmpt_module_set_repeat_count;
-        private static openmpt_get_library_version_func openmpt_get_library_version;
-
         private Stream stream;
         private openmpt_stream_callbacks stream_callbacks;
         private IntPtr openmpt_module;
@@ -62,18 +55,6 @@ namespace Jazz2
         {
             get { return this.lowpass; }
             set { this.lowpass = value; }
-        }
-
-        static OpenMptStream()
-        {
-            library = new DynamicLinkLibraryResolver("libopenmpt");
-
-            openmpt_module_create = library.Resolve<openmpt_module_create_func>("openmpt_module_create");
-            openmpt_module_create_from_memory = library.Resolve<openmpt_module_create_from_memory_func>("openmpt_module_create_from_memory");
-            openmpt_module_destroy = library.Resolve<openmpt_module_destroy_func>("openmpt_module_destroy");
-            openmpt_module_read_interleaved_stereo = library.Resolve<openmpt_module_read_interleaved_stereo_func>("openmpt_module_read_interleaved_stereo");
-            openmpt_module_set_repeat_count = library.Resolve<openmpt_module_set_repeat_count_func>("openmpt_module_set_repeat_count");
-            openmpt_get_library_version = library.Resolve<openmpt_get_library_version_func>("openmpt_get_library_version");
         }
 
         public OpenMptStream(string path, bool looping)
@@ -309,18 +290,25 @@ namespace Jazz2
             public openmpt_stream_tell_func tell;
         }
 
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate IntPtr openmpt_module_create_func(openmpt_stream_callbacks stream_callbacks, IntPtr stream, openmpt_log_func logfunc, IntPtr user, /*openmpt_module_initial_ctl**/IntPtr ctls);
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate IntPtr openmpt_module_create_from_memory_func(IntPtr filedata, int filesize, openmpt_log_func logfunc, IntPtr user, /*openmpt_module_initial_ctl**/IntPtr ctls);
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate void openmpt_module_destroy_func(IntPtr mod);
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate int openmpt_module_read_interleaved_stereo_func(IntPtr mod, int samplerate, int count, ushort[] interleaved_stereo);
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate int openmpt_module_set_repeat_count_func(IntPtr mod, int repeat_count);
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate int openmpt_get_library_version_func();
+        [DllImport("libopenmpt", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        private static extern IntPtr openmpt_module_create(openmpt_stream_callbacks stream_callbacks, IntPtr stream, openmpt_log_func logfunc, IntPtr user, /*openmpt_module_initial_ctl**/IntPtr ctls);
+
+        //[DllImport("libopenmpt", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        //private static extern IntPtr openmpt_module_create_from_memory(IntPtr filedata, int filesize, openmpt_log_func logfunc, IntPtr user, /*openmpt_module_initial_ctl**/IntPtr ctls);
+
+        [DllImport("libopenmpt", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        private static extern void openmpt_module_destroy(IntPtr mod);
+
+        //[DllImport("libopenmpt", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        //private static extern int openmpt_module_read_stereo(IntPtr mod, int samplerate, int count, ushort[] left, ushort[] right);
+
+        [DllImport("libopenmpt", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        private static extern int openmpt_module_read_interleaved_stereo(IntPtr mod, int samplerate, int count, ushort[] interleaved_stereo);
+
+        [DllImport("libopenmpt", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        private static extern int openmpt_module_set_repeat_count(IntPtr mod, int repeat_count);
+        [DllImport("libopenmpt", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        private static extern int openmpt_get_library_version();
         #endregion
     }
 }
