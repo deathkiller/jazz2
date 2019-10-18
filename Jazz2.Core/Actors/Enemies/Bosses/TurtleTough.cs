@@ -35,7 +35,7 @@ namespace Jazz2.Actors.Bosses
             SetAnimation(AnimState.Idle);
         }
 
-        public override void OnBossActivated()
+        protected override void OnBossActivated()
         {
             FollowNearestPlayer(StateWalking1, MathF.Rnd.NextFloat(120, 160));
 

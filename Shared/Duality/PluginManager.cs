@@ -1,16 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Collections.Generic;
-
-using Duality.IO;
 using Duality.Backend;
-using Jazz2.Game;
+using Duality.IO;
 using Jazz2;
 
 namespace Duality
 {
-	public abstract class PluginManager<T> where T : DualityPlugin
+    public abstract class PluginManager<T> where T : DualityPlugin
 	{
 		private IAssemblyLoader                 assemblyLoader  = null;
 		private Dictionary<string,T>            pluginRegistry  = new Dictionary<string,T>();

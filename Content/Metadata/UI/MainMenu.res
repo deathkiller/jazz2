@@ -29,6 +29,52 @@
         },
         "MenuDifficultyLori": {
             "Path": "UI/character_art_difficulty_lori.png"
+        },
+        
+        "GamepadA": {
+            "Path": "_custom/gamepad_a.png"
+        },
+        "GamepadB": {
+            "Path": "_custom/gamepad_b.png"
+        },
+        "GamepadX": {
+            "Path": "_custom/gamepad_x.png"
+        },
+        "GamepadY": {
+            "Path": "_custom/gamepad_y.png"
+        },
+        "GamepadDPadLeft": {
+            "Path": "_custom/gamepad_left.png"
+        },
+        "GamepadDPadRight": {
+            "Path": "_custom/gamepad_right.png"
+        },
+        "GamepadDPadUp": {
+            "Path": "_custom/gamepad_up.png"
+        },
+        "GamepadDPadDown": {
+            "Path": "_custom/gamepad_down.png"
+        },
+        "GamepadBigButton": {
+            "Path": "_custom/gamepad_guide.png"
+        },
+        "GamepadBack": {
+            "Path": "_custom/gamepad_back.png"
+        },
+        "GamepadStart": {
+            "Path": "_custom/gamepad_start.png"
+        },
+        "GamepadLeftShoulder": {
+            "Path": "_custom/gamepad_lb.png"
+        },
+        "GamepadLeftStick": {
+            "Path": "_custom/gamepad_ls.png"
+        },
+        "GamepadRightShoulder": {
+            "Path": "_custom/gamepad_rb.png"
+        },
+        "GamepadRightStick": {
+            "Path": "_custom/gamepad_rs.png"
         }
     },
 

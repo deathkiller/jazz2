@@ -178,10 +178,10 @@ namespace Jazz2
                 if (mapping.GamepadIndex != -1) {
                     var gamepad = DualityApp.Gamepads[mapping.GamepadIndex];
                     switch (action) {
-                        case PlayerActions.Left: keyPressed = gamepad.ButtonPressed(GamepadButton.DPadLeft) || gamepad.LeftThumbstick.X < -0.4f; break;
-                        case PlayerActions.Right: keyPressed = gamepad.ButtonPressed(GamepadButton.DPadRight) || gamepad.LeftThumbstick.X > 0.4f; break;
-                        case PlayerActions.Up: keyPressed = gamepad.ButtonPressed(GamepadButton.DPadUp) || gamepad.LeftThumbstick.Y < -0.4f; break;
-                        case PlayerActions.Down: keyPressed = gamepad.ButtonPressed(GamepadButton.DPadDown) || gamepad.LeftThumbstick.Y > 0.4f; break;
+                        case PlayerActions.Left: keyPressed = gamepad.ButtonPressed(GamepadButton.DPadLeft); break;
+                        case PlayerActions.Right: keyPressed = gamepad.ButtonPressed(GamepadButton.DPadRight); break;
+                        case PlayerActions.Up: keyPressed = gamepad.ButtonPressed(GamepadButton.DPadUp); break;
+                        case PlayerActions.Down: keyPressed = gamepad.ButtonPressed(GamepadButton.DPadDown); break;
                         case PlayerActions.Fire: keyPressed = gamepad.ButtonPressed(GamepadButton.A); break;
                         case PlayerActions.Menu: keyPressed = gamepad.ButtonPressed(GamepadButton.B); break;
                     }
@@ -218,10 +218,10 @@ namespace Jazz2
                 if (mapping.GamepadIndex != -1) {
                     var gamepad = DualityApp.Gamepads[mapping.GamepadIndex];
                     switch (action) {
-                        case PlayerActions.Left: keyHit = gamepad.ButtonHit(GamepadButton.DPadLeft) /*|| gamepad.LeftThumbstick.X < -0.4f*/; break;
-                        case PlayerActions.Right: keyHit = gamepad.ButtonHit(GamepadButton.DPadRight) /*|| gamepad.LeftThumbstick.X > 0.4f*/; break;
-                        case PlayerActions.Up: keyHit = gamepad.ButtonHit(GamepadButton.DPadUp) /*|| gamepad.LeftThumbstick.Y < -0.4f*/; break;
-                        case PlayerActions.Down: keyHit = gamepad.ButtonHit(GamepadButton.DPadDown) /*|| gamepad.LeftThumbstick.Y > 0.4f*/; break;
+                        case PlayerActions.Left: keyHit = gamepad.ButtonHit(GamepadButton.DPadLeft); break;
+                        case PlayerActions.Right: keyHit = gamepad.ButtonHit(GamepadButton.DPadRight); break;
+                        case PlayerActions.Up: keyHit = gamepad.ButtonHit(GamepadButton.DPadUp); break;
+                        case PlayerActions.Down: keyHit = gamepad.ButtonHit(GamepadButton.DPadDown); break;
                         case PlayerActions.Fire: keyHit = gamepad.ButtonHit(GamepadButton.A); break;
                         case PlayerActions.Menu: keyHit = gamepad.ButtonHit(GamepadButton.B); break;
                     }
@@ -252,8 +252,17 @@ namespace Jazz2
                 return true;
             }
 
-            if (includeGamepads && mapping.GamepadIndex != -1 && DualityApp.Gamepads[mapping.GamepadIndex][mapping.GamepadButton]) {
-                return true;
+            if (includeGamepads && mapping.GamepadIndex != -1) {
+                if (DualityApp.Gamepads[mapping.GamepadIndex][mapping.GamepadButton]) {
+                    return true;
+                }
+                
+                switch (action) {
+                    case PlayerActions.Left: if (DualityApp.Gamepads[mapping.GamepadIndex].LeftThumbstick.X < -0.8f) return true; break;
+                    case PlayerActions.Right: if (DualityApp.Gamepads[mapping.GamepadIndex].LeftThumbstick.X > 0.8f) return true; break;
+                    case PlayerActions.Up: if (DualityApp.Gamepads[mapping.GamepadIndex].LeftThumbstick.Y < -0.8f) return true; break;
+                    case PlayerActions.Down: if (DualityApp.Gamepads[mapping.GamepadIndex].LeftThumbstick.Y > 0.8f) return true; break;
+                }
             }
 
             return false;
@@ -287,7 +296,7 @@ namespace Jazz2
             return false;
         }
 
-        public static float PlayerMovement(int index)
+        public static float PlayerHorizontalMovement(int index)
         {
             if (isSuspended) {
                 return 0f;
@@ -330,6 +339,55 @@ namespace Jazz2
                     var gamepad = DualityApp.Gamepads[mappingRight.GamepadIndex];
                     float x = gamepad.LeftThumbstick.X;
                     return (MathF.Clamp((MathF.Abs(x) - 0.2f) / 0.7f, 0f, 1f) * MathF.Sign(x));
+                }
+            }
+
+            return 0f;
+        }
+
+        public static float PlayerVerticalMovement(int index)
+        {
+            if (isSuspended) {
+                return 0f;
+            }
+
+#if ENABLE_TOUCH
+            if (index == 0) {
+                if (mappings[(int)PlayerActions.Down].TouchPressed) {
+                    return 1f;
+                } else if (mappings[(int)PlayerActions.Up].TouchPressed) {
+                    return -1f;
+                } 
+            }
+#endif
+
+            ref Mapping mappingDown = ref mappings[index * (int)PlayerActions.Count + (int)PlayerActions.Down];
+
+            if (mappingDown.Key1 != Key.Unknown && DualityApp.Keyboard[mappingDown.Key1]) {
+                return 1f;
+            }
+            if (mappingDown.Key2 != Key.Unknown && DualityApp.Keyboard[mappingDown.Key2]) {
+                return 1f;
+            }
+
+            ref Mapping mappingUp = ref mappings[index * (int)PlayerActions.Count + (int)PlayerActions.Up];
+
+            if (mappingUp.Key1 != Key.Unknown && DualityApp.Keyboard[mappingUp.Key1]) {
+                return -1f;
+            }
+            if (mappingUp.Key2 != Key.Unknown && DualityApp.Keyboard[mappingUp.Key2]) {
+                return -1f;
+            }
+
+            if (mappingDown.GamepadIndex != -1) {
+                if (DualityApp.Gamepads[mappingDown.GamepadIndex][mappingDown.GamepadButton]) {
+                    return 1f;
+                } else if (DualityApp.Gamepads[mappingUp.GamepadIndex][mappingUp.GamepadButton]) {
+                    return -1f;
+                } else {
+                    var gamepad = DualityApp.Gamepads[mappingDown.GamepadIndex];
+                    float y = gamepad.LeftThumbstick.Y;
+                    return (MathF.Clamp((MathF.Abs(y) - 0.2f) / 0.7f, 0f, 1f) * MathF.Sign(y));
                 }
             }
 

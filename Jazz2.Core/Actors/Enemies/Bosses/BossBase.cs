@@ -5,7 +5,13 @@ namespace Jazz2.Actors.Bosses
 {
     public abstract class BossBase : EnemyBase
     {
-        public void DeactivateBoss()
+        public bool HandleBossActivated()
+        {
+            OnBossActivated();
+            return true;
+        }
+
+        public bool HandlePlayerDied()
         {
             if ((flags & (ActorInstantiationFlags.IsCreatedFromEventMap | ActorInstantiationFlags.IsFromGenerator)) != 0) {
                 EventMap events = api.EventMap;
@@ -17,11 +23,19 @@ namespace Jazz2.Actors.Bosses
                     events.Deactivate(originTile.X, originTile.Y);
                 }
 
+                OnBossDeactivated();
                 api.RemoveActor(this);
+                return true;
             }
+
+            return false;
         }
 
-        public virtual void OnBossActivated()
+        protected virtual void OnBossActivated()
+        {
+        }
+
+        protected virtual void OnBossDeactivated()
         {
         }
 

@@ -569,7 +569,7 @@ namespace Jazz2.Actors
                 bool canWalk = (controllable && !isLifting && suspendType != SuspendType.SwingingVine &&
                     (playerType != PlayerType.Frog || !ControlScheme.PlayerActionPressed(index, PlayerActions.Fire)));
 
-                float playerMovement = ControlScheme.PlayerMovement(index);
+                float playerMovement = ControlScheme.PlayerHorizontalMovement(index);
                 float playerMovementVelocity = MathF.Abs(playerMovement);
                 if (canWalk && playerMovementVelocity > 0.5f) {
                     SetAnimation(currentAnimationState & ~(AnimState.Lookup | AnimState.Crouch));
@@ -666,16 +666,17 @@ namespace Jazz2.Actors
             }
 
             if (inWater || activeModifier != Modifier.None) {
-                bool isDownPressed;
-                if (((isDownPressed = ControlScheme.PlayerActionPressed(index, PlayerActions.Down)) ^ ControlScheme.PlayerActionPressed(index, PlayerActions.Up))) {
+                float playerMovement = ControlScheme.PlayerVerticalMovement(index);
+                float playerMovementVelocity = MathF.Abs(playerMovement);
+                if (playerMovementVelocity > 0.5f) {
                     float mult;
                     switch (activeModifier) {
-                        case Modifier.Airboard: mult = (isDownPressed ? -1f : 0.2f); break;
-                        case Modifier.LizardCopter: mult = (isDownPressed ? -2f : 2f); break;
-                        default: mult = (isDownPressed ? -1f : 1f); break;
+                        case Modifier.Airboard: mult = (playerMovement > 0 ? -1f : 0.2f); break;
+                        case Modifier.LizardCopter: mult = (playerMovement > 0 ? -2f : 2f); break;
+                        default: mult = (playerMovement > 0 ? -1f : 1f); break;
                     }
 
-                    speedY = MathF.Clamp(speedY - Acceleration * timeMult * mult, -MaxRunningSpeed, MaxRunningSpeed);
+                    speedY = MathF.Clamp(speedY - Acceleration * timeMult * mult, -MaxRunningSpeed * playerMovementVelocity, MaxRunningSpeed * playerMovementVelocity);
                 } else {
                     speedY = MathF.Max((MathF.Abs(speedY) - Deceleration * timeMult), 0) * (speedY < 0 ? -1 : 1);
                 }

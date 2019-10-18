@@ -307,17 +307,17 @@ namespace Duality.Audio
 			// Determine how many sources of this kind (2D / 3D) are playing
 			int curNum = this.is3D ? DualityApp.Sound.NumPlaying3D : DualityApp.Sound.NumPlaying2D;
 			// Determine how many sources using this sound resource are playing
-			int curNumSoundRes = DualityApp.Sound.GetNumPlaying(this.sound);
+			//int curNumSoundRes = DualityApp.Sound.GetNumPlaying(this.sound);
 
 			if (DualityApp.Sound.NumAvailable > 0 &&
-				curNum < maxNum &&
-				curNumSoundRes < this.sound.Res.MaxInstances)
+				curNum < maxNum /*&&
+				curNumSoundRes < this.sound.Res.MaxInstances*/)
 			{
 				this.native = DualityApp.AudioBackend.CreateSource();
 			}
 			else
 			{
-				bool searchSimilar = curNumSoundRes >= this.sound.Res.MaxInstances;
+				//bool searchSimilar = curNumSoundRes >= this.sound.Res.MaxInstances;
 				this.curPriority = this.PreCalcPriority();
 
 				foreach (ISoundInstance inst_ in DualityApp.Sound.Playing) {
@@ -327,11 +327,11 @@ namespace Duality.Audio
 				    }
 
                     if (inst.native == null) continue;
-					if (!searchSimilar && this.is3D != inst.is3D) continue;
-					if (searchSimilar && this.sound.Res != inst.sound.Res) continue;
+					if (/*!searchSimilar &&*/ this.is3D != inst.is3D) continue;
+					//if (searchSimilar && this.sound.Res != inst.sound.Res) continue;
 
 					float ownPrioMult = 1.0f;
-					if (searchSimilar && !inst.Looped) ownPrioMult *= MathF.Sqrt(inst.playTime + 1.0f);
+					//if (searchSimilar && !inst.Looped) ownPrioMult *= MathF.Sqrt(inst.playTime + 1.0f);
 
 					if (this.curPriority * ownPrioMult > inst.curPriority + 
 						(inst.Looped ? PriorityStealLoopedThreshold : PriorityStealThreshold))
@@ -343,8 +343,8 @@ namespace Duality.Audio
 					}
 					// List sorted by priority - if first fails, all will. Exception: Searching
 					// similar sounds where play times are taken into account
-					if (!searchSimilar)
-						break;
+					//if (!searchSimilar)
+					//	break;
 				}
 			}
 
@@ -355,7 +355,7 @@ namespace Duality.Audio
 		{
 			// Don't take fade into account: If a yet-to-fade-in sound wants to grab
 			// the source of a already-playing sound, it should get its chance.
-			float volTemp = this.GetTypeVolFactor() * this.vol;
+			float volTemp = this.vol;
 			float priorityTemp = 1000.0f;
 			priorityTemp *= volTemp;
 
@@ -374,33 +374,11 @@ namespace Duality.Audio
 				priorityTemp *= Math.Max(0.0f, 1.0f - (dist - minDistTemp) / (maxDistTemp - minDistTemp));
 			}
 
-			int numPlaying = DualityApp.Sound.GetNumPlaying(this.sound);
-			return (int)Math.Round(priorityTemp / Math.Sqrt(numPlaying));
+            //int numPlaying = DualityApp.Sound.GetNumPlaying(this.sound);
+            //return (int)Math.Round(priorityTemp / Math.Sqrt(numPlaying));
+            return (int)priorityTemp;
 		}
-		private float GetTypeVolFactor()
-		{
-            /*float optVolFactor;
-			switch (this.sound.IsAvailable ? this.sound.Res.Type : SoundType.World)
-			{
-				case SoundType.UserInterface:
-					optVolFactor = DualityApp.UserData.SfxEffectVol;
-					break;
-				case SoundType.World:
-					optVolFactor = DualityApp.UserData.SfxEffectVol;
-					break;
-				case SoundType.Speech:
-					optVolFactor = DualityApp.UserData.SfxSpeechVol;
-					break;
-				case SoundType.Music:
-					optVolFactor = DualityApp.UserData.SfxMusicVol;
-					break;
-				default:
-					optVolFactor = 1.0f;
-					break;
-			}
-			return optVolFactor * DualityApp.UserData.SfxMasterVol * 0.5f;*/
-            return 1;
-		}
+
 		private void RegisterPlaying()
 		{
 			if (this.registered) return;
@@ -433,12 +411,11 @@ namespace Duality.Audio
             // Set up local variables for state calculation
             Vector3 listenerPos = DualityApp.Sound.ListenerPos;
             bool attachedToListener = this.attachedTo != null && ((this.attachedTo == DualityApp.Sound.Listener) || this.attachedTo.IsChildOf(DualityApp.Sound.Listener));
-            float optVolFactor = this.GetTypeVolFactor();
             float priorityTemp = 1000.0f;
             AudioSourceState nativeState = AudioSourceState.Default;
             nativeState.MinDistance = soundRes.MinDist;
             nativeState.MaxDistance = soundRes.MaxDist;
-            nativeState.Volume = optVolFactor * this.vol * this.curFade * this.pauseFade;
+            nativeState.Volume = this.vol * this.curFade * this.pauseFade;
             nativeState.Pitch = this.pitch;
             nativeState.Lowpass = this.lowpass;
             priorityTemp *= nativeState.Volume;

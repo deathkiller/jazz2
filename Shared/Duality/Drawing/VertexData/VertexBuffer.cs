@@ -7,7 +7,7 @@ namespace Duality.Drawing
 	/// <summary>
 	/// <see cref="VertexBuffer"/> is a container for vertex and index data that is stored on the GPU.
 	/// </summary>
-	public class VertexBuffer : IDisposable
+	public sealed class VertexBuffer : IDisposable
 	{
 		private INativeGraphicsBuffer nativeVertex = null;
 		private INativeGraphicsBuffer nativeIndex = null;

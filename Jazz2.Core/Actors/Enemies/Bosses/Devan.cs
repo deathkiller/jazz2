@@ -44,7 +44,7 @@ namespace Jazz2.Actors.Bosses
             isInvulnerable = true;
         }
 
-        public override void OnBossActivated()
+        protected override void OnBossActivated()
         {
             state = StateWarpingIn;
             stateTime = 120f;

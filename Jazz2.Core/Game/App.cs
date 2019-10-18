@@ -239,7 +239,7 @@ namespace Jazz2.Game
 
                     UpdateRichPresence(levelInit);
                 } catch (Exception ex) {
-                    Console.WriteLine("Cannot load level: " + ex);
+                   Log.Write(LogType.Error, "Cannot load level: " + ex);
 
                     ShowMainMenu(false);
                 }

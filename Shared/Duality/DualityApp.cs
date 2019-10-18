@@ -229,8 +229,6 @@ namespace Duality
             if (commandLineArgs != null) {
                 // Enter debug mode
                 if (commandLineArgs.Contains(CmdArgDebug)) System.Diagnostics.Debugger.Launch();
-                // Run from editor
-                //if (commandLineArgs.Contains(CmdArgEditor)) runFromEditor = true;
             }
 
             execContext = context;
@@ -327,16 +325,7 @@ namespace Duality
                 return;
             }
 
-            /*if (environment == ExecutionEnvironment.Editor && execContext == ExecutionContext.Game) {
-                Scene.Current.Dispose();
-                //Log.Core.Write("DualityApp Sandbox terminated");
-                terminateScheduled = false;
-                return;
-            }*/
-
-            //if (execContext != ExecutionContext.Editor) {
             OnTerminating();
-            //}
 
             DefaultContent.Dispose();
 
@@ -363,21 +352,6 @@ namespace Duality
             initialized = false;
             execContext = ExecutionContext.Terminated;
         }
-
-        /// <summary>
-        /// Applies the specified screen resolution to both game and display device. This is a shorthand for
-        /// assigning a modified version of <see cref="DualityUserData"/> to <see cref="UserData"/>.
-        /// </summary>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        /// <param name="fullscreen"></param>
-        //public static void ApplyResolution(int width, int height, bool fullscreen)
-        //{
-        //    userData.GfxWidth = width;
-        //    userData.GfxHeight = height;
-        //    userData.GfxMode = fullscreen ? ScreenMode.Fullscreen : ScreenMode.Window;
-        //    OnUserDataChanged();
-        //}
 
         /// <summary>
         /// Performs a single update cycle.
@@ -602,14 +576,6 @@ namespace Duality
             // Try to initialize each one and select the first that works
             T selectedBackend = null;
             foreach (T backend in backends) {
-                /*if (appData != null && 
-                    appData.SkipBackends != null && 
-                    appData.SkipBackends.Any(s => string.Equals(s, backend.Id, StringComparison.OrdinalIgnoreCase)))
-                {
-                    Log.Core.Write("Backend '{0}' skipped because of AppData settings.", backend.Name);
-                    continue;
-                }*/
-
                 bool available = false;
                 try {
                     available = backend.CheckAvailable();
@@ -743,20 +709,6 @@ namespace Duality
                     DualityApp.Gamepads.RemoveSource(gamepad.Source);
                 }
             }
-        }
-
-
-        /// <summary>
-        /// This method performs an action only when compiling your plugin in debug mode.
-        /// In release mode, any calls to this method (and thus the specified action) are omitted
-        /// by the compiler. It is essentially syntactical sugar for one-line #if DEBUG blocks.
-        /// This method is intended to be used conveniently in conjunction with lambda expressions.
-        /// </summary>
-        /// <param name="action"></param>
-        [System.Diagnostics.Conditional("DEBUG")]
-        public static void Dbg(Action action)
-        {
-            action();
         }
     }
 }

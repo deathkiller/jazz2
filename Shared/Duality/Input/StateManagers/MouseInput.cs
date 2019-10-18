@@ -197,51 +197,45 @@ namespace Duality.Input
 			// Fire events
 			if (this.currentState.IsAvailable && !this.lastState.IsAvailable)
 			{
-				if (this.BecomesAvailable != null)
-					this.BecomesAvailable(this, EventArgs.Empty);
-			}
+                this.BecomesAvailable?.Invoke(this, EventArgs.Empty);
+            }
 			if (!this.currentState.IsAvailable && this.lastState.IsAvailable)
 			{
-				if (this.NoLongerAvailable != null)
-					this.NoLongerAvailable(this, EventArgs.Empty);
-			}
+                this.NoLongerAvailable?.Invoke(this, EventArgs.Empty);
+            }
 			if (this.currentState.ViewPos != this.lastState.ViewPos)
 			{
-				if (this.Move != null)
-					this.Move(this, new MouseMoveEventArgs(
-						this,
-						this.Pos, 
-						this.Vel));
-			}
+                this.Move?.Invoke(this, new MouseMoveEventArgs(
+                    this,
+                    this.Pos,
+                    this.Vel));
+            }
 			if (this.currentState.Wheel != this.lastState.Wheel)
 			{
-				if (this.WheelChanged != null)
-					this.WheelChanged(this, new MouseWheelEventArgs(
-						this,
-						this.Pos,
-						this.Wheel,
-						this.WheelSpeed));
-			}
+                this.WheelChanged?.Invoke(this, new MouseWheelEventArgs(
+                    this,
+                    this.Pos,
+                    this.Wheel,
+                    this.WheelSpeed));
+            }
 			for (int i = 0; i < this.currentState.ButtonPressed.Length; i++)
 			{
 				if (this.currentState.ButtonPressed[i] && !this.lastState.ButtonPressed[i])
 				{
-					if (this.ButtonDown != null)
-						this.ButtonDown(this, new MouseButtonEventArgs(
-							this,
-							this.Pos, 
-							(MouseButton)i, 
-							this.currentState.ButtonPressed[i]));
-				}
+                    this.ButtonDown?.Invoke(this, new MouseButtonEventArgs(
+                        this,
+                        this.Pos,
+                        (MouseButton)i,
+                        this.currentState.ButtonPressed[i]));
+                }
 				if (!this.currentState.ButtonPressed[i] && this.lastState.ButtonPressed[i])
 				{
-					if (this.ButtonUp != null)
-						this.ButtonUp(this, new MouseButtonEventArgs(
-							this,
-							this.Pos, 
-							(MouseButton)i, 
-							this.currentState.ButtonPressed[i]));
-				}
+                    this.ButtonUp?.Invoke(this, new MouseButtonEventArgs(
+                        this,
+                        this.Pos,
+                        (MouseButton)i,
+                        this.currentState.ButtonPressed[i]));
+                }
 			}
 		}
 		void IUserInput.Update()

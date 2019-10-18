@@ -1339,6 +1339,7 @@ namespace Import
         {
             int noise = 0;
             bool apply = false;
+            bool passthrough = false;
             Point frameConfiguration = default(Point);
             for (int i = 0; i < args.Length; i++) {
                 if (args[i].StartsWith("/noise:")) {
@@ -1353,6 +1354,8 @@ namespace Import
                     int.TryParse(parts[1], out y);
                     frameConfiguration.X = x;
                     frameConfiguration.Y = y;
+                } else if (args[i].StartsWith("/passthrough")) {
+                    passthrough = true;
                 }
             }
 
@@ -1377,6 +1380,11 @@ namespace Import
                 for (int x = 0; x < img.Width; x++) {
                     for (int y = 0; y < img.Height; y++) {
                         ColorRgba color = img.GetPixel(x, y);
+
+                        if (passthrough) {
+                            img.SetPixel(x, y, color);
+                            continue;
+                        }
 
                         int bestMatchIndex = 0;
                         int bestMatchIndex2 = 0;

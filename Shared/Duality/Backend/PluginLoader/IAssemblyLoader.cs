@@ -42,14 +42,6 @@ namespace Duality.Backend
 		/// <param name="assemblyPath">The path from which the Assembly will be loaded.</param>
 		/// <returns></returns>
 		Assembly LoadAssembly(string assemblyPath);
-		///// <summary>
-		///// Determines the hash code of the specified Assembly. This may be used for
-		///// verification or comparison purposes, such as determining whether two Assemblies
-		///// are equal.
-		///// </summary>
-		///// <param name="assemblyPath"></param>
-		///// <returns></returns>
-		//int GetAssemblyHash(string assemblyPath);
 
 		/// <summary>
 		/// Initializes the plugin loader.

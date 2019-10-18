@@ -4,11 +4,10 @@ using System.Linq;
 using Duality.Components;
 using Duality.Drawing;
 using Jazz2;
-using Jazz2.Game;
 
 namespace Duality.Resources
 {
-	public class RenderSetup : Resource
+    public class RenderSetup : Resource
 	{
 		/// <summary>
 		/// The default rendering setup with one world-space step and one screen-space overlay step.

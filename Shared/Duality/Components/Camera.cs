@@ -15,7 +15,7 @@ namespace Duality.Components
 		private float                     farZ             = 10000.0f;
 		private float                     focusDist        = DrawDevice.DefaultFocusDist;
 		private Rect                      targetRect       = new Rect(1.0f, 1.0f);
-		private ProjectionMode projection = ProjectionMode.Perspective;
+		private ProjectionMode            projection       = ProjectionMode.Perspective;
 		private VisibilityFlag            visibilityMask   = VisibilityFlag.All;
 		private ColorRgba                 clearColor       = ColorRgba.TransparentBlack;
 		private ContentRef<RenderTarget>  renderTarget     = null;

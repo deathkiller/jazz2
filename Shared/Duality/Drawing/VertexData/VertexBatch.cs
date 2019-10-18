@@ -1,13 +1,12 @@
 using System;
-using System.Collections.Generic;
 
 namespace Duality.Drawing
 {
-	/// <summary>
-	/// Represents a single batch of dynamically gathered vertex data.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	public class VertexBatch<T> : IVertexBatch where T : struct, IVertexData
+    /// <summary>
+    /// Represents a single batch of dynamically gathered vertex data.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class VertexBatch<T> : IVertexBatch where T : struct, IVertexData
 	{
 		private RawList<T> vertices = new RawList<T>();
 

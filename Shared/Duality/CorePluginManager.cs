@@ -1,26 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Collections.Generic;
-
-using Duality.IO;
 using Duality.Backend;
-using Jazz2.Game;
+using Duality.IO;
 using Jazz2;
 
 namespace Duality
 {
-	/// <summary>
-	/// Manages loading, reloading, initialization and disposal of Duality core plugins.
-	/// 
-	/// Since all assemblies are owned by the .Net runtime that only exposes a very limited
-	/// degree of control, this class should only be used statically: Disposing it would
-	/// only get rid of management data, not of the actual plugin assemblies, which would
-	/// then cause problems.
-	/// 
-	/// A static instance of this class is available through <see cref="DualityApp.PluginManager"/>.
-	/// </summary>
-	public class CorePluginManager : PluginManager<CorePlugin>
+    /// <summary>
+    /// Manages loading, reloading, initialization and disposal of Duality core plugins.
+    /// 
+    /// Since all assemblies are owned by the .Net runtime that only exposes a very limited
+    /// degree of control, this class should only be used statically: Disposing it would
+    /// only get rid of management data, not of the actual plugin assemblies, which would
+    /// then cause problems.
+    /// 
+    /// A static instance of this class is available through <see cref="DualityApp.PluginManager"/>.
+    /// </summary>
+    public class CorePluginManager : PluginManager<CorePlugin>
 	{
 		private Assembly[] coreAssemblies = new Assembly[] { typeof(DualityApp).GetTypeInfo().Assembly };
 		private Dictionary<string,Assembly> auxilRegistry = new Dictionary<string,Assembly>();
@@ -31,7 +29,6 @@ namespace Duality
 		/// </summary>
 		internal CorePluginManager()
 		{
-			//this.PluginLog = Logs.Core;
 		}
 
 		/// <summary>
@@ -48,9 +45,6 @@ namespace Duality
 		/// </summary>
 		public override void LoadPlugins()
 		{
-			//this.PluginLog.Write("Scanning for core plugins...");
-			//this.PluginLog.PushIndent();
-
 			List<string> auxilLibs = new List<string>();
 			foreach (string dllPath in this.AssemblyLoader.AvailableAssemblyPaths)
 			{
@@ -61,13 +55,8 @@ namespace Duality
 					continue;
 				}
 
-				//this.PluginLog.Write("{0}...", dllPath);
-				//this.PluginLog.PushIndent();
 				this.LoadPlugin(dllPath);
-				//this.PluginLog.PopIndent();
 			}
-
-			//this.PluginLog.PopIndent();
 
 			// Make sure to have all plugin-related Assemblies available even before even
 			// getting an AssemblyResolve event - we might need to resolve their Types due
@@ -75,7 +64,7 @@ namespace Duality
 			if (auxilLibs.Count > 0)
 			{
 				Log.Write(LogType.Verbose, "Loading auxiliary libraries...");
-				//this.PluginLog.PushIndent();
+                Log.PushIndent();
 
 				foreach (string dllPath in auxilLibs)
 				{
@@ -84,7 +73,7 @@ namespace Duality
 					this.LoadAuxilliaryLibrary(dllPath, true);
 				}
 
-				//this.PluginLog.PopIndent();
+                Log.PopIndent();
 			}
 		}
 		/// <summary>
@@ -93,17 +82,16 @@ namespace Duality
 		public override void InitPlugins()
 		{
 			Log.Write(LogType.Info, "Initializing core plugins...");
-			//this.PluginLog.PushIndent();
-			CorePlugin[] initPlugins = this.LoadedPlugins.ToArray();
+            Log.PushIndent();
+
+            CorePlugin[] initPlugins = this.LoadedPlugins.ToArray();
 			foreach (CorePlugin plugin in initPlugins)
 			{
-				//this.PluginLog.Write("{0}...", plugin.AssemblyName);
-				//this.PluginLog.PushIndent();
 				this.InitPlugin(plugin);
-				//this.PluginLog.PopIndent();
 			}
-			//this.PluginLog.PopIndent();
-		}
+
+            Log.PopIndent();
+        }
 
 		/// <summary>
 		/// Invokes each plugin's <see cref="CorePlugin.OnBeforeUpdate"/> event handler.
@@ -215,10 +203,6 @@ namespace Duality
 			// Search for other libraries that might be located inside the plugin directory
 			foreach (string libFile in this.AssemblyLoader.AvailableAssemblyPaths)
 			{
-				// Don't load editor (or any other) plugins here, only auxilliary libs allowed
-				if (libFile.EndsWith(".editor.dll", StringComparison.OrdinalIgnoreCase))
-					continue;
-
 				string libName = PathOp.GetFileNameWithoutExtension(libFile);
 				if (libName.Equals(args.AssemblyName, StringComparison.OrdinalIgnoreCase))
 				{

@@ -91,7 +91,10 @@ namespace Jazz2.Game
         //private Dictionary<string, ContentRef<Sound>> cachedSounds;
 
         private ContentRef<DrawTechnique> basicNormal, paletteNormal;
+
+#if FAIL_ON_SHADER_COMPILE_ERROR && PLATFORM_ANDROID
         private int requestShaderNesting;
+#endif
 
         public ContentRef<Texture> DefaultNormalMap => defaultNormalMap;
 
@@ -572,7 +575,9 @@ namespace Jazz2.Game
                         case BlendMode.Invert: shader = DrawTechnique.Invert; break;
                     }
                 } else {
+#if FAIL_ON_SHADER_COMPILE_ERROR && PLATFORM_ANDROID
                     requestShaderNesting++;
+#endif
 
                     ContentRef<VertexShader> vertex;
                     ContentRef<FragmentShader> fragment;
@@ -609,7 +614,9 @@ namespace Jazz2.Game
                             fragment = new FragmentShader(json.Fragment.TrimStart());
                         }
                     } finally {
+#if FAIL_ON_SHADER_COMPILE_ERROR && PLATFORM_ANDROID
                         requestShaderNesting--;
+#endif
                     }
 
                     VertexDeclaration vertexFormat;
@@ -786,7 +793,9 @@ namespace Jazz2.Game
                             }*/
                             return;
                         } else {
+#if FAIL_ON_SHADER_COMPILE_ERROR && PLATFORM_ANDROID
                             requestShaderNesting++;
+#endif
 
                             ContentRef<VertexShader> vertex;
                             ContentRef<FragmentShader> fragment;
@@ -823,7 +832,9 @@ namespace Jazz2.Game
                                     fragment = new FragmentShader(json.Fragment.TrimStart());
                                 }
                             } finally {
+#if FAIL_ON_SHADER_COMPILE_ERROR && PLATFORM_ANDROID
                                 requestShaderNesting--;
+#endif
                             }
 
                             VertexDeclaration vertexFormat;
@@ -865,4 +876,3 @@ namespace Jazz2.Game
 #endif
     }
 }
- 

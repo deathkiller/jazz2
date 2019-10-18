@@ -98,7 +98,17 @@ namespace Jazz2.Game.UI.Menu.Settings
                             break;
                         case 2:
                             if (mapping.GamepadIndex != -1) {
-                                value = mapping.GamepadIndex + " : " + mapping.GamepadButton;
+                                if (selectedIndex == i && selectedColumn == j) {
+                                    value = "<    >";
+                                } else {
+                                    value = null;
+                                }
+
+                                api.DrawMaterial("Gamepad" + mapping.GamepadButton.ToString(), center.X * (0.9f + j * 0.34f) + 3, topItem, Alignment.Center, ColorRgba.White);
+
+                                api.DrawStringShadow(ref charOffset, new string('1', mapping.GamepadIndex + 1), center.X * (0.9f + j * 0.34f) + 4, topItem - 5,
+                                    Alignment.Left, ColorRgba.TransparentBlack, 0.6f, 0f, 0f, 0f, charSpacing: 0.6f);
+
                             } else {
                                 value = "-";
                             }

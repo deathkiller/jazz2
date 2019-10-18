@@ -4,6 +4,7 @@ using Duality;
 using Jazz2.Actors.Enemies;
 using Jazz2.Game;
 using Jazz2.Game.Structs;
+using static Duality.Component;
 
 namespace Jazz2.Actors.Bosses
 {
@@ -69,9 +70,22 @@ namespace Jazz2.Actors.Bosses
             }
         }
 
-        public override void OnBossActivated()
+        protected override void OnBossActivated()
         {
             FollowNearestPlayer(StateFlying, 100);
+        }
+
+        protected override void OnDeactivated(ShutdownContext context)
+        {
+            state = StateWaiting;
+
+            if (pieces != null) {
+                for (int i = 0; i < pieces.Length; i++) {
+                    api.RemoveActor(pieces[i]);
+                }
+
+                pieces = null;
+            }
         }
 
         protected override void OnFixedUpdate(float timeMult)

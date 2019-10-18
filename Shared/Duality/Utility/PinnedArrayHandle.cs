@@ -1,16 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace Duality
 {
-	/// <summary>
-	/// Allows to temporarily pin a managed <see cref="Array"/> in memory and access its
-	/// data directly using an <see cref="IntPtr"/>. Every <see cref="PinnedArrayHandle"/>
-	/// that is created needs to be disposed as well, or the pinned <see cref="Array"/>
-	/// cannot be garbage collected. To ensure safe usage, wrap the handle in a using block.
-	/// </summary>
-	public struct PinnedArrayHandle : IDisposable
+    /// <summary>
+    /// Allows to temporarily pin a managed <see cref="Array"/> in memory and access its
+    /// data directly using an <see cref="IntPtr"/>. Every <see cref="PinnedArrayHandle"/>
+    /// that is created needs to be disposed as well, or the pinned <see cref="Array"/>
+    /// cannot be garbage collected. To ensure safe usage, wrap the handle in a using block.
+    /// </summary>
+    public struct PinnedArrayHandle : IDisposable
 	{
 		private GCHandle handle;
 		private IntPtr dataPtr;

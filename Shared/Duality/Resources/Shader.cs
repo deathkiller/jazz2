@@ -1,14 +1,13 @@
 ﻿using System;
 using Duality.Backend;
 using Jazz2;
-using Jazz2.Game;
 
 namespace Duality.Resources
 {
-	/// <summary>
-	/// Represents an OpenGL Shader in an abstract form.
-	/// </summary>
-	public abstract class Shader : Resource
+    /// <summary>
+    /// Represents an OpenGL Shader in an abstract form.
+    /// </summary>
+    public abstract class Shader : Resource
 	{
 		private string source = null;
 		private INativeShaderPart native = null;

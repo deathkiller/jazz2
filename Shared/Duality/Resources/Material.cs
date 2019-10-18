@@ -4,15 +4,15 @@ using Duality.Drawing;
 
 namespace Duality.Resources
 {
-	/// <summary>
-	/// Materials are standardized <see cref="BatchInfo">BatchInfos</see>, stored as a Resource. 
-	/// Just like BatchInfo objects, they describe how an object, represented by a set of vertices, 
-	/// looks like. Using Materials is generally more performant than using BatchInfos but not always
-	/// reasonable, for example when there is a single, unique GameObject with a special appearance:
-	/// This is a typical <see cref="BatchInfo"/> case.
-	/// </summary>
-	/// <seealso cref="BatchInfo"/>
-	public class Material : Resource
+    /// <summary>
+    /// Materials are standardized <see cref="BatchInfo">BatchInfos</see>, stored as a Resource. 
+    /// Just like BatchInfo objects, they describe how an object, represented by a set of vertices, 
+    /// looks like. Using Materials is generally more performant than using BatchInfos but not always
+    /// reasonable, for example when there is a single, unique GameObject with a special appearance:
+    /// This is a typical <see cref="BatchInfo"/> case.
+    /// </summary>
+    /// <seealso cref="BatchInfo"/>
+    public class Material : Resource
 	{
 		/// <summary>
 		/// A solid, white Material.

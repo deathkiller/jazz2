@@ -663,22 +663,23 @@ namespace Jazz2.Game
         public virtual bool HandlePlayerDied(Player player)
         {
             if (activeBoss != null) {
-                activeBoss.DeactivateBoss();
-                activeBoss = null;
+                if (activeBoss.HandlePlayerDied()) {
+                    activeBoss = null;
 
-                Hud hud = rootObject.GetComponent<Hud>();
-                if (hud != null) {
-                    hud.ActiveBoss = null;
+                    Hud hud = rootObject.GetComponent<Hud>();
+                    if (hud != null) {
+                        hud.ActiveBoss = null;
+                    }
+
+                    if (music != null) {
+                        music.FadeOut(1.8f);
+                    }
+
+                    // Load default music again
+                    music = new OpenMptStream(musicPath, true);
+                    music.BeginFadeIn(0.4f);
+                    DualityApp.Sound.PlaySound(music);
                 }
-
-                if (music != null) {
-                    music.FadeOut(1.8f);
-                }
-
-                // Load default music again
-                music = new OpenMptStream(musicPath, true);
-                music.BeginFadeIn(0.4f);
-                DualityApp.Sound.PlaySound(music);
             }
 
             // Single player can respawn immediately
@@ -1026,7 +1027,9 @@ namespace Jazz2.Game
                 return;
             }
 
-            activeBoss.OnBossActivated();
+            if (!activeBoss.HandleBossActivated()) {
+                return;
+            }
 
             Hud hud = rootObject.GetComponent<Hud>();
             if (hud != null) {

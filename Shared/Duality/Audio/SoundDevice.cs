@@ -132,20 +132,19 @@ namespace Duality.Audio
 			}
 		}
 
-		/// <summary>
-		/// Determines the number of playing instances of a specific <see cref="Duality.Resources.Sound"/>.
-		/// </summary>
-		/// <param name="snd">The Sound of which to determine the number of playing instances.</param>
-		/// <returns>The number of the specified Sounds playing instances.</returns>
-		public int GetNumPlaying(ContentRef<Sound> snd)
-		{
-            //int curNumSoundRes;
-            //if (!snd.IsAvailable || snd.IsRuntimeResource || !this.resPlaying.TryGetValue(snd.Path, out curNumSoundRes))
-            //	return 0;
-            //else
-            //	return curNumSoundRes;
-            return 0;
-		}
+		///// <summary>
+		///// Determines the number of playing instances of a specific <see cref="Duality.Resources.Sound"/>.
+		///// </summary>
+		///// <param name="snd">The Sound of which to determine the number of playing instances.</param>
+		///// <returns>The number of the specified Sounds playing instances.</returns>
+		//public int GetNumPlaying(ContentRef<Sound> snd)
+		//{
+        //    int curNumSoundRes;
+        //    if (!snd.IsAvailable || snd.IsRuntimeResource || !this.resPlaying.TryGetValue(snd.Path, out curNumSoundRes))
+        //    	return 0;
+        //    else
+        //    	return curNumSoundRes;
+		//}
 		/// <summary>
 		/// Registers a <see cref="Duality.Resources.Sound">Sounds</see> playing instance.
 		/// </summary>

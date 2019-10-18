@@ -1,23 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 using Duality.Backend;
 using Duality.Drawing;
 using Jazz2;
-using Jazz2.Game;
 
 namespace Duality.Resources
 {
-	/// <summary>
-	/// DrawTechniques represent the method by which a set of colors, <see cref="Duality.Resources.Texture">Textures</see> and
-	/// vertex data is applied to screen. 
-	/// </summary>
-	/// <seealso cref="Duality.Resources.Material"/>
-	/// <seealso cref="Duality.Resources.FragmentShader"/>
-	/// <seealso cref="Duality.Resources.VertexShader"/>
-	/// <seealso cref="Duality.Drawing.BlendMode"/>
-	public class DrawTechnique : Resource
+    /// <summary>
+    /// DrawTechniques represent the method by which a set of colors, <see cref="Duality.Resources.Texture">Textures</see> and
+    /// vertex data is applied to screen. 
+    /// </summary>
+    /// <seealso cref="Duality.Resources.Material"/>
+    /// <seealso cref="Duality.Resources.FragmentShader"/>
+    /// <seealso cref="Duality.Resources.VertexShader"/>
+    /// <seealso cref="Duality.Drawing.BlendMode"/>
+    public class DrawTechnique : Resource
 	{
 		/// <summary>
 		/// Renders solid geometry without utilizing the alpha channel. This is the fastest default DrawTechnique.

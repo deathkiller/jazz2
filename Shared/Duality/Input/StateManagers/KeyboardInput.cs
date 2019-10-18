@@ -141,26 +141,22 @@ namespace Duality.Input
 			// Fire events
 			if (this.currentState.IsAvailable && !this.lastState.IsAvailable)
 			{
-				if (this.BecomesAvailable != null)
-					this.BecomesAvailable(this, EventArgs.Empty);
-			}
+                this.BecomesAvailable?.Invoke(this, EventArgs.Empty);
+            }
 			if (!this.currentState.IsAvailable && this.lastState.IsAvailable)
 			{
-				if (this.NoLongerAvailable != null)
-					this.NoLongerAvailable(this, EventArgs.Empty);
-			}
+                this.NoLongerAvailable?.Invoke(this, EventArgs.Empty);
+            }
 			for (int i = 0; i < this.currentState.KeyPressed.Length; i++)
 			{
 				if (this.currentState.KeyPressed[i] && !this.lastState.KeyPressed[i])
 				{
-					if (this.KeyDown != null)
-						this.KeyDown(this, new KeyboardKeyEventArgs(this, (Key)i, this.currentState.KeyPressed[i]));
-				}
+                    this.KeyDown?.Invoke(this, new KeyboardKeyEventArgs(this, (Key)i, this.currentState.KeyPressed[i]));
+                }
 				if (!this.currentState.KeyPressed[i] && this.lastState.KeyPressed[i])
 				{
-					if (this.KeyUp != null)
-						this.KeyUp(this, new KeyboardKeyEventArgs(this, (Key)i, this.currentState.KeyPressed[i]));
-				}
+                    this.KeyUp?.Invoke(this, new KeyboardKeyEventArgs(this, (Key)i, this.currentState.KeyPressed[i]));
+                }
 			}
 		}
 		void IUserInput.Update()

@@ -851,9 +851,6 @@ namespace Duality.Drawing
 
 		private void AggregateBatches()
 		{
-			//int batchCountBefore = this.sortBufferSolid.Count + this.sortBufferBlended.Count;
-			//if (this.pickingIndex == 0) Profile.TimeOptimizeDrawcalls.BeginMeasure();
-
 			// Material-sorted (solid) batches
 			if (this.sortBufferSolid.Count > 0)
 			{
@@ -881,12 +878,6 @@ namespace Duality.Drawing
 				this.AggregateBatches(this.sortBufferBlended, this.drawBuffer, this.batchBufferBlended);
 			}
 
-			//if (this.pickingIndex == 0) Profile.TimeOptimizeDrawcalls.EndMeasure();
-			//int batchCountAfter = this.batchBufferSolid.Count + this.batchBufferBlended.Count;
-
-			//Profile.StatNumRawBatches.Add(this.numRawBatches);
-			//Profile.StatNumMergedBatches.Add(batchCountBefore);
-			//Profile.StatNumOptimizedBatches.Add(batchCountAfter);
 			this.numRawBatches = 0;
 		}
 		private void AssignMaterialSortIDs(RawList<SortItem> sortItems, RawList<VertexDrawItem> drawItems)

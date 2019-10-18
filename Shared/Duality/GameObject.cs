@@ -5,20 +5,19 @@ using System.Reflection;
 using Duality.Components;
 using Duality.Resources;
 using Jazz2;
-using Jazz2.Game;
 
 namespace Duality
 {
-	/// <summary>
-	/// GameObjects are what every <see cref="Duality.Resources.Scene"/> consists of. They represent nodes in the hierarchial scene graph and
-	/// can maintain a <see cref="Duality.Resources.PrefabLink"/> connection. A GameObject's main duty is to group several <see cref="Component"/>s
-	/// to form one logical instance of an actual object as part of the game, such as "Car" or "PlayerCharacter". However,
-	/// the GameObjects itsself does not contain any game-related logic and, by default, doesn't even occupy a position in space.
-	/// This is the job of its Components.
-	/// </summary>
-	/// <seealso cref="Component"/>
-	/// <seealso cref="Duality.Resources.Scene"/>
-	public /*sealed*/ class GameObject : IManageableObject
+    /// <summary>
+    /// GameObjects are what every <see cref="Duality.Resources.Scene"/> consists of. They represent nodes in the hierarchial scene graph and
+    /// can maintain a <see cref="Duality.Resources.PrefabLink"/> connection. A GameObject's main duty is to group several <see cref="Component"/>s
+    /// to form one logical instance of an actual object as part of the game, such as "Car" or "PlayerCharacter". However,
+    /// the GameObjects itsself does not contain any game-related logic and, by default, doesn't even occupy a position in space.
+    /// This is the job of its Components.
+    /// </summary>
+    /// <seealso cref="Component"/>
+    /// <seealso cref="Duality.Resources.Scene"/>
+    public /*sealed*/ class GameObject : IManageableObject
 	{
 		private static readonly GameObject[] EmptyChildren = new GameObject[0];
 
@@ -818,29 +817,26 @@ namespace Duality
 
 		private void OnParentChanged(GameObject oldParent, GameObject newParent)
 		{
-			// Public event
-			if (this.eventParentChanged != null)
-				this.eventParentChanged(this, new GameObjectParentChangedEventArgs(this, oldParent, newParent));
-		}
+            // Public event
+            this.eventParentChanged?.Invoke(this, new GameObjectParentChangedEventArgs(this, oldParent, newParent));
+        }
 		private void OnComponentAdded(Component cmp)
 		{
 			// Notify Components
 			ICmpInitializable cmpInit = cmp as ICmpInitializable;
 			if (cmpInit != null) cmpInit.OnInit(Component.InitContext.AddToGameObject);
 
-			// Public event
-			if (this.eventComponentAdded != null)
-				this.eventComponentAdded(this, new ComponentEventArgs(cmp));
-		}
+            // Public event
+            this.eventComponentAdded?.Invoke(this, new ComponentEventArgs(cmp));
+        }
 		private void OnComponentRemoving(Component cmp)
 		{
 			// Notify Components
 			ICmpInitializable cmpInit = cmp as ICmpInitializable;
 			if (cmpInit != null) cmpInit.OnShutdown(Component.ShutdownContext.RemovingFromGameObject);
 
-			// Public event
-			if (this.eventComponentRemoving != null)
-				this.eventComponentRemoving(this, new ComponentEventArgs(cmp));
-		}
+            // Public event
+            this.eventComponentRemoving?.Invoke(this, new ComponentEventArgs(cmp));
+        }
 	}
 }

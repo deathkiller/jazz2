@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using Duality.Resources;
 
 namespace Duality.Drawing
@@ -141,19 +140,19 @@ namespace Duality.Drawing
 			int index = this.FindIndex(name);
 			return index != -1;
 		}
-		
-		/// <summary>
-		/// Assigns an array of values to the specified variable. All values are copied and converted into
-		/// a shared internal format.
-		/// 
-		/// Supported base types are <see cref="Single"/>, <see cref="Vector2"/>, <see cref="Vector3"/>, 
-		/// <see cref="Vector4"/>, <see cref="Matrix3"/>, <see cref="Matrix4"/>, <see cref="Int32"/>,
-		/// <see cref="Point2"/> and <see cref="Boolean"/>.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="name"></param>
-		/// <param name="value"></param>
-		public void Set<T>(string name, T[] value) where T : struct
+
+        /// <summary>
+        /// Assigns an array of values to the specified variable. All values are copied and converted into
+        /// a shared internal format.
+        /// 
+        /// Supported base types are <see cref="float"/>, <see cref="Vector2"/>, <see cref="Vector3"/>, 
+        /// <see cref="Vector4"/>, <see cref="Matrix3"/>, <see cref="Matrix4"/>, <see cref="int"/>,
+        /// <see cref="Point2"/> and <see cref="bool"/>.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        public void Set<T>(string name, T[] value) where T : struct
 		{
 			if (string.IsNullOrEmpty(name)) ThrowInvalidName();;
 			if (value == null || value.Length == 0) ThrowInvalidValue();

@@ -1,22 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
-using Duality.Drawing;
 using Duality.Backend;
-using Jazz2.Game;
+using Duality.Drawing;
 using Jazz2;
 
 namespace Duality.Resources
 {
-	/// <summary>
-	/// Instead of rendering to screen, RenderTargets can serve as an alternative drawing surface for a <see cref="Duality.Components.Camera"/>.
-	/// The image is applied to one or several <see cref="Duality.Resources.Texture">Textures</see>. By default, only the first attached Texture
-	/// is actually used, but you can use a custom <see cref="Duality.Resources.FragmentShader"/> to use all available Textures for storing
-	/// information.
-	/// </summary>
-	/// <seealso cref="Duality.Resources.Texture"/>
-	public class RenderTarget : Resource
+    /// <summary>
+    /// Instead of rendering to screen, RenderTargets can serve as an alternative drawing surface for a <see cref="Duality.Components.Camera"/>.
+    /// The image is applied to one or several <see cref="Duality.Resources.Texture">Textures</see>. By default, only the first attached Texture
+    /// is actually used, but you can use a custom <see cref="Duality.Resources.FragmentShader"/> to use all available Textures for storing
+    /// information.
+    /// </summary>
+    /// <seealso cref="Duality.Resources.Texture"/>
+    public class RenderTarget : Resource
 	{
 		private List<ContentRef<Texture>> targets = new List<ContentRef<Texture>>();
 		private AAQuality multisampling = AAQuality.Off;

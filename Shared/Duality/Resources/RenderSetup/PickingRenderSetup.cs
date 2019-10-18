@@ -3,15 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Duality.Drawing;
 using Jazz2;
-using Jazz2.Game;
 
 namespace Duality.Resources
 {
-	/// <summary>
-	/// A specialized <see cref="RenderSetup"/> that will render a lookup texture of the scene in
-	/// order to determine which <see cref="ICmpRenderer"/> is located at a certain screen position.
-	/// </summary>
-	public class PickingRenderSetup : RenderSetup
+    /// <summary>
+    /// A specialized <see cref="RenderSetup"/> that will render a lookup texture of the scene in
+    /// order to determine which <see cref="ICmpRenderer"/> is located at a certain screen position.
+    /// </summary>
+    public class PickingRenderSetup : RenderSetup
 	{
 		private bool renderOverlay = false;
 

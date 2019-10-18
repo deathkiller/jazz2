@@ -47,7 +47,7 @@ namespace Jazz2.Actors.Bosses
             renderer.Active = false;
         }
 
-        public override void OnBossActivated()
+        protected override void OnBossActivated()
         {
             renderer.Active = true;
 

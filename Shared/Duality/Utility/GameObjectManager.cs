@@ -186,8 +186,8 @@ namespace Duality
             foreach (GameObject obj in objList) {
                 this.RegisterEvents(obj);
             }
-            if (this.GameObjectsAdded != null)
-                this.GameObjectsAdded(this, new GameObjectGroupEventArgs(objList));
+
+            this.GameObjectsAdded?.Invoke(this, new GameObjectGroupEventArgs(objList));
         }
         private void OnObjectsRemoved(List<GameObject> objList)
         {
@@ -197,23 +197,20 @@ namespace Duality
             foreach (GameObject obj in objList) {
                 this.UnregisterEvents(obj);
             }
-            if (this.GameObjectsRemoved != null)
-                this.GameObjectsRemoved(this, new GameObjectGroupEventArgs(objList));
+
+            this.GameObjectsRemoved?.Invoke(this, new GameObjectGroupEventArgs(objList));
         }
         private void OnParentChanged(object sender, GameObjectParentChangedEventArgs e)
         {
-            if (this.ParentChanged != null)
-                this.ParentChanged(sender, e);
+            this.ParentChanged?.Invoke(sender, e);
         }
         private void OnComponentAdded(object sender, ComponentEventArgs e)
         {
-            if (this.ComponentAdded != null)
-                this.ComponentAdded(sender, e);
+            this.ComponentAdded?.Invoke(sender, e);
         }
         private void OnComponentRemoving(object sender, ComponentEventArgs e)
         {
-            if (this.ComponentRemoving != null)
-                this.ComponentRemoving(sender, e);
+            this.ComponentRemoving?.Invoke(sender, e);
         }
     }
 }

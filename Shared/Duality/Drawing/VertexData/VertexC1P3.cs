@@ -1,12 +1,11 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace Duality.Drawing
 {
-	/// <summary>
-	/// Vertex data providing each vertex a position (3x4 byte) and color (1x4 byte).
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// Vertex data providing each vertex a position (3x4 byte) and color (1x4 byte).
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
 	public struct VertexC1P3 : IVertexData
 	{
 		public static readonly VertexDeclaration Declaration = VertexDeclaration.Get<VertexC1P3>();

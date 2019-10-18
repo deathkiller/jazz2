@@ -4,17 +4,16 @@ using System.Linq;
 using System.Reflection;
 using Duality.Components;
 using Jazz2;
-using Jazz2.Game;
 
 namespace Duality.Resources
 {
-	/// <summary>
-	/// A Scene encapsulates an organized set of <see cref="GameObject">GameObjects</see> and provides
-	/// update-, rendering- and maintenance functionality. In Duality, there is always exactly one Scene
-	/// <see cref="Scene.Current"/> which represents a level, gamestate or a combination of both, depending
-	/// on you own design.
-	/// </summary>
-	public /*sealed*/ class Scene : Resource
+    /// <summary>
+    /// A Scene encapsulates an organized set of <see cref="GameObject">GameObjects</see> and provides
+    /// update-, rendering- and maintenance functionality. In Duality, there is always exactly one Scene
+    /// <see cref="Scene.Current"/> which represents a level, gamestate or a combination of both, depending
+    /// on you own design.
+    /// </summary>
+    public /*sealed*/ class Scene : Resource
 	{
 		private static ContentRef<Scene> current = new Scene();
 		private static bool curAutoGen = false;
@@ -174,10 +173,6 @@ namespace Duality.Resources
 			if (Leaving != null) Leaving(current, null);
 			isSwitching = true;
 			if (current.ResWeak != null) {
-				// Deactivate GameObjects
-				//DualityApp.EditorGuard(() =>
-				//{
-
 				// Create a list of components to deactivate
 				List<ICmpInitializable> shutdownList = new List<ICmpInitializable>();
 				foreach (Component component in current.ResWeak.FindComponents<ICmpInitializable>()) {
@@ -190,8 +185,6 @@ namespace Duality.Resources
 				for (int i = shutdownList.Count - 1; i >= 0; i--) {
 					shutdownList[i].OnShutdown(Component.ShutdownContext.Deactivate);
 				}
-
-				//});
 			}
 			switchLock--;
 		}
@@ -199,30 +192,22 @@ namespace Duality.Resources
 		{
 			switchLock++;
 			if (current.ResWeak != null) {
-
-				// Activate GameObjects
-				//DualityApp.EditorGuard(() =>
-				//{
-					// Create a list of components to activate
-					List<ICmpInitializable> initList = new List<ICmpInitializable>();
-					foreach (Component component in current.ResWeak.FindComponents<ICmpInitializable>()) {
-						if (!component.Active) continue;
-						initList.Add(component as ICmpInitializable);
-					}
-					// Activate all the listed components. Note that they may create or destroy
-					// objects, so it's important that we're iterating a copy of the scene objects
-					// here, and not the real thing.
-					for (int i = 0; i < initList.Count; i++) {
-						initList[i].OnInit(Component.InitContext.Activate);
-					}
-				//});
+				// Create a list of components to activate
+				List<ICmpInitializable> initList = new List<ICmpInitializable>();
+				foreach (Component component in current.ResWeak.FindComponents<ICmpInitializable>()) {
+					if (!component.Active) continue;
+					initList.Add(component as ICmpInitializable);
+				}
+				// Activate all the listed components. Note that they may create or destroy
+				// objects, so it's important that we're iterating a copy of the scene objects
+				// here, and not the real thing.
+				for (int i = 0; i < initList.Count; i++) {
+					initList[i].OnInit(Component.InitContext.Activate);
+				}
 				
 				// Update object visibility / culling info, so a scheduled switch at the
 				// end of a frame will get up-to-date culling for rendering
-				//DualityApp.EditorGuard(() =>
-				//{
-					current.ResWeak.VisibilityStrategy.Update();
-				//});
+				current.ResWeak.VisibilityStrategy.Update();
 			}
 			isSwitching = false;
 			if (Entered != null) Entered(current, null);
@@ -230,8 +215,8 @@ namespace Duality.Resources
 		}
 		private static void OnGameObjectParentChanged(GameObjectParentChangedEventArgs args)
 		{
-			if (GameObjectParentChanged != null) GameObjectParentChanged(current, args);
-		}
+            GameObjectParentChanged?.Invoke(current, args);
+        }
 		private static void OnGameObjectsAdded(GameObjectGroupEventArgs args)
 		{
 			// Gather a list of components to activate
@@ -251,18 +236,16 @@ namespace Duality.Resources
 			foreach (ICmpInitializable component in initList)
 				component.OnInit(Component.InitContext.Activate);
 
-			// Fire a global event to indicate that the new objects are ready
-			if (GameObjectsAdded != null)
-				GameObjectsAdded(current, args);
-		}
+            // Fire a global event to indicate that the new objects are ready
+            GameObjectsAdded?.Invoke(current, args);
+        }
 		private static void OnGameObjectsRemoved(GameObjectGroupEventArgs args)
 		{
-			// Fire a global event to indicate that the objects are going to be shut down
-			if (GameObjectsRemoved != null)
-				GameObjectsRemoved(current, args);
+            // Fire a global event to indicate that the objects are going to be shut down
+            GameObjectsRemoved?.Invoke(current, args);
 
-			// Gather a list of components to deactivate
-			int objCount = 0;
+            // Gather a list of components to deactivate
+            int objCount = 0;
 			List<ICmpInitializable> initList = new List<ICmpInitializable>();
 			foreach (GameObject obj in args.Objects) {
 				if (!obj.ActiveSingle && !obj.Disposed) continue;
@@ -287,32 +270,29 @@ namespace Duality.Resources
 				ICmpInitializable cInit = args.Component as ICmpInitializable;
 				if (cInit != null) cInit.OnInit(Component.InitContext.Activate);
 			}
-			if (ComponentAdded != null) ComponentAdded(current, args);
-		}
+            ComponentAdded?.Invoke(current, args);
+        }
 		private static void OnComponentRemoving(ComponentEventArgs args)
 		{
 			if (args.Component.Active) {
 				ICmpInitializable cInit = args.Component as ICmpInitializable;
 				if (cInit != null) cInit.OnShutdown(Component.ShutdownContext.Deactivate);
 			}
-			if (ComponentRemoving != null) ComponentRemoving(current, args);
-		}
+            ComponentRemoving?.Invoke(current, args);
+        }
 
 
 		private struct UpdateEntry
 		{
 			public TypeInfo Type;
 			public int Count;
-			//public TimeCounter Profiler;
 		}
 
 		private IRendererVisibilityStrategy visibilityStrategy = new DefaultRendererVisibilityStrategy();
-		private GameObject[] serializeObj = null;
 
 		private GameObjectManager objectManager = new GameObjectManager();
 
 		private Dictionary<TypeInfo, List<Component>> componentsByType = new Dictionary<TypeInfo, List<Component>>();
-
 
 		// Temporary buffers used during scene updates, stored and re-used for efficiency
 		private List<Type> updateTypeOrder = new List<Type>();
@@ -494,7 +474,6 @@ namespace Duality.Resources
 			{
 				int updateMapIndex = -1;
 				int updateMapBegin = -1;
-				//TimeCounter activeProfiler = null;
 				Component[] data = this.updatableComponents.Data;
 				UpdateEntry[] updateData = this.updateMap.Data;
 

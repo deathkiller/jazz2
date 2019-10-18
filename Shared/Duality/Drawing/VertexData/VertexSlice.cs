@@ -1,18 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Diagnostics;
 
 namespace Duality.Drawing
 {
-	/// <summary>
-	/// Defines a writable slice in a shared vertex array. This type sacrifices
-	/// validation and parameter checking for some extra performance - when specifying
-	/// parameters, reading and writing data, do so with the same caution that you
-	/// would apply to unsafe code.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	[DebuggerTypeProxy(typeof(VertexSlice<>.DebuggerTypeProxy))]
+    /// <summary>
+    /// Defines a writable slice in a shared vertex array. This type sacrifices
+    /// validation and parameter checking for some extra performance - when specifying
+    /// parameters, reading and writing data, do so with the same caution that you
+    /// would apply to unsafe code.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    [DebuggerTypeProxy(typeof(VertexSlice<>.DebuggerTypeProxy))]
 	[DebuggerDisplay("Length = {Length}")]
 	public struct VertexSlice<T> where T : struct, IVertexData
 	{
