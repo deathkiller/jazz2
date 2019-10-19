@@ -68,6 +68,8 @@ namespace Jazz2.Game
         [STAThread]
         public static int Main(string[] args)
         {
+            AppDomain.CurrentDomain.UnhandledException += OnCurrentDomainUnhandledException;
+
             // Override working directory
             try {
                 Environment.CurrentDirectory = AssemblyPath;
@@ -139,6 +141,15 @@ namespace Jazz2.Game
             Environment.Exit(0);
 
             return 0;
+        }
+
+        private static void OnCurrentDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            try {
+                Log.Write(LogType.Error, "Unhandled exception: " + e.ExceptionObject);
+            } catch {
+                // Nothing to do...
+            }
         }
     }
 }

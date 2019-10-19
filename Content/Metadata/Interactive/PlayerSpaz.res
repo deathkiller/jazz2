@@ -349,6 +349,9 @@
         "Die": {
             "Paths": [ "Spaz/idle_flavor_4.wav" ]
         },
+        "Copter": {
+            "Paths": [ "Common/copter_noise.wav" ]
+        },
         "PickupAmmo": {
             "Paths": [ "Pickup/ammo.wav" ]
         },

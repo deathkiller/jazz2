@@ -761,7 +761,7 @@ namespace Jazz2.Compatibility
             Add(JJ2Event.GEM_GREEN_RECT, ConstantParamList(EventType.Gem, 1));
             Add(JJ2Event.GEM_BLUE_RECT, ConstantParamList(EventType.Gem, 2));
 
-            Add(JJ2Event.GEM_SUPER, ConstantParamList(EventType.GemGiant));
+            Add(JJ2Event.GEM_SUPER, NoParamList(EventType.GemGiant));
             Add(JJ2Event.GEM_RING, (level, jj2Params) => {
                 ushort[] eventParams = ConvertParamInt(jj2Params,
                     Pair.Create(JJ2EventParamType.UInt, 5),  // Length
@@ -773,6 +773,8 @@ namespace Jazz2.Compatibility
                     Params = new[] { eventParams[0], eventParams[1] }
                 };
             });
+
+            Add(JJ2Event.SCENERY_GEMSTOMP, NoParamList(EventType.GemStomp));
 
             Add(JJ2Event.CARROT, ConstantParamList(EventType.Carrot, 0));
             Add(JJ2Event.CARROT_FULL, ConstantParamList(EventType.Carrot, 1));

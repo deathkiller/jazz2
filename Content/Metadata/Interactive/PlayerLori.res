@@ -343,6 +343,9 @@
         "Die": {
             "Paths": [ "Lori/die.wav" ]
         },
+        "Copter": {
+            "Paths": [ "Common/copter_noise.wav" ]
+        },
         "PickupAmmo": {
             "Paths": [ "Pickup/ammo.wav" ]
         },

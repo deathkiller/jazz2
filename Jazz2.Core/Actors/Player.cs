@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Duality;
+using Duality.Audio;
 using Duality.Drawing;
 using Duality.Resources;
 using Jazz2.Actors.Enemies;
@@ -79,6 +80,7 @@ namespace Jazz2.Actors
         private MovingPlatform carryingObject;
         private SwingingVine currentVine;
         private bool canDoubleJump = true;
+        private SoundInstance copterSound;
 
         private int lives, coins, foodEaten;
         private uint score;
@@ -527,6 +529,11 @@ namespace Jazz2.Actors
                 }
             }
 
+            if (copterSound != null && (currentAnimationState & AnimState.Copter) == 0) {
+                copterSound.Stop();
+                copterSound = null;
+            }
+
             // Shallow Water
             if (areaWaterBlock != -1) {
                 if (inShallowWater == -1) {
@@ -559,6 +566,12 @@ namespace Jazz2.Actors
                     collisionFlags |= (CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset);
                 } else {
                     // Skip controls, player is not controllable in tube
+                    // Weapons are automatically disabled if player is not controllable
+                    if (weaponToasterSound != null) {
+                        weaponToasterSound.Stop();
+                        weaponToasterSound = null;
+                    }
+
                     return;
                 }
             }
@@ -662,6 +675,12 @@ namespace Jazz2.Actors
 #endif
 
             if (!controllable) {
+                // Weapons are automatically disabled if player is not controllable
+                if (weaponToasterSound != null) {
+                    weaponToasterSound.Stop();
+                    weaponToasterSound = null;
+                }
+
                 return;
             }
 
@@ -786,6 +805,11 @@ namespace Jazz2.Actors
                                                 SetAnimation(AnimState.Copter);
                                             }
                                             copterFramesLeft = 70;
+
+                                            if (copterSound == null) {
+                                                copterSound = PlaySound("Copter", 0.6f, 1.5f);
+                                                copterSound.Looped = true;
+                                            }
                                         }
                                     }
                                     break;
@@ -835,6 +859,11 @@ namespace Jazz2.Actors
                                                 SetAnimation(AnimState.Copter);
                                             }
                                             copterFramesLeft = 70;
+
+                                            if (copterSound == null) {
+                                                copterSound = PlaySound("Copter", 0.6f, 1.5f);
+                                                copterSound.Looped = true;
+                                            }
                                         }
                                     }
                                     break;
@@ -881,6 +910,7 @@ namespace Jazz2.Actors
             }
 
             // Fire
+            bool weaponInUse = false;
             if (weaponAllowed && areaWeaponAllowed && ControlScheme.PlayerActionPressed(index, PlayerActions.Fire)) {
                 if (!isLifting && suspendType != SuspendType.SwingingVine && (currentAnimationState & AnimState.Push) == 0 && pushFramesLeft <= 0f) {
                     if (playerType == PlayerType.Frog) {
@@ -909,13 +939,20 @@ namespace Jazz2.Actors
                             //SetTransition(currentAnimationState | AnimState.TRANSITION_IDLE_TO_SHOOT, false);
                         }
 
-                        FireWeapon();
+                        weaponInUse = FireWeapon();
                     }
                 }
             } else if (wasFirePressed) {
                 wasFirePressed = false;
 
                 weaponCooldown = 0f;
+            }
+
+            if (!weaponInUse) {
+                if (weaponToasterSound != null) {
+                    weaponToasterSound.Stop();
+                    weaponToasterSound = null;
+                }
             }
 
             if (playerType != PlayerType.Frog && ControlScheme.PlayerActionHit(index, PlayerActions.SwitchWeapon)) {
@@ -1342,6 +1379,25 @@ namespace Jazz2.Actors
             if (currentSpecialMove == SpecialMoveType.Buttstomp && (canJump || suspendType != SuspendType.None)) {
                 EndDamagingMove();
                 if (suspendType == SuspendType.None && !isSpring) {
+                    // ToDo: Refactor this
+                    Vector3 pos = Transform.Pos;
+                    int tx = (int)pos.X / 32;
+                    int ty = ((int)pos.Y + 24) / 32;
+
+                    ushort[] eventParams = null;
+                    if (api.EventMap.GetEventByPosition(tx, ty, ref eventParams) == EventType.GemStomp) {
+                        api.EventMap.StoreTileEvent(tx, ty, EventType.Empty);
+
+                        for (int i = 0; i < 8; i++) {
+                            float fx = MathF.Rnd.NextFloat(-18f, 18f);
+                            float fy = MathF.Rnd.NextFloat(-8f, 0.2f);
+
+                            ActorBase actor = api.EventSpawner.SpawnEvent(ActorInstantiationFlags.None, EventType.Gem, pos + new Vector3(fx * 2f, fy * 4f, 10f), new ushort[] { 0 });
+                            actor.AddExternalForce(fx, fy);
+                            api.AddActor(actor);
+                        }
+                    }
+
                     SetTransition(AnimState.TransitionButtstompEnd, false, delegate {
                         controllable = true;
                     });

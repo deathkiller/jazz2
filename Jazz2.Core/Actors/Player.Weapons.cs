@@ -1,5 +1,6 @@
 ﻿using System;
 using Duality;
+using Duality.Audio;
 using Jazz2.Actors.Weapons;
 using Jazz2.Game.Structs;
 using MathF = Duality.MathF;
@@ -15,6 +16,7 @@ namespace Jazz2.Actors
         private float weaponCooldown;
         private short[] weaponAmmo;
         private byte[] weaponUpgrades;
+        private SoundInstance weaponToasterSound;
 
         public WeaponType CurrentWeapon => currentWeapon;
 
@@ -79,10 +81,10 @@ namespace Jazz2.Actors
             PreloadMetadata("Weapon/" + currentWeapon);
         }
 
-        private void FireWeapon()
+        private bool FireWeapon()
         {
             if (weaponCooldown > 0f) {
-                return;
+                return true;
             }
 
             // Rewind the animation, if it should be played only once
@@ -101,7 +103,7 @@ namespace Jazz2.Actors
 
                 case WeaponType.Toaster: {
                     if (!FireWeaponToaster()) {
-                        return;
+                        return false;
                     }
                     ammoDecrease = 20;
                     break;
@@ -113,13 +115,13 @@ namespace Jazz2.Actors
 
                 case WeaponType.Thunderbolt: {
                     if (!FireWeaponThunderbolt()) {
-                        return;
+                        return false;
                     }
                     break;
                 }
 
                 default:
-                    return;
+                    return false;
             }
 
             ref short currentAmmo = ref weaponAmmo[(int)currentWeapon];
@@ -136,6 +138,8 @@ namespace Jazz2.Actors
                     PlaySound("SwitchAmmo");
                 }
             }
+
+            return true;
         }
 
         private void GetFirePointAndAngle(out Vector3 initialPos, out Vector3 gunspotPos, out float angle)
@@ -329,7 +333,10 @@ namespace Jazz2.Actors
             newAmmo.OnFire(this, gunspotPos, Speed, angle, IsFacingLeft);
             api.AddActor(newAmmo);
 
-            //PlaySound("WeaponToaster", 0.6f);
+            if (weaponToasterSound == null) {
+                weaponToasterSound = PlaySound("WeaponToaster", 0.6f);
+                weaponToasterSound.Looped = true;
+            }
 
             weaponCooldown = 6f;
             return true;
