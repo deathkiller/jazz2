@@ -81,7 +81,7 @@ namespace Jazz2.Actors.Enemies
             }
 
             CreateDeathDebris(collider);
-            api.PlayCommonSound(this, "Splat");
+            api.PlayCommonSound(Transform.Pos, "Splat");
 
             TryGenerateRandomDrop();
 

@@ -96,7 +96,7 @@ namespace Jazz2.Actors.Enemies
 
         protected override bool OnPerish(ActorBase collider)
         {
-            api.PlayCommonSound(this, "Splat");
+            api.PlayCommonSound(Transform.Pos, "Splat");
 
             SetTransition(AnimState.TransitionDeath, false, delegate {
                 base.OnPerish(collider);

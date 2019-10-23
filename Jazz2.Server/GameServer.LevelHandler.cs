@@ -136,7 +136,7 @@ namespace Jazz2.Server
             //throw new NotImplementedException();
         }
 
-        void ILevelHandler.PlayCommonSound(string name, Vector3 pos, float gain)
+        void ILevelHandler.PlayCommonSound(string name, Vector3 pos, float gain, float pitch)
         {
             //throw new NotImplementedException();
         }

@@ -79,7 +79,7 @@ namespace Jazz2.Actors.Solid
             player.AddAmmo(weaponType, 5);
 
             DecreaseHealth(int.MaxValue, player);
-            PlaySound("Break");
+            PlaySound(Transform.Pos, "Break");
         }
 
         protected override bool OnPerish(ActorBase collider)

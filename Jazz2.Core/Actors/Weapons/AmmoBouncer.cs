@@ -116,7 +116,7 @@ namespace Jazz2.Actors.Weapons
             }
 
             hitLimit += 2f;
-            PlaySound("Bounce", 0.5f);
+            PlaySound(Transform.Pos, "Bounce", 0.5f);
         }
 
         protected override void OnHitFloor()
@@ -127,7 +127,7 @@ namespace Jazz2.Actors.Weapons
             }
 
             hitLimit += 2f;
-            PlaySound("Bounce", 0.5f);
+            PlaySound(Transform.Pos, "Bounce", 0.5f);
         }
 
         protected override void OnHitCeiling()
@@ -138,7 +138,7 @@ namespace Jazz2.Actors.Weapons
             }
 
             hitLimit += 2f;
-            PlaySound("Bounce", 0.5f);
+            PlaySound(Transform.Pos, "Bounce", 0.5f);
         }
 
         protected override void OnRicochet()

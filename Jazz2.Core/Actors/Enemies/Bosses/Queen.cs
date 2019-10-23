@@ -124,7 +124,7 @@ namespace Jazz2.Actors.Bosses
                     if (stateTime <= 0f) {
                         state = StateTransition;
                         SetTransition((AnimState)1073741825, false, delegate {
-                            PlaySound("Stomp");
+                            PlaySound(Transform.Pos, "Stomp");
 
                             SetTransition((AnimState)1073741830, false, delegate {
                                 state = StateIdleToBackstep;
@@ -250,7 +250,7 @@ namespace Jazz2.Actors.Bosses
                         canJump = false;
 
                         SetAnimation(AnimState.Fall);
-                        PlaySound("Spring");
+                        PlaySound(Transform.Pos, "Spring");
 
                         api.BroadcastLevelText(endText);
 

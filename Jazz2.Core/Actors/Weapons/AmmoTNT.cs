@@ -63,7 +63,7 @@ namespace Jazz2.Actors.Weapons
                     DecreaseHealth(int.MaxValue);
                 });
 
-                PlaySound("Explosion");
+                PlaySound(Transform.Pos, "Explosion");
 
                 Vector3 pos = Transform.Pos;
                 api.FindCollisionActorsByRadius(pos.X, pos.Y, 50, actor => {

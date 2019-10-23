@@ -121,7 +121,7 @@ namespace Jazz2.Actors.Bosses
                 CreateSpriteDebris(MathF.Rnd.OneOf(shrapnels), 1);
             }
 
-            api.PlayCommonSound(this, "Splat");
+            api.PlayCommonSound(Transform.Pos, "Splat");
 
             return base.OnPerish(collider);
         }

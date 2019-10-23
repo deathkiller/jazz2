@@ -30,7 +30,7 @@ namespace Jazz2.Game
         void RemoveActor(ActorBase actor);
 
         void PlayCommonSound(string name, ActorBase target, float gain = 1f, float pitch = 1f);
-        void PlayCommonSound(string name, Vector3 pos, float gain = 1f);
+        void PlayCommonSound(string name, Vector3 pos, float gain = 1f, float pitch = 1f);
 
         void FindCollisionActorsByAABB(ActorBase self, AABB aabb, Func<ActorBase, bool> callback);
         void FindCollisionActorsByRadius(float x, float y, float radius, Func<ActorBase, bool> callback);

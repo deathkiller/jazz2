@@ -111,7 +111,7 @@ namespace Jazz2.Actors.Weapons
 
             Explosion.Create(api, pos + Speed, Explosion.RF);
 
-            PlaySound("Explode", 0.6f);
+            PlaySound(pos, "Explode", 0.6f);
 
             return base.OnPerish(collider);
         }

@@ -1089,6 +1089,26 @@ namespace Jazz2.Actors
             }
         }
 
+        protected SoundInstance PlaySound(Vector3 pos, string name, float gain = 1f, float pitch = 1f)
+        {
+            SoundResource resource;
+            if (availableSounds.TryGetValue(name, out resource)) {
+                SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, pos);
+                // ToDo: Hardcoded volume
+                instance.Volume = gain * SettingsCache.SfxVolume;
+                instance.Pitch = pitch;
+
+                if (Transform.Pos.Y >= api.WaterLevel) {
+                    instance.Lowpass = 0.2f;
+                    instance.Pitch *= 0.7f;
+                }
+
+                return instance;
+            } else {
+                return null;
+            }
+        }
+
         protected void CreateParticleDebris()
         {
             TileMap tilemap = api.TileMap;

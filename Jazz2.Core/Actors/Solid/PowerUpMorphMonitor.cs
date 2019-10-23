@@ -87,7 +87,7 @@ namespace Jazz2.Actors.Solid
                 player.MorphTo(playerType.Value);
 
                 DecreaseHealth(int.MaxValue, player);
-                PlaySound("Break");
+                PlaySound(Transform.Pos, "Break");
             }
         }
 

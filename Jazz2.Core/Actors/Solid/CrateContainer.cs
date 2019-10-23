@@ -27,7 +27,7 @@ namespace Jazz2.Actors.Solid
 
             CreateParticleDebris();
 
-            PlaySound("Break");
+            PlaySound(Transform.Pos, "Break");
 
             CreateSpriteDebris("CrateShrapnel1", 3);
             CreateSpriteDebris("CrateShrapnel2", 2);

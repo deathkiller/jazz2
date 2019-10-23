@@ -183,7 +183,7 @@ namespace Jazz2.Actors.Bosses
                 api.RemoveActor(pieces[i]);
             }
 
-            api.PlayCommonSound(this, "Splat");
+            api.PlayCommonSound(Transform.Pos, "Splat");
 
             Explosion.Create(api, Transform.Pos, Explosion.Large);
 

@@ -56,7 +56,7 @@ namespace Jazz2.Actors.Solid
 
         protected override bool OnPerish(ActorBase collider)
         {
-            PlaySound("Break");
+            PlaySound(Transform.Pos, "Break");
 
             CreateParticleDebris();
 

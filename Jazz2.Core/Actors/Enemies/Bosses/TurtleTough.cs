@@ -137,7 +137,7 @@ namespace Jazz2.Actors.Bosses
 
             Explosion.Create(api, Transform.Pos, Explosion.SmokeGray);
 
-            api.PlayCommonSound(this, "Splat");
+            api.PlayCommonSound(Transform.Pos, "Splat");
 
             api.BroadcastLevelText(endText);
 

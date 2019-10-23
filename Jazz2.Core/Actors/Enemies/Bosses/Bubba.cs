@@ -132,7 +132,7 @@ namespace Jazz2.Actors.Bosses
         {
             CreateParticleDebris();
 
-            api.PlayCommonSound(this, "Splat");
+            api.PlayCommonSound(Transform.Pos, "Splat");
 
             api.BroadcastLevelText(endText);
 

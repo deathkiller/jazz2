@@ -106,7 +106,7 @@ namespace Jazz2.Actors.Enemies
         protected override bool OnPerish(ActorBase collider)
         {
             CreateDeathDebris(collider);
-            api.PlayCommonSound(this, "Splat");
+            api.PlayCommonSound(Transform.Pos, "Splat");
 
             Explosion.Create(api, Transform.Pos, Explosion.Tiny);
 

@@ -181,7 +181,7 @@ namespace Jazz2.Actors.Bosses
         protected override bool OnPerish(ActorBase collider)
         {
             CreateDeathDebris(collider);
-            api.PlayCommonSound(this, "Splat");
+            api.PlayCommonSound(Transform.Pos, "Splat");
 
             api.BroadcastLevelText(endText);
 
@@ -255,7 +255,7 @@ namespace Jazz2.Actors.Bosses
             protected override bool OnPerish(ActorBase collider)
             {
                 CreateDeathDebris(collider);
-                api.PlayCommonSound(this, "Splat");
+                api.PlayCommonSound(Transform.Pos, "Splat");
 
                 Explosion.Create(api, Transform.Pos, Explosion.Tiny);
 

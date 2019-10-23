@@ -72,7 +72,7 @@ namespace Jazz2.Actors.Solid
             player.SetShield(shieldType, 30f);
 
             DecreaseHealth(int.MaxValue, player);
-            PlaySound("Break");
+            PlaySound(Transform.Pos, "Break");
         }
 
         protected override bool OnPerish(ActorBase collider)

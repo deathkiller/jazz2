@@ -192,6 +192,14 @@ namespace Jazz2.Game
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+        public void PlayCommonSound(Vector3 pos, string name, float gain = 1f, float pitch = 1f)
+        {
+            levelHandler.PlayCommonSound(name, pos, gain, pitch);
+        }
+
+#if NET45
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public string GetLevelText(int textID)
         {
             return levelHandler.GetLevelText(textID);

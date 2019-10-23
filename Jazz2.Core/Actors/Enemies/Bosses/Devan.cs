@@ -317,7 +317,7 @@ namespace Jazz2.Actors.Bosses
 
         private void Shoot()
         {
-            PlaySound("Shoot");
+            PlaySound(Transform.Pos, "Shoot");
 
             SetTransition((AnimState)16, false, delegate {
                 Bullet bullet = new Bullet();
@@ -394,21 +394,21 @@ namespace Jazz2.Actors.Bosses
             {
                 DecreaseHealth(int.MaxValue);
 
-                PlaySound("WallPoof");
+                PlaySound(Transform.Pos, "WallPoof");
             }
 
             protected override void OnHitWall()
             {
                 DecreaseHealth(int.MaxValue);
 
-                PlaySound("WallPoof");
+                PlaySound(Transform.Pos, "WallPoof");
             }
 
             protected override void OnHitCeiling()
             {
                 DecreaseHealth(int.MaxValue);
 
-                PlaySound("WallPoof");
+                PlaySound(Transform.Pos, "WallPoof");
             }
         }
 
@@ -446,7 +446,7 @@ namespace Jazz2.Actors.Bosses
             {
                 Explosion.Create(api, Transform.Pos, Explosion.SmallDark);
 
-                PlaySound("Flap");
+                PlaySound(Transform.Pos, "Flap");
 
                 return base.OnPerish(collider);
             }

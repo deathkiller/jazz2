@@ -79,7 +79,7 @@ namespace Jazz2.Actors.Weapons
             base.OnFixedUpdate(timeMult);
 
             if (timeLeft <= 0f) {
-                PlaySound("WallPoof");
+                PlaySound(Transform.Pos, "WallPoof");
             }
 
             if (!fired) {
@@ -112,7 +112,7 @@ namespace Jazz2.Actors.Weapons
         {
             DecreaseHealth(int.MaxValue);
 
-            PlaySound("WallPoof");
+            PlaySound(Transform.Pos, "WallPoof");
         }
 
         protected override void OnRicochet()
@@ -121,7 +121,7 @@ namespace Jazz2.Actors.Weapons
 
             Transform.Angle = MathF.Atan2(speedY, speedX);
 
-            PlaySound("Ricochet");
+            PlaySound(Transform.Pos, "Ricochet");
         }
 
         public override void OnHandleCollision(ActorBase other)

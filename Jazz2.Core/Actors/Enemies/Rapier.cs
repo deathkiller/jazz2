@@ -126,7 +126,7 @@ namespace Jazz2.Actors.Enemies
                 }
             }
 
-            PlaySound("Die");
+            PlaySound(Transform.Pos, "Die");
 
             TryGenerateRandomDrop();
 

@@ -118,7 +118,7 @@ namespace Jazz2.Actors.Weapons
             }
 
             if (timeLeft <= 0f) {
-                PlaySound("WallPoof");
+                PlaySound(Transform.Pos, "WallPoof");
             }
 
             if (!fired) {
@@ -140,7 +140,7 @@ namespace Jazz2.Actors.Weapons
         {
             DecreaseHealth(int.MaxValue);
 
-            PlaySound("WallPoof");
+            PlaySound(Transform.Pos, "WallPoof");
         }
     }
 }

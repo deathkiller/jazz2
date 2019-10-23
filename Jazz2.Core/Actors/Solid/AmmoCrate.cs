@@ -35,7 +35,7 @@ namespace Jazz2.Actors.Solid
 
             CreateParticleDebris();
 
-            PlaySound("Break");
+            PlaySound(Transform.Pos, "Break");
 
             if (Content.Count == 0) {
                 // Random Ammo create

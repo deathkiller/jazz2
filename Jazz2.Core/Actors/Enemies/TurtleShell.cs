@@ -116,7 +116,7 @@ namespace Jazz2.Actors.Enemies
                         speedX = totalSpeed / 2f * (speedX >= 0f ? -1f : 1f);
 
                         shell.DecreaseHealth(1, this);
-                        PlaySound("ImpactShell", 0.8f);
+                        PlaySound(Transform.Pos, "ImpactShell", 0.8f);
                     }
                     break;
                 }
@@ -142,14 +142,14 @@ namespace Jazz2.Actors.Enemies
         protected override void OnHitFloor()
         {
             if (MathF.Abs(speedY) > 1f) {
-                PlaySound("ImpactGround");
+                PlaySound(Transform.Pos, "ImpactGround");
             }
         }
 
         protected override bool OnPerish(ActorBase collider)
         {
             CreateDeathDebris(collider);
-            api.PlayCommonSound(this, "Splat");
+            api.PlayCommonSound(Transform.Pos, "Splat");
 
             TryGenerateRandomDrop();
 

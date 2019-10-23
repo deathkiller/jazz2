@@ -752,16 +752,17 @@ namespace Jazz2.Game
             }
         }
 
-        public void PlayCommonSound(string name, Vector3 pos, float gain = 1f)
+        public void PlayCommonSound(string name, Vector3 pos, float gain = 1f, float pitch = 1f)
         {
             SoundResource resource;
             if (commonResources.Sounds.TryGetValue(name, out resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, pos);
                 instance.Volume = gain * SettingsCache.SfxVolume;
+                instance.Pitch = pitch;
 
                 if (pos.Y >= api.WaterLevel) {
                     instance.Lowpass = 0.2f;
-                    instance.Pitch = 0.7f;
+                    instance.Pitch *= 0.7f;
                 }
             }
         }

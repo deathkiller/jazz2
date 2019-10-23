@@ -66,7 +66,7 @@ namespace Jazz2.Actors.Enemies
             // TODO: Sound of bones
             // TODO: Use CreateDeathDebris(collider); instead?
             CreateParticleDebris();
-            api.PlayCommonSound(this, "Splat");
+            api.PlayCommonSound(Transform.Pos, "Splat");
 
             CreateSpriteDebris("Skull", 1);
             CreateSpriteDebris("Bone", MathF.Rnd.Next(9, 12));

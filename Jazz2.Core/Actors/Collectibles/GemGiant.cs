@@ -21,7 +21,7 @@ namespace Jazz2.Actors.Collectibles
 
         protected override bool OnPerish(ActorBase collider)
         {
-            PlaySound("Break");
+            PlaySound(Transform.Pos, "Break");
 
             Vector3 pos = Transform.Pos;
 

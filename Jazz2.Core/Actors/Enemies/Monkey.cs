@@ -124,7 +124,7 @@ namespace Jazz2.Actors.Enemies
         protected override bool OnPerish(ActorBase collider)
         {
             CreateDeathDebris(collider);
-            api.PlayCommonSound(this, "Splat");
+            api.PlayCommonSound(Transform.Pos, "Splat");
 
             TryGenerateRandomDrop();
 
@@ -170,7 +170,7 @@ namespace Jazz2.Actors.Enemies
                     base.OnPerish(collider);
                 });
 
-                PlaySound("BananaSplat", 0.6f);
+                PlaySound(Transform.Pos, "BananaSplat", 0.6f);
 
                 return false;
             }
