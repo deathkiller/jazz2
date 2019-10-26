@@ -41,7 +41,7 @@ namespace Jazz2.Actors.Bosses
             }
         }
 
-        protected override void OnDeactivated(ShutdownContext context)
+        public override void OnDestroyed()
         {
             if (activeRobot != null) {
                 activeRobot.Deactivate();
@@ -49,7 +49,7 @@ namespace Jazz2.Actors.Bosses
             }
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             base.OnFixedUpdate(timeMult);
 

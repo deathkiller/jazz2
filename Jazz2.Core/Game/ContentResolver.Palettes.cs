@@ -79,13 +79,15 @@ namespace Jazz2.Game
                 95, 92, 88, 15, 15
             };
 
+            int stopsPerGem = (PaletteStops.Length / GemColorCount) - 1;
+
             ColorRgba[] palette = paletteTexture.Res.BasePixmap.Res.MainLayer.Data;
 
             // Start to fill palette texture from the second row (right after base palette)
             int src = 0, dst = ColorsPerPalette;
             for (int color = 0; color < GemColorCount; color++, src++) {
                 // Compress 2 gem color gradients to single palette row
-                for (int i = 0; i < (PaletteStops.Length / GemColorCount) - 1; i++) {
+                for (int i = 0; i < stopsPerGem; i++) {
                     // Base Palette is in first row of "palette" array
                     ColorRgba from = palette[PaletteStops[src]];
                     ColorRgba to = palette[PaletteStops[++src]];

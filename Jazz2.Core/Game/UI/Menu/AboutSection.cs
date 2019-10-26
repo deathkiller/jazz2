@@ -1,7 +1,6 @@
 ﻿using System;
 using Duality;
 using Duality.Drawing;
-using Duality.Input;
 
 namespace Jazz2.Game.UI.Menu
 {
@@ -11,7 +10,7 @@ namespace Jazz2.Game.UI.Menu
 
         public AboutSection()
         {
-            Version libopenmptVersion = OpenMptStream.Version;
+            Version libopenmptVersion = OpenMptStream.LibraryVersion;
             if (libopenmptVersion != null) {
                 libopenmptText = "Uses libopenmpt library (v\f[w:75]" + libopenmptVersion + "\f[w:100]) released under BSD license.";
             }

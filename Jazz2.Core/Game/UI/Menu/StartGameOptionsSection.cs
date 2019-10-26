@@ -47,7 +47,7 @@ namespace Jazz2.Game.UI.Menu
             animation = 0f;
             base.OnShow(root);
 
-            availableCharacters = (api.IsAnimationPresent("MenuDifficultyLori") ? 3 : 2);
+            availableCharacters = (api.IsAnimationAvailable("MenuDifficultyLori") ? 3 : 2);
         }
 
         public override void OnPaint(Canvas canvas, Rect view)

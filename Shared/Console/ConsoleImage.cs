@@ -2,7 +2,7 @@
 using System.IO;
 using System.Reflection;
 
-namespace Jazz2
+namespace Duality
 {
     public class ConsoleImage
     {

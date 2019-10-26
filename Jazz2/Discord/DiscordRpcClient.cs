@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace Jazz2.Discord
 {
-    public class DiscordRpcClient : IDisposable
+    public sealed class DiscordRpcClient : IDisposable
     {
         private const int StateDisconnected = 0;
         private const int StateConnecting = 1;
@@ -73,7 +73,10 @@ namespace Jazz2.Discord
             }
 
             aborting = true;
-            queueUpdatedEvent.Set();
+
+            if (queueUpdatedEvent != null) {
+                queueUpdatedEvent.Set();
+            }
         }
 
 
@@ -151,7 +154,9 @@ namespace Jazz2.Discord
                 sendQueue.Enqueue(new PipeFrame(1 /*Frame*/, sb.ToString()));
             }
 
-            queueUpdatedEvent.Set();
+            if (queueUpdatedEvent != null) {
+                queueUpdatedEvent.Set();
+            }
         }
 
         private void OnBackgroundThread()
@@ -174,10 +179,9 @@ namespace Jazz2.Discord
                         tries = 1;
                         state = StateConnecting;
 
-                        PipeFrame frame;
                         bool continueReading = true;
                         while (continueReading && !aborting && !shutdown && namedPipe.IsConnected) {
-                            if (namedPipe.ReadFrame(out frame)) {
+                            if (namedPipe.ReadFrame(out PipeFrame frame)) {
                                 switch (frame.Opcode) {
                                     default:
                                     case 0: // Handshake - invalid frame
@@ -230,8 +234,8 @@ namespace Jazz2.Discord
                     if (!aborting && !shutdown) {
                         Thread.Sleep(tries * 30000);
                     }
-                } catch (Exception e) {
-                    // Nothing to do...
+                } catch /*(Exception e)*/ {
+                    // Probably cannot connect to Discord
                 } finally {
                     if (namedPipe.IsConnected) {
                         namedPipe.Close();
@@ -244,11 +248,17 @@ namespace Jazz2.Discord
             if (namedPipe != null) {
                 namedPipe.Dispose();
             }
+
+            if (queueUpdatedEvent != null) {
+                queueUpdatedEvent.Dispose();
+            }
         }
 
         private void OnFrameReceived()
         {
-            queueUpdatedEvent.Set();
+            if (queueUpdatedEvent != null) {
+                queueUpdatedEvent.Set();
+            }
         }
 
         private int GetNextNonce()

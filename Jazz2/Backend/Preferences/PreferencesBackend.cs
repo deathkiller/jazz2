@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Duality;
 using Duality.Backend;
 using Duality.IO;
 using Jazz2.Game;

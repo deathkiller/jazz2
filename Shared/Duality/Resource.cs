@@ -76,7 +76,11 @@ namespace Duality
 			foreach (Resource res in finalizeSchedArray) {
 				if (res == null) continue;
 				res.Dispose(false);
-			}
+
+#if DEBUG
+                Log.Write(LogType.Info, "Disposing resource \"" + res + "\" (" + res.GetType().FullName + ")...");
+#endif
+            }
 		}
 	}
 }

@@ -32,7 +32,7 @@ namespace Jazz2.Compatibility
 
                 episode.episodeToken = Path.GetFileNameWithoutExtension(path).ToLower(CultureInfo.InvariantCulture);
 
-                // ToDo: Implement JJ2+ extended data
+                // ToDo: Implement JJ2+ extended data, but I haven't seen it anywhere yet
                 // the condition of unlocking (currently only defined for 0 meaning "always unlocked"
                 // and 1 meaning "requires the previous episode to be finished", stored as a 4-byte-long
                 // integer starting at byte 0x4), binary flags of various purpose (currently supported
@@ -49,6 +49,7 @@ namespace Jazz2.Compatibility
                 episode.isRegistered = (r.ReadInt32() != 0);
                 int unknown1 = r.ReadInt32();
 
+                // Episode name
                 {
                     byte[] episodeNameRaw = r.ReadBytes(128);
                     episode.episodeName = Encoding.ASCII.GetString(episodeNameRaw);
@@ -57,6 +58,7 @@ namespace Jazz2.Compatibility
                         episode.episodeName = episode.episodeName.Substring(0, i);
                     }
                 }
+                // First level
                 {
                     byte[] firstLevelRaw = r.ReadBytes(32);
                     episode.firstLevel = Encoding.ASCII.GetString(firstLevelRaw);
@@ -167,9 +169,10 @@ namespace Jazz2.Compatibility
         private static PngWriter ConvertEpisodeLogo(Bitmap logo)
         {
             // Resize the original image
-            const float ratio = 120f / 220f;
-            int width = MathF.RoundToInt(logo.Width * ratio);
-            int height = MathF.RoundToInt(logo.Height * ratio);
+            const float LogoResizeRatio = 120f / 220f;
+
+            int width = MathF.RoundToInt(logo.Width * LogoResizeRatio);
+            int height = MathF.RoundToInt(logo.Height * LogoResizeRatio);
             Bitmap title = new Bitmap(width, height);
             using (Graphics g = Graphics.FromImage(title)) {
                 g.CompositingQuality = CompositingQuality.HighQuality;
@@ -217,16 +220,16 @@ namespace Jazz2.Compatibility
             }
 
             // Compose final image
-            Bitmap output = new Bitmap(width, height);
+            Bitmap result = new Bitmap(width, height);
 
-            using (Graphics g = Graphics.FromImage(output)) {
+            using (Graphics g = Graphics.FromImage(result)) {
                 g.DrawImageEx(shadow, new RectangleF(alignX, -0.4f, width, height), 100, false);
                 g.DrawImageEx(shadow, new RectangleF(alignX, 1.2f, width, height), 200, false);
 
                 g.DrawImage(title, new Rectangle(alignX, 0, width, height));
             }
 
-            return new PngWriter(output);
+            return new PngWriter(result);
         }
 
         private static Bitmap ConvertIndicesToRgbaBitmap(int width, int height, JJ2Block block, bool removeShadow)

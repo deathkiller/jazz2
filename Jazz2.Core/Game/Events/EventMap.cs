@@ -370,7 +370,7 @@ namespace Jazz2.Game.Events
                     if (!tile.IsEventActive && tile.EventType != EventType.Empty) {
                         tile.IsEventActive = true;
 
-                        if (tile.EventType == EventType.Weather) {
+                        if (tile.EventType == EventType.AreaWeather) {
                             levelHandler.ApplyWeather((LevelHandler.WeatherType)tile.EventParams[0], tile.EventParams[1], tile.EventParams[2] != 0);
                         } else if (tile.EventType != EventType.Generator) {
                             ActorInstantiationFlags flags = ActorInstantiationFlags.IsCreatedFromEventMap | tile.EventFlags;

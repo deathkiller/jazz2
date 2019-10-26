@@ -90,7 +90,7 @@ csharp_preferred_modifier_order = public,private,protected,internal,static,exter
 csharp_prefer_braces = true:suggestion
 
 # Expression-level preferences
-csharp_prefer_simple_default_expression = true:suggestion
+csharp_prefer_simple_default_expression = false:suggestion
 csharp_style_pattern_local_over_anonymous_function = true:suggestion
 csharp_style_prefer_index_operator = true:suggestion
 csharp_style_prefer_range_operator = true:suggestion
@@ -144,3 +144,8 @@ csharp_space_between_square_brackets = false
 csharp_preserve_single_line_blocks = true
 csharp_preserve_single_line_statements = true
 
+# IDE0063: Use simple 'using' statement
+csharp_prefer_simple_using_statement = false:suggestion
+
+# IDE0066: Convert switch statement to expression
+csharp_style_prefer_switch_expression = false:suggestion

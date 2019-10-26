@@ -12,7 +12,6 @@ namespace Jazz2.Actors.Weapons
         private Vector2 gunspotPos;
         private bool fired;
 
-        public override EventType EventType => EventType.WeaponBlaster;
         public override WeaponType WeaponType => WeaponType.Blaster;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
@@ -66,7 +65,7 @@ namespace Jazz2.Actors.Weapons
             renderer.Active = false;
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             float halfTimeMult = timeMult * 0.5f;
 

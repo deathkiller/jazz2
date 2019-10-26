@@ -63,17 +63,15 @@ namespace Jazz2.Actors.Bosses
             api.AddActor(block);
         }
 
-        protected override void OnDeactivated(Component.ShutdownContext context)
+        public override void OnDestroyed()
         {
             if (block != null) {
                 api.RemoveActor(block);
                 block = null;
             }
-
-            base.OnDeactivated(context);
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             base.OnFixedUpdate(timeMult);
 
@@ -292,7 +290,7 @@ namespace Jazz2.Actors.Bosses
                 PlaySound("BrickFalling", 0.3f);
             }
 
-            protected override void OnFixedUpdate(float timeMult)
+            public override void OnFixedUpdate(float timeMult)
             {
                 base.OnFixedUpdate(timeMult);
 
@@ -327,7 +325,7 @@ namespace Jazz2.Actors.Bosses
                 renderer.Active = false;
             }
 
-            protected override void OnFixedUpdate(float timeMult)
+            public override void OnFixedUpdate(float timeMult)
             {
                 // Nothing to do...
             }

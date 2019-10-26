@@ -32,7 +32,7 @@ namespace Jazz2.Actors.Enemies
             IsFacingLeft = MathF.Rnd.NextBool();
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             base.OnFixedUpdate(timeMult);
 

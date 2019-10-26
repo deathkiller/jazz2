@@ -7,7 +7,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Duality;
 using Duality.Drawing;
 using Duality.IO;
 using Import.Downloaders;
@@ -27,8 +29,8 @@ namespace Import
 
             Console.Title = Jazz2.Game.App.AssemblyTitle;
 
-            int imageTop;
-            if (ConsoleImage.RenderFromManifestResource("ConsoleImage.udl", out imageTop) && imageTop >= 0) {
+            // Try to render Jazz2 logo
+            if (ConsoleImage.RenderFromManifestResource("ConsoleImage.udl", out int imageTop) && imageTop >= 0) {
                 int width = Console.BufferWidth;
 
                 // Show version number in the right corner
@@ -83,6 +85,7 @@ namespace Import
                         break;
 
 #if DEBUG
+                    // These operations are used only for development
                     case "/to-palette": {
                         if (i + 1 < args.Length && File.Exists(args[i + 1])) {
                             AdaptImageToDefaultPalette(args[i + 1], args);
@@ -143,13 +146,13 @@ namespace Import
             HashSet<string> usedMusic = new HashSet<string>();
             HashSet<string> usedTilesets = new HashSet<string>();
             if (processLevels) {
-                ConvertJJ2Levels(sourcePath, targetPath, usedTilesets, usedMusic);
-
                 usedMusic.Add("boss1");
                 usedMusic.Add("boss2");
                 usedMusic.Add("bonus2");
                 usedMusic.Add("bonus3");
                 usedMusic.Add("menu");
+
+                ConvertJJ2Levels(sourcePath, targetPath, usedTilesets, usedMusic);
             } else {
                 all = true;
             }
@@ -237,6 +240,7 @@ namespace Import
 
             string targetPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
+            // ToDo: This check does not work anymore
             if (File.Exists(Path.Combine(targetPath, "Content", "Animations", "Jazz", "Idle.png"))) {
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("  It seems that there is already other version imported. It's not");
@@ -251,9 +255,7 @@ namespace Import
             // Clear console window and show logo
             if (!ConsoleUtils.IsOutputRedirected) {
                 Console.Clear();
-
-                int imageTop;
-                ConsoleImage.RenderFromManifestResource("ConsoleImage.udl", out imageTop);
+                ConsoleImage.RenderFromManifestResource("ConsoleImage.udl", out _);
             }
 
             // Download and import...
@@ -291,12 +293,12 @@ namespace Import
             Directory.CreateDirectory(animationsPath);
 
             string animsPath = Path.Combine(sourcePath, "Anims.j2a");
-            if (Utils.FileResolveCaseInsensitive(ref animsPath)) {
+            if (FileSystemUtils.FileResolveCaseInsensitive(ref animsPath)) {
                 JJ2Anims.Convert(animsPath, animationsPath, false);
             } else {
                 // Try to convert Shareware Demo
                 animsPath = Path.Combine(sourcePath, "AnimsSw.j2a");
-                if (Utils.FileResolveCaseInsensitive(ref animsPath)) {
+                if (FileSystemUtils.FileResolveCaseInsensitive(ref animsPath)) {
                     JJ2Anims.Convert(animsPath, animationsPath, false);
                 } else {
                     Log.Write(LogType.Warning, "No suitable file with assets found!");
@@ -418,7 +420,7 @@ namespace Import
                     }
 
                     string asPath = Path.ChangeExtension(file, ".j2as");
-                    bool isPlusEnhanced = Utils.FileResolveCaseInsensitive(ref asPath);
+                    bool isPlusEnhanced = FileSystemUtils.FileResolveCaseInsensitive(ref asPath);
 
                     JJ2Level l = JJ2Level.Open(file, false);
                     string levelToken = l.CurrentLevelToken.ToLower().Replace(" ", "_").Replace("\"", "").Replace("'", "");
@@ -456,14 +458,9 @@ namespace Import
 
                     tree.GetContentFromDirectory(targetPathInner, null, false);
 
-                    CompressedContent.Create(targetPathInner + ".level", tree, (name, flags) => {
-                        if ((flags & CompressedContent.ResourceFlags.HasResource) != 0 && !name.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) {
-                            flags |= CompressedContent.ResourceFlags.Compressed;
-                        }
-                        return flags;
-                    });
+                    CreateCompressedContent(targetPathInner + ".level", tree);
 
-                    Utils.DirectoryTryDelete(targetPathInner, true);
+                    FileSystemUtils.DirectoryTryDelete(targetPathInner, true);
 
                     if (l.UnsupportedEvents.Count > 0) {
                         Log.Write(LogType.Warning, "Level \"" + levelToken + "\"" + versionPart + " converted" + (isPlusEnhanced ? " without .j2as" : "") + " with " + l.UnsupportedEvents.Sum(i => i.Value) + " warnings.");
@@ -538,7 +535,7 @@ namespace Import
                 }
 
                 string sourceFile = Path.Combine(sourcePath, knownFiles[i]);
-                if (Utils.FileResolveCaseInsensitive(ref sourceFile)) {
+                if (FileSystemUtils.FileResolveCaseInsensitive(ref sourceFile)) {
                     File.Copy(sourceFile, targetFile);
                     usedMusic.Add(Path.GetFileNameWithoutExtension(knownFiles[i]).ToLowerInvariant());
                 } else {
@@ -555,12 +552,12 @@ namespace Import
             Log.PushIndent();
 
             // Known music extensions
-            string[] exts = { ".j2b", ".xm", ".it", ".s3m", ".mo3", ".mod" };
+            string[] knownExts = { ".j2b", ".xm", ".it", ".s3m", ".mo3", ".mod" };
 
             Directory.CreateDirectory(Path.Combine(targetPath, "Content", "Music"));
 
-            for (int i = 0; i < exts.Length; i++) {
-                foreach (string file in Directory.EnumerateFiles(sourcePath, "*" + exts[i], SearchOption.TopDirectoryOnly)) {
+            for (int i = 0; i < knownExts.Length; i++) {
+                foreach (string file in Directory.EnumerateFiles(sourcePath, "*" + knownExts[i], SearchOption.TopDirectoryOnly)) {
                     string token = Path.GetFileNameWithoutExtension(file).ToLowerInvariant();
                     if (usedMusic != null && !usedMusic.Contains(token)) {
                         if (verbose) {
@@ -611,14 +608,9 @@ namespace Import
 
                     tree.GetContentFromDirectory(output, null, false);
 
-                    CompressedContent.Create(output + ".set", tree, (name, flags) => {
-                        if ((flags & CompressedContent.ResourceFlags.HasResource) != 0 && !name.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) {
-                            flags |= CompressedContent.ResourceFlags.Compressed;
-                        }
-                        return flags;
-                    });
+                    CreateCompressedContent(output + ".set", tree);
 
-                    Utils.DirectoryTryDelete(output, true);
+                    FileSystemUtils.DirectoryTryDelete(output, true);
 
                 } catch (Exception ex) {
                     Log.Write(LogType.Error, "Tileset \"" + Path.GetFileName(file) + "\" not supported!");
@@ -806,12 +798,12 @@ namespace Import
                     usedAnimations.Add("_custom/font_small.png");
                     usedAnimations.Add("_custom/font_medium.png");
 
-                    string prefix = Path.Combine(targetPath, "Content", "Animations");
+                    string prefixPath = Path.Combine(targetPath, "Content", "Animations");
 
-                    foreach (string animation in Directory.EnumerateFiles(prefix, "*", SearchOption.AllDirectories)) {
-                        string animationFile = animation.Substring(prefix.Length + 1).ToLowerInvariant().Replace('\\', '/').Replace(".png.res", ".png").Replace(".n.png", ".png").Replace(".png.font", ".png");
+                    foreach (string animation in Directory.EnumerateFiles(prefixPath, "*", SearchOption.AllDirectories)) {
+                        string animationFile = animation.Substring(prefixPath.Length + 1).ToLowerInvariant().Replace('\\', '/').Replace(".png.res", ".png").Replace(".n.png", ".png").Replace(".png.font", ".png");
                         if (!usedAnimations.Contains(animationFile)) {
-                            string pathWithoutPrefix = animation.Substring(prefix.Length);
+                            string pathWithoutPrefix = animation.Substring(prefixPath.Length);
                             try {
                                 File.Delete(animation);
                                 if (verbose) {
@@ -827,7 +819,7 @@ namespace Import
                     foreach (string directory in Directory.EnumerateDirectories(Path.Combine(targetPath, "Content", "Animations"))) {
                         bool hasFiles = Directory.EnumerateFileSystemEntries(directory, "*", SearchOption.AllDirectories).Any();
                         if (!hasFiles) {
-                            string pathWithoutPrefix = directory.Substring(prefix.Length);
+                            string pathWithoutPrefix = directory.Substring(prefixPath.Length);
                             try {
                                 Directory.Delete(directory);
                                 if (verbose) {
@@ -858,31 +850,31 @@ namespace Import
             Log.PushIndent();
 
             foreach (string unreferenced in new[] { "boss1.j2b", "boss2.j2b", "bonus2.j2b", "bonus3.j2b", "menu.j2b", "intro.j2b", "ending.j2b" }) {
-                if (!Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Music", unreferenced))) {
+                if (!FileSystemUtils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Music", unreferenced))) {
                     Log.Write(LogType.Warning, "\"" + Path.Combine("Music", unreferenced) + "\" is missing!");
                 }
             }
 
             if (Directory.Exists(Path.Combine(targetPath, "Content", "Episodes"))) {
                 foreach (string episode in Directory.EnumerateDirectories(Path.Combine(targetPath, "Content", "Episodes"))) {
-                    foreach (string level in Directory.EnumerateFiles(episode, ".*.level")) {
+                    foreach (string level in Directory.EnumerateFiles(episode, "*.level")) {
                         IFileSystem levelPackage = new CompressedContent(level);
 
                         using (Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
                             LevelConfigJson json = jsonParser.Parse<LevelConfigJson>(s);
 
                             if (!string.IsNullOrEmpty(json.Description.DefaultMusic)) {
-                                if (!Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Music", json.Description.DefaultMusic))) {
+                                if (!FileSystemUtils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Music", json.Description.DefaultMusic))) {
                                     Log.Write(LogType.Warning, "\"" + Path.Combine("Music", json.Description.DefaultMusic) + "\" is missing!");
                                 }
                             }
 
                             if (!string.IsNullOrEmpty(json.Description.DefaultTileset)) {
                                 if (!Directory.Exists(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset)) ||
-                                    !Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "tiles.png")) ||
-                                    !Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "mask.png")) ||
-                                    !Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "normals.png")) ||
-                                    !Utils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "palette.res"))) {
+                                    !FileSystemUtils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "tiles.png")) ||
+                                    !FileSystemUtils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "mask.png")) ||
+                                    !FileSystemUtils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "normals.png")) ||
+                                    !FileSystemUtils.FileExistsCaseSensitive(Path.Combine(targetPath, "Content", "Tilesets", json.Description.DefaultTileset, "palette.res"))) {
 
                                     Log.Write(LogType.Warning, "\"" + Path.Combine("Tilesets", json.Description.DefaultTileset) + "\" is missing!");
                                 }
@@ -1023,7 +1015,7 @@ namespace Import
             }) {
                 string file = PathOp.Combine("Animations", unreferenced.Replace('/', PathOp.DirectorySeparatorChar));
                 string path = Path.Combine(animationsPath, unreferenced);
-                if (Utils.FileResolveCaseInsensitive(ref path)) {
+                if (FileSystemUtils.FileResolveCaseInsensitive(ref path)) {
                     FileInfo info = new FileInfo(path);
                     ContentTree.Node node = tree.AddNodeByPath(file);
                     node.Source = new FileResourceSource(path, 0, info.Length, false);
@@ -1057,12 +1049,7 @@ namespace Import
 
             tree.RemoveEmptyNodes();
 
-            CompressedContent.Create(newContent, tree, (name, flags) => {
-                if ((flags & CompressedContent.ResourceFlags.HasResource) != 0 && !name.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) {
-                    flags |= CompressedContent.ResourceFlags.Compressed;
-                }
-                return flags;
-            });
+            CreateCompressedContent(newContent, tree);
 
             if (File.Exists(oldContent)) {
                 if (keepOld) {
@@ -1123,12 +1110,7 @@ namespace Import
 
             tree.RemoveEmptyNodes();
 
-            CompressedContent.Create(newContent, tree, (name, flags) => {
-                if ((flags & CompressedContent.ResourceFlags.HasResource) != 0 && !name.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) {
-                    flags |= CompressedContent.ResourceFlags.Compressed;
-                }
-                return flags;
-            });
+            CreateCompressedContent(newContent, tree);
 
             Log.Write(LogType.Info, "Removing unnecessary files...");
 
@@ -1166,7 +1148,7 @@ namespace Import
         private static Dictionary<string, Tuple<string, string>> GetKnownLevels(string sourcePath)
         {
             string xmasEpisodePath = Path.Combine(sourcePath, "xmas99.j2e");
-            string xmasEpisodeToken = (Utils.FileResolveCaseInsensitive(ref xmasEpisodePath) ? "xmas99" : "xmas98");
+            string xmasEpisodeToken = (FileSystemUtils.FileResolveCaseInsensitive(ref xmasEpisodePath) ? "xmas99" : "xmas98");
 
             return new Dictionary<string, Tuple<string, string>> {
                 ["castle1"] = Tuple.Create("prince", "01"),
@@ -1320,8 +1302,45 @@ namespace Import
             }
         }
 
-        // :: Only for development ::
+        private static string MinifyJsonContent(string json)
+        {
+            return Regex.Replace(json, "(\"(?:[^\"\\\\]|\\\\.)*\")|\\s+", "$1");
+        }
+
+        private static void CreateCompressedContent(string filename, ContentTree tree)
+        {
+            CompressedContent.Create(filename, tree, (ContentTree.Node node, ref CompressedContent.ResourceFlags flags, ref Stream overrideStream) => {
+                if ((flags & CompressedContent.ResourceFlags.HasResource) != 0) {
+                    if (!node.Name.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) {
+                        // PNG files are already compressed by its format, don't compress them again
+                        flags |= CompressedContent.ResourceFlags.Compressed;
+                    }
+
+                    if (node.Name.EndsWith(".res", StringComparison.OrdinalIgnoreCase) && node.Source.Size < 1024 * 1024 * 10) {
+                        // Minify all JSON files smaller than 10MB
+                        Encoding enc = new UTF8Encoding(false);
+                        string content;
+                        using (StreamReader sr = new StreamReader(node.Source.GetUncompressedStream(), enc)) {
+                            content = sr.ReadToEnd();
+                        }
+
+                        if (Regex.IsMatch(content, "[{,]\\s*\"Target\"\\s*:\\s*\"Jazz² Resurrection\"\\s*[},]")) {
+                            content = MinifyJsonContent(content);
+
+                            overrideStream = new MemoryStream();
+                            using (StreamWriter sw = new StreamWriter(overrideStream, enc, 1024, true)) {
+                                sw.Write(content);
+                            }
+                            overrideStream.Position = 0;
+                        }
+                    }
+                }
+            });
+        }
+
 #if DEBUG
+        // These operations are used only for development
+
         private static readonly int[] UsableIndexRanges = {
             0, 1,       // Transparent, Black
          // 2, 9           Still black
@@ -1662,7 +1681,7 @@ namespace Import
             Log.PopIndent();
         }
 
-        private static void MigrateMetadata(string targetPath)
+        /*private static void MigrateMetadata(string targetPath)
         {
             Log.Write(LogType.Info, "Migrating metadata to newer version...");
             Log.PushIndent();
@@ -1683,7 +1702,7 @@ namespace Import
             });
 
             Log.PopIndent();
-        }
+        }*/
 #endif
     }
 }

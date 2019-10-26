@@ -42,7 +42,7 @@ namespace Jazz2.Actors.Bosses
             PreloadMetadata("Boss/TurtleShellTough");
         }
 
-        protected override void OnDeactivated(ShutdownContext context)
+        public override void OnDestroyed()
         {
             if (currentMace != null) {
                 api.RemoveActor(currentMace);
@@ -50,7 +50,7 @@ namespace Jazz2.Actors.Bosses
             }
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             base.OnFixedUpdate(timeMult);
 
@@ -171,7 +171,7 @@ namespace Jazz2.Actors.Bosses
             }
         }
 
-        public class Mace : EnemyBase
+        private class Mace : EnemyBase
         {
             private const float TotalTime = 60f;
 
@@ -200,10 +200,10 @@ namespace Jazz2.Actors.Bosses
                 FollowNearestPlayer();
 
                 sound = PlaySound("Mace", 0.7f);
-                sound.Looped = true;
+                sound.Flags |= SoundInstanceFlags.Looped;
             }
 
-            protected override void OnDeactivated(ShutdownContext context)
+            public override void OnDestroyed()
             {
                 if (sound != null) {
                     sound.Stop();
@@ -211,7 +211,7 @@ namespace Jazz2.Actors.Bosses
                 }
             }
 
-            protected override void OnFixedUpdate(float timeMult)
+            public override void OnFixedUpdate(float timeMult)
             {
                 //base.OnFixedUpdate(timeMult);
                 MoveInstantly(new Vector2(speedX * timeMult, speedY * timeMult), MoveType.Relative, true);

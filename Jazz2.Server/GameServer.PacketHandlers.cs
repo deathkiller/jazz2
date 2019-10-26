@@ -6,8 +6,7 @@ using Duality;
 using Jazz2.Actors;
 using Jazz2.Game;
 using Jazz2.Game.Collisions;
-using Jazz2.Game.Structs;
-using Jazz2.Networking.Packets;
+using Jazz2.Networking;
 using Jazz2.Networking.Packets.Client;
 using Jazz2.Networking.Packets.Server;
 using Lidgren.Network;
@@ -20,13 +19,18 @@ namespace Jazz2.Server
         {
             RegisterCallback<LevelReady>(OnLevelReady);
             RegisterCallback<UpdateSelf>(OnUpdateSelf);
+
             RegisterCallback<SelfDied>(OnSelfDied);
             RegisterCallback<RemotePlayerHit>(OnRemotePlayerHit);
-            RegisterCallback<CreateRemotableActor>(OnCreateRemotableActor);
-            RegisterCallback<UpdateRemotableActor>(OnUpdateRemotableActor);
-            RegisterCallback<DestroyRemotableActor>(OnDestroyRemotableActor);
+
+            //RegisterCallback<CreateRemotableActor>(OnCreateRemotableActor);
+            //RegisterCallback<UpdateRemotableActor>(OnUpdateRemotableActor);
+            //RegisterCallback<DestroyRemotableActor>(OnDestroyRemotableActor);
         }
 
+        /// <summary>
+        /// Player finished loading of a level and is ready to play
+        /// </summary>
         private void OnLevelReady(ref LevelReady p)
         {
             Player player;
@@ -36,10 +40,12 @@ namespace Jazz2.Server
                 }
 
                 lock (sync) {
-
+                    // Add connection to list, so it will start to receive gameplay events from server
                     playerConnections.Add(p.SenderConnection);
 
                     if (!playerSpawningEnabled) {
+                        // If spawning is not enabled, postpone spawning of the player,
+                        // but send command to create all already spawned players
                         player.State = PlayerState.HasLevelLoaded;
 
                         foreach (KeyValuePair<NetConnection, Player> pair in players) {
@@ -52,77 +58,85 @@ namespace Jazz2.Server
                                     Index = pair.Value.Index,
                                     Type = pair.Value.PlayerType,
                                     Pos = pair.Value.Pos
-                                }, 9, p.SenderConnection, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+                                }, 9, p.SenderConnection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+                            }
+                        }
+                    } else {
+                        // Initialize player to it can be spawned
+                        // ToDo: Set character requested by the player
+                        player.PlayerType = MathF.Rnd.OneOf(new[] { PlayerType.Jazz, PlayerType.Spaz, PlayerType.Lori });
+
+                        // ToDo: The same as RespawnPlayer()
+                        player.Pos = new Vector3(eventMap.GetRandomSpawnPosition(), LevelHandler.PlayerZ);
+                        player.State = PlayerState.Spawned;
+
+                        // ToDo: But these two lines not
+                        player.AABB = new AABB(player.Pos.Xy, 20, 30);
+                        collisions.AddProxy(player);
+
+                        Send(new CreateControllablePlayer {
+                            Index = player.Index,
+                            Type = player.PlayerType,
+                            Pos = player.Pos,
+                            Health = playerHealth
+                        }, 9, p.SenderConnection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+
+                        // Send command to create all already spawned players
+                        List<NetConnection> playersWithLoadedLevel = new List<NetConnection>();
+                        foreach (KeyValuePair<NetConnection, Player> pair in players) {
+                            if (pair.Key == p.SenderConnection) {
+                                continue;
+                            }
+
+                            if (pair.Value.State == PlayerState.HasLevelLoaded || pair.Value.State == PlayerState.Spawned || pair.Value.State == PlayerState.Dead) {
+                                playersWithLoadedLevel.Add(pair.Key);
+
+                                if (pair.Value.State == PlayerState.Spawned) {
+                                    Send(new CreateRemotePlayer {
+                                        Index = pair.Value.Index,
+                                        Type = pair.Value.PlayerType,
+                                        Pos = pair.Value.Pos
+                                    }, 9, p.SenderConnection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+                                }
                             }
                         }
 
-                        return;
-                    }
+                        // Send command to all active players to create this new player
+                        Send(new CreateRemotePlayer {
+                            Index = player.Index,
+                            Type = player.PlayerType,
+                            Pos = player.Pos
+                        }, 9, playersWithLoadedLevel, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
 
-                    // ToDo: Set character requested by the player
-                    player.PlayerType = MathF.Rnd.OneOf(new[] { PlayerType.Jazz, PlayerType.Spaz, PlayerType.Lori });
+                        // Send command to create all remotable actors
+                        /*foreach (KeyValuePair<int, RemotableActor> pair in remotableActors) {
+                            RemotableActor remotableActor = pair.Value;
 
-                    player.Pos = new Vector3(eventMap.GetRandomSpawnPosition(), LevelHandler.PlayerZ);
-                    player.State = PlayerState.Spawned;
+                            Send(new CreateRemoteObject {
+                                Index = remotableActor.Index,
+                                EventType = remotableActor.EventType,
+                                EventParams = remotableActor.EventParams,
+                                Pos = remotableActor.Pos,
+                            }, 35, p.SenderConnection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+                        }*/
 
-                    player.AABB = new AABB(player.Pos.Xy, 20, 30);
-                    collisions.AddProxy(player);
-
-                    Send(new CreateControllablePlayer {
-                        Index = player.Index,
-                        Type = player.PlayerType,
-                        Pos = player.Pos,
-                        Health = playerHealth
-                    }, 9, p.SenderConnection, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
-
-                    List<NetConnection> playersWithLoadedLevel = new List<NetConnection>();
-                    foreach (KeyValuePair<NetConnection, Player> pair in players) {
-                        if (pair.Key == p.SenderConnection) {
-                            continue;
+                        // Send command to create all spawned actors
+                        foreach (ActorBase actor in spawnedActors) {
+                            Send(new CreateRemoteObject {
+                                Index = actor.Index,
+                                Pos = actor.Transform.Pos,
+                                MetadataPath = actor.LoadedMetadata,
+                                AnimState = actor.AnimState
+                            }, 64, p.SenderConnection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                         }
-
-                        if (pair.Value.State == PlayerState.HasLevelLoaded || pair.Value.State == PlayerState.Spawned || pair.Value.State == PlayerState.Dead) {
-                            playersWithLoadedLevel.Add(pair.Key);
-
-                            if (pair.Value.State == PlayerState.Spawned) {
-                                Send(new CreateRemotePlayer {
-                                    Index = pair.Value.Index,
-                                    Type = pair.Value.PlayerType,
-                                    Pos = pair.Value.Pos
-                                }, 9, p.SenderConnection, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
-                            }
-                        }
-                    }
-
-                    Send(new CreateRemotePlayer {
-                        Index = player.Index,
-                        Type = player.PlayerType,
-                        Pos = player.Pos
-                    }, 9, playersWithLoadedLevel, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
-
-                    foreach (KeyValuePair<int, RemotableActor> pair in remotableActors) {
-                        RemotableActor remotableActor = pair.Value;
-
-                        Send(new CreateRemoteObject {
-                            Index = remotableActor.Index,
-                            EventType = remotableActor.EventType,
-                            EventParams = remotableActor.EventParams,
-                            Pos = remotableActor.Pos,
-                        }, 35, p.SenderConnection, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
-                    }
-
-                    foreach (ActorBase remotableActor in spawnedActors) {
-                        Send(new CreateRemoteObject {
-                            Index = remotableActor.Index,
-                            EventType = remotableActor.EventType,
-                            EventParams = remotableActor.EventParams,
-                            Pos = remotableActor.Transform.Pos,
-                        }, 35, p.SenderConnection, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
                     }
                 }
             }
         }
 
+        /// <summary>
+        /// Player sent its updated state and position
+        /// </summary>
         private void OnUpdateSelf(ref UpdateSelf p)
         {
             Player player;
@@ -148,10 +162,14 @@ namespace Jazz2.Server
             }
         }
 
+        /// <summary>
+        /// Player died
+        /// </summary>
         private void OnSelfDied(ref SelfDied p)
         {
             Player player;
 
+            // ToDo: This packet should be verified by server
             lock (sync) {
                 if (!players.TryGetValue(p.SenderConnection, out player)) {
                     return;
@@ -162,18 +180,25 @@ namespace Jazz2.Server
 
             Send(new RemotePlayerDied {
                 Index = player.Index
-            }, 2, playerConnections, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+            }, 2, playerConnections, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
         }
 
+        /// <summary>
+        /// Player hit (with weapon) another player
+        /// </summary>
         private void OnRemotePlayerHit(ref RemotePlayerHit p)
         {
+            // ToDo: This packet should be verified by server
             Send(new DecreasePlayerHealth {
                 Index = p.Index,
                 Amount = p.Damage
-            }, 3, playerConnections, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+            }, 3, playerConnections, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
         }
 
-        private void OnCreateRemotableActor(ref CreateRemotableActor p)
+        /// <summary>
+        /// Player requested to create remotable actor owned by the player
+        /// </summary>
+        /*private void OnCreateRemotableActor(ref CreateRemotableActor p)
         {
             if (p.EventType == EventType.Empty) {
                 return;
@@ -194,6 +219,7 @@ namespace Jazz2.Server
                     return;
                 }
 
+                // Subindex corresponds to player index of owner
                 if (player.Index != (index & 0xff)) {
                     return;
                 }
@@ -211,10 +237,13 @@ namespace Jazz2.Server
                 EventType = remotableActor.EventType,
                 EventParams = remotableActor.EventParams,
                 Pos = remotableActor.Pos,
-            }, 35, playerConnections, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
-        }
+            }, 35, playerConnections, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+        }*/
 
-        private void OnUpdateRemotableActor(ref UpdateRemotableActor p)
+        /// <summary>
+        /// Player updated state and position of owned remotable actor
+        /// </summary>
+        /*private void OnUpdateRemotableActor(ref UpdateRemotableActor p)
         {
             int index = p.Index;
 
@@ -225,6 +254,7 @@ namespace Jazz2.Server
                     return;
                 }
 
+                // Subindex corresponds to player index of owner
                 if (player.Index != (index & 0xff)) {
                     return;
                 }
@@ -256,9 +286,12 @@ namespace Jazz2.Server
                 //remotableObject.AABB = new AABB(remotableObject.Pos.Xy, 30, 30);
                 //collisions.AddProxy(remotableObject);
             }
-        }
+        }*/
 
-        private void OnDestroyRemotableActor(ref DestroyRemotableActor p)
+        /// <summary>
+        /// Player destroyed owned remotable actor
+        /// </summary>
+        /*private void OnDestroyRemotableActor(ref DestroyRemotableActor p)
         {
             int index = p.Index;
 
@@ -268,6 +301,7 @@ namespace Jazz2.Server
                     return;
                 }
 
+                // Subindex corresponds to player index of owner
                 if (player.Index != (index & 0xff)) {
                     return;
                 }
@@ -279,8 +313,8 @@ namespace Jazz2.Server
 
             Send(new DestroyRemoteObject {
                 Index = index
-            }, 5, playerConnections, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
-        }
+            }, 5, playerConnections, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+        }*/
     }
 }
 

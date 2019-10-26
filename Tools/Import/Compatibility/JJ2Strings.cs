@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Duality;
 
 namespace Jazz2.Compatibility
 {
@@ -149,7 +150,7 @@ namespace Jazz2.Compatibility
                     }
 
                     if (!string.IsNullOrEmpty(level.TextEvents[i])) {
-                        string current = JJ2Text.ConvertFormattedString(level.TextEvents[i]);
+                        string current = JJ2Text.ConvertToFormattedString(level.TextEvents[i]);
                         w.Write("        \"" + current + "\"");
                     } else {
                         w.Write("        null");

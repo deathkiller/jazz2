@@ -81,7 +81,7 @@ namespace Jazz2.Game
             }
         }
 
-        private JsonParser jsonParser;
+        private JsonParser jsonParser = new JsonParser();
 
         private ContentRef<Texture> defaultNormalMap;
 
@@ -98,14 +98,14 @@ namespace Jazz2.Game
 
         public ContentRef<Texture> DefaultNormalMap => defaultNormalMap;
 
+        public JsonParser Json => jsonParser;
+
         private ContentResolver()
         {
         }
 
         public void Init()
         {
-            jsonParser = new JsonParser();
-
 #if !UNCOMPRESSED_CONTENT
             string dz = PathOp.Combine(DualityApp.DataDirectory, "Main.dz");
             PathOp.Mount(dz, new CompressedContent(dz));

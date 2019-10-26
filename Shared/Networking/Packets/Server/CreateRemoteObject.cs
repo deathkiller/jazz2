@@ -12,8 +12,10 @@ namespace Jazz2.Networking.Packets.Server
 
         public int Index;
 
-        public EventType EventType;
-        public ushort[] EventParams;
+        //public EventType EventType;
+        //public ushort[] EventParams;
+        public string MetadataPath;
+        public AnimState AnimState;
 
         public Vector3 Pos;
 
@@ -21,12 +23,15 @@ namespace Jazz2.Networking.Packets.Server
         {
             Index = msg.ReadInt32();
 
-            EventType = (EventType)msg.ReadUInt16();
+            //EventType = (EventType)msg.ReadUInt16();
 
-            EventParams = new ushort[8];
-            for (int i = 0; i < 8; i++) {
-                EventParams[i] = msg.ReadUInt16();
-            }
+            //EventParams = new ushort[8];
+            //for (int i = 0; i < 8; i++) {
+            //    EventParams[i] = msg.ReadUInt16();
+            //}
+
+            MetadataPath = msg.ReadString();
+            AnimState = (AnimState)msg.ReadUInt32();
 
             float x = msg.ReadUInt16();
             float y = msg.ReadUInt16();
@@ -38,17 +43,20 @@ namespace Jazz2.Networking.Packets.Server
         {
             msg.Write((int)Index);
 
-            msg.Write((ushort)EventType);
+            //msg.Write((ushort)EventType);
 
-            int length = MathF.Min(EventParams.Length, 8);
+            //int length = MathF.Min(EventParams.Length, 8);
 
-            int i;
-            for (i = 0; i < length; i++) {
-                msg.Write((ushort)EventParams[i]);
-            }
-            for (; i < 8; i++) {
-                msg.Write((ushort)0);
-            }
+            //int i;
+            //for (i = 0; i < length; i++) {
+            //    msg.Write((ushort)EventParams[i]);
+            //}
+            //for (; i < 8; i++) {
+            //    msg.Write((ushort)0);
+            //}
+
+            msg.Write(MetadataPath);
+            msg.Write((uint)AnimState);
 
             msg.Write((ushort)Pos.X);
             msg.Write((ushort)Pos.Y);

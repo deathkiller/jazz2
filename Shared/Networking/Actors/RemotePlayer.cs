@@ -58,7 +58,7 @@ namespace Jazz2.Game.Multiplayer
             collisionFlags = CollisionFlags.CollideWithOtherActors;
         }
 
-        protected override void OnUpdate()
+        public override void OnUpdate()
         {
             double timeNow = NetTime.Now;
             double renderTime = timeNow - ServerDelay;

@@ -47,7 +47,7 @@ namespace Jazz2.Actors.Collectibles
             }
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             base.OnFixedUpdate(timeMult);
 

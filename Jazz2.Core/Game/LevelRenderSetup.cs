@@ -9,19 +9,20 @@ namespace Jazz2.Game
         public static Point2 TargetSize = new Point2(defaultWidth, defaultHeight);
 
 #if PLATFORM_ANDROID
+        // Lower resolution for Android, but it's enough for smaller screens
         private const int defaultWidth = 544, defaultHeight = 306;
 #else
         private const int defaultWidth = 720, defaultHeight = 405;
 #endif
         private Vector2 lastImageSize;
 
-        private static readonly int PyramidSize = 3;
+        private const int PyramidSize = 2;
 
         private readonly LevelHandler levelHandler;
         private readonly ContentRef<Material> lightingMaterial, lightingNoiseMaterial;
         private readonly ContentRef<DrawTechnique> combineSceneShader, combineSceneWaterShader;
 
-#if !PLATFORM_ANDROID
+#if !PLATFORM_ANDROID && !PLATFORM_WASM
         private readonly ContentRef<DrawTechnique> downsampleShader;
         private readonly ContentRef<DrawTechnique> blurShader;
 #endif
@@ -30,7 +31,7 @@ namespace Jazz2.Game
         private Texture lightingTexture, mainTexture, normalTexture, finalTexture;
         private RenderTarget lightingTarget, mainTarget, finalTarget;
 
-#if !PLATFORM_ANDROID
+#if !PLATFORM_ANDROID && !PLATFORM_WASM
         private readonly RenderTarget[] targetPingPongA = new RenderTarget[PyramidSize];
         private readonly RenderTarget[] targetPingPongB = new RenderTarget[PyramidSize];
 #endif
@@ -41,11 +42,6 @@ namespace Jazz2.Game
 
         private SettingsCache.ResizeMode lastResizeMode;
 
-        public Texture FinalTexture
-        {
-            get { return finalTexture; }
-        }
-
         public LevelRenderSetup(LevelHandler levelHandler)
         {
             this.levelHandler = levelHandler;
@@ -54,7 +50,7 @@ namespace Jazz2.Game
             ContentRef<DrawTechnique> lightingShader = ContentResolver.Current.RequestShader("Lighting");
             ContentRef<DrawTechnique> lightingNoiseShader = ContentResolver.Current.RequestShader("LightingNoise");
 
-#if !PLATFORM_ANDROID
+#if !PLATFORM_ANDROID && !PLATFORM_WASM
             downsampleShader = ContentResolver.Current.RequestShader("Downsample");
             blurShader = ContentResolver.Current.RequestShader("Blur");
 #endif
@@ -163,7 +159,7 @@ namespace Jazz2.Game
             Disposable.Free(ref finalTarget);
             Disposable.Free(ref finalTexture);
 
-#if !PLATFORM_ANDROID
+#if !PLATFORM_ANDROID && !PLATFORM_WASM
             Disposable.FreeContents(targetPingPongA);
             Disposable.FreeContents(targetPingPongB);
 #endif
@@ -244,11 +240,11 @@ namespace Jazz2.Game
 
         private void ProcessResizeStep(DrawDevice device)
         {
-            BatchInfo material = device.RentMaterial();
-            material.Technique = resizeShader;
-            material.MainTexture = finalTexture;
-            material.SetValue("mainTexSize", new Vector2(finalTexture.ContentWidth, finalTexture.ContentHeight));
-            this.Blit(device, material, device.ViewportRect);
+            BatchInfo tempMaterial = device.RentMaterial();
+            tempMaterial.Technique = resizeShader;
+            tempMaterial.MainTexture = finalTexture;
+            tempMaterial.SetValue("mainTexSize", new Vector2(finalTexture.ContentWidth, finalTexture.ContentHeight));
+            this.Blit(device, tempMaterial, device.ViewportRect);
         }
 
         private void ProcessCombineSceneStep(DrawDevice device)
@@ -265,15 +261,17 @@ namespace Jazz2.Game
             float ambientLight = levelHandler.AmbientLightCurrent;
             float viewWaterLevel = (levelHandler.WaterLevel - viewOffset.Y);
 
+            // One temporary material is used for all operations
+            BatchInfo tempMaterial = device.RentMaterial();
+
             // Blit ambient light color
             {
-                BatchInfo material = device.RentMaterial();
-                material.Technique = DrawTechnique.Solid;
-                material.MainColor = new ColorRgba(ambientLight, 0, 0);
-                this.Blit(device, material, lightingTarget);
+                tempMaterial.Technique = DrawTechnique.Solid;
+                tempMaterial.MainColor = new ColorRgba(ambientLight, 0, 0);
+                this.Blit(device, tempMaterial, lightingTarget);
             }
 
-            // Render lights (target was set in previous step)
+            // Render lights (target was set in Blit() in previous step)
             device.PrepareForDrawcalls();
 
             foreach (GameObject actor in levelHandler.ActiveObjects) {
@@ -334,97 +332,129 @@ namespace Jazz2.Game
 
             device.Render();
 
-#if !PLATFORM_ANDROID
-            // Resize Blur targets
+#if !PLATFORM_ANDROID && !PLATFORM_WASM
+            // Combine lighting with blurred scene (disabled on Android and WebAssembly for better performance)
             SetupTargets((Point2)device.TargetSize);
 
-            // Blit it into screen
-            {
-                BatchInfo material = device.RentMaterial();
-                material.Technique = DrawTechnique.Solid;
-                material.MainTexture = mainTexture;
-                this.Blit(device, material, targetPingPongA[0]);
-            }
+            // Downsample to half size
+            tempMaterial.Technique = downsampleShader;
+            tempMaterial.MainTexture = mainTexture;
+            tempMaterial.SetValue("pixelOffset", new Vector2(1f / mainTexture.ContentWidth, 1f / mainTexture.ContentHeight));
+            this.Blit(device, tempMaterial, targetPingPongA[0]);
 
-            // Downsample to lowest target
-            for (int i = 1; i < targetPingPongA.Length; i++) {
-                BatchInfo material = device.RentMaterial();
-                material.Technique = downsampleShader;
-                material.MainTexture = targetPingPongA[i - 1].Targets[0];
-                material.SetValue("pixelOffset", new Vector2(1f / material.MainTexture.Res.ContentWidth, 1f / material.MainTexture.Res.ContentHeight));
-
-                this.Blit(device, material, targetPingPongA[i]);
-            }
+            // Downsample to quarter size
+            tempMaterial.MainTexture = targetPingPongA[0].Targets[0];
+            tempMaterial.SetValue("pixelOffset", new Vector2(1f / tempMaterial.MainTexture.Res.ContentWidth, 1f / tempMaterial.MainTexture.Res.ContentHeight));
+            this.Blit(device, tempMaterial, targetPingPongA[1]);
 
             // Blur all targets, separating horizontal and vertical blur
             for (int i = 0; i < targetPingPongA.Length; i++) {
-                BatchInfo material = device.RentMaterial();
-                material.Technique = blurShader;
-                material.MainTexture = targetPingPongA[i].Targets[0];
-                material.SetValue("blurDirection", new Vector2(1f, 0f));
-                material.SetValue("pixelOffset", new Vector2(1f / material.MainTexture.Res.ContentWidth, 1f / material.MainTexture.Res.ContentHeight));
+                tempMaterial.Technique = blurShader;
+                tempMaterial.MainTexture = targetPingPongA[i].Targets[0];
+                tempMaterial.SetValue("blurDirection", new Vector2(1f, 0f));
+                tempMaterial.SetValue("pixelOffset", new Vector2(1f / tempMaterial.MainTexture.Res.ContentWidth, 1f / tempMaterial.MainTexture.Res.ContentHeight));
 
-                this.Blit(device, material, targetPingPongB[i]);
+                this.Blit(device, tempMaterial, targetPingPongB[i]);
 
-                material.MainTexture = targetPingPongB[i].Targets[0];
-                material.SetValue("blurDirection", new Vector2(0f, 1f));
-                material.SetValue("pixelOffset", new Vector2(1f / material.MainTexture.Res.ContentWidth, 1f / material.MainTexture.Res.ContentHeight));
+                tempMaterial.MainTexture = targetPingPongB[i].Targets[0];
+                tempMaterial.SetValue("blurDirection", new Vector2(0f, 1f));
+                tempMaterial.SetValue("pixelOffset", new Vector2(1f / tempMaterial.MainTexture.Res.ContentWidth, 1f / tempMaterial.MainTexture.Res.ContentHeight));
 
-                this.Blit(device, material, targetPingPongA[i]);
+                this.Blit(device, tempMaterial, targetPingPongA[i]);
             }
 #endif
 
             // Blit it into screen
             if (viewWaterLevel < viewSize.Y) {
                 // Render lighting with water
-                BatchInfo material = device.RentMaterial();
-                material.Technique = combineSceneWaterShader;
-                material.SetTexture("mainTex", mainTexture);
-                material.SetTexture("lightTex", lightingTexture);
-                material.SetTexture("displacementTex", noiseTexture); // Underwater displacement
-#if !PLATFORM_ANDROID
-                material.SetTexture("blurHalfTex", targetPingPongA[1].Targets[0]);
-                material.SetTexture("blurQuarterTex", targetPingPongA[2].Targets[0]);
+                tempMaterial.Technique = combineSceneWaterShader;
+                tempMaterial.SetTexture("mainTex", mainTexture);
+                tempMaterial.SetTexture("lightTex", lightingTexture);
+                tempMaterial.SetTexture("displacementTex", noiseTexture); // Underwater displacement
+#if !PLATFORM_ANDROID && !PLATFORM_WASM
+                tempMaterial.SetTexture("blurHalfTex", targetPingPongA[0].Targets[0]);
+                tempMaterial.SetTexture("blurQuarterTex", targetPingPongA[1].Targets[0]);
 
-                material.SetValue("ambientLight", ambientLight);
+                tempMaterial.SetValue("ambientLight", ambientLight);
 #endif
-                material.SetValue("darknessColor", levelHandler.DarknessColor);
+                tempMaterial.SetValue("darknessColor", levelHandler.DarknessColor);
 
-                material.SetValue("waterLevel", viewWaterLevel / viewSize.Y);
+                tempMaterial.SetValue("waterLevel", viewWaterLevel / viewSize.Y);
 
-                this.Blit(device, material, finalTarget);
+                this.Blit(device, tempMaterial, finalTarget);
             } else {
                 // Render lighting without water
-                BatchInfo material = device.RentMaterial();
-                material.Technique = combineSceneShader;
-                material.SetTexture("mainTex", mainTexture);
-                material.SetTexture("lightTex", lightingTexture);
-#if !PLATFORM_ANDROID
-                material.SetTexture("blurHalfTex", targetPingPongA[1].Targets[0]);
-                material.SetTexture("blurQuarterTex", targetPingPongA[2].Targets[0]);
+                tempMaterial.Technique = combineSceneShader;
+                tempMaterial.SetTexture("mainTex", mainTexture);
+                tempMaterial.SetTexture("lightTex", lightingTexture);
+#if !PLATFORM_ANDROID && !PLATFORM_WASM
+                tempMaterial.SetTexture("blurHalfTex", targetPingPongA[0].Targets[0]);
+                tempMaterial.SetTexture("blurQuarterTex", targetPingPongA[1].Targets[0]);
 
-                material.SetValue("ambientLight", ambientLight);
+                tempMaterial.SetValue("ambientLight", ambientLight);
 #endif
-                material.SetValue("darknessColor", levelHandler.DarknessColor);
+                tempMaterial.SetValue("darknessColor", levelHandler.DarknessColor);
 
-                this.Blit(device, material, finalTarget);
+                this.Blit(device, tempMaterial, finalTarget);
             }
         }
 
-#if !PLATFORM_ANDROID
+        public Texture RequestBlurredInGame()
+        {
+#if PLATFORM_ANDROID && !PLATFORM_WASM
+            // Blur is disabled in Android and WebAssembly version
+            return finalTexture;
+#else
+            DrawDevice device = new DrawDevice();
+            device.Projection = ProjectionMode.Screen;
+
+            // One temporary material is used for all operations
+            BatchInfo tempMaterial = device.RentMaterial();
+
+            // Downsample to half size
+            tempMaterial.Technique = downsampleShader;
+            tempMaterial.MainTexture = finalTexture;
+            tempMaterial.SetValue("pixelOffset", new Vector2(1f / finalTexture.ContentWidth, 1f / finalTexture.ContentHeight));
+            this.Blit(device, tempMaterial, targetPingPongA[0]);
+
+            // Downsample to quarter size
+            tempMaterial.MainTexture = targetPingPongA[0].Targets[0];
+            tempMaterial.SetValue("pixelOffset", new Vector2(1f / tempMaterial.MainTexture.Res.ContentWidth, 1f / tempMaterial.MainTexture.Res.ContentHeight));
+            this.Blit(device, tempMaterial, targetPingPongA[1]);
+
+            // Blur last target, separating horizontal and vertical blur
+            tempMaterial.Technique = blurShader;
+            tempMaterial.MainTexture = targetPingPongA[1].Targets[0];
+            tempMaterial.SetValue("blurDirection", new Vector2(1f, 0f));
+            tempMaterial.SetValue("pixelOffset", new Vector2(1f / tempMaterial.MainTexture.Res.ContentWidth, 1f / tempMaterial.MainTexture.Res.ContentHeight));
+
+            this.Blit(device, tempMaterial, targetPingPongB[1]);
+
+            tempMaterial.MainTexture = targetPingPongB[1].Targets[0];
+            tempMaterial.SetValue("blurDirection", new Vector2(0f, 1f));
+            tempMaterial.SetValue("pixelOffset", new Vector2(1f / tempMaterial.MainTexture.Res.ContentWidth, 1f / tempMaterial.MainTexture.Res.ContentHeight));
+
+            this.Blit(device, tempMaterial, targetPingPongA[1]);
+
+            return targetPingPongA[1].Targets[0].Res;
+#endif
+        }
+
+#if !PLATFORM_ANDROID && !PLATFORM_WASM
         private void SetupTargets(Point2 size)
         {
             for (int i = 0; i < targetPingPongA.Length; i++) {
+                // Downsampling starts at half size of original render target
+                size /= 2;
                 SetupTarget(ref targetPingPongA[i], size);
                 SetupTarget(ref targetPingPongB[i], size);
-                size /= 2;
             }
         }
 
         private void SetupTarget(ref RenderTarget renderTarget, Point2 size)
         {
-            // Create a new rendering target and backing texture, if not existing yet
             if (renderTarget == null) {
+                // Create a new rendering target and backing texture, if not existing yet
                 Texture tex = new Texture(
                     size.X,
                     size.Y,
@@ -433,10 +463,8 @@ namespace Jazz2.Game
                     TextureMinFilter.Linear);
 
                 renderTarget = new RenderTarget(AAQuality.Off, false, tex);
-            }
-
-            // Resize the existing target to match the specified size
-            if (renderTarget.Size != size) {
+            } else if (renderTarget.Size != size) {
+                // Resize the existing target to match the specified size
                 Texture tex = renderTarget.Targets[0].Res;
                 tex.Size = size;
                 tex.ReloadData();

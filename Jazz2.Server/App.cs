@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Duality;
+using Duality.Async;
 using Jazz2.Networking;
 using Lidgren.Network;
 
@@ -13,13 +14,14 @@ namespace Jazz2.Server
     {
         private static GameServer gameServer;
         private static Dictionary<string, Func<string, bool>> availableCommands;
+        private static int lastUnknownCommandMessageIndex;
 
         private static void Main(string[] args)
         {
             ConsoleUtils.TryEnableUnicode();
 
-            int imageTop;
-            if (ConsoleImage.RenderFromManifestResource("ConsoleImage.udl", out imageTop) && imageTop >= 0) {
+            // Try to render Jazz2 logo
+            if (ConsoleImage.RenderFromManifestResource("ConsoleImage.udl", out int imageTop) && imageTop >= 0) {
                 int width = Console.BufferWidth;
 
                 // Show version number in the right corner
@@ -72,6 +74,10 @@ namespace Jazz2.Server
             Log.PushIndent();
 
             // Start game server
+            DualityApp.Init(DualityApp.ExecutionContext.Server, null, args);
+
+            AsyncManager.Init();
+
             gameServer = new GameServer();
 
             if (overrideHostname != null) {
@@ -167,13 +173,30 @@ namespace Jazz2.Server
                 "What?",
                 "Wut?",
                 "This command never existed.",
+                "Sorry, but this command never existed.",
                 "Did you type it correctly?",
                 "Ensure that you typed it correctly.",
                 "What do you need?",
-                "I'm not sure what do you need."
+                "I'm not sure what do you need.",
+                "Are you sure you typed it correctly?",
+                "Please, try it again. Maybe it works out now."
             };
 
-            Log.Write(LogType.Error, answers[MathF.Rnd.Next(answers.Length)]);
+            if (lastUnknownCommandMessageIndex == 12) { // "Please, try it again. Maybe it works out now."
+                Log.Write(LogType.Error, "No, it does not...");
+
+                lastUnknownCommandMessageIndex = -1;
+                return;
+            }
+
+            int idx = MathF.Rnd.Next(answers.Length);
+            if (idx == lastUnknownCommandMessageIndex) {
+                idx = MathF.Rnd.Next(answers.Length);
+            }
+
+            Log.Write(LogType.Error, answers[idx]);
+
+            lastUnknownCommandMessageIndex = idx;
         }
 
         private static bool HandleCommandExit(string input)

@@ -77,7 +77,7 @@ namespace Jazz2.Game
                 Console.WriteLine("Cannot override current directory: " + ex);
             }
 
-            DualityApp.Init(DualityApp.ExecutionContext.Game, new DefaultAssemblyLoader(), args);
+            DualityApp.Init(DualityApp.ExecutionContext.Game, new DefaultAssemblyLoader(AssemblyPath), args);
 
             ScreenMode screenMode;
             switch (Preferences.Get<int>("Screen", 0)) {

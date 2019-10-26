@@ -4,9 +4,11 @@ using System.IO;
 using Android.App;
 using Android.Content;
 using Android.Util;
+using Duality;
 using Duality.Backend;
 using Jazz2.Game;
 using Jazz2.Storage;
+using Log = Duality.Log;
 
 namespace Jazz2.Backend.Android
 {

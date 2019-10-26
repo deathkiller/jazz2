@@ -2,15 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using Duality.Async;
 using Duality.Audio;
 using Duality.Backend;
 using Duality.Input;
 using Duality.IO;
 using Duality.Resources;
-using Jazz2;
-using Jazz2.Game;
 
 namespace Duality
 {
@@ -37,16 +34,15 @@ namespace Duality
             /// <summary>
             /// Duality runs in a game environment.
             /// </summary>
-            Game
+            Game,
+            /// <summary>
+            /// Duality runs as a (headless) server.
+            /// </summary>
+            Server
         }
-
-        public const string CmdArgDebug = "debug";
-        public const string CmdArgEditor = "editor";
-        public const string CmdArgProfiling = "profile";
 
         public const string PluginDirectory = "Extensions";
         public const string DataDirectory = "Content";
-
 
         private static bool initialized = false;
         private static bool isUpdating = false;
@@ -64,7 +60,6 @@ namespace Duality
         private static SoundDevice sound = null;
         private static ExecutionContext execContext = ExecutionContext.Terminated;
         private static List<object> disposeSchedule = new List<object>();
-        private static SpinLock disposeScheduleLock = new SpinLock();
 
         /// <summary>
         /// Called when the game becomes focused or loses focus.
@@ -228,7 +223,9 @@ namespace Duality
             // Process command line options
             if (commandLineArgs != null) {
                 // Enter debug mode
-                if (commandLineArgs.Contains(CmdArgDebug)) System.Diagnostics.Debugger.Launch();
+                if (commandLineArgs.Contains("/debug")) {
+                    System.Diagnostics.Debugger.Launch();
+                }
             }
 
             execContext = context;
@@ -372,6 +369,7 @@ namespace Duality
             AsyncManager.InvokeAfterUpdate();
 
             sound.Update();
+
             pluginManager.InvokeAfterUpdate();
 
             // Perform a cleanup step to catch all DisposeLater calls from this update
@@ -475,13 +473,7 @@ namespace Duality
         /// <param name="o">The object to schedule for disposal.</param>
         public static void DisposeLater(object o)
         {
-            bool lockTaken = false;
-            try {
-                disposeScheduleLock.Enter(ref lockTaken);
-                disposeSchedule.Add(o);
-            } finally {
-                if (lockTaken) disposeScheduleLock.Exit();
-            }
+            disposeSchedule.Add(o);
         }
         /// <summary>
         /// Performs all scheduled disposal calls and cleans up internal data. This is done automatically at the
@@ -491,15 +483,8 @@ namespace Duality
         public static void RunCleanup()
         {
             // Perform scheduled object disposals
-            object[] disposeScheduleArray;
-            bool lockTaken = false;
-            try {
-                disposeScheduleLock.Enter(ref lockTaken);
-                disposeScheduleArray = disposeSchedule.ToArray();
-                disposeSchedule.Clear();
-            } finally {
-                if (lockTaken) disposeScheduleLock.Exit();
-            }
+            object[] disposeScheduleArray = disposeSchedule.ToArray();
+            disposeSchedule.Clear();
             
             foreach (object o in disposeScheduleArray) {
                 IManageableObject m = o as IManageableObject;
@@ -627,8 +612,7 @@ namespace Duality
 
         private static void OnTerminating()
         {
-            if (Terminating != null)
-                Terminating(null, EventArgs.Empty);
+            Terminating?.Invoke(null, EventArgs.Empty);
         }
 
         private static void pluginManager_PluginsRemoving(object sender, DualityPluginEventArgs e)

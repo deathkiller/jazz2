@@ -293,7 +293,7 @@ namespace Jazz2.Actors
             OnAnimationStarted();
         }
 
-        public class CopterDecor : ActorBase
+        private class CopterDecor : ActorBase
         {
             protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
@@ -305,7 +305,7 @@ namespace Jazz2.Actors
                 SetAnimation(AnimState.Activated);
             }
 
-            protected override void OnFixedUpdate(float timeMult)
+            public override void OnFixedUpdate(float timeMult)
             {
                 Transform.RelativePos = new Vector3(0f, 0f, 4f);
             }

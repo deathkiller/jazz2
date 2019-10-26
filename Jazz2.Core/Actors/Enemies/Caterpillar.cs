@@ -30,7 +30,7 @@ namespace Jazz2.Actors.Enemies
             SetAnimation(AnimState.Idle);
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             base.OnFixedUpdate(timeMult);
 
@@ -140,7 +140,7 @@ namespace Jazz2.Actors.Enemies
                 //OnUpdateHitbox();
             }
 
-            protected override void OnFixedUpdate(float timeMult)
+            public override void OnFixedUpdate(float timeMult)
             {
                 speedX = baseSpeed.X + MathF.Cos((500 - time) * 0.09f) * 0.5f;
                 speedY = baseSpeed.Y + MathF.Sin((500 - time) * 0.05f) * 0.5f;
@@ -162,8 +162,10 @@ namespace Jazz2.Actors.Enemies
                     case Player player: {
                         if (player.SetDizzyTime(180f)) {
                             SoundInstance sound = PlaySound("Dizzy");
-                            sound.Looped = true;
-                            sound.FadeOut(2.4f);
+                            if (sound != null) {
+                                sound.Flags |= SoundInstanceFlags.Looped;
+                                sound.FadeOut(2.4f);
+                            }
                         }
                         break;
                     }

@@ -6,8 +6,6 @@ namespace Jazz2.Actors.Lighting
 {
     public class FlickerLight : ActorBase
     {
-        public override EventType EventType => EventType.LightFlicker;
-
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             ushort intensity = details.Params[0];
@@ -25,7 +23,7 @@ namespace Jazz2.Actors.Lighting
             light.Type = LightType.WithNoise;
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
         }
     }

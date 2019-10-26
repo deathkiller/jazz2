@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Duality;
 using Duality.Drawing;
-using Duality.Input;
 using Jazz2.Game.UI.Menu.Settings;
 
 namespace Jazz2.Game.UI.Menu.InGame
@@ -37,10 +36,6 @@ namespace Jazz2.Game.UI.Menu.InGame
 
             Vector2 center = device.TargetSize * 0.5f;
             center.Y *= 0.96f;
-
-            const float topLine = 131f;
-            float bottomLine = device.TargetSize.Y - 42;
-            api.DrawMaterial("MenuDim", center.X, (topLine + bottomLine) * 0.5f, Alignment.Center, new ColorRgba(0f, 1f), 80f, (bottomLine - topLine) / 7.6f);
 
             int charOffset = 0;
             for (int i = 0; i < items.Count; i++) {

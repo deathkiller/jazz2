@@ -68,19 +68,19 @@ namespace Jazz2.Compatibility
 
                 uint magic = r.ReadUInt32();
                 if (magic != 0x42494C41 /*ALIB*/) {
-                    throw new InvalidOperationException("Invalid magic string");
+                    throw new InvalidDataException("Invalid magic string");
                 }
 
                 uint signature = r.ReadUInt32();
                 if (signature != 0x00BEBA00) {
-                    throw new InvalidOperationException("Invalid signature");
+                    throw new InvalidDataException("Invalid signature");
                 }
 
                 uint headerLen = r.ReadUInt32();
 
                 uint magicUnknown = r.ReadUInt32();
                 if (magicUnknown != 0x18080200) {
-                    throw new InvalidOperationException("Invalid magic number");
+                    throw new InvalidDataException("Invalid magic number");
                 }
 
                 uint fileLen = r.ReadUInt32();
@@ -93,7 +93,7 @@ namespace Jazz2.Compatibility
                 }
 
                 if (headerLen != s.Position) {
-                    throw new InvalidOperationException("Header size mismatch");
+                    throw new InvalidDataException("Header size mismatch");
                 }
 
                 // Read content
@@ -149,7 +149,7 @@ namespace Jazz2.Compatibility
 
                             if (frameCount > 0) {
                                 if (setAnims.Count == 0) {
-                                    throw new InvalidOperationException("Set has frames but no anims");
+                                    throw new InvalidDataException("Set has frames but no anims");
                                 }
 
                                 short lastColdspotX = 0, lastColdspotY = 0;
@@ -201,6 +201,7 @@ namespace Jazz2.Compatibility
                                     );
 
 #if DEBUG
+                                    // Additional checks for debugging
                                     if (currentFrame > 0) {
                                         int diffPrevX, diffPrevY, diffNextX, diffNextY;
 
@@ -249,7 +250,7 @@ namespace Jazz2.Compatibility
                                         Log.Write(LogType.Error, "Animation " + j + " frame count in set " + i + " doesn't match! Expected "
                                             + anim.FrameCount + " frames, but read " + anim.Frames.Length + " instead.");
 
-                                        throw new InvalidOperationException();
+                                        throw new InvalidDataException("Anim count mismatch");
                                     }
 
                                     for (ushort frame = 0; frame < anim.FrameCount; ++frame) {
@@ -384,7 +385,7 @@ namespace Jazz2.Compatibility
                                 sampleDataBlock.DiscardBytes(4);
 
                                 if (magicRIFF != 0x46464952 || magicSAMP != 0x504D4153) {
-                                    throw new InvalidOperationException("Sample has invalid header");
+                                    throw new InvalidDataException("Sample has invalid header");
                                 }
 
                                 if (sample.Data.Length < actualDataSize) {

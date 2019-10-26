@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Text.Json;
+using System.Runtime;
 using Duality;
 using Duality.Backend;
 using Duality.IO;
@@ -102,7 +102,7 @@ namespace Jazz2.Game
                 this.isInstallationComplete = IsInstallationComplete();
             }
 
-            System.Runtime.GCSettings.LatencyMode = System.Runtime.GCLatencyMode.Interactive;
+            GCSettings.LatencyMode = GCLatencyMode.Interactive;
 
             ContentResolver.Current.ResetReferenceFlag();
 
@@ -114,10 +114,18 @@ namespace Jazz2.Game
             UpdateRichPresence(null);
         }
 
+        public void PlayCinematics(string name, Action<bool> endCallback)
+        {
+            GCSettings.LatencyMode = GCLatencyMode.Interactive;
+
+            Scene.Current.DisposeLater();
+            Scene.SwitchTo(new Cinematics(this, name, endCallback));
+
+            UpdateRichPresence(null);
+        }
+
         public void ChangeLevel(LevelInitialization levelInit = default(LevelInitialization))
         {
-            System.Runtime.GCSettings.LatencyMode = System.Runtime.GCLatencyMode.LowLatency;
-
             ContentResolver.Current.ResetReferenceFlag();
 
             if (string.IsNullOrEmpty(levelInit.LevelName)) {
@@ -173,6 +181,13 @@ namespace Jazz2.Game
 
                         Scene.Current.DisposeLater();
                         Scene.SwitchTo(handler);
+
+                        GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                        GC.Collect();
+
+                        GCSettings.LatencyMode = GCLatencyMode.LowLatency;
+
+                        UpdateRichPresence(levelInit);
                     } else {
                         // Next episode not found...
                         ShowMainMenu(false);
@@ -237,9 +252,14 @@ namespace Jazz2.Game
                     Scene.Current.DisposeLater();
                     Scene.SwitchTo(handler);
 
+                    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                    GC.Collect();
+
+                    GCSettings.LatencyMode = GCLatencyMode.LowLatency;
+
                     UpdateRichPresence(levelInit);
                 } catch (Exception ex) {
-                   Log.Write(LogType.Error, "Cannot load level: " + ex);
+                    Log.Write(LogType.Error, "Cannot load level: " + ex);
 
                     ShowMainMenu(false);
                 }
@@ -248,29 +268,13 @@ namespace Jazz2.Game
             ContentResolver.Current.ReleaseUnreferencedResources();
         }
 
-        public void PlayCinematics(string name, Action<bool> endCallback)
-        {
-            //System.Runtime.GCSettings.LatencyMode = System.Runtime.GCLatencyMode.Interactive;
-
-            //ContentResolver.Current.ResetReferenceFlag();
-
-            Scene.Current.DisposeLater();
-            Scene.SwitchTo(new Cinematics(this, name, endCallback));
-
-            //ContentResolver.Current.ReleaseUnreferencedResources();
-
-            UpdateRichPresence(null);
-        }
-
         private static Episode GetEpisode(string name)
         {
-            JsonParser jsonParser = new JsonParser();
-
             string pathAbsolute = PathOp.Combine(DualityApp.DataDirectory, "Episodes", name, "Episode.res");
             if (FileOp.Exists(pathAbsolute)) {
                 Episode json;
                 using (Stream s = FileOp.Open(pathAbsolute, FileAccessMode.Read)) {
-                    json = jsonParser.Parse<Episode>(s);
+                    json = ContentResolver.Current.Json.Parse<Episode>(s);
                 }
 
                 return json;

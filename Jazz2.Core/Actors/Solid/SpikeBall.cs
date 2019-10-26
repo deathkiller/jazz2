@@ -45,14 +45,14 @@ namespace Jazz2.Actors.Solid
             }
         }
 
-        protected override void OnDeactivated(Component.ShutdownContext context)
+        public override void OnDestroyed()
         {
             for (int i = 0; i < length; i++) {
                 api.RemoveActor(pieces[i]);
             }
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             phase -= speed * timeMult;
             if (phase < 0f) {
@@ -138,7 +138,7 @@ namespace Jazz2.Actors.Solid
                 SetAnimation("Chain");
             }
 
-            protected override void OnFixedUpdate(float timeMult)
+            public override void OnFixedUpdate(float timeMult)
             {
                 // Controlled by SpikeBall
             }

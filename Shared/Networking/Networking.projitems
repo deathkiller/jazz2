@@ -89,7 +89,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\RemotePlayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerDiscovery.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\PacketChannels.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Packets\PacketTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\SpecialPacketTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\CreateRemotePlayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\DestroyRemotePlayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\LoadLevel.cs" />

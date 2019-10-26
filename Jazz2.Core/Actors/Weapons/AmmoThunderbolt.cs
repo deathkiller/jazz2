@@ -15,7 +15,6 @@ namespace Jazz2.Actors.Weapons
 
         private float noDamageTimeLeft;
 
-        public override EventType EventType => EventType.WeaponThunderbolt;
         public override WeaponType WeaponType => WeaponType.Thunderbolt;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
@@ -74,7 +73,7 @@ namespace Jazz2.Actors.Weapons
             Transform.RelativePos = Transform.Pos - owner.Transform.Pos + new Vector3(0f, 0f, 4f);
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             OnUpdateHitbox();
             CheckCollisions(timeMult);

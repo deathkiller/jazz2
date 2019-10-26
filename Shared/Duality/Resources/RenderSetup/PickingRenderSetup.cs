@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using Duality.Drawing;
-using Jazz2;
 
 namespace Duality.Resources
 {
-    /// <summary>
-    /// A specialized <see cref="RenderSetup"/> that will render a lookup texture of the scene in
-    /// order to determine which <see cref="ICmpRenderer"/> is located at a certain screen position.
-    /// </summary>
-    public class PickingRenderSetup : RenderSetup
+	/// <summary>
+	/// A specialized <see cref="RenderSetup"/> that will render a lookup texture of the scene in
+	/// order to determine which <see cref="ICmpRenderer"/> is located at a certain screen position.
+	/// </summary>
+	public class PickingRenderSetup : RenderSetup
 	{
 		private bool renderOverlay = false;
 
@@ -40,13 +39,17 @@ namespace Duality.Resources
 		/// <returns></returns>
 		public ICmpRenderer LookupPickingMap(int x, int y)
 		{
-			if (this.pickingBuffer == null) return null;
+			if (this.pickingBuffer == null) {
+				return null;
+			}
 
 			if (x < 0 || x >= this.pickingTex.ContentWidth) return null;
 			if (y < 0 || y >= this.pickingTex.ContentHeight) return null;
 
 			int baseIndex = 4 * (x + y * this.pickingTex.ContentWidth);
-			if (baseIndex + 4 >= this.pickingBuffer.Length) return null;
+			if (baseIndex + 4 >= this.pickingBuffer.Length) {
+				return null;
+			}
 
 			int rendererId = 
 				(this.pickingBuffer[baseIndex + 0] << 16) |
@@ -59,13 +62,16 @@ namespace Duality.Resources
 			}
 			else if (rendererId != 0)
 			{
-				if ((this.pickingMap[rendererId - 1] as Component).Disposed)
+				if ((this.pickingMap[rendererId - 1] as Component).Disposed) {
 					return null;
-				else
+				} else {
 					return this.pickingMap[rendererId - 1];
+				}
 			}
 			else
+			{
 				return null;
+			}
 		}
 		/// <summary>
 		/// Performs an object lookup in the picking map that was rendered last 
@@ -109,7 +115,7 @@ namespace Duality.Resources
 					if (rendererId != rendererIdLast)
 					{
 						if (rendererId - 1 > this.pickingMap.Count) {
-                            Log.Write(LogType.Error, "Unexpected picking result: {0}", ColorRgba.FromIntArgb(rendererId));
+							Log.Write(LogType.Error, "Unexpected picking result: {0}", ColorRgba.FromIntArgb(rendererId));
 						} else if (rendererId != 0 && !(this.pickingMap[rendererId - 1] as Component).Disposed) {
 							result.Add(this.pickingMap[rendererId - 1]);
 						}
@@ -154,7 +160,10 @@ namespace Duality.Resources
 			drawDevice.TargetSize = imageSize;
 			drawDevice.ViewportRect = new Rect(this.pickingRT.Size);
 			
-			if (this.pickingMap == null) this.pickingMap = new List<ICmpRenderer>();
+			if (this.pickingMap == null) {
+				this.pickingMap = new List<ICmpRenderer>();
+			}
+
 			this.pickingMap.Clear();
 
 			// Render the world
@@ -188,10 +197,11 @@ namespace Duality.Resources
 			int pxNum = this.pickingTex.ContentWidth * this.pickingTex.ContentHeight;
 			int pxByteNum = pxNum * 4;
 
-			if (this.pickingBuffer == null)
+			if (this.pickingBuffer == null) {
 				this.pickingBuffer = new byte[pxByteNum];
-			else if (pxByteNum > this.pickingBuffer.Length)
+			} else if (pxByteNum > this.pickingBuffer.Length) {
 				Array.Resize(ref this.pickingBuffer, Math.Max(this.pickingBuffer.Length * 2, pxByteNum));
+			}
 
 			this.pickingRT.GetPixelData(this.pickingBuffer);
 		}

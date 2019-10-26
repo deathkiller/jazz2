@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
-using System.Threading;
-using Duality;
+using System.Runtime;
+using Duality.Async;
 using Duality.Resources;
 using Jazz2.Game.Multiplayer;
 using Jazz2.Game.Structs;
@@ -48,13 +48,19 @@ namespace Jazz2.Game
             net.Connect(endPoint);
         }
 
+        /// <summary>
+        /// Player was disconnected from server
+        /// </summary>
         private void OnNetworkDisconnected()
         {
-            DispatchToMainThread(delegate {
+            Await.NextAfterUpdate().OnCompleted(() => {
                 ShowMainMenu(false);
             });
         }
 
+        /// <summary>
+        /// Player was requested to load a new level
+        /// </summary>
         private void OnNetworkLoadLevel(ref LoadLevel p)
         {
             string episodeName;
@@ -69,36 +75,19 @@ namespace Jazz2.Game
 
             byte playerIndex = p.AssignedPlayerIndex;
 
-            DispatchToMainThread(delegate {
-                Scene.Current.Dispose();
-
+            Await.NextAfterUpdate().OnCompleted(() => {
                 LevelInitialization levelInit = new LevelInitialization(episodeName, levelName, GameDifficulty.Multiplayer);
 
+                Scene.Current.Dispose();
                 Scene.SwitchTo(new NetworkLevelHandler(this, net, levelInit, playerIndex));
+
+                GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                GC.Collect();
+
+                GCSettings.LatencyMode = GCLatencyMode.LowLatency;
 
                 UpdateRichPresence(levelInit);
             });
-        }
-
-
-        public void DispatchToMainThread(Action action)
-        {
-            DualityApp.DisposeLater(new ActionDisposable(action));
-        }
-
-        private class ActionDisposable : IDisposable
-        {
-            private Action action;
-
-            public ActionDisposable(Action action)
-            {
-                this.action = action;
-            }
-
-            void IDisposable.Dispose()
-            {
-                Interlocked.Exchange(ref action, null)();
-            }
         }
     }
 }

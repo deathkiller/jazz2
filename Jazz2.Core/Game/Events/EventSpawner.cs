@@ -34,6 +34,10 @@ namespace Jazz2.Game.Events
             // Basic
             RegisterSpawnable<Checkpoint>(EventType.Checkpoint);
 
+            // Area
+            RegisterSpawnable<AmbientSound>(EventType.AreaAmbientSound);
+            RegisterSpawnable<AmbientBubbles>(EventType.AreaAmbientBubbles);
+
             // Triggers
             RegisterSpawnable<TriggerCrate>(EventType.TriggerCrate);
 
@@ -60,9 +64,6 @@ namespace Jazz2.Game.Events
             RegisterSpawnable<Bomb>(EventType.Bomb);
             RegisterSpawnable<PinballBumper>(EventType.PinballBumper);
             RegisterSpawnable<PinballPaddle>(EventType.PinballPaddle);
-
-            RegisterSpawnable<AmbientSound>(EventType.AmbientSound);
-            RegisterSpawnable<AmbientBubbles>(EventType.AmbientBubbles);
 
             // Enemies
             RegisterSpawnable<Turtle>(EventType.EnemyTurtle);

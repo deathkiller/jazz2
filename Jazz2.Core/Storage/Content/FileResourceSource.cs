@@ -38,7 +38,8 @@ namespace Jazz2.Storage.Content
                 this.offset = source.offset;
                 this.size = source.size;
                 
-                if (DualityApp.ExecContext == DualityApp.ExecutionContext.Game) {
+                if (DualityApp.ExecContext == DualityApp.ExecutionContext.Game ||
+                    DualityApp.ExecContext == DualityApp.ExecutionContext.Server) {
                     this.stream = DualityApp.SystemBackend.FileSystem.OpenFile(source.path, FileAccessMode.Read);
                 } else {
                     this.stream = File.Open(source.path, FileMode.Open, FileAccess.Read, FileShare.Read);

@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using Duality;
+using Duality.Async;
 using Jazz2.Actors;
 using Jazz2.Game.Structs;
 using Jazz2.Game.UI;
 using Jazz2.Networking;
-using Jazz2.Networking.Packets;
 using Jazz2.Networking.Packets.Client;
 using Jazz2.Networking.Packets.Server;
 using Lidgren.Network;
@@ -24,7 +24,7 @@ namespace Jazz2.Game.Multiplayer
 
         private Dictionary<int, IRemotableActor> localRemotableActors = new Dictionary<int, IRemotableActor>();
         private Dictionary<int, IRemotableActor> remoteActors = new Dictionary<int, IRemotableActor>();
-        private int lastRemotableActorIndex;
+        //private int lastRemotableActorIndex;
 
         public byte PlayerIndex => localPlayerIndex;
 
@@ -66,13 +66,14 @@ namespace Jazz2.Game.Multiplayer
         {
             base.OnFixedUpdate(timeMult);
 
+            // ToDo: This workaround should be removed
             if (isStillLoading > 0) {
                 isStillLoading--;
 
                 if (isStillLoading <= 0) {
                     net.Send(new LevelReady {
                         Index = localPlayerIndex
-                    }, 2, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+                    }, 2, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                 }
             }
 
@@ -94,18 +95,20 @@ namespace Jazz2.Game.Multiplayer
 
                 long updateTime = (long)(NetTime.Now * 1000);
 
+                // Send update to server
                 UpdateSelf updateSelfPacket = players[0].CreateUpdatePacket();
                 updateSelfPacket.Index = localPlayerIndex;
                 updateSelfPacket.UpdateTime = updateTime;
-                net.Send(updateSelfPacket, 29, NetDeliveryMethod.Unreliable, PacketChannels.Main);
+                net.Send(updateSelfPacket, 29, NetDeliveryMethod.Unreliable, PacketChannels.UnreliableUpdates);
 
-                foreach (KeyValuePair<int, IRemotableActor> pair in localRemotableActors) {
+                // ToDo
+                /*foreach (KeyValuePair<int, IRemotableActor> pair in localRemotableActors) {
                     UpdateRemotableActor p = new UpdateRemotableActor();
                     pair.Value.OnUpdateRemotableActor(ref p);
                     p.Index = pair.Key;
                     p.UpdateTime = updateTime;
                     net.Send(p, 32, NetDeliveryMethod.Unreliable, PacketChannels.Main);
-                }
+                }*/
             }
         }
 
@@ -113,7 +116,7 @@ namespace Jazz2.Game.Multiplayer
         {
             net.Send(new SelfDied {
                 Index = localPlayerIndex
-            }, 2, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+            }, 2, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
 
             return false;
         }
@@ -124,7 +127,7 @@ namespace Jazz2.Game.Multiplayer
                 net.Send(new RemotePlayerHit {
                     Index = (byte)eventParams[0],
                     Damage = (byte)eventParams[1]
-                }, 3, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+                }, 3, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                 return;
             }
 
@@ -135,7 +138,8 @@ namespace Jazz2.Game.Multiplayer
         {
             base.AddActor(actor);
 
-            IRemotableActor remotableActor = actor as IRemotableActor;
+            // ToDo
+            /*IRemotableActor remotableActor = actor as IRemotableActor;
             if (remotableActor == null || remotableActor.Index != 0) {
                 return;
             }
@@ -150,14 +154,14 @@ namespace Jazz2.Game.Multiplayer
             p.Index = actorIndex;
             net.Send(p, 13, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
 
-            lastRemotableActorIndex++;
+            lastRemotableActorIndex++;*/
         }
 
         public override void RemoveActor(ActorBase actor)
         {
             base.RemoveActor(actor);
 
-            IRemotableActor remotableActor = actor as IRemotableActor;
+            /*IRemotableActor remotableActor = actor as IRemotableActor;
             if (remotableActor == null || (remotableActor.Index & 0xff) != localPlayerIndex) {
                 return;
             }
@@ -169,9 +173,13 @@ namespace Jazz2.Game.Multiplayer
 
             DestroyRemotableActor p = new DestroyRemotableActor();
             p.Index = actorIndex;
-            net.Send(p, 5, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+            net.Send(p, 5, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);*/
         }
 
+        /// <summary>
+        /// Player should update state and position of all other players and objects
+        /// This type of packet is sent very often, so it's handled differently
+        /// </summary>
         private void OnUpdateAllPlayers(NetIncomingMessage msg)
         {
             msg.Position = 8; // Skip packet type
@@ -245,6 +253,9 @@ namespace Jazz2.Game.Multiplayer
             }
         }
 
+        /// <summary>
+        /// Player is allowed to join game, controllable actor should be created
+        /// </summary>
         private void OnCreateControllablePlayer(ref CreateControllablePlayer p)
         {
             // ToDo: throw on mismatch?
@@ -254,7 +265,7 @@ namespace Jazz2.Game.Multiplayer
             Vector3 pos = p.Pos;
             byte health = p.Health;
 
-            Root.DispatchToMainThread(delegate {
+            Await.NextAfterUpdate().OnCompleted(() => {
                 if (players.Count > 0) {
                     Player oldPlayer = players[0];
                     if (oldPlayer.PlayerType == type) {
@@ -287,6 +298,9 @@ namespace Jazz2.Game.Multiplayer
             });
         }
 
+        /// <summary>
+        /// Another (remote) player was created, so count with him
+        /// </summary>
         private void OnCreateRemotePlayer(ref CreateRemotePlayer p)
         {
             byte index = p.Index;
@@ -299,7 +313,7 @@ namespace Jazz2.Game.Multiplayer
             PlayerType type = p.Type;
             Vector3 pos = p.Pos;
 
-            Root.DispatchToMainThread(delegate {
+            Await.NextAfterUpdate().OnCompleted(() => {
                 RemotePlayer player = new RemotePlayer();
 
                 if (Interlocked.CompareExchange(ref remotePlayers[index], player, null) != null) {
@@ -317,11 +331,14 @@ namespace Jazz2.Game.Multiplayer
             });
         }
 
+        /// <summary>
+        /// Some remote player was destroyed (probably disconnect)
+        /// </summary>
         private void OnDestroyRemotePlayer(ref DestroyRemotePlayer p)
         {
             byte index = p.Index;
 
-            Root.DispatchToMainThread(delegate {
+            Await.NextAfterUpdate().OnCompleted(() => {
                 RemotePlayer player = Interlocked.Exchange(ref remotePlayers[index], null);
                 if (player != null) {
                     //RemoveObject(player);
@@ -330,6 +347,9 @@ namespace Jazz2.Game.Multiplayer
             });
         }
 
+        /// <summary>
+        /// Some remote object was created
+        /// </summary>
         private void OnCreateRemoteObject(ref CreateRemoteObject p)
         {
             int index = p.Index;
@@ -342,12 +362,12 @@ namespace Jazz2.Game.Multiplayer
                 return;
             }
 
-            EventType eventType = p.EventType;
-            ushort[] eventParams = p.EventParams;
+            //EventType eventType = p.EventType;
+            //ushort[] eventParams = p.EventParams;
+            /*string metadataPath = p.MetadataPath;
             Vector3 pos = p.Pos;
 
-            Root.DispatchToMainThread(delegate {
-
+            Await.NextAfterUpdate().OnCompleted(() => {
                 ActorBase actor = EventSpawner.SpawnEvent(ActorInstantiationFlags.IsCreatedFromEventMap, eventType, pos, eventParams);
                 IRemotableActor remotableActor = actor as IRemotableActor;
                 if (remotableActor == null) {
@@ -359,9 +379,26 @@ namespace Jazz2.Game.Multiplayer
 
                 //AddObject(actor);
                 AddActor(actor);
+            });*/
+
+            Vector3 pos = p.Pos;
+            string metadataPath = p.MetadataPath;
+            AnimState animState = p.AnimState;
+
+            Await.NextAfterUpdate().OnCompleted(() => {
+                RemoteObject actor = new RemoteObject();
+                actor.OnActivated(Api, pos, metadataPath, animState);
+                actor.Index = index;
+                remoteActors[index] = actor;
+
+                //AddObject(actor);
+                AddActor(actor);
             });
         }
 
+        /// <summary>
+        /// Some remote object was destroyed
+        /// </summary>
         private void OnDestroyRemoteObject(ref DestroyRemoteObject p)
         {
             int index = p.Index;
@@ -370,7 +407,14 @@ namespace Jazz2.Game.Multiplayer
                 return;
             }
 
-            Root.DispatchToMainThread(delegate {
+            Await.NextAfterUpdate().OnCompleted(() => {
+                /*IRemotableActor actor;
+                if (remoteActors.TryGetValue(index, out actor)) {
+                    remoteActors.Remove(index);
+                    //RemoveObject(actor as ActorBase);
+                    RemoveActor(actor as ActorBase);
+                }*/
+
                 IRemotableActor actor;
                 if (remoteActors.TryGetValue(index, out actor)) {
                     remoteActors.Remove(index);
@@ -380,21 +424,28 @@ namespace Jazz2.Game.Multiplayer
             });
         }
 
+        /// <summary>
+        /// Player is requested to decrease its health
+        /// </summary>
         private void OnDecreasePlayerHealth(ref DecreasePlayerHealth p)
         {
+            // ToDo: This should be probably replaced with PlayerHealthChanged event
             if (p.Index != localPlayerIndex) {
                 return;
             }
 
             byte amount = p.Amount;
 
-            Root.DispatchToMainThread(delegate {
+            Await.NextAfterUpdate().OnCompleted(() => {
                 if (players.Count > 0) {
                     players[0].TakeDamage(amount, 0f);
                 }
             });
         }
 
+        /// <summary>
+        /// Some remote player died
+        /// </summary>
         public void OnRemotePlayerDied(ref RemotePlayerDied p)
         {
             if (p.Index == localPlayerIndex) {

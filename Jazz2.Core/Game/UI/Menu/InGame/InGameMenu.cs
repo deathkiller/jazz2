@@ -65,6 +65,8 @@ namespace Jazz2.Game.UI.Menu.InGame
             bool isMultiplayerSession = false;
 #endif
 
+            DualityApp.Sound.PauseGameplaySpecificSounds();
+
             levelHandler.EnableLowpassOnMusic(true);
 
             rootObject = new GameObject();
@@ -95,7 +97,7 @@ namespace Jazz2.Game.UI.Menu.InGame
             Camera cameraLevel = levelHandler.FindComponent<Camera>();
             LevelRenderSetup renderSetup = cameraLevel.ActiveRenderSetup as LevelRenderSetup;
             if (renderSetup != null) {
-                finalMaterial = new Material(DrawTechnique.Solid, renderSetup.FinalTexture);
+                finalMaterial = new Material(DrawTechnique.Solid, renderSetup.RequestBlurredInGame());
             }
 
             InitPlatformSpecific();
@@ -140,11 +142,15 @@ namespace Jazz2.Game.UI.Menu.InGame
             Scene.SwitchTo(levelHandler);
 
             levelHandler.EnableLowpassOnMusic(false);
+
+            DualityApp.Sound.ResumeGameplaySpecificSounds();
         }
 
         public void SwitchToMainMenu()
         {
             levelHandler.Dispose();
+
+            DualityApp.Sound.StopGameplaySpecificSounds();
 
             root.ShowMainMenu(false);
         }
@@ -170,32 +176,28 @@ namespace Jazz2.Game.UI.Menu.InGame
 
         public void DrawMaterial(string name, float x, float y, Alignment alignment, ColorRgba color, float scaleX = 1f, float scaleY = 1f)
         {
-            GraphicResource res;
-            if (metadata.Graphics.TryGetValue(name, out res)) {
+            if (metadata.Graphics.TryGetValue(name, out GraphicResource res)) {
                 res.Draw(canvas, x, y, alignment, color, scaleX, scaleY);
             }
         }
 
         public void DrawMaterial(string name, float x, float y, Alignment alignment, ColorRgba color, float scaleX, float scaleY, Rect texRect)
         {
-            GraphicResource res;
-            if (metadata.Graphics.TryGetValue(name, out res)) {
+            if (metadata.Graphics.TryGetValue(name, out GraphicResource res)) {
                 res.Draw(canvas, x, y, alignment, color, scaleX, scaleY, texRect);
             }
         }
 
         public void DrawMaterial(string name, int frame, float x, float y, Alignment alignment, ColorRgba color, float scaleX = 1f, float scaleY = 1f)
         {
-            GraphicResource res;
-            if (metadata.Graphics.TryGetValue(name, out res)) {
+            if (metadata.Graphics.TryGetValue(name, out GraphicResource res)) {
                 res.Draw(canvas, frame, x, y, alignment, color, scaleX, scaleY);
             }
         }
 
         public void PlaySound(string name, float volume = 1f)
         {
-            SoundResource res;
-            if (metadata.Sounds.TryGetValue(name, out res)) {
+            if (metadata.Sounds.TryGetValue(name, out SoundResource res)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound(res.Sound);
                 instance.Volume = volume * SettingsCache.SfxVolume;
             }
@@ -233,6 +235,10 @@ namespace Jazz2.Game.UI.Menu.InGame
             canvas.State.ColorTint = new ColorRgba(1f - transition * 0.5f);
             canvas.State.TextureCoordinateRect = new Rect(0, 0, 1, 1);
             canvas.FillRect(0, 0, device.TargetSize.X, device.TargetSize.Y);
+
+            const float topLine = 131f;
+            float bottomLine = device.TargetSize.Y - 42;
+            DrawMaterial("MenuDim", center.X, (topLine + bottomLine) * 0.5f, Alignment.Center, new ColorRgba(0f, 1f), 80f, (bottomLine - topLine) / 7.6f);
 
             // Title
             DrawMaterial("MenuCarrot", -1, center.X - 76f, 64f + 2f, Alignment.Center, new ColorRgba(0f, 0.3f), 0.8f, 0.8f);
@@ -291,7 +297,7 @@ namespace Jazz2.Game.UI.Menu.InGame
             throw new NotImplementedException();
         }
 
-        public bool IsAnimationPresent(string name)
+        public bool IsAnimationAvailable(string name)
         {
             return metadata.Graphics.ContainsKey(name);
         }

@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Jazz2;
-using Jazz2.Game;
 
 namespace Duality.Backend
 {
 	public class DefaultAssemblyLoader : IAssemblyLoader
 	{
-		private static readonly string execAssemblyDir = App.AssemblyPath;
+		private string execAssemblyDir;
 
 		public event EventHandler<AssemblyResolveEventArgs> AssemblyResolve;
 		public event EventHandler<AssemblyLoadedEventArgs> AssemblyLoaded;
@@ -19,7 +17,7 @@ namespace Duality.Backend
 		{
 			get
 			{
-                return new[] { Path.Combine(execAssemblyDir, DualityApp.PluginDirectory) };
+				return new[] { Path.Combine(execAssemblyDir, DualityApp.PluginDirectory) };
 			}
 		}
 		public IEnumerable<string> AvailableAssemblyPaths
@@ -39,6 +37,11 @@ namespace Duality.Backend
 			get { return AppDomain.CurrentDomain.GetAssemblies(); }
 		}
 
+		public DefaultAssemblyLoader(string execAssemblyDir)
+		{
+			this.execAssemblyDir = execAssemblyDir;
+		}
+
 		public Assembly LoadAssembly(string assemblyPath)
 		{
 			// Due to complex dependency resolve situations intertwined with our hot-reloadable
@@ -50,18 +53,22 @@ namespace Duality.Backend
 			string pluginDebugInfoPath = Path.Combine(
 				Path.GetDirectoryName(assemblyPath), 
 				Path.GetFileNameWithoutExtension(assemblyPath)) + ".pdb";
-			if (!File.Exists(pluginDebugInfoPath))
+			if (!File.Exists(pluginDebugInfoPath)) {
 				pluginDebugInfoPath = null;
+			}
 
 			// Load the assembly - and its symbols, if provided
-			if (pluginDebugInfoPath != null)
+			if (pluginDebugInfoPath != null) {
 				return Assembly.Load(File.ReadAllBytes(assemblyPath), File.ReadAllBytes(pluginDebugInfoPath));
-			else
+			} else {
 				return Assembly.Load(File.ReadAllBytes(assemblyPath));
+			}
 		}
 		public int GetAssemblyHash(string assemblyPath)
 		{
-			if (!File.Exists(assemblyPath)) return 0;
+			if (!File.Exists(assemblyPath)) {
+				return 0;
+			}
 
 			using (BufferedStream stream = new BufferedStream(File.OpenRead(assemblyPath), 512000))
 			{

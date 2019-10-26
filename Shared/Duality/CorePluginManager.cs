@@ -4,21 +4,20 @@ using System.Linq;
 using System.Reflection;
 using Duality.Backend;
 using Duality.IO;
-using Jazz2;
 
 namespace Duality
 {
-    /// <summary>
-    /// Manages loading, reloading, initialization and disposal of Duality core plugins.
-    /// 
-    /// Since all assemblies are owned by the .Net runtime that only exposes a very limited
-    /// degree of control, this class should only be used statically: Disposing it would
-    /// only get rid of management data, not of the actual plugin assemblies, which would
-    /// then cause problems.
-    /// 
-    /// A static instance of this class is available through <see cref="DualityApp.PluginManager"/>.
-    /// </summary>
-    public class CorePluginManager : PluginManager<CorePlugin>
+	/// <summary>
+	/// Manages loading, reloading, initialization and disposal of Duality core plugins.
+	/// 
+	/// Since all assemblies are owned by the .Net runtime that only exposes a very limited
+	/// degree of control, this class should only be used statically: Disposing it would
+	/// only get rid of management data, not of the actual plugin assemblies, which would
+	/// then cause problems.
+	/// 
+	/// A static instance of this class is available through <see cref="DualityApp.PluginManager"/>.
+	/// </summary>
+	public class CorePluginManager : PluginManager<CorePlugin>
 	{
 		private Assembly[] coreAssemblies = new Assembly[] { typeof(DualityApp).GetTypeInfo().Assembly };
 		private Dictionary<string,Assembly> auxilRegistry = new Dictionary<string,Assembly>();
@@ -50,8 +49,10 @@ namespace Duality
 			{
 				if (!dllPath.EndsWith(".core.dll", StringComparison.OrdinalIgnoreCase))
 				{
-					if (!dllPath.EndsWith(".editor.dll", StringComparison.OrdinalIgnoreCase))
-						auxilLibs.Add(dllPath);
+					//if (!dllPath.EndsWith(".editor.dll", StringComparison.OrdinalIgnoreCase)) {
+					//    auxilLibs.Add(dllPath);
+					//}
+
 					continue;
 				}
 
@@ -64,7 +65,7 @@ namespace Duality
 			if (auxilLibs.Count > 0)
 			{
 				Log.Write(LogType.Verbose, "Loading auxiliary libraries...");
-                Log.PushIndent();
+				Log.PushIndent();
 
 				foreach (string dllPath in auxilLibs)
 				{
@@ -73,7 +74,7 @@ namespace Duality
 					this.LoadAuxilliaryLibrary(dllPath, true);
 				}
 
-                Log.PopIndent();
+				Log.PopIndent();
 			}
 		}
 		/// <summary>
@@ -82,16 +83,16 @@ namespace Duality
 		public override void InitPlugins()
 		{
 			Log.Write(LogType.Info, "Initializing core plugins...");
-            Log.PushIndent();
+			Log.PushIndent();
 
-            CorePlugin[] initPlugins = this.LoadedPlugins.ToArray();
+			CorePlugin[] initPlugins = this.LoadedPlugins.ToArray();
 			foreach (CorePlugin plugin in initPlugins)
 			{
 				this.InitPlugin(plugin);
 			}
 
-            Log.PopIndent();
-        }
+			Log.PopIndent();
+		}
 
 		/// <summary>
 		/// Invokes each plugin's <see cref="CorePlugin.OnBeforeUpdate"/> event handler.

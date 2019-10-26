@@ -54,7 +54,7 @@ namespace Jazz2.Actors.Environment
             SetAnimation("Pole");
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             const float FallMultiplier = 0.0036f;
             const float Bounce = -0.2f;

@@ -4,6 +4,7 @@
     {
         EMPTY = 0x00,
 
+        // Base events
         MODIFIER_ONE_WAY = 0x01,
         MODIFIER_HURT = 0x02,
         MODIFIER_VINE = 0x03,
@@ -35,7 +36,6 @@
         JAZZ_LEVEL_START = 0x1D,
         SPAZ_LEVEL_START = 0x1E,
         MP_LEVEL_START = 0x1F,
-        LORI_LEVEL_START = 0x20,
         AMMO_FREEZER = 0x21,
         AMMO_BOUNCER = 0x22,
         AMMO_SEEKER = 0x23,
@@ -248,28 +248,21 @@
         AREA_NO_FIRE = 0xF5,
         TRIGGER_ZONE = 0xF6,
 
-        // Base game - unnamed events
-        EMPTY_32 = 0x20,
-        EMPTY_82 = 0x52,
-        EMPTY_239 = 0xEF,
-        EMPTY_243 = 0xF3,
-        EMPTY_247 = 0xF7,
-        EMPTY_248 = 0xF8,
-        EMPTY_249 = 0xF9,
-        EMPTY_250 = 0xFA,
-        EMPTY_251 = 0xFB,
-        EMPTY_252 = 0xFC,
-        EMPTY_253 = 0xFD,
-        EMPTY_254 = 0xFE,
-        EMPTY_255 = 0xFF,
-
-        // Alternative names for TSF+ events
+        // TSF+ events
+        LORI_LEVEL_START = 0x20,
         BILSY_DUMMY = 0xF7,
         ENEMY_NORMAL_TURTLE_XMAS = 0xF8,
         ENEMY_LIZARD_XMAS = 0xF9,
         ENEMY_LIZARD_FLOAT_XMAS = 0xFA,
         EMPTY_BOSS_BILSY_XMAS = 0xFB,
         EMPTY_TSF_DOG = 0xFC,
-        EMPTY_TSF_GHOST = 0xFD
+        EMPTY_TSF_GHOST = 0xFD,
+
+        // Unassigned events
+        EMPTY_82 = 0x52,
+        EMPTY_239 = 0xEF,
+        EMPTY_243 = 0xF3,
+        EMPTY_254 = 0xFE,
+        MCE = 0xFF
     }
 }

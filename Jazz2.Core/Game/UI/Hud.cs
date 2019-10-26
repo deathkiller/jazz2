@@ -207,7 +207,7 @@ namespace Jazz2.Game.UI
                 DrawMaterialClipped("BossHealthBar", 1, size.X * 0.5f, y, Alignment.Center, new ColorRgba(1f, alpha), perc, 1f);
             }
 
-            // Misc.
+            // Misc
             DrawLevelText(size, ref charOffset);
             DrawCoins(size, ref charOffset);
             DrawGems(size, ref charOffset);
@@ -421,16 +421,14 @@ namespace Jazz2.Game.UI
 
         public void DrawMaterial(string name, int frame, float x, float y, Alignment alignment, ColorRgba color, float scaleX = 1f, float scaleY = 1f)
         {
-            GraphicResource res;
-            if (graphics.TryGetValue(name, out res)) {
+            if (graphics.TryGetValue(name, out GraphicResource res)) {
                 res.Draw(canvas, frame, x, y, alignment, color, scaleX, scaleY);
             }
         }
 
         public void DrawMaterialClipped(string name, int frame, float x, float y, Alignment alignment, ColorRgba color, float clipX, float clipY)
         {
-            GraphicResource res;
-            if (graphics.TryGetValue(name, out res)) {
+            if (graphics.TryGetValue(name, out GraphicResource res)) {
                 Texture texture = res.Material.Res.MainTexture.Res;
 
                 if (frame < 0) {

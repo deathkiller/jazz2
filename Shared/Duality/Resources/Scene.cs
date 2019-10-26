@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Duality.Components;
-using Jazz2;
 
 namespace Duality.Resources
 {
-    /// <summary>
-    /// A Scene encapsulates an organized set of <see cref="GameObject">GameObjects</see> and provides
-    /// update-, rendering- and maintenance functionality. In Duality, there is always exactly one Scene
-    /// <see cref="Scene.Current"/> which represents a level, gamestate or a combination of both, depending
-    /// on you own design.
-    /// </summary>
-    public /*sealed*/ class Scene : Resource
+	/// <summary>
+	/// A Scene encapsulates an organized set of <see cref="GameObject">GameObjects</see> and provides
+	/// update-, rendering- and maintenance functionality. In Duality, there is always exactly one Scene
+	/// <see cref="Scene.Current"/> which represents a level, gamestate or a combination of both, depending
+	/// on you own design.
+	/// </summary>
+	public /*sealed*/ class Scene : Resource
 	{
 		private static ContentRef<Scene> current = new Scene();
 		private static bool curAutoGen = false;
@@ -215,8 +214,8 @@ namespace Duality.Resources
 		}
 		private static void OnGameObjectParentChanged(GameObjectParentChangedEventArgs args)
 		{
-            GameObjectParentChanged?.Invoke(current, args);
-        }
+			GameObjectParentChanged?.Invoke(current, args);
+		}
 		private static void OnGameObjectsAdded(GameObjectGroupEventArgs args)
 		{
 			// Gather a list of components to activate
@@ -236,16 +235,16 @@ namespace Duality.Resources
 			foreach (ICmpInitializable component in initList)
 				component.OnInit(Component.InitContext.Activate);
 
-            // Fire a global event to indicate that the new objects are ready
-            GameObjectsAdded?.Invoke(current, args);
-        }
+			// Fire a global event to indicate that the new objects are ready
+			GameObjectsAdded?.Invoke(current, args);
+		}
 		private static void OnGameObjectsRemoved(GameObjectGroupEventArgs args)
 		{
-            // Fire a global event to indicate that the objects are going to be shut down
-            GameObjectsRemoved?.Invoke(current, args);
+			// Fire a global event to indicate that the objects are going to be shut down
+			GameObjectsRemoved?.Invoke(current, args);
 
-            // Gather a list of components to deactivate
-            int objCount = 0;
+			// Gather a list of components to deactivate
+			int objCount = 0;
 			List<ICmpInitializable> initList = new List<ICmpInitializable>();
 			foreach (GameObject obj in args.Objects) {
 				if (!obj.ActiveSingle && !obj.Disposed) continue;
@@ -270,16 +269,16 @@ namespace Duality.Resources
 				ICmpInitializable cInit = args.Component as ICmpInitializable;
 				if (cInit != null) cInit.OnInit(Component.InitContext.Activate);
 			}
-            ComponentAdded?.Invoke(current, args);
-        }
+			ComponentAdded?.Invoke(current, args);
+		}
 		private static void OnComponentRemoving(ComponentEventArgs args)
 		{
 			if (args.Component.Active) {
 				ICmpInitializable cInit = args.Component as ICmpInitializable;
 				if (cInit != null) cInit.OnShutdown(Component.ShutdownContext.Deactivate);
 			}
-            ComponentRemoving?.Invoke(current, args);
-        }
+			ComponentRemoving?.Invoke(current, args);
+		}
 
 
 		private struct UpdateEntry
@@ -408,8 +407,9 @@ namespace Duality.Resources
 
 			this.lowFramerateMode = (Time.UnscaledDeltaTime > Time.SecondsPerFrame * 0.9f);
 
+			// ToDo: Already done in DualityApp.Update()
 			// Perform a cleanup step to catch all DisposeLater calls from within the Scene update
-			DualityApp.RunCleanup();
+			//DualityApp.RunCleanup();
 
 			// Perform a scheduled Scene switch
 			PerformScheduledSwitch();
@@ -726,8 +726,9 @@ namespace Duality.Resources
 		}
 		private void RemoveFromManagers(GameObject obj)
 		{
-			foreach (Component cmp in obj.Components)
+			foreach (Component cmp in obj.Components) {
 				this.RemoveFromManagers(cmp);
+			}
 		}
 		private void RemoveFromManagers(Component cmp)
 		{
@@ -797,7 +798,9 @@ namespace Duality.Resources
 
 			GameObject[] obj = this.objectManager.AllObjects.ToArray();
 			this.objectManager.Clear();
-			foreach (GameObject g in obj) g.DisposeLater();
+			foreach (GameObject g in obj) {
+				g.DisposeLater();
+			}
 		}
 	}
 }

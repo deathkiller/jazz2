@@ -54,7 +54,7 @@ namespace Jazz2.Actors.Bosses
             Teleport();
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             base.OnFixedUpdate(timeMult);
 
@@ -213,7 +213,7 @@ namespace Jazz2.Actors.Bosses
                 PlaySound("FireStart");
             }
 
-            protected override void OnFixedUpdate(float timeMult)
+            public override void OnFixedUpdate(float timeMult)
             {
                 //base.OnFixedUpdate(timeMult);
                 MoveInstantly(new Vector2(speedX * timeMult, speedY * timeMult), MoveType.Relative, true);

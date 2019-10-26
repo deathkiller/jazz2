@@ -10,14 +10,14 @@ using Duality.Drawing;
 
 namespace Jazz2
 {
-    public class Png
+    public sealed class Png
     {
         [Flags]
-        protected enum PngColorType { Indexed = 1, Color = 2, Alpha = 4 }
+        private enum PngColorType { Indexed = 1, Color = 2, Alpha = 4 }
 
-        protected enum PngFilter { None, Sub, Up, Average, Paeth }
+        private enum PngFilter { None, Sub, Up, Average, Paeth }
 
-        protected static readonly byte[] Signature = { 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a };
+        private static readonly byte[] Signature = { 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a };
 
 
         public int Width;

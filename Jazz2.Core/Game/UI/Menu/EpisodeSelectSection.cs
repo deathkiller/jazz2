@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text.Json;
 using Duality;
 using Duality.Drawing;
 using Duality.IO;
@@ -37,14 +36,12 @@ namespace Jazz2.Game.UI.Menu
             string path = PathOp.Combine(DualityApp.DataDirectory, "Episodes");
 
             if (DirectoryOp.Exists(path)) {
-                JsonParser jsonParser = new JsonParser();
-
                 foreach (string episode in DirectoryOp.GetDirectories(path)) {
                     string pathAbsolute = PathOp.Combine(episode, "Episode.res");
                     if (FileOp.Exists(pathAbsolute)) {
                         Episode json;
                         using (Stream s = DualityApp.SystemBackend.FileSystem.OpenFile(pathAbsolute, FileAccessMode.Read)) {
-                            json = jsonParser.Parse<Episode>(s);
+                            json = ContentResolver.Current.Json.Parse<Episode>(s);
                         }
                         json.Token = PathOp.GetFileName(episode);
 

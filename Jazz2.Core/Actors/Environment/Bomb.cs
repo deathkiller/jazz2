@@ -1,14 +1,11 @@
 ﻿using System.Threading.Tasks;
 using Duality;
-using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Environment
 {
     public class Bomb : ActorBase
     {
         private float timeLeft = MathF.Rnd.NextFloat(40f, 90f);
-
-        public override EventType EventType => EventType.Bomb;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
@@ -27,7 +24,7 @@ namespace Jazz2.Actors.Environment
             SetAnimation("Bomb");
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             base.OnFixedUpdate(timeMult);
 

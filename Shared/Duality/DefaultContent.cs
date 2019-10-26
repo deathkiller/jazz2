@@ -69,8 +69,7 @@ namespace Duality
 		public static void InitType<T>(IDictionary<string, T> dictionary) where T : Resource
 		{
 			InitType<T>(name => {
-				T res;
-				return dictionary.TryGetValue(name, out res) ? res : null;
+				return dictionary.TryGetValue(name, out T res) ? res : null;
 			});
 		}
 		public static void InitType<T>(Func<string, T> resourceCreator) where T : Resource

@@ -11,7 +11,6 @@ namespace Jazz2.Actors.Weapons
         private Vector2 gunspotPos;
         private bool fired;
 
-        public override EventType EventType => EventType.WeaponToaster;
         public override WeaponType WeaponType => WeaponType.Toaster;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
@@ -71,7 +70,7 @@ namespace Jazz2.Actors.Weapons
             speedY += ax * MathF.Rnd.NextFloat(-0.5f, 0.5f);
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             OnUpdateHitbox();
 

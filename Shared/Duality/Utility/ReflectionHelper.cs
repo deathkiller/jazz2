@@ -406,7 +406,7 @@ namespace Duality
 					{
 						Array.Resize(ref genArgs, declTypeInfo.GenericTypeArguments.Length);
 						declType = declTypeInfo.MakeGenericType(genArgs);
-						declTypeInfo = declType.GetTypeInfo();
+						//declTypeInfo = declType.GetTypeInfo();
 						genArgs = type.GenericTypeArguments.Skip(genArgs.Length).ToArray();
 					}
 					string parentName = GetTypeCSCodeName(declType, shortName);

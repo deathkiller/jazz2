@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Duality.Components;
 using Duality.Drawing;
-using Jazz2;
 
 namespace Duality.Resources
 {
-    public class RenderSetup : Resource
+	public class RenderSetup : Resource
 	{
 		/// <summary>
 		/// The default rendering setup with one world-space step and one screen-space overlay step.
@@ -242,7 +241,9 @@ namespace Duality.Resources
 		protected void ResizeRenderTarget(ContentRef<RenderTarget> target, Point2 targetSize)
 		{
 			RenderTarget targetRes = target.Res;
-			if (targetRes.Size == targetSize) return;
+			if (targetRes.Size == targetSize) {
+				return;
+			}
 
 			// Resize all textures that are bound to the render target
 			foreach (ContentRef<Texture> texRef in targetRes.Targets)
@@ -346,11 +347,15 @@ namespace Duality.Resources
 				// "dummy" renderpasses. CamViewStates render their overlays by temporarily 
 				// adding 3 - 4 of these passes. Iterating over all objects again would be 
 				// devastating for performance and at the same time pointless.
-				if ((drawDevice.VisibilityMask & VisibilityFlag.AllGroups) == VisibilityFlag.None) return;
+				if ((drawDevice.VisibilityMask & VisibilityFlag.AllGroups) == VisibilityFlag.None) {
+					return;
+				}
 
 				// Query renderers
 				IRendererVisibilityStrategy visibilityStrategy = scene.VisibilityStrategy;
-				if (visibilityStrategy == null) return;
+				if (visibilityStrategy == null) {
+					return;
+				}
 
 				if (this.collectRendererBuffer == null)
 					this.collectRendererBuffer = new RawList<ICmpRenderer>();
@@ -363,7 +368,9 @@ namespace Duality.Resources
 					{
 						for (int i = 0; i < this.rendererFilter.Count; i++)
 						{
-							if (!this.rendererFilter[i](r)) return true;
+							if (!this.rendererFilter[i](r)) {
+								return true;
+							}
 						}
 						return false;
 					});
@@ -501,7 +508,9 @@ namespace Duality.Resources
 			ICmpRenderer[] data = visibleRenderers.Data;
 			for (int i = 0; i < data.Length; i++)
 			{
-				if (i >= visibleRenderers.Count) break;
+				if (i >= visibleRenderers.Count) {
+					break;
+				}
 
 				// Collect Drawcalls from this Component
 				data[i].Draw(drawDevice);

@@ -48,7 +48,7 @@ namespace Jazz2.Actors.Enemies
             copter.Parent = this;
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             base.OnFixedUpdate(timeMult);
 
@@ -154,7 +154,7 @@ namespace Jazz2.Actors.Enemies
                 SetAnimation(AnimState.Activated);
             }
 
-            protected override void OnFixedUpdate(float timeMult)
+            public override void OnFixedUpdate(float timeMult)
             {
                 Transform.RelativePos = new Vector3(0f, 8f, 4f);
             }

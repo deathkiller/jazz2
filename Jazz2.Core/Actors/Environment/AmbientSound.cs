@@ -1,7 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Duality.Audio;
-using Jazz2.Game.Structs;
-using static Duality.Component;
 
 namespace Jazz2.Actors.Environment
 {
@@ -10,8 +8,6 @@ namespace Jazz2.Actors.Environment
     public class AmbientSound : ActorBase
     {
         private SoundInstance sound;
-
-        public override EventType EventType => EventType.AmbientSound;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
@@ -33,16 +29,18 @@ namespace Jazz2.Actors.Environment
             float gain = (details.Params[1] / 255f);
 
             sound = PlaySound(name, gain);
-            sound.Looped = true;
-            sound.BeginFadeIn(1f);
+            if (sound != null) {
+                sound.Flags |= SoundInstanceFlags.Looped;
+                sound.BeginFadeIn(1f);
+            }
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             // Nothing to do...
         }
 
-        protected override void OnDeactivated(ShutdownContext context)
+        public override void OnDestroyed()
         {
             if (sound != null) {
                 sound.FadeOut(0.8f);

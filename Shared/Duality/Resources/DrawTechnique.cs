@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 using Duality.Backend;
 using Duality.Drawing;
-using Jazz2;
 
 namespace Duality.Resources
 {

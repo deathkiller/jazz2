@@ -33,7 +33,7 @@ namespace Jazz2.Actors.Weapons
             canBeFrozen = false;
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             timeLeft -= timeMult;
             if (timeLeft <= 0) {

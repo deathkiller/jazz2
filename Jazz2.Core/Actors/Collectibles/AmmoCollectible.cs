@@ -7,8 +7,6 @@ namespace Jazz2.Actors.Collectibles
     {
         private WeaponType weaponType;
 
-        public override EventType EventType => EventType.Ammo;
-
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             await base.OnActivatedAsync(details);

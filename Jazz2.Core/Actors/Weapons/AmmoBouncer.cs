@@ -14,7 +14,6 @@ namespace Jazz2.Actors.Weapons
         private float targetSpeedX;
         private float hitLimit;
 
-        public override EventType EventType => EventType.WeaponBouncer;
         public override WeaponType WeaponType => WeaponType.Bouncer;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
@@ -33,10 +32,10 @@ namespace Jazz2.Actors.Weapons
             if ((upgrades & 0x1) != 0) {
                 timeLeft = 130;
                 state |= (AnimState)1;
-                PlaySound("FireUpgraded", 1f, 0.5f);
+                PlaySound(Transform.Pos, "FireUpgraded", 1f, 0.5f);
             } else {
                 timeLeft = 90;
-                PlaySound("Fire", 1f, 0.5f);
+                PlaySound(Transform.Pos, "Fire", 1f, 0.5f);
             }
 
             SetAnimation(state);
@@ -70,7 +69,7 @@ namespace Jazz2.Actors.Weapons
             elasticity = 0.9f;
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             TryStandardMovement(timeMult);
             OnUpdateHitbox();

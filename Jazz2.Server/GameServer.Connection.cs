@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using Duality;
 using Jazz2.Networking;
 using Jazz2.Networking.Packets;
 using Jazz2.Networking.Packets.Server;
@@ -76,7 +77,7 @@ namespace Jazz2.Server
                         LevelName = currentLevel,
                         LevelType = currentLevelType,
                         AssignedPlayerIndex = lastPlayerIndex
-                    }, 64, args.SenderConnection, NetDeliveryMethod.ReliableSequenced, PacketChannels.Main);
+                    }, 64, args.SenderConnection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                 }
 
             } else if (args.Status == NetConnectionStatus.Disconnected) {
@@ -100,8 +101,8 @@ namespace Jazz2.Server
 
                         Send(new DestroyRemotePlayer {
                             Index = index,
-                            Reason = 1 // ToDo
-                        }, 3, to.Key, NetDeliveryMethod.ReliableSequenced, PacketChannels.Main);
+                            Reason = 1 // ToDo: Create list of reasons
+                        }, 3, to.Key, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                     }
                 }
             }
@@ -110,10 +111,10 @@ namespace Jazz2.Server
         private void OnMessageReceived(MessageReceivedEventArgs args)
         {
             if (args.IsUnconnected) {
-                if (args.Message.LengthBytes == 1 && args.Message.PeekByte() == PacketTypes.Ping) {
+                if (args.Message.LengthBytes == 1 && args.Message.PeekByte() == SpecialPacketTypes.Ping) {
                     // Fast path for Ping request
                     NetOutgoingMessage m = server.CreateMessage();
-                    m.Write(PacketTypes.Ping);
+                    m.Write(SpecialPacketTypes.Ping);
                     m.Write(server.UniqueIdentifier);
                     server.SendUnconnected(m, args.Message.SenderEndPoint);
                     return;
@@ -169,6 +170,11 @@ namespace Jazz2.Server
         public void RegisterCallback<T>(PacketCallback<T> callback) where T : struct, IClientPacket
         {
             byte type = (new T().Type);
+#if DEBUG
+            if (callbacks.ContainsKey(type)) {
+                throw new InvalidOperationException("Packet callback with this type was already registered");
+            }
+#endif
             callbacks[type] = (msg, isUnconnected) => ProcessCallback(msg, isUnconnected, callback);
         }
 

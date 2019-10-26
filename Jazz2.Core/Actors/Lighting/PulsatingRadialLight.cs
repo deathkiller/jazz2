@@ -13,8 +13,6 @@ namespace Jazz2.Actors.Lighting
         private float radiusNear1, radiusNear2, radiusFar;
         private float phase, speed;
 
-        public override EventType EventType => EventType.LightPulse;
-
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             ushort intensity = details.Params[0];
@@ -34,7 +32,7 @@ namespace Jazz2.Actors.Lighting
             light.Brightness = (brightness / 255f);
         }
 
-        protected override void OnUpdate()
+        public override void OnUpdate()
         {
             phase = (phase + speed * Time.TimeMult) % BaseCycleFrames;
 
@@ -42,7 +40,7 @@ namespace Jazz2.Actors.Lighting
             light.RadiusFar = light.RadiusNear + radiusFar;
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
         }
     }

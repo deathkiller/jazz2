@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using Duality;
-using Duality.Async;
 using Duality.Audio;
 using Duality.Components;
 using Duality.Drawing;
@@ -254,7 +253,7 @@ namespace Jazz2.Game.UI.Menu
             }
         }
 
-        public bool IsAnimationPresent(string name)
+        public bool IsAnimationAvailable(string name)
         {
             return metadata.Graphics.ContainsKey(name);
         }

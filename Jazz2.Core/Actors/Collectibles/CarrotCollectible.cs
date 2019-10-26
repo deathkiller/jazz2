@@ -8,8 +8,6 @@ namespace Jazz2.Actors.Collectibles
     {
         private bool maxCarrot;
 
-        public override EventType EventType => EventType.Carrot;
-
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             await base.OnActivatedAsync(details);

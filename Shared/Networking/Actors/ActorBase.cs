@@ -9,7 +9,7 @@ namespace Jazz2.Actors
     {
         public int Index { get; set; }
 
-        public void OnCreateRemotableActor(ref CreateRemotableActor p)
+        /*public void OnCreateRemotableActor(ref CreateRemotableActor p)
         {
             p.EventType = EventType;
             p.EventParams = eventParams;
@@ -23,7 +23,7 @@ namespace Jazz2.Actors
             p.AnimState = (currentTransitionState != AnimState.Idle ? currentTransitionState : currentAnimationState);
             p.AnimTime = (renderer.Active ? renderer.AnimTime : -1);
             p.IsFacingLeft = IsFacingLeft;
-        }
+        }*/
 
         public void OnUpdateRemoteActor(Vector3 pos, Vector2 speed, AnimState animState, float animTime, bool isFacingLeft)
         {
@@ -32,7 +32,7 @@ namespace Jazz2.Actors
             speedX = speed.X;
             speedY = speed.Y;
 
-            if (availableAnimations != null) {
+            if (availableAnimations != null && renderer != null) {
                 if (currentAnimationState != animState) {
                     SetAnimation(animState);
                 }

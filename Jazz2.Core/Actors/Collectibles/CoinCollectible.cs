@@ -7,8 +7,6 @@ namespace Jazz2.Actors.Collectibles
     {
         private int coinValue;
 
-        public override EventType EventType => EventType.Coin;
-
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             await base.OnActivatedAsync(details);

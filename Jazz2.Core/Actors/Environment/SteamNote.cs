@@ -8,8 +8,6 @@ namespace Jazz2.Actors.Environment
     {
         private float cooldown;
 
-        public override EventType EventType => EventType.SteamNote;
-
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             Vector3 pos = Transform.Pos;
@@ -25,7 +23,7 @@ namespace Jazz2.Actors.Environment
             PlaySound("Appear", 0.4f);
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             //base.OnFixedUpdate(timeMult);
 

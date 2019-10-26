@@ -290,7 +290,10 @@ namespace Duality.Resources
 		/// <param name="sizeMode">Specifies behaviour in case the source data has non-power-of-two dimensions.</param>
 		public void LoadData(ContentRef<Pixmap> basePixmap, TextureSizeMode sizeMode)
 		{
-			if (this.nativeTex == null) this.nativeTex = DualityApp.GraphicsBackend.CreateTexture();
+			if (this.nativeTex == null) {
+				this.nativeTex = DualityApp.GraphicsBackend.CreateTexture();
+			}
+
 			this.needsReload = false;
 			this.basePixmap = basePixmap;
 			this.texSizeMode = sizeMode;
@@ -381,13 +384,15 @@ namespace Duality.Resources
 		private int GetPixelDataInternal<T>(T[] buffer) where T : struct
 		{
 			int readBytes = this.texWidth * this.texHeight * 4;
-			if (readBytes == 0) return 0;
+			if (readBytes == 0) {
+				return 0;
+			}
 
 			int readElements = readBytes / System.Runtime.InteropServices.Marshal.SizeOf(typeof(T));
 			if (buffer.Length < readElements) {
 				throw new ArgumentException(
 					string.Format("The target buffer is too small. Its length needs to be at least {0}.", readBytes),
-					"buffer");
+					nameof(buffer));
 			}
 
 			this.nativeTex.GetData(buffer, ColorDataLayout.Rgba, ColorDataElementType.Byte);
@@ -455,7 +460,9 @@ namespace Duality.Resources
 		/// </summary>
 		protected void SetupNativeRes()
 		{
-			if (this.nativeTex == null) this.nativeTex = DualityApp.GraphicsBackend.CreateTexture();
+			if (this.nativeTex == null) {
+				this.nativeTex = DualityApp.GraphicsBackend.CreateTexture();
+			}
 
 			this.nativeTex.SetupEmpty(
 				this.pixelformat,
@@ -480,9 +487,9 @@ namespace Duality.Resources
 			this.basePixmap.Detach();
 		}
 
-        public void DetachSource()
-        {
-            this.basePixmap.Detach();
-        }
+		public void DetachSource()
+		{
+			this.basePixmap.Detach();
+		}
 	}
 }

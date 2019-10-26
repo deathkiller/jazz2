@@ -22,7 +22,7 @@ namespace Jazz2.Actors.Enemies
             SetAnimation(AnimState.Idle);
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             if (frozenTimeLeft <= 0) {
                 phase = (phase + 0.05f * timeMult) % MathF.TwoPi;

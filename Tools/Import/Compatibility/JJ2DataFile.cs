@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if UNUSED
+
+using System;
 using System.IO;
 
 namespace Jazz2.Compatibility
@@ -61,3 +63,5 @@ namespace Jazz2.Compatibility
         }
     }
 }
+
+#endif

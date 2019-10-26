@@ -8,9 +8,9 @@ namespace Jazz2.Networking
     {
         int Index { get; set; }
 
-        void OnCreateRemotableActor(ref CreateRemotableActor p);
+        //void OnCreateRemotableActor(ref CreateRemotableActor p);
 
-        void OnUpdateRemotableActor(ref UpdateRemotableActor p);
+        //void OnUpdateRemotableActor(ref UpdateRemotableActor p);
 
         void OnUpdateRemoteActor(Vector3 pos, Vector2 speed, AnimState animState, float animTime, bool isFacingLeft);
 

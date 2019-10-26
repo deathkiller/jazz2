@@ -23,14 +23,12 @@ namespace Jazz2.Storage.Content
             if (this.compressed) {
                 return GetStream();
             } else {
-                Stream result;
-                using (MemoryStream dst = new MemoryStream()) {
-                    using (DeflateStream gzip = new DeflateStream(dst, CompressionLevel.Optimal))
-                    using (Stream src = GetStream()) {
-                        src.CopyTo(gzip);
-                    }
-                    result = new MemoryStream(dst.ToArray());
+                Stream result = new MemoryStream();
+                using (DeflateStream ds = new DeflateStream(result, CompressionLevel.Optimal, true))
+                using (Stream stream = GetStream()) {
+                    stream.CopyTo(ds);
                 }
+                result.Position = 0;
                 return result;
             }
         }

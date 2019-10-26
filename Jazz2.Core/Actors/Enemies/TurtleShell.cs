@@ -57,7 +57,7 @@ namespace Jazz2.Actors.Enemies
             UpdateHitbox(30, 16);
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             speedX = MathF.Max(MathF.Abs(speedX) - friction, 0f) * (speedX < 0f ? -1f : 1f);
 

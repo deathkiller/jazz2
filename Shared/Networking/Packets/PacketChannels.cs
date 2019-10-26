@@ -1,7 +1,8 @@
-﻿namespace Jazz2.Networking.Packets
+﻿namespace Jazz2.Networking
 {
     public struct PacketChannels
     {
-        public const int Main = 0;
+        public const int UnreliableUpdates = 0;
+        public const int Main = 1;
     }
 }

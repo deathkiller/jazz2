@@ -2,14 +2,11 @@
 using Duality;
 using Duality.Components;
 using Jazz2.Game;
-using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Lighting
 {
     public class IlluminateLight : ActorBase
     {
-        public override EventType EventType => EventType.LightIlluminate;
-
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             ushort size = details.Params[0];
@@ -23,7 +20,7 @@ namespace Jazz2.Actors.Lighting
             }
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
         }
     }

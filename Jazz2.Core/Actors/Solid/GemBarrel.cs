@@ -6,8 +6,6 @@ namespace Jazz2.Actors.Solid
 {
     public class GemBarrel : GenericContainer
     {
-        public override EventType EventType => EventType.BarrelGem;
-
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             Movable = true;

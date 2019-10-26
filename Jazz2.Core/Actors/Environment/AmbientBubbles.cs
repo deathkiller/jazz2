@@ -20,7 +20,7 @@ namespace Jazz2.Actors.Environment
             await RequestMetadataAsync("Common/AmbientBubbles");
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             if (cooldown > 0f) {
                 cooldown -= timeMult;

@@ -49,7 +49,7 @@ namespace Jazz2.Actors.Bosses
             base.OnTileDeactivate(int.MinValue, int.MinValue, int.MinValue, int.MinValue);
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             base.OnFixedUpdate(timeMult);
 

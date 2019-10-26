@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
-using Jazz2;
+using Duality;
 
 namespace Import.Downloaders
 {
@@ -19,10 +19,11 @@ namespace Import.Downloaders
             string zipFile = Path.Combine(Path.GetTempPath(), "Jazz2-" + Guid.NewGuid());
 
             try {
-                WebClient client = new WebClient();
-                client.DownloadFile(Url, zipFile);
+                using (WebClient client = new WebClient()) {
+                    client.DownloadFile(Url, zipFile);
+                }
             } catch (Exception ex) {
-                Log.Write(LogType.Error, ex.ToString());
+                Log.Write(LogType.Error, "Failed to download required files: " + ex.ToString());
                 Log.PopIndent();
                 return false;
             }
@@ -35,12 +36,8 @@ namespace Import.Downloaders
                 Log.Write(LogType.Info, "Extracting files...");
                 ZipFile.ExtractToDirectory(zipFile, tempDir);
 
-                App.ConvertJJ2Anims(tempDir, targetPath);
-
                 HashSet<string> usedMusic = new HashSet<string>();
                 HashSet<string> usedTilesets = new HashSet<string>();
-
-                App.ConvertJJ2Levels(tempDir, targetPath, usedTilesets, usedMusic);
 
                 usedMusic.Add("boss1");
                 usedMusic.Add("boss2");
@@ -48,8 +45,10 @@ namespace Import.Downloaders
                 usedMusic.Add("bonus3");
                 usedMusic.Add("menu");
 
+                App.ConvertJJ2Anims(tempDir, targetPath);
+                App.ConvertJJ2Levels(tempDir, targetPath, usedTilesets, usedMusic);
+                App.ConvertJJ2Cinematics(tempDir, targetPath, usedMusic, false);
                 App.ConvertJJ2Music(tempDir, targetPath, usedMusic, false);
-
                 App.ConvertJJ2Tilesets(tempDir, targetPath, usedTilesets, false);
             } catch (Exception ex) {
                 Log.Write(LogType.Error, ex.ToString());
@@ -57,10 +56,10 @@ namespace Import.Downloaders
                 return false;
             } finally {
                 // Try to delete downloaded ZIP file
-                Utils.FileTryDelete(zipFile);
+                FileSystemUtils.FileTryDelete(zipFile);
 
                 // Try to delete extracted files
-                Utils.DirectoryTryDelete(tempDir, true);
+                FileSystemUtils.DirectoryTryDelete(tempDir, true);
             }
 
             Log.PopIndent();

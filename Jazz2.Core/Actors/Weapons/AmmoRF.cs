@@ -12,7 +12,6 @@ namespace Jazz2.Actors.Weapons
 
         private float smokeTimer = 3f;
 
-        public override EventType EventType => EventType.WeaponRF;
         public override WeaponType WeaponType => WeaponType.RF;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
@@ -66,7 +65,7 @@ namespace Jazz2.Actors.Weapons
             Transform.Angle = angle;
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             float halfTimeMult = timeMult * 0.5f;
 

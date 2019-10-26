@@ -12,7 +12,6 @@ namespace Jazz2.Actors.Weapons
         private Vector2 gunspotPos;
         private bool fired;
 
-        public override EventType EventType => EventType.WeaponFreezer;
         public override WeaponType WeaponType => WeaponType.Freezer;
 
         public float FrozenDuration => ((upgrades & 0x1) != 0 ? 280f : 180f);
@@ -33,11 +32,11 @@ namespace Jazz2.Actors.Weapons
             if ((upgrades & 0x1) != 0) {
                 timeLeft = 38;
                 state |= (AnimState)1;
-                PlaySound("FireUpgraded");
+                PlaySound(Transform.Pos, "FireUpgraded");
             } else {
                 timeLeft = 44;
 
-                PlaySound("Fire");
+                PlaySound(Transform.Pos, "Fire");
             }
 
             SetAnimation(state);
@@ -71,7 +70,7 @@ namespace Jazz2.Actors.Weapons
             Transform.Angle = angle;
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             float halfTimeMult = timeMult * 0.5f;
 

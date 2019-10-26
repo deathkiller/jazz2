@@ -50,7 +50,7 @@ namespace Jazz2.Actors.Bosses
             stateTime = 120f;
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             if (isDemon) {
                 OnUpdateHitbox();

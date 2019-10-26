@@ -4,11 +4,11 @@ using Duality.Resources;
 
 namespace Duality.Audio
 {
-    /// <summary>
-    /// An instance of a <see cref="Duality.Resources.Sound"/>.
-    /// </summary>
+	/// <summary>
+	/// An instance of a <see cref="Duality.Resources.Sound"/>.
+	/// </summary>
 	public sealed class SoundInstance : ISoundInstance
-    {
+	{
 		public const int PriorityStealThreshold       = 15;
 		public const int PriorityStealLoopedThreshold = 30;
 
@@ -27,7 +27,7 @@ namespace Duality.Audio
 		private	float      lowpass        = 1.0f;
 		private	float      panning        = 0.0f;
 		private	bool       is3D           = false;
-		private	bool       looped         = false;
+		private SoundInstanceFlags flags  = SoundInstanceFlags.None;
 		private	bool       paused         = false;
 		private	bool       registered     = false;
 		private	int        curPriority    = 0;
@@ -42,7 +42,7 @@ namespace Duality.Audio
 
 		// Streaming
 		//private	VorbisStreamHandle strOvStr = null;
-	    //private WavStreamHandle strOvStr;
+		//private WavStreamHandle strOvStr;
 
 		/// <summary>
 		/// [GET] The currently used native audio source, as provided by the Duality backend. Don't use this unless you know exactly what you're doing.
@@ -155,10 +155,10 @@ namespace Duality.Audio
 		/// <summary>
 		/// [GET / SET] Whether the sound is played in a loop.
 		/// </summary>
-		public bool Looped
+		public SoundInstanceFlags Flags
 		{
-			get { return this.looped; }
-			set { this.looped = value; }
+			get { return this.flags; }
+			set { this.flags = value; }
 		}
 		/// <summary>
 		/// [GET / SET] Whether the sound is currently paused.
@@ -249,8 +249,9 @@ namespace Duality.Audio
 		/// </summary>
 		public void Stop()
 		{
-			if (this.native != null)
+			if (this.native != null) {
 				this.native.Stop();
+			}
 		}
 		/// <summary>
 		/// Fades the sound to a specific target value.
@@ -299,11 +300,15 @@ namespace Duality.Audio
 
 		private bool GrabNativeSource()
 		{
-			if (this.native != null) return true;
+			if (this.native != null) {
+				return true;
+			}
 
 			// Retrieve maximum number of sources by kind (2D / 3D)
 			int maxNum = DualityApp.Sound.MaxOpenALSources * 3 / 4;
-			if (!this.is3D) maxNum = DualityApp.Sound.MaxOpenALSources - maxNum;
+			if (!this.is3D) {
+				maxNum = DualityApp.Sound.MaxOpenALSources - maxNum;
+			}
 			// Determine how many sources of this kind (2D / 3D) are playing
 			int curNum = this.is3D ? DualityApp.Sound.NumPlaying3D : DualityApp.Sound.NumPlaying2D;
 			// Determine how many sources using this sound resource are playing
@@ -321,20 +326,25 @@ namespace Duality.Audio
 				this.curPriority = this.PreCalcPriority();
 
 				foreach (ISoundInstance inst_ in DualityApp.Sound.Playing) {
-				    SoundInstance inst = inst_ as SoundInstance;
-				    if (inst == null) {
-				        continue;
-				    }
+					SoundInstance inst = inst_ as SoundInstance;
+					if (inst == null) {
+						continue;
+					}
 
-                    if (inst.native == null) continue;
-					if (/*!searchSimilar &&*/ this.is3D != inst.is3D) continue;
+					if (inst.native == null) {
+						continue;
+					}
+
+					if (/*!searchSimilar &&*/ this.is3D != inst.is3D) {
+						continue;
+					}
 					//if (searchSimilar && this.sound.Res != inst.sound.Res) continue;
 
 					float ownPrioMult = 1.0f;
 					//if (searchSimilar && !inst.Looped) ownPrioMult *= MathF.Sqrt(inst.playTime + 1.0f);
 
 					if (this.curPriority * ownPrioMult > inst.curPriority + 
-						(inst.Looped ? PriorityStealLoopedThreshold : PriorityStealThreshold))
+						((inst.flags & SoundInstanceFlags.Looped) != 0 ? PriorityStealLoopedThreshold : PriorityStealThreshold))
 					{
 						this.native = inst.native;
 						this.native.Reset();
@@ -365,8 +375,12 @@ namespace Duality.Audio
 				float maxDistTemp = this.sound.Res.MaxDist;
 				Vector3 listenerPos = DualityApp.Sound.ListenerPos;
 				Vector3 posTemp;
-				if (this.attachedTo != null)	posTemp = this.attachedTo.Transform.Pos + this.pos;
-				else							posTemp = this.pos;
+				if (this.attachedTo != null) {
+					posTemp = this.attachedTo.Transform.Pos + this.pos;
+				} else {
+					posTemp = this.pos;
+				}
+
 				float dist = MathF.Sqrt(
 					(posTemp.X - listenerPos.X) * (posTemp.X - listenerPos.X) +
 					(posTemp.Y - listenerPos.Y) * (posTemp.Y - listenerPos.Y) +
@@ -374,212 +388,223 @@ namespace Duality.Audio
 				priorityTemp *= Math.Max(0.0f, 1.0f - (dist - minDistTemp) / (maxDistTemp - minDistTemp));
 			}
 
-            //int numPlaying = DualityApp.Sound.GetNumPlaying(this.sound);
-            //return (int)Math.Round(priorityTemp / Math.Sqrt(numPlaying));
-            return (int)priorityTemp;
+			//int numPlaying = DualityApp.Sound.GetNumPlaying(this.sound);
+			//return (int)Math.Round(priorityTemp / Math.Sqrt(numPlaying));
+			return (int)priorityTemp;
 		}
 
 		private void RegisterPlaying()
 		{
-			if (this.registered) return;
+			if (this.registered) {
+				return;
+			}
+
 			DualityApp.Sound.RegisterPlaying(this.sound, this.is3D);
 			this.registered = true;
 		}
 		private void UnregisterPlaying()
 		{
-			if (!this.registered) return;
+			if (!this.registered) {
+				return;
+			}
+
 			DualityApp.Sound.UnregisterPlaying(this.sound, this.is3D);
 			this.registered = false;
 		}
 
-        /// <summary>
-        /// Updates the SoundInstance
-        /// </summary>
-        public void Update()
-        {
-            // Check existence of attachTo object
-            if (this.attachedTo != null && this.attachedTo.Disposed) this.attachedTo = null;
+		/// <summary>
+		/// Updates the SoundInstance
+		/// </summary>
+		public void Update()
+		{
+			// Check existence of attachTo object
+			if (this.attachedTo != null && this.attachedTo.Disposed) {
+				this.attachedTo = null;
+			}
 
-            // Retrieve sound resource values
-            Sound soundRes = this.sound.Res;
-            AudioData audioDataRes = this.audioData.Res;
-            if (soundRes == null || audioDataRes == null) {
-                this.Dispose();
-                return;
-            }
+			// Retrieve sound resource values
+			Sound soundRes = this.sound.Res;
+			AudioData audioDataRes = this.audioData.Res;
+			if (soundRes == null || audioDataRes == null) {
+				this.Dispose();
+				return;
+			}
 
-            // Set up local variables for state calculation
-            Vector3 listenerPos = DualityApp.Sound.ListenerPos;
-            bool attachedToListener = this.attachedTo != null && ((this.attachedTo == DualityApp.Sound.Listener) || this.attachedTo.IsChildOf(DualityApp.Sound.Listener));
-            float priorityTemp = 1000.0f;
-            AudioSourceState nativeState = AudioSourceState.Default;
-            nativeState.MinDistance = soundRes.MinDist;
-            nativeState.MaxDistance = soundRes.MaxDist;
-            nativeState.Volume = this.vol * this.curFade * this.pauseFade;
-            nativeState.Pitch = this.pitch;
-            nativeState.Lowpass = this.lowpass;
-            priorityTemp *= nativeState.Volume;
+			// Set up local variables for state calculation
+			Vector3 listenerPos = DualityApp.Sound.ListenerPos;
+			bool attachedToListener = this.attachedTo != null && ((this.attachedTo == DualityApp.Sound.Listener) || this.attachedTo.IsChildOf(DualityApp.Sound.Listener));
+			float priorityTemp = 1000.0f;
+			AudioSourceState nativeState = AudioSourceState.Default;
+			nativeState.MinDistance = soundRes.MinDist;
+			nativeState.MaxDistance = soundRes.MaxDist;
+			nativeState.Volume = this.vol * this.curFade * this.pauseFade;
+			nativeState.Pitch = this.pitch;
+			nativeState.Lowpass = this.lowpass;
+			priorityTemp *= nativeState.Volume;
 
-            // Calculate 3D source values, distance and priority
-            nativeState.Position = this.pos;
-            nativeState.Velocity = this.vel;
-            if (this.is3D) {
-                Components.Transform attachTransform = this.attachedTo != null ? this.attachedTo.Transform : null;
+			// Calculate 3D source values, distance and priority
+			nativeState.Position = this.pos;
+			nativeState.Velocity = this.vel;
+			if (this.is3D) {
+				Components.Transform attachTransform = this.attachedTo != null ? this.attachedTo.Transform : null;
 
-                // Attach to object
-                if (this.attachedTo != null) {
-                    MathF.TransformCoord(ref nativeState.Position.X, ref nativeState.Position.Y, attachTransform.Angle);
-                    MathF.TransformCoord(ref nativeState.Velocity.X, ref nativeState.Velocity.Y, attachTransform.Angle);
-                    nativeState.Position += attachTransform.Pos;
-                    nativeState.Velocity += attachTransform.Vel;
-                }
+				// Attach to object
+				if (this.attachedTo != null) {
+					MathF.TransformCoord(ref nativeState.Position.X, ref nativeState.Position.Y, attachTransform.Angle);
+					MathF.TransformCoord(ref nativeState.Velocity.X, ref nativeState.Velocity.Y, attachTransform.Angle);
+					nativeState.Position += attachTransform.Pos;
+					nativeState.Velocity += attachTransform.Vel;
+				}
 
-                // Distance check
-                float dist = MathF.Sqrt(
-                    (nativeState.Position.X - listenerPos.X) * (nativeState.Position.X - listenerPos.X) +
-                    (nativeState.Position.Y - listenerPos.Y) * (nativeState.Position.Y - listenerPos.Y) +
-                    (nativeState.Position.Z - listenerPos.Z) * (nativeState.Position.Z - listenerPos.Z) * 0.25f);
-                if (dist > nativeState.MaxDistance) {
-                    this.Dispose();
-                    return;
-                } else
-                    priorityTemp *= Math.Max(0.0f, 1.0f - (dist - nativeState.MinDistance) / (nativeState.MaxDistance - nativeState.MinDistance));
-            }
+				// Distance check
+				float dist = MathF.Sqrt(
+					(nativeState.Position.X - listenerPos.X) * (nativeState.Position.X - listenerPos.X) +
+					(nativeState.Position.Y - listenerPos.Y) * (nativeState.Position.Y - listenerPos.Y) +
+					(nativeState.Position.Z - listenerPos.Z) * (nativeState.Position.Z - listenerPos.Z) * 0.25f);
+				if (dist > nativeState.MaxDistance) {
+					this.Dispose();
+					return;
+				} else {
+					priorityTemp *= Math.Max(0.0f, 1.0f - (dist - nativeState.MinDistance) / (nativeState.MaxDistance - nativeState.MinDistance));
+				}
+			}
 
-            if (this.notYetAssigned) {
-                // Grab a native audio source
-                if (this.GrabNativeSource()) {
-                    this.RegisterPlaying();
-                }
-                // If there is none available, just stop right there.
-                else {
-                    this.Dispose();
-                    return;
-                }
-            }
+			if (this.notYetAssigned) {
+				// Grab a native audio source
+				if (this.GrabNativeSource()) {
+					this.RegisterPlaying();
+				} else { // If there is none available, just stop right there.
+					this.Dispose();
+					return;
+				}
+			}
 
-            // If the source is stopped / finished, dispose and return
-            if (this.native == null || this.native.IsFinished) {
-                this.Dispose();
-                return;
-            }
+			// If the source is stopped / finished, dispose and return
+			if (this.native == null || this.native.IsFinished) {
 
-            // Fading in and out
-            bool fadeOut = this.fadeTarget <= 0.0f;
-            if (!this.paused) {
-                if (this.fadeTarget != this.curFade) {
-                    float fadeTemp = Time.TimeMult * Time.SecondsPerFrame / Math.Max(0.05f, this.fadeTimeSec);
+				this.Dispose();
+				return;
+			}
 
-                    if (this.fadeTarget > this.curFade)
-                        this.curFade += fadeTemp;
-                    else
-                        this.curFade -= fadeTemp;
+			// Fading in and out
+			bool fadeOut = this.fadeTarget <= 0.0f;
+			if (!this.paused) {
+				if (this.fadeTarget != this.curFade) {
+					float fadeTemp = Time.TimeMult * Time.SecondsPerFrame / Math.Max(0.05f, this.fadeTimeSec);
 
-                    if (Math.Abs(this.curFade - this.fadeTarget) < fadeTemp * 2.0f)
-                        this.curFade = this.fadeTarget;
-                }
-            }
+					if (this.fadeTarget > this.curFade) {
+						this.curFade += fadeTemp;
+					} else {
+						this.curFade -= fadeTemp;
+					}
 
-            // Special paused-fading
-            if (this.paused && this.pauseFade > 0.0f) {
-                this.pauseFade = MathF.Max(0.0f, this.pauseFade - Time.TimeMult * Time.SecondsPerFrame * 5.0f);
-            } else if (!this.paused && this.pauseFade < 1.0f) {
-                this.pauseFade = MathF.Min(1.0f, this.pauseFade + Time.TimeMult * Time.SecondsPerFrame * 5.0f);
-            }
+					if (Math.Abs(this.curFade - this.fadeTarget) < fadeTemp * 2.0f) {
+						this.curFade = this.fadeTarget;
+					}
+				}
+			}
 
-            // Apply the sounds state to its internal native audio source
-            if (this.native != null) {
-                if (this.is3D) {
-                    nativeState.RelativeToListener = attachedToListener;
-                    if (attachedToListener)
-                        nativeState.Position -= listenerPos;
+			// Special paused-fading
+			if (this.paused && this.pauseFade > 0.0f) {
+				this.pauseFade = MathF.Max(0.0f, this.pauseFade - Time.TimeMult * Time.SecondsPerFrame * 5.0f);
+			} else if (!this.paused && this.pauseFade < 1.0f) {
+				this.pauseFade = MathF.Min(1.0f, this.pauseFade + Time.TimeMult * Time.SecondsPerFrame * 5.0f);
+			}
 
-                    // Convert from Duality units to (physical) audio backend units.
-                    nativeState.Position *= AudioUnit.LengthToPhysical;
-                    nativeState.Velocity *= AudioUnit.VelocityToPhysical;
-                    nativeState.MinDistance *= AudioUnit.LengthToPhysical;
-                    nativeState.MaxDistance *= AudioUnit.LengthToPhysical;
+			// Apply the sounds state to its internal native audio source
+			if (this.native != null) {
+				if (this.is3D) {
+					nativeState.RelativeToListener = attachedToListener;
+					if (attachedToListener) {
+						nativeState.Position -= listenerPos;
+					}
 
-                    // Post-process sound instance data in listener space
-                    float listenerAngle = DualityApp.Sound.ListenerAngle;
-                    Vector3 adjustedPos = nativeState.RelativeToListener ? nativeState.Position : nativeState.Position - listenerPos * AudioUnit.LengthToPhysical;
-                    MathF.TransformCoord(ref adjustedPos.X, ref adjustedPos.Z, -listenerAngle);
+					// Convert from Duality units to (physical) audio backend units.
+					nativeState.Position *= AudioUnit.LengthToPhysical;
+					nativeState.Velocity *= AudioUnit.VelocityToPhysical;
+					nativeState.MinDistance *= AudioUnit.LengthToPhysical;
+					nativeState.MaxDistance *= AudioUnit.LengthToPhysical;
 
-                    // Flatten depth position a little, so far away sounds that can still be seen appear louder
-                    adjustedPos.Z *= 0.5f;
+					// Post-process sound instance data in listener space
+					float listenerAngle = DualityApp.Sound.ListenerAngle;
+					Vector3 adjustedPos = nativeState.RelativeToListener ? nativeState.Position : nativeState.Position - listenerPos * AudioUnit.LengthToPhysical;
+					MathF.TransformCoord(ref adjustedPos.X, ref adjustedPos.Z, -listenerAngle);
 
-                    // Normalize audio position for smooth panning when near. Do it in physical
-                    // units, so this remains constant regardless of unit changes.
-                    float smoothPanRadius = 5.0f;
-                    float listenerSpaceDist = adjustedPos.Length;
-                    if (listenerSpaceDist < smoothPanRadius) {
-                        float panningActive = listenerSpaceDist / smoothPanRadius;
+					// Flatten depth position a little, so far away sounds that can still be seen appear louder
+					adjustedPos.Z *= 0.5f;
 
-                        adjustedPos = Vector3.Lerp(
-                            new Vector3(0.0f, 0.0f, 1.0f + (smoothPanRadius - 1.0f) * panningActive),
-                            adjustedPos,
-                            panningActive);
-                    }
+					// Normalize audio position for smooth panning when near. Do it in physical
+					// units, so this remains constant regardless of unit changes.
+					float smoothPanRadius = 5.0f;
+					float listenerSpaceDist = adjustedPos.Length;
+					if (listenerSpaceDist < smoothPanRadius) {
+						float panningActive = listenerSpaceDist / smoothPanRadius;
 
-                    MathF.TransformCoord(ref adjustedPos.X, ref adjustedPos.Z, listenerAngle);
-                    nativeState.Position = nativeState.RelativeToListener ? adjustedPos : adjustedPos + listenerPos * AudioUnit.LengthToPhysical;
-                } else {
-                    // We'll do a +/- 30° panning for 2D audio
-                    Vector2 localPos = Vector2.FromAngleLength(
-                        MathF.DegToRad(30.0f * this.panning),
-                        1.0f);
+						adjustedPos = Vector3.Lerp(
+							new Vector3(0.0f, 0.0f, 1.0f + (smoothPanRadius - 1.0f) * panningActive),
+							adjustedPos,
+							panningActive);
+					}
 
-                    nativeState.RelativeToListener = true;
-                    nativeState.Position = new Vector3(localPos.X, 0.0f, -localPos.Y);
-                    nativeState.Velocity = Vector3.Zero;
-                }
-                nativeState.Looped = this.looped;
-                nativeState.Paused = this.paused && this.pauseFade == 0.0f;
+					MathF.TransformCoord(ref adjustedPos.X, ref adjustedPos.Z, listenerAngle);
+					nativeState.Position = nativeState.RelativeToListener ? adjustedPos : adjustedPos + listenerPos * AudioUnit.LengthToPhysical;
+				} else {
+					// We'll do a +/- 30° panning for 2D audio
+					Vector2 localPos = Vector2.FromAngleLength(
+						MathF.DegToRad(30.0f * this.panning),
+						1.0f);
 
-                this.native.ApplyState(ref nativeState);
-            }
+					nativeState.RelativeToListener = true;
+					nativeState.Position = new Vector3(localPos.X, 0.0f, -localPos.Y);
+					nativeState.Velocity = Vector3.Zero;
+				}
+				nativeState.Looped = (this.flags & SoundInstanceFlags.Looped) != 0;
+				nativeState.Paused = this.paused && this.pauseFade == 0.0f;
 
-            // Update play time
-            if (!this.paused) {
-                this.playTime += MathF.Max(0.5f, nativeState.Pitch) * Time.TimeMult * Time.SecondsPerFrame;
-            }
+				this.native.ApplyState(ref nativeState);
+			}
 
-            // Finish priority calculation
-            //this.curPriority = (int)Math.Round(priorityTemp / Math.Sqrt(DualityApp.Sound.GetNumPlaying(this.sound)));
-            this.curPriority = (int)priorityTemp;
+			// Update play time
+			if (!this.paused) {
+				this.playTime += MathF.Max(0.5f, nativeState.Pitch) * Time.TimeMult * Time.SecondsPerFrame;
+			}
 
-            // Initially play the source
-            if (this.native.IsInitial && !this.paused) {
-                if (audioDataRes.IsStreamed) {
-                    this.native.Play(this);
-                } else if (audioDataRes.Native != null) {
-                    this.native.Play(audioDataRes.Native);
-                }
-            }
+			// Finish priority calculation
+			//this.curPriority = (int)Math.Round(priorityTemp / Math.Sqrt(DualityApp.Sound.GetNumPlaying(this.sound)));
+			this.curPriority = (int)priorityTemp;
 
-            // Remove faded out sources
-            if (fadeOut && nativeState.Volume <= 0.0f) {
-                this.fadeWaitEnd += Time.TimeMult * Time.MillisecondsPerFrame;
-                // After fading out entirely, wait 50 ms before actually stopping the source to prevent unpleasant audio tick / glitch noises
-                if (this.fadeWaitEnd > 50.0f) {
-                    this.Dispose();
-                    return;
-                }
-            } else {
-                this.fadeWaitEnd = 0.0f;
-            }
-        }
+			// Initially play the source
+			if (this.native.IsInitial && !this.paused) {
+				if (audioDataRes.IsStreamed) {
+					this.native.Play(this);
+				} else if (audioDataRes.Native != null) {
+					this.native.Play(audioDataRes.Native);
+				}
+			}
 
-        void IAudioStreamProvider.OpenStream()
+			// Remove faded out sources
+			if (fadeOut && nativeState.Volume <= 0.0f) {
+				this.fadeWaitEnd += Time.TimeMult * Time.MillisecondsPerFrame;
+				// After fading out entirely, wait 50 ms before actually stopping the source to prevent unpleasant audio tick / glitch noises
+				if (this.fadeWaitEnd > 50.0f) {
+					this.Dispose();
+					return;
+				}
+			} else {
+				this.fadeWaitEnd = 0.0f;
+			}
+		}
+
+		void IAudioStreamProvider.OpenStream()
 		{
 			/*AudioData audioDataRes = this.audioData.Res;
 			OggVorbis.BeginStreamFromMemory(audioDataRes.OggVorbisData, out this.strOvStr);*/
-            //strOvStr = new WavStreamHandle(this.audioData.Res.OggVorbisData);
+			//strOvStr = new WavStreamHandle(this.audioData.Res.OggVorbisData);
 		}
 
 		bool IAudioStreamProvider.ReadStream(INativeAudioBuffer targetBuffer)
 		{
-            /*if (!OggVorbis.IsStreamValid(this.strOvStr))
+			/*if (!OggVorbis.IsStreamValid(this.strOvStr))
 				return false;
 
 			AudioData audioDataRes = this.audioData.Res;
@@ -610,28 +635,28 @@ namespace Duality.Audio
 
 			return pcm.DataLength != 0 && !eof;*/
 
-		    /*byte[] buffer;
-		    int sampleRate;
-		    AudioDataLayout layout;
-		    AudioDataElementType type;
-		    strOvStr.StreamChunk(out buffer, out sampleRate, out layout, out type);
+			/*byte[] buffer;
+			int sampleRate;
+			AudioDataLayout layout;
+			AudioDataElementType type;
+			strOvStr.StreamChunk(out buffer, out sampleRate, out layout, out type);
 
-		    if (buffer.Length > 0) {
-		        targetBuffer.LoadData(
-		            sampleRate,
-		            buffer,
-		            buffer.Length,
-		            layout,
-		            type);
-		    }*/
+			if (buffer.Length > 0) {
+				targetBuffer.LoadData(
+					sampleRate,
+					buffer,
+					buffer.Length,
+					layout,
+					type);
+			}*/
 
-            return false;
+			return false;
 		}
 		void IAudioStreamProvider.CloseStream()
 		{
-            //OggVorbis.EndStream(ref this.strOvStr);
+			//OggVorbis.EndStream(ref this.strOvStr);
 
-		    //strOvStr = null;
+			//strOvStr = null;
 		}
 	}
 }

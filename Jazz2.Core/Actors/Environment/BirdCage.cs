@@ -10,8 +10,6 @@ namespace Jazz2.Actors.Environment
         private ushort type;
         private bool activated;
 
-        public override EventType EventType => EventType.BirdCage;
-
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             Vector3 pos = Transform.Pos;

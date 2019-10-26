@@ -11,7 +11,7 @@ namespace Jazz2.Game.UI.Menu.Settings
         private ChoiceControl vibrations;
         private SliderControl leftPadding;
         private SliderControl rightPadding;
-#else
+#elif !PLATFORM_WASM
         private ChoiceControl screenMode;
         private ChoiceControl refreshMode;
 #endif
@@ -91,9 +91,7 @@ namespace Jazz2.Game.UI.Menu.Settings
 
         public override void OnHide(bool isRemoved)
         {
-            if (isRemoved) {
-                Commit();
-            }
+            Commit();
 
             base.OnHide(isRemoved);
         }

@@ -1,12 +1,11 @@
 using System;
-using System.Collections.Generic;
 
 namespace Duality.Drawing
 {
-	/// <summary>
-	/// Represents a single batch of dynamically gathered vertex data.
-	/// </summary>
-	public interface IVertexBatch
+    /// <summary>
+    /// Represents a single batch of dynamically gathered vertex data.
+    /// </summary>
+    public interface IVertexBatch
 	{
 		/// <summary>
 		/// [GET] The number of vertices in this batch.

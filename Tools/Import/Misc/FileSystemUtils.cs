@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace Import
 {
-    public static class Utils
+    public static class FileSystemUtils
     {
         public static bool FileResolveCaseInsensitive(ref string path)
         {

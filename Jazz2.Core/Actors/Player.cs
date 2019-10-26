@@ -306,7 +306,7 @@ namespace Jazz2.Actors
             return false;
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             Hud.ShowDebugText("- Pos.: {" + (int)Transform.Pos.X + "; " + (int)Transform.Pos.Y + "}");
             Hud.ShowDebugText("  Speed: {" + speedX.ToString("F1") + "; " + speedY.ToString("F1") + "}");
@@ -350,17 +350,15 @@ namespace Jazz2.Actors
             }
 
             FollowCarryingPlatform();
-            UpdateAnimation(timeMult, lastPos.X, lastSpeedX, lastForceX);
+            UpdateAnimation(timeMult);
 
-            CheckSuspendedStatus(lastPos);
+            CheckSuspendedStatus();
             CheckDestructibleTiles(timeMult);
             CheckEndOfSpecialMoves(timeMult);
 
             OnHandleWater();
 
-            bool areaWeaponAllowed;
-            int areaWaterBlock;
-            OnHandleAreaEvents(timeMult, out areaWeaponAllowed, out areaWaterBlock);
+            OnHandleAreaEvents(timeMult, out bool areaWeaponAllowed, out int areaWaterBlock);
 
             // Invulnerability
             if (invulnerableTime > 0f) {
@@ -484,8 +482,7 @@ namespace Jazz2.Actors
 
                         TileMap tilemap = api.TileMap;
                         if (tilemap != null) {
-                            GraphicResource res;
-                            if (availableAnimations.TryGetValue("SugarRush", out res)) {
+                            if (availableAnimations.TryGetValue("SugarRush", out GraphicResource res)) {
                                 Vector3 pos = Transform.Pos;
                                 pos.Z -= 30f;
 
@@ -808,7 +805,7 @@ namespace Jazz2.Actors
 
                                             if (copterSound == null) {
                                                 copterSound = PlaySound("Copter", 0.6f, 1.5f);
-                                                copterSound.Looped = true;
+                                                copterSound.Flags |= SoundInstanceFlags.Looped;
                                             }
                                         }
                                     }
@@ -862,7 +859,7 @@ namespace Jazz2.Actors
 
                                             if (copterSound == null) {
                                                 copterSound = PlaySound("Copter", 0.6f, 1.5f);
-                                                copterSound.Looped = true;
+                                                copterSound.Flags |= SoundInstanceFlags.Looped;
                                             }
                                         }
                                     }
@@ -1180,14 +1177,14 @@ namespace Jazz2.Actors
                 renderer.CustomMaterial = null;
             } else {
                 // Refresh temporary material
-                BatchInfo blinkMaterial = new BatchInfo(renderer.SharedMaterial.Res.Info);
-                blinkMaterial.Technique = ContentResolver.Current.RequestShader("Colorize");
-                blinkMaterial.MainColor = new ColorRgba(0.7f, 0.5f);
-                renderer.CustomMaterial = blinkMaterial;
+                renderer.CustomMaterial = new BatchInfo(renderer.SharedMaterial.Res.Info) {
+                    Technique = ContentResolver.Current.RequestShader("Colorize"),
+                    MainColor = new ColorRgba(0.7f, 0.5f)
+                };
             }
         }
 
-        private void UpdateAnimation(float timeMult, float lastX, float lastSpeedX, float lastForceX)
+        private void UpdateAnimation(float timeMult)
         {
             if (controllable) {
                 float posX = Transform.Pos.X;
@@ -1338,9 +1335,8 @@ namespace Jazz2.Actors
             }
 
             if (canJump && controllable && isActivelyPushing && MathF.Abs(speedX) > float.Epsilon) {
-                ActorBase collider;
                 AABB hitbox = AABBInner + new Vector2(speedX < 0 ? -2f : 2f, 0f);
-                if (!api.IsPositionEmpty(this, ref hitbox, false, out collider)) {
+                if (!api.IsPositionEmpty(this, ref hitbox, false, out ActorBase collider)) {
                     SolidObjectBase solidObject = collider as SolidObjectBase;
                     if (solidObject != null) {
                         collisionFlags &= ~CollisionFlags.IsSolidObject;
@@ -1351,9 +1347,8 @@ namespace Jazz2.Actors
                     }
                 }
             } else if ((collisionFlags & CollisionFlags.IsSolidObject) != 0) {
-                ActorBase collider;
                 AABB aabb = AABBInner + new Vector2(0f, -2f);
-                if (!api.IsPositionEmpty(this, ref aabb, false, out collider)) {
+                if (!api.IsPositionEmpty(this, ref aabb, false, out ActorBase collider)) {
                     SolidObjectBase solidObject = collider as SolidObjectBase;
                     if (solidObject != null) {
 
@@ -1456,8 +1451,7 @@ namespace Jazz2.Actors
                 int destroyedCount = tiles.CheckSpecialDestructible(ref aabb);
                 AddScore((uint)(destroyedCount * 50));
 
-                ActorBase solidObject;
-                if (!(api.IsPositionEmpty(this, ref aabb, false, out solidObject)) && solidObject != null) {
+                if (!(api.IsPositionEmpty(this, ref aabb, false, out ActorBase solidObject)) && solidObject != null) {
                     solidObject.OnHandleCollision(this);
                 }
             }
@@ -1473,7 +1467,7 @@ namespace Jazz2.Actors
             tiles.CheckCollapseDestructible(ref aabb);
         }
 
-        private void CheckSuspendedStatus(Vector3 lastPos)
+        private void CheckSuspendedStatus()
         {
             if (suspendType == SuspendType.SwingingVine) {
                 return;
@@ -1511,7 +1505,7 @@ namespace Jazz2.Actors
             }
 
             if (newSuspendState != SuspendType.None && playerType != PlayerType.Frog) {
-                if (currentSpecialMove != SpecialMoveType.Uppercut) {
+                if (currentSpecialMove == SpecialMoveType.None) {
 
                     suspendType = newSuspendState;
                     collisionFlags &= ~CollisionFlags.ApplyGravitation;

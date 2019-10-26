@@ -4,11 +4,10 @@ using System.Linq;
 using System.Reflection;
 using Duality.Backend;
 using Duality.IO;
-using Jazz2;
 
 namespace Duality
 {
-    public abstract class PluginManager<T> where T : DualityPlugin
+	public abstract class PluginManager<T> where T : DualityPlugin
 	{
 		private IAssemblyLoader                 assemblyLoader  = null;
 		private Dictionary<string,T>            pluginRegistry  = new Dictionary<string,T>();
@@ -201,8 +200,10 @@ namespace Duality
 
 			string asmName = pluginAssembly.GetShortAssemblyName();
 			T plugin = this.pluginRegistry.Values.FirstOrDefault(p => p.AssemblyName == asmName);
-			if (plugin != null) return plugin;
-			
+			if (plugin != null) {
+				return plugin;
+			}
+
 			try
 			{
 				TypeInfo pluginType = pluginAssembly.ExportedTypes
@@ -347,7 +348,7 @@ namespace Duality
 			}
 			catch (Exception e)
 			{
-				Log.Write(LogType.Error, "Error loading plugin Assembly: {0}", /*LogFormat.Exception(*/e/*)*/);
+				Log.Write(LogType.Error, "Error loading plugin Assembly: " + /*LogFormat.Exception(*/e/*)*/);
 
 				plugin = null;
 			}
@@ -372,7 +373,7 @@ namespace Duality
 			}
 			catch (Exception e)
 			{
-				Log.Write(LogType.Error, "Error disposing plugin {1}: {0}", /*LogFormat.Exception(*/e/*)*/, plugin.AssemblyName);
+				Log.Write(LogType.Error, "Error disposing plugin " + plugin.AssemblyName + ": " + /*LogFormat.Exception(*/e/*)*/);
 			}
 
 			// Discard temporary plugin-related data (cached Types, etc.)
@@ -408,8 +409,7 @@ namespace Duality
 			if (args.IsResolved) return;
 
 			// Are we searching for an already loaded plugin?
-			T plugin;
-			if (this.pluginRegistry.TryGetValue(args.AssemblyName, out plugin))
+			if (this.pluginRegistry.TryGetValue(args.AssemblyName, out T plugin))
 			{
 				args.Resolve(plugin.PluginAssembly);
 				return;

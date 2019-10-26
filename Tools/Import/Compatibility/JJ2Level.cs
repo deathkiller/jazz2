@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using Duality;
@@ -408,7 +407,7 @@ namespace Jazz2.Compatibility
             }
 
             ref TileEventSection lastTileEvent = ref events[events.Length - 1];
-            if (lastTileEvent.EventType == JJ2Event.EMPTY_255 /*MCE Event*/) {
+            if (lastTileEvent.EventType == JJ2Event.MCE) {
                 hasPit = true;
             }
 
@@ -508,7 +507,7 @@ namespace Jazz2.Compatibility
                 }
             }
 
-            // ToDo
+            // ToDo: Custom object palette
             LoadMlleRecoloring(block); // PINBALL, 0, 4
             LoadMlleRecoloring(block); // PINBALL, 2, 4
             LoadMlleRecoloring(block); // CARROTPOLE, 0, 1
@@ -532,7 +531,7 @@ namespace Jazz2.Compatibility
                     extraTilesets[i].Offset = block.ReadUInt16();
                     extraTilesets[i].Count = block.ReadUInt16();
 
-                    // ToDo
+                    // ToDo: Custom tileset palette
                     bool tilesetHasColors = block.ReadBool();
                     if (tilesetHasColors) {
                         for (int j = 0; j < 256; j++) {
@@ -669,7 +668,7 @@ namespace Jazz2.Compatibility
                 w.WriteLine("    },");
 
                 w.WriteLine("    \"Description\": {");
-                w.WriteLine("        \"Name\": \"" + JJ2Text.ConvertFormattedString(name ?? "", true) + "\",");
+                w.WriteLine("        \"Name\": \"" + JJ2Text.ConvertToFormattedString(name ?? "", true) + "\",");
 
                 if (!string.IsNullOrEmpty(nextLevel)) {
                     if (nextLevel.EndsWith(".j2l", StringComparison.InvariantCultureIgnoreCase) ||
@@ -802,7 +801,7 @@ namespace Jazz2.Compatibility
 
                                 current = string.Join("|", tokens);
                             } else {
-                                current = JJ2Text.ConvertFormattedString(current);
+                                current = JJ2Text.ConvertToFormattedString(current);
                             }
 
                             w.Write("        \"" + current + "\"");

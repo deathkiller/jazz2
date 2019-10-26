@@ -9,8 +9,6 @@ namespace Jazz2.Actors.Environment
         private float timer;
         private int direction;
 
-        public override EventType EventType => EventType.Moth;
-
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             Vector3 pos = Transform.Pos;
@@ -32,7 +30,7 @@ namespace Jazz2.Actors.Environment
             renderer.AnimPaused = true;
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             base.OnFixedUpdate(timeMult);
 

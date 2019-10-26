@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using Duality;
 using Duality.Audio;
 using Duality.Components;
@@ -177,12 +175,7 @@ namespace Jazz2.Game
                 }
             }
 
-            Player targetPlayer;
-            Vector3 targetPlayerPosition;
             if (players.Count > 0) {
-                targetPlayer = players[0];
-                targetPlayerPosition = targetPlayer.Transform.Pos;
-
                 // Setup all cameras
                 float relativeViewRange = (1f / players.Count);
                 for (int i = 0; i < players.Count; i++) {
@@ -361,11 +354,9 @@ namespace Jazz2.Game
             string levelPath = PathOp.Combine(DualityApp.DataDirectory, "Episodes", episode, level + ".level");
             IFileSystem levelPackage = new CompressedContent(levelPath);
 
-            // ToDo: Cache parser, move JSON parsing to ContentResolver
-            JsonParser jsonParser = new JsonParser();
             LevelConfigJson json;
             using (Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
-                json = jsonParser.Parse<LevelConfigJson>(s);
+                json = ContentResolver.Current.Json.Parse<LevelConfigJson>(s);
             }
 
             if (json.Version.LayerFormat > LayerFormatVersion || json.Version.EventSet > EventSetVersion) {
@@ -476,7 +467,7 @@ namespace Jazz2.Game
             if (FileOp.Exists(levelPath + "." + i18n.Language)) {
                 try {
                     using (Stream s = FileOp.Open(levelPath + "." + i18n.Language, FileAccessMode.Read)) {
-                        json = jsonParser.Parse<LevelConfigJson>(s);
+                        json = ContentResolver.Current.Json.Parse<LevelConfigJson>(s);
                         if (json.TextEvents != null) {
                             for (int i = 0; i < json.TextEvents.Count && i < levelTexts.Count; i++) {
                                 if (json.TextEvents[i] != null) {
@@ -512,6 +503,7 @@ namespace Jazz2.Game
 
             actors.Remove(actor);
             RemoveObject(actor);
+            actor.OnDestroyed();
             actor.Dispose();
         }
 
@@ -597,8 +589,7 @@ namespace Jazz2.Game
 
         public bool IsPositionEmpty(ActorBase self, ref AABB aabb, bool downwards)
         {
-            ActorBase solidObject;
-            return IsPositionEmpty(self, ref aabb, downwards, out solidObject);
+            return IsPositionEmpty(self, ref aabb, downwards, out _);
         }
 
         public IEnumerable<Player> GetCollidingPlayers(AABB aabb)
@@ -739,9 +730,9 @@ namespace Jazz2.Game
 
         public void PlayCommonSound(string name, ActorBase target, float gain = 1f, float pitch = 1f)
         {
-            SoundResource resource;
-            if (commonResources.Sounds.TryGetValue(name, out resource)) {
+            if (commonResources.Sounds.TryGetValue(name, out SoundResource resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, target);
+                instance.Flags |= SoundInstanceFlags.GameplaySpecific;
                 instance.Volume = gain * SettingsCache.SfxVolume;
                 instance.Pitch = pitch;
 
@@ -754,9 +745,9 @@ namespace Jazz2.Game
 
         public void PlayCommonSound(string name, Vector3 pos, float gain = 1f, float pitch = 1f)
         {
-            SoundResource resource;
-            if (commonResources.Sounds.TryGetValue(name, out resource)) {
+            if (commonResources.Sounds.TryGetValue(name, out SoundResource resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, pos);
+                instance.Flags |= SoundInstanceFlags.GameplaySpecific;
                 instance.Volume = gain * SettingsCache.SfxVolume;
                 instance.Pitch = pitch;
 
@@ -998,7 +989,6 @@ namespace Jazz2.Game
                 }
 
                 InitLevelChange(ExitType.Normal, null);
-                levelChangeTimer = 300;
             }
 
             if (initState == InitState.Initializing) {

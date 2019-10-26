@@ -23,7 +23,9 @@ namespace Jazz2.Game.UI.Menu
                     ColorRgba.White, 0.9f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
 
             charOffset = 2;
-#if PLATFORM_ANDROID
+#if PLATFORM_WASM
+            // Cannot exit from WebAssembly version
+#elif PLATFORM_ANDROID
             api.DrawString(ref charOffset, "\f[c:6]Press \f[c:-1]Back\f[c:6] to exit", center.X, center.Y + 110, Alignment.Center,
                 ColorRgba.White, 0.8f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
 #else
@@ -34,9 +36,11 @@ namespace Jazz2.Game.UI.Menu
 
         public override void OnUpdate()
         {
+#if !PLATFORM_WASM
             if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
                 DualityApp.Terminate();
             }
+#endif
         }
     }
 }

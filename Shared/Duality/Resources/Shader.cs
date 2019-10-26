@@ -1,13 +1,12 @@
 ﻿using System;
 using Duality.Backend;
-using Jazz2;
 
 namespace Duality.Resources
 {
-    /// <summary>
-    /// Represents an OpenGL Shader in an abstract form.
-    /// </summary>
-    public abstract class Shader : Resource
+	/// <summary>
+	/// Represents an OpenGL Shader in an abstract form.
+	/// </summary>
+	public abstract class Shader : Resource
 	{
 		private string source = null;
 		private INativeShaderPart native = null;
@@ -58,10 +57,13 @@ namespace Duality.Resources
 		/// </summary>
 		public void Compile()
 		{
-			if (string.IsNullOrEmpty(this.source)) throw new InvalidOperationException("Can't compile a shader without any source code specified.");
+			if (string.IsNullOrEmpty(this.source)) {
+				throw new InvalidOperationException("Can't compile a shader without any source code specified.");
+			}
 
-			if (this.native == null)
+			if (this.native == null) {
 				this.native = DualityApp.GraphicsBackend.CreateShaderPart();
+			}
 
 			try {
 				this.native.LoadSource(this.source, this.Type);

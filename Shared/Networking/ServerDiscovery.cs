@@ -6,12 +6,12 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
-using Jazz2.Networking.Packets;
+using Jazz2.Networking;
 using Lidgren.Network;
 
 namespace Jazz2.Game.Multiplayer
 {
-    public class ServerDiscovery : IDisposable
+    public sealed class ServerDiscovery : IDisposable
     {
         public delegate void ServerUpdatedCallbackDelegate(Server server, bool isNew);
 
@@ -184,13 +184,13 @@ namespace Jazz2.Game.Multiplayer
                             server.LastPingTime = (long)(NetTime.Now * 1000);
 
                             NetOutgoingMessage m = client.CreateMessage();
-                            m.Write(PacketTypes.Ping);
+                            m.Write(SpecialPacketTypes.Ping);
                             client.SendUnconnectedMessage(m, server.ActiveEndPoint);
                             break;
                         }
 
                         case NetIncomingMessageType.UnconnectedData: {
-                            if (msg.LengthBytes > 1 && msg.PeekByte() == PacketTypes.Ping) {
+                            if (msg.LengthBytes > 1 && msg.PeekByte() == SpecialPacketTypes.Ping) {
                                 long nowTime = (long)(NetTime.Now * 1000);
 
                                 msg.ReadByte(); // Already checked
@@ -326,7 +326,7 @@ namespace Jazz2.Game.Multiplayer
 
                 WebClient http = new WebClient();
                 http.Encoding = Encoding.UTF8;
-                http.Headers["User-Agent"] = App.AssemblyTitle;
+                http.Headers["User-Agent"] = "Jazz2 Resurrection";
 
                 string content = http.DownloadString(ServerListUrl + "?fetch&v=" + currentVersion + "&d=" + deviceId);
                 if (content == null) {
@@ -421,7 +421,7 @@ namespace Jazz2.Game.Multiplayer
                     server.LastPingTime = (long)(NetTime.Now * 1000);
 
                     NetOutgoingMessage m = client.CreateMessage();
-                    m.Write(PacketTypes.Ping);
+                    m.Write(SpecialPacketTypes.Ping);
                     client.SendUnconnectedMessage(m, endPoints);
                 }
             }

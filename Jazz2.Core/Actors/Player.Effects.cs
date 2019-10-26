@@ -196,7 +196,7 @@ namespace Jazz2.Actors
                 }
             }
 
-            protected override void OnFixedUpdate(float timeMult)
+            public override void OnFixedUpdate(float timeMult)
             {
                 Transform.RelativePos = new Vector3(0f, 0f, front ? -2f : 2f);
             }

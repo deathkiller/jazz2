@@ -8,7 +8,7 @@ using System.Threading;
 using Duality;
 using Jazz2.Game;
 using Jazz2.Game.Events;
-using Jazz2.Networking.Packets;
+using Jazz2.Networking;
 using Jazz2.Networking.Packets.Server;
 using Lidgren.Network;
 
@@ -87,8 +87,6 @@ namespace Jazz2.Server
             this.neededMinor = neededMinor;
             this.neededBuild = neededBuild;
 
-            DualityApp.Init(DualityApp.ExecutionContext.Game, null, null);
-
             ContentResolver.Current.Init();
             ContentResolver.Current.InitPostWindow();
 
@@ -96,7 +94,7 @@ namespace Jazz2.Server
             players = new Dictionary<NetConnection, Player>();
             playerConnections = new List<NetConnection>();
 
-            remotableActors = new Dictionary<int, RemotableActor>();
+            //remotableActors = new Dictionary<int, RemotableActor>();
             spawnedActors = new List<Actors.ActorBase>();
 
             api = new ActorApi(this);
@@ -185,7 +183,7 @@ namespace Jazz2.Server
 
             while (threadPublishToServerList != null) {
                 try {
-                    StringBuilder sb = new StringBuilder();
+                    StringBuilder sb = new StringBuilder(256);
                     sb.Append("0\n"); // Flags
 
                     bool isFirst = true;
@@ -265,26 +263,30 @@ namespace Jazz2.Server
                         string data = "publish=" + Convert.ToBase64String(Encoding.UTF8.GetBytes(sb.ToString()))
                                     .Replace('+', '-').Replace('/', '_').TrimEnd('=');
 
-                        WebClient client = new WebClient();
-                        client.Encoding = Encoding.UTF8;
-                        client.Headers["User-Agent"] = Game.App.AssemblyTitle;
-                        client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
+                        using (WebClient client = new WebClient()) {
+                            client.Encoding = Encoding.UTF8;
+                            client.Headers["User-Agent"] = "Jazz2 Resurrection (Server)";
+                            client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
 
-                        string content = client.UploadString(ServerListUrl, data);
-                        if (content.Contains("\"r\":false")) {
-                            if (content.Contains("\"e\":1")) {
-                                Log.Write(LogType.Warning, "Cannot publish server with private IP addresses!");
-                            } else if (content.Contains("\"e\":2")) {
-                                Log.Write(LogType.Error, "Access to server list is denied! Try it later.");
-                            } else {
-                                Log.Write(LogType.Warning, "Server cannot be published to server list!");
+                            string content = client.UploadString(ServerListUrl, data);
+                            // No need to parse full JSON response
+                            if (content.Contains("\"r\":false")) {
+                                if (content.Contains("\"e\":1")) {
+                                    Log.Write(LogType.Warning, "Cannot publish server with private IP addresses!");
+                                } else if (content.Contains("\"e\":2")) {
+                                    Log.Write(LogType.Error, "Access to server list is denied! Try it later.");
+                                } else {
+                                    Log.Write(LogType.Warning, "Server cannot be published to server list!");
+                                }
+
+                                threadPublishToServerList = null;
+                                break;
+                            } else if (!isPublished) {
+                                Log.Write(LogType.Error, "Server was successfully published again!");
                             }
-                            return;
-                        } else if (!isPublished) {
-                            Log.Write(LogType.Error, "Server was successfully published again!");
-                        }
 
-                        isPublished = true;
+                            isPublished = true;
+                        }
                     }
                 } catch (Exception ex) {
                     // Try it again later
@@ -329,7 +331,7 @@ namespace Jazz2.Server
                         Send(new DecreasePlayerHealth {
                             Index = playerIndex,
                             Amount = byte.MaxValue
-                        }, 3, playerConnections, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+                        }, 3, playerConnections, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                         return true;
                     }
                 }
@@ -345,7 +347,7 @@ namespace Jazz2.Server
                     Send(new DecreasePlayerHealth {
                         Index = player.Value.Index,
                         Amount = byte.MaxValue
-                    }, 3, playerConnections, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
+                    }, 3, playerConnections, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                 }
             }
         }

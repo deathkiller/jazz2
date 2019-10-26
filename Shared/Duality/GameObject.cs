@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using Duality.Components;
 using Duality.Resources;
-using Jazz2;
 
 namespace Duality
 {

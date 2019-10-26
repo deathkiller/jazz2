@@ -45,7 +45,7 @@ namespace Jazz2.Compatibility
         public static void Add(JJ2Event originalEvent, ConversionFunction converter)
         {
             if (converters.ContainsKey(originalEvent)) {
-                throw new InvalidOperationException("Converter for event \"" + originalEvent + "\" is already defined.");
+                throw new InvalidOperationException("Converter for event \"" + originalEvent + "\" is already defined");
             }
 
             converters[originalEvent] = converter;
@@ -132,16 +132,17 @@ namespace Jazz2.Compatibility
 
             Add(JJ2Event.EMPTY, NoParamList(EventType.Empty));
 
-            // Basic
+            // Basic events
             Add(JJ2Event.JAZZ_LEVEL_START, ConstantParamList(EventType.LevelStart, 0x01 /*Jazz*/));
             Add(JJ2Event.SPAZ_LEVEL_START, ConstantParamList(EventType.LevelStart, 0x02 /*Spaz*/));
             Add(JJ2Event.LORI_LEVEL_START, ConstantParamList(EventType.LevelStart, 0x04 /*Lori*/));
 
-            Add(JJ2Event.MP_LEVEL_START, ParamIntToParamList(EventType.LevelStartMP,
+            Add(JJ2Event.MP_LEVEL_START, ParamIntToParamList(EventType.LevelStartMultiplayer,
                 Pair.Create(JJ2EventParamType.UInt, 2)  // Team (JJ2+)
             ));
 
             Add(JJ2Event.SAVE_POINT, (level, jj2Params) => {
+                // Green xmas-themed checkpoints for some levels
                 ushort theme = (ushort)(level.Tileset.IndexOf("xmas", StringComparison.InvariantCultureIgnoreCase) != -1 ? 1 : 0);
 
                 return new ConversionResult {
@@ -150,7 +151,7 @@ namespace Jazz2.Compatibility
                 };
             });
 
-            // Scenery
+            // Scenery events
             Add(JJ2Event.SCENERY_DESTRUCT, (level, jj2Params) => {
                 ushort[] eventParams = ConvertParamInt(jj2Params,
                     Pair.Create(JJ2EventParamType.UInt, 10), // Empty
@@ -182,7 +183,7 @@ namespace Jazz2.Compatibility
                 };
             });
 
-            // Modifiers
+            // Modifier events
             Add(JJ2Event.MODIFIER_HOOK, NoParamList(EventType.ModifierHook));
             Add(JJ2Event.MODIFIER_ONE_WAY, NoParamList(EventType.ModifierOneWay));
             Add(JJ2Event.MODIFIER_VINE, NoParamList(EventType.ModifierVine));
@@ -322,7 +323,7 @@ namespace Jazz2.Compatibility
                 };
             });
 
-            // Area
+            // Area events
             Add(JJ2Event.AREA_STOP_ENEMY, NoParamList(EventType.AreaStopEnemy));
             Add(JJ2Event.AREA_FLOAT_UP, NoParamList(EventType.AreaFloatUp));
             Add(JJ2Event.AREA_ACTIVATE_BOSS, ParamIntToParamList(EventType.AreaActivateBoss,
@@ -441,7 +442,37 @@ namespace Jazz2.Compatibility
                 Pair.Create(JJ2EventParamType.Int, 8)  // Adjust Y
             ));
 
-            // Triggers
+            Add(JJ2Event.SNOW, (level, jj2Params) => {
+                ushort[] eventParams = ConvertParamInt(jj2Params,
+                    Pair.Create(JJ2EventParamType.UInt, 2),  // Intensity
+                    Pair.Create(JJ2EventParamType.Bool, 1),  // Outdoors
+                    Pair.Create(JJ2EventParamType.Bool, 1),  // Off
+                    Pair.Create(JJ2EventParamType.UInt, 2)); // Type
+
+                return new ConversionResult {
+                    Type = EventType.AreaWeather,
+                    Params = new ushort[] { (ushort)(eventParams[2] == 1 ? 0 : eventParams[3] + 1), (ushort)((eventParams[0] + 1) * 5 / 3), eventParams[1], 0, 0, 0, 0, 0 }
+                };
+            });
+
+            Add(JJ2Event.AMBIENT_SOUND, ParamIntToParamList(EventType.AreaAmbientSound,
+                Pair.Create(JJ2EventParamType.UInt, 8), // Sample
+                Pair.Create(JJ2EventParamType.UInt, 8), // Amplify
+                Pair.Create(JJ2EventParamType.Bool, 1), // Fade [ToDo]
+                Pair.Create(JJ2EventParamType.Bool, 1)  // Sine [ToDo]
+            ));
+
+            Add(JJ2Event.SCENERY_BUBBLER, (level, jj2Params) => {
+                ushort[] eventParams = ConvertParamInt(jj2Params,
+                    Pair.Create(JJ2EventParamType.UInt, 4)); // Speed
+
+                return new ConversionResult {
+                    Type = EventType.AreaAmbientBubbles,
+                    Params = new ushort[] { (ushort)((eventParams[0] + 1) * 5 / 3), 0, 0, 0, 0, 0, 0, 0 }
+                };
+            });
+
+            // Triggers events
             Add(JJ2Event.TRIGGER_CRATE, (level, jj2Params) => {
                 ushort[] eventParams = ConvertParamInt(jj2Params,
                     Pair.Create(JJ2EventParamType.UInt, 5),  // Trigger ID
@@ -462,7 +493,7 @@ namespace Jazz2.Compatibility
                 Pair.Create(JJ2EventParamType.Bool, 1)  // Switch
             ));
 
-            // Warp
+            // Warp events
             Add(JJ2Event.WARP_ORIGIN, (level, jj2Params) => {
                 ushort[] eventParams = ConvertParamInt(jj2Params,
                     Pair.Create(JJ2EventParamType.UInt, 8),  // Warp ID
@@ -487,7 +518,7 @@ namespace Jazz2.Compatibility
                 Pair.Create(JJ2EventParamType.UInt, 8) // Warp ID
             ));
 
-            // Lights
+            // Lights events
             Add(JJ2Event.LIGHT_SET, ParamIntToParamList(EventType.LightSet,
                 Pair.Create(JJ2EventParamType.UInt, 7), // Intensity
                 Pair.Create(JJ2EventParamType.UInt, 4), // Red
@@ -618,7 +649,7 @@ namespace Jazz2.Compatibility
                 };
             });
 
-            // Environment
+            // Environment events
             Add(JJ2Event.PUSHABLE_ROCK, ConstantParamList(EventType.PushableBox, 0, 0, 0, 0, 0, 0, 0, 0));
             Add(JJ2Event.PUSHABLE_BOX, ConstantParamList(EventType.PushableBox, 1, 0, 0, 0, 0, 0, 0, 0));
 
@@ -667,13 +698,9 @@ namespace Jazz2.Compatibility
             });
 
             Add(JJ2Event.POLE_CARROTUS, GetPoleConverter(0));
-
             Add(JJ2Event.POLE_DIAMONDUS, GetPoleConverter(1));
-
             Add(JJ2Event.SMALL_TREE, GetPoleConverter(2));
-
             Add(JJ2Event.POLE_JUNGLE, GetPoleConverter(3));
-
             Add(JJ2Event.POLE_PSYCH, GetPoleConverter(4));
 
             Add(JJ2Event.ROTATING_ROCK, ParamIntToParamList(EventType.RollingRock,
@@ -916,7 +943,7 @@ namespace Jazz2.Compatibility
                 };
             });
 
-            // Misc.
+            // Misc events
             Add(JJ2Event.EVA, NoParamList(EventType.Eva));
             Add(JJ2Event.MOTH, ParamIntToParamList(EventType.Moth,
                 Pair.Create(JJ2EventParamType.UInt, 3)
@@ -927,36 +954,6 @@ namespace Jazz2.Compatibility
             Add(JJ2Event.PINBALL_BUMP_CARROT, ConstantParamList(EventType.PinballBumper, 1));
             Add(JJ2Event.PINBALL_PADDLE_L, ConstantParamList(EventType.PinballPaddle, 0));
             Add(JJ2Event.PINBALL_PADDLE_R, ConstantParamList(EventType.PinballPaddle, 1));
-
-            Add(JJ2Event.SNOW, (level, jj2Params) => {
-                ushort[] eventParams = ConvertParamInt(jj2Params,
-                    Pair.Create(JJ2EventParamType.UInt, 2),  // Intensity
-                    Pair.Create(JJ2EventParamType.Bool, 1),  // Outdoors
-                    Pair.Create(JJ2EventParamType.Bool, 1),  // Off
-                    Pair.Create(JJ2EventParamType.UInt, 2)); // Type
-
-                return new ConversionResult {
-                    Type = EventType.Weather,
-                    Params = new ushort[] { (ushort)(eventParams[2] == 1 ? 0 : eventParams[3] + 1), (ushort)((eventParams[0] + 1) * 5 / 3), eventParams[1], 0, 0, 0, 0, 0 }
-                };
-            });
-
-            Add(JJ2Event.AMBIENT_SOUND, ParamIntToParamList(EventType.AmbientSound,
-                Pair.Create(JJ2EventParamType.UInt, 8), // Sample
-                Pair.Create(JJ2EventParamType.UInt, 8), // Amplify
-                Pair.Create(JJ2EventParamType.Bool, 1), // Fade [ToDo]
-                Pair.Create(JJ2EventParamType.Bool, 1)  // Sine [ToDo]
-            ));
-
-            Add(JJ2Event.SCENERY_BUBBLER, (level, jj2Params) => {
-                ushort[] eventParams = ConvertParamInt(jj2Params,
-                    Pair.Create(JJ2EventParamType.UInt, 4)); // Speed
-
-                return new ConversionResult {
-                    Type = EventType.AmbientBubbles,
-                    Params = new ushort[] { (ushort)((eventParams[0] + 1) * 5 / 3), 0, 0, 0, 0, 0, 0, 0 }
-                };
-            });
 
             Add(JJ2Event.AIRBOARD, (level, jj2Params) => {
                 ushort[] eventParams = ConvertParamInt(jj2Params,

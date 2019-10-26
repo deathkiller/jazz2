@@ -39,6 +39,6 @@ namespace Jazz2.Game.UI.Menu
 
         void PlaySound(string name, float volume = 1f);
 
-        bool IsAnimationPresent(string name);
+        bool IsAnimationAvailable(string name);
     }
 }

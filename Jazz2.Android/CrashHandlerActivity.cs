@@ -17,6 +17,7 @@ using Android.Text;
 using Android.Text.Method;
 using Android.Views;
 using Android.Widget;
+using Duality;
 using Jazz2.Game;
 using AggregateException = System.AggregateException;
 

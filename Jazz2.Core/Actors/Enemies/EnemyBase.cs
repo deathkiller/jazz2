@@ -34,7 +34,7 @@ namespace Jazz2.Actors.Enemies
 
         public bool CanCollideWithAmmo => canCollideWithAmmo;
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             base.OnFixedUpdate(timeMult);
 

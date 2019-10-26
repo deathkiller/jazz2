@@ -6,8 +6,6 @@ namespace Jazz2.Actors.Lighting
 {
     public class StaticRadialLight : ActorBase
     {
-        public override EventType EventType => EventType.LightSteady;
-
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             ushort intensity = details.Params[0];
@@ -24,7 +22,7 @@ namespace Jazz2.Actors.Lighting
             light.RadiusFar = radiusFar;
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
         }
     }

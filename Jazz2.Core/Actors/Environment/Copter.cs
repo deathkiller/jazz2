@@ -19,7 +19,7 @@ namespace Jazz2.Actors.Environment
             originPos = details.Pos;
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             OnUpdateHitbox();
 

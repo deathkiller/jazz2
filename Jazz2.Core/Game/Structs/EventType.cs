@@ -10,7 +10,7 @@
 
         // Basic
         LevelStart = 0x0100,
-        LevelStartMP = 0x0101,
+        LevelStartMultiplayer = 0x0101,
         Checkpoint = 0x005A,
 
         // Scenery
@@ -47,6 +47,9 @@
         AreaMorphToFrog = 0x0130,
         AreaNoFire = 0x0131,
         AreaWaterBlock = 0x0132,
+        AreaWeather = 0x0510,
+        AreaAmbientSound = 0x0511,
+        AreaAmbientBubbles = 0x0512,
 
         // Triggers
         TriggerCrate = 0x0060,
@@ -80,10 +83,6 @@
         PinballBumper = 0x0506,
         PinballPaddle = 0x0507,
         CtfBase = 0x0508,
-
-        Weather = 0x0510,
-        AmbientSound = 0x0511,
-        AmbientBubbles = 0x0512,
 
         // Enemies
         EnemyTurtle = 0x0180,

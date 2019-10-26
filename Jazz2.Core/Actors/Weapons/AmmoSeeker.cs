@@ -17,7 +17,6 @@ namespace Jazz2.Actors.Weapons
 
         private float followRecomputeTime;
 
-        public override EventType EventType => EventType.WeaponSeeker;
         public override WeaponType WeaponType => WeaponType.Seeker;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
@@ -44,7 +43,7 @@ namespace Jazz2.Actors.Weapons
             }
 
             SetAnimation(state);
-            PlaySound("Fire");
+            PlaySound(Transform.Pos, "Fire");
 
             renderer.Active = false;
 
@@ -74,7 +73,7 @@ namespace Jazz2.Actors.Weapons
             Transform.Angle = angleRel;
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             // Seeker is slow, so it's not neccessary to do two-pass checking
             TryMovement(timeMult);

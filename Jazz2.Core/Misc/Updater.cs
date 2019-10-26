@@ -5,13 +5,13 @@ using Jazz2.Game;
 
 namespace Jazz2
 {
-    public class Updater
+    public static class Updater
     {
         public delegate void CheckUpdatesCallback(bool newAvailable, string version);
 
 #if PLATFORM_ANDROID
         private const string Url = "http://deat.tk/downloads/android/jazz2/updates";
-#else
+#elif !PLATFORM_WASM
         private const string Url = "http://deat.tk/downloads/games/jazz2/updates";
 #endif
 
@@ -74,6 +74,7 @@ namespace Jazz2
 #endif
         }
 
+#if !PLATFORM_WASM
         private static bool IsVersionNewer(string currentVersion, string newVersion)
         {
             int majorCurrent = 0, majorNew = 0;
@@ -115,5 +116,6 @@ namespace Jazz2
                     (minorNew == minorCurrent && (buildNew > buildCurrent ||
                         (buildNew == buildCurrent && revNew > revCurrent))))));
         }
+#endif
     }
 }

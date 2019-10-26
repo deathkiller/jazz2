@@ -3,11 +3,11 @@ using Duality.Resources;
 
 namespace Duality.Drawing
 {
-    /// <summary>
-    /// BatchInfos describe how an object, represented by a set of vertices, looks like.
-    /// </summary>
-    /// <seealso cref="Material"/>
-    public class BatchInfo : IEquatable<BatchInfo>
+	/// <summary>
+	/// BatchInfos describe how an object, represented by a set of vertices, looks like.
+	/// </summary>
+	/// <seealso cref="Material"/>
+	public class BatchInfo : IEquatable<BatchInfo>
 	{
 		private ContentRef<DrawTechnique> technique  = DrawTechnique.Mask;
 		private ShaderParameterCollection parameters = null;
@@ -112,10 +112,11 @@ namespace Duality.Drawing
 			this.technique = source.technique;
 			if (source.parameters != null)
 			{
-				if (this.parameters == null)
+				if (this.parameters == null) {
 					this.parameters = new ShaderParameterCollection(source.parameters);
-				else
+				} else {
 					source.parameters.CopyTo(this.parameters);
+				}
 			}
 		}
 		/// <summary>
@@ -123,8 +124,9 @@ namespace Duality.Drawing
 		/// </summary>
 		public void Reset()
 		{
-			if (this.parameters != null)
+			if (this.parameters != null) {
 				this.parameters.Clear();
+			}
 		}
 
 		/// <summary>
@@ -173,14 +175,15 @@ namespace Duality.Drawing
 		public T[] GetArray<T>(string name) where T : struct
 		{
 			// Retrieve the material parameter if available
-			T[] result;
-			if (this.parameters != null && this.parameters.TryGet(name, out result))
+			if (this.parameters != null && this.parameters.TryGet(name, out T[] result)) {
 				return result;
+			}
 
 			// Fall back to the used techniques default parameter value
 			DrawTechnique tech = this.technique.Res;
-			if (tech != null && tech.DefaultParameters.TryGet(name, out result))
+			if (tech != null && tech.DefaultParameters.TryGet(name, out result)) {
 				return result;
+			}
 
 			return null;
 		}
@@ -195,14 +198,15 @@ namespace Duality.Drawing
 		public T GetValue<T>(string name) where T : struct
 		{
 			// Retrieve the material parameter if available
-			T result;
-			if (this.parameters != null && this.parameters.TryGet(name, out result))
+			if (this.parameters != null && this.parameters.TryGet(name, out T result)) {
 				return result;
+			}
 
 			// Fall back to the used techniques default parameter value
 			DrawTechnique tech = this.technique.Res;
-			if (tech != null && tech.DefaultParameters.TryGet(name, out result))
+			if (tech != null && tech.DefaultParameters.TryGet(name, out result)) {
 				return result;
+			}
 
 			return default(T);
 		}
@@ -215,14 +219,15 @@ namespace Duality.Drawing
 		public ContentRef<Texture> GetTexture(string name)
 		{
 			// Retrieve the material parameter if available
-			ContentRef<Texture> result;
-			if (this.parameters != null && this.parameters.TryGet(name, out result))
+			if (this.parameters != null && this.parameters.TryGet(name, out ContentRef<Texture> result)) {
 				return result;
+			}
 
 			// Fall back to the used techniques default parameter value
 			DrawTechnique tech = this.technique.Res;
-			if (tech != null && tech.DefaultParameters.TryGet(name, out result))
+			if (tech != null && tech.DefaultParameters.TryGet(name, out result)) {
 				return result;
+			}
 
 			return null;
 		}
@@ -236,14 +241,15 @@ namespace Duality.Drawing
 		public float[] GetInternalData(string name)
 		{
 			// Retrieve the material parameter if available
-			float[] result;
-			if (this.parameters != null && this.parameters.TryGetInternal(name, out result))
+			if (this.parameters != null && this.parameters.TryGetInternal(name, out float[] result)) {
 				return result;
+			}
 
 			// Fall back to the used techniques default parameter value
 			DrawTechnique tech = this.technique.Res;
-			if (tech != null && tech.DefaultParameters.TryGetInternal(name, out result))
+			if (tech != null && tech.DefaultParameters.TryGetInternal(name, out result)) {
 				return result;
+			}
 
 			return null;
 		}
@@ -256,14 +262,15 @@ namespace Duality.Drawing
 		public ContentRef<Texture> GetInternalTexture(string name)
 		{
 			// Retrieve the material parameter if available
-			ContentRef<Texture> result;
-			if (this.parameters != null && this.parameters.TryGetInternal(name, out result))
+			if (this.parameters != null && this.parameters.TryGetInternal(name, out ContentRef<Texture> result)) {
 				return result;
+			}
 
 			// Fall back to the used techniques default parameter value
 			DrawTechnique tech = this.technique.Res;
-			if (tech != null && tech.DefaultParameters.TryGetInternal(name, out result))
+			if (tech != null && tech.DefaultParameters.TryGetInternal(name, out result)) {
 				return result;
+			}
 
 			return null;
 		}
@@ -281,10 +288,11 @@ namespace Duality.Drawing
 		public override bool Equals(object obj)
 		{
 			BatchInfo other = obj as BatchInfo;
-			if (other != null)
+			if (other != null) {
 				return this.Equals(other);
-			else
+			} else {
 				return false;
+			}
 		}
 		public bool Equals(BatchInfo other)
 		{

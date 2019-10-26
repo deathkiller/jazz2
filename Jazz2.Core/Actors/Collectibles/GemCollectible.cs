@@ -7,8 +7,6 @@ namespace Jazz2.Actors.Collectibles
     {
         private ushort gemType;
 
-        public override EventType EventType => EventType.Gem;
-
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             await base.OnActivatedAsync(details);

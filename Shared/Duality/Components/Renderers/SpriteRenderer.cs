@@ -156,31 +156,34 @@ namespace Duality.Components.Renderers
 
 		protected Texture RetrieveMainTex()
 		{
-			if (this.customMat != null)
-				return this.customMat.MainTexture.Res;
-			else if (this.sharedMat.IsAvailable)
-				return this.sharedMat.Res.MainTexture.Res;
-			else
-				return null;
-		}
+			if (this.customMat != null) {
+                return this.customMat.MainTexture.Res;
+            } else if (this.sharedMat.IsAvailable) {
+                return this.sharedMat.Res.MainTexture.Res;
+            } else {
+                return null;
+            }
+        }
 		protected ColorRgba RetrieveMainColor()
 		{
-			if (this.customMat != null)
-				return this.customMat.MainColor * this.colorTint;
-			else if (this.sharedMat.IsAvailable)
-				return this.sharedMat.Res.MainColor * this.colorTint;
-			else
-				return this.colorTint;
-		}
+			if (this.customMat != null) {
+                return this.customMat.MainColor * this.colorTint;
+            } else if (this.sharedMat.IsAvailable) {
+                return this.sharedMat.Res.MainColor * this.colorTint;
+            } else {
+                return this.colorTint;
+            }
+        }
 		protected DrawTechnique RetrieveDrawTechnique()
 		{
-			if (this.customMat != null)
-				return this.customMat.Technique.Res;
-			else if (this.sharedMat.IsAvailable)
-				return this.sharedMat.Res.Technique.Res;
-			else
-				return null;
-		}
+			if (this.customMat != null) {
+                return this.customMat.Technique.Res;
+            } else if (this.sharedMat.IsAvailable) {
+                return this.sharedMat.Res.Technique.Res;
+            } else {
+                return null;
+            }
+        }
 		protected void PrepareVertices(ref VertexC1P3T2[] vertices, IDrawDevice device, ColorRgba mainClr, Rect uvRect)
 		{
 			Vector3 posTemp = this.gameobj.Transform.Pos;
@@ -220,9 +223,11 @@ namespace Duality.Components.Renderers
 		    float top = uvRect.Y;
 		    float bottom = uvRect.BottomY;
 
-            if (vertices == null /*|| vertices.Length != 4*/) vertices = new VertexC1P3T2[4];
+            if (vertices == null /*|| vertices.Length != 4*/) {
+                vertices = new VertexC1P3T2[4];
+            }
 
-			vertices[0].Pos.X = posTemp.X + edge1.X;
+            vertices[0].Pos.X = posTemp.X + edge1.X;
 			vertices[0].Pos.Y = posTemp.Y + edge1.Y;
 			vertices[0].Pos.Z = posTemp.Z + this.VertexZOffset;
 			vertices[0].TexCoord.X = left;
@@ -283,21 +288,25 @@ namespace Duality.Components.Renderers
         protected void GetUVRect(Texture mainTex, int spriteIndex, out Rect uvRect)
         {
             // Determine the rect area of the texture to be displayed
-            if (mainTex == null)
+            if (mainTex == null) {
                 uvRect = new Rect(1.0f, 1.0f);
-            else if (spriteIndex != -1)
+            } else if (spriteIndex != -1) {
                 mainTex.LookupAtlas(spriteIndex, out uvRect);
-            else
+            } else {
                 uvRect = new Rect(mainTex.UVRatio);
+            }
 
             // Determine wrap-around and stretch behavior if the displayed rect size does
             // not equal the rect size that would be required for a 1:1 display.
             if (mainTex != null) {
                 Vector2 fullSize = mainTex.ContentSize * (uvRect.Size / mainTex.UVRatio);
-                if ((this.rectMode & UVMode.WrapHorizontal) != 0)
+                if ((this.rectMode & UVMode.WrapHorizontal) != 0) {
                     uvRect.W *= this.rect.W / fullSize.X;
-                if ((this.rectMode & UVMode.WrapVertical) != 0)
+                }
+
+                if ((this.rectMode & UVMode.WrapVertical) != 0) {
                     uvRect.H *= this.rect.H / fullSize.Y;
+                }
             }
         }
 
@@ -309,10 +318,11 @@ namespace Duality.Components.Renderers
             Rect uvRect;
             this.GetUVRect(mainTex, /*this.spriteIndex*/-1, out uvRect);
             this.PrepareVertices(ref this.vertices, device, this.colorTint, uvRect);
-			if (this.customMat != null)
-				device.AddVertices(this.customMat, VertexMode.Quads, this.vertices, 0, 4);
-			else
-				device.AddVertices(this.sharedMat, VertexMode.Quads, this.vertices, 0, 4);
-		}
+			if (this.customMat != null) {
+                device.AddVertices(this.customMat, VertexMode.Quads, this.vertices, 0, 4);
+            } else {
+                device.AddVertices(this.sharedMat, VertexMode.Quads, this.vertices, 0, 4);
+            }
+        }
 	}
 }

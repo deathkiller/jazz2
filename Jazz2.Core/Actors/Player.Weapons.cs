@@ -117,6 +117,11 @@ namespace Jazz2.Actors
                     if (!FireWeaponThunderbolt()) {
                         return false;
                     }
+                    if ((weaponUpgrades[(int)currentWeapon] & 0x1) != 0) {
+                        ammoDecrease = 25; // Lower ammo consumption with upgrade
+                    } else {
+                        ammoDecrease = 50;
+                    }
                     break;
                 }
 
@@ -173,8 +178,7 @@ namespace Jazz2.Actors
 
         private void FireWeaponBlaster()
         {
-            Vector3 initialPos, gunspotPos; float angle;
-            GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
+            GetFirePointAndAngle(out Vector3 initialPos, out Vector3 gunspotPos, out float angle);
 
             AmmoBlaster newAmmo = new AmmoBlaster();
             newAmmo.OnActivated(new ActorActivationDetails {
@@ -191,8 +195,7 @@ namespace Jazz2.Actors
 
         private void FireWeaponBouncer()
         {
-            Vector3 initialPos, gunspotPos; float angle;
-            GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
+            GetFirePointAndAngle(out Vector3 initialPos, out Vector3 gunspotPos, out float angle);
 
             AmmoBouncer newAmmo = new AmmoBouncer();
             newAmmo.OnActivated(new ActorActivationDetails {
@@ -208,8 +211,7 @@ namespace Jazz2.Actors
 
         private void FireWeaponFreezer()
         {
-            Vector3 initialPos, gunspotPos; float angle;
-            GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
+            GetFirePointAndAngle(out Vector3 initialPos, out Vector3 gunspotPos, out float angle);
 
             if ((weaponUpgrades[(int)currentWeapon] & 0x1) != 0) {
                 AmmoFreezer newAmmo = new AmmoFreezer();
@@ -245,8 +247,7 @@ namespace Jazz2.Actors
 
         private void FireWeaponSeeker()
         {
-            Vector3 initialPos, gunspotPos; float angle;
-            GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
+            GetFirePointAndAngle(out Vector3 initialPos, out Vector3 gunspotPos, out float angle);
 
             AmmoSeeker newAmmo = new AmmoSeeker();
             newAmmo.OnActivated(new ActorActivationDetails {
@@ -262,8 +263,7 @@ namespace Jazz2.Actors
 
         private void FireWeaponRF()
         {
-            Vector3 initialPos, gunspotPos; float angle;
-            GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
+            GetFirePointAndAngle(out Vector3 initialPos, out Vector3 gunspotPos, out float angle);
 
             if ((weaponUpgrades[(int)currentWeapon] & 0x1) != 0) {
                 AmmoRF newAmmo = new AmmoRF();
@@ -321,8 +321,7 @@ namespace Jazz2.Actors
                 return false;
             }
 
-            Vector3 initialPos, gunspotPos; float angle;
-            GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
+            GetFirePointAndAngle(out Vector3 initialPos, out Vector3 gunspotPos, out float angle);
 
             AmmoToaster newAmmo = new AmmoToaster();
             newAmmo.OnActivated(new ActorActivationDetails {
@@ -335,7 +334,7 @@ namespace Jazz2.Actors
 
             if (weaponToasterSound == null) {
                 weaponToasterSound = PlaySound("WeaponToaster", 0.6f);
-                weaponToasterSound.Looped = true;
+                weaponToasterSound.Flags |= SoundInstanceFlags.Looped;
             }
 
             weaponCooldown = 6f;
@@ -359,8 +358,7 @@ namespace Jazz2.Actors
 
         private void FireWeaponPepper()
         {
-            Vector3 initialPos, gunspotPos; float angle;
-            GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
+            GetFirePointAndAngle(out Vector3 initialPos, out Vector3 gunspotPos, out float angle);
 
             AmmoPepper newAmmo = new AmmoPepper();
             newAmmo.OnActivated(new ActorActivationDetails {
@@ -385,8 +383,7 @@ namespace Jazz2.Actors
 
         private void FireWeaponElectro()
         {
-            Vector3 initialPos, gunspotPos; float angle;
-            GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
+            GetFirePointAndAngle(out Vector3 initialPos, out Vector3 gunspotPos, out float angle);
 
             AmmoElectro newAmmo = new AmmoElectro();
             newAmmo.OnActivated(new ActorActivationDetails {
@@ -406,8 +403,7 @@ namespace Jazz2.Actors
                 return false;
             }
 
-            Vector3 initialPos, gunspotPos; float angle;
-            GetFirePointAndAngle(out initialPos, out gunspotPos, out angle);
+            GetFirePointAndAngle(out _, out Vector3 gunspotPos, out float angle);
 
             AmmoThunderbolt newAmmo = new AmmoThunderbolt();
             newAmmo.OnActivated(new ActorActivationDetails {

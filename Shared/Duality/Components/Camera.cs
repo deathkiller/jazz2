@@ -117,7 +117,6 @@ namespace Duality.Components
 			{
 				return 
 					this.renderSetup.Res ?? 
-					//DualityApp.AppData.RenderingSetup.Res ?? 
 					RenderSetup.Default.Res;
 			}
 		}
@@ -182,7 +181,10 @@ namespace Duality.Components
 			// Make sure the drawing device has all the latest settings for rendering
 			this.UpdateDrawDevice();
 
-			if (this.pickingSetup == null) this.pickingSetup = new PickingRenderSetup();
+			if (this.pickingSetup == null) {
+				this.pickingSetup = new PickingRenderSetup();
+			}
+
 			this.pickingSetup.RenderOverlay = renderOverlay;
 			this.pickingSetup.RenderPointOfView(
 				// Parent scene might be null for editor-only cameras
@@ -200,7 +202,10 @@ namespace Duality.Components
 		/// <returns>The <see cref="Duality.ICmpRenderer"/> that owns the pixel.</returns>
 		public ICmpRenderer PickRendererAt(int x, int y)
 		{
-			if (this.pickingSetup == null) return null;
+			if (this.pickingSetup == null) {
+				return null;
+			}
+
 			return this.pickingSetup.LookupPickingMap(x, y);
 		}
 		/// <summary>
@@ -215,7 +220,10 @@ namespace Duality.Components
 		/// <returns>A set of all <see cref="Duality.ICmpRenderer">ICmpRenderers</see> that have been picked.</returns>
 		public IEnumerable<ICmpRenderer> PickRenderersIn(int x, int y, int w, int h)
 		{
-			if (this.pickingSetup == null) return Enumerable.Empty<ICmpRenderer>();
+			if (this.pickingSetup == null) {
+				return Enumerable.Empty<ICmpRenderer>();
+			}
+
 			return this.pickingSetup.LookupPickingMap(x, y, w, h);
 		}
 
@@ -269,14 +277,19 @@ namespace Duality.Components
 		}
 		private void ReleaseDrawDevice()
 		{
-			if (this.drawDevice == null) return;
+			if (this.drawDevice == null) {
+				return;
+			}
+
 			this.drawDevice.Dispose();
 			this.drawDevice = null;
 		}
 		private void UpdateDrawDevice()
 		{
 			// Lazy setup, in case someone uses this Camera despite being inactive. (Editor)
-			if (this.drawDevice == null) this.SetupDrawDevice();
+			if (this.drawDevice == null) {
+				this.SetupDrawDevice();
+			}
 
 			this.drawDevice.ViewerPos = this.gameobj.Transform.Pos;
 			this.drawDevice.ViewerAngle = this.gameobj.Transform.Angle;

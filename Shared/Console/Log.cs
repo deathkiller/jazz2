@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Jazz2.Game;
 
-namespace Jazz2
+namespace Duality
 {
     /// <summary>
 	/// The type of a log message / entry.

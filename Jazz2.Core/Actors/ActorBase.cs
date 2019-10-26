@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Duality;
 using Duality.Async;
@@ -15,7 +16,6 @@ using Jazz2.Game.Components;
 using Jazz2.Game.Events;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
-using static Duality.Component;
 using MathF = Duality.MathF;
 
 namespace Jazz2.Actors
@@ -33,7 +33,7 @@ namespace Jazz2.Actors
         // Actor should be illuminated
         Illuminated = 1 << 2,
 
-        // Actor can be created asynchronously
+        // Actor should be created asynchronously
         Async = 1 << 3
     }
 
@@ -94,9 +94,9 @@ namespace Jazz2.Actors
         protected SuspendType suspendType;
         protected Point2 originTile;
         protected ActorInstantiationFlags flags;
-        protected ushort[] eventParams;
 
         protected ActorRenderer renderer;
+        private string loadedMetadata;
         private Point2 boundingBox;
 
         public AABB AABB;
@@ -118,9 +118,6 @@ namespace Jazz2.Actors
 
         private List<GraphicResource> cachedCandidates = new List<GraphicResource>();
 
-        public virtual EventType EventType => EventType.Empty;
-        public ushort[] EventParams => eventParams;
-
         public CollisionFlags CollisionFlags => collisionFlags;
         public bool IsInvulnerable => isInvulnerable;
         public int Health
@@ -134,8 +131,15 @@ namespace Jazz2.Actors
         public Vector3 ExternalForce => new Vector3(externalForceX, externalForceY, 0f);
         public Vector3 InternalForce => new Vector3(0, internalForceY, 0f);
 
+        public string LoadedMetadata => loadedMetadata;
+        public AnimState AnimState => currentAnimationState;
+        public float AnimTime => (renderer != null ? renderer.AnimTime : 0f);
+
         public bool IsFacingLeft
         {
+#if NET45
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
             get
             {
                 return isFacingLeft;
@@ -165,7 +169,6 @@ namespace Jazz2.Actors
 
             this.api = details.Api;
             this.flags = details.Flags;
-            this.eventParams = details.Params;
 
             friction = 1.5f;
 
@@ -577,12 +580,12 @@ namespace Jazz2.Actors
             }
         }
 
-        protected virtual void OnUpdate()
+        public virtual void OnUpdate()
         {
 
         }
 
-        protected virtual void OnFixedUpdate(float timeMult)
+        public virtual void OnFixedUpdate(float timeMult)
         {
             TryStandardMovement(timeMult);
             OnUpdateHitbox();
@@ -596,7 +599,7 @@ namespace Jazz2.Actors
             }
         }
 
-        protected virtual void OnDeactivated(ShutdownContext context)
+        public virtual void OnDestroyed()
         {
 
         }
@@ -1037,6 +1040,7 @@ namespace Jazz2.Actors
         {
             Metadata metadata = ContentResolver.Current.RequestMetadata(path);
 
+            loadedMetadata = path;
             boundingBox = metadata.BoundingBox;
             availableAnimations = metadata.Graphics;
             availableSounds = metadata.Sounds;
@@ -1059,6 +1063,7 @@ namespace Jazz2.Actors
                 metadata = ContentResolver.Current.RequestMetadata(path);
             }
 
+            loadedMetadata = path;
             boundingBox = metadata.BoundingBox;
             availableAnimations = metadata.Graphics;
             availableSounds = metadata.Sounds;
@@ -1071,9 +1076,9 @@ namespace Jazz2.Actors
 
         protected SoundInstance PlaySound(string name, float gain = 1f, float pitch = 1f)
         {
-            SoundResource resource;
-            if (availableSounds.TryGetValue(name, out resource)) {
+            if (availableSounds.TryGetValue(name, out SoundResource resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, this);
+                instance.Flags |= SoundInstanceFlags.GameplaySpecific;
                 // ToDo: Hardcoded volume
                 instance.Volume = gain * SettingsCache.SfxVolume;
                 instance.Pitch = pitch;
@@ -1091,9 +1096,9 @@ namespace Jazz2.Actors
 
         protected SoundInstance PlaySound(Vector3 pos, string name, float gain = 1f, float pitch = 1f)
         {
-            SoundResource resource;
-            if (availableSounds.TryGetValue(name, out resource)) {
+            if (availableSounds.TryGetValue(name, out SoundResource resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, pos);
+                instance.Flags |= SoundInstanceFlags.GameplaySpecific;
                 // ToDo: Hardcoded volume
                 instance.Volume = gain * SettingsCache.SfxVolume;
                 instance.Pitch = pitch;
@@ -1122,8 +1127,7 @@ namespace Jazz2.Actors
         {
             TileMap tilemap = api.TileMap;
             if (tilemap != null) {
-                GraphicResource res;
-                if (availableAnimations.TryGetValue(identifier, out res)) {
+                if (availableAnimations.TryGetValue(identifier, out GraphicResource res)) {
                     tilemap.CreateSpriteDebris(res, Transform.Pos, count);
                 } else {
                     Log.Write(LogType.Warning, "Can't create sprite debris \"" + identifier + "\" from " + GetType().FullName);
@@ -1242,10 +1246,7 @@ namespace Jazz2.Actors
         {
             List<GraphicResource> candidates = FindAnimationCandidates(state);
             if (candidates.Count == 0) {
-                if (callback != null) {
-                    callback();
-                }
-
+                callback?.Invoke();
                 return false;
             } else {
                 if (currentTransitionCallback != null) {
@@ -1329,24 +1330,13 @@ namespace Jazz2.Actors
         }
         #endregion
 
-        private class LocalController : Component, ICmpInitializable, ICmpUpdatable, ICmpFixedUpdatable
+        private class LocalController : Component, ICmpUpdatable, ICmpFixedUpdatable
         {
             private readonly ActorBase actor;
 
             public LocalController(ActorBase actor)
             {
                 this.actor = actor;
-            }
-
-            public void OnInit(InitContext context)
-            {
-                //
-            }
-
-            public void OnShutdown(ShutdownContext context)
-            {
-                //
-                actor.OnDeactivated(context);
             }
 
             void ICmpUpdatable.OnUpdate()

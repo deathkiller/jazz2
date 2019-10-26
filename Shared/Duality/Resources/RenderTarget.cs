@@ -3,18 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using Duality.Backend;
 using Duality.Drawing;
-using Jazz2;
 
 namespace Duality.Resources
 {
-    /// <summary>
-    /// Instead of rendering to screen, RenderTargets can serve as an alternative drawing surface for a <see cref="Duality.Components.Camera"/>.
-    /// The image is applied to one or several <see cref="Duality.Resources.Texture">Textures</see>. By default, only the first attached Texture
-    /// is actually used, but you can use a custom <see cref="Duality.Resources.FragmentShader"/> to use all available Textures for storing
-    /// information.
-    /// </summary>
-    /// <seealso cref="Duality.Resources.Texture"/>
-    public class RenderTarget : Resource
+	/// <summary>
+	/// Instead of rendering to screen, RenderTargets can serve as an alternative drawing surface for a <see cref="Duality.Components.Camera"/>.
+	/// The image is applied to one or several <see cref="Duality.Resources.Texture">Textures</see>. By default, only the first attached Texture
+	/// is actually used, but you can use a custom <see cref="Duality.Resources.FragmentShader"/> to use all available Textures for storing
+	/// information.
+	/// </summary>
+	/// <seealso cref="Duality.Resources.Texture"/>
+	public class RenderTarget : Resource
 	{
 		private List<ContentRef<Texture>> targets = new List<ContentRef<Texture>>();
 		private AAQuality multisampling = AAQuality.Off;
@@ -180,7 +179,9 @@ namespace Duality.Resources
 		private int GetPixelDataInternal<T>(T[] buffer, int targetIndex, int x, int y, int width, int height) where T : struct
 		{
 			int readBytes = width * height * 4;
-			if (readBytes == 0) return 0;
+			if (readBytes == 0) {
+				return 0;
+			}
 
 			int readElements = readBytes / System.Runtime.InteropServices.Marshal.SizeOf(typeof(T));
 			if (buffer.Length < readElements) {
@@ -216,7 +217,9 @@ namespace Duality.Resources
 				}
 			}
 
-			if (this.native == null) this.native = DualityApp.GraphicsBackend.CreateRenderTarget();
+			if (this.native == null) {
+				this.native = DualityApp.GraphicsBackend.CreateRenderTarget();
+			}
 
 			INativeTexture[] targets = this.targets
 				.Select(t => t.Res != null ? t.Res.Native : null)

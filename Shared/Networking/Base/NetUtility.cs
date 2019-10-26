@@ -52,14 +52,10 @@ namespace Lidgren.Network
         /// </summary>
         public static void ResolveAsync(string ipOrHost, int port, ResolveEndPointCallback callback)
         {
-            ResolveAsync(ipOrHost, delegate(NetAddress adr)
-            {
-                if (adr == null)
-                {
+            ResolveAsync(ipOrHost, delegate (NetAddress adr) {
+                if (adr == null) {
                     callback(null);
-                }
-                else
-                {
+                } else {
                     callback(new NetEndPoint(adr, port));
                 }
             });
@@ -79,16 +75,14 @@ namespace Lidgren.Network
         /// </summary>
         public static void ResolveAsync(string ipOrHost, ResolveAddressCallback callback)
         {
-            if (string.IsNullOrEmpty(ipOrHost))
-                throw new ArgumentException("Supplied string must not be empty", "ipOrHost");
+            if (string.IsNullOrEmpty(ipOrHost)) {
+                throw new ArgumentException("Supplied string must not be empty", nameof(ipOrHost));
+            }
 
             ipOrHost = ipOrHost.Trim();
 
-            NetAddress ipAddress = null;
-            if (NetAddress.TryParse(ipOrHost, out ipAddress))
-            {
-                if (ipAddress.AddressFamily == AddressFamily.InterNetwork || ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
-                {
+            if (NetAddress.TryParse(ipOrHost, out NetAddress ipAddress)) {
+                if (ipAddress.AddressFamily == AddressFamily.InterNetwork || ipAddress.AddressFamily == AddressFamily.InterNetworkV6) {
                     callback(ipAddress);
                     return;
                 }
@@ -97,39 +91,28 @@ namespace Lidgren.Network
 
             // ok must be a host name
             IPHostEntry entry;
-            try
-            {
-                Dns.BeginGetHostEntry(ipOrHost, delegate(IAsyncResult result)
-                {
-                    try
-                    {
+            try {
+                Dns.BeginGetHostEntry(ipOrHost, delegate (IAsyncResult result) {
+                    try {
                         entry = Dns.EndGetHostEntry(result);
-                    }
-                    catch (SocketException ex)
-                    {
-                        if (ex.SocketErrorCode == SocketError.HostNotFound)
-                        {
+                    } catch (SocketException ex) {
+                        if (ex.SocketErrorCode == SocketError.HostNotFound) {
                             //LogWrite(string.Format(CultureInfo.InvariantCulture, "Failed to resolve host '{0}'.", ipOrHost));
                             callback(null);
                             return;
-                        }
-                        else
-                        {
+                        } else {
                             throw;
                         }
                     }
 
-                    if (entry == null)
-                    {
+                    if (entry == null) {
                         callback(null);
                         return;
                     }
 
                     // check each entry for a valid IP address
-                    foreach (var ipCurrent in entry.AddressList)
-                    {
-                        if (ipCurrent.AddressFamily == AddressFamily.InterNetwork || ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
-                        {
+                    foreach (var ipCurrent in entry.AddressList) {
+                        if (ipCurrent.AddressFamily == AddressFamily.InterNetwork || ipAddress.AddressFamily == AddressFamily.InterNetworkV6) {
                             callback(ipCurrent);
                             return;
                         }
@@ -137,16 +120,11 @@ namespace Lidgren.Network
 
                     callback(null);
                 }, null);
-            }
-            catch (SocketException ex)
-            {
-                if (ex.SocketErrorCode == SocketError.HostNotFound)
-                {
+            } catch (SocketException ex) {
+                if (ex.SocketErrorCode == SocketError.HostNotFound) {
                     //LogWrite(string.Format(CultureInfo.InvariantCulture, "Failed to resolve host '{0}'.", ipOrHost));
                     callback(null);
-                }
-                else
-                {
+                } else {
                     throw;
                 }
             }
@@ -157,41 +135,38 @@ namespace Lidgren.Network
         /// </summary>
         public static NetAddress Resolve(string ipOrHost)
         {
-            if (string.IsNullOrEmpty(ipOrHost))
-                throw new ArgumentException("Supplied string must not be empty", "ipOrHost");
+            if (string.IsNullOrEmpty(ipOrHost)) {
+                throw new ArgumentException("Supplied string must not be empty", nameof(ipOrHost));
+            }
 
             ipOrHost = ipOrHost.Trim();
 
-            NetAddress ipAddress = null;
-            if (NetAddress.TryParse(ipOrHost, out ipAddress))
-            {
-                if (ipAddress.AddressFamily == AddressFamily.InterNetwork || ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
+            if (NetAddress.TryParse(ipOrHost, out NetAddress ipAddress)) {
+                if (ipAddress.AddressFamily == AddressFamily.InterNetwork || ipAddress.AddressFamily == AddressFamily.InterNetworkV6) {
                     return ipAddress;
+                }
+
                 throw new ArgumentException("This method will not currently resolve other than IPv4 and IPv6 addresses");
             }
 
             // ok must be a host name
-            try
-            {
+            try {
                 var addresses = Dns.GetHostAddresses(ipOrHost);
-                if (addresses == null)
+                if (addresses == null) {
                     return null;
-                foreach (var address in addresses)
-                {
-                    if (address.AddressFamily == AddressFamily.InterNetwork || address.AddressFamily == AddressFamily.InterNetworkV6)
+                }
+
+                foreach (var address in addresses) {
+                    if (address.AddressFamily == AddressFamily.InterNetwork || address.AddressFamily == AddressFamily.InterNetworkV6) {
                         return address;
+                    }
                 }
                 return null;
-            }
-            catch (SocketException ex)
-            {
-                if (ex.SocketErrorCode == SocketError.HostNotFound)
-                {
+            } catch (SocketException ex) {
+                if (ex.SocketErrorCode == SocketError.HostNotFound) {
                     //LogWrite(string.Format(CultureInfo.InvariantCulture, "Failed to resolve host '{0}'.", ipOrHost));
                     return null;
-                }
-                else
-                {
+                } else {
                     throw;
                 }
             }
@@ -199,8 +174,6 @@ namespace Lidgren.Network
 
         public static bool IsAddressPrivate(NetAddress address)
         {
-            return false;
-
             if (address.AddressFamily == AddressFamily.InterNetworkV6 && address.IsIPv4MappedToIPv6) {
                 address = address.MapToIPv4();
             }
@@ -282,8 +255,7 @@ namespace Lidgren.Network
         {
             char[] c = new char[length * 2];
             byte b;
-            for (int i = 0; i < length; ++i)
-            {
+            for (int i = 0; i < length; ++i) {
                 b = ((byte)(data[offset + i] >> 4));
                 c[i * 2] = (char)(b > 9 ? b + 0x37 : b + 0x30);
                 b = ((byte)(data[offset + i] & 0xF));
@@ -358,8 +330,7 @@ namespace Lidgren.Network
         /// </summary>
         public static int GetWindowSize(NetDeliveryMethod method)
         {
-            switch (method)
-            {
+            switch (method) {
                 case NetDeliveryMethod.Unknown:
                     return 0;
 
@@ -385,29 +356,25 @@ namespace Lidgren.Network
             System.Reflection.MemberInfo tmp;
 
             h = 1;
-            while (h * 3 + 1 <= list.Length)
+            while (h * 3 + 1 <= list.Length) {
                 h = 3 * h + 1;
+            }
 
-            while (h > 0)
-            {
-                for (int i = h - 1; i < list.Length; i++)
-                {
+            while (h > 0) {
+                for (int i = h - 1; i < list.Length; i++) {
                     tmp = list[i];
                     j = i;
-                    while (true)
-                    {
-                        if (j >= h)
-                        {
-                            if (string.Compare(list[j - h].Name, tmp.Name, StringComparison.InvariantCulture) > 0)
-                            {
+                    while (true) {
+                        if (j >= h) {
+                            if (string.Compare(list[j - h].Name, tmp.Name, StringComparison.InvariantCulture) > 0) {
                                 list[j] = list[j - h];
                                 j -= h;
-                            }
-                            else
+                            } else {
                                 break;
-                        }
-                        else
+                            }
+                        } else {
                             break;
+                        }
                     }
 
                     list[j] = tmp;
@@ -418,15 +385,17 @@ namespace Lidgren.Network
 
         internal static NetDeliveryMethod GetDeliveryMethod(NetMessageType mtp)
         {
-            if (mtp >= NetMessageType.UserReliableOrdered1)
+            if (mtp >= NetMessageType.UserReliableOrdered1) {
                 return NetDeliveryMethod.ReliableOrdered;
-            else if (mtp >= NetMessageType.UserReliableSequenced1)
+            } else if (mtp >= NetMessageType.UserReliableSequenced1) {
                 return NetDeliveryMethod.ReliableSequenced;
-            else if (mtp >= NetMessageType.UserReliableUnordered)
+            } else if (mtp >= NetMessageType.UserReliableUnordered) {
                 return NetDeliveryMethod.ReliableUnordered;
-            else if (mtp >= NetMessageType.UserSequenced1)
+            } else if (mtp >= NetMessageType.UserSequenced1) {
                 return NetDeliveryMethod.UnreliableSequenced;
-            return NetDeliveryMethod.Unreliable;
+            } else {
+                return NetDeliveryMethod.Unreliable;
+            }
         }
 
         public static byte[] ComputeSHAHash(byte[] bytes)
@@ -446,12 +415,9 @@ namespace Lidgren.Network
         internal static void CopyEndpoint(NetEndPoint src, NetEndPoint dst)
         {
             dst.Port = src.Port;
-            if (src.AddressFamily == AddressFamily.InterNetwork)
-            {
+            if (src.AddressFamily == AddressFamily.InterNetwork) {
                 dst.Address = src.Address.MapToIPv6();
-            }
-            else
-            {
+            } else {
                 dst.Address = src.Address;
             }
         }
@@ -464,8 +430,7 @@ namespace Lidgren.Network
 #endif
         internal static NetEndPoint MapToIPv6(NetEndPoint endPoint)
         {
-            if (endPoint.AddressFamily == AddressFamily.InterNetwork)
-            {
+            if (endPoint.AddressFamily == AddressFamily.InterNetwork) {
                 return new NetEndPoint(endPoint.Address.MapToIPv6(), endPoint.Port);
             }
             return endPoint;

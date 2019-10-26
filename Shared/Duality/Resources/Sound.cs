@@ -42,13 +42,15 @@ namespace Duality.Resources
 			get { return this.audioData != null && this.audioData.Count > 0 ? this.audioData[0] : null; }
 			set
 			{
-				if (this.audioData == null)
+				if (this.audioData == null) {
 					this.audioData = new List<ContentRef<AudioData>>();
+				}
 
-				if (this.audioData.Count == 0)
+				if (this.audioData.Count == 0) {
 					this.audioData.Add(value);
-				else
+				} else {
 					this.audioData[0] = value;
+				}
 			}
 		}
 		/// <summary>
@@ -138,7 +140,10 @@ namespace Duality.Resources
 
 		private void PreloadData()
 		{
-			if (this.audioData == null) return;
+			if (this.audioData == null) {
+				return;
+			}
+
 			for (int i = 0; i < this.audioData.Count; i++) {
 				this.audioData[i].EnsureLoaded();
 			}

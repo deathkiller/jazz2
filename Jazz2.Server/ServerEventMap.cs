@@ -38,7 +38,6 @@ namespace Jazz2.Server
             layoutHeight = size.Y;
 
             eventLayout = new EventTile[size.X * size.Y];
-
         }
 
         public void ReadEvents(Stream s, uint layoutVersion)
@@ -153,7 +152,7 @@ namespace Jazz2.Server
 
                 tile.IsEventActive = true;
 
-                if (tile.EventType == EventType.Weather) {
+                if (tile.EventType == EventType.AreaWeather) {
                     //levelHandler.ApplyWeather((LevelHandler.WeatherType)tile.EventParams[0], tile.EventParams[1], tile.EventParams[2] != 0);
                 } else if (tile.EventType != EventType.Generator) {
                     int x = i % layoutWidth;

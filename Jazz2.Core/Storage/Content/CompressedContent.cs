@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Text;
 using Duality;
 using Duality.IO;
@@ -20,6 +21,8 @@ namespace Jazz2.Storage.Content
             External = 1 << 3
         }
 
+        public delegate void PostprocessFileCallback(ContentTree.Node node, ref ResourceFlags flags, ref Stream overrideStream);
+
         private readonly string path;
         private readonly ContentTree tree;
 
@@ -35,7 +38,8 @@ namespace Jazz2.Storage.Content
         private ContentTree ReadContentTree()
         {
             Stream stream;
-            if (DualityApp.ExecContext == DualityApp.ExecutionContext.Game) {
+            if (DualityApp.ExecContext == DualityApp.ExecutionContext.Game ||
+                DualityApp.ExecContext == DualityApp.ExecutionContext.Server) {
                 stream = DualityApp.SystemBackend.FileSystem.OpenFile(path, FileAccessMode.Read);
             } else {
                 stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
@@ -107,14 +111,15 @@ namespace Jazz2.Storage.Content
             }
         }
 
-        public static void Create(string path, ContentTree tree, Func<string, ResourceFlags, ResourceFlags> resourceFlagsModifier = null)
+        public static void Create(string path, ContentTree tree, PostprocessFileCallback postprocessFileCallback = null)
         {
             using (MemoryStream tableStream = new MemoryStream())
             using (MemoryStream dataStream = new MemoryStream()) {
-                WriteContentTreeSection(tree.Root, tableStream, dataStream, resourceFlagsModifier);
+                WriteContentTreeSection(tree.Root, tableStream, dataStream, postprocessFileCallback);
 
                 Stream stream;
-                if (DualityApp.ExecContext == DualityApp.ExecutionContext.Game) {
+                if (DualityApp.ExecContext == DualityApp.ExecutionContext.Game ||
+                    DualityApp.ExecContext == DualityApp.ExecutionContext.Server) {
                     stream = DualityApp.SystemBackend.FileSystem.CreateFile(path);
                 } else {
                     stream = File.Create(path);
@@ -136,7 +141,7 @@ namespace Jazz2.Storage.Content
             }
         }
 
-        private static void WriteContentTreeSection(ContentTree.Node node, Stream tableStream, Stream dataStream, Func<string, ResourceFlags, ResourceFlags> resourceFlagsModifier)
+        private static void WriteContentTreeSection(ContentTree.Node node, Stream tableStream, Stream dataStream, PostprocessFileCallback postprocessFileCallback)
         {
             using (BinaryWriter w = new BinaryWriter(tableStream, Encoding.UTF8, true)) {
                 ResourceFlags flags = 0;
@@ -150,43 +155,67 @@ namespace Jazz2.Storage.Content
                     flags &= ~ResourceFlags.External;
                 }
 
-                if (resourceFlagsModifier != null) {
-                    flags = resourceFlagsModifier(node.Name, flags);
+                Stream overrideStream = null;
+                if (postprocessFileCallback != null) {
+                    postprocessFileCallback(node, ref flags, ref overrideStream);
                 }
 
-                w.Write((byte)flags);
+                try {
+                    w.Write((byte)flags);
+                    w.WriteAsciiString(node.Name);
 
-                w.WriteAsciiString(node.Name);
+                    if ((flags & ResourceFlags.HasChildren) != 0) {
+                        w.Write((ushort)node.Children.Count);
+                    }
 
-                if ((flags & ResourceFlags.HasChildren) != 0) {
-                    w.Write((ushort)node.Children.Count);
-                }
+                    if ((flags & ResourceFlags.HasResource) != 0) {
+                        if ((flags & ResourceFlags.External) != 0) {
+                            if (overrideStream != null) {
+                                throw new InvalidOperationException("Cannot use overrideStream with ResourceFlags.External");
+                            }
 
-                if ((flags & ResourceFlags.HasResource) != 0) {
-                    if ((flags & ResourceFlags.External) != 0) {
-                        FileResourceSource source = node.Source as FileResourceSource;
+                            FileResourceSource source = node.Source as FileResourceSource;
+                            if (source == null) {
+                                throw new InvalidOperationException("Specified resource must be saved as file");
+                            }
 
-                        w.WriteAsciiString(source.Path);
-                        w.Write((uint)source.Offset);
-                        w.Write((uint)source.Size);
-                    } else {
-                        long offset = dataStream.Position;
-                        w.Write((uint)offset);
+                            w.WriteAsciiString(source.Path);
+                            w.Write((uint)source.Offset);
+                            w.Write((uint)source.Size);
+                        } else {
+                            long offset = dataStream.Position;
 
-                        using (Stream stream = (flags & ResourceFlags.Compressed) != 0
-                            ? node.Source.GetCompressedStream()
-                            : node.Source.GetUncompressedStream()) {
-                            stream.CopyTo(dataStream);
+                            if (overrideStream != null) {
+                                if ((flags & ResourceFlags.Compressed) != 0) {
+                                    using (DeflateStream ds = new DeflateStream(dataStream, CompressionLevel.Optimal, true)) {
+                                        overrideStream.CopyTo(ds);
+                                    }
+                                } else {
+                                    overrideStream.CopyTo(dataStream);
+                                }
+                            } else {
+                                using (Stream stream = (flags & ResourceFlags.Compressed) != 0
+                                        ? node.Source.GetCompressedStream()
+                                        : node.Source.GetUncompressedStream()) {
+                                    stream.CopyTo(dataStream);
+                                }
+                            }
+
+                            long size = (dataStream.Position - offset);
+
+                            w.Write((uint)offset);
+                            w.Write((uint)size);
                         }
-
-                        long size = (dataStream.Position - offset);
-                        w.Write((uint)size);
+                    }
+                } finally {
+                    if (overrideStream != null) {
+                        overrideStream.Dispose();
                     }
                 }
             }
 
             foreach (ContentTree.Node children in node.Children) {
-                WriteContentTreeSection(children, tableStream, dataStream, resourceFlagsModifier);
+                WriteContentTreeSection(children, tableStream, dataStream, postprocessFileCallback);
             }
         }
 

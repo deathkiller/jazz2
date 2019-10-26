@@ -8,8 +8,6 @@ namespace Jazz2.Actors.Solid
 {
     public class AmmoCrate : GenericContainer
     {
-        public override EventType EventType => EventType.CrateAmmo;
-
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             Movable = true;

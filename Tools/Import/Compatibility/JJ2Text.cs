@@ -4,7 +4,7 @@ namespace Jazz2.Compatibility
 {
     public static class JJ2Text
     {
-        public static string ConvertFormattedString(string current, bool keepColors = true)
+        public static string ConvertToFormattedString(string current, bool keepColors = true)
         {
             StringBuilder sb = new StringBuilder();
             bool randomColor = false;

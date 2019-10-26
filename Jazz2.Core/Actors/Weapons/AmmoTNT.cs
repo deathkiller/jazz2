@@ -16,7 +16,6 @@ namespace Jazz2.Actors.Weapons
         private float lifetime = 200f;
         private bool isExploded;
 
-        public override EventType EventType => EventType.WeaponTNT;
         public Player Owner => owner;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
@@ -32,7 +31,7 @@ namespace Jazz2.Actors.Weapons
             this.owner = owner;
         }
 
-        protected override void OnUpdate()
+        public override void OnUpdate()
         {
             base.OnUpdate();
 

@@ -71,7 +71,7 @@ namespace Jazz2.Actors.Bosses
             PreloadMetadata("Enemy/Crab");
         }
 
-        protected override void OnDeactivated(ShutdownContext context)
+        public override void OnDestroyed()
         {
             state = StateWaiting;
 
@@ -84,7 +84,7 @@ namespace Jazz2.Actors.Bosses
             }
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             //base.OnFixedUpdate(timeMult);
 
@@ -236,7 +236,7 @@ namespace Jazz2.Actors.Bosses
                 SetAnimation((AnimState)1073741827);
             }
 
-            protected override void OnFixedUpdate(float timeMult)
+            public override void OnFixedUpdate(float timeMult)
             {
                 if (FallTime > 0f) {
                     base.OnFixedUpdate(timeMult);

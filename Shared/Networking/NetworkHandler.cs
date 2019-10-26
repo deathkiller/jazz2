@@ -132,7 +132,7 @@ namespace Jazz2.Game.Multiplayer
 #endif
                             byte type = msg.ReadByte();
 
-                            if (type == PacketTypes.UpdateAll) {
+                            if (type == SpecialPacketTypes.UpdateAll) {
                                 OnUpdateAllPlayers?.Invoke(msg);
                             } else {
                                 Action<NetIncomingMessage> callback;
@@ -212,6 +212,11 @@ namespace Jazz2.Game.Multiplayer
         public void RegisterCallback<T>(PacketCallback<T> callback) where T : struct, IServerPacket
         {
             byte type = (new T().Type);
+#if DEBUG
+            if (callbacks.ContainsKey(type)) {
+                throw new InvalidOperationException("Packet callback with this type was already registered");
+            }
+#endif
             callbacks[type] = (msg) => ProcessCallback(msg, callback);
         }
 
@@ -219,11 +224,6 @@ namespace Jazz2.Game.Multiplayer
         {
             byte type = (new T().Type);
             callbacks.Remove(type);
-        }
-
-        private void ClearCallbacks()
-        {
-            callbacks.Clear();
         }
 
         private static void ProcessCallback<T>(NetIncomingMessage msg, PacketCallback<T> callback) where T : struct, IServerPacket

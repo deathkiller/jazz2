@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Duality
+﻿namespace Duality
 {
     /// <summary>
     /// IContentRef is a general interface for <see cref="ContentRef{T}">content references</see> of any <see cref="Resource"/> type.

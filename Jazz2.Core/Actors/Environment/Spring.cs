@@ -21,8 +21,6 @@ namespace Jazz2.Actors.Environment
 
         private float cooldown;
 
-        public override EventType EventType => EventType.Spring;
-
         public bool KeepSpeedX => keepSpeedX;
         public bool KeepSpeedY => keepSpeedY;
 
@@ -111,7 +109,7 @@ namespace Jazz2.Actors.Environment
             }
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             base.OnFixedUpdate(timeMult);
 

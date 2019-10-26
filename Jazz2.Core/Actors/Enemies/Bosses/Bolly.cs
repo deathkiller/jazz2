@@ -75,7 +75,7 @@ namespace Jazz2.Actors.Bosses
             FollowNearestPlayer(StateFlying, 100);
         }
 
-        protected override void OnDeactivated(ShutdownContext context)
+        public override void OnDestroyed()
         {
             state = StateWaiting;
 
@@ -88,7 +88,7 @@ namespace Jazz2.Actors.Bosses
             }
         }
 
-        protected override void OnFixedUpdate(float timeMult)
+        public override void OnFixedUpdate(float timeMult)
         {
             OnUpdateHitbox();
             HandleBlinking(timeMult);
@@ -261,7 +261,7 @@ namespace Jazz2.Actors.Bosses
                 SetAnimation((AnimState)1);
             }
 
-            protected override void OnFixedUpdate(float timeMult)
+            public override void OnFixedUpdate(float timeMult)
             {
                 IsFacingLeft = (Parent as Bolly).IsFacingLeft;
 
@@ -287,7 +287,7 @@ namespace Jazz2.Actors.Bosses
                 SetAnimation((AnimState)2);
             }
 
-            protected override void OnFixedUpdate(float timeMult)
+            public override void OnFixedUpdate(float timeMult)
             {
                 IsFacingLeft = (Parent as Bolly).IsFacingLeft;
 
@@ -328,7 +328,7 @@ namespace Jazz2.Actors.Bosses
                 SetAnimation(animState);
             }
 
-            protected override void OnFixedUpdate(float timeMult)
+            public override void OnFixedUpdate(float timeMult)
             {
             }
         }
@@ -356,7 +356,7 @@ namespace Jazz2.Actors.Bosses
                 light.RadiusFar = 12f;
             }
 
-            protected override void OnFixedUpdate(float timeMult)
+            public override void OnFixedUpdate(float timeMult)
             {
                 float angle = Transform.Angle;
                 speedX += MathF.Cos(angle) * 0.14f * timeMult;

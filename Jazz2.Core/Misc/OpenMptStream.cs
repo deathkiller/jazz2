@@ -18,7 +18,7 @@ namespace Jazz2
 #endif
         private const int BufferSize = 4096 * 2; // 4k buffer per channel, low latency is not needed here...
 
-        public static Version Version
+        public static Version LibraryVersion
         {
             get
             {
@@ -56,6 +56,10 @@ namespace Jazz2
             get { return this.lowpass; }
             set { this.lowpass = value; }
         }
+
+        public SoundInstanceFlags Flags => SoundInstanceFlags.None;
+
+        public bool Paused { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public OpenMptStream(string path, bool looping)
         {

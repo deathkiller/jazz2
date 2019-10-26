@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 using System.Threading;
 using Duality;
 using Duality.Drawing;
@@ -52,8 +51,6 @@ namespace Jazz2.Game.UI.Menu
             isLoadingAnimation = 1f;
 
             ThreadPool.UnsafeQueueUserWorkItem(_ => {
-                JsonParser json = new JsonParser();
-
                 try {
                     string path = PathOp.Combine(DualityApp.DataDirectory, "Episodes", "unknown");
                     if (DirectoryOp.Exists(path)) {
@@ -72,7 +69,7 @@ namespace Jazz2.Game.UI.Menu
                                 Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
                                 string levelToken = PathOp.GetFileNameWithoutExtension(levelPath);
 
-                                LevelConfigJson config = json.Parse<LevelConfigJson>(s);
+                                LevelConfigJson config = ContentResolver.Current.Json.Parse<LevelConfigJson>(s);
 
                                 string icon = "";
 #if DEBUG

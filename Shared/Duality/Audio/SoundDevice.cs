@@ -5,10 +5,10 @@ using Duality.Resources;
 
 namespace Duality.Audio
 {
-    /// <summary>
-    /// Provides functionality to play and manage sound in Duality.
-    /// </summary>
-    public sealed class SoundDevice : IDisposable
+	/// <summary>
+	/// Provides functionality to play and manage sound in Duality.
+	/// </summary>
+	public sealed class SoundDevice : IDisposable
 	{
 		private	bool					disposed		= false;
 		private	GameObject				soundListener	= null;
@@ -16,6 +16,7 @@ namespace Duality.Audio
 		private	int						numPlaying2D	= 0;
 		private	int						numPlaying3D	= 0;
 		private	bool					mute			= false;
+		private bool                    pauseGameplaySpecificSounds = false;
 
 		/// <summary>
 		/// [GET / SET] The current listener object. This is automatically set to an available
@@ -109,8 +110,8 @@ namespace Duality.Audio
 
 		public SoundDevice()
 		{
-            UpdateWorldSettings();
-        }
+			UpdateWorldSettings();
+		}
 		~SoundDevice()
 		{
 			this.Dispose(false);
@@ -127,7 +128,10 @@ namespace Duality.Audio
 				this.disposed = true;
 
 				// Clear all playing sounds
-				foreach (ISoundInstance inst in this.sounds) inst.Dispose();
+				foreach (ISoundInstance inst in this.sounds) {
+					inst.Dispose();
+				}
+
 				this.sounds.Clear();
 			}
 		}
@@ -139,11 +143,11 @@ namespace Duality.Audio
 		///// <returns>The number of the specified Sounds playing instances.</returns>
 		//public int GetNumPlaying(ContentRef<Sound> snd)
 		//{
-        //    int curNumSoundRes;
-        //    if (!snd.IsAvailable || snd.IsRuntimeResource || !this.resPlaying.TryGetValue(snd.Path, out curNumSoundRes))
-        //    	return 0;
-        //    else
-        //    	return curNumSoundRes;
+		//    int curNumSoundRes;
+		//    if (!snd.IsAvailable || snd.IsRuntimeResource || !this.resPlaying.TryGetValue(snd.Path, out curNumSoundRes))
+		//    	return 0;
+		//    else
+		//    	return curNumSoundRes;
 		//}
 		/// <summary>
 		/// Registers a <see cref="Duality.Resources.Sound">Sounds</see> playing instance.
@@ -152,8 +156,11 @@ namespace Duality.Audio
 		/// <param name="is3D">Whether the instance is 3d or not.</param>
 		internal void RegisterPlaying(ContentRef<Sound> snd, bool is3D)
 		{
-			if (is3D)	this.numPlaying3D++;
-			else		this.numPlaying2D++;
+			if (is3D) {
+				this.numPlaying3D++;
+			} else {
+				this.numPlaying2D++;
+			}
 
 			//if (snd.IsAvailable && !snd.IsRuntimeResource)
 			//{
@@ -170,8 +177,11 @@ namespace Duality.Audio
 		/// <param name="is3D">Whether the instance is 3d or not.</param>
 		internal void UnregisterPlaying(ContentRef<Sound> snd, bool is3D)
 		{
-			if (is3D)	this.numPlaying3D--;
-			else		this.numPlaying2D--;
+			if (is3D) {
+				this.numPlaying3D--;
+			} else {
+				this.numPlaying2D--;
+			}
 
 			//if (snd.IsAvailable && !snd.IsRuntimeResource)
 			//	this.resPlaying[snd.Path]--;
@@ -187,42 +197,45 @@ namespace Duality.Audio
 			for (int i = this.sounds.Count - 1; i >= 0; i--)
 			{
 				this.sounds[i].Update();
-				if (this.sounds[i].IsDisposed) this.sounds.RemoveAt(i);
+				if (this.sounds[i].IsDisposed) {
+					this.sounds.RemoveAt(i);
+				}
 			}
 			this.sounds.Sort((obj1, obj2) => obj2.Priority - obj1.Priority);
 		}
 		private void UpdateListener()
 		{
-			if (this.soundListener != null && (this.soundListener.Disposed || !this.soundListener.Active)) this.soundListener = null;
+			if (this.soundListener != null && (this.soundListener.Disposed || !this.soundListener.Active)) {
+				this.soundListener = null;
+			}
 
 			// If no listener is defined, search one
-			if (this.soundListener == null)
-			{
+			if (this.soundListener == null) {
 				this.soundListener = Scene.Current.FindGameObject<SoundListener>();
 			}
 
 			DualityApp.AudioBackend.UpdateListener(
-			    this.ListenerPos * AudioUnit.LengthToPhysical,
-			    this.ListenerVel * AudioUnit.VelocityToPhysical,
-			    this.ListenerAngle * AudioUnit.AngleToPhysical,
-                this.mute);
+				this.ListenerPos * AudioUnit.LengthToPhysical,
+				this.ListenerVel * AudioUnit.VelocityToPhysical,
+				this.ListenerAngle * AudioUnit.AngleToPhysical,
+				this.mute);
 		}
-        private void UpdateWorldSettings()
+		private void UpdateWorldSettings()
 		{
-            const float speedOfSound = 360.0f;
-            const float soundDopplerFactor = 1.0f;
+			const float speedOfSound = 360.0f;
+			const float soundDopplerFactor = 1.0f;
 
-            DualityApp.AudioBackend.UpdateWorldSettings(
-                speedOfSound,           // Already in meters per second / audio units
-                soundDopplerFactor);
+			DualityApp.AudioBackend.UpdateWorldSettings(
+				speedOfSound,           // Already in meters per second / audio units
+				soundDopplerFactor);
 		}
 
-        /// <summary>
-        /// Plays a sound.
-        /// </summary>
-        /// <param name="snd">The Sound to play.</param>
-        /// <returns>A new SoundInstance representing the currentply playing sound.</returns>
-        public SoundInstance PlaySound(ContentRef<Sound> snd)
+		/// <summary>
+		/// Plays a sound.
+		/// </summary>
+		/// <param name="snd">The Sound to play.</param>
+		/// <returns>A new SoundInstance representing the currentply playing sound.</returns>
+		public SoundInstance PlaySound(ContentRef<Sound> snd)
 		{
 			SoundInstance inst = new SoundInstance(snd);
 			this.sounds.Add(inst);
@@ -267,21 +280,66 @@ namespace Duality.Audio
 			return inst;
 		}
 
-	    public TSoundInstance PlaySound<TSoundInstance>(TSoundInstance snd) where TSoundInstance : ISoundInstance
-	    {
-	        this.sounds.Add(snd);
-	        return snd;
-	    }
+		public TSoundInstance PlaySound<TSoundInstance>(TSoundInstance snd) where TSoundInstance : ISoundInstance
+		{
+			this.sounds.Add(snd);
+			return snd;
+		}
 
-        /// <summary>
-        /// Stops all currently playing sounds.
-        /// </summary>
-        public void StopAll()
+		/// <summary>
+		/// Stops all currently playing sounds.
+		/// </summary>
+		public void StopAll()
 		{
 			for (int i = this.sounds.Count - 1; i >= 0; i--)
 			{
 				this.sounds[i].Stop();
 			}
 		}
-    }
+
+		public void PauseGameplaySpecificSounds()
+		{
+			if (pauseGameplaySpecificSounds) {
+				return;
+			}
+
+			pauseGameplaySpecificSounds = true;
+
+			for (int i = this.sounds.Count - 1; i >= 0; i--) {
+				if ((this.sounds[i].Flags & SoundInstanceFlags.GameplaySpecific) != 0) {
+					this.sounds[i].Paused = true;
+				}
+			}
+		}
+
+		public void ResumeGameplaySpecificSounds()
+		{
+			if (!pauseGameplaySpecificSounds) {
+				return;
+			}
+
+			pauseGameplaySpecificSounds = false;
+
+			for (int i = this.sounds.Count - 1; i >= 0; i--) {
+				if ((this.sounds[i].Flags & SoundInstanceFlags.GameplaySpecific) != 0) {
+					this.sounds[i].Paused = false;
+				}
+			}
+		}
+
+		public void StopGameplaySpecificSounds()
+		{
+			pauseGameplaySpecificSounds = false;
+
+			for (int i = this.sounds.Count - 1; i >= 0; i--) {
+				if ((this.sounds[i].Flags & SoundInstanceFlags.GameplaySpecific) != 0) {
+					if (this.sounds[i].Paused) {
+						this.sounds[i].Stop();
+					} else {
+						this.sounds[i].FadeOut(1f);
+					}
+				}
+			}
+		}
+	}
 }

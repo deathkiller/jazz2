@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.IO.Compression;
-using System.Text.Json;
 using Duality;
 using Duality.Drawing;
 using Duality.IO;
@@ -50,10 +48,9 @@ namespace Jazz2.Game.UI.Menu
                 // Load metadata
                 IFileSystem levelPackage = new CompressedContent(levelPath);
 
-                JsonParser json = new JsonParser();
                 LevelHandler.LevelConfigJson config;
                 using (Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
-                    config = json.Parse<LevelHandler.LevelConfigJson>(s);
+                    config = ContentResolver.Current.Json.Parse<LevelHandler.LevelConfigJson>(s);
                 }
 
                 LevelHandler.LevelConfigJson.LayerSection layer;
@@ -151,103 +148,101 @@ namespace Jazz2.Game.UI.Menu
                 device.VisibilityMask = VisibilityFlag.AllFlags;
                 device.Projection = ProjectionMode.Screen;
 
-                RenderTarget target = new RenderTarget(AAQuality.Off, false, targetTexture);
-                device.Target = target;
-                device.TargetSize = new Vector2(w * 32, h * 32);
-                device.ViewportRect = new Rect(device.TargetSize);
+                using (RenderTarget target = new RenderTarget(AAQuality.Off, false, targetTexture)) {
+                    device.Target = target;
+                    device.TargetSize = new Vector2(w * 32, h * 32);
+                    device.ViewportRect = new Rect(device.TargetSize);
 
-                device.PrepareForDrawcalls();
+                    device.PrepareForDrawcalls();
 
-                // ToDo
-                Material material = levelTileset.GetDefaultTile(0).Material.Res;
-                Texture texture = material.MainTexture.Res;
+                    // ToDo
+                    Material material = levelTileset.GetDefaultTile(0).Material.Res;
+                    Texture texture = material.MainTexture.Res;
 
-                // Reserve the required space for vertex data in our locally cached buffer
-                int neededVertices = 4 * w * h;
-                if (cachedVertices == null || cachedVertices.Length < neededVertices) {
-                    cachedVertices = new VertexC1P3T2[neededVertices];
-                }
-
-                int vertexIndex = 0;
-
-                for (int x = 0; x < w; x++) {
-                    for (int y = 0; y < h; y++) {
-                        LayerTile tile = layer.Layout[x + y * layer.LayoutWidth];
-                        if (tile.IsAnimated) {
-                            continue;
-                        }
-
-                        Point2 offset = tile.MaterialOffset;
-                        bool isFlippedX = tile.IsFlippedX;
-                        bool isFlippedY = tile.IsFlippedY;
-
-                        Rect uvRect = new Rect(
-                            offset.X * texture.UVRatio.X / texture.ContentWidth,
-                            offset.Y * texture.UVRatio.Y / texture.ContentHeight,
-                            levelTileset.TileSize * texture.UVRatio.X / texture.ContentWidth,
-                            levelTileset.TileSize * texture.UVRatio.Y / texture.ContentHeight
-                        );
-
-                        if (isFlippedX) {
-                            uvRect.X += uvRect.W;
-                            uvRect.W *= -1;
-                        }
-                        if (isFlippedY) {
-                            uvRect.Y += uvRect.H;
-                            uvRect.H *= -1;
-                        }
-
-                        Vector3 renderPos = new Vector3(x * 32, y * 32, 0);
-
-                        renderPos.X = MathF.Round(renderPos.X);
-                        renderPos.Y = MathF.Round(renderPos.Y);
-                        if (MathF.RoundToInt(device.TargetSize.X) != (MathF.RoundToInt(device.TargetSize.X) / 2) * 2) {
-                            renderPos.X += 0.5f;
-                        }
-                        if (MathF.RoundToInt(device.TargetSize.Y) != (MathF.RoundToInt(device.TargetSize.Y) / 2) * 2) {
-                            renderPos.Y += 0.5f;
-                        }
-
-                        Vector2 tileXStep = new Vector2(32, 0);
-                        Vector2 tileYStep = new Vector2(0, 32);
-
-                        cachedVertices[vertexIndex + 0].Pos.X = renderPos.X;
-                        cachedVertices[vertexIndex + 0].Pos.Y = renderPos.Y;
-                        cachedVertices[vertexIndex + 0].Pos.Z = renderPos.Z;
-                        cachedVertices[vertexIndex + 0].TexCoord.X = uvRect.X;
-                        cachedVertices[vertexIndex + 0].TexCoord.Y = uvRect.Y;
-                        cachedVertices[vertexIndex + 0].Color = ColorRgba.White;
-
-                        cachedVertices[vertexIndex + 1].Pos.X = renderPos.X + tileYStep.X;
-                        cachedVertices[vertexIndex + 1].Pos.Y = renderPos.Y + tileYStep.Y;
-                        cachedVertices[vertexIndex + 1].Pos.Z = renderPos.Z;
-                        cachedVertices[vertexIndex + 1].TexCoord.X = uvRect.X;
-                        cachedVertices[vertexIndex + 1].TexCoord.Y = uvRect.Y + uvRect.H;
-                        cachedVertices[vertexIndex + 1].Color = ColorRgba.White;
-
-                        cachedVertices[vertexIndex + 2].Pos.X = renderPos.X + tileXStep.X + tileYStep.X;
-                        cachedVertices[vertexIndex + 2].Pos.Y = renderPos.Y + tileXStep.Y + tileYStep.Y;
-                        cachedVertices[vertexIndex + 2].Pos.Z = renderPos.Z;
-                        cachedVertices[vertexIndex + 2].TexCoord.X = uvRect.X + uvRect.W;
-                        cachedVertices[vertexIndex + 2].TexCoord.Y = uvRect.Y + uvRect.H;
-                        cachedVertices[vertexIndex + 2].Color = ColorRgba.White;
-
-                        cachedVertices[vertexIndex + 3].Pos.X = renderPos.X + tileXStep.X;
-                        cachedVertices[vertexIndex + 3].Pos.Y = renderPos.Y + tileXStep.Y;
-                        cachedVertices[vertexIndex + 3].Pos.Z = renderPos.Z;
-                        cachedVertices[vertexIndex + 3].TexCoord.X = uvRect.X + uvRect.W;
-                        cachedVertices[vertexIndex + 3].TexCoord.Y = uvRect.Y;
-                        cachedVertices[vertexIndex + 3].Color = ColorRgba.White;
-
-                        vertexIndex += 4;
+                    // Reserve the required space for vertex data in our locally cached buffer
+                    int neededVertices = 4 * w * h;
+                    if (cachedVertices == null || cachedVertices.Length < neededVertices) {
+                        cachedVertices = new VertexC1P3T2[neededVertices];
                     }
+
+                    int vertexIndex = 0;
+
+                    for (int x = 0; x < w; x++) {
+                        for (int y = 0; y < h; y++) {
+                            LayerTile tile = layer.Layout[x + y * layer.LayoutWidth];
+                            if (tile.IsAnimated) {
+                                continue;
+                            }
+
+                            Point2 offset = tile.MaterialOffset;
+                            bool isFlippedX = tile.IsFlippedX;
+                            bool isFlippedY = tile.IsFlippedY;
+
+                            Rect uvRect = new Rect(
+                                offset.X * texture.UVRatio.X / texture.ContentWidth,
+                                offset.Y * texture.UVRatio.Y / texture.ContentHeight,
+                                levelTileset.TileSize * texture.UVRatio.X / texture.ContentWidth,
+                                levelTileset.TileSize * texture.UVRatio.Y / texture.ContentHeight
+                            );
+
+                            if (isFlippedX) {
+                                uvRect.X += uvRect.W;
+                                uvRect.W *= -1;
+                            }
+                            if (isFlippedY) {
+                                uvRect.Y += uvRect.H;
+                                uvRect.H *= -1;
+                            }
+
+                            Vector3 renderPos = new Vector3(x * 32, y * 32, 0);
+
+                            renderPos.X = MathF.Round(renderPos.X);
+                            renderPos.Y = MathF.Round(renderPos.Y);
+                            if (MathF.RoundToInt(device.TargetSize.X) != (MathF.RoundToInt(device.TargetSize.X) / 2) * 2) {
+                                renderPos.X += 0.5f;
+                            }
+                            if (MathF.RoundToInt(device.TargetSize.Y) != (MathF.RoundToInt(device.TargetSize.Y) / 2) * 2) {
+                                renderPos.Y += 0.5f;
+                            }
+
+                            Vector2 tileXStep = new Vector2(32, 0);
+                            Vector2 tileYStep = new Vector2(0, 32);
+
+                            cachedVertices[vertexIndex + 0].Pos.X = renderPos.X;
+                            cachedVertices[vertexIndex + 0].Pos.Y = renderPos.Y;
+                            cachedVertices[vertexIndex + 0].Pos.Z = renderPos.Z;
+                            cachedVertices[vertexIndex + 0].TexCoord.X = uvRect.X;
+                            cachedVertices[vertexIndex + 0].TexCoord.Y = uvRect.Y;
+                            cachedVertices[vertexIndex + 0].Color = ColorRgba.White;
+
+                            cachedVertices[vertexIndex + 1].Pos.X = renderPos.X + tileYStep.X;
+                            cachedVertices[vertexIndex + 1].Pos.Y = renderPos.Y + tileYStep.Y;
+                            cachedVertices[vertexIndex + 1].Pos.Z = renderPos.Z;
+                            cachedVertices[vertexIndex + 1].TexCoord.X = uvRect.X;
+                            cachedVertices[vertexIndex + 1].TexCoord.Y = uvRect.Y + uvRect.H;
+                            cachedVertices[vertexIndex + 1].Color = ColorRgba.White;
+
+                            cachedVertices[vertexIndex + 2].Pos.X = renderPos.X + tileXStep.X + tileYStep.X;
+                            cachedVertices[vertexIndex + 2].Pos.Y = renderPos.Y + tileXStep.Y + tileYStep.Y;
+                            cachedVertices[vertexIndex + 2].Pos.Z = renderPos.Z;
+                            cachedVertices[vertexIndex + 2].TexCoord.X = uvRect.X + uvRect.W;
+                            cachedVertices[vertexIndex + 2].TexCoord.Y = uvRect.Y + uvRect.H;
+                            cachedVertices[vertexIndex + 2].Color = ColorRgba.White;
+
+                            cachedVertices[vertexIndex + 3].Pos.X = renderPos.X + tileXStep.X;
+                            cachedVertices[vertexIndex + 3].Pos.Y = renderPos.Y + tileXStep.Y;
+                            cachedVertices[vertexIndex + 3].Pos.Z = renderPos.Z;
+                            cachedVertices[vertexIndex + 3].TexCoord.X = uvRect.X + uvRect.W;
+                            cachedVertices[vertexIndex + 3].TexCoord.Y = uvRect.Y;
+                            cachedVertices[vertexIndex + 3].Color = ColorRgba.White;
+
+                            vertexIndex += 4;
+                        }
+                    }
+
+                    device.AddVertices(material, VertexMode.Quads, cachedVertices, 0, vertexIndex);
+                    device.Render();
                 }
-
-                device.AddVertices(material, VertexMode.Quads, cachedVertices, 0, vertexIndex);
-
-                device.Render();
-
-                target.Dispose();
             }
 
             cachedTexturedBackground = targetTexture;
