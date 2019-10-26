@@ -48,7 +48,7 @@ namespace Jazz2.Actors.Enemies
                 // empty, because walking Lizard has bigger hitbox
                 OnUpdateHitbox();
 
-                if (!api.IsPositionEmpty(this, ref AABBInner, true)) {
+                if (!levelHandler.IsPositionEmpty(this, ref AABBInner, true)) {
                     // Lizard was probably spawned into a wall, try to move it
                     // from the wall by 4px steps (max. 12px) in both directions
                     const float adjust = 4f;
@@ -109,7 +109,7 @@ namespace Jazz2.Actors.Enemies
         protected override bool OnPerish(ActorBase collider)
         {
             CreateDeathDebris(collider);
-            api.PlayCommonSound(Transform.Pos, "Splat");
+            levelHandler.PlayCommonSound("Splat", Transform.Pos);
 
             TryGenerateRandomDrop();
 

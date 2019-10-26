@@ -11,7 +11,7 @@ namespace Jazz2.Actors.Collectibles
 
             scoreValue = 200;
 
-            PlayerType player = (api.Players.Count == 0 ? PlayerType.Jazz : api.Players[0].PlayerType);
+            PlayerType player = (levelHandler.Players.Count == 0 ? PlayerType.Jazz : levelHandler.Players[0].PlayerType);
             if (player == PlayerType.Spaz) {
                 await RequestMetadataAsync("Collectible/FastFireSpaz");
             } else if (player == PlayerType.Lori) {

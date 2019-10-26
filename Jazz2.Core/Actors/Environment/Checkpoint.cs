@@ -42,7 +42,7 @@ namespace Jazz2.Actors.Environment
                         activated = true;
 
                         // Set this checkpoint for all players
-                        foreach (Player p in api.Players) {
+                        foreach (Player p in levelHandler.Players) {
                             p.SetCheckpoint(Transform.Pos.Xy);
                         }
 
@@ -52,10 +52,10 @@ namespace Jazz2.Actors.Environment
                         PlaySound("TransitionActivate");
 
                         // Deactivate event in map
-                        api.EventMap.StoreTileEvent(originTile.X, originTile.Y, EventType.Checkpoint, ActorInstantiationFlags.None, new ushort[] { theme, 1 });
+                        levelHandler.EventMap.StoreTileEvent(originTile.X, originTile.Y, EventType.Checkpoint, ActorInstantiationFlags.None, new ushort[] { theme, 1 });
 
-                        if (api.Difficulty != GameDifficulty.Multiplayer) {
-                            api.EventMap.CreateCheckpointForRollback();
+                        if (levelHandler.Difficulty != GameDifficulty.Multiplayer) {
+                            levelHandler.EventMap.CreateCheckpointForRollback();
                         }
                     }
                     break;

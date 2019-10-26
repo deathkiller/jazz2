@@ -23,7 +23,7 @@ namespace Jazz2.Game.Multiplayer
         private RemotePlayer[] remotePlayers = new RemotePlayer[256];
 
         private Dictionary<int, IRemotableActor> localRemotableActors = new Dictionary<int, IRemotableActor>();
-        private Dictionary<int, IRemotableActor> remoteActors = new Dictionary<int, IRemotableActor>();
+        private Dictionary<int, RemoteActor> remoteActors = new Dictionary<int, RemoteActor>();
         //private int lastRemotableActorIndex;
 
         public byte PlayerIndex => localPlayerIndex;
@@ -34,13 +34,15 @@ namespace Jazz2.Game.Multiplayer
             this.localPlayerIndex = playerIndex;
 
             net.OnUpdateAllPlayers += OnUpdateAllPlayers;
-            net.RegisterCallback<CreateControllablePlayer>(OnCreateControllablePlayer);
-            net.RegisterCallback<CreateRemotePlayer>(OnCreateRemotePlayer);
-            net.RegisterCallback<DestroyRemotePlayer>(OnDestroyRemotePlayer);
-            net.RegisterCallback<CreateRemoteObject>(OnCreateRemoteObject);
-            net.RegisterCallback<DestroyRemoteObject>(OnDestroyRemoteObject);
-            net.RegisterCallback<DecreasePlayerHealth>(OnDecreasePlayerHealth);
-            net.RegisterCallback<RemotePlayerDied>(OnRemotePlayerDied);
+            net.AddCallback<CreateControllablePlayer>(OnCreateControllablePlayer);
+            net.AddCallback<CreateRemotePlayer>(OnCreateRemotePlayer);
+            net.AddCallback<DestroyRemotePlayer>(OnDestroyRemotePlayer);
+            net.AddCallback<CreateRemoteActor>(OnCreateRemoteObject);
+            net.AddCallback<DestroyRemoteActor>(OnDestroyRemoteObject);
+            net.AddCallback<DecreasePlayerHealth>(OnDecreasePlayerHealth);
+            net.AddCallback<RemotePlayerDied>(OnRemotePlayerDied);
+
+            net.AddCallback<RefreshActorAnimation>(OnRefreshActorAnimation);
 
             // Wait 3 frames and then inform server that loading is complete
             isStillLoading = 3;
@@ -53,10 +55,12 @@ namespace Jazz2.Game.Multiplayer
                 net.RemoveCallback<CreateControllablePlayer>();
                 net.RemoveCallback<CreateRemotePlayer>();
                 net.RemoveCallback<DestroyRemotePlayer>();
-                net.RemoveCallback<CreateRemoteObject>();
-                net.RemoveCallback<DestroyRemoteObject>();
+                net.RemoveCallback<CreateRemoteActor>();
+                net.RemoveCallback<DestroyRemoteActor>();
                 net.RemoveCallback<DecreasePlayerHealth>();
                 net.RemoveCallback<RemotePlayerDied>();
+
+                net.RemoveCallback<RefreshActorAnimation>();
             }
 
             base.OnDisposing(manually);
@@ -239,16 +243,15 @@ namespace Jazz2.Game.Multiplayer
                     speed = new Vector2(x, y);
                 }
 
-                AnimState animState = (AnimState)msg.ReadUInt32();
-                float animTime = msg.ReadFloat();
+                bool visible = msg.ReadBoolean();
                 bool isFacingLeft = msg.ReadBoolean();
 
-                pos.X += speed.X * rtt;
-                pos.Y += speed.Y * rtt;
-
-                IRemotableActor actor;
+                RemoteActor actor;
                 if (remoteActors.TryGetValue(objectIndex, out actor)) {
-                    actor.OnUpdateRemoteActor(pos, speed, animState, animTime, isFacingLeft);
+                    pos.X += speed.X * rtt;
+                    pos.Y += speed.Y * rtt;
+
+                    actor.OnUpdateRemoteActor(pos, speed, visible, isFacingLeft);
                 }
             }
         }
@@ -280,7 +283,7 @@ namespace Jazz2.Game.Multiplayer
 
                 Player player = new Player();
                 player.OnActivated(new ActorActivationDetails {
-                    Api = Api,
+                    LevelHandler = this,
                     Pos = pos,
                     Params = new[] { (ushort)type, (ushort)0 }
                 });
@@ -321,7 +324,7 @@ namespace Jazz2.Game.Multiplayer
                 }
 
                 player.OnActivated(new ActorActivationDetails {
-                    Api = Api,
+                    LevelHandler = this,
                     Pos = pos,
                     Params = new ushort[] { (ushort)type, (ushort)index }
                 });
@@ -350,7 +353,7 @@ namespace Jazz2.Game.Multiplayer
         /// <summary>
         /// Some remote object was created
         /// </summary>
-        private void OnCreateRemoteObject(ref CreateRemoteObject p)
+        private void OnCreateRemoteObject(ref CreateRemoteActor p)
         {
             int index = p.Index;
 
@@ -383,11 +386,10 @@ namespace Jazz2.Game.Multiplayer
 
             Vector3 pos = p.Pos;
             string metadataPath = p.MetadataPath;
-            AnimState animState = p.AnimState;
 
             Await.NextAfterUpdate().OnCompleted(() => {
-                RemoteObject actor = new RemoteObject();
-                actor.OnActivated(Api, pos, metadataPath, animState);
+                RemoteActor actor = new RemoteActor();
+                actor.OnActivated(this, pos, metadataPath);
                 actor.Index = index;
                 remoteActors[index] = actor;
 
@@ -399,7 +401,7 @@ namespace Jazz2.Game.Multiplayer
         /// <summary>
         /// Some remote object was destroyed
         /// </summary>
-        private void OnDestroyRemoteObject(ref DestroyRemoteObject p)
+        private void OnDestroyRemoteObject(ref DestroyRemoteActor p)
         {
             int index = p.Index;
 
@@ -415,7 +417,7 @@ namespace Jazz2.Game.Multiplayer
                     RemoveActor(actor as ActorBase);
                 }*/
 
-                IRemotableActor actor;
+                RemoteActor actor;
                 if (remoteActors.TryGetValue(index, out actor)) {
                     remoteActors.Remove(index);
                     //RemoveObject(actor as ActorBase);
@@ -459,13 +461,31 @@ namespace Jazz2.Game.Multiplayer
 
             PlayerCorpse corpse = new PlayerCorpse();
             corpse.OnActivated(new ActorActivationDetails {
-                Api = Api,
+                LevelHandler = this,
                 Pos = player.Transform.Pos,
                 Params = new[] { (ushort)player.PlayerType, (ushort)(player.IsFacingLeft ? 1 : 0) }
             });
             AddActor(corpse);
 
             player.UpdateFromServer(player.Transform.Pos, AnimState.Idle, -1, player.IsFacingLeft);
+        }
+
+        public void OnRefreshActorAnimation(ref RefreshActorAnimation p)
+        {
+            int index = p.Index;
+
+            if ((index & 0xff) == localPlayerIndex) {
+                return;
+            }
+
+            string identifier = p.Identifier;
+
+            Await.NextAfterUpdate().OnCompleted(() => {
+                RemoteActor actor;
+                if (remoteActors.TryGetValue(index, out actor)) {
+                    actor.OnRefreshActorAnimation(identifier);
+                }
+            });
         }
     }
 }

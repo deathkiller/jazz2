@@ -11,8 +11,6 @@ namespace Jazz2.Game
 {
     public interface ILevelHandler
     {
-        ActorApi Api { get; }
-
         TileMap TileMap { get; }
         EventMap EventMap { get; }
         EventSpawner EventSpawner { get; }
@@ -45,6 +43,7 @@ namespace Jazz2.Game
         string GetLevelText(int textID);
         void BroadcastLevelText(string text);
         void BroadcastTriggeredEvent(EventType eventType, ushort[] eventParams);
+        void BroadcastAnimationChanged(ActorBase actor, string identifier);
         void InitLevelChange(ExitType exitType, string nextLevel);
         void HandleGameOver();
         bool HandlePlayerDied(Player player);

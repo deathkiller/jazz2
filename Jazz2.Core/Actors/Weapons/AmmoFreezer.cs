@@ -86,17 +86,17 @@ namespace Jazz2.Actors.Weapons
             Texture texture = material.MainTexture.Res;
             if (texture != null) {
                 Vector3 pos = Transform.Pos;
-                if (pos.Y < api.WaterLevel) {
+                if (pos.Y < levelHandler.WaterLevel) {
                     float dx = MathF.Rnd.NextFloat(-8f, 8f);
                     float dy = MathF.Rnd.NextFloat(-3f, 3f);
 
                     const float currentSize = 1f;
                     int currentFrame = renderer.CurrentFrame;
 
-                    api.TileMap.CreateDebris(new DestructibleDebris {
+                    levelHandler.TileMap.CreateDebris(new DestructibleDebris {
                         Pos = new Vector3(pos.X + dx, pos.Y + dy, pos.Z + 1f),
                         Size = new Vector2(currentSize, currentSize),
-                        Acceleration = new Vector2(0f, api.Gravity),
+                        Acceleration = new Vector2(0f, levelHandler.Gravity),
 
                         Scale = 1.2f,
                         Alpha = 1f,
@@ -130,7 +130,7 @@ namespace Jazz2.Actors.Weapons
 
         protected override bool OnPerish(ActorBase collider)
         {
-            Explosion.Create(api, Transform.Pos + Speed, Explosion.SmokeWhite);
+            Explosion.Create(levelHandler, Transform.Pos + Speed, Explosion.SmokeWhite);
 
             return base.OnPerish(collider);
         }

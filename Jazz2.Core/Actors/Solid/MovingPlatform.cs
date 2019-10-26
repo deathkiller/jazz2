@@ -54,15 +54,15 @@ namespace Jazz2.Actors.Solid
 
             pieces = new ChainPiece[length];
             for (int i = 0; i < length; i++) {
-                pieces[i] = new ChainPiece(api, originPos + new Vector3(0f, 0f, 4f), type);
-                api.AddActor(pieces[i]);
+                pieces[i] = new ChainPiece(levelHandler, originPos + new Vector3(0f, 0f, 4f), type);
+                levelHandler.AddActor(pieces[i]);
             }
         }
 
         public override void OnDestroyed()
         {
             for (int i = 0; i < length; i++) {
-                api.RemoveActor(pieces[i]);
+                levelHandler.RemoveActor(pieces[i]);
             }
         }
 
@@ -86,7 +86,7 @@ namespace Jazz2.Actors.Solid
                 aabb.LowerBound.Y -= 2;
 
                 if (type != PlatformType.SpikeBall) {
-                    foreach (Player player in api.GetCollidingPlayers(aabb)) {
+                    foreach (Player player in levelHandler.GetCollidingPlayers(aabb)) {
                         player.SetCarryingPlatform(this);
                     }
 
@@ -94,12 +94,12 @@ namespace Jazz2.Actors.Solid
                         aabb.LowerBound.Y += 40;
                         aabb.UpperBound.Y += 40;
 
-                        foreach (Player player in api.GetCollidingPlayers(aabb)) {
+                        foreach (Player player in levelHandler.GetCollidingPlayers(aabb)) {
                             player.TakeDamage(1, 2);
                         }
                     }
                 } else {
-                    foreach (Player player in api.GetCollidingPlayers(aabb)) {
+                    foreach (Player player in levelHandler.GetCollidingPlayers(aabb)) {
                         player.TakeDamage(1, 2);
                     }
                 }
@@ -155,9 +155,9 @@ namespace Jazz2.Actors.Solid
 
         private class ChainPiece : ActorBase
         {
-            public ChainPiece(ActorApi api, Vector3 pos, PlatformType type)
+            public ChainPiece(ILevelHandler levelHandler, Vector3 pos, PlatformType type)
             {
-                this.api = api;
+                this.levelHandler = levelHandler;
 
                 Transform transform = AddComponent<Transform>();
                 Transform.Pos = pos;

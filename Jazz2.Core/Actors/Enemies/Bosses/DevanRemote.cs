@@ -26,9 +26,9 @@ namespace Jazz2.Actors.Bosses
 
         protected override void OnBossActivated()
         {
-            api.BroadcastLevelText(introText);
+            levelHandler.BroadcastLevelText(levelHandler.GetLevelText(introText));
 
-            foreach (GameObject obj in api.ActiveObjects) {
+            foreach (GameObject obj in levelHandler.ActiveObjects) {
                 activeRobot = obj as Robot;
                 if (activeRobot != null) {
                     activeRobot.Activate();
@@ -59,7 +59,7 @@ namespace Jazz2.Actors.Bosses
 
                     health = 0;
 
-                    api.BroadcastLevelText(endText);
+                    levelHandler.BroadcastLevelText(levelHandler.GetLevelText(endText));
 
                     PlaySound("WarpOut");
                     SetTransition(AnimState.TransitionWarpOut, false, delegate {

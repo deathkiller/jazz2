@@ -44,7 +44,7 @@ namespace Jazz2.Actors.Environment
         {
             Vector3 pos = Transform.Pos;
 
-            api.FindCollisionActorsByRadius(pos.X, pos.Y, 40, actor => {
+            levelHandler.FindCollisionActorsByRadius(pos.X, pos.Y, 40, actor => {
                 Player player = actor as Player;
                 if (player != null) {
                     bool pushLeft = (pos.X > player.Transform.Pos.X);
@@ -54,9 +54,9 @@ namespace Jazz2.Actors.Environment
             });
 
             // Explosion.Large is the same as Explosion.Bomb
-            Explosion.Create(api, pos, Explosion.Large);
+            Explosion.Create(levelHandler, pos, Explosion.Large);
 
-            api.PlayCommonSound(Transform.Pos, "Bomb");
+            levelHandler.PlayCommonSound("Bomb", pos);
 
             return base.OnPerish(collider);
         }

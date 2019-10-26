@@ -121,7 +121,7 @@ namespace Jazz2.Actors.Bosses
                 CreateSpriteDebris(MathF.Rnd.OneOf(shrapnels), 1);
             }
 
-            api.PlayCommonSound(Transform.Pos, "Splat");
+            levelHandler.PlayCommonSound("Splat", Transform.Pos);
 
             return base.OnPerish(collider);
         }
@@ -154,7 +154,7 @@ namespace Jazz2.Actors.Bosses
             Vector3 pos = Transform.Pos;
             Vector3 targetPos = new Vector3(float.MaxValue, float.MaxValue, 0f);
 
-            List<Player> players = api.Players;
+            List<Player> players = levelHandler.Players;
             for (int i = 0; i < players.Count; i++) {
                 Vector3 newPos = players[i].Transform.Pos;
                 if ((pos - newPos).Length < (pos - targetPos).Length) {
@@ -182,11 +182,11 @@ namespace Jazz2.Actors.Bosses
         {
             SpikeBall spikeBall = new SpikeBall();
             spikeBall.OnActivated(new ActorActivationDetails {
-                Api = api,
+                LevelHandler = levelHandler,
                 Pos = Transform.Pos + new Vector3(0f, -32f, 0f),
                 Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
             });
-            api.AddActor(spikeBall);
+            levelHandler.AddActor(spikeBall);
 
             shots--;
 
@@ -238,7 +238,7 @@ namespace Jazz2.Actors.Bosses
 
             protected override bool OnPerish(ActorBase collider)
             {
-                Explosion.Create(api, Transform.Pos, Explosion.SmallDark);
+                Explosion.Create(levelHandler, Transform.Pos, Explosion.SmallDark);
 
                 return base.OnPerish(collider);
             }

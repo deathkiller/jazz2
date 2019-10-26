@@ -76,12 +76,12 @@ namespace Jazz2.Actors.Weapons
 
             Vector3 pos = Transform.Pos;
 
-            if (pos.Y >= api.WaterLevel) {
+            if (pos.Y >= levelHandler.WaterLevel) {
                 DecreaseHealth(int.MaxValue);
                 return;
             }
 
-            TileMap tiles = api.TileMap;
+            TileMap tiles = levelHandler.TileMap;
             if (tiles == null || tiles.IsTileEmpty(ref AABBInner, false)) {
                 MoveInstantly(new Vector2(speedX * timeMult, speedY * timeMult), MoveType.Relative, true);
                 CheckCollisions(timeMult);

@@ -52,7 +52,7 @@ namespace Jazz2.Actors.Environment
 
                         timeLeft = delay * Time.FramesPerSecond;
 
-                        Explosion.Create(api, Transform.Pos, Explosion.Generator);
+                        Explosion.Create(levelHandler, Transform.Pos, Explosion.Generator);
                     }
                     break;
             }

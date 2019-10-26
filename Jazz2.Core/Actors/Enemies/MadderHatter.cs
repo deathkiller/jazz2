@@ -41,7 +41,7 @@ namespace Jazz2.Actors.Enemies
                 if (attackTime <= 0f) {
                     Vector3 pos = Transform.Pos;
 
-                    List<Player> players = api.Players;
+                    List<Player> players = levelHandler.Players;
                     for (int i = 0; i < players.Count; i++) {
                         Vector3 newPos = players[i].Transform.Pos;
                         if ((newPos - pos).Length <= 200f) {
@@ -55,11 +55,11 @@ namespace Jazz2.Actors.Enemies
 
                                 BulletSpit bullet = new BulletSpit();
                                 bullet.OnActivated(new ActorActivationDetails {
-                                    Api = api,
+                                    LevelHandler = levelHandler,
                                     Pos = new Vector3(pos.X + (IsFacingLeft ? -42f : 42f), pos.Y - 6f, pos.Z - 2f),
                                     Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
                                 });
-                                api.AddActor(bullet);
+                                levelHandler.AddActor(bullet);
 
                                 SetAnimation(AnimState.Walk);
                                 SetTransition((AnimState)1073741825, false, delegate {
@@ -94,7 +94,7 @@ namespace Jazz2.Actors.Enemies
         protected override bool OnPerish(ActorBase collider)
         {
             CreateDeathDebris(collider);
-            api.PlayCommonSound(Transform.Pos, "Splat");
+            levelHandler.PlayCommonSound("Splat", Transform.Pos);
 
             CreateSpriteDebris("Cup", 1);
             CreateSpriteDebris("Hat", 1);

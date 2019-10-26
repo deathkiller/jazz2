@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Duality;
 using Jazz2.Actors;
 using Jazz2.Game;
-using Jazz2.Game.Collisions;
+using Jazz2.Game.Multiplayer;
 using Jazz2.Networking;
 using Jazz2.Networking.Packets.Client;
 using Jazz2.Networking.Packets.Server;
@@ -17,11 +17,11 @@ namespace Jazz2.Server
     {
         private void RegisterPacketCallbacks()
         {
-            RegisterCallback<LevelReady>(OnLevelReady);
-            RegisterCallback<UpdateSelf>(OnUpdateSelf);
+            AddCallback<LevelReady>(OnLevelReady);
+            AddCallback<UpdateSelf>(OnUpdateSelf);
 
-            RegisterCallback<SelfDied>(OnSelfDied);
-            RegisterCallback<RemotePlayerHit>(OnRemotePlayerHit);
+            AddCallback<SelfDied>(OnSelfDied);
+            AddCallback<RemotePlayerHit>(OnRemotePlayerHit);
 
             //RegisterCallback<CreateRemotableActor>(OnCreateRemotableActor);
             //RegisterCallback<UpdateRemotableActor>(OnUpdateRemotableActor);
@@ -71,8 +71,11 @@ namespace Jazz2.Server
                         player.State = PlayerState.Spawned;
 
                         // ToDo: But these two lines not
-                        player.AABB = new AABB(player.Pos.Xy, 20, 30);
-                        collisions.AddProxy(player);
+                        player.ShadowActor = new RemoteActor();
+                        player.ShadowActor.Transform.Pos = player.Pos;
+                        player.ShadowActor.UpdateAABB();
+                        collisions.AddProxy(player.ShadowActor);
+                        player.ShadowActor.Transform.EventTransformChanged += OnActorTransformChanged;
 
                         Send(new CreateControllablePlayer {
                             Index = player.Index,
@@ -107,28 +110,34 @@ namespace Jazz2.Server
                             Type = player.PlayerType,
                             Pos = player.Pos
                         }, 9, playersWithLoadedLevel, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+                    }
 
-                        // Send command to create all remotable actors
-                        /*foreach (KeyValuePair<int, RemotableActor> pair in remotableActors) {
-                            RemotableActor remotableActor = pair.Value;
+                    // Send command to create all remotable actors
+                    /*foreach (KeyValuePair<int, RemotableActor> pair in remotableActors) {
+                        RemotableActor remotableActor = pair.Value;
 
-                            Send(new CreateRemoteObject {
-                                Index = remotableActor.Index,
-                                EventType = remotableActor.EventType,
-                                EventParams = remotableActor.EventParams,
-                                Pos = remotableActor.Pos,
-                            }, 35, p.SenderConnection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
-                        }*/
+                        Send(new CreateRemoteObject {
+                            Index = remotableActor.Index,
+                            EventType = remotableActor.EventType,
+                            EventParams = remotableActor.EventParams,
+                            Pos = remotableActor.Pos,
+                        }, 35, p.SenderConnection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+                    }*/
 
-                        // Send command to create all spawned actors
-                        foreach (ActorBase actor in spawnedActors) {
-                            Send(new CreateRemoteObject {
-                                Index = actor.Index,
-                                Pos = actor.Transform.Pos,
-                                MetadataPath = actor.LoadedMetadata,
-                                AnimState = actor.AnimState
-                            }, 64, p.SenderConnection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
-                        }
+                    // Send command to create all spawned actors
+                    foreach (ActorBase actor in spawnedActors) {
+                        Send(new CreateRemoteActor {
+                            Index = actor.Index,
+                            Pos = actor.Transform.Pos,
+                            MetadataPath = actor.LoadedMetadata
+                        }, 64, p.SenderConnection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+                    }
+
+                    foreach (var actor in spawnedActorsAnimation) {
+                        Send(new RefreshActorAnimation {
+                            Index = actor.Key.Index,
+                            Identifier = actor.Value,
+                        }, 32, p.SenderConnection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                     }
                 }
             }

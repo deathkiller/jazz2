@@ -47,7 +47,7 @@ namespace Jazz2.Actors.Bosses
             collisionFlags |= CollisionFlags.IsSolidObject | CollisionFlags.SkipPerPixelCollisions;
 
             stepSize = 0.3f;
-            switch (api.Difficulty) {
+            switch (levelHandler.Difficulty) {
                 case GameDifficulty.Easy: stepSize *= 1.3f; break;
                 case GameDifficulty.Hard: stepSize *= 0.7f; break;
             }
@@ -58,15 +58,15 @@ namespace Jazz2.Actors.Bosses
             // Invisible block above the queen
             block = new InvisibleBlock();
             block.OnActivated(new ActorActivationDetails {
-                Api = api
+                LevelHandler = levelHandler
             });
-            api.AddActor(block);
+            levelHandler.AddActor(block);
         }
 
         public override void OnDestroyed()
         {
             if (block != null) {
-                api.RemoveActor(block);
+                levelHandler.RemoveActor(block);
                 block = null;
             }
         }
@@ -83,7 +83,7 @@ namespace Jazz2.Actors.Bosses
                 case StateWaiting: {
                     // Waiting for player to enter the arena
                     Vector3 pos = Transform.Pos;
-                    api.FindCollisionActorsByAABB(this, new AABB(pos.X - 300, pos.Y - 120, pos.X + 60, pos.Y + 120), actor => {
+                    levelHandler.FindCollisionActorsByAABB(this, new AABB(pos.X - 300, pos.Y - 120, pos.X + 60, pos.Y + 120), actor => {
                         if (actor is Player) {
                             state = StateIdleToScream;
                             stateTime = 260f;
@@ -132,12 +132,12 @@ namespace Jazz2.Actors.Bosses
 
                                 Brick brick = new Brick();
                                 brick.OnActivated(new ActorActivationDetails {
-                                    Api = api,
+                                    LevelHandler = levelHandler,
                                     Pos = new Vector3(brickStartRangeX + MathF.Rnd.NextFloat(pos.X - brickStartRangeX - 50), pos.Y - 200f, pos.Z + 20f)
                                 });
-                                api.AddActor(brick);
+                                levelHandler.AddActor(brick);
 
-                                api.ShakeCameraView(20f);
+                                levelHandler.ShakeCameraView(20f);
                             });
                         });
                     }
@@ -160,7 +160,7 @@ namespace Jazz2.Actors.Bosses
                                 Vector3 pos = Transform.Pos;
                                 AABB aabb1 = new AABB(pos.X - 10, pos.Y + 24, pos.X - 6, pos.Y + 28);
                                 AABB aabb2 = new AABB(pos.X + 6, pos.Y + 24, pos.X + 10, pos.Y + 28);
-                                if (!api.IsPositionEmpty(this, ref aabb1, true) && api.IsPositionEmpty(this, ref aabb2, true)) {
+                                if (!levelHandler.IsPositionEmpty(this, ref aabb1, true) && levelHandler.IsPositionEmpty(this, ref aabb2, true)) {
                                     lastHealth = health;
                                     isInvulnerable = false;
 
@@ -214,7 +214,7 @@ namespace Jazz2.Actors.Bosses
                 }
 
                 case StateScreaming: {
-                    foreach (Player player in api.Players) {
+                    foreach (Player player in levelHandler.Players) {
                         player.AddExternalForce(-1.51f * timeMult, 0f);
                     }
                     break;
@@ -250,7 +250,7 @@ namespace Jazz2.Actors.Bosses
                         SetAnimation(AnimState.Fall);
                         PlaySound(Transform.Pos, "Spring");
 
-                        api.BroadcastLevelText(endText);
+                        levelHandler.BroadcastLevelText(levelHandler.GetLevelText(endText));
 
                         state = StateDead;
                         stateTime = 50f;
@@ -261,7 +261,7 @@ namespace Jazz2.Actors.Bosses
 
         private void CheckDestructibleTiles(float timeMult)
         {
-            TileMap tiles = api.TileMap;
+            TileMap tiles = levelHandler.TileMap;
             if (tiles == null) {
                 return;
             }
@@ -269,7 +269,7 @@ namespace Jazz2.Actors.Bosses
             AABB aabb = AABBInner + new Vector2((speedX + externalForceX) * 2f * timeMult, (speedY - externalForceY) * 2f * timeMult);
 
             if (tiles.CheckWeaponDestructible(ref aabb, WeaponType.Blaster, int.MaxValue) > 0) {
-                api.ShakeCameraView(20f);
+                levelHandler.ShakeCameraView(20f);
             }
         }
 

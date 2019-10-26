@@ -62,7 +62,7 @@ namespace Jazz2.Actors.Collectibles
                 timeLeft -= timeMult;
 
                 if (timeLeft <= 0f) {
-                    Explosion.Create(api, Transform.Pos, Explosion.Generator);
+                    Explosion.Create(levelHandler, Transform.Pos, Explosion.Generator);
 
                     DecreaseHealth(int.MaxValue);
                 }
@@ -95,7 +95,7 @@ namespace Jazz2.Actors.Collectibles
         {
             player.AddScore(scoreValue);
 
-            Explosion.Create(api, Transform.Pos, Explosion.Generator);
+            Explosion.Create(levelHandler, Transform.Pos, Explosion.Generator);
 
             DecreaseHealth(int.MaxValue);
         }

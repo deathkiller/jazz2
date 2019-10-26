@@ -34,7 +34,7 @@ namespace Jazz2.Actors.Enemies
             Vector3 pos = Transform.Pos;
             Vector3 targetPos;
 
-            List<Player> players = api.Players;
+            List<Player> players = levelHandler.Players;
             for (int i = 0; i < players.Count; i++) {
                 targetPos = players[i].Transform.Pos;
                 if ((pos - targetPos).Length < 220f) {
@@ -86,11 +86,11 @@ namespace Jazz2.Actors.Enemies
                         if (attackTime <= 0f) {
                             Fire fire = new Fire();
                             fire.OnActivated(new ActorActivationDetails {
-                                Api = api,
+                                LevelHandler = levelHandler,
                                 Pos = new Vector3(pos.X + (IsFacingLeft ? -14f : 14f), pos.Y - 6f, pos.Z - 2f),
                                 Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
                             });
-                            api.AddActor(fire);
+                            levelHandler.AddActor(fire);
 
                             attackTime = 10f;
                         } else {
@@ -106,9 +106,9 @@ namespace Jazz2.Actors.Enemies
         protected override bool OnPerish(ActorBase collider)
         {
             CreateDeathDebris(collider);
-            api.PlayCommonSound(Transform.Pos, "Splat");
+            levelHandler.PlayCommonSound("Splat", Transform.Pos);
 
-            Explosion.Create(api, Transform.Pos, Explosion.Tiny);
+            Explosion.Create(levelHandler, Transform.Pos, Explosion.Tiny);
 
             TryGenerateRandomDrop();
 

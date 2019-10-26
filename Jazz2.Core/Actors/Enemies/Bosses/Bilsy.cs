@@ -73,11 +73,11 @@ namespace Jazz2.Actors.Bosses
 
                             Fireball fireball = new Fireball();
                             fireball.OnActivated(new ActorActivationDetails {
-                                Api = api,
+                                LevelHandler = levelHandler,
                                 Pos = new Vector3(pos.X + 26f * (IsFacingLeft ? -1f : 1f), pos.Y - 20f, pos.Z - 2f),
                                 Params = new[] { theme, (ushort)(IsFacingLeft ? 1 : 0) }
                             });
-                            api.AddActor(fireball);
+                            levelHandler.AddActor(fireball);
 
                             SetTransition((AnimState)1073741827, false, delegate {
                                 state = StateWaiting2;
@@ -115,9 +115,9 @@ namespace Jazz2.Actors.Bosses
         {
             CreateDeathDebris(collider);
 
-            api.PlayCommonSound(Transform.Pos, "Splat");
+            levelHandler.PlayCommonSound("Splat", Transform.Pos);
 
-            api.BroadcastLevelText(endText);
+            levelHandler.BroadcastLevelText(levelHandler.GetLevelText(endText));
 
             return base.OnPerish(collider);
         }
@@ -128,7 +128,7 @@ namespace Jazz2.Actors.Bosses
             for (int i = 0; i < 20; i++) {
                 pos = new Vector3(originPos.X + MathF.Rnd.NextFloat(-320f, 320f), originPos.Y + MathF.Rnd.NextFloat(-240f, 240f), originPos.Z);
                 AABB aabb = new AABB(pos.X - 30, pos.Y - 40, pos.X + 30, pos.Y + 40);
-                if (api.IsPositionEmpty(this, ref aabb, true)) {
+                if (levelHandler.IsPositionEmpty(this, ref aabb, true)) {
                     Transform.Pos = pos;
                     break;
                 }
@@ -147,7 +147,7 @@ namespace Jazz2.Actors.Bosses
             bool found = false;
             Vector3 targetPos = new Vector3(float.MaxValue, float.MaxValue, 0f);
 
-            List<Player> players = api.Players;
+            List<Player> players = levelHandler.Players;
             for (int i = 0; i < players.Count; i++) {
                 Vector3 newPos = players[i].Transform.Pos;
                 if ((pos - newPos).Length < (pos - targetPos).Length) {
@@ -236,7 +236,7 @@ namespace Jazz2.Actors.Bosses
 
             protected override bool OnPerish(ActorBase collider)
             {
-                Explosion.Create(api, Transform.Pos + Speed, Explosion.RF);
+                Explosion.Create(levelHandler, Transform.Pos + Speed, Explosion.RF);
 
                 return base.OnPerish(collider);
             }
@@ -257,7 +257,7 @@ namespace Jazz2.Actors.Bosses
                 Vector3 pos = Transform.Pos;
                 Vector3 targetPos = new Vector3(float.MaxValue, float.MaxValue, pos.Z);
 
-                List<Player> players = api.Players;
+                List<Player> players = levelHandler.Players;
                 for (int i = 0; i < players.Count; i++) {
                     Vector3 newPos = players[i].Transform.Pos;
                     if ((pos - newPos).Length < (pos - targetPos).Length) {

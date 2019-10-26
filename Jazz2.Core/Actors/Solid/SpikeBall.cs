@@ -40,15 +40,15 @@ namespace Jazz2.Actors.Solid
 
             pieces = new ChainPiece[length];
             for (int i = 0; i < length; i++) {
-                pieces[i] = new ChainPiece(api, originPos + new Vector3(0f, 0f, 4f), i);
-                api.AddActor(pieces[i]);
+                pieces[i] = new ChainPiece(levelHandler, originPos + new Vector3(0f, 0f, 4f), i);
+                levelHandler.AddActor(pieces[i]);
             }
         }
 
         public override void OnDestroyed()
         {
             for (int i = 0; i < length; i++) {
-                api.RemoveActor(pieces[i]);
+                levelHandler.RemoveActor(pieces[i]);
             }
         }
 
@@ -124,9 +124,9 @@ namespace Jazz2.Actors.Solid
         {
             private int distance;
 
-            public ChainPiece(ActorApi api, Vector3 pos, int distance)
+            public ChainPiece(ILevelHandler levelHandler, Vector3 pos, int distance)
             {
-                this.api = api;
+                this.levelHandler = levelHandler;
                 this.distance = distance;
 
                 Transform transform = AddComponent<Transform>();

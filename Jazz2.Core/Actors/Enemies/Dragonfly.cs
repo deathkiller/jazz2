@@ -48,12 +48,12 @@ namespace Jazz2.Actors.Enemies
 
                 Vector3 targetPos;
 
-                List<Player> players = api.Players;
+                List<Player> players = levelHandler.Players;
                 for (int i = 0; i < players.Count; i++) {
                     targetPos = players[i].Transform.Pos;
                     direction = (targetPos.Xy - pos.Xy);
                     float length = direction.Length;
-                    if (length < 320f && targetPos.Y < api.WaterLevel) {
+                    if (length < 320f && targetPos.Y < levelHandler.WaterLevel) {
                         direction.Normalize();
 
                         speedX = 0f;
@@ -105,7 +105,7 @@ namespace Jazz2.Actors.Enemies
                 }
 
                 // Can't fly into the water
-                if (pos.Y > api.WaterLevel - 12f) {
+                if (pos.Y > levelHandler.WaterLevel - 12f) {
                     speedY = -0.4f;
                     state = StateIdle;
 
@@ -166,7 +166,7 @@ namespace Jazz2.Actors.Enemies
             }
 
             CreateDeathDebris(collider);
-            api.PlayCommonSound(Transform.Pos, "Splat");
+            levelHandler.PlayCommonSound("Splat", Transform.Pos);
 
             TryGenerateRandomDrop();
 

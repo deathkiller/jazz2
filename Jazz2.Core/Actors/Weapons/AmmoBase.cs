@@ -61,7 +61,7 @@ namespace Jazz2.Actors.Weapons
                 return;
             }
 
-            TileMap tiles = api.TileMap;
+            TileMap tiles = levelHandler.TileMap;
             if (tiles != null) {
                 AABB adjustedAABB = AABBInner + new Vector2(speedX * timeMult, speedY * timeMult);
                 if (tiles.CheckWeaponDestructible(ref adjustedAABB, WeaponType, strength) > 0) {
@@ -73,7 +73,7 @@ namespace Jazz2.Actors.Weapons
 
                     DecreaseHealth(1);
                 } else if (!tiles.IsTileEmpty(ref AABBInner, false)) {
-                    EventMap events = api.EventMap;
+                    EventMap events = levelHandler.EventMap;
                     bool handled = false;
                     if (events != null) {
                         Vector3 pos = Transform.Pos;

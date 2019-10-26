@@ -45,7 +45,7 @@ namespace Jazz2.Actors.Bosses
         public override void OnDestroyed()
         {
             if (currentMace != null) {
-                api.RemoveActor(currentMace);
+                levelHandler.RemoveActor(currentMace);
                 currentMace = null;
             }
         }
@@ -80,10 +80,10 @@ namespace Jazz2.Actors.Bosses
                         SetTransition((AnimState)1073741824, false, delegate {
                             currentMace = new Mace();
                             currentMace.OnActivated(new ActorActivationDetails {
-                                Api = api,
+                                LevelHandler = levelHandler,
                                 Pos = Transform.Pos
                             });
-                            api.AddActor(currentMace);
+                            levelHandler.AddActor(currentMace);
 
                             SetTransition((AnimState)1073741825, false, delegate {
                                 state = StateAttacking;
@@ -129,17 +129,17 @@ namespace Jazz2.Actors.Bosses
 
             TurtleShell shell = new TurtleShell(speedX * 1.1f, 1.1f);
             shell.OnActivated(new ActorActivationDetails {
-                Api = api,
+                LevelHandler = levelHandler,
                 Pos = Transform.Pos,
                 Params = new[] { (ushort)2 }
             });
-            api.AddActor(shell);
+            levelHandler.AddActor(shell);
 
-            Explosion.Create(api, Transform.Pos, Explosion.SmokeGray);
+            Explosion.Create(levelHandler, Transform.Pos, Explosion.SmokeGray);
 
-            api.PlayCommonSound(Transform.Pos, "Splat");
+            levelHandler.PlayCommonSound("Splat", Transform.Pos);
 
-            api.BroadcastLevelText(endText);
+            levelHandler.BroadcastLevelText(levelHandler.GetLevelText(endText));
 
             return base.OnPerish(collider);
         }
@@ -150,7 +150,7 @@ namespace Jazz2.Actors.Bosses
             Vector3 pos = Transform.Pos;
             Vector3 targetPos = new Vector3(float.MaxValue, float.MaxValue, 0f);
 
-            List<Player> players = api.Players;
+            List<Player> players = levelHandler.Players;
             for (int i = 0; i < players.Count; i++) {
                 Vector3 newPos = players[i].Transform.Pos;
                 if ((pos - newPos).Length < (pos - targetPos).Length) {
@@ -246,7 +246,7 @@ namespace Jazz2.Actors.Bosses
                 bool found = false;
                 targetPos = new Vector3(float.MaxValue, float.MaxValue, originPos.Z);
 
-                List<Player> players = api.Players;
+                List<Player> players = levelHandler.Players;
                 for (int i = 0; i < players.Count; i++) {
                     Vector3 newPos = players[i].Transform.Pos;
                     if ((originPos - newPos).Length < (originPos - targetPos).Length) {

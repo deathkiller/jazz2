@@ -44,7 +44,7 @@ namespace Jazz2.Game
 
             net = new NetworkHandler(token, clientIdentifier, userName);
             net.OnDisconnected += OnNetworkDisconnected;
-            net.RegisterCallback<LoadLevel>(OnNetworkLoadLevel);
+            net.AddCallback<LoadLevel>(OnNetworkLoadLevel);
             net.Connect(endPoint);
         }
 

@@ -78,11 +78,11 @@ namespace Jazz2.Actors.Bosses
 
                                     Fireball fireball = new Fireball();
                                     fireball.OnActivated(new ActorActivationDetails {
-                                        Api = api,
+                                        LevelHandler = levelHandler,
                                         Pos = new Vector3(pos.X + x, pos.Y + y, pos.Z + 2f),
                                         Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
                                     });
-                                    api.AddActor(fireball);
+                                    levelHandler.AddActor(fireball);
 
                                     SetTransition(AnimState.TransitionShootToIdle, false, delegate {
                                         FollowNearestPlayer();
@@ -132,9 +132,9 @@ namespace Jazz2.Actors.Bosses
         {
             CreateParticleDebris();
 
-            api.PlayCommonSound(Transform.Pos, "Splat");
+            levelHandler.PlayCommonSound("Splat", Transform.Pos);
 
-            api.BroadcastLevelText(endText);
+            levelHandler.BroadcastLevelText(levelHandler.GetLevelText(endText));
 
             speedX = 0f;
             speedY = -2f;
@@ -157,7 +157,7 @@ namespace Jazz2.Actors.Bosses
             Vector3 pos = Transform.Pos;
             Vector3 targetPos = new Vector3(float.MaxValue, float.MaxValue, 0f);
 
-            List<Player> players = api.Players;
+            List<Player> players = levelHandler.Players;
             for (int i = 0; i < players.Count; i++) {
                 Vector3 newPos = players[i].Transform.Pos;
                 if ((pos - newPos).Length < (pos - targetPos).Length) {
@@ -189,7 +189,7 @@ namespace Jazz2.Actors.Bosses
             Vector3 pos = Transform.Pos;
             Vector3 targetPos = new Vector3(float.MaxValue, float.MaxValue, 0f);
 
-            List<Player> players = api.Players;
+            List<Player> players = levelHandler.Players;
             for (int i = 0; i < players.Count; i++) {
                 Vector3 newPos = players[i].Transform.Pos;
                 if ((pos - newPos).Length < (pos - targetPos).Length) {
@@ -262,7 +262,7 @@ namespace Jazz2.Actors.Bosses
 
             protected override bool OnPerish(ActorBase collider)
             {
-                Explosion.Create(api, Transform.Pos + Speed, Explosion.RF);
+                Explosion.Create(levelHandler, Transform.Pos + Speed, Explosion.RF);
 
                 return base.OnPerish(collider);
             }

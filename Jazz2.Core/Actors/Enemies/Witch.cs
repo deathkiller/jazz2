@@ -54,7 +54,7 @@ namespace Jazz2.Actors.Enemies
             Vector3 pos = Transform.Pos;
             Vector3 targetPos;
 
-            List<Player> players = api.Players;
+            List<Player> players = levelHandler.Players;
             for (int i = 0; i < players.Count; i++) {
                 targetPos = players[i].Transform.Pos;
                 // Fly above the player
@@ -73,12 +73,12 @@ namespace Jazz2.Actors.Enemies
 
                         MagicBullet bullet = new MagicBullet(this);
                         bullet.OnActivated(new ActorActivationDetails {
-                            Api = api,
+                            LevelHandler = levelHandler,
                             Pos = bulletPos
                         });
-                        api.AddActor(bullet);
+                        levelHandler.AddActor(bullet);
 
-                        Explosion.Create(api, bulletPos, Explosion.TinyDark);
+                        Explosion.Create(levelHandler, bulletPos, Explosion.TinyDark);
                     });
                 } else if (length < 500f) {
                     direction.Normalize();
@@ -96,7 +96,7 @@ namespace Jazz2.Actors.Enemies
 
         protected override bool OnPerish(ActorBase collider)
         {
-            api.PlayCommonSound(Transform.Pos, "Splat");
+            levelHandler.PlayCommonSound("Splat", Transform.Pos);
 
             SetTransition(AnimState.TransitionDeath, false, delegate {
                 base.OnPerish(collider);
@@ -194,7 +194,7 @@ namespace Jazz2.Actors.Enemies
                 Vector3 pos = Transform.Pos;
                 Vector3 targetPos = new Vector3(float.MaxValue, float.MaxValue, pos.Z);
 
-                List<Player> players = api.Players;
+                List<Player> players = levelHandler.Players;
                 for (int i = 0; i < players.Count; i++) {
                     Vector3 newPos = players[i].Transform.Pos;
                     if ((pos - newPos).Length < (pos - targetPos).Length) {

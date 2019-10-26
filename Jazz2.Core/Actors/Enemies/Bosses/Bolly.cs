@@ -46,14 +46,14 @@ namespace Jazz2.Actors.Bosses
             // Bottom
             bottom = new Bottom();
             bottom.OnActivated(new ActorActivationDetails {
-                Api = api
+                LevelHandler = levelHandler
             });
             bottom.Parent = this;
 
             // Turret
             turret = new Turret();
             turret.OnActivated(new ActorActivationDetails {
-                Api = api
+                LevelHandler = levelHandler
             });
             turret.Parent = this;
 
@@ -63,10 +63,10 @@ namespace Jazz2.Actors.Bosses
             for (int i = 0; i < ChainLength; i++) {
                 pieces[i] = new ChainPiece();
                 pieces[i].OnActivated(new ActorActivationDetails {
-                    Api = api,
+                    LevelHandler = levelHandler,
                     Params = new ushort[] { (ushort)((i % 3) == 2 ? 0 : 1) }
                 });
-                api.AddActor(pieces[i]);
+                levelHandler.AddActor(pieces[i]);
             }
         }
 
@@ -81,7 +81,7 @@ namespace Jazz2.Actors.Bosses
 
             if (pieces != null) {
                 for (int i = 0; i < pieces.Length; i++) {
-                    api.RemoveActor(pieces[i]);
+                    levelHandler.RemoveActor(pieces[i]);
                 }
 
                 pieces = null;
@@ -176,18 +176,18 @@ namespace Jazz2.Actors.Bosses
 
         protected override bool OnPerish(ActorBase collider)
         {
-            api.TileMap.CreateParticleDebris(availableAnimations["Top"], Transform.Pos, Vector2.Zero, 0, IsFacingLeft);
-            api.TileMap.CreateParticleDebris(availableAnimations["Bottom"], Transform.Pos, Vector2.Zero, 0, IsFacingLeft);
+            levelHandler.TileMap.CreateParticleDebris(availableAnimations["Top"], Transform.Pos, Vector2.Zero, 0, IsFacingLeft);
+            levelHandler.TileMap.CreateParticleDebris(availableAnimations["Bottom"], Transform.Pos, Vector2.Zero, 0, IsFacingLeft);
 
             for (int i = 0; i < pieces.Length; i++) {
-                api.RemoveActor(pieces[i]);
+                levelHandler.RemoveActor(pieces[i]);
             }
 
-            api.PlayCommonSound(Transform.Pos, "Splat");
+            levelHandler.PlayCommonSound("Splat", Transform.Pos);
 
-            Explosion.Create(api, Transform.Pos, Explosion.Large);
+            Explosion.Create(levelHandler, Transform.Pos, Explosion.Large);
 
-            api.BroadcastLevelText(endText);
+            levelHandler.BroadcastLevelText(levelHandler.GetLevelText(endText));
 
             return base.OnPerish(collider);
         }
@@ -198,7 +198,7 @@ namespace Jazz2.Actors.Bosses
             Vector3 pos = Transform.Pos;
             Vector3 targetPos = new Vector3(float.MaxValue, float.MaxValue, 0f);
 
-            List<Player> players = api.Players;
+            List<Player> players = levelHandler.Players;
             for (int i = 0; i < players.Count; i++) {
                 Vector3 newPos = players[i].Transform.Pos;
                 if ((pos - newPos).Length < (pos - targetPos).Length) {
@@ -227,7 +227,7 @@ namespace Jazz2.Actors.Bosses
             Vector3 pos = Transform.Pos;
             Vector3 targetPos = new Vector3(float.MaxValue, float.MaxValue, pos.Z);
 
-            List<Player> players = api.Players;
+            List<Player> players = levelHandler.Players;
             for (int i = 0; i < players.Count; i++) {
                 Vector3 newPos = players[i].Transform.Pos;
                 if ((pos - newPos).Length < (pos - targetPos).Length) {
@@ -241,11 +241,11 @@ namespace Jazz2.Actors.Bosses
 
                 Rocket rocket = new Rocket();
                 rocket.OnActivated(new ActorActivationDetails {
-                    Api = api,
+                    LevelHandler = levelHandler,
                     Pos = new Vector3(pos.X + (IsFacingLeft ? 10f : -10f), pos.Y + 10f, pos.Z - 2f)
                 });
                 rocket.Transform.Angle = MathF.Atan2(diff.Y, diff.X);
-                api.AddActor(rocket);
+                levelHandler.AddActor(rocket);
             }
         }
 
@@ -378,7 +378,7 @@ namespace Jazz2.Actors.Bosses
 
             protected override bool OnPerish(ActorBase collider)
             {
-                Explosion.Create(api, Transform.Pos + Speed, Explosion.RF);
+                Explosion.Create(levelHandler, Transform.Pos + Speed, Explosion.RF);
 
                 return base.OnPerish(collider);
             }

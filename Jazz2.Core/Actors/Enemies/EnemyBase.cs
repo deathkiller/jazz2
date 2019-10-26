@@ -48,7 +48,7 @@ namespace Jazz2.Actors.Enemies
 
         protected void SetHealthByDifficulty(int health)
         {
-            switch (api.Difficulty) {
+            switch (levelHandler.Difficulty) {
                 case GameDifficulty.Easy: health = (int)MathF.Round(health * 0.6f); break;
                 case GameDifficulty.Hard: health = (int)MathF.Round(health * 1.4f); break;
             }
@@ -63,18 +63,18 @@ namespace Jazz2.Actors.Enemies
 
             int direction = (IsFacingLeft ? -1 : 1);
 
-            EventMap events = api.EventMap;
+            EventMap events = levelHandler.EventMap;
 
             AABB aabbA = AABBInner + new Vector2(x, y - 3);
             AABB aabbB = AABBInner + new Vector2(x, y + 3);
-            if (!api.IsPositionEmpty(this, ref aabbA, true) && !api.IsPositionEmpty(this, ref aabbB, true)) {
+            if (!levelHandler.IsPositionEmpty(this, ref aabbA, true) && !levelHandler.IsPositionEmpty(this, ref aabbB, true)) {
                 return false;
             }
 
             AABB aabbDir = AABBInner + new Vector2(x + direction * (AABBInner.UpperBound.X - AABBInner.LowerBound.X) * 0.5f, y + 12);
 
             ushort[] p = null;
-            return ((events == null || events.GetEventByPosition(pos.X + x, pos.Y + y, ref p) != EventType.AreaStopEnemy) && !api.IsPositionEmpty(this, ref aabbDir, true));
+            return ((events == null || events.GetEventByPosition(pos.X + x, pos.Y + y, ref p) != EventType.AreaStopEnemy) && !levelHandler.IsPositionEmpty(this, ref aabbDir, true));
         }
 
         protected void TryGenerateRandomDrop()
@@ -87,8 +87,8 @@ namespace Jazz2.Actors.Enemies
             );
 
             if (drop != EventType.Empty) {
-                ActorBase actor = api.EventSpawner.SpawnEvent(ActorInstantiationFlags.None, drop, Transform.Pos, new ushort[8]);
-                api.AddActor(actor);
+                ActorBase actor = levelHandler.EventSpawner.SpawnEvent(ActorInstantiationFlags.None, drop, Transform.Pos, new ushort[8]);
+                levelHandler.AddActor(actor);
             }
         }
 
@@ -133,7 +133,7 @@ namespace Jazz2.Actors.Enemies
 
         protected void CreateDeathDebris(ActorBase collider)
         {
-            TileMap tilemap = api.TileMap;
+            TileMap tilemap = levelHandler.TileMap;
             if (tilemap == null) {
                 return;
             }
@@ -157,7 +157,7 @@ namespace Jazz2.Actors.Enemies
                     for (int fy = 0; fy < res.Base.FrameDimensions.Y; fy += debrisSizeY + 1) {
                         float currentSizeX = debrisSizeX * MathF.Rnd.NextFloat(0.8f, 1.1f);
                         float currentSizeY = debrisSizeY * MathF.Rnd.NextFloat(0.8f, 1.1f);
-                        api.TileMap.CreateDebris(new DestructibleDebris {
+                        levelHandler.TileMap.CreateDebris(new DestructibleDebris {
                             Pos = new Vector3(x + (IsFacingLeft ? res.Base.FrameDimensions.X - fx : fx), y + fy, pos.Z),
                             Size = new Vector2(currentSizeX, currentSizeY),
                             Speed = new Vector2(((fx - res.Base.FrameDimensions.X / 2) + MathF.Rnd.NextFloat(-2f, 2f)) * (IsFacingLeft ? -1f : 1f) * MathF.Rnd.NextFloat(0.5f, 2f) / res.Base.FrameDimensions.X,
@@ -182,8 +182,8 @@ namespace Jazz2.Actors.Enemies
                         });
                     }
                 }
-            } else if (pos.Y > api.WaterLevel) {
-                const int debrisSize = 3;
+            } else if (pos.Y > levelHandler.WaterLevel) {
+                const int DebrisSize = 3;
 
                 GraphicResource res = currentTransitionState != AnimState.Idle ? currentTransition : currentAnimation;
                 Material material = res.Material.Res;
@@ -192,10 +192,10 @@ namespace Jazz2.Actors.Enemies
                 float x = pos.X - res.Base.Hotspot.X;
                 float y = pos.Y - res.Base.Hotspot.Y;
 
-                for (int fx = 0; fx < res.Base.FrameDimensions.X; fx += debrisSize + 1) {
-                    for (int fy = 0; fy < res.Base.FrameDimensions.Y; fy += debrisSize + 1) {
-                        float currentSize = debrisSize * MathF.Rnd.NextFloat(0.2f, 1.1f);
-                        api.TileMap.CreateDebris(new DestructibleDebris {
+                for (int fx = 0; fx < res.Base.FrameDimensions.X; fx += DebrisSize + 1) {
+                    for (int fy = 0; fy < res.Base.FrameDimensions.Y; fy += DebrisSize + 1) {
+                        float currentSize = DebrisSize * MathF.Rnd.NextFloat(0.2f, 1.1f);
+                        levelHandler.TileMap.CreateDebris(new DestructibleDebris {
                             Pos = new Vector3(x + (IsFacingLeft ? res.Base.FrameDimensions.X - fx : fx), y + fy, pos.Z),
                             Size = new Vector2(currentSize /** (isFacingLeft ? -1f : 1f)*/, currentSize),
                             Speed = new Vector2(((fx - res.Base.FrameDimensions.X / 2) + MathF.Rnd.NextFloat(-2f, 2f)) * (IsFacingLeft ? -1f : 1f) * MathF.Rnd.NextFloat(1f, 3f) / res.Base.FrameDimensions.X,

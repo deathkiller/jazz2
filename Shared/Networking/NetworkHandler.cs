@@ -209,7 +209,7 @@ namespace Jazz2.Game.Multiplayer
         #endregion
 
         #region Callbacks
-        public void RegisterCallback<T>(PacketCallback<T> callback) where T : struct, IServerPacket
+        public void AddCallback<T>(PacketCallback<T> callback) where T : struct, IServerPacket
         {
             byte type = (new T().Type);
 #if DEBUG

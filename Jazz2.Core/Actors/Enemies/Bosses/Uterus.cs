@@ -62,10 +62,10 @@ namespace Jazz2.Actors.Bosses
                 shields[i] = new Shield();
                 shields[i].Phase = (MathF.TwoPi * i / shields.Length);
                 shields[i].OnActivated(new ActorActivationDetails {
-                    Api = api,
+                    LevelHandler = levelHandler,
                     Pos = lastPos
                 });
-                api.AddActor(shields[i]);
+                levelHandler.AddActor(shields[i]);
             }
 
             PreloadMetadata("Enemy/Crab");
@@ -77,7 +77,7 @@ namespace Jazz2.Actors.Bosses
 
             if (shields != null) {
                 for (int i = 0; i < shields.Length; i++) {
-                    api.RemoveActor(shields[i]);
+                    levelHandler.RemoveActor(shields[i]);
                 }
 
                 shields = null;
@@ -111,11 +111,11 @@ namespace Jazz2.Actors.Bosses
 
                         Crab crab = new Crab();
                         crab.OnActivated(new ActorActivationDetails {
-                            Api = api,
+                            LevelHandler = levelHandler,
                             Pos = Transform.Pos + new Vector3(0f, 0f, 4f)
                         });
                         crab.AddExternalForce(force, 0f);
-                        api.AddActor(crab);
+                        levelHandler.AddActor(crab);
 
                         spawnCrabTime = (hasShield ? MathF.Rnd.NextFloat(160f, 220f) : MathF.Rnd.NextFloat(120f, 200f));
                     } else {
@@ -181,12 +181,12 @@ namespace Jazz2.Actors.Bosses
         protected override bool OnPerish(ActorBase collider)
         {
             CreateDeathDebris(collider);
-            api.PlayCommonSound(Transform.Pos, "Splat");
+            levelHandler.PlayCommonSound("Splat", Transform.Pos);
 
-            api.BroadcastLevelText(endText);
+            levelHandler.BroadcastLevelText(levelHandler.GetLevelText(endText));
 
-            Explosion.Create(api, Transform.Pos, Explosion.SmokePoof);
-            Explosion.Create(api, Transform.Pos, Explosion.RF);
+            Explosion.Create(levelHandler, Transform.Pos, Explosion.SmokePoof);
+            Explosion.Create(levelHandler, Transform.Pos, Explosion.RF);
 
             return base.OnPerish(collider);
         }
@@ -196,7 +196,7 @@ namespace Jazz2.Actors.Bosses
             bool found = false;
             Vector3 targetPos = new Vector3(float.MaxValue, float.MaxValue, lastPos.Z);
 
-            List<Player> players = api.Players;
+            List<Player> players = levelHandler.Players;
             for (int i = 0; i < players.Count; i++) {
                 Vector3 newPos = players[i].Transform.Pos;
                 if ((lastPos - newPos).Length < (lastPos - targetPos).Length) {
@@ -255,9 +255,9 @@ namespace Jazz2.Actors.Bosses
             protected override bool OnPerish(ActorBase collider)
             {
                 CreateDeathDebris(collider);
-                api.PlayCommonSound(Transform.Pos, "Splat");
+                levelHandler.PlayCommonSound("Splat", Transform.Pos);
 
-                Explosion.Create(api, Transform.Pos, Explosion.Tiny);
+                Explosion.Create(levelHandler, Transform.Pos, Explosion.Tiny);
 
                 return base.OnPerish(collider);
             }

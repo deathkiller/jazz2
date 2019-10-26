@@ -64,7 +64,7 @@ namespace Jazz2.Actors.Enemies
                     if (attackTime <= 0f) {
                         Vector3 pos = Transform.Pos;
 
-                        List<Player> players = api.Players;
+                        List<Player> players = levelHandler.Players;
                         for (int i = 0; i < players.Count; i++) {
                             Vector3 newPos = players[i].Transform.Pos;
                             if ((newPos - pos).Length <= 300f) {
@@ -89,7 +89,7 @@ namespace Jazz2.Actors.Enemies
         protected override bool OnPerish(ActorBase collider)
         {
             CreateDeathDebris(collider);
-            api.PlayCommonSound(Transform.Pos, "Splat");
+            levelHandler.PlayCommonSound("Splat", Transform.Pos);
 
             TryGenerateRandomDrop();
 

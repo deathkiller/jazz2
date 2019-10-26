@@ -31,8 +31,8 @@ namespace Jazz2.Actors.Solid
                 case MorphType.ToBird: SetAnimation("Bird"); break;
             }
 
-            for (int i = 0; i < api.Players.Count; i++) {
-                PlayerType? playerType = GetTargetType(api.Players[i].PlayerType);
+            for (int i = 0; i < levelHandler.Players.Count; i++) {
+                PlayerType? playerType = GetTargetType(levelHandler.Players[i].PlayerType);
                 switch (playerType) {
                     case PlayerType.Jazz: PreloadMetadata("Interactive/PlayerJazz"); break;
                     case PlayerType.Spaz: PreloadMetadata("Interactive/PlayerSpaz"); break;

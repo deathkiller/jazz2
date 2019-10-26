@@ -44,7 +44,7 @@ namespace Jazz2.Actors.Environment
                 // JJ2 horizontal springs held no data about which way they were facing.
                 // For compatibility, the level converter sets their orientation to 5, which is interpreted here.
                 AABB aabb = new AABB(pos.X + 6, pos.Y - 2, pos.X + 22, pos.Y + 2);
-                orientation = (ushort)(api.TileMap.IsTileEmpty(ref aabb, false) != (orientation == 5) ? 1 : 3);
+                orientation = (ushort)(levelHandler.TileMap.IsTileEmpty(ref aabb, false) != (orientation == 5) ? 1 : 3);
             }
 
             int orientationBit = 0;

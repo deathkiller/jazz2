@@ -29,15 +29,15 @@ namespace Jazz2.Actors
         private ushort type;
         private LightEmitter light;
 
-        public static void Create(ActorApi api, Vector3 pos, ushort type)
+        public static void Create(ILevelHandler levelHandler, Vector3 pos, ushort type)
         {
             Explosion explosion = new Explosion();
             explosion.OnActivated(new ActorActivationDetails {
-                Api = api,
+                LevelHandler = levelHandler,
                 Pos = pos,
                 Params = new[] { type }
             });
-            api.AddActor(explosion);
+            levelHandler.AddActor(explosion);
         }
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)

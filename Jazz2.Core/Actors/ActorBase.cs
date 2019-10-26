@@ -39,7 +39,7 @@ namespace Jazz2.Actors
 
     public struct ActorActivationDetails
     {
-        public ActorApi Api;
+        public ILevelHandler LevelHandler;
         public Vector3 Pos;
         public ActorInstantiationFlags Flags;
         public ushort[] Params;
@@ -72,7 +72,7 @@ namespace Jazz2.Actors
         protected const float CollisionCheckStep = 0.5f;
         protected const int PerPixelCollisionStep = 3;
 
-        protected ActorApi api;
+        protected ILevelHandler levelHandler;
 
         protected int maxHealth = 1;
         protected int health = 1;
@@ -116,7 +116,7 @@ namespace Jazz2.Actors
         protected bool currentTransitionCancellable;
         private Action currentTransitionCallback;
 
-        private List<GraphicResource> cachedCandidates = new List<GraphicResource>();
+        private List<AnimationCandidate> cachedCandidates = new List<AnimationCandidate>(4);
 
         public CollisionFlags CollisionFlags => collisionFlags;
         public bool IsInvulnerable => isInvulnerable;
@@ -132,7 +132,6 @@ namespace Jazz2.Actors
         public Vector3 InternalForce => new Vector3(0, internalForceY, 0f);
 
         public string LoadedMetadata => loadedMetadata;
-        public AnimState AnimState => currentAnimationState;
         public float AnimTime => (renderer != null ? renderer.AnimTime : 0f);
 
         public bool IsFacingLeft
@@ -167,7 +166,7 @@ namespace Jazz2.Actors
         {
             initState = InitState.Initializing;
 
-            this.api = details.Api;
+            this.levelHandler = details.LevelHandler;
             this.flags = details.Flags;
 
             friction = 1.5f;
@@ -311,13 +310,13 @@ namespace Jazz2.Actors
 
         protected virtual bool OnPerish(ActorBase collider)
         {
-            EventMap events = api.EventMap;
+            EventMap events = levelHandler.EventMap;
             if (events != null && (flags & ActorInstantiationFlags.IsCreatedFromEventMap) != 0) {
                 events.Deactivate(originTile.X, originTile.Y);
                 events.StoreTileEvent(originTile.X, originTile.Y, EventType.Empty);
             }
 
-            api.RemoveActor(this);
+            levelHandler.RemoveActor(this);
 
             return true;
         }
@@ -346,8 +345,8 @@ namespace Jazz2.Actors
             float currentGravity;
             float currentElasticity = elasticity;
             if ((collisionFlags & CollisionFlags.ApplyGravitation) != 0) {
-                currentGravity = api.Gravity;
-                if (Transform.Pos.Y >= api.WaterLevel) {
+                currentGravity = levelHandler.Gravity;
+                if (Transform.Pos.Y >= levelHandler.WaterLevel) {
                     currentGravity *= 0.5f;
                     currentElasticity *= 0.7f;
                 }
@@ -478,7 +477,7 @@ namespace Jazz2.Actors
 
             // Set the actor as airborne if there seems to be enough space below it
             AABB aabb = (AABBInner + new Vector2(0f, CollisionCheckStep));
-            if (api.IsPositionEmpty(this, ref aabb, effectiveSpeedY >= 0)) {
+            if (levelHandler.IsPositionEmpty(this, ref aabb, effectiveSpeedY >= 0)) {
                 speedY += currentGravity * timeMult;
                 canJump = false;
             }
@@ -499,7 +498,7 @@ namespace Jazz2.Actors
         {
             if ((flags & (ActorInstantiationFlags.IsCreatedFromEventMap | ActorInstantiationFlags.IsFromGenerator)) != 0) {
                 if (originTile.X < tx1 || originTile.Y < ty1 || originTile.X > tx2 || originTile.Y > ty2) {
-                    EventMap events = api.EventMap;
+                    EventMap events = levelHandler.EventMap;
                     if (events != null) {
                         if ((flags & ActorInstantiationFlags.IsFromGenerator) != 0) {
                             events.ResetGenerator(originTile.X, originTile.Y);
@@ -508,7 +507,7 @@ namespace Jazz2.Actors
                         events.Deactivate(originTile.X, originTile.Y);
                     }
 
-                    api.RemoveActor(this);
+                    levelHandler.RemoveActor(this);
                     return true;
                 }
             }
@@ -547,7 +546,7 @@ namespace Jazz2.Actors
             AABB aabb = AABBInner + newPos - new Vector2(Transform.Pos.X, Transform.Pos.Y);
 
             // ToDo: Fix moving on roofs through windowsill in colon2
-            bool free = force || api.IsPositionEmpty(this, ref aabb, speedY >= 0);
+            bool free = force || levelHandler.IsPositionEmpty(this, ref aabb, speedY >= 0);
             if (free) {
                 AABBInner = aabb;
                 Transform.Pos = new Vector3(newPos.X, newPos.Y, Transform.Pos.Z);
@@ -1083,7 +1082,7 @@ namespace Jazz2.Actors
                 instance.Volume = gain * SettingsCache.SfxVolume;
                 instance.Pitch = pitch;
 
-                if (Transform.Pos.Y >= api.WaterLevel) {
+                if (Transform.Pos.Y >= levelHandler.WaterLevel) {
                     instance.Lowpass = 0.2f;
                     instance.Pitch *= 0.7f;
                 }
@@ -1103,7 +1102,7 @@ namespace Jazz2.Actors
                 instance.Volume = gain * SettingsCache.SfxVolume;
                 instance.Pitch = pitch;
 
-                if (Transform.Pos.Y >= api.WaterLevel) {
+                if (Transform.Pos.Y >= levelHandler.WaterLevel) {
                     instance.Lowpass = 0.2f;
                     instance.Pitch *= 0.7f;
                 }
@@ -1116,7 +1115,7 @@ namespace Jazz2.Actors
 
         protected void CreateParticleDebris()
         {
-            TileMap tilemap = api.TileMap;
+            TileMap tilemap = levelHandler.TileMap;
             if (tilemap != null) {
                 tilemap.CreateParticleDebris(currentTransitionState != AnimState.Idle ? currentTransition : currentAnimation,
                     Transform.Pos, Vector2.Zero, renderer.CurrentFrame, isFacingLeft);
@@ -1125,7 +1124,7 @@ namespace Jazz2.Actors
 
         protected void CreateSpriteDebris(string identifier, int count)
         {
-            TileMap tilemap = api.TileMap;
+            TileMap tilemap = levelHandler.TileMap;
             if (tilemap != null) {
                 if (availableAnimations.TryGetValue(identifier, out GraphicResource res)) {
                     tilemap.CreateSpriteDebris(res, Transform.Pos, count);
@@ -1136,6 +1135,13 @@ namespace Jazz2.Actors
         }
 
         #region Animations
+        protected struct AnimationCandidate
+        {
+            public string Identifier;
+            public GraphicResource Resource;
+
+        }
+
         private void RefreshAnimation()
         {
             GraphicResource resource = (currentTransitionState != AnimState.Idle ? currentTransition : currentAnimation);
@@ -1199,6 +1205,8 @@ namespace Jazz2.Actors
             }
 
             RefreshAnimation();
+
+            levelHandler.BroadcastAnimationChanged(this, identifier);
         }
 
         protected bool SetAnimation(AnimState state)
@@ -1212,39 +1220,44 @@ namespace Jazz2.Actors
                 return false;
             }
 
-            List<GraphicResource> candidates = FindAnimationCandidates(state);
+            List<AnimationCandidate> candidates = FindAnimationCandidates(state);
             if (candidates.Count == 0) {
                 return false;
-            } else {
-                if (currentTransitionState != AnimState.Idle) {
-                    currentTransitionState = AnimState.Idle;
-
-                    if (currentTransitionCallback != null) {
-                        Action oldCallback = currentTransitionCallback;
-                        currentTransitionCallback = null;
-                        oldCallback();
-                    }
-                }
-
-                currentAnimationState = state;
-                if (candidates.Count > 1) {
-                    currentAnimation = candidates[MathF.Rnd.Next() % candidates.Count];
-                } else {
-                    currentAnimation = candidates[0];
-                }
-
-                if (boundingBox.X == 0 || boundingBox.Y == 0) {
-                    boundingBox = currentAnimation.Base.FrameDimensions - new Point2(2, 2);
-                }
-
-                RefreshAnimation();
-                return true;
             }
+
+            if (currentTransitionState != AnimState.Idle) {
+                currentTransitionState = AnimState.Idle;
+
+                if (currentTransitionCallback != null) {
+                    Action oldCallback = currentTransitionCallback;
+                    currentTransitionCallback = null;
+                    oldCallback();
+                }
+            }
+
+            int index;
+            if (candidates.Count > 1) {
+                index = (MathF.Rnd.Next() % candidates.Count);
+            } else {
+                index = 0;
+            }
+
+            currentAnimation = candidates[index].Resource;
+            currentAnimationState = state;
+
+            if (boundingBox.X == 0 || boundingBox.Y == 0) {
+                boundingBox = currentAnimation.Base.FrameDimensions - new Point2(2, 2);
+            }
+
+            RefreshAnimation();
+
+            levelHandler.BroadcastAnimationChanged(this, candidates[index].Identifier);
+            return true;
         }
 
         protected bool SetTransition(AnimState state, bool cancellable, Action callback = null)
         {
-            List<GraphicResource> candidates = FindAnimationCandidates(state);
+            List<AnimationCandidate> candidates = FindAnimationCandidates(state);
             if (candidates.Count == 0) {
                 callback?.Invoke();
                 return false;
@@ -1257,15 +1270,21 @@ namespace Jazz2.Actors
 
                 currentTransitionCallback = callback;
 
-                currentTransitionState = state;
-                currentTransitionCancellable = cancellable;
+                int index;
                 if (candidates.Count > 1) {
-                    currentTransition = candidates[MathF.Rnd.Next() % candidates.Count];
+                    index = (MathF.Rnd.Next() % candidates.Count);
                 } else {
-                    currentTransition = candidates[0];
+                    index = 0;
                 }
 
+                currentTransition = candidates[index].Resource;
+                currentTransitionState = state;
+                currentTransitionCancellable = cancellable;
+
                 RefreshAnimation();
+
+                // ToDo: Transitions over network are disabled for now
+                //levelHandler.BroadcastAnimationChanged(this, candidates[index].Identifier);
                 return true;
             }
         }
@@ -1318,12 +1337,15 @@ namespace Jazz2.Actors
             }
         }
 
-        protected List<GraphicResource> FindAnimationCandidates(AnimState state)
+        protected List<AnimationCandidate> FindAnimationCandidates(AnimState state)
         {
             cachedCandidates.Clear();
             foreach (var animation in availableAnimations) {
                 if (animation.Value.State != null && animation.Value.State.Contains(state)) {
-                    cachedCandidates.Add(animation.Value);
+                    cachedCandidates.Add(new AnimationCandidate {
+                        Identifier = animation.Key,
+                        Resource = animation.Value
+                    });
                 }
             }
             return cachedCandidates;

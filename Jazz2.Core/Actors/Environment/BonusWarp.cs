@@ -51,7 +51,7 @@ namespace Jazz2.Actors.Environment
 
         public void Activate(Player player)
         {
-            EventMap events = api.EventMap;
+            EventMap events = levelHandler.EventMap;
             if (events == null) {
                 return;
             }

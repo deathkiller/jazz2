@@ -56,7 +56,7 @@ namespace Jazz2.Actors.Solid
         {
             if (Content.Count == 0) {
                 HashSet<WeaponType> availableWeapons = new HashSet<WeaponType>();
-                foreach (Player player in api.Players) {
+                foreach (Player player in levelHandler.Players) {
                     for (int i = 1; i < player.WeaponAmmo.Length; i++) {
                         if (player.WeaponAmmo[i] > 0) {
                             availableWeapons.Add((WeaponType)i);

@@ -83,7 +83,7 @@ namespace Jazz2.Actors.Weapons
             if (smokeTimer > 0f) {
                 smokeTimer -= timeMult;
             } else {
-                Explosion.Create(api, Transform.Pos, Explosion.TinyBlue);
+                Explosion.Create(levelHandler, Transform.Pos, Explosion.TinyBlue);
                 smokeTimer = 6f;
             }
 
@@ -99,7 +99,7 @@ namespace Jazz2.Actors.Weapons
         {
             Vector3 pos = Transform.Pos;
 
-            api.FindCollisionActorsByRadius(pos.X, pos.Y, 36, actor => {
+            levelHandler.FindCollisionActorsByRadius(pos.X, pos.Y, 36, actor => {
                 Player player = actor as Player;
                 if (player != null) {
                     bool pushLeft = (pos.X > player.Transform.Pos.X);
@@ -108,7 +108,7 @@ namespace Jazz2.Actors.Weapons
                 return true;
             });
 
-            Explosion.Create(api, pos + Speed, Explosion.RF);
+            Explosion.Create(levelHandler, pos + Speed, Explosion.RF);
 
             PlaySound(pos, "Explode", 0.6f);
 

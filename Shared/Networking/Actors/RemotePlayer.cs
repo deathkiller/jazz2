@@ -120,7 +120,7 @@ namespace Jazz2.Game.Multiplayer
             switch (other) {
                 case AmmoBase ammo: {
                     if ((ammo.Index & 0xff) != PlayerIndex) {
-                        api.BroadcastTriggeredEvent(EventType.ModifierHurt, new ushort[] { (ushort)PlayerIndex, 1 });
+                        levelHandler.BroadcastTriggeredEvent(EventType.ModifierHurt, new ushort[] { (ushort)PlayerIndex, 1 });
                         ammo.DecreaseHealth(int.MaxValue);
                     }
                     break;

@@ -96,7 +96,7 @@ namespace Jazz2.Actors.Weapons
         {
             Vector3 pos = Transform.Pos;
 
-            api.FindCollisionActorsByRadius(pos.X, pos.Y, 36, actor => {
+            levelHandler.FindCollisionActorsByRadius(pos.X, pos.Y, 36, actor => {
                 Player player = actor as Player;
                 if (player != null) {
                     bool pushLeft = (pos.X > player.Transform.Pos.X);
@@ -105,7 +105,7 @@ namespace Jazz2.Actors.Weapons
                 return true;
             });
 
-            Explosion.Create(api, pos + Speed, Explosion.Large);
+            Explosion.Create(levelHandler, pos + Speed, Explosion.Large);
 
             return base.OnPerish(collider);
         }
@@ -130,7 +130,7 @@ namespace Jazz2.Actors.Weapons
             Vector3 pos = Transform.Pos;
             Vector3 targetPos = new Vector3(float.MaxValue, float.MaxValue, pos.Z);
 
-            foreach (GameObject obj in api.ActiveObjects) {
+            foreach (GameObject obj in levelHandler.ActiveObjects) {
                 EnemyBase enemy = obj as EnemyBase;
                 if (enemy != null && !enemy.IsInvulnerable && enemy.CanCollideWithAmmo) {
                     Vector3 newPos = enemy.Transform.Pos;

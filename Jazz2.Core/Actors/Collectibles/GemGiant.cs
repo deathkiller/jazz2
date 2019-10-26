@@ -27,9 +27,9 @@ namespace Jazz2.Actors.Collectibles
                 float fx = MathF.Rnd.NextFloat(-18f, 18f);
                 float fy = MathF.Rnd.NextFloat(-8f, 0.2f);
 
-                ActorBase actor = api.EventSpawner.SpawnEvent(ActorInstantiationFlags.None, EventType.Gem, pos + new Vector3(fx * 2f, fy * 4f, 10f), new ushort[] { 0 });
+                ActorBase actor = levelHandler.EventSpawner.SpawnEvent(ActorInstantiationFlags.None, EventType.Gem, pos + new Vector3(fx * 2f, fy * 4f, 10f), new ushort[] { 0 });
                 actor.AddExternalForce(fx, fy);
-                api.AddActor(actor);
+                levelHandler.AddActor(actor);
             }
 
             return base.OnPerish(collider);

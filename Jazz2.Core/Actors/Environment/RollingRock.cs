@@ -42,7 +42,7 @@ namespace Jazz2.Actors.Environment
         {
             // Movement
             if ((collisionFlags & CollisionFlags.ApplyGravitation) != 0) {
-                float currentGravity = api.Gravity;
+                float currentGravity = levelHandler.Gravity;
 
                 speedX = MathF.Clamp(speedX + externalForceX * timeMult, -16f, 16f);
                 speedY = MathF.Clamp(speedY - (internalForceY + externalForceY) * timeMult, -16f, 16f);

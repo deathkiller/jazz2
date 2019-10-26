@@ -76,7 +76,7 @@ namespace Jazz2.Actors.Enemies
         protected override bool OnPerish(ActorBase collider)
         {
             CreateDeathDebris(collider);
-            api.PlayCommonSound(Transform.Pos, "Splat");
+            levelHandler.PlayCommonSound("Splat", Transform.Pos);
 
             TryGenerateRandomDrop();
 
@@ -88,7 +88,7 @@ namespace Jazz2.Actors.Enemies
             bool found = false;
             Vector3 foundPos = new Vector3(float.MaxValue, float.MaxValue, lastPos.Z);
 
-            List<Player> players = api.Players;
+            List<Player> players = levelHandler.Players;
             for (int i = 0; i < players.Count; i++) {
                 Vector3 newPos = players[i].Transform.Pos;
                 if ((lastPos - newPos).Length < (lastPos - foundPos).Length) {
@@ -98,8 +98,8 @@ namespace Jazz2.Actors.Enemies
             }
 
             // Can't fly into the water
-            if (foundPos.Y > api.WaterLevel - 8f) {
-                foundPos.Y = api.WaterLevel - 8f;
+            if (foundPos.Y > levelHandler.WaterLevel - 8f) {
+                foundPos.Y = levelHandler.WaterLevel - 8f;
             }
 
             Vector3 diff = (foundPos - lastPos);

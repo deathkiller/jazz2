@@ -147,7 +147,7 @@ namespace Jazz2.Actors
         {
             Vector3 pos = Transform.Pos;
 
-            foreach (GameObject o in api.ActiveObjects) {
+            foreach (GameObject o in levelHandler.ActiveObjects) {
                 EnemyBase enemy = o as EnemyBase;
                 if (enemy != null && !enemy.IsInvulnerable && enemy.CanCollideWithAmmo) {
                     Vector3 newPos = enemy.Transform.Pos;
@@ -167,20 +167,20 @@ namespace Jazz2.Actors
 
                             AmmoBlaster newAmmo = new AmmoBlaster();
                             newAmmo.OnActivated(new ActorActivationDetails {
-                                Api = api,
+                                LevelHandler = levelHandler,
                                 Pos = pos,
                                 Params = new ushort[] { 0 }
                             });
-                            api.AddActor(newAmmo);
+                            levelHandler.AddActor(newAmmo);
                             newAmmo.OnFire(owner, pos, Speed, 0f, IsFacingLeft);
 
                             newAmmo = new AmmoBlaster();
                             newAmmo.OnActivated(new ActorActivationDetails {
-                                Api = api,
+                                LevelHandler = levelHandler,
                                 Pos = pos,
                                 Params = new ushort[] { 0 }
                             });
-                            api.AddActor(newAmmo);
+                            levelHandler.AddActor(newAmmo);
                             newAmmo.OnFire(owner, pos, Speed, IsFacingLeft ? -0.18f : 0.18f, IsFacingLeft);
 
                             PlaySound("Fire", 0.5f);

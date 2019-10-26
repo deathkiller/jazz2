@@ -36,7 +36,6 @@ namespace Jazz2.Game
         public const float DefaultGravity = 0.3f;
 
         private App root;
-        private ActorApi api;
 
         protected readonly GameObject rootObject;
 
@@ -82,7 +81,6 @@ namespace Jazz2.Game
         private int waterLevel = int.MaxValue;
 
         public App Root => root;
-        public ActorApi Api => api;
 
         public TileMap TileMap => tileMap;
         public EventMap EventMap => eventMap;
@@ -134,8 +132,7 @@ namespace Jazz2.Game
 
             collisions = new DynamicTreeBroadPhase<ActorBase>();
 
-            api = new ActorApi(this);
-            eventSpawner = new EventSpawner(api);
+            eventSpawner = new EventSpawner(this);
 
             rootObject = new GameObject();
             rootObject.AddComponent(new LocalController(this));
@@ -161,7 +158,7 @@ namespace Jazz2.Game
 
                     Player player = new Player();
                     player.OnActivated(new ActorActivationDetails {
-                        Api = api,
+                        LevelHandler = this,
                         Pos = new Vector3(spawnPosition, PlayerZ),
                         Params = new[] { (ushort)data.PlayerCarryOvers[i].Type, (ushort)i }
                     });
@@ -270,8 +267,6 @@ namespace Jazz2.Game
                 tileMap.ReleaseResources();
                 tileMap = null;
             }
-
-            api = null;
 
             base.OnDisposing(manually);
         }
@@ -736,7 +731,7 @@ namespace Jazz2.Game
                 instance.Volume = gain * SettingsCache.SfxVolume;
                 instance.Pitch = pitch;
 
-                if (target.Transform.Pos.Y >= api.WaterLevel) {
+                if (target.Transform.Pos.Y >= waterLevel) {
                     instance.Lowpass = 0.2f;
                     instance.Pitch *= 0.7f;
                 }
@@ -751,7 +746,7 @@ namespace Jazz2.Game
                 instance.Volume = gain * SettingsCache.SfxVolume;
                 instance.Pitch = pitch;
 
-                if (pos.Y >= api.WaterLevel) {
+                if (pos.Y >= waterLevel) {
                     instance.Lowpass = 0.2f;
                     instance.Pitch *= 0.7f;
                 }
@@ -774,6 +769,10 @@ namespace Jazz2.Game
             foreach (ActorBase actor in actors) {
                 actor.OnTriggeredEvent(eventType, eventParams);
             }
+        }
+
+        public virtual void BroadcastAnimationChanged(ActorBase actor, string identifier)
+        {
         }
 
         // ToDo: Move this somewhere

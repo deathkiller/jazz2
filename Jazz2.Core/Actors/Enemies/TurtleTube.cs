@@ -20,9 +20,9 @@ namespace Jazz2.Actors.Enemies
             SetAnimation(AnimState.Idle);
 
             Vector3 pos = Transform.Pos;
-            if (api.WaterLevel + WaterDifference <= pos.Y) {
+            if (levelHandler.WaterLevel + WaterDifference <= pos.Y) {
                 // Water is above the enemy, it's floating on the water
-                pos.Y = api.WaterLevel + WaterDifference;
+                pos.Y = levelHandler.WaterLevel + WaterDifference;
                 Transform.Pos = pos;
 
                 collisionFlags &= ~CollisionFlags.ApplyGravitation;
@@ -45,11 +45,11 @@ namespace Jazz2.Actors.Enemies
 
                 phase += timeMult * 0.02f;
 
-                if (api.WaterLevel + WaterDifference < pos.Y) {
+                if (levelHandler.WaterLevel + WaterDifference < pos.Y) {
                     // Water is above the enemy, return the enemy on the surface
-                    pos.Y = api.WaterLevel + WaterDifference;
+                    pos.Y = levelHandler.WaterLevel + WaterDifference;
                     Transform.Pos = pos;
-                } else if (api.WaterLevel + WaterDifference > pos.Y) {
+                } else if (levelHandler.WaterLevel + WaterDifference > pos.Y) {
                     // Water is below the enemy, apply gravitation and pause the animation 
                     speedX = 0f;
 
@@ -57,9 +57,9 @@ namespace Jazz2.Actors.Enemies
                     onWater = false;
                 }
             } else {
-                if (api.WaterLevel + WaterDifference <= pos.Y) {
+                if (levelHandler.WaterLevel + WaterDifference <= pos.Y) {
                     // Water is above the enemy, return the enemy on the surface
-                    pos.Y = api.WaterLevel + WaterDifference;
+                    pos.Y = levelHandler.WaterLevel + WaterDifference;
                     Transform.Pos = pos;
 
                     collisionFlags &= ~CollisionFlags.ApplyGravitation;
@@ -75,7 +75,7 @@ namespace Jazz2.Actors.Enemies
         protected override bool OnPerish(ActorBase collider)
         {
             CreateDeathDebris(collider);
-            api.PlayCommonSound(Transform.Pos, "Splat");
+            levelHandler.PlayCommonSound("Splat", Transform.Pos);
 
             TryGenerateRandomDrop();
 

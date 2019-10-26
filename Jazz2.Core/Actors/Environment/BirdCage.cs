@@ -74,14 +74,14 @@ namespace Jazz2.Actors.Environment
             activated = true;
             SetAnimation(AnimState.Activated);
             
-            Explosion.Create(api, Transform.Pos + new Vector3(-12f, -6f, -20f), Explosion.SmokeBrown);
-            Explosion.Create(api, Transform.Pos + new Vector3(-8f, 28f, -20f), Explosion.SmokeBrown);
-            Explosion.Create(api, Transform.Pos + new Vector3(12f, 10f, -20f), Explosion.SmokeBrown);
+            Explosion.Create(levelHandler, Transform.Pos + new Vector3(-12f, -6f, -20f), Explosion.SmokeBrown);
+            Explosion.Create(levelHandler, Transform.Pos + new Vector3(-8f, 28f, -20f), Explosion.SmokeBrown);
+            Explosion.Create(levelHandler, Transform.Pos + new Vector3(12f, 10f, -20f), Explosion.SmokeBrown);
 
-            Explosion.Create(api, Transform.Pos + new Vector3(0f, 12f, -22f), Explosion.SmokePoof);
+            Explosion.Create(levelHandler, Transform.Pos + new Vector3(0f, 12f, -22f), Explosion.SmokePoof);
 
             // Deactivate event in map
-            api.EventMap.StoreTileEvent(originTile.X, originTile.Y, EventType.BirdCage, ActorInstantiationFlags.None, new ushort[] { type, 1 });
+            levelHandler.EventMap.StoreTileEvent(originTile.X, originTile.Y, EventType.BirdCage, ActorInstantiationFlags.None, new ushort[] { type, 1 });
         }
     }
 }

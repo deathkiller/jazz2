@@ -88,7 +88,7 @@ namespace Jazz2.Server
 
                     Player player;
                     if (players.TryGetValue(args.SenderConnection, out player)) {
-                        collisions.RemoveProxy(player);
+                        collisions.RemoveProxy(player.ShadowActor);
                     }
 
                     players.Remove(args.SenderConnection);
@@ -167,7 +167,7 @@ namespace Jazz2.Server
         }
 
         #region Callbacks
-        public void RegisterCallback<T>(PacketCallback<T> callback) where T : struct, IClientPacket
+        public void AddCallback<T>(PacketCallback<T> callback) where T : struct, IClientPacket
         {
             byte type = (new T().Type);
 #if DEBUG

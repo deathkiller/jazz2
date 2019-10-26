@@ -99,7 +99,7 @@ namespace Jazz2.Actors.Enemies
                 for (int fx = 0; fx < currentAnimation.Base.FrameDimensions.X; fx += debrisSize + 1) {
                     for (int fy = 0; fy < currentAnimation.Base.FrameDimensions.Y; fy += debrisSize + 1) {
                         float currentSize = debrisSize * MathF.Rnd.NextFloat(0.2f, 1.1f);
-                        api.TileMap.CreateDebris(new DestructibleDebris {
+                        levelHandler.TileMap.CreateDebris(new DestructibleDebris {
                             Pos = new Vector3(x + (IsFacingLeft ? currentAnimation.Base.FrameDimensions.X - fx : fx), y + fy, pos.Z),
                             Size = new Vector2(currentSize /** (IsFacingLeft ? -1f : 1f)*/, currentSize),
                             Speed = new Vector2(((fx - currentAnimation.Base.FrameDimensions.X / 2) + MathF.Rnd.NextFloat(-2f, 2f)) * (IsFacingLeft ? -1f : 1f) * MathF.Rnd.NextFloat(2f, 5f) / currentAnimation.Base.FrameDimensions.X,
@@ -138,7 +138,7 @@ namespace Jazz2.Actors.Enemies
             bool found = false;
             Vector3 foundPos = new Vector3(float.MaxValue, float.MaxValue, lastPos.Z);
 
-            List<Player> players = api.Players;
+            List<Player> players = levelHandler.Players;
             for (int i = 0; i < players.Count; i++) {
                 Vector3 newPos = players[i].Transform.Pos;
                 if ((lastPos - newPos).Length < (lastPos - foundPos).Length) {

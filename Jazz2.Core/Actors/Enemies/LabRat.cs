@@ -88,7 +88,7 @@ namespace Jazz2.Actors.Enemies
                             IsFacingLeft ? 0 : 128, 20
                         );
 
-                        if (api.GetCollidingPlayers(aabb).Any()) {
+                        if (levelHandler.GetCollidingPlayers(aabb).Any()) {
                             Attack();
                         }
                     }
@@ -148,7 +148,7 @@ namespace Jazz2.Actors.Enemies
         protected override bool OnPerish(ActorBase collider)
         {
             CreateDeathDebris(collider);
-            api.PlayCommonSound(Transform.Pos, "Splat");
+            levelHandler.PlayCommonSound("Splat", Transform.Pos);
 
             TryGenerateRandomDrop();
 

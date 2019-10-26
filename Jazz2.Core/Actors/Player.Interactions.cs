@@ -159,11 +159,11 @@ namespace Jazz2.Actors
                     controllableTimeout = 0f;
                 });
             } else {
-                Explosion.Create(api, Transform.Pos + new Vector3(-12f, -6f, -4f), Explosion.SmokeBrown);
-                Explosion.Create(api, Transform.Pos + new Vector3(-8f, 28f, -4f), Explosion.SmokeBrown);
-                Explosion.Create(api, Transform.Pos + new Vector3(12f, 10f, -4f), Explosion.SmokeBrown);
+                Explosion.Create(levelHandler, Transform.Pos + new Vector3(-12f, -6f, -4f), Explosion.SmokeBrown);
+                Explosion.Create(levelHandler, Transform.Pos + new Vector3(-8f, 28f, -4f), Explosion.SmokeBrown);
+                Explosion.Create(levelHandler, Transform.Pos + new Vector3(12f, 10f, -4f), Explosion.SmokeBrown);
 
-                Explosion.Create(api, Transform.Pos + new Vector3(0f, 12f, -6f), Explosion.SmokePoof);
+                Explosion.Create(levelHandler, Transform.Pos + new Vector3(0f, 12f, -6f), Explosion.SmokePoof);
             }
         }
 
@@ -221,7 +221,7 @@ namespace Jazz2.Actors
 
                     CopterDecor copter = new CopterDecor();
                     copter.OnActivated(new ActorActivationDetails {
-                        Api = api
+                        LevelHandler = levelHandler
                     });
                     copter.Parent = this;
                     return true;
@@ -254,12 +254,12 @@ namespace Jazz2.Actors
 
             activeBird = new Bird();
             activeBird.OnActivated(new ActorActivationDetails {
-                Api = api,
+                LevelHandler = levelHandler,
                 Pos = pos,
                 Params = new ushort[] { type }
             });
             activeBird.OnLinkWithPlayer(this);
-            api.AddActor(activeBird);
+            levelHandler.AddActor(activeBird);
             return true;
         }
 
@@ -279,7 +279,7 @@ namespace Jazz2.Actors
         public void SetCheckpoint(Vector2 pos)
         {
             checkpointPos = pos + new Vector2(0f, -20f);
-            checkpointLight = api.AmbientLight;
+            checkpointLight = levelHandler.AmbientLightCurrent;
         }
 
         public void BeginSugarRush()

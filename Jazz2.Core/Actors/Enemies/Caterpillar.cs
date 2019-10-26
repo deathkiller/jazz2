@@ -67,10 +67,10 @@ namespace Jazz2.Actors.Enemies
 
                             Smoke smoke = new Smoke();
                             smoke.OnActivated(new ActorActivationDetails {
-                                Api = api,
+                                LevelHandler = levelHandler,
                                 Pos = new Vector3(pos.X - 26f, pos.Y - 18f, pos.Z - 20f)
                             });
-                            api.AddActor(smoke);
+                            levelHandler.AddActor(smoke);
 
                             smokesLeft--;
                             if (smokesLeft <= 0) {

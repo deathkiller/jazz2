@@ -40,7 +40,7 @@ namespace Jazz2.Actors.Weapons
 
                 if (lifetime > 40f) {
                     Vector3 pos = Transform.Pos;
-                    api.FindCollisionActorsByRadius(pos.X, pos.Y, 50, actor => {
+                    levelHandler.FindCollisionActorsByRadius(pos.X, pos.Y, 50, actor => {
                         if (!actor.IsInvulnerable && (actor is EnemyBase ||
                             actor is AmmoBarrel || actor is AmmoCrate ||
                             actor is BarrelContainer || actor is CrateContainer ||
@@ -65,12 +65,12 @@ namespace Jazz2.Actors.Weapons
                 PlaySound(Transform.Pos, "Explosion");
 
                 Vector3 pos = Transform.Pos;
-                api.FindCollisionActorsByRadius(pos.X, pos.Y, 50, actor => {
+                levelHandler.FindCollisionActorsByRadius(pos.X, pos.Y, 50, actor => {
                     actor.OnHandleCollision(this);
                     return true;
                 });
 
-                TileMap tiles = api.TileMap;
+                TileMap tiles = levelHandler.TileMap;
                 if (tiles != null) {
                     AABB aabb = new AABB(pos.X - 34, pos.Y - 34, pos.X + 34, pos.Y + 34);
                     int destroyedCount = tiles.CheckWeaponDestructible(ref aabb, WeaponType.TNT, 8);

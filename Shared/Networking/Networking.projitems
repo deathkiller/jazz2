@@ -80,12 +80,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)NetworkHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NetworkLevelHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\CreateControllablePlayer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\CreateRemoteObject.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\CreateRemoteActor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\DecreasePlayerHealth.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\DestroyRemoteObject.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\DestroyRemoteActor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\RefreshActorAnimation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\RemotePlayerDied.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Player.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\RemoteObject.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\RemoteActor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\RemotePlayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerDiscovery.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\PacketChannels.cs" />

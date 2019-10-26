@@ -38,11 +38,11 @@ namespace Jazz2.Actors.Enemies
         {
             Sucker sucker = new Sucker();
             sucker.OnActivated(new ActorActivationDetails {
-                Api = api,
+                LevelHandler = levelHandler,
                 Pos = Transform.Pos,
                 Params = new[] { (ushort)lastHitDir }
             });
-            api.AddActor(sucker);
+            levelHandler.AddActor(sucker);
 
             return base.OnPerish(collider);
         }

@@ -102,7 +102,7 @@ namespace Jazz2.Actors.Weapons
 
         protected override bool OnPerish(ActorBase collider)
         {
-            Explosion.Create(api, Transform.Pos + Speed, Explosion.Small);
+            Explosion.Create(levelHandler, Transform.Pos + Speed, Explosion.Small);
 
             return base.OnPerish(collider);
         }

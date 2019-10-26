@@ -35,7 +35,7 @@ namespace Jazz2.Actors.Environment
                     float speedY = MathF.Rnd.NextFloat(-3f, -2f) * scale;
                     float accel = MathF.Rnd.NextFloat(-0.008f, -0.001f) * scale;
 
-                    api.TileMap.CreateDebris(new TileMap.DestructibleDebris {
+                    levelHandler.TileMap.CreateDebris(new TileMap.DestructibleDebris {
                         Pos = Transform.Pos,
                         Size = res.Base.FrameDimensions,
                         Speed = new Vector2(speedX, speedY),

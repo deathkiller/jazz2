@@ -64,7 +64,7 @@ namespace Jazz2.Actors.Enemies
                 Vector3 pos = Transform.Pos;
                 Vector3 targetPos = new Vector3(float.MaxValue, float.MaxValue, 0f);
 
-                List<Player> players = api.Players;
+                List<Player> players = levelHandler.Players;
                 for (int i = 0; i < players.Count; i++) {
                     Vector3 newPos = players[i].Transform.Pos;
                     if ((pos - newPos).Length < (pos - targetPos).Length) {
@@ -85,11 +85,11 @@ namespace Jazz2.Actors.Enemies
                                 SetTransition((AnimState)1073741826, false, delegate {
                                     Banana banana = new Banana();
                                     banana.OnActivated(new ActorActivationDetails {
-                                        Api = api,
+                                        LevelHandler = levelHandler,
                                         Pos = Transform.Pos + new Vector3(IsFacingLeft ? -8f : 8f, -8f, 0f),
                                         Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
                                     });
-                                    api.AddActor(banana);
+                                    levelHandler.AddActor(banana);
 
                                     SetTransition((AnimState)1073741827, false, delegate {
 
@@ -107,11 +107,11 @@ namespace Jazz2.Actors.Enemies
                             SetTransition((AnimState)1073741826, false, delegate {
                                 Banana banana = new Banana();
                                 banana.OnActivated(new ActorActivationDetails {
-                                    Api = api,
+                                    LevelHandler = levelHandler,
                                     Pos = Transform.Pos + new Vector3(IsFacingLeft ? -42f : 42f, -8f, 0f),
                                     Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
                                 });
-                                api.AddActor(banana);
+                                levelHandler.AddActor(banana);
 
                                 SetTransition((AnimState)1073741827, false);
                             });
@@ -124,7 +124,7 @@ namespace Jazz2.Actors.Enemies
         protected override bool OnPerish(ActorBase collider)
         {
             CreateDeathDebris(collider);
-            api.PlayCommonSound(Transform.Pos, "Splat");
+            levelHandler.PlayCommonSound("Splat", Transform.Pos);
 
             TryGenerateRandomDrop();
 

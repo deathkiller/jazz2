@@ -42,7 +42,7 @@ namespace Jazz2.Actors.Enemies
             // Spawn copter
             CopterDecor copter = new CopterDecor();
             copter.OnActivated(new ActorActivationDetails {
-                Api = api,
+                LevelHandler = levelHandler,
                 Params = details.Params
             });
             copter.Parent = this;
@@ -62,7 +62,7 @@ namespace Jazz2.Actors.Enemies
             Vector3 pos = Transform.Pos;
             Vector3 targetPos = new Vector3(float.MaxValue, float.MaxValue, pos.Z);
 
-            List<Player> players = api.Players;
+            List<Player> players = levelHandler.Players;
             for (int i = 0; i < players.Count; i++) {
                 Vector3 newPos = players[i].Transform.Pos;
                 if ((pos - newPos).Length < (pos - targetPos).Length) {
@@ -78,11 +78,11 @@ namespace Jazz2.Actors.Enemies
                     SetTransition(AnimState.TransitionAttack, false, delegate {
                         Bomb bomb = new Bomb();
                         bomb.OnActivated(new ActorActivationDetails {
-                            Api = api,
+                            LevelHandler = levelHandler,
                             Pos = Transform.Pos + new Vector3(IsFacingLeft ? -30f : 30f, -10f, -4f),
                             Params = new[] { (ushort)(theme + 1), (ushort)(IsFacingLeft ? 1 : 0) }
                         });
-                        api.AddActor(bomb);
+                        levelHandler.AddActor(bomb);
 
                         SetTransition(AnimState.TransitionAttackEnd, false);
                     });
@@ -112,19 +112,19 @@ namespace Jazz2.Actors.Enemies
         {
             if (collider is Player) {
                 CreateDeathDebris(collider);
-                api.PlayCommonSound(Transform.Pos, "Splat");
+                levelHandler.PlayCommonSound("Splat", Transform.Pos);
 
                 TryGenerateRandomDrop();
             } else {
                 Lizard lizard = new Lizard();
                 lizard.OnActivated(new ActorActivationDetails {
-                    Api = api,
+                    LevelHandler = levelHandler,
                     Pos = Transform.Pos,
                     Params = new[] { theme, (ushort)1, (ushort)(IsFacingLeft ? 1 : 0) }
                 });
-                api.AddActor(lizard);
+                levelHandler.AddActor(lizard);
 
-                Explosion.Create(api, Transform.Pos, Explosion.SmokeGray);
+                Explosion.Create(levelHandler, Transform.Pos, Explosion.SmokeGray);
             }
 
             return base.OnPerish(collider);

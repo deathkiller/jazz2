@@ -15,6 +15,7 @@ using Jazz2.Actors;
 using Jazz2.Game;
 using Jazz2.Game.Collisions;
 using Jazz2.Game.Events;
+using Jazz2.Game.Multiplayer;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
 using Jazz2.Game.UI;
@@ -37,7 +38,7 @@ namespace Jazz2.Server
             Dead
         }
 
-        public class Player : ICollisionable
+        public class Player
         {
             public NetConnection Connection;
             public byte[] ClientIdentifier;
@@ -61,58 +62,7 @@ namespace Jazz2.Server
             public bool IsFirePressed;
             public float WeaponCooldown;
 
-            private int proxyId = -1;
-            private AABB aabb;
-
-            public ref int ProxyId => ref proxyId;
-            public ref AABB AABB => ref aabb;
-        }
-
-        /*public class Object : ICollisionable
-        {
-            public int Index;
-
-            public string Metadata;
-
-            public Vector3 Pos;
-            public Vector2 Speed;
-
-            public AnimState AnimState;
-            public float AnimTime;
-            public bool IsFacingLeft;
-
-            public float TimeLeft;
-
-            public Player Owner;
-
-            private int proxyId = -1;
-            private AABB aabb;
-
-            public ref int ProxyId => ref proxyId;
-            public ref AABB AABB => ref aabb;
-        }*/
-
-        public class RemotableActor : ICollisionable
-        {
-            public int Index;
-            public EventType EventType;
-            public ushort[] EventParams;
-            public long LastUpdateTime;
-
-            public Vector3 Pos;
-            public Vector2 Speed;
-
-            public AnimState AnimState;
-            public float AnimTime;
-            public bool IsFacingLeft;
-
-            public Player Owner;
-
-            private int proxyId = -1;
-            private AABB aabb;
-
-            public ref int ProxyId => ref proxyId;
-            public ref AABB AABB => ref aabb;
+            public RemoteActor ShadowActor;
         }
 
         private string currentLevel;
@@ -127,12 +77,12 @@ namespace Jazz2.Server
 
         //private Dictionary<int, RemotableActor> remotableActors;
         private List<ActorBase> spawnedActors;
+        private Dictionary<ActorBase, string> spawnedActorsAnimation;
         private int lastSpawnedActorId;
 
         private int lastGameLoadMs;
 
         private Rect levelBounds;
-        private ActorApi api;
         private ServerEventMap eventMap;
         private EventSpawner eventSpawner;
         private TileMap tileMap;
@@ -174,8 +124,11 @@ namespace Jazz2.Server
                             player.State = PlayerState.Spawned;
 
                             // ToDo: But these two lines not
-                            player.AABB = new AABB(player.Pos.Xy, 20, 30);
-                            collisions.AddProxy(player);
+                            player.ShadowActor = new RemoteActor();
+                            player.ShadowActor.Transform.Pos = player.Pos;
+                            player.ShadowActor.UpdateAABB();
+                            collisions.AddProxy(player.ShadowActor);
+                            player.ShadowActor.Transform.EventTransformChanged += OnActorTransformChanged;
 
                             Send(new CreateControllablePlayer {
                                 Index = player.Index,
@@ -331,8 +284,9 @@ namespace Jazz2.Server
                         m.Write((short)(actor.Speed.X * 500f));
                         m.Write((short)(actor.Speed.Y * 500f));
 
-                        m.Write((uint)actor.AnimState);
-                        m.Write((float)actor.AnimTime);
+                        //m.Write((uint)actor.AnimState);
+                        //m.Write((float)actor.AnimTime);
+                        m.Write((bool)true); // ToDo
                         m.Write((bool)actor.IsFacingLeft);
 
                         //AABB aabb = new AABB(actor.Pos.Xy, 8, 8);
@@ -425,7 +379,6 @@ namespace Jazz2.Server
                 // Reset active players and send command to change level to all players
                 foreach (KeyValuePair<NetConnection, Player> pair in players) {
                     pair.Value.State = PlayerState.NotReady;
-                    pair.Value.ProxyId = -1;
                 }
 
                 playerConnections.Clear();
@@ -444,17 +397,6 @@ namespace Jazz2.Server
 
         public void AddSpawnedActor(ActorBase actor)
         {
-            /*if ((actor.CollisionFlags & CollisionFlags.ForceDisableCollisions) == 0) {
-                actor.UpdateAABB();
-                collisions.AddProxy(actor);
-                actor.Transform.EventTransformChanged += OnActorTransformChanged;
-            }*/
-
-            /*EventType eventType = actor.EventType;
-            if (eventType == EventType.Empty) {
-                return;
-            }*/
-
             int index;
 
             lock (sync) {
@@ -471,12 +413,37 @@ namespace Jazz2.Server
                 }
             }
 
-            Send(new CreateRemoteObject {
+            Send(new CreateRemoteActor {
                 Index = index,
                 Pos = actor.Transform.Pos,
-                MetadataPath = actor.LoadedMetadata,
-                AnimState = actor.AnimState
+                MetadataPath = actor.LoadedMetadata
             }, 35, playerConnections, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+
+            if (spawnedActorsAnimation.TryGetValue(actor, out string identifier)) {
+                Send(new RefreshActorAnimation {
+                    Index = actor.Index,
+                    Identifier = identifier,
+                }, 32, playerConnections, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+            }
+        }
+
+        public void DestroySpawnedActor(ActorBase actor)
+        {
+            int index = actor.Index;
+
+            lock (sync) {
+                spawnedActors.Remove(actor);
+                spawnedActorsAnimation.Remove(actor);
+
+                if ((actor.CollisionFlags & CollisionFlags.ForceDisableCollisions) == 0) {
+                    actor.Transform.EventTransformChanged -= OnActorTransformChanged;
+                    collisions.RemoveProxy(actor);
+                }
+            }
+
+            Send(new DestroyRemoteActor {
+                Index = index,
+            }, 5, playerConnections, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
         }
 
         public void RespawnPlayer(Player player)

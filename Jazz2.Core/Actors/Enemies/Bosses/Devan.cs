@@ -72,7 +72,7 @@ namespace Jazz2.Actors.Bosses
                         Vector3 pos = Transform.Pos;
                         Vector3 targetPos = new Vector3(float.MaxValue, float.MaxValue, 0f);
 
-                        List<Player> players = api.Players;
+                        List<Player> players = levelHandler.Players;
                         for (int i = 0; i < players.Count; i++) {
                             Vector3 newPos = players[i].Transform.Pos;
                             if ((pos - newPos).Length < (pos - targetPos).Length) {
@@ -183,11 +183,11 @@ namespace Jazz2.Actors.Bosses
 
                         Fireball fireball = new Fireball();
                         fireball.OnActivated(new ActorActivationDetails {
-                            Api = api,
+                            LevelHandler = levelHandler,
                             Pos = Transform.Pos + new Vector3(IsFacingLeft ? -26f : 26f, -14f, 0f),
                             Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
                         });
-                        api.AddActor(fireball);
+                        levelHandler.AddActor(fireball);
 
                         SetTransition((AnimState)674, false, delegate {
                             state = StateDemonFlying;
@@ -228,7 +228,7 @@ namespace Jazz2.Actors.Bosses
                 return false;
             }
 
-            api.BroadcastLevelText(endText);
+            levelHandler.BroadcastLevelText(levelHandler.GetLevelText(endText));
 
             isDead = true;
 
@@ -255,7 +255,7 @@ namespace Jazz2.Actors.Bosses
             Vector3 pos = Transform.Pos;
             Vector3 targetPos = new Vector3(float.MaxValue, float.MaxValue, 0f);
 
-            List<Player> players = api.Players;
+            List<Player> players = levelHandler.Players;
             for (int i = 0; i < players.Count; i++) {
                 Vector3 newPos = players[i].Transform.Pos;
                 if ((pos - newPos).Length < (pos - targetPos).Length) {
@@ -282,7 +282,7 @@ namespace Jazz2.Actors.Bosses
             bool found = false;
             Vector3 foundPos = new Vector3(float.MaxValue, float.MaxValue, lastPos.Z);
 
-            List<Player> players = api.Players;
+            List<Player> players = levelHandler.Players;
             for (int i = 0; i < players.Count; i++) {
                 Vector3 newPos = players[i].Transform.Pos;
                 if ((lastPos - newPos).Length < (lastPos - foundPos).Length) {
@@ -322,11 +322,11 @@ namespace Jazz2.Actors.Bosses
             SetTransition((AnimState)16, false, delegate {
                 Bullet bullet = new Bullet();
                 bullet.OnActivated(new ActorActivationDetails {
-                    Api = api,
+                    LevelHandler = levelHandler,
                     Pos = Transform.Pos + new Vector3(IsFacingLeft ? -24f : 24f, 2f, 0f),
                     Params = new[] { (ushort)(IsFacingLeft ? 1 : 0) }
                 });
-                api.AddActor(bullet);
+                levelHandler.AddActor(bullet);
 
                 shots--;
 
@@ -381,7 +381,7 @@ namespace Jazz2.Actors.Bosses
 
             protected override bool OnPerish(ActorBase collider)
             {
-                Explosion.Create(api, Transform.Pos, Explosion.Small);
+                Explosion.Create(levelHandler, Transform.Pos, Explosion.Small);
 
                 return base.OnPerish(collider);
             }
@@ -444,7 +444,7 @@ namespace Jazz2.Actors.Bosses
 
             protected override bool OnPerish(ActorBase collider)
             {
-                Explosion.Create(api, Transform.Pos, Explosion.SmallDark);
+                Explosion.Create(levelHandler, Transform.Pos, Explosion.SmallDark);
 
                 PlaySound(Transform.Pos, "Flap");
 

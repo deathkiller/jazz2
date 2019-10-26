@@ -40,8 +40,8 @@ namespace Jazz2.Actors.Enemies
             if (FindNearestPlayer(out targetPos)) {
                 if (attacking) {
                     // Can't fly into the water
-                    if (targetPos.Y > api.WaterLevel - 20f) {
-                        targetPos.Y = api.WaterLevel - 20f;
+                    if (targetPos.Y > levelHandler.WaterLevel - 20f) {
+                        targetPos.Y = levelHandler.WaterLevel - 20f;
                     }
 
                     Vector3 direction = (Transform.Pos - targetPos);
@@ -94,7 +94,7 @@ namespace Jazz2.Actors.Enemies
         protected override bool OnPerish(ActorBase collider)
         {
             CreateDeathDebris(collider);
-            api.PlayCommonSound(Transform.Pos, "Splat");
+            levelHandler.PlayCommonSound("Splat", Transform.Pos);
 
             TryGenerateRandomDrop();
 
@@ -106,7 +106,7 @@ namespace Jazz2.Actors.Enemies
             const float VisionDistanceIdle = 120f;
             const float VisionDistanceAttacking = 320f;
 
-            List<Player> players = api.Players;
+            List<Player> players = levelHandler.Players;
             for (int i = 0; i < players.Count; i++) {
                 targetPos = players[i].Transform.Pos;
                 float visionDistance = (currentAnimationState == AnimState.Idle ? VisionDistanceIdle : VisionDistanceAttacking);

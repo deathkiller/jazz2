@@ -30,7 +30,7 @@ namespace Jazz2.Actors.Solid
                 Content.Data[i].MoveInstantly(new Vector2(pos.X + fx * (2f + Content.Count * 0.1f), pos.Y + fy * (12f + Content.Count * 0.2f)), MoveType.Absolute, true);
                 Content.Data[i].AddExternalForce(fx, fy);
 
-                api.AddActor(Content.Data[i]);
+                levelHandler.AddActor(Content.Data[i]);
             }
             Content.Clear();
         }
@@ -45,7 +45,7 @@ namespace Jazz2.Actors.Solid
             Vector3 pos = Transform.Pos;
 
             for (uint i = 0; i < count; ++i) {
-                ActorBase actor = api.EventSpawner.SpawnEvent(ActorInstantiationFlags.None, type, pos + new Vector3(0f, 0f, 10f), eventParams);
+                ActorBase actor = levelHandler.EventSpawner.SpawnEvent(ActorInstantiationFlags.None, type, pos + new Vector3(0f, 0f, 10f), eventParams);
                 if (actor != null) {
                     StoreActor(actor);
                 }

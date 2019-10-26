@@ -7,13 +7,14 @@ using Jazz2.Game.Collisions;
 using Jazz2.Game.Events;
 using Jazz2.Game.Structs;
 using Jazz2.Game.Tiles;
+using Jazz2.Networking;
+using Jazz2.Networking.Packets.Server;
+using Lidgren.Network;
 
 namespace Jazz2.Server
 {
     partial class GameServer : ILevelHandler
     {
-        ActorApi ILevelHandler.Api => api;
-
         TileMap ILevelHandler.TileMap => tileMap;
 
         // ToDo
@@ -56,7 +57,7 @@ namespace Jazz2.Server
 
         void ILevelHandler.AddActor(ActorBase actor)
         {
-            //throw new NotImplementedException();
+            AddSpawnedActor(actor);
         }
 
         void ILevelHandler.BroadcastLevelText(string text)
@@ -67,6 +68,18 @@ namespace Jazz2.Server
         void ILevelHandler.BroadcastTriggeredEvent(EventType eventType, ushort[] eventParams)
         {
             //throw new NotImplementedException();
+        }
+
+        void ILevelHandler.BroadcastAnimationChanged(ActorBase actor, string identifier)
+        {
+            spawnedActorsAnimation[actor] = identifier;
+
+            if (spawnedActors.Contains(actor)) {
+                Send(new RefreshActorAnimation {
+                    Index = actor.Index,
+                    Identifier = identifier,
+                }, 32, playerConnections, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+            }
         }
 
         void ILevelHandler.FindCollisionActorsByAABB(ActorBase self, AABB aabb, Func<ActorBase, bool> callback)
@@ -122,8 +135,7 @@ namespace Jazz2.Server
 
         public bool IsPositionEmpty(ActorBase self, ref AABB aabb, bool downwards)
         {
-            ActorBase solidObject;
-            return IsPositionEmpty(self, ref aabb, downwards, out solidObject);
+            return IsPositionEmpty(self, ref aabb, downwards, out _);
         }
 
         void ILevelHandler.LimitCameraView(float left, float width)
@@ -143,7 +155,7 @@ namespace Jazz2.Server
 
         void ILevelHandler.RemoveActor(ActorBase actor)
         {
-            throw new NotImplementedException();
+            DestroySpawnedActor(actor);
         }
 
         void ILevelHandler.ShakeCameraView(float duration)

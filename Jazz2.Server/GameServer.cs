@@ -96,9 +96,9 @@ namespace Jazz2.Server
 
             //remotableActors = new Dictionary<int, RemotableActor>();
             spawnedActors = new List<Actors.ActorBase>();
+            spawnedActorsAnimation = new Dictionary<Actors.ActorBase, string>();
 
-            api = new ActorApi(this);
-            eventSpawner = new EventSpawner(api);
+            eventSpawner = new EventSpawner(this);
 
             server = new ServerConnection(Token, port, maxPlayers, !isPrivate && enableUPnP);
             server.MessageReceived += OnMessageReceived;

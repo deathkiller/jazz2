@@ -17,12 +17,12 @@ namespace Jazz2.Game.Events
     {
         public delegate ActorBase SpawnFunction(ActorInstantiationFlags flags, float x, float y, float z, ushort[] spawnParams);
 
-        private readonly ActorApi api;
+        private readonly ILevelHandler levelHandler;
         private Dictionary<EventType, SpawnFunction> spawnableEvents;
 
-        public EventSpawner(ActorApi api)
+        public EventSpawner(ILevelHandler levelHandler)
         {
-            this.api = api;
+            this.levelHandler = levelHandler;
 
             InitializeSpawnableList();
         }
@@ -192,7 +192,7 @@ namespace Jazz2.Game.Events
         {
             T actor = typeof(T).GetTypeInfo().CreateInstanceOf() as T;
             actor.OnActivated(new ActorActivationDetails {
-                Api = api,
+                LevelHandler = levelHandler,
                 Pos = new Vector3(x, y, z),
                 Flags = flags,
                 Params = spawnParams

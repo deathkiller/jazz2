@@ -64,7 +64,7 @@ namespace Jazz2.Actors.Solid
 
         protected override bool OnPerish(ActorBase collider)
         {
-            TileMap tiles = api.TileMap;
+            TileMap tiles = levelHandler.TileMap;
             if (tiles != null) {
                 if (newState.HasValue) {
                     // Turn off/on
@@ -79,7 +79,7 @@ namespace Jazz2.Actors.Solid
 
             CreateParticleDebris();
 
-            Explosion.Create(api, Transform.Pos, Explosion.SmokeBrown);
+            Explosion.Create(levelHandler, Transform.Pos, Explosion.SmokeBrown);
 
             return base.OnPerish(collider);
         }

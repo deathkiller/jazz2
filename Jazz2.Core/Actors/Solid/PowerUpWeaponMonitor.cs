@@ -20,7 +20,7 @@ namespace Jazz2.Actors.Solid
 
             switch (weaponType) {
                 case WeaponType.Blaster:
-                    PlayerType player = (api.Players.Count == 0 ? PlayerType.Jazz : api.Players[0].PlayerType);
+                    PlayerType player = (levelHandler.Players.Count == 0 ? PlayerType.Jazz : levelHandler.Players[0].PlayerType);
                     if (player == PlayerType.Spaz) {
                         SetAnimation("BlasterSpaz");
                     } else if (player == PlayerType.Lori) {

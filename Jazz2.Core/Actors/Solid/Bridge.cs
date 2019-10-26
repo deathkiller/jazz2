@@ -66,11 +66,11 @@ namespace Jazz2.Actors.Solid
             for (int i = 0; (widthCovered <= bridgeWidth * 16 + 6) || (i * 16 < bridgeWidth); i++) {
                 Piece piece = new Piece();
                 piece.OnActivated(new ActorActivationDetails {
-                    Api = api,
+                    LevelHandler = levelHandler,
                     Pos = new Vector3(pos.X + widthCovered - 16, pos.Y - 20, LevelHandler.MainPlaneZ + 10),
                     Params = new[] { (ushort)bridgeType, (ushort)i }
                 });
-                api.AddActor(piece);
+                levelHandler.AddActor(piece);
 
                 bridgePieces.Add(piece);
 
@@ -84,15 +84,15 @@ namespace Jazz2.Actors.Solid
         {
             if ((flags & ActorInstantiationFlags.IsCreatedFromEventMap) != 0) {
                 if (originTile.X < tx1 || originTile.Y < ty1 || originTile.X > tx2 || originTile.Y > ty2) {
-                    EventMap events = api.EventMap;
+                    EventMap events = levelHandler.EventMap;
                     if (events != null) {
                         events.Deactivate(originTile.X, originTile.Y);
                     }
 
                     for (int i = 0; i < bridgePieces.Count; ++i) {
-                        api.RemoveActor(bridgePieces[i]);
+                        levelHandler.RemoveActor(bridgePieces[i]);
                     }
-                    api.RemoveActor(this);
+                    levelHandler.RemoveActor(this);
                     return true;
                 }
             }
@@ -109,7 +109,7 @@ namespace Jazz2.Actors.Solid
         {
             collisions.Clear();
 
-            api.FindCollisionActorsByAABB(this, AABBInner, ResolveCollisions);
+            levelHandler.FindCollisionActorsByAABB(this, AABBInner, ResolveCollisions);
 
             Vector3 pos = Transform.Pos;
 

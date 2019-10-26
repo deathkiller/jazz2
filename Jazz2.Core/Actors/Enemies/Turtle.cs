@@ -67,8 +67,8 @@ namespace Jazz2.Actors.Enemies
 
             if (!isTurning && !isWithdrawn && !isAttacking) {
                 AABB aabb = AABBInner + new Vector2(speedX * 32, 0);
-                if (api.TileMap.IsTileEmpty(ref aabb, true)) {
-                    foreach (Player player in api.GetCollidingPlayers(aabb + new Vector2(speedX * 32, 0))) {
+                if (levelHandler.TileMap.IsTileEmpty(ref aabb, true)) {
+                    foreach (Player player in levelHandler.GetCollidingPlayers(aabb + new Vector2(speedX * 32, 0))) {
                         if (!player.IsInvulnerable) {
                             Attack();
                             break;
@@ -82,13 +82,13 @@ namespace Jazz2.Actors.Enemies
         {
             TurtleShell shell = new TurtleShell(speedX * 1.1f, 1.1f);
             shell.OnActivated(new ActorActivationDetails {
-                Api = api,
+                LevelHandler = levelHandler,
                 Pos = Transform.Pos,
                 Params = new[] { theme }
             });
-            api.AddActor(shell);
+            levelHandler.AddActor(shell);
 
-            Explosion.Create(api, Transform.Pos, Explosion.SmokeGray);
+            Explosion.Create(levelHandler, Transform.Pos, Explosion.SmokeGray);
 
             return base.OnPerish(collider);
         }

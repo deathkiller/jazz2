@@ -14,7 +14,7 @@ namespace Jazz2.Actors.Bosses
         public bool HandlePlayerDied()
         {
             if ((flags & (ActorInstantiationFlags.IsCreatedFromEventMap | ActorInstantiationFlags.IsFromGenerator)) != 0) {
-                EventMap events = api.EventMap;
+                EventMap events = levelHandler.EventMap;
                 if (events != null) {
                     if ((flags & ActorInstantiationFlags.IsFromGenerator) != 0) {
                         events.ResetGenerator(originTile.X, originTile.Y);
@@ -24,7 +24,7 @@ namespace Jazz2.Actors.Bosses
                 }
 
                 OnBossDeactivated();
-                api.RemoveActor(this);
+                levelHandler.RemoveActor(this);
                 return true;
             }
 

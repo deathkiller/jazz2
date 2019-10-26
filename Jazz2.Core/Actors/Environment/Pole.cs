@@ -156,7 +156,7 @@ namespace Jazz2.Actors.Environment
                     float x = pos.X + (rx * Ratio1 * radius);
                     float y = pos.Y + (ry * Ratio1 * radius);
                     AABB aabb = new AABB(x - 3, y - 3, x + 7, y + 7);
-                    if (!api.IsPositionEmpty(this, ref aabb, true)) {
+                    if (!levelHandler.IsPositionEmpty(this, ref aabb, true)) {
                         return true;
                     }
                 }
@@ -165,7 +165,7 @@ namespace Jazz2.Actors.Environment
                     float x = pos.X + (rx * Ratio2 * radius);
                     float y = pos.Y + (ry * Ratio2 * radius);
                     AABB aabb = new AABB(x - 3, y - 3, x + 7, y + 7);
-                    if (!api.IsPositionEmpty(this, ref aabb, true)) {
+                    if (!levelHandler.IsPositionEmpty(this, ref aabb, true)) {
                         return true;
                     }
                 }
@@ -175,7 +175,7 @@ namespace Jazz2.Actors.Environment
                 float x = pos.X + (rx * Ratio3 * radius);
                 float y = pos.Y + (ry * Ratio3 * radius);
                 AABB aabb = new AABB(x - 3, y - 3, x + 7, y + 7);
-                if (!api.IsPositionEmpty(this, ref aabb, true)) {
+                if (!levelHandler.IsPositionEmpty(this, ref aabb, true)) {
                     return true;
                 }
             }
@@ -184,7 +184,7 @@ namespace Jazz2.Actors.Environment
                 float x = pos.X + (rx * Ratio4 * radius);
                 float y = pos.Y + (ry * Ratio4 * radius);
                 AABB aabb = new AABB(x - 3, y - 3, x + 7, y + 7);
-                if (!api.IsPositionEmpty(this, ref aabb, true)) {
+                if (!levelHandler.IsPositionEmpty(this, ref aabb, true)) {
                     return true;
                 }
             }

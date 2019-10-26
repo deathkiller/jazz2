@@ -24,7 +24,7 @@ namespace Jazz2.Game.Tiles
                         if (weapon == WeaponType.Freezer && (animatedTiles[tile.DestructAnimation].Length - 2) > tile.DestructFrameIndex) {
                             FrozenBlock frozen = new FrozenBlock();
                             frozen.OnActivated(new ActorActivationDetails {
-                                Api = levelHandler.Api,
+                                LevelHandler = levelHandler,
                                 Pos = new Vector3(32 * tx + 16 - 1, 32 * ty + 16 - 1, LevelHandler.MainPlaneZ)
                             });
                             levelHandler.AddActor(frozen);

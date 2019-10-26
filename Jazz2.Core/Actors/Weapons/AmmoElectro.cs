@@ -125,7 +125,7 @@ namespace Jazz2.Actors.Weapons
                     float dx = dist * (float)System.Math.Cos(angle);
                     float dy = dist * (float)System.Math.Sin(angle);
 
-                    api.TileMap.CreateDebris(new DestructibleDebris {
+                    levelHandler.TileMap.CreateDebris(new DestructibleDebris {
                         Pos = new Vector3(pos.X + dx, pos.Y + dy, pos.Z),
                         Size = new Vector2(size, size),
 

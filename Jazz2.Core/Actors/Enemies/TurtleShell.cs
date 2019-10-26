@@ -45,7 +45,7 @@ namespace Jazz2.Actors.Enemies
             SetAnimation(AnimState.Idle);
 
             canHurtPlayer = false;
-            friction = api.Gravity * 0.05f;
+            friction = levelHandler.Gravity * 0.05f;
             elasticity = 0.5f;
             health = 8;
 
@@ -69,7 +69,7 @@ namespace Jazz2.Actors.Enemies
                 speedX = MathF.Max(MathF.Abs(speedX) - 10f * friction, 0f) * (speedX < 0f ? -1f : 1f);
             }
 
-            TileMap tiles = api.TileMap;
+            TileMap tiles = levelHandler.TileMap;
             if (tiles != null) {
                 tiles.CheckSpecialDestructible(ref AABBInner);
                 tiles.CheckCollapseDestructible(ref AABBInner);
@@ -149,7 +149,7 @@ namespace Jazz2.Actors.Enemies
         protected override bool OnPerish(ActorBase collider)
         {
             CreateDeathDebris(collider);
-            api.PlayCommonSound(Transform.Pos, "Splat");
+            levelHandler.PlayCommonSound("Splat", Transform.Pos);
 
             TryGenerateRandomDrop();
 

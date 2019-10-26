@@ -63,13 +63,13 @@ namespace Jazz2.Actors
                 case ShieldType.Fire:
                     shieldDecor = new ShieldDecor(shieldType, false);
                     shieldDecor.OnActivated(new ActorActivationDetails {
-                        Api = api
+                        LevelHandler = levelHandler
                     });
                     shieldDecor.Parent = this;
 
                     shieldComponentFront = new ShieldDecor(shieldType, true);
                     shieldComponentFront.OnActivated(new ActorActivationDetails {
-                        Api = api
+                        LevelHandler = levelHandler
                     });
                     shieldComponentFront.Parent = this;
                     break;
@@ -77,7 +77,7 @@ namespace Jazz2.Actors
                 case ShieldType.Water:
                     shieldComponentFront = new ShieldDecor(shieldType, true);
                     shieldComponentFront.OnActivated(new ActorActivationDetails {
-                        Api = api
+                        LevelHandler = levelHandler
                     });
                     shieldComponentFront.Parent = this;
                     break;
