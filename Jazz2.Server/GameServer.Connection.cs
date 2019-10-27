@@ -54,23 +54,31 @@ namespace Jazz2.Server
 
             string userName = args.Message.ReadString();
 
-            players[args.Message.SenderConnection] = new Player {
+            Player player = new Player {
                 Connection = args.Message.SenderConnection,
                 ClientIdentifier = clientIdentifier,
                 UserName = userName,
                 State = PlayerState.NotReady
             };
+
+            players[args.Message.SenderConnection] = player;
         }
 
         private void OnClientStatusChanged(ClientStatusChangedEventArgs args)
         {
             if (args.Status == NetConnectionStatus.Connected) {
+                Player player;
+
                 lock (sync) {
                     lastPlayerIndex++;
-                    players[args.SenderConnection].Index = lastPlayerIndex;
+
+                    if (players.TryGetValue(args.SenderConnection, out player)) {
+                        player.Index = lastPlayerIndex;
+                        playersByIndex[lastPlayerIndex] = player;
+                    }
                 }
 
-                Log.Write(LogType.Verbose, "Client " + PlayerNameToConsole(players[args.SenderConnection]) + " - " + players[args.SenderConnection].UserName + " (" + args.SenderConnection.RemoteEndPoint + ") connected!");
+                Log.Write(LogType.Verbose, "Client " + PlayerNameToConsole(player) + " - " + player.UserName + " (" + args.SenderConnection.RemoteEndPoint + ") connected!");
 
                 if (currentLevel != null) {
                     Send(new LoadLevel {
@@ -81,17 +89,17 @@ namespace Jazz2.Server
                 }
 
             } else if (args.Status == NetConnectionStatus.Disconnected) {
-                Log.Write(LogType.Verbose, "Client " + PlayerNameToConsole(players[args.SenderConnection]) + " - " + players[args.SenderConnection].UserName + " (" + args.SenderConnection.RemoteEndPoint + ") disconnected!");
+                Player player;
 
                 lock (sync) {
                     byte index = players[args.SenderConnection].Index;
 
-                    Player player;
                     if (players.TryGetValue(args.SenderConnection, out player)) {
-                        collisions.RemoveProxy(player.ShadowActor);
+                        //collisions.RemoveProxy(player.ShadowActor);
                     }
 
                     players.Remove(args.SenderConnection);
+                    playersByIndex[index] = null;
                     playerConnections.Remove(args.SenderConnection);
 
                     foreach (KeyValuePair<NetConnection, Player> to in players) {
@@ -105,6 +113,8 @@ namespace Jazz2.Server
                         }, 3, to.Key, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                     }
                 }
+
+                Log.Write(LogType.Verbose, "Client " + PlayerNameToConsole(player) + " - " + player.UserName + " (" + args.SenderConnection.RemoteEndPoint + ") disconnected!");
             }
         }
 

@@ -417,8 +417,7 @@ namespace Jazz2.Game.Multiplayer
                     RemoveActor(actor as ActorBase);
                 }*/
 
-                RemoteActor actor;
-                if (remoteActors.TryGetValue(index, out actor)) {
+                if (remoteActors.TryGetValue(index, out RemoteActor actor)) {
                     remoteActors.Remove(index);
                     //RemoveObject(actor as ActorBase);
                     RemoveActor(actor as ActorBase);
@@ -481,8 +480,7 @@ namespace Jazz2.Game.Multiplayer
             string identifier = p.Identifier;
 
             Await.NextAfterUpdate().OnCompleted(() => {
-                RemoteActor actor;
-                if (remoteActors.TryGetValue(index, out actor)) {
+                if (remoteActors.TryGetValue(index, out RemoteActor actor)) {
                     actor.OnRefreshActorAnimation(identifier);
                 }
             });

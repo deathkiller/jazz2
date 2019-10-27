@@ -182,7 +182,7 @@ namespace Jazz2.Server
                 "Please, try it again. Maybe it works out now."
             };
 
-            if (lastUnknownCommandMessageIndex == 12) { // "Please, try it again. Maybe it works out now."
+            if (lastUnknownCommandMessageIndex == 11) { // "Please, try it again. Maybe it works out now."
                 Log.Write(LogType.Error, "No, it does not...");
 
                 lastUnknownCommandMessageIndex = -1;

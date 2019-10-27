@@ -1037,6 +1037,10 @@ namespace Jazz2.Actors
 
         protected void RequestMetadata(string path)
         {
+            if (string.IsNullOrEmpty(path)) {
+                throw new ArgumentNullException(nameof(path));
+            }
+
             Metadata metadata = ContentResolver.Current.RequestMetadata(path);
 
             loadedMetadata = path;
@@ -1047,8 +1051,11 @@ namespace Jazz2.Actors
 
         protected async Task RequestMetadataAsync(string path)
         {
-            Metadata metadata;
+            if (string.IsNullOrEmpty(path)) {
+                throw new ArgumentNullException(nameof(path));
+            }
 
+            Metadata metadata;
             if ((flags & ActorInstantiationFlags.Async) != 0) {
                 while (true) {
                     metadata = ContentResolver.Current.TryFetchMetadata(path);
@@ -1070,6 +1077,10 @@ namespace Jazz2.Actors
 
         protected void PreloadMetadata(string path)
         {
+            if (string.IsNullOrEmpty(path)) {
+                throw new ArgumentNullException(nameof(path));
+            }
+
             ContentResolver.Current.PreloadAsync(path);
         }
 
@@ -1195,8 +1206,12 @@ namespace Jazz2.Actors
 
         protected void SetAnimation(string identifier)
         {
+            if (!availableAnimations.TryGetValue(identifier, out GraphicResource resource)) {
+                return;
+            }
+
+            currentAnimation = resource;
             currentAnimationState = AnimState.Idle;
-            currentAnimation = availableAnimations[identifier];
 
             // ToDo: Remove this bounding box reduction
             // ToDo: Move bounding box calculation to Import project

@@ -92,6 +92,7 @@ namespace Jazz2.Server
 
             callbacks = new Dictionary<byte, Action<NetIncomingMessage, bool>>();
             players = new Dictionary<NetConnection, Player>();
+            playersByIndex = new Player[256];
             playerConnections = new List<NetConnection>();
 
             //remotableActors = new Dictionary<int, RemotableActor>();
@@ -234,6 +235,9 @@ namespace Jazz2.Server
                     if (isFirst) {
                         // No public IP address found
                         Log.Write(LogType.Warning, "Server cannot be published to server list - no public IP address found!");
+
+                        threadPublishToServerList = null;
+                        break;
                     } else {
                         string currentVersion = Game.App.AssemblyVersion;
 

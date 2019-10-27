@@ -62,6 +62,11 @@ namespace Jazz2.Server
             public bool IsFirePressed;
             public float WeaponCooldown;
 
+            public int StatsDeaths;
+            public int StatsKills;
+            public int StatsHits;
+            public int LastHitPlayerIndex;
+
             public RemoteActor ShadowActor;
         }
 
@@ -70,6 +75,7 @@ namespace Jazz2.Server
         private MultiplayerLevelType currentLevelType;
 
         private Dictionary<NetConnection, Player> players;
+        public Player[] playersByIndex;
         private List<NetConnection> playerConnections;
         private byte lastPlayerIndex;
         private bool playerSpawningEnabled = true;
@@ -124,11 +130,11 @@ namespace Jazz2.Server
                             player.State = PlayerState.Spawned;
 
                             // ToDo: But these two lines not
-                            player.ShadowActor = new RemoteActor();
+                            /*player.ShadowActor = new RemoteActor();
                             player.ShadowActor.Transform.Pos = player.Pos;
                             player.ShadowActor.UpdateAABB();
                             collisions.AddProxy(player.ShadowActor);
-                            player.ShadowActor.Transform.EventTransformChanged += OnActorTransformChanged;
+                            player.ShadowActor.Transform.EventTransformChanged += OnActorTransformChanged;*/
 
                             Send(new CreateControllablePlayer {
                                 Index = player.Index,
@@ -210,10 +216,12 @@ namespace Jazz2.Server
 
             //Scene.Current.Update();
 
-            for (int i = 0; i < spawnedActors.Count; i++) {
-                ActorBase actor = spawnedActors[i];
-                actor.OnUpdate();
-                actor.OnFixedUpdate(1f);
+            lock (sync) {
+                for (int i = 0; i < spawnedActors.Count; i++) {
+                    ActorBase actor = spawnedActors[i];
+                    actor.OnUpdate();
+                    actor.OnFixedUpdate(1f);
+                }
             }
 
             AsyncManager.InvokeAfterUpdate();
@@ -372,6 +380,7 @@ namespace Jazz2.Server
                 }
 
                 spawnedActors.Clear();
+                spawnedActorsAnimation.Clear();
                 lastSpawnedActorId = 0;
 
                 eventMap.ActivateEvents();
@@ -397,6 +406,11 @@ namespace Jazz2.Server
 
         public void AddSpawnedActor(ActorBase actor)
         {
+            if (string.IsNullOrEmpty(actor.LoadedMetadata)) {
+                Log.Write(LogType.Warning, actor.ToString() + " has no metadata");
+                return;
+            }
+
             int index;
 
             lock (sync) {
