@@ -35,16 +35,16 @@ namespace Jazz2
                 }
 
                 deviceId += "|Android " + global::Android.OS.Build.VERSION.Release + "|";
-                
+
                 try {
-                    string device = (string.IsNullOrEmpty(Build.Model) ? Build.Manufacturer : (Build.Model.StartsWith(Build.Manufacturer) ? Build.Model : Build.Manufacturer + " " + Build.Model));
+                    string device = (string.IsNullOrEmpty(global::Android.OS.Build.Model) ? global::Android.OS.Build.Manufacturer : (global::Android.OS.Build.Model.StartsWith(global::Android.OS.Build.Manufacturer) ? global::Android.OS.Build.Model : global::Android.OS.Build.Manufacturer + " " + global::Android.OS.Build.Model));
 
                     if (device == null) {
                         device = "";
                     } else if (device.Length > 1) {
                         device = char.ToUpper(device[0]) + device.Substring(1);
                     }
-                    
+
                     deviceId += device;
                 } catch {
                 }
