@@ -42,13 +42,13 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\..\Projekty\Jazz² Resurrection\Jazz2\Backend\DefaultAssemblyLoader.cs">
+    <Compile Include="..\Jazz2\Backend\DefaultAssemblyLoader.cs">
       <Link>Backend\DefaultAssemblyLoader.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\..\Projekty\Jazz² Resurrection\Jazz2\Backend\System\NativeFileSystem.cs">
+    <Compile Include="..\Jazz2\Backend\System\NativeFileSystem.cs">
       <Link>Backend\System\NativeFileSystem.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\..\Projekty\Jazz² Resurrection\Jazz2\Backend\System\SystemBackend.cs">
+    <Compile Include="..\Jazz2\Backend\System\SystemBackend.cs">
       <Link>Backend\System\SystemBackend.cs</Link>
     </Compile>
     <Compile Include="..\Shared\SharedAssemblyInfo.cs">
