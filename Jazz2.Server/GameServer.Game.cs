@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading;
@@ -391,6 +392,10 @@ namespace Jazz2.Server
                 }
 
                 playerConnections.Clear();
+
+                GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
 
                 foreach (KeyValuePair<NetConnection, Player> pair in players) {
                     Send(new LoadLevel {

@@ -71,7 +71,7 @@ namespace Jazz2
             EmbeddedData = new Dictionary<string, string>();
 
             while (true) {
-                int length = IPAddress.NetworkToHostOrder(s.ReadInt32(ref internalBuffer));
+                int length = ReadInt32BigEndian(s, ref internalBuffer);
                 s.Read(internalBuffer, 0, 4);
                 string type = Encoding.ASCII.GetString(internalBuffer, 0, 4);
 
@@ -87,8 +87,8 @@ namespace Jazz2
                             throw new InvalidDataException("Invalid PNG file - duplicate header");
                         }
 
-                        Width = IPAddress.NetworkToHostOrder(s.ReadInt32(ref internalBuffer));
-                        Height = IPAddress.NetworkToHostOrder(s.ReadInt32(ref internalBuffer));
+                        Width = ReadInt32BigEndian(s, ref internalBuffer);
+                        Height = ReadInt32BigEndian(s, ref internalBuffer);
 
                         byte bitDepth = s.ReadUInt8(ref internalBuffer);
                         PngColorType colorType = (PngColorType)s.ReadUInt8(ref internalBuffer);
@@ -272,6 +272,17 @@ namespace Jazz2
             }
 
             throw new InvalidDataException("Unknown pixel format (" + bitDepth + "-bit, " + colorType + ") specified");
+        }
+
+        private static int ReadInt32BigEndian(Stream s, ref byte[] internalBuffer)
+        {
+            int value = s.ReadInt32(ref internalBuffer);
+            int b1 = (value >> 0) & 0xff;
+            int b2 = (value >> 8) & 0xff;
+            int b3 = (value >> 16) & 0xff;
+            int b4 = (value >> 24) & 0xff;
+
+            return b1 << 24 | b2 << 16 | b3 << 8 | b4 << 0;
         }
     }
 }

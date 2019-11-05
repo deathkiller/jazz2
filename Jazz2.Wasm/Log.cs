@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Jazz2
+namespace Duality
 {
     public enum LogType
     {

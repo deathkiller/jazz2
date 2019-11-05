@@ -282,9 +282,9 @@ namespace Jazz2.Android
 
             string appVersion;
             try {
-                appVersion = App.AssemblyVersion ?? "unknown";
+                appVersion = App.AssemblyVersion ?? "";
             } catch {
-                appVersion = "unknown";
+                appVersion = "";
             }
 
             string device;
@@ -292,12 +292,12 @@ namespace Jazz2.Android
                 device = (string.IsNullOrEmpty(Build.Model) ? Build.Manufacturer : (Build.Model.StartsWith(Build.Manufacturer) ? Build.Model : Build.Manufacturer + " " + Build.Model));
 
                 if (device == null) {
-                    device = "unknown";
+                    device = "";
                 } else if (device.Length > 1) {
                     device = char.ToUpper(device[0]) + device.Substring(1);
                 }
             } catch {
-                device = "unknown";
+                device = "";
             }
 
             string deviceId;

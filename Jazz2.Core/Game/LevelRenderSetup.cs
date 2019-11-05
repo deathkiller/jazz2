@@ -401,7 +401,7 @@ namespace Jazz2.Game
 
         public Texture RequestBlurredInGame()
         {
-#if PLATFORM_ANDROID && !PLATFORM_WASM
+#if PLATFORM_ANDROID || PLATFORM_WASM
             // Blur is disabled in Android and WebAssembly version
             return finalTexture;
 #else

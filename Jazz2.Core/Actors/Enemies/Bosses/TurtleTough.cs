@@ -200,7 +200,9 @@ namespace Jazz2.Actors.Bosses
                 FollowNearestPlayer();
 
                 sound = PlaySound("Mace", 0.7f);
-                sound.Flags |= SoundInstanceFlags.Looped;
+                if (sound != null) {
+                    sound.Flags |= SoundInstanceFlags.Looped;
+                }
             }
 
             public override void OnDestroyed()

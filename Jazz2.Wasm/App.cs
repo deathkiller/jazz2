@@ -50,17 +50,18 @@ namespace Jazz2.Game
 
         private static async Task<bool> DownloadFilesToCache(string[] files)
         {
-            for (int i = 0; i < files.Length; i++) {
-                using (var app = (JSObject)Runtime.GetGlobalObject("App")) {
+            using (var app = (JSObject)Runtime.GetGlobalObject("App")) {
+                for (int i = 0; i < files.Length; i++) {
                     app.Invoke("loadingProgress", i * 100 / (files.Length + 1));
-                }
 
-                bool success = await NativeFileSystem.DownloadToCache(files[i]);
-                if (!success) {
-                    return false;
+                    bool success = await NativeFileSystem.DownloadToCache(files[i], progress => {
+                        app.Invoke("loadingProgress", (i + progress) * 100 / (files.Length + 1));
+                    });
+                    if (!success) {
+                        return false;
+                    }
                 }
             }
-
             return true;
         }
 

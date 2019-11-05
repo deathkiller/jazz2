@@ -802,7 +802,9 @@ namespace Jazz2.Actors
 
                                             if (copterSound == null) {
                                                 copterSound = PlaySound("Copter", 0.6f, 1.5f);
-                                                copterSound.Flags |= SoundInstanceFlags.Looped;
+                                                if (copterSound != null) {
+                                                    copterSound.Flags |= SoundInstanceFlags.Looped;
+                                                }
                                             }
                                         }
                                     }
@@ -856,7 +858,9 @@ namespace Jazz2.Actors
 
                                             if (copterSound == null) {
                                                 copterSound = PlaySound("Copter", 0.6f, 1.5f);
-                                                copterSound.Flags |= SoundInstanceFlags.Looped;
+                                                if (copterSound != null) {
+                                                    copterSound.Flags |= SoundInstanceFlags.Looped;
+                                                }
                                             }
                                         }
                                     }

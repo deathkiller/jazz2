@@ -197,10 +197,12 @@ namespace Jazz2.Game.UI.Menu.InGame
 
         public void PlaySound(string name, float volume = 1f)
         {
+#if !DISABLE_SOUND
             if (metadata.Sounds.TryGetValue(name, out SoundResource res)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound(res.Sound);
                 instance.Volume = volume * SettingsCache.SfxVolume;
             }
+#endif
         }
 
         private void OnUpdate()
@@ -302,10 +304,12 @@ namespace Jazz2.Game.UI.Menu.InGame
             return metadata.Graphics.ContainsKey(name);
         }
 
+#if MULTIPLAYER
         public void SwitchToServer(IPEndPoint endPoint)
         {
             throw new NotSupportedException();
         }
+#endif
 
         private class LocalController : Component, ICmpUpdatable, ICmpRenderer
         {

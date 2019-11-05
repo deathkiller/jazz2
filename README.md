@@ -116,7 +116,7 @@ The application tries to autodetect correct path. Also, you can use* `â€¹SDCardâ
 * Obtain and copy `libopenmpt.dylib` to `/Jazz2/Bin/Debug/libopenmpt.dylib` to enable music playback
 * If you build Release configuration, you have to replace `Debug` with `Release` in paths above
 
-***.NET Core 3.0** build can be compiled in a similar way. Use* `Jazz2.DesktopCore` *project for this. Errors about* `Jazz2.Android` *project can be ignored, if the Android build is not needed.*
+***.NET Core 3.0** build can be compiled in a similar way. Use* `Jazz2.DotNetCore` *project for this. Errors about* `Jazz2.Android` *project can be ignored, if the Android build is not needed.*
 
 ### Android
 * Install **Mobile development in .NET** for Microsoft Visual Studio 2017 (or newer)

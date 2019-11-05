@@ -69,7 +69,9 @@ namespace Jazz2.Game
         private IList<string> levelTexts;
         private Metadata commonResources;
 
+#if !DISABLE_SOUND
         private OpenMptStream music;
+#endif
 
         private LevelInitialization? nextLevelInit;
         private float levelChangeTimer;
@@ -249,10 +251,12 @@ namespace Jazz2.Game
 
         protected override void OnDisposing(bool manually)
         {
+#if !DISABLE_SOUND
             if (music != null) {
                 music.FadeOut(1f);
                 music = null;
             }
+#endif
 
             foreach (Player player in players) {
                 player.AttachToHud(null);
@@ -442,11 +446,13 @@ namespace Jazz2.Game
             tilemapHandler.Parent = rootObject;
             tilemapHandler.AddComponent(tileMap);
 
+#if !DISABLE_SOUND
             // Load default music
             musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", json.Description.DefaultMusic);
             music = new OpenMptStream(musicPath, true);
             music.BeginFadeIn(0.5f);
             DualityApp.Sound.PlaySound(music);
+#endif
 
             // Apply weather
             if (json.Description.DefaultWeather != WeatherType.None) {
@@ -657,6 +663,7 @@ namespace Jazz2.Game
                         hud.ActiveBoss = null;
                     }
 
+#if !DISABLE_SOUND
                     if (music != null) {
                         music.FadeOut(1.8f);
                     }
@@ -665,6 +672,7 @@ namespace Jazz2.Game
                     music = new OpenMptStream(musicPath, true);
                     music.BeginFadeIn(0.4f);
                     DualityApp.Sound.PlaySound(music);
+#endif
                 }
             }
 
@@ -725,6 +733,7 @@ namespace Jazz2.Game
 
         public void PlayCommonSound(string name, ActorBase target, float gain = 1f, float pitch = 1f)
         {
+#if !DISABLE_SOUND
             if (commonResources.Sounds.TryGetValue(name, out SoundResource resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, target);
                 instance.Flags |= SoundInstanceFlags.GameplaySpecific;
@@ -736,10 +745,12 @@ namespace Jazz2.Game
                     instance.Pitch *= 0.7f;
                 }
             }
+#endif
         }
 
         public void PlayCommonSound(string name, Vector3 pos, float gain = 1f, float pitch = 1f)
         {
+#if !DISABLE_SOUND
             if (commonResources.Sounds.TryGetValue(name, out SoundResource resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, pos);
                 instance.Flags |= SoundInstanceFlags.GameplaySpecific;
@@ -751,6 +762,7 @@ namespace Jazz2.Game
                     instance.Pitch *= 0.7f;
                 }
             }
+#endif
         }
 
         public void BroadcastLevelText(string text)
@@ -794,6 +806,7 @@ namespace Jazz2.Game
 
         public void EnableLowpassOnMusic(bool enable)
         {
+#if !DISABLE_SOUND
             if (music == null) {
                 return;
             }
@@ -803,6 +816,7 @@ namespace Jazz2.Game
             } else {
                 music.Lowpass = 1f;
             }
+#endif
         }
 
         protected virtual void OnUpdate()
@@ -1026,6 +1040,7 @@ namespace Jazz2.Game
                 hud.ActiveBoss = activeBoss;
             }
 
+#if !DISABLE_SOUND
             if (music != null) {
                 music.FadeOut(3f);
             }
@@ -1036,6 +1051,7 @@ namespace Jazz2.Game
             music = new OpenMptStream(musicPath, true);
             music.BeginFadeIn(1f);
             DualityApp.Sound.PlaySound(music);
+#endif
         }
 
         private void ResolveCollisions()

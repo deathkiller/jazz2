@@ -184,6 +184,7 @@ namespace Jazz2.Game
 
                         GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
                         GC.Collect();
+                        GC.WaitForPendingFinalizers();
 
                         GCSettings.LatencyMode = GCLatencyMode.LowLatency;
 
@@ -254,6 +255,7 @@ namespace Jazz2.Game
 
                     GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
                     GC.Collect();
+                    GC.WaitForPendingFinalizers();
 
                     GCSettings.LatencyMode = GCLatencyMode.LowLatency;
 

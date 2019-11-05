@@ -31,7 +31,9 @@ namespace Jazz2.Game.UI.Menu
 
         public ContentRef<Material> TopLine, BottomLine, Dim;
 
+#if !DISABLE_SOUND
         private OpenMptStream music;
+#endif
 
         private static string newVersion;
 
@@ -103,6 +105,7 @@ namespace Jazz2.Game.UI.Menu
 
             PrerenderTexturedBackground();
 
+#if !DISABLE_SOUND
             // Play music
             string musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", MathF.Rnd.OneOf(new[] {
                 "bonus2.j2b", "bonus3.j2b"
@@ -113,6 +116,7 @@ namespace Jazz2.Game.UI.Menu
             music = new OpenMptStream(musicPath, true);
             music.BeginFadeIn(0.5f);
             DualityApp.Sound.PlaySound(music);
+#endif
 
             InitPlatformSpecific();
 
@@ -132,10 +136,12 @@ namespace Jazz2.Game.UI.Menu
 
         protected override void OnDisposing(bool manually)
         {
+#if !DISABLE_SOUND
             if (music != null) {
                 music.FadeOut(1f);
                 music = null;
             }
+#endif
 
             base.OnDisposing(manually);
         }
@@ -246,11 +252,13 @@ namespace Jazz2.Game.UI.Menu
 
         public void PlaySound(string name, float volume = 1f)
         {
+#if !DISABLE_SOUND
             SoundResource res;
             if (metadata.Sounds.TryGetValue(name, out res)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound(res.Sound);
                 instance.Volume = volume * SettingsCache.SfxVolume;
             }
+#endif
         }
 
         public bool IsAnimationAvailable(string name)

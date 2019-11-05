@@ -23,7 +23,9 @@ namespace Jazz2.Game.UI
         private byte[] lastBuffer;
 
         private Canvas canvas;
+#if !DISABLE_SOUND
         private OpenMptStream music;
+#endif
 
         private int width;
         private int height;
@@ -63,10 +65,12 @@ namespace Jazz2.Game.UI
                 return;
             }
 
+#if !DISABLE_SOUND
             // Play music
             music = new OpenMptStream(PathOp.Combine(DualityApp.DataDirectory, "Music", name + ".j2b"), false);
             music.BeginFadeIn(0.5f);
             DualityApp.Sound.PlaySound(music);
+#endif
         }
 
         protected override void OnDisposing(bool manually)
@@ -83,10 +87,12 @@ namespace Jazz2.Game.UI
                 videoTexture = null;
             }
 
+#if !DISABLE_SOUND
             if (music != null) {
                 music.FadeOut(1f);
                 music = null;
             }
+#endif
 
             base.OnDisposing(manually);
         }

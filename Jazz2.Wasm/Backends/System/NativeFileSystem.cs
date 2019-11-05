@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Duality.IO;
 using Jazz2.Wasm;
@@ -128,16 +129,19 @@ namespace Duality.Backend.DotNetFramework
             return nativePath;
         }
 
-        public static async Task<bool> DownloadToCache(string nativePath)
+        public static async Task<bool> DownloadToCache(string nativePath, Action<float> callback)
         {
+            const int DefaultCopyBufferSize = 327680;
+
             if (File.Exists(nativePath)) {
-                //Console.WriteLine("Already in cache: " + nativePath);
                 return true;
             }
 
+            Console.WriteLine("Downloading \"" + nativePath + "\"...");
+
             string baseAddress = WasmResourceLoader.GetBaseAddress();
 
-            Stream httpStream = await WasmResourceLoader.LoadAsync(nativePath, baseAddress);
+            (Stream httpStream, int size) = await WasmResourceLoader.LoadAsync(nativePath, baseAddress);
             if (httpStream == null) {
                 return false;
             }
@@ -145,10 +149,26 @@ namespace Duality.Backend.DotNetFramework
             Directory.CreateDirectory(Path.GetDirectoryName(nativePath));
 
             using (Stream s = File.Open(nativePath, FileMode.Create, FileAccess.Write)) {
-                httpStream.CopyTo(s);
+                //httpStream.CopyTo(s);
+
+                byte[] buffer = new byte[DefaultCopyBufferSize];
+                int bytesRead;
+
+                if (size > DefaultCopyBufferSize) {
+                    int totalRead = 0;
+                    while ((bytesRead = await httpStream.ReadAsync(buffer, 0, buffer.Length, CancellationToken.None).ConfigureAwait(false)) != 0) {
+                        await s.WriteAsync(buffer, 0, bytesRead, CancellationToken.None).ConfigureAwait(false);
+
+                        totalRead += bytesRead;
+                        callback((float)totalRead / size);
+                    }
+                } else {
+                    while ((bytesRead = await httpStream.ReadAsync(buffer, 0, buffer.Length, CancellationToken.None).ConfigureAwait(false)) != 0) {
+                        await s.WriteAsync(buffer, 0, bytesRead, CancellationToken.None).ConfigureAwait(false);
+                    }
+                }
             }
 
-            //Console.WriteLine("Downloaded to cache: " + nativePath);
             return true;
         }
     }

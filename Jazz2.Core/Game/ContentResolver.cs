@@ -34,13 +34,17 @@ namespace Jazz2.Game
                 public IList<int> ShaderColor { get; set; }
             }
 
+#if !DISABLE_SOUND
             public class SoundsSection
             {
                 public IList<string> Paths { get; set; }
             }
+#endif
 
             public IDictionary<string, AnimationsSection> Animations { get; set; }
+#if !DISABLE_SOUND
             public IDictionary<string, SoundsSection> Sounds { get; set; }
+#endif
             public IList<string> Preload { get; set; }
             public IList<int> BoundingBox { get; set; }
         }
@@ -66,7 +70,7 @@ namespace Jazz2.Game
             public BlendMode BlendMode { get; set; }
             public string VertexFormat { get; set; }
         }
-        #endregion
+#endregion
 
         private static ContentResolver current;
 
@@ -88,7 +92,9 @@ namespace Jazz2.Game
         private ConcurrentDictionary<string, Metadata> cachedMetadata;
         private Dictionary<string, GenericGraphicResource> cachedGraphics;
         private Dictionary<string, ContentRef<DrawTechnique>> cachedShaders;
+#if !DISABLE_SOUND
         //private Dictionary<string, ContentRef<Sound>> cachedSounds;
+#endif
 
         private ContentRef<DrawTechnique> basicNormal, paletteNormal;
 
@@ -120,7 +126,9 @@ namespace Jazz2.Game
             cachedMetadata = new ConcurrentDictionary<string, Metadata>(2, 31);
             cachedGraphics = new Dictionary<string, GenericGraphicResource>();
             cachedShaders = new Dictionary<string, ContentRef<DrawTechnique>>();
+#if !DISABLE_SOUND
             //cachedSounds = new Dictionary<string, ContentRef<Sound>>();
+#endif
 
             basicNormal = RequestShader("BasicNormal");
             paletteNormal = RequestShader("PaletteNormal");
@@ -184,14 +192,18 @@ namespace Jazz2.Game
                     Metadata metadata;
                     cachedMetadata.TryRemove(path, out metadata);
 
+#if !DISABLE_SOUND
                     if (metadata.Sounds != null) {
                         foreach (var sound in metadata.Sounds) {
                             sound.Value.Sound.Res?.Dispose();
                         }
                     }
+#endif
 
                     metadata.Graphics = null;
+#if !DISABLE_SOUND
                     metadata.Sounds = null;
+#endif
 
                     //System.Diagnostics.Debug.WriteLine("Releasing metadata \"" + path + "\"...");
                 }
@@ -215,10 +227,6 @@ namespace Jazz2.Game
                     //System.Diagnostics.Debug.WriteLine("Releasing graphics \"" + path + "\"...");
                 }
             }
-
-            // Force GC Collect
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
         }
 
         public Metadata RequestMetadata(string path)
@@ -330,7 +338,7 @@ namespace Jazz2.Game
                             res.FrameCount -= res.FrameOffset;
                         }
                         if ((raw2 = g.Value.FrameRate as string) != null && int.TryParse(raw2, out raw3)) {
-                            res.FrameDuration = (1f / raw3) * 5; // ToDo: I don't know...
+                            res.FrameDuration = (raw3 <= 0 ? -1 : (1f / raw3) * 5); // ToDo: I don't know...
                         }
 
                         res.OnlyOnce = (g.Value.Flags & 0x01) != 0x00;
@@ -351,6 +359,7 @@ namespace Jazz2.Game
                 }
             }
 
+#if !DISABLE_SOUND
             // Pre-load sounds
             if (json.Sounds != null) {
                 metadata.Sounds = new Dictionary<string, SoundResource>();
@@ -387,6 +396,7 @@ namespace Jazz2.Game
 #endif
                 }
             }
+#endif
 
             // Bounding Box
             if (json.BoundingBox != null && json.BoundingBox.Count == 2) {
@@ -425,7 +435,7 @@ namespace Jazz2.Game
                 resource = new GenericGraphicResource {
                     FrameDimensions = new Point2(json.FrameSize[0], json.FrameSize[1]),
                     FrameConfiguration = new Point2(json.FrameConfiguration[0], json.FrameConfiguration[1]),
-                    FrameDuration = (1f / json.FrameRate) * 5,
+                    FrameDuration = (json.FrameRate <= 0 ? -1 : (1f / json.FrameRate) * 5),
                     FrameCount = json.FrameCount
                 };
 

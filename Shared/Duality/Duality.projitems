@@ -23,7 +23,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Audio\INativeAudioBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Audio\INativeAudioSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\BackendException.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Backend\DefaultAssemblyLoader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Dummy\DummyAssemblyLoader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Dummy\DummyAudioBackend.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Backend\Dummy\DummyFileSystem.cs" />

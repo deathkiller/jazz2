@@ -1086,6 +1086,7 @@ namespace Jazz2.Actors
 
         protected SoundInstance PlaySound(string name, float gain = 1f, float pitch = 1f)
         {
+#if !DISABLE_SOUND
             if (availableSounds.TryGetValue(name, out SoundResource resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, this);
                 instance.Flags |= SoundInstanceFlags.GameplaySpecific;
@@ -1102,10 +1103,14 @@ namespace Jazz2.Actors
             } else {
                 return null;
             }
+#else
+            return null;
+#endif
         }
 
         protected SoundInstance PlaySound(Vector3 pos, string name, float gain = 1f, float pitch = 1f)
         {
+#if !DISABLE_SOUND
             if (availableSounds.TryGetValue(name, out SoundResource resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, pos);
                 instance.Flags |= SoundInstanceFlags.GameplaySpecific;
@@ -1122,6 +1127,9 @@ namespace Jazz2.Actors
             } else {
                 return null;
             }
+#else
+            return null;
+#endif
         }
 
         protected void CreateParticleDebris()
@@ -1171,7 +1179,7 @@ namespace Jazz2.Actors
             renderer.SharedMaterial = resource.Material;
             renderer.FrameConfiguration = resource.Base.FrameConfiguration;
 
-            if (float.IsInfinity(resource.FrameDuration)) {
+            if (resource.FrameDuration < 0) {
                 if (resource.FrameCount > 1) {
                     renderer.AnimFirstFrame = resource.FrameOffset + MathF.Rnd.Next(resource.FrameCount);
                 } else {

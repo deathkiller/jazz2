@@ -34,7 +34,20 @@ namespace Jazz2
                     deviceId = "";
                 }
 
-                deviceId += "|Android " + global::Android.OS.Build.VERSION.Release;
+                deviceId += "|Android " + global::Android.OS.Build.VERSION.Release + "|";
+                
+                try {
+                    string device = (string.IsNullOrEmpty(Build.Model) ? Build.Manufacturer : (Build.Model.StartsWith(Build.Manufacturer) ? Build.Model : Build.Manufacturer + " " + Build.Model));
+
+                    if (device == null) {
+                        device = "";
+                    } else if (device.Length > 1) {
+                        device = char.ToUpper(device[0]) + device.Substring(1);
+                    }
+                    
+                    deviceId += device;
+                } catch {
+                }
 #else
                 try {
                     deviceId = System.Environment.MachineName;
@@ -45,7 +58,7 @@ namespace Jazz2
                     deviceId = "";
                 }
 
-                deviceId += "|" + System.Environment.OSVersion.ToString();
+                deviceId += "|" + System.Environment.OSVersion.ToString() + "|";
 #endif
 
                 deviceId = System.Convert.ToBase64String(Encoding.UTF8.GetBytes(deviceId))

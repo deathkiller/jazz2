@@ -334,7 +334,9 @@ namespace Jazz2.Actors
 
             if (weaponToasterSound == null) {
                 weaponToasterSound = PlaySound("WeaponToaster", 0.6f);
-                weaponToasterSound.Flags |= SoundInstanceFlags.Looped;
+                if (weaponToasterSound != null) {
+                    weaponToasterSound.Flags |= SoundInstanceFlags.Looped;
+                }
             }
 
             weaponCooldown = 6f;

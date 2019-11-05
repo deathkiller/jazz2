@@ -55,6 +55,7 @@
     </Compile>
     <Compile Include="App.cs" />
     <Compile Include="App.RichPresence.cs" />
+    <Compile Include="Backend\DefaultAssemblyLoader.cs" />
     <Compile Include="Backend\Preferences\PreferencesBackend.cs" />
     <Compile Include="Discord\DiscordRpcClient.cs" />
     <Compile Include="Discord\ManagedNamedPipeClient.cs" />
