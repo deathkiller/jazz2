@@ -107,7 +107,6 @@ Global
 		{D9811A88-51E3-4225-AC54-149F4DAA7DB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D9811A88-51E3-4225-AC54-149F4DAA7DB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9811A88-51E3-4225-AC54-149F4DAA7DB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D9811A88-51E3-4225-AC54-149F4DAA7DB3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
