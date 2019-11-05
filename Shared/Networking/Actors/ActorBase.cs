@@ -4,7 +4,7 @@ namespace Jazz2.Actors
 {
     partial class ActorBase
     {
-        public int Index { get; set; }
+        public int Index;
 
         public void OnUpdateRemoteActor(Vector3 pos, Vector2 speed, bool visible, bool isFacingLeft)
         {

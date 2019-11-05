@@ -2,11 +2,73 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Reflection;
 using Duality;
 using Duality.Async;
 using Jazz2.Networking;
 using Lidgren.Network;
+
+namespace Jazz2.Game
+{
+    public partial class App
+    {
+        private static string assemblyPath;
+
+        public static string AssemblyTitle
+        {
+            get
+            {
+                object[] attributes = Assembly.GetEntryAssembly().GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
+                if (attributes.Length > 0) {
+                    AssemblyTitleAttribute titleAttribute = (AssemblyTitleAttribute)attributes[0];
+                    if (!string.IsNullOrEmpty(titleAttribute.Title)) {
+                        return titleAttribute.Title;
+                    }
+                }
+                return Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location);
+            }
+        }
+
+        public static string AssemblyVersion
+        {
+            get
+            {
+                Version v = Assembly.GetEntryAssembly().GetName().Version;
+                return v.Major.ToString(CultureInfo.InvariantCulture) + "." + v.Minor.ToString(CultureInfo.InvariantCulture) + "." + v.Build.ToString(CultureInfo.InvariantCulture) + (v.Revision != 0 ? "." + v.Revision.ToString(CultureInfo.InvariantCulture) : "");
+            }
+        }
+
+        public static string AssemblyPath
+        {
+            get
+            {
+                if (assemblyPath == null) {
+#if LINUX_BUNDLE
+                    try {
+                        assemblyPath = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
+                    } catch {
+                        assemblyPath = "";
+                    }
+#else
+                    assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+#endif
+                }
+
+                return assemblyPath;
+            }
+        }
+
+        public static void GetAssemblyVersionNumber(out byte major, out byte minor, out byte build)
+        {
+            Version v = Assembly.GetEntryAssembly().GetName().Version;
+            major = (byte)v.Major;
+            minor = (byte)v.Minor;
+            build = (byte)v.Build;
+        }
+    }
+}
 
 namespace Jazz2.Server
 {
@@ -18,6 +80,13 @@ namespace Jazz2.Server
 
         private static void Main(string[] args)
         {
+            // Override working directory
+            try {
+                Environment.CurrentDirectory = Jazz2.Game.App.AssemblyPath;
+            } catch (Exception ex) {
+                Console.WriteLine("Cannot override current directory: " + ex);
+            }
+
             ConsoleUtils.TryEnableUnicode();
 
             // Try to render Jazz2 logo
@@ -233,10 +302,12 @@ namespace Jazz2.Server
                 Log.Write(LogType.Info, "Players (" + playerCount + "/" + gameServer.MaxPlayers + ")".PadRight(12) + "Pos              Remote Endpoint");
                 Log.PushIndent();
 
-                foreach (KeyValuePair<NetConnection, GameServer.Player> pair in gameServer.Players) {
+                foreach (KeyValuePair<NetConnection, GameServer.PlayerClient> pair in gameServer.Players) {
                     Log.Write(LogType.Info, GameServer.PlayerNameToConsole(pair.Value).PadRight(6) + " " +
                         pair.Value.State.ToString().PadRight(15) +
-                        " [" + ((int)pair.Value.Pos.X).ToString().PadLeft(5) + "; " + ((int)pair.Value.Pos.Y).ToString().PadLeft(5) + "]   " +
+                        (pair.Value.ProxyActor == null ? 
+                            " -                " :
+                            " [" + ((int)pair.Value.ProxyActor.Transform.Pos.X).ToString().PadLeft(5) + "; " + ((int)pair.Value.ProxyActor.Transform.Pos.Y).ToString().PadLeft(5) + "]   ") +
                         pair.Key.RemoteEndPoint);
                 }
             } else {

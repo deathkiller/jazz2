@@ -1,8 +1,11 @@
-﻿using System;
+﻿#if !SERVER
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Threading;
+using Duality;
 using Jazz2.Networking;
 using Jazz2.Networking.Packets;
 using Lidgren.Network;
@@ -193,6 +196,13 @@ namespace Jazz2.Game.Multiplayer
             NetOutgoingMessage msg = client.CreateMessage(capacity);
             msg.Write((byte)packet.Type);
             packet.Write(msg);
+
+#if DEBUG
+            if (msg.LengthBytes > capacity) {
+                Log.Write(LogType.Warning, "Packet " + typeof(T).Name + " has underestimated capacity (" + msg.LengthBytes + "/" + capacity + ")");
+            }
+#endif
+
             NetSendResult result = client.SendMessage(msg, method, channel);
 
 #if DEBUG
@@ -240,3 +250,5 @@ namespace Jazz2.Game.Multiplayer
         #endregion
     }
 }
+
+#endif

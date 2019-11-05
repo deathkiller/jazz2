@@ -22,10 +22,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Backends\WebGL20\**" />
-    <EmbeddedResource Remove="Backends\WebGL20\**" />
-    <None Remove="Backends\WebGL20\**" />
-    <_WasmItem Remove="Backends\WebGL20\**" />
+    <Compile Remove="Backend\WebGL20\**" />
+    <EmbeddedResource Remove="Backend\WebGL20\**" />
+    <None Remove="Backend\WebGL20\**" />
+    <_WasmItem Remove="Backend\WebGL20\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -54,10 +54,12 @@
     </Content>
   </ItemGroup>
 
-  <Import Project="..\Jazz2.Core\Jazz2.Core.projitems" Label="Shared" />
+  <Import Project="..\Shared\Jazz2.Core\Jazz2.Core.projitems" Label="Shared" />
 
   <Import Project="..\Shared\Duality\Duality.projitems" Label="Shared" />
 
   <Import Project="..\Shared\Primitives\Primitives.projitems" Label="Shared" />
+
+  <Import Project="..\Shared\Jazz2.Core.Client\Jazz2.Core.Client.projitems" Label="Shared" />
   
 </Project>

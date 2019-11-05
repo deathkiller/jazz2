@@ -19,10 +19,10 @@ namespace Jazz2.Networking.Packets.Client
         public Vector3 Pos;
 
         public AnimState AnimState;
-        public float AnimTime;
+        //public float AnimTime;
         public bool IsFacingLeft;
 
-        public bool Controllable;
+        //public bool Controllable;
         public bool IsFirePressed;
 
         void IClientPacket.Read(NetIncomingMessage msg)
@@ -39,10 +39,10 @@ namespace Jazz2.Networking.Packets.Client
             }
 
             AnimState = (AnimState)msg.ReadUInt32();
-            AnimTime = msg.ReadFloat();
+            //AnimTime = msg.ReadFloat();
             IsFacingLeft = msg.ReadBoolean();
 
-            Controllable = msg.ReadBoolean();
+            //Controllable = msg.ReadBoolean();
             IsFirePressed = msg.ReadBoolean();
         }
 
@@ -57,10 +57,10 @@ namespace Jazz2.Networking.Packets.Client
             msg.Write((ushort)Pos.Z);
 
             msg.Write((uint)AnimState);
-            msg.Write((float)AnimTime);
+            //msg.Write((float)AnimTime);
             msg.Write((bool)IsFacingLeft);
 
-            msg.Write((bool)Controllable);
+            //msg.Write((bool)Controllable);
             msg.Write((bool)IsFirePressed);
         }
     }

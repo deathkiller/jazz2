@@ -5,16 +5,26 @@ namespace Jazz2.Actors
 {
     partial class Player
     {
+#if SERVER
+        public AnimState AnimState => currentAnimationState;
+
+        public void SyncWithClient(AnimState animState, bool isFacingLeft)
+        {
+            currentAnimationState = animState;
+            IsFacingLeft = isFacingLeft;
+        }
+#endif
+
         public UpdateSelf CreateUpdatePacket()
         {
             return new UpdateSelf {
                 Pos = Transform.Pos,
 
                 AnimState = (currentTransitionState != AnimState.Idle ? currentTransitionState : currentAnimationState),
-                AnimTime = (renderer.Active ? renderer.AnimTime : -1),
+                //AnimTime = (renderer.Active ? renderer.AnimTime : -1),
                 IsFacingLeft = IsFacingLeft,
 
-                Controllable = controllable,
+                //Controllable = controllable,
                 IsFirePressed = wasFirePressed
             };
         }

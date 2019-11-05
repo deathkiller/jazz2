@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading;
 using Duality;
 using Jazz2.Game;
-using Jazz2.Game.Events;
 using Jazz2.Networking;
 using Jazz2.Networking.Packets.Server;
 using Lidgren.Network;
@@ -38,8 +37,10 @@ namespace Jazz2.Server
         public int PlayerCount => players.Count;
         public int MaxPlayers => maxPlayers;
         public string CurrentLevel => currentLevel;
-        public Dictionary<NetConnection, Player> Players => players;
+        public Dictionary<NetConnection, PlayerClient> Players => players;
         public DateTime StartedTime => startedTime;
+
+        public object Synchronization => sync;
 
         public string Name
         {
@@ -91,15 +92,13 @@ namespace Jazz2.Server
             ContentResolver.Current.InitPostWindow();
 
             callbacks = new Dictionary<byte, Action<NetIncomingMessage, bool>>();
-            players = new Dictionary<NetConnection, Player>();
-            playersByIndex = new Player[256];
+            players = new Dictionary<NetConnection, PlayerClient>();
+            playersByIndex = new PlayerClient[256];
             playerConnections = new List<NetConnection>();
 
             //remotableActors = new Dictionary<int, RemotableActor>();
-            spawnedActors = new List<Actors.ActorBase>();
-            spawnedActorsAnimation = new Dictionary<Actors.ActorBase, string>();
-
-            eventSpawner = new EventSpawner(this);
+            //spawnedActors = new List<Actors.ActorBase>();
+            //spawnedActorsAnimation = new Dictionary<Actors.ActorBase, string>();
 
             server = new ServerConnection(Token, port, maxPlayers, !isPrivate && enableUPnP);
             server.MessageReceived += OnMessageReceived;
@@ -332,10 +331,10 @@ namespace Jazz2.Server
             lock (sync) {
                 foreach (var player in players) {
                     if (player.Value.Index == playerIndex) {
-                        Send(new DecreasePlayerHealth {
+                        SendToActivePlayers(new DecreasePlayerHealth {
                             Index = playerIndex,
                             Amount = byte.MaxValue
-                        }, 3, playerConnections, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+                        }, 3, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                         return true;
                     }
                 }
@@ -348,28 +347,17 @@ namespace Jazz2.Server
         {
             lock (sync) {
                 foreach (var player in players) {
-                    Send(new DecreasePlayerHealth {
+                    SendToActivePlayers(new DecreasePlayerHealth {
                         Index = player.Value.Index,
                         Amount = byte.MaxValue
-                    }, 3, playerConnections, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+                    }, 3, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                 }
             }
         }
 
-        public static string PlayerNameToConsole(Player player)
+        public static string PlayerNameToConsole(PlayerClient player)
         {
-            if (ConsoleUtils.SupportsUnicode) {
-                string line = "";
-                int playerIndex = player.Index;
-                do {
-                    int digit = playerIndex % 10;
-                    playerIndex /= 10;
-                    line = (char)((int)'₀' + digit) + line;
-                } while (playerIndex > 0);
-                return "℘" + line;
-            } else {
-                return "#" + player.Index;
-            }
+            return "#" + player.Index;
         }
     }
 }

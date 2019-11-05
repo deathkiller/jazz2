@@ -6,20 +6,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime;
 using System.Runtime.CompilerServices;
-using System.Text.Json;
 using System.Threading;
 using Duality;
 using Duality.Async;
-using Duality.Drawing;
 using Duality.IO;
+using Duality.Resources;
 using Jazz2.Actors;
 using Jazz2.Game;
-using Jazz2.Game.Collisions;
-using Jazz2.Game.Events;
-using Jazz2.Game.Multiplayer;
-using Jazz2.Game.Structs;
-using Jazz2.Game.Tiles;
-using Jazz2.Game.UI;
 using Jazz2.Networking;
 using Jazz2.Networking.Packets.Server;
 using Jazz2.Storage.Content;
@@ -39,64 +32,37 @@ namespace Jazz2.Server
             Dead
         }
 
-        public class Player
+        public class PlayerClient
         {
+            public byte Index;
             public NetConnection Connection;
             public byte[] ClientIdentifier;
             public string UserName;
-
-            public byte Index;
-            public PlayerState State;
             public long LastUpdateTime;
-
-            public Vector3 Pos;
-
-            public AnimState AnimState;
-            public float AnimTime;
-            public bool IsFacingLeft;
-
-            public PlayerType PlayerType;
-            public int Lives, Coins, Gems, FoodEaten;
-            public float InvulnerableTime;
-
-            public bool Controllable;
-            public bool IsFirePressed;
-            public float WeaponCooldown;
+            public PlayerState State;
 
             public int StatsDeaths;
             public int StatsKills;
             public int StatsHits;
             public int LastHitPlayerIndex;
 
-            public RemoteActor ShadowActor;
+            public Player ProxyActor;
         }
+
+        private LevelHandler levelHandler;
 
         private string currentLevel;
         private string currentLevelFriendlyName;
         private MultiplayerLevelType currentLevelType;
 
-        private Dictionary<NetConnection, Player> players;
-        public Player[] playersByIndex;
+        private Dictionary<NetConnection, PlayerClient> players;
+        public PlayerClient[] playersByIndex;
         private List<NetConnection> playerConnections;
         private byte lastPlayerIndex;
         private bool playerSpawningEnabled = true;
         private byte playerHealth = 5;
 
-        //private Dictionary<int, RemotableActor> remotableActors;
-        private List<ActorBase> spawnedActors;
-        private Dictionary<ActorBase, string> spawnedActorsAnimation;
-        private int lastSpawnedActorId;
-
         private int lastGameLoadMs;
-
-        private Rect levelBounds;
-        private ServerEventMap eventMap;
-        private EventSpawner eventSpawner;
-        private TileMap tileMap;
-        private DynamicTreeBroadPhase<ICollisionable> collisions;
-
-        public ServerEventMap EventMap => eventMap;
-        public EventSpawner EventSpawner => eventSpawner;
 
         public bool IsPlayerSpawningEnabled
         {
@@ -116,41 +82,45 @@ namespace Jazz2.Server
                     lock (sync) {
                         List<NetConnection> playersWithLoadedLevel = new List<NetConnection>(players.Count);
 
-                        foreach (KeyValuePair<NetConnection, Player> pair in players) {
-                            Player player = pair.Value;
+                        foreach (KeyValuePair<NetConnection, PlayerClient> pair in players) {
+                            PlayerClient player = pair.Value;
                             if (player.State != PlayerState.HasLevelLoaded) {
                                 continue;
                             }
 
                             // Initialize player to it can be spawned
-                            // ToDo: Set character requested by the player
-                            player.PlayerType = MathF.Rnd.OneOf(new[] { PlayerType.Jazz, PlayerType.Spaz, PlayerType.Lori });
+                            Vector3 pos = new Vector3(levelHandler.EventMap.GetSpawnPositionForMultiplayer(), LevelHandler.PlayerZ);
 
-                            // ToDo: The same as RespawnPlayer()
-                            player.Pos = new Vector3(eventMap.GetRandomSpawnPosition(), LevelHandler.PlayerZ);
+                            if (player.ProxyActor == null) {
+                                player.ProxyActor = new Player();
+                                player.ProxyActor.OnActivated(new ActorActivationDetails {
+                                    LevelHandler = levelHandler,
+                                    Pos = pos,
+                                    Params = new[] { (ushort)MathF.Rnd.OneOf(new[] { PlayerType.Jazz, PlayerType.Spaz, PlayerType.Lori }), (ushort)/*player.Index*/0 }
+                                });
+                                levelHandler.AddPlayer(player.ProxyActor);
+                            } else {
+                                player.ProxyActor.Transform.Pos = pos;
+                            }
+
                             player.State = PlayerState.Spawned;
-
-                            // ToDo: But these two lines not
-                            /*player.ShadowActor = new RemoteActor();
-                            player.ShadowActor.Transform.Pos = player.Pos;
-                            player.ShadowActor.UpdateAABB();
-                            collisions.AddProxy(player.ShadowActor);
-                            player.ShadowActor.Transform.EventTransformChanged += OnActorTransformChanged;*/
 
                             Send(new CreateControllablePlayer {
                                 Index = player.Index,
-                                Type = player.PlayerType,
-                                Pos = player.Pos,
+                                Type = player.ProxyActor.PlayerType,
+                                Pos = pos,
                                 Health = playerHealth
                             }, 9, pair.Key, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
 
                             playersWithLoadedLevel.Clear();
-                            foreach (KeyValuePair<NetConnection, Player> pair2 in players) {
+                            foreach (KeyValuePair<NetConnection, PlayerClient> pair2 in players) {
                                 if (pair.Key == pair2.Key) {
                                     continue;
                                 }
 
-                                if (pair2.Value.State == PlayerState.HasLevelLoaded || pair2.Value.State == PlayerState.Spawned || pair2.Value.State == PlayerState.Dead) {
+                                if (pair2.Value.State == PlayerState.HasLevelLoaded ||
+                                    pair2.Value.State == PlayerState.Spawned ||
+                                    pair2.Value.State == PlayerState.Dead) {
                                     playersWithLoadedLevel.Add(pair2.Key);
                                 }
                             }
@@ -158,8 +128,8 @@ namespace Jazz2.Server
                             // Send command to all active players to create this new player
                             Send(new CreateRemotePlayer {
                                 Index = player.Index,
-                                Type = player.PlayerType,
-                                Pos = player.Pos
+                                Type = player.ProxyActor.PlayerType,
+                                Pos = pos
                             }, 9, playersWithLoadedLevel, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                         }
                     }
@@ -217,12 +187,16 @@ namespace Jazz2.Server
 
             //Scene.Current.Update();
 
-            lock (sync) {
+            /*lock (sync) {
                 for (int i = 0; i < spawnedActors.Count; i++) {
                     ActorBase actor = spawnedActors[i];
                     actor.OnUpdate();
                     actor.OnFixedUpdate(1f);
                 }
+            }*/
+
+            if (levelHandler != null) {
+                levelHandler.Update();
             }
 
             AsyncManager.InvokeAfterUpdate();
@@ -231,7 +205,7 @@ namespace Jazz2.Server
 
             lock (sync) {
                 // Respawn dead players immediately
-                foreach (KeyValuePair<NetConnection, Player> pair in players) {
+                foreach (KeyValuePair<NetConnection, PlayerClient> pair in players) {
                     if (pair.Value.State == PlayerState.Dead) {
                         if (playerSpawningEnabled) {
                             RespawnPlayer(pair.Value);
@@ -245,6 +219,8 @@ namespace Jazz2.Server
 
                 // Update all players
                 if (playerConnections.Count > 0) {
+                    List<ActorBase> spawnedActors = levelHandler.SpawnedActors;
+
                     int playerCount = players.Count;
                     //int remotableActorCount = remotableActors.Count;
                     int spawnedActorCount = spawnedActors.Count;
@@ -254,8 +230,8 @@ namespace Jazz2.Server
                     m.Write((long)(NetTime.Now * 1000));
 
                     m.Write((byte)playerCount);
-                    foreach (KeyValuePair<NetConnection, Player> pair in players) {
-                        Player player = pair.Value;
+                    foreach (KeyValuePair<NetConnection, PlayerClient> pair in players) {
+                        PlayerClient player = pair.Value;
                         m.Write((byte)player.Index); // Player Index
 
                         if (player.State != PlayerState.Spawned) {
@@ -265,13 +241,14 @@ namespace Jazz2.Server
 
                         m.Write((byte)1); // Flags - Spawned
 
-                        m.Write((ushort)player.Pos.X);
-                        m.Write((ushort)player.Pos.Y);
-                        m.Write((ushort)player.Pos.Z);
+                        Vector3 pos = player.ProxyActor.Transform.Pos;
+                        m.Write((ushort)pos.X);
+                        m.Write((ushort)pos.Y);
+                        m.Write((ushort)pos.Z);
 
-                        m.Write((uint)player.AnimState);
-                        m.Write((float)player.AnimTime);
-                        m.Write((bool)player.IsFacingLeft);
+                        m.Write((uint)player.ProxyActor.AnimState);
+                        m.Write((float)player.ProxyActor.AnimTime);
+                        m.Write((bool)player.ProxyActor.IsFacingLeft);
 
                         //AABB aabb = new AABB(player.Pos.Xy, 20, 30);
                         //collisions.MoveProxy(player, ref aabb, player.Speed);
@@ -305,8 +282,6 @@ namespace Jazz2.Server
 
                     // Send update command to all active players
                     server.Send(m, playerConnections, NetDeliveryMethod.Unreliable, PacketChannels.UnreliableUpdates);
-
-                    ResolveCollisions();
                 }
             }
         }
@@ -325,7 +300,7 @@ namespace Jazz2.Server
                 currentLevelType = levelType;
 
                 // Load new level
-                using (Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
+                /*using (Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
                     // ToDo: Cache parser
                     JsonParser json = new JsonParser();
                     LevelHandler.LevelConfigJson config = json.Parse<LevelHandler.LevelConfigJson>(s);
@@ -334,7 +309,9 @@ namespace Jazz2.Server
                         throw new NotSupportedException("Version not supported");
                     }
 
-                    currentLevelFriendlyName = BitmapFont.StripFormatting(config.Description.Name);
+                    // TODO
+                    //currentLevelFriendlyName = BitmapFont.StripFormatting(config.Description.Name);
+                    currentLevelFriendlyName = config.Description.Name;
 
                     Log.Write(LogType.Info, "Loading level \"" + currentLevelFriendlyName + "\" (" + currentLevelType + ")...");
 
@@ -349,7 +326,7 @@ namespace Jazz2.Server
                     }
 
                     // Tileset
-                    tileMap = new TileMap(this, config.Description.DefaultTileset, tileMapPalette, (config.Description.Flags & LevelHandler.LevelFlags.HasPit) != 0);
+                    tileMap = new TileMap(levelHandler, config.Description.DefaultTileset, tileMapPalette, (config.Description.Flags & LevelHandler.LevelFlags.HasPit) != 0);
 
                     // Additional tilesets
                     if (config.Tilesets != null) {
@@ -366,7 +343,7 @@ namespace Jazz2.Server
                         tileMapSize.Y = r.ReadInt32();
                     }
 
-                    levelBounds = new Rect(tileMapSize * /*tileMap.Tileset.TileSize*/32);
+                    levelBounds = new Rect(tileMapSize * 32);
 
                     collisions = new DynamicTreeBroadPhase<ICollisionable>();
 
@@ -384,11 +361,19 @@ namespace Jazz2.Server
                 spawnedActorsAnimation.Clear();
                 lastSpawnedActorId = 0;
 
-                eventMap.ActivateEvents();
+                eventMap.ActivateEvents();*/
+
+                // ToDo
+                int idx = currentLevel.IndexOf('/');
+                levelHandler = new LevelHandler(this, currentLevel.Substring(0, idx), currentLevel.Substring(idx + 1));
+
+                Scene.SwitchTo(levelHandler);
+
 
                 // Reset active players and send command to change level to all players
-                foreach (KeyValuePair<NetConnection, Player> pair in players) {
+                foreach (KeyValuePair<NetConnection, PlayerClient> pair in players) {
                     pair.Value.State = PlayerState.NotReady;
+                    pair.Value.ProxyActor = null;
                 }
 
                 playerConnections.Clear();
@@ -397,7 +382,7 @@ namespace Jazz2.Server
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
 
-                foreach (KeyValuePair<NetConnection, Player> pair in players) {
+                foreach (KeyValuePair<NetConnection, PlayerClient> pair in players) {
                     Send(new LoadLevel {
                         LevelName = currentLevel,
                         LevelType = currentLevelType,
@@ -409,101 +394,36 @@ namespace Jazz2.Server
             return true;
         }
 
-        public void AddSpawnedActor(ActorBase actor)
-        {
-            if (string.IsNullOrEmpty(actor.LoadedMetadata)) {
-                Log.Write(LogType.Warning, actor.ToString() + " has no metadata");
-                return;
-            }
-
-            int index;
-
-            lock (sync) {
-                index = (lastSpawnedActorId << 8) | 0xff; // Subindex 0xff means that the object is not owned by any player
-                lastSpawnedActorId++;
-
-                actor.Index = index;
-                spawnedActors.Add(actor);
-
-                if ((actor.CollisionFlags & CollisionFlags.ForceDisableCollisions) == 0) {
-                    actor.UpdateAABB();
-                    collisions.AddProxy(actor);
-                    actor.Transform.EventTransformChanged += OnActorTransformChanged;
-                }
-            }
-
-            Send(new CreateRemoteActor {
-                Index = index,
-                Pos = actor.Transform.Pos,
-                MetadataPath = actor.LoadedMetadata
-            }, 35, playerConnections, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
-
-            if (spawnedActorsAnimation.TryGetValue(actor, out string identifier)) {
-                Send(new RefreshActorAnimation {
-                    Index = actor.Index,
-                    Identifier = identifier,
-                }, 32, playerConnections, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
-            }
-        }
-
-        public void DestroySpawnedActor(ActorBase actor)
-        {
-            int index = actor.Index;
-
-            lock (sync) {
-                spawnedActors.Remove(actor);
-                spawnedActorsAnimation.Remove(actor);
-
-                if ((actor.CollisionFlags & CollisionFlags.ForceDisableCollisions) == 0) {
-                    actor.Transform.EventTransformChanged -= OnActorTransformChanged;
-                    collisions.RemoveProxy(actor);
-                }
-            }
-
-            Send(new DestroyRemoteActor {
-                Index = index,
-            }, 5, playerConnections, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
-        }
-
-        public void RespawnPlayer(Player player)
+        public void RespawnPlayer(PlayerClient player)
         {
             lock (sync) {
                 if (player.State != PlayerState.HasLevelLoaded && player.State != PlayerState.Dead) {
                     return;
                 }
 
-                player.Pos = new Vector3(eventMap.GetRandomSpawnPosition(), LevelHandler.PlayerZ);
+                Vector3 pos = new Vector3(levelHandler.EventMap.GetSpawnPositionForMultiplayer(), LevelHandler.PlayerZ);
+
+                if (player.ProxyActor == null) {
+                    player.ProxyActor = new Player();
+                    player.ProxyActor.OnActivated(new ActorActivationDetails {
+                        LevelHandler = levelHandler,
+                        Pos = pos,
+                        Params = new[] { (ushort)MathF.Rnd.OneOf(new[] { PlayerType.Jazz, PlayerType.Spaz, PlayerType.Lori }), (ushort)/*player.Index*/0 }
+                    });
+                    levelHandler.AddPlayer(player.ProxyActor);
+                } else {
+                    player.ProxyActor.Transform.Pos = pos;
+                }
+
                 player.State = PlayerState.Spawned;
 
                 Send(new CreateControllablePlayer {
                     Index = player.Index,
-                    Type = player.PlayerType,
-                    Pos = player.Pos,
+                    Type = player.ProxyActor.PlayerType,
+                    Pos = pos,
                     Health = playerHealth
                 }, 9, player.Connection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
             }
-        }
-
-        private void OnActorTransformChanged(object sender, TransformChangedEventArgs e)
-        {
-            ActorBase actor = e.Component.GameObj as ActorBase;
-            actor.UpdateAABB();
-            collisions.MoveProxy(actor, ref actor.AABB, actor.Speed.Xy);
-
-            //collisionsCountA++;
-        }
-
-        private void ResolveCollisions()
-        {
-            collisions.UpdatePairs((proxyA, proxyB) => {
-                CheckCollisions(proxyA, proxyB);
-                CheckCollisions(proxyB, proxyA);
-            });
-        }
-
-        private void CheckCollisions(ICollisionable proxyA, ICollisionable proxyB)
-        {
-            // ToDo
         }
     }
 }

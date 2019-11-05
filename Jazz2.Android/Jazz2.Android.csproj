@@ -164,7 +164,8 @@
     <AndroidResource Include="Resources\mipmap-xxhdpi\ic_foreground.png" />
   </ItemGroup>
   <Import Project="..\Shared\Networking\Networking.projitems" Label="Shared" Condition="$(DefineConstants.Contains('MULTIPLAYER'))" />
-  <Import Project="..\Jazz2.Core\Jazz2.Core.projitems" Label="Shared" />
+  <Import Project="..\Shared\Jazz2.Core\Jazz2.Core.projitems" Label="Shared" />
+  <Import Project="..\Shared\Jazz2.Core.Client\Jazz2.Core.Client.projitems" Label="Shared" />
   <Import Project="..\Shared\Duality\Duality.projitems" Label="Shared" />
   <Import Project="..\Shared\Primitives\Primitives.projitems" Label="Shared" />
   <Import Project="..\Shared\Networking\Networking.projitems" Label="Shared" Condition="$(DefineConstants.Contains('MULTIPLAYER'))" />

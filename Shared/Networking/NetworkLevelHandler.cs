@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿#if !SERVER
+
+using System.Collections.Generic;
 using System.Threading;
 using Duality;
 using Duality.Async;
 using Jazz2.Actors;
+using Jazz2.Game.Components;
 using Jazz2.Game.Structs;
 using Jazz2.Game.UI;
 using Jazz2.Networking;
@@ -487,3 +490,5 @@ namespace Jazz2.Game.Multiplayer
         }
     }
 }
+
+#endif

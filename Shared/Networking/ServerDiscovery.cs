@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !SERVER
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -461,3 +463,5 @@ namespace Jazz2.Game.Multiplayer
         }
     }
 }
+
+#endif

@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using Duality;
 using Jazz2.Networking;
-using Jazz2.Networking.Packets;
 using Jazz2.Networking.Packets.Server;
 using Jazz2.Server.EventArgs;
 using Lidgren.Network;
@@ -35,7 +34,7 @@ namespace Jazz2.Server
             byte[] clientIdentifier = args.Message.ReadBytes(16);
             if (allowOnlyUniqueClients) {
                 lock (sync) {
-                    foreach (KeyValuePair<NetConnection, Player> pair in players) {
+                    foreach (KeyValuePair<NetConnection, PlayerClient> pair in players) {
                         bool isSame = true;
                         for (int i = 0; i < 16; i++) {
                             if (clientIdentifier[i] != pair.Value.ClientIdentifier[i]) {
@@ -54,7 +53,7 @@ namespace Jazz2.Server
 
             string userName = args.Message.ReadString();
 
-            Player player = new Player {
+            PlayerClient player = new PlayerClient {
                 Connection = args.Message.SenderConnection,
                 ClientIdentifier = clientIdentifier,
                 UserName = userName,
@@ -67,7 +66,7 @@ namespace Jazz2.Server
         private void OnClientStatusChanged(ClientStatusChangedEventArgs args)
         {
             if (args.Status == NetConnectionStatus.Connected) {
-                Player player;
+                PlayerClient player;
 
                 lock (sync) {
                     lastPlayerIndex++;
@@ -89,20 +88,24 @@ namespace Jazz2.Server
                 }
 
             } else if (args.Status == NetConnectionStatus.Disconnected) {
-                Player player;
+                PlayerClient player;
 
                 lock (sync) {
                     byte index = players[args.SenderConnection].Index;
 
                     if (players.TryGetValue(args.SenderConnection, out player)) {
                         //collisions.RemoveProxy(player.ShadowActor);
+
+                        if (player.ProxyActor != null) {
+                            levelHandler.RemovePlayer(player.ProxyActor);
+                        }
                     }
 
                     players.Remove(args.SenderConnection);
                     playersByIndex[index] = null;
                     playerConnections.Remove(args.SenderConnection);
 
-                    foreach (KeyValuePair<NetConnection, Player> to in players) {
+                    foreach (KeyValuePair<NetConnection, PlayerClient> to in players) {
                         if (to.Key == args.SenderConnection) {
                             continue;
                         }
@@ -220,6 +223,13 @@ namespace Jazz2.Server
             NetOutgoingMessage msg = server.CreateMessage(capacity);
             msg.Write((byte)packet.Type);
             packet.Write(msg);
+
+#if DEBUG
+            if (msg.LengthBytes > capacity) {
+                Log.Write(LogType.Warning, "Packet " + typeof(T).Name + " has underestimated capacity (" + msg.LengthBytes + "/" + capacity + ")");
+            }
+#endif
+
             NetSendResult result = server.Send(msg, recipient, method, channel);
 
 #if NETWORK_DEBUG__
@@ -237,6 +247,12 @@ namespace Jazz2.Server
             msg.Write((byte)packet.Type);
             packet.Write(msg);
 
+#if DEBUG
+            if (msg.LengthBytes > capacity) {
+                Log.Write(LogType.Warning, "Packet " + typeof(T).Name + " has underestimated capacity (" + msg.LengthBytes + "/" + capacity + ")");
+            }
+#endif
+
             if (recipients.Count > 0) {
 #if NETWORK_DEBUG__
                 Console.ForegroundColor = ConsoleColor.Yellow;
@@ -245,6 +261,32 @@ namespace Jazz2.Server
                 Console.WriteLine("Send<" + typeof(T).Name + ">  " + msg.LengthBytes + " bytes, " + recipients.Count + " recipients");
 #endif
                 server.Send(msg, recipients, method, channel);
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        public bool SendToActivePlayers<T>(T packet, int capacity, NetDeliveryMethod method, int channel) where T : struct, IServerPacket
+        {
+            NetOutgoingMessage msg = server.CreateMessage(capacity);
+            msg.Write((byte)packet.Type);
+            packet.Write(msg);
+
+#if DEBUG
+            if (msg.LengthBytes > capacity) {
+                Log.Write(LogType.Warning, "Packet " + typeof(T).Name + " has underestimated capacity (" + msg.LengthBytes + "/" + capacity + ")");
+            }
+#endif
+
+            if (playerConnections.Count > 0) {
+#if NETWORK_DEBUG__
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("Debug: ");
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.WriteLine("Send<" + typeof(T).Name + ">  " + msg.LengthBytes + " bytes, " + recipients.Count + " recipients");
+#endif
+                server.Send(msg, playerConnections, method, channel);
                 return true;
             } else {
                 return false;

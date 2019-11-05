@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !SERVER
+
+using System;
 using System.Net;
 using System.Runtime;
 using Duality.Async;
@@ -92,3 +94,5 @@ namespace Jazz2.Game
         }
     }
 }
+
+#endif
