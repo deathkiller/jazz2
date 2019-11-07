@@ -14,7 +14,7 @@ namespace Jazz2.Actors.Environment
         {
             ushort theme = details.Params[0];
 
-            collisionFlags = CollisionFlags.CollideWithOtherActors;
+            CollisionFlags = CollisionFlags.CollideWithOtherActors;
 
             await RequestMetadataAsync("Object/PinballBumper");
 

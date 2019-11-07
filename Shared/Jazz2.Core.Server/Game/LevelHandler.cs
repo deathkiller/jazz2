@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using Duality;
-using Duality.Audio;
 using Duality.Components;
 using Duality.Drawing;
 using Duality.IO;
@@ -79,7 +77,7 @@ namespace Jazz2.Game
         private bool weatherOutdoors;
 
         private int waterLevel = int.MaxValue;
-        
+
         //private Dictionary<int, RemotableActor> remotableActors;
         private List<ActorBase> spawnedActors = new List<ActorBase>();
         private Dictionary<ActorBase, string> spawnedActorsAnimation = new Dictionary<ActorBase, string>();
@@ -180,23 +178,20 @@ namespace Jazz2.Game
             commonResources = ContentResolver.Current.RequestMetadata("Common/Scenery");
         }
 
-        // ToDo
-        /*protected override void OnDisposing(bool manually)
+        protected override void OnDisposing(bool manually)
         {
-            if (eventMap != null)
-            {
+            if (eventMap != null) {
                 eventMap.Dispose();
                 eventMap = null;
             }
 
-            if (tileMap != null)
-            {
+            if (tileMap != null) {
                 tileMap.ReleaseResources();
                 tileMap = null;
             }
 
             base.OnDisposing(manually);
-        }*/
+        }
 
         // ToDo: Move this somewhere
         [Flags]
@@ -277,13 +272,11 @@ namespace Jazz2.Game
             IFileSystem levelPackage = new CompressedContent(levelPath);
 
             LevelConfigJson json;
-            using (Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read))
-            {
+            using (Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
                 json = ContentResolver.Current.Json.Parse<LevelConfigJson>(s);
             }
 
-            if (json.Version.LayerFormat > LayerFormatVersion || json.Version.EventSet > EventSetVersion)
-            {
+            if (json.Version.LayerFormat > LayerFormatVersion || json.Version.EventSet > EventSetVersion) {
                 throw new NotSupportedException("Level version not supported");
             }
 
@@ -295,26 +288,19 @@ namespace Jazz2.Game
             ambientLightDefault = json.Description.DefaultLight;
             ambientLightCurrent = ambientLightTarget = ambientLightDefault * 0.01f;
 
-            if (json.Description.DefaultDarkness != null && json.Description.DefaultDarkness.Count >= 4)
-            {
+            if (json.Description.DefaultDarkness != null && json.Description.DefaultDarkness.Count >= 4) {
                 darknessColor = new Vector4(json.Description.DefaultDarkness[0] / 255f, json.Description.DefaultDarkness[1] / 255f, json.Description.DefaultDarkness[2] / 255f, json.Description.DefaultDarkness[3] / 255f);
-            }
-            else
-            {
+            } else {
                 darknessColor = new Vector4(0, 0, 0, 1);
             }
 
             // Palette
             ColorRgba[] tileMapPalette;
-            if (levelPackage.FileExists("Main.palette"))
-            {
-                using (Stream s = levelPackage.OpenFile("Main.palette", FileAccessMode.Read))
-                {
+            if (levelPackage.FileExists("Main.palette")) {
+                using (Stream s = levelPackage.OpenFile("Main.palette", FileAccessMode.Read)) {
                     tileMapPalette = TileSet.LoadPalette(s);
                 }
-            }
-            else
-            {
+            } else {
                 tileMapPalette = null;
             }
 
@@ -322,53 +308,41 @@ namespace Jazz2.Game
             tileMap = new TileMap(this, json.Description.DefaultTileset, tileMapPalette, (json.Description.Flags & LevelFlags.HasPit) != 0);
 
             // Additional tilesets
-            if (json.Tilesets != null)
-            {
-                for (int i = 0; i < json.Tilesets.Count; i++)
-                {
+            if (json.Tilesets != null) {
+                for (int i = 0; i < json.Tilesets.Count; i++) {
                     LevelConfigJson.TilesetSection part = json.Tilesets[i];
                     tileMap.ReadTilesetPart(part.Name, part.Offset, part.Count);
                 }
             }
 
             // Read all layers
-            json.Layers.Add("Sprite", new LevelConfigJson.LayerSection
-            {
+            json.Layers.Add("Sprite", new LevelConfigJson.LayerSection {
                 XSpeed = 1,
                 YSpeed = 1
             });
 
-            foreach (var layer in json.Layers.OrderBy(layer => layer.Value.Depth))
-            {
+            foreach (var layer in json.Layers.OrderBy(layer => layer.Value.Depth)) {
                 LayerType type;
-                if (layer.Key == "Sprite")
-                {
+                if (layer.Key == "Sprite") {
                     type = LayerType.Sprite;
-                }
-                else if (layer.Key == "Sky")
-                {
+                } else if (layer.Key == "Sky") {
                     type = LayerType.Sky;
 
                     //if (layer.Value.BackgroundStyle != 0 /*Plain*/ && layer.Value.BackgroundColor != null && layer.Value.BackgroundColor.Count >= 3) {
                     //    camera.GetComponent<Camera>().ClearColor = new ColorRgba((byte)layer.Value.BackgroundColor[0], (byte)layer.Value.BackgroundColor[1], (byte)layer.Value.BackgroundColor[2]);
                     //}
-                }
-                else
-                {
+                } else {
                     type = LayerType.Other;
                 }
 
-                using (Stream s = levelPackage.OpenFile(layer.Key + ".layer", FileAccessMode.Read))
-                {
+                using (Stream s = levelPackage.OpenFile(layer.Key + ".layer", FileAccessMode.Read)) {
                     tileMap.ReadLayerConfiguration(type, s, layer.Value);
                 }
             }
 
             // Read animated tiles
-            if (levelPackage.FileExists("Animated.tiles"))
-            {
-                using (Stream s = levelPackage.OpenFile("Animated.tiles", FileAccessMode.Read))
-                {
+            if (levelPackage.FileExists("Animated.tiles")) {
+                using (Stream s = levelPackage.OpenFile("Animated.tiles", FileAccessMode.Read)) {
                     tileMap.ReadAnimatedTiles(s);
                 }
             }
@@ -378,10 +352,8 @@ namespace Jazz2.Game
             // Read events
             eventMap = new EventMap(this, tileMap.Size);
 
-            if (levelPackage.FileExists("Events.layer"))
-            {
-                using (Stream s2 = levelPackage.OpenFile("Events.layer", FileAccessMode.Read))
-                {
+            if (levelPackage.FileExists("Events.layer")) {
+                using (Stream s2 = levelPackage.OpenFile("Events.layer", FileAccessMode.Read)) {
                     eventMap.ReadEvents(s2, json.Version.LayerFormat, difficulty);
                 }
             }
@@ -391,8 +363,7 @@ namespace Jazz2.Game
             tilemapHandler.AddComponent(tileMap);
 
             // Apply weather
-            if (json.Description.DefaultWeather != WeatherType.None)
-            {
+            if (json.Description.DefaultWeather != WeatherType.None) {
                 ApplyWeather(
                     json.Description.DefaultWeather,
                     json.Description.DefaultWeatherIntensity,
@@ -402,27 +373,19 @@ namespace Jazz2.Game
             // Load level text events
             levelTexts = json.TextEvents ?? new List<string>();
 
-            if (FileOp.Exists(levelPath + "." + i18n.Language))
-            {
-                try
-                {
-                    using (Stream s = FileOp.Open(levelPath + "." + i18n.Language, FileAccessMode.Read))
-                    {
+            if (FileOp.Exists(levelPath + "." + i18n.Language)) {
+                try {
+                    using (Stream s = FileOp.Open(levelPath + "." + i18n.Language, FileAccessMode.Read)) {
                         json = ContentResolver.Current.Json.Parse<LevelConfigJson>(s);
-                        if (json.TextEvents != null)
-                        {
-                            for (int i = 0; i < json.TextEvents.Count && i < levelTexts.Count; i++)
-                            {
-                                if (json.TextEvents[i] != null)
-                                {
+                        if (json.TextEvents != null) {
+                            for (int i = 0; i < json.TextEvents.Count && i < levelTexts.Count; i++) {
+                                if (json.TextEvents[i] != null) {
                                     levelTexts[i] = json.TextEvents[i];
                                 }
                             }
                         }
                     }
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     Log.Write(LogType.Warning, "Cannot load i18n for this level: " + ex);
                 }
             }
@@ -450,8 +413,8 @@ namespace Jazz2.Game
             int index;
 
             lock (root.Synchronization) {
-                index = (lastSpawnedActorId << 8) | 0xff; // Subindex 0xff means that the object is not owned by any player
                 lastSpawnedActorId++;
+                index = (lastSpawnedActorId << 8) | 0xff; // Subindex 0xff means that the object is not owned by any player
 
                 actor.Index = index;
                 spawnedActors.Add(actor);
@@ -467,7 +430,8 @@ namespace Jazz2.Game
             root.SendToActivePlayers(new CreateRemoteActor {
                 Index = index,
                 Pos = actor.Transform.Pos,
-                MetadataPath = actor.LoadedMetadata
+                MetadataPath = actor.LoadedMetadata,
+                CollisionFlags = actor.CollisionFlags
             }, 64, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
 
             if (spawnedActorsAnimation.TryGetValue(actor, out string identifier)) {
@@ -544,12 +508,10 @@ namespace Jazz2.Game
         public void FindCollisionActorsByAABB(ActorBase self, AABB aabb, Func<ActorBase, bool> callback)
         {
             collisions.Query(actor => {
-                if (self == actor || (actor.CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0)
-                {
+                if (self == actor || (actor.CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0) {
                     return true;
                 }
-                if (actor.IsCollidingWith(ref aabb))
-                {
+                if (actor.IsCollidingWith(ref aabb)) {
                     return callback(actor);
                 }
                 return true;
@@ -560,8 +522,7 @@ namespace Jazz2.Game
         {
             AABB aabb = new AABB(x - radius, y - radius, x + radius, y + radius);
             collisions.Query((actor) => {
-                if ((actor.CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0)
-                {
+                if ((actor.CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0) {
                     return true;
                 }
 
@@ -575,8 +536,7 @@ namespace Jazz2.Game
 
                 // If the distance is less than the circle's radius, an intersection occurs
                 float distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
-                if (distanceSquared < (radius * radius))
-                {
+                if (distanceSquared < (radius * radius)) {
                     return callback(actor);
                 }
 
@@ -588,28 +548,23 @@ namespace Jazz2.Game
         {
             collider = null;
 
-            if ((self.CollisionFlags & CollisionFlags.CollideWithTileset) != 0)
-            {
-                if (!tileMap.IsTileEmpty(ref aabb, downwards))
-                {
+            if ((self.CollisionFlags & CollisionFlags.CollideWithTileset) != 0) {
+                if (!tileMap.IsTileEmpty(ref aabb, downwards)) {
                     return false;
                 }
             }
 
             // Check for solid objects
-            if ((self.CollisionFlags & CollisionFlags.CollideWithSolidObjects) != 0)
-            {
+            if ((self.CollisionFlags & CollisionFlags.CollideWithSolidObjects) != 0) {
                 ActorBase colliderActor = null;
 
                 FindCollisionActorsByAABB(self, aabb, (actor) => {
-                    if ((actor.CollisionFlags & CollisionFlags.IsSolidObject) == 0)
-                    {
+                    if ((actor.CollisionFlags & CollisionFlags.IsSolidObject) == 0) {
                         return true;
                     }
 
                     SolidObjectBase solidObject = actor as SolidObjectBase;
-                    if (solidObject == null || !solidObject.IsOneWay || downwards)
-                    {
+                    if (solidObject == null || !solidObject.IsOneWay || downwards) {
                         colliderActor = actor;
                         return false;
                     }
@@ -630,10 +585,8 @@ namespace Jazz2.Game
 
         public IEnumerable<Player> GetCollidingPlayers(AABB aabb)
         {
-            foreach (Player player in players)
-            {
-                if (AABB.TestOverlap(ref player.AABB, ref aabb))
-                {
+            foreach (Player player in players) {
+                if (AABB.TestOverlap(ref player.AABB, ref aabb)) {
                     yield return player;
                 }
             }
@@ -641,35 +594,28 @@ namespace Jazz2.Game
 
         public void InitLevelChange(ExitType exitType, string nextLevel)
         {
-            if (initState == InitState.Disposing)
-            {
+            if (initState == InitState.Disposing) {
                 return;
             }
 
             initState = InitState.Disposing;
 
-            foreach (Player player in players)
-            {
+            foreach (Player player in players) {
                 player.OnLevelChanging(exitType);
             }
 
-            if (nextLevel == null)
-            {
+            if (nextLevel == null) {
                 nextLevel = (exitType == ExitType.Bonus ? defaultSecretLevel : defaultNextLevel);
             }
 
             LevelInitialization levelInit = default(LevelInitialization);
 
-            if (nextLevel != null)
-            {
+            if (nextLevel != null) {
                 int i = nextLevel.IndexOf('/');
-                if (i == -1)
-                {
+                if (i == -1) {
                     levelInit.EpisodeName = episodeName;
                     levelInit.LevelName = nextLevel;
-                }
-                else
-                {
+                } else {
                     levelInit.EpisodeName = nextLevel.Substring(0, i);
                     levelInit.LevelName = nextLevel.Substring(i + 1);
                 }
@@ -679,8 +625,7 @@ namespace Jazz2.Game
             levelInit.ExitType = exitType;
 
             levelInit.PlayerCarryOvers = new PlayerCarryOver[players.Count];
-            for (int i = 0; i < players.Count; i++)
-            {
+            for (int i = 0; i < players.Count; i++) {
                 levelInit.PlayerCarryOvers[i] = players[i].PrepareLevelCarryOver();
             }
 
@@ -698,10 +643,8 @@ namespace Jazz2.Game
 
         public virtual bool HandlePlayerDied(Player player)
         {
-            if (activeBoss != null)
-            {
-                if (activeBoss.HandlePlayerDied())
-                {
+            if (activeBoss != null) {
+                if (activeBoss.HandlePlayerDied()) {
                     activeBoss = null;
 
                     // ToDo
@@ -714,8 +657,7 @@ namespace Jazz2.Game
 
         public string GetLevelText(int textID)
         {
-            if (textID < 0 || textID >= levelTexts.Count)
-            {
+            if (textID < 0 || textID >= levelTexts.Count) {
                 return null;
             }
 
@@ -731,12 +673,9 @@ namespace Jazz2.Game
         {
             levelBounds.X = left;
 
-            if (width > 0f)
-            {
+            if (width > 0f) {
                 levelBounds.W = left;
-            }
-            else
-            {
+            } else {
                 levelBounds.W = (tileMap.Size.X * tileMap.Tileset.TileSize) - left;
             }
 
@@ -760,21 +699,18 @@ namespace Jazz2.Game
 
         public void BroadcastLevelText(string text)
         {
-            foreach (Player player in players)
-            {
+            foreach (Player player in players) {
                 player.ShowLevelText(text);
             }
         }
 
         public virtual void BroadcastTriggeredEvent(EventType eventType, ushort[] eventParams)
         {
-            if (eventType == EventType.AreaActivateBoss)
-            {
+            if (eventType == EventType.AreaActivateBoss) {
                 ActivateBoss(eventParams[0]);
             }
 
-            foreach (ActorBase actor in actors)
-            {
+            foreach (ActorBase actor in actors) {
                 actor.OnTriggeredEvent(eventType, eventParams);
             }
         }
@@ -789,6 +725,79 @@ namespace Jazz2.Game
                     Identifier = identifier,
                 }, 32, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
             }
+        }
+
+        public bool OverridePlayerFireWeapon(Player player, WeaponType weaponType)
+        {
+            return false;
+        }
+
+        internal void OnPlayerTakeDamage(Player player, int amount, float pushForce)
+        {
+            root.SendToPlayerByIndex(new PlayerTakeDamage {
+                Index = (byte)player.Index,
+                Amount = (byte)amount,
+                PushForce = pushForce
+            }, 7, player.Index, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+        }
+
+        internal void OnPlayerAddHealth(Player player, int amount)
+        {
+            root.SendToPlayerByIndex(new PlayerAddHealth {
+                Index = (byte)player.Index,
+                Amount = (byte)amount
+            }, 3, player.Index, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+        }
+
+        internal void OnPlayerSpringActivated(Player player, Vector2 force, bool keepSpeedX, bool keepSpeedY)
+        {
+            root.SendToPlayerByIndex(new PlayerActivateSpring {
+                Index = (byte)player.Index,
+                Force = force,
+                KeepSpeedX = keepSpeedX,
+                KeepSpeedY = keepSpeedY
+            }, 11, player.Index, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+        }
+
+        internal void OnPlayerRefreshAmmo(Player player, WeaponType weaponType, short count, bool switchTo)
+        {
+            root.SendToPlayerByIndex(new PlayerRefreshAmmo {
+                Index = (byte)player.Index,
+                WeaponType = weaponType,
+                Count = count,
+                SwitchTo = switchTo
+            }, 6, player.Index, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+        }
+
+        internal void OnPlayerWarpToPosition(Player player, Vector2 pos, bool fast)
+        {
+            root.SendToPlayerByIndex(new PlayerWarpToPosition {
+                Index = (byte)player.Index,
+                Pos = pos,
+                Fast = fast
+            }, 7, player.Index, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+        }
+
+        internal void OnPlayerIncrementLap(Player player)
+        {
+            root.IncrementPlayerLap(player.Index, out int currentLap);
+            if (currentLap == -1) {
+                return;
+            }
+
+            root.SendToActivePlayers(new PlayerSetLap {
+                Index = (byte)player.Index,
+                Lap = currentLap
+            }, 4, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+        }
+
+        internal void OnAdvanceDestructibleTileAnimation(int tx, int ty, int amount)
+        {
+            root.SendToActivePlayers(new AdvanceTileAnimation {
+                TileX = tx,
+                TileY = ty,
+                Amount = amount
+            }, 6, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
         }
 
         // ToDo: Move this somewhere
@@ -892,21 +901,17 @@ namespace Jazz2.Game
                     eventMap.ActivateEvents(tx1, ty1, tx2, ty2, initState != InitState.Initializing);
                 }*/
 
-                eventMap.ProcessGenerators(timeMult);
+            eventMap.ProcessGenerators(timeMult);
             /*}*/
 
             ResolveCollisions();
 
             // Ambient Light Transition
-            if (ambientLightCurrent != ambientLightTarget)
-            {
+            if (ambientLightCurrent != ambientLightTarget) {
                 float step = timeMult * 0.012f;
-                if (MathF.Abs(ambientLightCurrent - ambientLightTarget) < step)
-                {
+                if (MathF.Abs(ambientLightCurrent - ambientLightTarget) < step) {
                     ambientLightCurrent = ambientLightTarget;
-                }
-                else
-                {
+                } else {
                     ambientLightCurrent += step * ((ambientLightTarget < ambientLightCurrent) ? -1 : 1);
                 }
             }
@@ -1001,8 +1006,7 @@ namespace Jazz2.Game
             }*/
 
             // Active Boss
-            if (activeBoss != null && activeBoss.Scene == null)
-            {
+            if (activeBoss != null && activeBoss.Scene == null) {
                 activeBoss = null;
 
                 // ToDo
@@ -1010,8 +1014,7 @@ namespace Jazz2.Game
                 InitLevelChange(ExitType.Normal, null);
             }
 
-            if (initState == InitState.Initializing)
-            {
+            if (initState == InitState.Initializing) {
                 initState = InitState.Initialized;
             }
 
@@ -1023,27 +1026,22 @@ namespace Jazz2.Game
 
         private void ActivateBoss(ushort musicFile)
         {
-            if (activeBoss != null)
-            {
+            if (activeBoss != null) {
                 return;
             }
 
-            foreach (GameObject obj in ActiveObjects)
-            {
+            foreach (GameObject obj in ActiveObjects) {
                 activeBoss = obj as BossBase;
-                if (activeBoss != null)
-                {
+                if (activeBoss != null) {
                     break;
                 }
             }
 
-            if (activeBoss == null)
-            {
+            if (activeBoss == null) {
                 return;
             }
 
-            if (!activeBoss.HandleBossActivated())
-            {
+            if (!activeBoss.HandleBossActivated()) {
                 return;
             }
 
@@ -1054,18 +1052,15 @@ namespace Jazz2.Game
         {
             collisions.UpdatePairs((proxyA, proxyB) => {
 
-                if (proxyA.Health <= 0 || proxyB.Health <= 0)
-                {
+                if (proxyA.Health <= 0 || proxyB.Health <= 0) {
                     return;
                 }
                 if ((proxyA.CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0 ||
-                    (proxyB.CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0)
-                {
+                    (proxyB.CollisionFlags & CollisionFlags.CollideWithOtherActors) == 0) {
                     return;
                 }
 
-                if (proxyA.IsCollidingWith(proxyB))
-                {
+                if (proxyA.IsCollidingWith(proxyB)) {
                     proxyA.OnHandleCollision(proxyB);
                     proxyB.OnHandleCollision(proxyA);
 
@@ -1082,6 +1077,8 @@ namespace Jazz2.Game
             ActorBase actor = e.Component.GameObj as ActorBase;
             actor.UpdateAABB();
             collisions.MoveProxy(actor, ref actor.AABB, actor.Speed.Xy);
+
+            actor.CollisionFlags |= CollisionFlags.TransformChanged;
 
             collisionsCountA++;
         }
@@ -1149,7 +1146,8 @@ namespace Jazz2.Game
                 root.Send(new CreateRemoteActor {
                     Index = actor.Index,
                     Pos = actor.Transform.Pos,
-                    MetadataPath = actor.LoadedMetadata
+                    MetadataPath = actor.LoadedMetadata,
+                    CollisionFlags = actor.CollisionFlags
                 }, 64, connection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
             }
 

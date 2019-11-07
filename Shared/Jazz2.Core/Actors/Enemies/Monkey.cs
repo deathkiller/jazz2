@@ -164,7 +164,7 @@ namespace Jazz2.Actors.Enemies
 
                 speedX = 0f;
                 speedY = 0f;
-                collisionFlags = CollisionFlags.None;
+                CollisionFlags = CollisionFlags.None;
 
                 SetTransition((AnimState)1073741829, false, delegate {
                     base.OnPerish(collider);

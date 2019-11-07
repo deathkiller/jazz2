@@ -2,6 +2,7 @@
 using Duality;
 using Duality.Audio;
 using Jazz2.Actors.Weapons;
+using Jazz2.Game;
 using Jazz2.Game.Structs;
 using MathF = Duality.MathF;
 
@@ -24,32 +25,36 @@ namespace Jazz2.Actors
 
         public byte[] WeaponUpgrades => weaponUpgrades;
 
-        public bool AddAmmo(WeaponType type, short count)
+        public bool AddAmmo(WeaponType weaponType, short count)
         {
             const short Multiplier = 100;
             const short AmmoLimit = 99 * Multiplier;
 
-            if (weaponAmmo[(int)type] < 0 || weaponAmmo[(int)type] >= AmmoLimit) {
+            if (weaponAmmo[(int)weaponType] < 0 || weaponAmmo[(int)weaponType] >= AmmoLimit) {
                 return false;
             }
 
-            bool switchTo = (weaponAmmo[(int)type] == 0);
+            bool switchTo = (weaponAmmo[(int)weaponType] == 0);
 
-            weaponAmmo[(int)type] = (short)Math.Min(weaponAmmo[(int)type] + count * Multiplier, AmmoLimit);
+            weaponAmmo[(int)weaponType] = (short)Math.Min(weaponAmmo[(int)weaponType] + count * Multiplier, AmmoLimit);
 
             if (switchTo) {
-                currentWeapon = type;
+                currentWeapon = weaponType;
 
                 PreloadMetadata("Weapon/" + currentWeapon);
             }
+
+#if MULTIPLAYER && SERVER
+            ((LevelHandler)levelHandler).OnPlayerRefreshAmmo(this, weaponType, weaponAmmo[(int)weaponType], switchTo);
+#endif
 
             PlaySound("PickupAmmo");
             return true;
         }
 
-        public void AddWeaponUpgrade(WeaponType type, byte upgrade)
+        public void AddWeaponUpgrade(WeaponType weaponType, byte upgrade)
         {
-            weaponUpgrades[(int)type] |= upgrade;
+            weaponUpgrades[(int)weaponType] |= upgrade;
         }
 
         public bool AddFastFire(int count)
@@ -69,6 +74,17 @@ namespace Jazz2.Actors
             return true;
         }
 
+        public void OnRefreshAmmo(WeaponType weaponType, short count, bool switchTo)
+        {
+            weaponAmmo[(int)weaponType] = count;
+
+            if (switchTo) {
+                currentWeapon = weaponType;
+
+                PreloadMetadata("Weapon/" + currentWeapon);
+            }
+        }
+
         private void SwitchToNextWeapon()
         {
             // Find next available weapon
@@ -78,69 +94,81 @@ namespace Jazz2.Actors
                 currentWeapon = (WeaponType)((int)(currentWeapon + 1) % (int)WeaponType.Count);
             }
 
+#if MULTIPLAYER && SERVER
+            ((LevelHandler)levelHandler).OnPlayerRefreshAmmo(this, currentWeapon, weaponAmmo[(int)currentWeapon], true);
+#endif
+
             PreloadMetadata("Weapon/" + currentWeapon);
         }
 
-        private bool FireWeapon()
+        public bool FireWeapon(WeaponType weaponType)
         {
+#if !SERVER
             if (weaponCooldown > 0f) {
                 return true;
             }
+#endif
 
             // Rewind the animation, if it should be played only once
             if (currentAnimation.OnlyOnce) {
                 renderer.AnimTime = 0f;
             }
 
-            short ammoDecrease = 100;
+            if (!levelHandler.OverridePlayerFireWeapon(this, weaponType)) {
+                short ammoDecrease = 100;
 
-            switch (currentWeapon) {
-                case WeaponType.Blaster: FireWeaponBlaster(); break;
-                case WeaponType.Bouncer: FireWeaponBouncer(); break;
-                case WeaponType.Freezer: FireWeaponFreezer(); break;
-                case WeaponType.Seeker: FireWeaponSeeker(); break;
-                case WeaponType.RF: FireWeaponRF(); break;
+                switch (weaponType) {
+                    case WeaponType.Blaster: FireWeaponBlaster(); break;
+                    case WeaponType.Bouncer: FireWeaponBouncer(); break;
+                    case WeaponType.Freezer: FireWeaponFreezer(); break;
+                    case WeaponType.Seeker: FireWeaponSeeker(); break;
+                    case WeaponType.RF: FireWeaponRF(); break;
 
-                case WeaponType.Toaster: {
-                    if (!FireWeaponToaster()) {
+                    case WeaponType.Toaster: {
+                        if (!FireWeaponToaster()) {
+                            return false;
+                        }
+                        ammoDecrease = 20;
+                        break;
+                    }
+
+                    case WeaponType.TNT: FireWeaponTNT(); break;
+                    case WeaponType.Pepper: FireWeaponPepper(); break;
+                    case WeaponType.Electro: FireWeaponElectro(); break;
+
+                    case WeaponType.Thunderbolt: {
+                        if (!FireWeaponThunderbolt()) {
+                            return false;
+                        }
+                        if ((weaponUpgrades[(int)weaponType] & 0x1) != 0) {
+                            ammoDecrease = 25; // Lower ammo consumption with upgrade
+                        } else {
+                            ammoDecrease = 50;
+                        }
+                        break;
+                    }
+
+                    default:
                         return false;
-                    }
-                    ammoDecrease = 20;
-                    break;
                 }
 
-                case WeaponType.TNT: FireWeaponTNT(); break;
-                case WeaponType.Pepper: FireWeaponPepper(); break;
-                case WeaponType.Electro: FireWeaponElectro(); break;
+                ref short currentAmmo = ref weaponAmmo[(int)weaponType];
 
-                case WeaponType.Thunderbolt: {
-                    if (!FireWeaponThunderbolt()) {
-                        return false;
+                if (currentAmmo > 0) {
+                    currentAmmo -= ammoDecrease;
+                    if (currentAmmo < 0) {
+                        currentAmmo = 0;
                     }
-                    if ((weaponUpgrades[(int)currentWeapon] & 0x1) != 0) {
-                        ammoDecrease = 25; // Lower ammo consumption with upgrade
-                    } else {
-                        ammoDecrease = 50;
+
+#if MULTIPLAYER && SERVER
+                    ((LevelHandler)levelHandler).OnPlayerRefreshAmmo(this, weaponType, currentAmmo, false);
+#endif
+
+                    // No ammo, switch weapons
+                    if (weaponAmmo[(int)currentWeapon] == 0) {
+                        SwitchToNextWeapon();
+                        PlaySound("SwitchAmmo");
                     }
-                    break;
-                }
-
-                default:
-                    return false;
-            }
-
-            ref short currentAmmo = ref weaponAmmo[(int)currentWeapon];
-
-            if (currentAmmo > 0) {
-                currentAmmo -= ammoDecrease;
-                if (currentAmmo < 0) {
-                    currentAmmo = 0;
-                }
-
-                // No ammo, switch weapons
-                if (currentAmmo == 0) {
-                    SwitchToNextWeapon();
-                    PlaySound("SwitchAmmo");
                 }
             }
 

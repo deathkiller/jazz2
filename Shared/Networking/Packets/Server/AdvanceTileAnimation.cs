@@ -2,27 +2,28 @@
 
 namespace Jazz2.Networking.Packets.Server
 {
-    public struct DecreasePlayerHealth : IServerPacket
+    public struct AdvanceTileAnimation : IServerPacket
     {
         public NetConnection SenderConnection { get; set; }
 
-        byte IServerPacket.Type => 20;
+        byte IServerPacket.Type => 30;
 
 
-        public byte Index;
-        public byte Amount;
+        public int TileX;
+        public int TileY;
+        public int Amount;
 
         void IServerPacket.Read(NetIncomingMessage msg)
         {
-            Index = msg.ReadByte();
-
+            TileX = msg.ReadUInt16();
+            TileY = msg.ReadUInt16();
             Amount = msg.ReadByte();
         }
 
         void IServerPacket.Write(NetOutgoingMessage msg)
         {
-            msg.Write((byte)Index);
-
+            msg.Write((ushort)TileX);
+            msg.Write((ushort)TileY);
             msg.Write((byte)Amount);
         }
     }

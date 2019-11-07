@@ -13,7 +13,7 @@ namespace Jazz2.Actors.Enemies
         {
             originPos = new Vector2(details.Pos.X, details.Pos.Y);
 
-            collisionFlags &= ~CollisionFlags.ApplyGravitation;
+            CollisionFlags &= ~CollisionFlags.ApplyGravitation;
 
             SetHealthByDifficulty(1);
             scoreValue = 200;

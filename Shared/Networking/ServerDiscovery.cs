@@ -11,7 +11,7 @@ using System.Threading;
 using Jazz2.Networking;
 using Lidgren.Network;
 
-namespace Jazz2.Game.Multiplayer
+namespace Jazz2.Game
 {
     public sealed class ServerDiscovery : IDisposable
     {

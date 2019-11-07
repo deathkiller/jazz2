@@ -19,8 +19,8 @@ namespace Jazz2.Actors.Weapons
             base.upgrades = (byte)details.Params[0];
 
             strength = 1;
-            collisionFlags &= ~CollisionFlags.ApplyGravitation;
-            collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
+            CollisionFlags &= ~CollisionFlags.ApplyGravitation;
+            CollisionFlags |= CollisionFlags.SkipPerPixelCollisions;
 
             await RequestMetadataAsync("Weapon/Pepper");
 

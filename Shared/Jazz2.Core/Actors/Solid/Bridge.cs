@@ -77,7 +77,7 @@ namespace Jazz2.Actors.Solid
                 widthCovered += (widthList[i % widthList.Length] + widthList[(i + 1) % widthList.Length]) / 2;
             }
 
-            collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.SkipPerPixelCollisions;
+            CollisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.SkipPerPixelCollisions;
         }
 
         public override bool OnTileDeactivate(int tx1, int ty1, int tx2, int ty2)
@@ -215,7 +215,7 @@ namespace Jazz2.Actors.Solid
                     renderer.AnimFirstFrame = idx % variations;
                 }
 
-                collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.IsSolidObject | CollisionFlags.SkipPerPixelCollisions;
+                CollisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.IsSolidObject | CollisionFlags.SkipPerPixelCollisions;
 
                 IsOneWay = true;
             }

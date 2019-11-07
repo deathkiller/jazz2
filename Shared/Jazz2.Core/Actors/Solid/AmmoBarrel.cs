@@ -77,7 +77,7 @@ namespace Jazz2.Actors.Solid
 
             PlaySound(Transform.Pos, "Break");
 
-            collisionFlags = CollisionFlags.None;
+            CollisionFlags = CollisionFlags.None;
 
             CreateParticleDebris();
 

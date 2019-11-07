@@ -1,4 +1,5 @@
-﻿using Lidgren.Network;
+﻿using Jazz2.Game;
+using Lidgren.Network;
 
 namespace Jazz2.Networking.Packets.Server
 {

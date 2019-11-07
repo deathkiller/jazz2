@@ -39,7 +39,7 @@ namespace Jazz2.Actors.Bosses
             SetHealthByDifficulty(100);
             scoreValue = 3000;
 
-            collisionFlags = CollisionFlags.CollideWithOtherActors;
+            CollisionFlags = CollisionFlags.CollideWithOtherActors;
 
             await RequestMetadataAsync("Boss/Bolly");
             SetAnimation(AnimState.Idle);
@@ -254,7 +254,7 @@ namespace Jazz2.Actors.Bosses
         {
             protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                collisionFlags = CollisionFlags.CollideWithOtherActors;
+                CollisionFlags = CollisionFlags.CollideWithOtherActors;
 
                 health = int.MaxValue;
 
@@ -280,7 +280,7 @@ namespace Jazz2.Actors.Bosses
         {
             protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                collisionFlags = CollisionFlags.ForceDisableCollisions;
+                CollisionFlags = CollisionFlags.ForceDisableCollisions;
 
                 health = int.MaxValue;
 
@@ -310,7 +310,7 @@ namespace Jazz2.Actors.Bosses
                 base.canBeFrozen = false;
                 base.canCollideWithAmmo = false;
                 base.isInvulnerable = true;
-                base.collisionFlags = CollisionFlags.CollideWithOtherActors;
+                base.CollisionFlags = CollisionFlags.CollideWithOtherActors;
 
                 health = int.MaxValue;
 
@@ -343,7 +343,7 @@ namespace Jazz2.Actors.Bosses
                 base.canBeFrozen = false;
                 base.canCollideWithAmmo = false;
                 base.isInvulnerable = true;
-                base.collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors | CollisionFlags.SkipPerPixelCollisions;
+                base.CollisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors | CollisionFlags.SkipPerPixelCollisions;
 
                 health = int.MaxValue;
 

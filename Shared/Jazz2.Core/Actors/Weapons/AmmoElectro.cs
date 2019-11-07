@@ -30,8 +30,8 @@ namespace Jazz2.Actors.Weapons
             base.upgrades = (byte)details.Params[0];
 
             strength = 4;
-            collisionFlags &= ~(CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset);
-            collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
+            CollisionFlags &= ~(CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset);
+            CollisionFlags |= CollisionFlags.SkipPerPixelCollisions;
 
             await RequestMetadataAsync("Weapon/Electro");
 

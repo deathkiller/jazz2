@@ -28,7 +28,7 @@ namespace Jazz2.Actors
 
             SetAnimation(AnimState.Idle);
 
-            collisionFlags = CollisionFlags.None;
+            CollisionFlags = CollisionFlags.None;
         }
 
         public void OnLinkWithPlayer(Player owner)
@@ -70,7 +70,7 @@ namespace Jazz2.Actors
 
                 if (attackTime <= 0f) {
                     SetAnimation(AnimState.Idle);
-                    collisionFlags = CollisionFlags.None;
+                    CollisionFlags = CollisionFlags.None;
                     Transform.Angle = 0f;
                 }
             } else {
@@ -117,7 +117,7 @@ namespace Jazz2.Actors
 
                     SetAnimation(AnimState.Idle);
                     attackTime = 0f;
-                    collisionFlags = CollisionFlags.None;
+                    CollisionFlags = CollisionFlags.None;
                     Transform.Angle = 0f;
                     break;
             }
@@ -138,7 +138,7 @@ namespace Jazz2.Actors
             if (attackTime > 0f) {
                 SetAnimation(AnimState.Idle);
                 attackTime = 0f;
-                collisionFlags = CollisionFlags.None;
+                CollisionFlags = CollisionFlags.None;
                 Transform.Angle = 0f;
             }
         }
@@ -203,7 +203,7 @@ namespace Jazz2.Actors
                             attackTime = distance * 0.2f;
                             fireCooldown = 140f;
 
-                            collisionFlags = CollisionFlags.CollideWithOtherActors;
+                            CollisionFlags = CollisionFlags.CollideWithOtherActors;
                             break;
                         }
                     }

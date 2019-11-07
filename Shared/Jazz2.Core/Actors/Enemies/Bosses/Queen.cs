@@ -44,7 +44,7 @@ namespace Jazz2.Actors.Bosses
 
             lastHealth = health;
 
-            collisionFlags |= CollisionFlags.IsSolidObject | CollisionFlags.SkipPerPixelCollisions;
+            CollisionFlags |= CollisionFlags.IsSolidObject | CollisionFlags.SkipPerPixelCollisions;
 
             stepSize = 0.3f;
             switch (levelHandler.Difficulty) {
@@ -280,7 +280,7 @@ namespace Jazz2.Actors.Bosses
             protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
                 base.isInvulnerable = true;
-                base.collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation | CollisionFlags.SkipPerPixelCollisions;
+                base.CollisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation | CollisionFlags.SkipPerPixelCollisions;
 
                 health = 1;
 
@@ -315,7 +315,7 @@ namespace Jazz2.Actors.Bosses
         {
             protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.IsSolidObject | CollisionFlags.SkipPerPixelCollisions;
+                CollisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.IsSolidObject | CollisionFlags.SkipPerPixelCollisions;
 
                 health = int.MaxValue;
 

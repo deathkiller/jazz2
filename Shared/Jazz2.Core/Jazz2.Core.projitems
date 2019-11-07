@@ -128,7 +128,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\Collisions\TreeNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Editor\EditorLevelHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\ILevelHandler.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Misc\ControlScheme.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Misc\i18n.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Misc\Png.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Storage\Content\CompressedContent.cs" />

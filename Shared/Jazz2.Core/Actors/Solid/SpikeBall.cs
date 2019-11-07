@@ -33,7 +33,7 @@ namespace Jazz2.Actors.Solid
 
             base.canBeFrozen = false;
             base.isInvulnerable = true;
-            base.collisionFlags = CollisionFlags.CollideWithOtherActors;
+            base.CollisionFlags = CollisionFlags.CollideWithOtherActors;
 
             await RequestMetadataAsync("MovingPlatform/SpikeBall");
             SetAnimation("Platform");
@@ -132,7 +132,7 @@ namespace Jazz2.Actors.Solid
                 Transform transform = AddComponent<Transform>();
                 Transform.Pos = pos;
 
-                collisionFlags = CollisionFlags.ForceDisableCollisions;
+                CollisionFlags = CollisionFlags.ForceDisableCollisions;
 
                 RequestMetadata("MovingPlatform/SpikeBall");
                 SetAnimation("Chain");

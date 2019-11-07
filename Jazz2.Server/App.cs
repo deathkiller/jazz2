@@ -7,7 +7,7 @@ using System.IO;
 using System.Reflection;
 using Duality;
 using Duality.Async;
-using Jazz2.Networking;
+using Jazz2.Game;
 using Lidgren.Network;
 
 namespace Jazz2.Game
@@ -80,13 +80,6 @@ namespace Jazz2.Server
 
         private static void Main(string[] args)
         {
-            // Override working directory
-            try {
-                Environment.CurrentDirectory = Jazz2.Game.App.AssemblyPath;
-            } catch (Exception ex) {
-                Console.WriteLine("Cannot override current directory: " + ex);
-            }
-
             ConsoleUtils.TryEnableUnicode();
 
             // Try to render Jazz2 logo
@@ -102,6 +95,13 @@ namespace Jazz2.Server
                 Console.WriteLine(appVersion);
                 Console.ResetColor();
                 Console.CursorTop = currentCursorTop;
+            }
+
+            // Override working directory
+            try {
+                Environment.CurrentDirectory = Jazz2.Game.App.AssemblyPath;
+            } catch (Exception ex) {
+                Log.Write(LogType.Warning, "Cannot override working directory: " + ex);
             }
 
             // Process parameters
@@ -293,21 +293,26 @@ namespace Jazz2.Server
         {
             TimeSpan uptime = (DateTime.Now - gameServer.StartedTime);
             Log.Write(LogType.Info, "Uptime: " + uptime);
-
             Log.Write(LogType.Info, "Server Load: " + gameServer.LoadMs + " ms");
             Log.Write(LogType.Info, "Current Level: " + gameServer.CurrentLevel);
 
             int playerCount = gameServer.PlayerCount;
             if (playerCount > 0) {
-                Log.Write(LogType.Info, "Players (" + playerCount + "/" + gameServer.MaxPlayers + ")".PadRight(12) + "Pos              Remote Endpoint");
+                Log.Write(LogType.Info, "Players (" + playerCount + "/" + gameServer.MaxPlayers + ")".PadRight(12) + "Pos              D / K / Hits Remote Endpoint");
                 Log.PushIndent();
 
                 foreach (KeyValuePair<NetConnection, GameServer.PlayerClient> pair in gameServer.Players) {
-                    Log.Write(LogType.Info, GameServer.PlayerNameToConsole(pair.Value).PadRight(6) + " " +
-                        pair.Value.State.ToString().PadRight(15) +
-                        (pair.Value.ProxyActor == null ? 
+                    var player = pair.Value;
+
+                    Log.Write(LogType.Info,
+                        GameServer.PlayerNameToConsole(player).PadRight(6) + " " +
+                        player.State.ToString().PadRight(15) +
+                        (player.ProxyActor == null ? 
                             " -                " :
-                            " [" + ((int)pair.Value.ProxyActor.Transform.Pos.X).ToString().PadLeft(5) + "; " + ((int)pair.Value.ProxyActor.Transform.Pos.Y).ToString().PadLeft(5) + "]   ") +
+                            " [" + ((int)player.ProxyActor.Transform.Pos.X).ToString().PadLeft(5) + "; " + ((int)player.ProxyActor.Transform.Pos.Y).ToString().PadLeft(5) + "]   ") +
+                        player.StatsDeaths.ToString().PadRight(4) +
+                        player.StatsKills.ToString().PadRight(4) +
+                        player.StatsHits.ToString().PadRight(5) +
                         pair.Key.RemoteEndPoint);
                 }
             } else {
@@ -508,11 +513,14 @@ namespace Jazz2.Server
 
 #else
 
-public class App
+namespace Jazz2.Server
 {
-    public static void Main()
+    public class App
     {
-        throw new System.NotSupportedException("Multiplayer is not supported in this build!");
+        public static void Main()
+        {
+            System.Console.WriteLine("Multiplayer is disabled in this build configuration!");
+        }
     }
 }
 

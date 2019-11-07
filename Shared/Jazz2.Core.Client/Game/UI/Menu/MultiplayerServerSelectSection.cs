@@ -6,7 +6,6 @@ using Duality;
 using Duality.Drawing;
 using Duality.Input;
 using Duality.Resources;
-using Jazz2.Game.Multiplayer;
 
 namespace Jazz2.Game.UI.Menu
 {

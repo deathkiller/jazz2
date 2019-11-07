@@ -33,7 +33,7 @@ namespace Jazz2.Actors.Bosses
             endText = details.Params[1];
 
             canBeFrozen = false;
-            collisionFlags = (collisionFlags & ~CollisionFlags.ApplyGravitation) | CollisionFlags.SkipPerPixelCollisions;
+            CollisionFlags = (CollisionFlags & ~CollisionFlags.ApplyGravitation) | CollisionFlags.SkipPerPixelCollisions;
             isInvulnerable = true;
 
             SetHealthByDifficulty(50);
@@ -226,7 +226,7 @@ namespace Jazz2.Actors.Bosses
             protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
                 base.canBeFrozen = false;
-                base.collisionFlags = CollisionFlags.CollideWithOtherActors;
+                base.CollisionFlags = CollisionFlags.CollideWithOtherActors;
 
                 elasticity = 0.3f;
 
@@ -270,13 +270,13 @@ namespace Jazz2.Actors.Bosses
 
                     FallTime = 400f;
 
-                    collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithSolidObjects | CollisionFlags.ApplyGravitation;
+                    CollisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithSolidObjects | CollisionFlags.ApplyGravitation;
                 }
             }
 
             public void Recover(float phase)
             {
-                collisionFlags = CollisionFlags.CollideWithOtherActors;
+                CollisionFlags = CollisionFlags.CollideWithOtherActors;
 
                 Transform.Angle = phase;
             }

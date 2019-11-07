@@ -28,7 +28,7 @@ namespace Jazz2.Actors.Environment
             triggerSpeedX = details.Params[1];
             triggerSpeedY = details.Params[2];
 
-            collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors;
+            CollisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors;
             elasticity = 0.4f;
             canHurtPlayer = false;
             isInvulnerable = true;
@@ -41,7 +41,7 @@ namespace Jazz2.Actors.Environment
         public override void OnFixedUpdate(float timeMult)
         {
             // Movement
-            if ((collisionFlags & CollisionFlags.ApplyGravitation) != 0) {
+            if ((CollisionFlags & CollisionFlags.ApplyGravitation) != 0) {
                 float currentGravity = levelHandler.Gravity;
 
                 speedX = MathF.Clamp(speedX + externalForceX * timeMult, -16f, 16f);
@@ -128,7 +128,7 @@ namespace Jazz2.Actors.Environment
                 Transform.Angle += speedX * 0.02f * timeMult;
 
                 if (MathF.Abs(speedX) <= 0.4f && MathF.Abs(speedY) <= 0.4f) {
-                    collisionFlags = CollisionFlags.None;
+                    CollisionFlags = CollisionFlags.None;
                     canHurtPlayer = false;
                 }
             }
@@ -138,7 +138,7 @@ namespace Jazz2.Actors.Environment
                 delayLeft -= timeMult;
 
                 if (delayLeft <= 0f) {
-                    collisionFlags |= CollisionFlags.ApplyGravitation;
+                    CollisionFlags |= CollisionFlags.ApplyGravitation;
                     canHurtPlayer = true;
 
                     externalForceX = triggerSpeedX * 0.5f;

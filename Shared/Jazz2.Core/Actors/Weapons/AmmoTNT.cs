@@ -20,7 +20,7 @@ namespace Jazz2.Actors.Weapons
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            collisionFlags = CollisionFlags.None;
+            CollisionFlags = CollisionFlags.None;
 
             await RequestMetadataAsync("Weapon/TNT");
             SetAnimation(AnimState.Idle);

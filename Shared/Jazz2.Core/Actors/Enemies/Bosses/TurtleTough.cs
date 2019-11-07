@@ -188,7 +188,7 @@ namespace Jazz2.Actors.Bosses
             {
                 base.canBeFrozen = false;
                 base.canCollideWithAmmo = false;
-                base.collisionFlags = CollisionFlags.CollideWithOtherActors;
+                base.CollisionFlags = CollisionFlags.CollideWithOtherActors;
 
                 base.health = int.MaxValue;
 

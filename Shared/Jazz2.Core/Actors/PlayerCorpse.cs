@@ -24,7 +24,7 @@ namespace Jazz2.Actors
 
             SetAnimation("Corpse");
 
-            collisionFlags = CollisionFlags.ForceDisableCollisions;
+            CollisionFlags = CollisionFlags.ForceDisableCollisions;
         }
 
         public override void OnFixedUpdate(float timeMult)

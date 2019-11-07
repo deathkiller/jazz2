@@ -20,7 +20,7 @@ namespace Jazz2.Actors.Enemies
         {
             canBeFrozen = false;
             IsFacingLeft = true;
-            collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation;
+            CollisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation;
             canHurtPlayer = false;
             isInvulnerable = true;
 
@@ -127,7 +127,7 @@ namespace Jazz2.Actors.Enemies
                 base.canHurtPlayer = false;
                 base.canCollideWithAmmo = false;
                 base.isInvulnerable = true;
-                base.collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.SkipPerPixelCollisions;
+                base.CollisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.SkipPerPixelCollisions;
 
                 health = int.MaxValue;
 

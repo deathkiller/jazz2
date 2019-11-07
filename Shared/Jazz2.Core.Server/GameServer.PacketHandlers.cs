@@ -17,14 +17,12 @@ namespace Jazz2.Server
         private void RegisterPacketCallbacks()
         {
             AddCallback<LevelReady>(OnLevelReady);
-            AddCallback<UpdateSelf>(OnUpdateSelf);
+            AddCallback<PlayerUpdate>(OnPlayerUpdate);
+            AddCallback<PlayerRefreshAnimation>(OnPlayerRefreshAnimation);
 
-            AddCallback<SelfDied>(OnSelfDied);
-            AddCallback<RemotePlayerHit>(OnRemotePlayerHit);
+            AddCallback<PlayerDied>(OnPlayerDied);
 
-            //RegisterCallback<CreateRemotableActor>(OnCreateRemotableActor);
-            //RegisterCallback<UpdateRemotableActor>(OnUpdateRemotableActor);
-            //RegisterCallback<DestroyRemotableActor>(OnDestroyRemotableActor);
+            AddCallback<PlayerFireWeapon>(OnPlayerFireWeapon);
         }
 
         /// <summary>
@@ -55,11 +53,29 @@ namespace Jazz2.Server
                         }
 
                         if (pair.Value.State == PlayerState.Spawned && pair.Value.ProxyActor != null) {
-                            Send(new CreateRemotePlayer {
+                            string metadataPath;
+                            switch (pair.Value.ProxyActor.PlayerType) {
+                                default:
+                                case PlayerType.Jazz:
+                                    metadataPath = "Interactive/PlayerJazz";
+                                    break;
+                                case PlayerType.Spaz:
+                                    metadataPath = "Interactive/PlayerSpaz";
+                                    break;
+                                case PlayerType.Lori:
+                                    metadataPath = "Interactive/PlayerLori";
+                                    break;
+                                case PlayerType.Frog:
+                                    metadataPath = "Interactive/PlayerFrog";
+                                    break;
+                            }
+
+                            Send(new CreateRemoteActor {
                                 Index = pair.Value.Index,
-                                Type = pair.Value.ProxyActor.PlayerType,
+                                CollisionFlags = CollisionFlags.ApplyGravitation,
+                                MetadataPath = metadataPath,
                                 Pos = pair.Value.ProxyActor.Transform.Pos
-                            }, 9, p.SenderConnection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+                            }, 64, p.SenderConnection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                         }
                     }
                 } else {
@@ -67,10 +83,11 @@ namespace Jazz2.Server
 
                     if (player.ProxyActor == null) {
                         player.ProxyActor = new Player();
+                        player.ProxyActor.Index = player.Index;
                         player.ProxyActor.OnActivated(new ActorActivationDetails {
                             LevelHandler = levelHandler,
                             Pos = pos,
-                            Params = new[] { (ushort)MathF.Rnd.OneOf(new[] { PlayerType.Jazz, PlayerType.Spaz, PlayerType.Lori }), (ushort)/*p.Index*/0 }
+                            Params = new[] { (ushort)MathF.Rnd.OneOf(new[] { PlayerType.Jazz, PlayerType.Spaz, PlayerType.Lori }), (ushort)0 }
                         });
                         levelHandler.AddPlayer(player.ProxyActor);
                     } else {
@@ -87,6 +104,7 @@ namespace Jazz2.Server
                     }, 10, p.SenderConnection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
 
                     // Send command to create all already spawned players
+                    string metadataPath;
                     List<NetConnection> playersWithLoadedLevel = new List<NetConnection>();
                     foreach (KeyValuePair<NetConnection, PlayerClient> pair in players) {
                         if (pair.Key == p.SenderConnection) {
@@ -97,21 +115,55 @@ namespace Jazz2.Server
                             playersWithLoadedLevel.Add(pair.Key);
 
                             if (pair.Value.State == PlayerState.Spawned) {
-                                Send(new CreateRemotePlayer {
+                                switch (pair.Value.ProxyActor.PlayerType) {
+                                    default:
+                                    case PlayerType.Jazz:
+                                        metadataPath = "Interactive/PlayerJazz";
+                                        break;
+                                    case PlayerType.Spaz:
+                                        metadataPath = "Interactive/PlayerSpaz";
+                                        break;
+                                    case PlayerType.Lori:
+                                        metadataPath = "Interactive/PlayerLori";
+                                        break;
+                                    case PlayerType.Frog:
+                                        metadataPath = "Interactive/PlayerFrog";
+                                        break;
+                                }
+
+                                Send(new CreateRemoteActor {
                                     Index = pair.Value.Index,
-                                    Type = pair.Value.ProxyActor.PlayerType,
+                                    CollisionFlags = CollisionFlags.ApplyGravitation,
+                                    MetadataPath = metadataPath,
                                     Pos = pair.Value.ProxyActor.Transform.Pos
-                                }, 9, p.SenderConnection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+                                }, 64, p.SenderConnection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                             }
                         }
                     }
 
+                    switch (player.ProxyActor.PlayerType) {
+                        default:
+                        case PlayerType.Jazz:
+                            metadataPath = "Interactive/PlayerJazz";
+                            break;
+                        case PlayerType.Spaz:
+                            metadataPath = "Interactive/PlayerSpaz";
+                            break;
+                        case PlayerType.Lori:
+                            metadataPath = "Interactive/PlayerLori";
+                            break;
+                        case PlayerType.Frog:
+                            metadataPath = "Interactive/PlayerFrog";
+                            break;
+                    }
+
                     // Send command to all active players to create this new player
-                    Send(new CreateRemotePlayer {
+                    Send(new CreateRemoteActor {
                         Index = player.Index,
-                        Type = player.ProxyActor.PlayerType,
+                        CollisionFlags = CollisionFlags.ApplyGravitation,
+                        MetadataPath = metadataPath,
                         Pos = pos
-                    }, 9, playersWithLoadedLevel, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+                    }, 64, playersWithLoadedLevel, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                 }
 
                 // Send command to create all remotable actors
@@ -128,12 +180,16 @@ namespace Jazz2.Server
 
                 levelHandler.SendAllSpawnedActors(p.SenderConnection);
             }
+
+#if DEBUG
+            Log.Write(LogType.Verbose, "[Dev] Player #" + player.Index + " is ready to play");
+#endif
         }
 
         /// <summary>
         /// Player sent its updated state and position
         /// </summary>
-        private void OnUpdateSelf(ref UpdateSelf p)
+        private void OnPlayerUpdate(ref PlayerUpdate p)
         {
             PlayerClient player = playersByIndex[p.Index];
             if (player == null) {
@@ -155,19 +211,36 @@ namespace Jazz2.Server
             }
 
             proxyActor.Transform.Pos = p.Pos;
+            proxyActor.SyncWithClient(p.CurrentSpecialMove, p.IsFacingLeft);
+        }
 
-            // ToDo
-            /*player.AnimTime = p.AnimTime;
-            player.Controllable = p.Controllable;
-            player.IsFirePressed = p.IsFirePressed;*/
+        private void OnPlayerRefreshAnimation(ref PlayerRefreshAnimation p)
+        {
+            PlayerClient player = playersByIndex[p.Index];
+            if (player == null) {
+                return;
+            }
+            if (player.Connection != p.SenderConnection) {
+                throw new InvalidOperationException();
+            }
 
-            proxyActor.SyncWithClient(p.AnimState, p.IsFacingLeft);
+            Player proxyActor = player.ProxyActor;
+            if (proxyActor == null) {
+                return;
+            }
+
+            proxyActor.OnRefreshActorAnimation(p.Identifier);
+
+            SendToActivePlayers(new RefreshActorAnimation {
+                Index = player.Index,
+                Identifier = p.Identifier
+            }, 48, NetDeliveryMethod.Unreliable, PacketChannels.UnorderedUpdates);
         }
 
         /// <summary>
         /// Player died
         /// </summary>
-        private void OnSelfDied(ref SelfDied p)
+        private void OnPlayerDied(ref PlayerDied p)
         {
             PlayerClient player = playersByIndex[p.Index];
             if (player == null) {
@@ -180,126 +253,32 @@ namespace Jazz2.Server
             player.State = PlayerState.Dead;
             player.StatsDeaths++;
 
-            SendToActivePlayers(new RemotePlayerDied {
+            /*SendToActivePlayers(new RemotePlayerDied {
                 Index = player.Index
-            }, 2, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+            }, 2, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);*/
+
+#if DEBUG
+            Log.Write(LogType.Verbose, "[Dev] Player #" + player.Index + " died");
+#endif
         }
 
-        /// <summary>
-        /// Player hit (with weapon) another player
-        /// </summary>
-        private void OnRemotePlayerHit(ref RemotePlayerHit p)
+        private void OnPlayerFireWeapon(ref PlayerFireWeapon p)
         {
-            // ToDo: This packet should be verified by server
             PlayerClient player = playersByIndex[p.Index];
             if (player == null) {
                 return;
             }
+            if (player.Connection != p.SenderConnection) {
+                throw new InvalidOperationException();
+            }
 
-            if (players.TryGetValue(p.SenderConnection, out PlayerClient attacker)) {
+            Player proxyActor = player.ProxyActor;
+            if (proxyActor == null) {
                 return;
             }
 
-            attacker.StatsHits++;
-
-            SendToActivePlayers(new DecreasePlayerHealth {
-                Index = p.Index,
-                Amount = p.Damage
-            }, 3, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+            proxyActor.FireWeapon(p.WeaponType);
         }
-
-        /// <summary>
-        /// Player requested to create remotable actor owned by the player
-        /// </summary>
-        /*private void OnCreateRemotableActor(ref CreateRemotableActor p)
-        {
-            if (p.EventType == EventType.Empty) {
-                return;
-            }
-
-            int index = p.Index;
-
-            Player player;
-            RemotableActor remotableActor = new RemotableActor {
-                Index = index,
-                EventType = p.EventType,
-                EventParams = p.EventParams,
-                Pos = p.Pos
-            };
-
-            lock (sync) {
-                if (!players.TryGetValue(p.SenderConnection, out player)) {
-                    return;
-                }
-
-                // Subindex corresponds to player index of owner
-                if (player.Index != (index & 0xff)) {
-                    return;
-                }
-
-                remotableActor.Owner = player;
-
-                remotableActors[index] = remotableActor;
-
-                remotableActor.AABB = new AABB(remotableActor.Pos.Xy, 30, 30);
-                collisions.AddProxy(remotableActor);
-            }
-
-            Send(new CreateRemoteObject {
-                Index = remotableActor.Index,
-                EventType = remotableActor.EventType,
-                EventParams = remotableActor.EventParams,
-                Pos = remotableActor.Pos,
-            }, 35, playerConnections, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
-        }*/
-
-        /// <summary>
-        /// Player updated state and position of owned remotable actor
-        /// </summary>
-        /*private void OnUpdateRemotableActor(ref UpdateRemotableActor p)
-        {
-            int index = p.Index;
-
-            Player player;
-
-            lock (sync) {
-                if (!players.TryGetValue(p.SenderConnection, out player)) {
-                    return;
-                }
-
-                // Subindex corresponds to player index of owner
-                if (player.Index != (index & 0xff)) {
-                    return;
-                }
-
-                RemotableActor remotableActor;
-                if (!remotableActors.TryGetValue(index, out remotableActor)) {
-                    return;
-                }
-
-                if (remotableActor.LastUpdateTime > p.UpdateTime) {
-                    return;
-                }
-
-                remotableActor.LastUpdateTime = p.UpdateTime;
-
-                float rtt = p.SenderConnection.AverageRoundtripTime;
-
-                Vector3 pos = p.Pos;
-                pos.X += p.Speed.X * rtt;
-                pos.Y += p.Speed.Y * rtt;
-                remotableActor.Pos = pos;
-
-                remotableActor.Speed = p.Speed;
-
-                remotableActor.AnimState = p.AnimState;
-                remotableActor.AnimTime = p.AnimTime;
-                remotableActor.IsFacingLeft = p.IsFacingLeft;
-
-                //remotableObject.AABB = new AABB(remotableObject.Pos.Xy, 30, 30);
-                //collisions.AddProxy(remotableObject);
-            }
-        }*/
 
         /// <summary>
         /// Player destroyed owned remotable actor

@@ -43,7 +43,7 @@ namespace Jazz2.Actors
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            collisionFlags = CollisionFlags.ForceDisableCollisions;
+            CollisionFlags = CollisionFlags.ForceDisableCollisions;
 
             type = details.Params[0];
 

@@ -2,28 +2,28 @@
 
 namespace Jazz2.Networking.Packets.Server
 {
-    public struct DestroyRemotePlayer : IServerPacket
+    public struct PlayerAddHealth : IServerPacket
     {
         public NetConnection SenderConnection { get; set; }
 
-        byte IServerPacket.Type => 14;
+        byte IServerPacket.Type => 21;
 
 
         public byte Index;
-        public byte Reason;
+        public byte Amount;
 
         void IServerPacket.Read(NetIncomingMessage msg)
         {
             Index = msg.ReadByte();
 
-            Reason = msg.ReadByte();
+            Amount = msg.ReadByte();
         }
 
         void IServerPacket.Write(NetOutgoingMessage msg)
         {
             msg.Write((byte)Index);
 
-            msg.Write((byte)Reason);
+            msg.Write((byte)Amount);
         }
     }
 }

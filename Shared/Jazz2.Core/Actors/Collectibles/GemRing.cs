@@ -21,7 +21,7 @@ namespace Jazz2.Actors.Collectibles
             speed = (details.Params[1] > 0 ? details.Params[1] : 8) * 0.00625f;
             // "Event" parameter will not be implemented
 
-            collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.SkipPerPixelCollisions;
+            CollisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.SkipPerPixelCollisions;
 
             untouched = false;
 
@@ -84,7 +84,7 @@ namespace Jazz2.Actors.Collectibles
         {
             if (!collected) {
                 collected = true;
-                collisionFlags &= ~CollisionFlags.CollideWithOtherActors;
+                CollisionFlags &= ~CollisionFlags.CollideWithOtherActors;
 
                 player.AddGems(parts.Length);
 
@@ -97,7 +97,7 @@ namespace Jazz2.Actors.Collectibles
         {
             protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                collisionFlags = CollisionFlags.ForceDisableCollisions;
+                CollisionFlags = CollisionFlags.ForceDisableCollisions;
 
                 await RequestMetadataAsync("Collectible/Gems");
                 SetAnimation("GemRed");

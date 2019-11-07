@@ -17,19 +17,19 @@ namespace Jazz2.Actors.Collectibles
         {
             elasticity = 0.6f;
 
-            collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
+            CollisionFlags |= CollisionFlags.SkipPerPixelCollisions;
 
             Vector3 pos = Transform.Pos;
             phase = ((pos.X / 32) + (pos.Y / 32)) * 2f;
 
             if ((flags & (ActorInstantiationFlags.IsCreatedFromEventMap | ActorInstantiationFlags.IsFromGenerator)) != 0) {
                 untouched = true;
-                collisionFlags &= ~CollisionFlags.ApplyGravitation;
+                CollisionFlags &= ~CollisionFlags.ApplyGravitation;
 
                 startingY = pos.Y;
             } else {
                 untouched = false;
-                collisionFlags |= CollisionFlags.ApplyGravitation;
+                CollisionFlags |= CollisionFlags.ApplyGravitation;
 
                 timeLeft = 90f * Time.FramesPerSecond;
             }
@@ -84,7 +84,7 @@ namespace Jazz2.Actors.Collectibles
                             externalForceY += -speed.Y / 4f * (0.9f + MathF.Rnd.NextFloat(0.2f));
 
                             untouched = false;
-                            collisionFlags |= CollisionFlags.ApplyGravitation;
+                            CollisionFlags |= CollisionFlags.ApplyGravitation;
                         }
                     }
                     break;

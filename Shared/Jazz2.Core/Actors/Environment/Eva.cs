@@ -13,7 +13,7 @@ namespace Jazz2.Actors.Environment
             await RequestMetadataAsync("Object/Eva");
             SetAnimation(AnimState.Idle);
 
-            collisionFlags &= ~CollisionFlags.ApplyGravitation;
+            CollisionFlags &= ~CollisionFlags.ApplyGravitation;
         }
 
         public override void OnFixedUpdate(float timeMult)

@@ -33,7 +33,7 @@ namespace Jazz2.Actors.Environment
             //delay = details.Params[4];
             //frozen = (details.Params[5] != 0);
 
-            collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
+            CollisionFlags |= CollisionFlags.SkipPerPixelCollisions;
 
             Vector3 pos = Transform.Pos;
 
@@ -55,17 +55,17 @@ namespace Jazz2.Actors.Environment
                 case 1: // Right
                     MoveInstantly(new Vector2(tileCorner.X + 16, tileCorner.Y + 16), MoveType.Absolute, true);
                     orientationBit = 1;
-                    collisionFlags &= ~CollisionFlags.ApplyGravitation;
+                    CollisionFlags &= ~CollisionFlags.ApplyGravitation;
                     break;
                 case 2: // Top
                     MoveInstantly(new Vector2(tileCorner.X + 16, tileCorner.Y + 8), MoveType.Absolute, true);
                     orientationBit = 2;
-                    collisionFlags &= ~CollisionFlags.ApplyGravitation;
+                    CollisionFlags &= ~CollisionFlags.ApplyGravitation;
                     break;
                 case 3: // Left
                     MoveInstantly(new Vector2(tileCorner.X + 16, tileCorner.Y + 16), MoveType.Absolute, true);
                     orientationBit = 1;
-                    collisionFlags &= ~CollisionFlags.ApplyGravitation;
+                    CollisionFlags &= ~CollisionFlags.ApplyGravitation;
                     IsFacingLeft = true;
                     break;
             }
@@ -95,7 +95,7 @@ namespace Jazz2.Actors.Environment
                 }
             }
 
-            if ((collisionFlags & CollisionFlags.ApplyGravitation) != 0) {
+            if ((CollisionFlags & CollisionFlags.ApplyGravitation) != 0) {
                 OnUpdateHitbox();
 
                 // Apply instant gravitation

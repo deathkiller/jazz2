@@ -10,7 +10,7 @@ using Jazz2.Networking;
 using Jazz2.Networking.Packets;
 using Lidgren.Network;
 
-namespace Jazz2.Game.Multiplayer
+namespace Jazz2.Game
 {
     public class NetworkHandler
     {
@@ -22,12 +22,12 @@ namespace Jazz2.Game.Multiplayer
         private Dictionary<byte, Action<NetIncomingMessage>> callbacks;
 
 #if DEBUG
-        public int Down, Up;
-        private int downLast, upLast, statsReset;
+        public int DownloadPacketBytes, UploadPacketBytes;
+        private int downloadPacketBytesLast, uploadPacketBytesLast, statsLastTime;
 #endif
 
         public event Action OnDisconnected;
-        public event Action<NetIncomingMessage> OnUpdateAllPlayers;
+        public event Action<NetIncomingMessage> OnUpdateAllActors;
 
         public bool IsConnected => (client != null && client.ConnectionStatus != NetConnectionStatus.Disconnected && client.ConnectionStatus != NetConnectionStatus.Disconnecting);
 
@@ -102,12 +102,12 @@ namespace Jazz2.Game.Multiplayer
 
 #if DEBUG
                 int nowTime = (int)(NetTime.Now * 1000);
-                if (nowTime - statsReset > 1000) {
-                    statsReset = nowTime;
-                    Down = downLast;
-                    Up = upLast;
-                    downLast = 0;
-                    upLast = 0;
+                if (nowTime - statsLastTime > 1000) {
+                    statsLastTime = nowTime;
+                    DownloadPacketBytes = downloadPacketBytesLast;
+                    UploadPacketBytes = uploadPacketBytesLast;
+                    downloadPacketBytesLast = 0;
+                    uploadPacketBytesLast = 0;
                 }
 #endif
 
@@ -131,18 +131,20 @@ namespace Jazz2.Game.Multiplayer
 
                         case NetIncomingMessageType.Data: {
 #if DEBUG
-                            downLast += msg.LengthBytes;
+                            downloadPacketBytesLast += msg.LengthBytes;
 #endif
                             byte type = msg.ReadByte();
 
-                            if (type == SpecialPacketTypes.UpdateAll) {
-                                OnUpdateAllPlayers?.Invoke(msg);
+                            if (type == SpecialPacketTypes.UpdateAllActors) {
+                                OnUpdateAllActors?.Invoke(msg);
                             } else {
                                 Action<NetIncomingMessage> callback;
                                 if (callbacks.TryGetValue(type, out callback)) {
                                     callback(msg);
                                 } else {
-                                    Console.WriteLine("        - Unknown packet type (" + type + ")!");
+#if DEBUG
+                                    Log.Write(LogType.Info, "[Dev] Unknown packet type (0x" + type.ToString("X") + ") received");
+#endif
                                 }
                             }
                             break;
@@ -182,12 +184,14 @@ namespace Jazz2.Game.Multiplayer
 
             client = null;
 
-            Debug.WriteLine("NetworkHandler: OnHandleMessagesThread exited!");
+#if DEBUG
+            Log.Write(LogType.Verbose, "[Dev] Thread OnHandleMessagesThread() exited");
+#endif
         }
 
         #region Messages
 
-        public bool Send<T>(T packet, int capacity, NetDeliveryMethod method, int channel) where T : struct, IClientPacket
+        public bool SendToServer<T>(T packet, int capacity, NetDeliveryMethod method, int channel) where T : struct, IClientPacket
         {
             if (client == null) {
                 return false;
@@ -199,14 +203,14 @@ namespace Jazz2.Game.Multiplayer
 
 #if DEBUG
             if (msg.LengthBytes > capacity) {
-                Log.Write(LogType.Warning, "Packet " + typeof(T).Name + " has underestimated capacity (" + msg.LengthBytes + "/" + capacity + ")");
+                Log.Write(LogType.Warning, "[Dev] Packet " + typeof(T).Name + " has underestimated capacity (" + msg.LengthBytes + "/" + capacity + ")");
             }
 #endif
 
             NetSendResult result = client.SendMessage(msg, method, channel);
 
 #if DEBUG
-            upLast += msg.LengthBytes;
+            uploadPacketBytesLast += msg.LengthBytes;
 #endif
 #if NETWORK_DEBUG__
             Console.ForegroundColor = ConsoleColor.Yellow;

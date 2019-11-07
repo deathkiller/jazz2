@@ -788,6 +788,11 @@ namespace Jazz2.Game
         {
         }
 
+        public virtual bool OverridePlayerFireWeapon(Player player, WeaponType weaponType)
+        {
+            return false;
+        }
+
         // ToDo: Move this somewhere
         public enum WeatherType
         {
@@ -1084,6 +1089,8 @@ namespace Jazz2.Game
             ActorBase actor = e.Component.GameObj as ActorBase;
             actor.UpdateAABB();
             collisions.MoveProxy(actor, ref actor.AABB, actor.Speed.Xy);
+
+            actor.CollisionFlags |= CollisionFlags.TransformChanged;
 
             collisionsCountA++;
         }

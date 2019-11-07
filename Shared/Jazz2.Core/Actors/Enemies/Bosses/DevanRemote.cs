@@ -17,7 +17,7 @@ namespace Jazz2.Actors.Bosses
             endText = details.Params[2];
 
             canBeFrozen = false;
-            collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.ApplyGravitation;
+            CollisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.ApplyGravitation;
             IsFacingLeft = true;
 
             await RequestMetadataAsync("Boss/DevanRemote");

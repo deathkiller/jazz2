@@ -17,7 +17,7 @@ namespace Jazz2.Actors.Environment
             await RequestMetadataAsync("Object/Airboard");
             SetAnimation("Airboard");
 
-            collisionFlags &= ~CollisionFlags.ApplyGravitation;
+            CollisionFlags &= ~CollisionFlags.ApplyGravitation;
 
             //if (delay > 0) {
             //    renderer.Active = false;

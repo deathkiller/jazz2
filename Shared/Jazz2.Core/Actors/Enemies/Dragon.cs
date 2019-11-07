@@ -125,7 +125,7 @@ namespace Jazz2.Actors.Enemies
 
                 base.canBeFrozen = false;
                 base.isInvulnerable = true;
-                base.collisionFlags &= ~CollisionFlags.ApplyGravitation;
+                base.CollisionFlags &= ~CollisionFlags.ApplyGravitation;
 
                 await RequestMetadataAsync("Weapon/Toaster");
                 SetAnimation("Fire");

@@ -5,7 +5,6 @@ using System.Net;
 using System.Runtime;
 using Duality.Async;
 using Duality.Resources;
-using Jazz2.Game.Multiplayer;
 using Jazz2.Game.Structs;
 using Jazz2.Networking.Packets.Server;
 using Jazz2.Storage;
@@ -81,7 +80,7 @@ namespace Jazz2.Game
                 LevelInitialization levelInit = new LevelInitialization(episodeName, levelName, GameDifficulty.Multiplayer);
 
                 Scene.Current.Dispose();
-                Scene.SwitchTo(new NetworkLevelHandler(this, net, levelInit, playerIndex));
+                Scene.SwitchTo(new MultiplayerLevelHandler(this, net, levelInit, playerIndex));
 
                 GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
                 GC.Collect();

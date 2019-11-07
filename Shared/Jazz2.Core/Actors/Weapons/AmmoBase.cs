@@ -29,7 +29,7 @@ namespace Jazz2.Actors.Weapons
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation;
+            CollisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation;
             canBeFrozen = false;
         }
 

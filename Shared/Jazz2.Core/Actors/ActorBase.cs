@@ -56,9 +56,11 @@ namespace Jazz2.Actors
 
         ForceDisableCollisions = 1 << 3,
 
+        TransformChanged = 1 << 4,
+
         ApplyGravitation = 1 << 5,
         IsSolidObject = 1 << 6,
-        SkipPerPixelCollisions = 1 << 7,
+        SkipPerPixelCollisions = 1 << 7
     }
 
     public enum MoveType
@@ -87,7 +89,7 @@ namespace Jazz2.Actors
 
         private bool isFacingLeft;
         protected bool isInvulnerable;
-        protected CollisionFlags collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation;
+        public CollisionFlags CollisionFlags = Actors.CollisionFlags.CollideWithTileset | Actors.CollisionFlags.CollideWithOtherActors | Actors.CollisionFlags.ApplyGravitation;
 
         protected float frozenTimeLeft;
 
@@ -96,7 +98,10 @@ namespace Jazz2.Actors
         protected ActorInstantiationFlags flags;
 
         protected ActorRenderer renderer;
+#if MULTIPLAYER && SERVER
         private string loadedMetadata;
+        private string activeAnimation;
+#endif
         private Point2 boundingBox;
 
         public AABB AABB;
@@ -118,7 +123,6 @@ namespace Jazz2.Actors
 
         private List<AnimationCandidate> cachedCandidates = new List<AnimationCandidate>(4);
 
-        public CollisionFlags CollisionFlags => collisionFlags;
         public bool IsInvulnerable => isInvulnerable;
         public int Health
         {
@@ -131,8 +135,9 @@ namespace Jazz2.Actors
         public Vector3 ExternalForce => new Vector3(externalForceX, externalForceY, 0f);
         public Vector3 InternalForce => new Vector3(0, internalForceY, 0f);
 
+#if MULTIPLAYER && SERVER
         public string LoadedMetadata => loadedMetadata;
-        public float AnimTime => (renderer != null ? renderer.AnimTime : 0f);
+#endif
 
         public bool IsFacingLeft
         {
@@ -151,7 +156,7 @@ namespace Jazz2.Actors
 
                 isFacingLeft = value;
 
-                if ((collisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0) {
+                if ((CollisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0) {
                     // ToDo: Workaround for refreshing of AABB
                     Transform.Pos = Transform.Pos;
                 }
@@ -171,7 +176,7 @@ namespace Jazz2.Actors
 
             friction = 1.5f;
 
-            originTile = new Point2((int)(details.Pos.X / 32), (int)(details.Pos.Y / 32));
+            originTile = new Point2((int)details.Pos.X / 32, (int)details.Pos.Y / 32);
 
             Transform transform = AddComponent<Transform>();
             transform.Pos = details.Pos;
@@ -230,12 +235,12 @@ namespace Jazz2.Actors
 
         internal void UpdateAABB()
         {
-            if ((collisionFlags & (CollisionFlags.CollideWithOtherActors | CollisionFlags.CollideWithSolidObjects | CollisionFlags.IsSolidObject)) == 0) {
+            if ((CollisionFlags & (CollisionFlags.CollideWithOtherActors | CollisionFlags.CollideWithSolidObjects | CollisionFlags.IsSolidObject)) == 0) {
                 // Collisions are deactivated
                 return;
             }
 
-            if ((collisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0) {
+            if ((CollisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0) {
                 GraphicResource res = (currentTransitionState != AnimState.Idle ? currentTransition : currentAnimation);
                 if (res == null) {
                     return;
@@ -344,7 +349,7 @@ namespace Jazz2.Actors
         {
             float currentGravity;
             float currentElasticity = elasticity;
-            if ((collisionFlags & CollisionFlags.ApplyGravitation) != 0) {
+            if ((CollisionFlags & CollisionFlags.ApplyGravitation) != 0) {
                 currentGravity = levelHandler.Gravity;
                 if (Transform.Pos.Y >= levelHandler.WaterLevel) {
                     currentGravity *= 0.5f;
@@ -612,8 +617,8 @@ namespace Jazz2.Actors
         {
             const byte AlphaThreshold = 40;
 
-            bool perPixel1 = (collisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0;
-            bool perPixel2 = (other.collisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0;
+            bool perPixel1 = (CollisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0;
+            bool perPixel2 = (other.CollisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0;
 
             if ((perPixel1 || perPixel2) && (MathF.Abs(Transform.Angle) > 0.1f || MathF.Abs(other.Transform.Angle) > 0.1f)) {
                 if (!perPixel1 && MathF.Abs(other.Transform.Angle) > 0.1f) {
@@ -771,7 +776,7 @@ namespace Jazz2.Actors
         {
             const byte AlphaThreshold = 40;
 
-            bool perPixel = (collisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0;
+            bool perPixel = (CollisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0;
             if (perPixel && MathF.Abs(Transform.Angle) > 0.1f) {
                 return IsCollidingWithAngled(ref aabb);
             }
@@ -1043,7 +1048,9 @@ namespace Jazz2.Actors
 
             Metadata metadata = ContentResolver.Current.RequestMetadata(path);
 
+#if MULTIPLAYER && SERVER
             loadedMetadata = path;
+#endif
             boundingBox = metadata.BoundingBox;
             availableAnimations = metadata.Graphics;
             availableSounds = metadata.Sounds;
@@ -1069,7 +1076,9 @@ namespace Jazz2.Actors
                 metadata = ContentResolver.Current.RequestMetadata(path);
             }
 
+#if MULTIPLAYER && SERVER
             loadedMetadata = path;
+#endif
             boundingBox = metadata.BoundingBox;
             availableAnimations = metadata.Graphics;
             availableSounds = metadata.Sounds;
@@ -1153,7 +1162,7 @@ namespace Jazz2.Actors
             }
         }
 
-        #region Animations
+#region Animations
         protected struct AnimationCandidate
         {
             public string Identifier;
@@ -1212,7 +1221,7 @@ namespace Jazz2.Actors
 
             OnAnimationStarted();
 
-            if ((collisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0) {
+            if ((CollisionFlags & CollisionFlags.SkipPerPixelCollisions) == 0) {
                 // ToDo: Workaround for refresh of AABB
                 Transform.Pos = Transform.Pos;
             }
@@ -1235,7 +1244,12 @@ namespace Jazz2.Actors
 
             RefreshAnimation();
 
+#if MULTIPLAYER && SERVER
+            activeAnimation = identifier;
             levelHandler.BroadcastAnimationChanged(this, identifier);
+#else
+            levelHandler.BroadcastAnimationChanged(this, identifier);
+#endif
         }
 
         protected bool SetAnimation(AnimState state)
@@ -1280,7 +1294,12 @@ namespace Jazz2.Actors
 
             RefreshAnimation();
 
+#if MULTIPLAYER && SERVER
+            activeAnimation = candidates[index].Identifier;
+            levelHandler.BroadcastAnimationChanged(this, activeAnimation);
+#else
             levelHandler.BroadcastAnimationChanged(this, candidates[index].Identifier);
+#endif
             return true;
         }
 
@@ -1312,8 +1331,7 @@ namespace Jazz2.Actors
 
                 RefreshAnimation();
 
-                // ToDo: Transitions over network are disabled for now
-                //levelHandler.BroadcastAnimationChanged(this, candidates[index].Identifier);
+                levelHandler.BroadcastAnimationChanged(this, candidates[index].Identifier);
                 return true;
             }
         }
@@ -1330,6 +1348,10 @@ namespace Jazz2.Actors
                 currentTransitionState = AnimState.Idle;
 
                 RefreshAnimation();
+
+#if MULTIPLAYER && SERVER
+                levelHandler.BroadcastAnimationChanged(this, activeAnimation);
+#endif
             }
         }
 
@@ -1344,6 +1366,10 @@ namespace Jazz2.Actors
             currentTransitionState = AnimState.Idle;
 
             RefreshAnimation();
+
+#if MULTIPLAYER && SERVER
+            levelHandler.BroadcastAnimationChanged(this, activeAnimation);
+#endif
         }
 
         protected virtual void OnAnimationStarted()
@@ -1357,6 +1383,10 @@ namespace Jazz2.Actors
                 currentTransitionState = AnimState.Idle;
 
                 RefreshAnimation();
+
+#if MULTIPLAYER && SERVER
+                levelHandler.BroadcastAnimationChanged(this, activeAnimation);
+#endif
 
                 if (currentTransitionCallback != null) {
                     Action oldCallback = currentTransitionCallback;
@@ -1379,9 +1409,9 @@ namespace Jazz2.Actors
             }
             return cachedCandidates;
         }
-        #endregion
+#endregion
 
-        private class LocalController : Component, ICmpUpdatable, ICmpFixedUpdatable
+        protected class LocalController : Component, ICmpUpdatable, ICmpFixedUpdatable
         {
             private readonly ActorBase actor;
 

@@ -32,7 +32,7 @@ namespace Jazz2.Actors.Environment
             
             SetAnimation(activated ? AnimState.Activated : AnimState.Idle);
 
-            collisionFlags |= CollisionFlags.CollideWithSolidObjects;
+            CollisionFlags |= CollisionFlags.CollideWithSolidObjects;
         }
 
         public override void OnHandleCollision(ActorBase other)

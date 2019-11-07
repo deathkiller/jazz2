@@ -10,7 +10,7 @@ namespace Jazz2.Actors
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            collisionFlags = CollisionFlags.CollideWithOtherActors;
+            CollisionFlags = CollisionFlags.CollideWithOtherActors;
             canBeFrozen = false;
 
             await RequestMetadataAsync("Object/FrozenBlock");

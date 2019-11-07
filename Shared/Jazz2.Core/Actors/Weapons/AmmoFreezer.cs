@@ -22,7 +22,7 @@ namespace Jazz2.Actors.Weapons
 
             base.upgrades = (byte)details.Params[0];
 
-            collisionFlags &= ~CollisionFlags.ApplyGravitation;
+            CollisionFlags &= ~CollisionFlags.ApplyGravitation;
             strength = 0;
 
             await RequestMetadataAsync("Weapon/Freezer");

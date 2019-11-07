@@ -137,7 +137,7 @@ namespace Jazz2.Game.UI
 
                 // Score
 #if MULTIPLAYER
-                if (!(levelHandler is Multiplayer.NetworkLevelHandler))
+                if (!(levelHandler is MultiplayerLevelHandler))
 #endif
                 {
                     DrawMaterial("PickupFood", -1, 3, 3 + 1.6f, Alignment.TopLeft, new ColorRgba(0f, 0.4f));

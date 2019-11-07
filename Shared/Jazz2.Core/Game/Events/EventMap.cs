@@ -40,7 +40,7 @@ namespace Jazz2.Game.Events
 
         private Dictionary<uint, List<Vector2>> warpTargets;
         private Dictionary<PlayerType, List<Vector2>> spawnPositions;
-#if SERVER
+#if MULTIPLAYER && SERVER
         private List<Vector2> spawnPositionsForMultiplayer;
 #endif
 
@@ -58,7 +58,7 @@ namespace Jazz2.Game.Events
 
             warpTargets = new Dictionary<uint, List<Vector2>>();
             spawnPositions = new Dictionary<PlayerType, List<Vector2>>();
-#if SERVER
+#if MULTIPLAYER && SERVER
             spawnPositionsForMultiplayer = new List<Vector2>();
 #endif
         }
@@ -161,7 +161,7 @@ namespace Jazz2.Game.Events
             return targets[MathF.Rnd.Next(targets.Count)];
         }
 
-#if SERVER
+#if MULTIPLAYER && SERVER
         public Vector2 GetSpawnPositionForMultiplayer()
         {
             if (spawnPositionsForMultiplayer.Count == 0) {
@@ -274,7 +274,7 @@ namespace Jazz2.Game.Events
                                     break;
                                 }
 
-#if SERVER
+#if MULTIPLAYER && SERVER
                                 case EventType.LevelStartMultiplayer: {
                                     // ToDo: check parameters
                                     spawnPositionsForMultiplayer.Add(new Vector2(32 * x + 16, 32 * y + 16 - 8));

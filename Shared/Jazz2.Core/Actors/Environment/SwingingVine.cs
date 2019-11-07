@@ -30,7 +30,7 @@ namespace Jazz2.Actors.Environment
             vineRenderer.SharedMaterial = anim.Material;
             vineRenderer.Width = anim.Base.FrameDimensions.X;
 
-            collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.SkipPerPixelCollisions;
+            CollisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.SkipPerPixelCollisions;
         }
 
         public override void OnFixedUpdate(float timeMult)

@@ -1,4 +1,4 @@
-﻿namespace Jazz2.Networking
+﻿namespace Jazz2.Game
 {
     public enum MultiplayerLevelType
     {

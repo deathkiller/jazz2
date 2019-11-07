@@ -41,6 +41,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\SliderControl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\StartGameOptionsSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\TransitionManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Misc\ControlScheme.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Misc\Ease.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Misc\OpenMptStream.cs" />
   </ItemGroup>

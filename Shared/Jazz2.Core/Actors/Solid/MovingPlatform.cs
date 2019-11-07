@@ -45,7 +45,7 @@ namespace Jazz2.Actors.Solid
 
             phase = (BaseCycleFrames - (float)(Time.GameTimer.TotalMilliseconds % BaseCycleFrames - sync * 175) * speed) % BaseCycleFrames;
 
-            collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.IsSolidObject;
+            CollisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.IsSolidObject;
             IsOneWay = true;
             canBeFrozen = false;
 
@@ -162,7 +162,7 @@ namespace Jazz2.Actors.Solid
                 Transform transform = AddComponent<Transform>();
                 Transform.Pos = pos;
 
-                collisionFlags = CollisionFlags.ForceDisableCollisions;
+                CollisionFlags = CollisionFlags.ForceDisableCollisions;
 
                 RequestMetadata("MovingPlatform/" + type.ToString("G"));
                 SetAnimation("Chain");

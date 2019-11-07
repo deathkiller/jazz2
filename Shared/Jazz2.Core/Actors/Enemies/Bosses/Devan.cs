@@ -122,7 +122,7 @@ namespace Jazz2.Actors.Bosses
                             SetAnimation((AnimState)669);
                             // DEMON_TRANSFORM_START
                             SetTransition((AnimState)670, false, delegate {
-                                collisionFlags &= ~CollisionFlags.ApplyGravitation;
+                                CollisionFlags &= ~CollisionFlags.ApplyGravitation;
                                 isInvulnerable = false;
 
                                 state = StateDemonFlying;
@@ -235,11 +235,11 @@ namespace Jazz2.Actors.Bosses
             speedX = 0f;
             speedY = 0f;
 
-            collisionFlags &= ~CollisionFlags.ApplyGravitation;
+            CollisionFlags &= ~CollisionFlags.ApplyGravitation;
 
             state = StateTransition;
             SetTransition((AnimState)671, false, delegate {
-                collisionFlags |= CollisionFlags.ApplyGravitation;
+                CollisionFlags |= CollisionFlags.ApplyGravitation;
 
                 isDemon = false;
                 state = StateFalling;
@@ -357,7 +357,7 @@ namespace Jazz2.Actors.Bosses
 
                 base.canCollideWithAmmo = false;
                 base.isInvulnerable = true;
-                base.collisionFlags &= ~CollisionFlags.ApplyGravitation;
+                base.CollisionFlags &= ~CollisionFlags.ApplyGravitation;
 
                 canBeFrozen = false;
                 health = int.MaxValue;
@@ -420,7 +420,7 @@ namespace Jazz2.Actors.Bosses
 
                 base.canBeFrozen = false;
                 base.isInvulnerable = true;
-                base.collisionFlags &= ~CollisionFlags.ApplyGravitation;
+                base.CollisionFlags &= ~CollisionFlags.ApplyGravitation;
 
                 health = int.MaxValue;
 

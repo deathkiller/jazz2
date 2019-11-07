@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Duality;
+using Jazz2.Game;
 using Jazz2.Game.Structs;
 using MathF = Duality.MathF;
 
@@ -15,7 +16,7 @@ namespace Jazz2.Actors
             score = Math.Min(score + plus, 999999999u);
         }
 
-        public bool AddHealth(int count)
+        public bool AddHealth(int amount)
         {
             const int healthLimit = 5;
 
@@ -23,16 +24,20 @@ namespace Jazz2.Actors
                 return false;
             }
 
-            if (count < 0) {
+            if (amount < 0) {
                 health = Math.Max(maxHealth, healthLimit);
                 PlaySound("PickupMaxCarrot");
             } else {
-                health = Math.Min(health + count, healthLimit);
+                health = Math.Min(health + amount, healthLimit);
                 if (maxHealth < health) {
                     maxHealth = health;
                 }
                 PlaySound("PickupFood");
             }
+
+#if MULTIPLAYER && SERVER
+            ((LevelHandler)levelHandler).OnPlayerAddHealth(this, amount);
+#endif
 
             return true;
         }
@@ -186,7 +191,7 @@ namespace Jazz2.Actors
                 case Modifier.Airboard: {
                     controllable = true;
                     EndDamagingMove();
-                    collisionFlags &= ~CollisionFlags.ApplyGravitation;
+                    CollisionFlags &= ~CollisionFlags.ApplyGravitation;
 
                     speedY = 0f;
                     externalForceY = 0f;
@@ -200,7 +205,7 @@ namespace Jazz2.Actors
                 case Modifier.Copter: {
                     controllable = true;
                     EndDamagingMove();
-                    collisionFlags &= ~CollisionFlags.ApplyGravitation;
+                    CollisionFlags &= ~CollisionFlags.ApplyGravitation;
 
                     speedY = 0f;
                     externalForceY = 0f;
@@ -213,7 +218,7 @@ namespace Jazz2.Actors
                 case Modifier.LizardCopter: {
                     controllable = true;
                     EndDamagingMove();
-                    collisionFlags &= ~CollisionFlags.ApplyGravitation;
+                    CollisionFlags &= ~CollisionFlags.ApplyGravitation;
 
                     speedY = 0f;
                     externalForceY = 0f;
@@ -239,7 +244,7 @@ namespace Jazz2.Actors
                         copterDecor.DecreaseHealth(int.MaxValue);
                     }
 
-                    collisionFlags |= CollisionFlags.ApplyGravitation;
+                    CollisionFlags |= CollisionFlags.ApplyGravitation;
                     canJump = true;
 
                     SetAnimation(AnimState.Fall);
@@ -301,7 +306,7 @@ namespace Jazz2.Actors
         {
             protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                collisionFlags = CollisionFlags.ForceDisableCollisions;
+                CollisionFlags = CollisionFlags.ForceDisableCollisions;
 
                 health = int.MaxValue;
 

@@ -12,7 +12,7 @@ namespace Jazz2.Actors.Environment
         {
             IsFacingLeft = (details.Params[0] != 0);
 
-            collisionFlags = CollisionFlags.CollideWithOtherActors;
+            CollisionFlags = CollisionFlags.CollideWithOtherActors;
 
             await RequestMetadataAsync("Object/PinballPaddle");
 

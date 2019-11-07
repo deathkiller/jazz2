@@ -16,7 +16,9 @@ namespace Jazz2.Server
         {
             if (args.Message.LengthBytes < 4) {
                 args.DenyReason = "incompatible version";
-                Log.Write(LogType.Error, "Connection of unsupported client (" + args.Message.SenderConnection.RemoteEndPoint + ") was denied!");
+#if DEBUG
+                Log.Write(LogType.Warning, "[Dev] Connection of unsupported client (" + args.Message.SenderConnection.RemoteEndPoint + ") was denied");
+#endif
                 return;
             }
 
@@ -27,7 +29,9 @@ namespace Jazz2.Server
             byte build = args.Message.ReadByte();
             if (major < neededMajor || (major == neededMajor && (minor < neededMinor || (major == neededMajor && build < neededBuild)))) {
                 args.DenyReason = "incompatible version";
-                Log.Write(LogType.Error, "Connection of outdated client (" + args.Message.SenderConnection.RemoteEndPoint + ") was denied!");
+#if DEBUG
+                Log.Write(LogType.Warning, "[Dev] Connection of outdated client (" + args.Message.SenderConnection.RemoteEndPoint + ") was denied");
+#endif
                 return;
             }
 
@@ -60,7 +64,9 @@ namespace Jazz2.Server
                 State = PlayerState.NotReady
             };
 
-            players[args.Message.SenderConnection] = player;
+            lock (sync) {
+                players[args.Message.SenderConnection] = player;
+            }
         }
 
         private void OnClientStatusChanged(ClientStatusChangedEventArgs args)
@@ -77,7 +83,7 @@ namespace Jazz2.Server
                     }
                 }
 
-                Log.Write(LogType.Verbose, "Client " + PlayerNameToConsole(player) + " - " + player.UserName + " (" + args.SenderConnection.RemoteEndPoint + ") connected!");
+                Log.Write(LogType.Verbose, "Player " + PlayerNameToConsole(player) + " (" + player.UserName + " @ " + args.SenderConnection.RemoteEndPoint + ") connected");
 
                 if (currentLevel != null) {
                     Send(new LoadLevel {
@@ -110,14 +116,13 @@ namespace Jazz2.Server
                             continue;
                         }
 
-                        Send(new DestroyRemotePlayer {
-                            Index = index,
-                            Reason = 1 // ToDo: Create list of reasons
-                        }, 3, to.Key, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+                        Send(new DestroyRemoteActor {
+                            Index = index
+                        }, 5, to.Key, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                     }
                 }
 
-                Log.Write(LogType.Verbose, "Client " + PlayerNameToConsole(player) + " - " + player.UserName + " (" + args.SenderConnection.RemoteEndPoint + ") disconnected!");
+                Log.Write(LogType.Verbose, "Player " + PlayerNameToConsole(player) + " (" + player.UserName + " @ " + args.SenderConnection.RemoteEndPoint + ") disconnected");
             }
         }
 
@@ -135,7 +140,9 @@ namespace Jazz2.Server
 
                 string identifier = args.Message.ReadString();
                 if (identifier != Token) {
-                    Log.Write(LogType.Error, "Request from unsupported client (" + args.Message.SenderConnection?.RemoteEndPoint + ") was denied!");
+#if DEBUG
+                    Log.Write(LogType.Warning, "[Dev] Request from unsupported client (" + args.Message.SenderConnection?.RemoteEndPoint + ") was denied");
+#endif
                     return;
                 }
 
@@ -143,7 +150,9 @@ namespace Jazz2.Server
                 byte minor = args.Message.ReadByte();
                 byte build = args.Message.ReadByte();
                 if (major < neededMajor || (major == neededMajor && (minor < neededMinor || (major == neededMajor && build < neededBuild)))) {
-                    Log.Write(LogType.Error, "Request from outdated client (" + args.Message.SenderConnection?.RemoteEndPoint + ") was denied!");
+#if DEBUG
+                    Log.Write(LogType.Warning, "[Dev] Request from outdated client (" + args.Message.SenderConnection?.RemoteEndPoint + ") was denied");
+#endif
                     return;
                 }
             }
@@ -226,7 +235,7 @@ namespace Jazz2.Server
 
 #if DEBUG
             if (msg.LengthBytes > capacity) {
-                Log.Write(LogType.Warning, "Packet " + typeof(T).Name + " has underestimated capacity (" + msg.LengthBytes + "/" + capacity + ")");
+                Log.Write(LogType.Warning, "[Dev] Packet " + typeof(T).Name + " has underestimated capacity (" + msg.LengthBytes + "/" + capacity + ")");
             }
 #endif
 
@@ -249,7 +258,7 @@ namespace Jazz2.Server
 
 #if DEBUG
             if (msg.LengthBytes > capacity) {
-                Log.Write(LogType.Warning, "Packet " + typeof(T).Name + " has underestimated capacity (" + msg.LengthBytes + "/" + capacity + ")");
+                Log.Write(LogType.Warning, "[Dev] Packet " + typeof(T).Name + " has underestimated capacity (" + msg.LengthBytes + "/" + capacity + ")");
             }
 #endif
 
@@ -275,7 +284,7 @@ namespace Jazz2.Server
 
 #if DEBUG
             if (msg.LengthBytes > capacity) {
-                Log.Write(LogType.Warning, "Packet " + typeof(T).Name + " has underestimated capacity (" + msg.LengthBytes + "/" + capacity + ")");
+                Log.Write(LogType.Warning, "[Dev] Packet " + typeof(T).Name + " has underestimated capacity (" + msg.LengthBytes + "/" + capacity + ")");
             }
 #endif
 
@@ -291,6 +300,33 @@ namespace Jazz2.Server
             } else {
                 return false;
             }
+        }
+
+        public bool SendToPlayerByIndex<T>(T packet, int capacity, int playerIndex, NetDeliveryMethod method, int channel) where T : struct, IServerPacket
+        {
+            PlayerClient player = playersByIndex[playerIndex];
+            if (player == null) {
+                return false;
+            }
+
+            NetOutgoingMessage msg = server.CreateMessage(capacity);
+            msg.Write((byte)packet.Type);
+            packet.Write(msg);
+
+#if DEBUG
+            if (msg.LengthBytes > capacity) {
+                Log.Write(LogType.Warning, "[Dev] Packet " + typeof(T).Name + " has underestimated capacity (" + msg.LengthBytes + "/" + capacity + ")");
+            }
+#endif
+
+#if NETWORK_DEBUG__
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("Debug: ");
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine("Send<" + typeof(T).Name + ">  " + msg.LengthBytes + " bytes, " + recipients.Count + " recipients");
+#endif
+            server.Send(msg, player.Connection, method, channel);
+            return true;
         }
         #endregion
     }

@@ -14,7 +14,7 @@ namespace Jazz2.Actors.Solid
 
             Movable = true;
 
-            collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
+            CollisionFlags |= CollisionFlags.SkipPerPixelCollisions;
 
             await RequestMetadataAsync("Object/PowerUpMonitor");
 

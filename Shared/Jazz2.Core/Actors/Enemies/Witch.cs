@@ -15,7 +15,7 @@ namespace Jazz2.Actors.Enemies
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            collisionFlags &= ~CollisionFlags.ApplyGravitation;
+            CollisionFlags &= ~CollisionFlags.ApplyGravitation;
 
             SetHealthByDifficulty(30);
             scoreValue = 1000;
@@ -141,7 +141,7 @@ namespace Jazz2.Actors.Enemies
                 base.canCollideWithAmmo = false;
                 base.canHurtPlayer = false;
                 base.isInvulnerable = true;
-                base.collisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.SkipPerPixelCollisions;
+                base.CollisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.SkipPerPixelCollisions;
 
                 health = int.MaxValue;
 

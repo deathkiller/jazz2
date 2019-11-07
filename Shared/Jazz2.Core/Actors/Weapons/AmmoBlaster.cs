@@ -20,7 +20,7 @@ namespace Jazz2.Actors.Weapons
 
             base.upgrades = (byte)details.Params[0];
 
-            collisionFlags = (collisionFlags & ~CollisionFlags.ApplyGravitation) | CollisionFlags.SkipPerPixelCollisions;
+            CollisionFlags = (CollisionFlags & ~CollisionFlags.ApplyGravitation) | CollisionFlags.SkipPerPixelCollisions;
 
             await RequestMetadataAsync("Weapon/Blaster");
 

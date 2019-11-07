@@ -10,7 +10,7 @@ namespace Jazz2.Actors.Solid
         {
             Movable = true;
 
-            collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
+            CollisionFlags |= CollisionFlags.SkipPerPixelCollisions;
 
             GenerateContents(EventType.Gem, details.Params[0], 0);
             GenerateContents(EventType.Gem, details.Params[1], 1);

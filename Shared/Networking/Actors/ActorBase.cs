@@ -6,12 +6,9 @@ namespace Jazz2.Actors
     {
         public int Index;
 
-        public void OnUpdateRemoteActor(Vector3 pos, Vector2 speed, bool visible, bool isFacingLeft)
+        /*public virtual void SyncWithServer(Vector3 pos, bool visible, bool isFacingLeft)
         {
             Transform.Pos = pos;
-
-            speedX = speed.X;
-            speedY = speed.Y;
 
             if (availableAnimations != null && renderer != null) {
                 renderer.Active = visible;
@@ -19,6 +16,6 @@ namespace Jazz2.Actors
             }
 
             collisionFlags = CollisionFlags.None;
-        }
+        }*/
     }
 }

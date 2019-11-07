@@ -111,7 +111,13 @@ namespace Jazz2.Game.Tiles
             return hit;
         }
 
-        private bool AdvanceDestructibleTileAnimation(ref LayerTile tile, int x, int y, ref int amount, string soundName)
+        public void AdvanceTileAnimationExternally(int tx, int ty, int amount)
+        {
+            ref LayerTile tile = ref layers[sprLayerIndex].Layout[tx + ty * levelWidth];
+            AdvanceDestructibleTileAnimation(ref tile, tx, ty, ref amount, null);
+        }
+
+        private bool AdvanceDestructibleTileAnimation(ref LayerTile tile, int tx, int ty, ref int amount, string soundName)
         {
             int max = (animatedTiles[tile.DestructAnimation].Length - 2);
             if (tile.DestructFrameIndex < max) {
@@ -122,12 +128,18 @@ namespace Jazz2.Game.Tiles
                 tile.TileID = animatedTiles[tile.DestructAnimation].Tiles[tile.DestructFrameIndex].TileID;
                 tile.MaterialOffset = tileset.GetTileTextureRect(tile.TileID);
                 if (tile.DestructFrameIndex >= max) {
-                    levelHandler.PlayCommonSound(soundName, new Vector3(x * 32 + 16, y * 32 + 16, LevelHandler.MainPlaneZ));
+                    if (soundName != null) {
+                        levelHandler.PlayCommonSound(soundName, new Vector3(tx * 32 + 16, ty * 32 + 16, LevelHandler.MainPlaneZ));
+                    }
                     AnimatedTile anim = animatedTiles[tile.DestructAnimation];
-                    CreateTileDebris(ref anim.Tiles[anim.Length - 1], x, y);
+                    CreateTileDebris(ref anim.Tiles[anim.Length - 1], tx, ty);
                 }
 
                 amount -= current;
+
+#if MULTIPLAYER && SERVER
+                ((LevelHandler)levelHandler).OnAdvanceDestructibleTileAnimation(tx, ty, current);
+#endif
                 return true;
             }
             return false;

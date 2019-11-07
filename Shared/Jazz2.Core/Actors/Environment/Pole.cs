@@ -35,7 +35,7 @@ namespace Jazz2.Actors.Environment
             Transform.Pos = pos;
 
             canBeFrozen = false;
-            collisionFlags &= ~CollisionFlags.ApplyGravitation;
+            CollisionFlags &= ~CollisionFlags.ApplyGravitation;
 
             bool isSolid = true;
             switch (theme) {
@@ -48,7 +48,7 @@ namespace Jazz2.Actors.Environment
             }
 
             if (isSolid) {
-                collisionFlags |= CollisionFlags.IsSolidObject;
+                CollisionFlags |= CollisionFlags.IsSolidObject;
             }
 
             SetAnimation("Pole");
@@ -79,7 +79,7 @@ namespace Jazz2.Actors.Environment
                     } else {
                         fall = FallDirection.Fallen;
                         if (fallTime < 10) {
-                            collisionFlags &= ~CollisionFlags.IsSolidObject;
+                            CollisionFlags &= ~CollisionFlags.IsSolidObject;
                         }
                     }
                 } else {
@@ -98,7 +98,7 @@ namespace Jazz2.Actors.Environment
                     } else {
                         fall = FallDirection.Fallen;
                         if (fallTime < 10) {
-                            collisionFlags &= ~CollisionFlags.IsSolidObject;
+                            CollisionFlags &= ~CollisionFlags.IsSolidObject;
                         }
                     }
                 } else {
@@ -134,7 +134,7 @@ namespace Jazz2.Actors.Environment
 
             fall = dir;
             isInvulnerable = true;
-            collisionFlags |= CollisionFlags.IsSolidObject;
+            CollisionFlags |= CollisionFlags.IsSolidObject;
         }
 
         private bool IsPositionBlocked()

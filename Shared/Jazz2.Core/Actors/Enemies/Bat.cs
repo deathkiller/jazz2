@@ -17,7 +17,7 @@ namespace Jazz2.Actors.Enemies
         {
             originPos = Transform.Pos;
 
-            collisionFlags = CollisionFlags.CollideWithOtherActors;
+            CollisionFlags = CollisionFlags.CollideWithOtherActors;
 
             SetHealthByDifficulty(1);
             scoreValue = 100;

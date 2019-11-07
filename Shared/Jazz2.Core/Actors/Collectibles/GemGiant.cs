@@ -11,7 +11,7 @@ namespace Jazz2.Actors.Collectibles
         {
             await base.OnActivatedAsync(details);
 
-            collisionFlags &= ~CollisionFlags.ApplyGravitation;
+            CollisionFlags &= ~CollisionFlags.ApplyGravitation;
 
             await RequestMetadataAsync("Object/GemGiant");
             SetAnimation("GemGiant");

@@ -24,7 +24,7 @@ namespace Jazz2.Actors.Weapons
             base.upgrades = (byte)details.Params[0];
 
             health = int.MaxValue;
-            collisionFlags &= ~CollisionFlags.ApplyGravitation;
+            CollisionFlags &= ~CollisionFlags.ApplyGravitation;
 
             await RequestMetadataAsync("Weapon/Thunderbolt");
 

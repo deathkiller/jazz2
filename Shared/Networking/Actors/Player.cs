@@ -1,32 +1,25 @@
-﻿using Jazz2.Game.Structs;
-using Jazz2.Networking.Packets.Client;
-
-namespace Jazz2.Actors
+﻿namespace Jazz2.Actors
 {
     partial class Player
     {
-#if SERVER
-        public AnimState AnimState => currentAnimationState;
+        public SpecialMoveType CurrentSpecialMove => currentSpecialMove;
 
-        public void SyncWithClient(AnimState animState, bool isFacingLeft)
+#if MULTIPLAYER && SERVER
+        //public AnimState AnimState => currentAnimationState;
+
+        public void SyncWithClient(SpecialMoveType specialMove, bool isFacingLeft)
         {
-            currentAnimationState = animState;
+            //currentAnimationState = animState;
+            currentSpecialMove = specialMove;
             IsFacingLeft = isFacingLeft;
         }
-#endif
 
-        public UpdateSelf CreateUpdatePacket()
+        public void OnRefreshActorAnimation(string identifier)
         {
-            return new UpdateSelf {
-                Pos = Transform.Pos,
+            SetAnimation(identifier);
 
-                AnimState = (currentTransitionState != AnimState.Idle ? currentTransitionState : currentAnimationState),
-                //AnimTime = (renderer.Active ? renderer.AnimTime : -1),
-                IsFacingLeft = IsFacingLeft,
-
-                //Controllable = controllable,
-                IsFirePressed = wasFirePressed
-            };
+            OnUpdateHitbox();
         }
+#endif
     }
 }

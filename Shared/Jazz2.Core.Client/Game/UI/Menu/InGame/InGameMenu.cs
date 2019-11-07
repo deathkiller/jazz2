@@ -60,7 +60,7 @@ namespace Jazz2.Game.UI.Menu.InGame
             root.Immersive = true;
 
 #if MULTIPLAYER
-            bool isMultiplayerSession = (levelHandler is Multiplayer.NetworkLevelHandler);
+            bool isMultiplayerSession = (levelHandler is MultiplayerLevelHandler);
 #else
             bool isMultiplayerSession = false;
 #endif

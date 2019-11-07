@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Duality;
 using Jazz2.Server.EventArgs;
 using Lidgren.Network;
 
@@ -14,8 +15,6 @@ namespace Jazz2.Server
     public partial class ServerConnection
     {
         private int port;
-        private int maxPlayers;
-
         private NetServer server;
         private Thread threadUpdate;
         private IList<IPAddress> publicIpAddresses;
@@ -58,7 +57,6 @@ namespace Jazz2.Server
                 throw new ArgumentOutOfRangeException("Max. number of players must be smaller than " + byte.MaxValue);
 
             this.port = port;
-            this.maxPlayers = maxPlayers;
 
             NetPeerConfiguration config = new NetPeerConfiguration(appId);
             config.Port = port;
@@ -283,7 +281,9 @@ namespace Jazz2.Server
 
             server = null;
 
-            Debug.WriteLine("ServerConnection: OnHandleMessagesThread exited!");
+#if DEBUG
+            Log.Write(LogType.Verbose, "[Dev] Thread OnHandleMessagesThread() exited");
+#endif
         }
     }
 }

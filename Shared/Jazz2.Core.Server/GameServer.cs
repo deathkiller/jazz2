@@ -96,10 +96,6 @@ namespace Jazz2.Server
             playersByIndex = new PlayerClient[256];
             playerConnections = new List<NetConnection>();
 
-            //remotableActors = new Dictionary<int, RemotableActor>();
-            //spawnedActors = new List<Actors.ActorBase>();
-            //spawnedActorsAnimation = new Dictionary<Actors.ActorBase, string>();
-
             server = new ServerConnection(Token, port, maxPlayers, !isPrivate && enableUPnP);
             server.MessageReceived += OnMessageReceived;
             server.DiscoveryRequest += OnDiscoveryRequest;
@@ -132,7 +128,7 @@ namespace Jazz2.Server
             Log.Write(LogType.Info, "Players: 0/" + maxPlayers);
 
             // Create game loop
-            threadGame = new Thread(OnGameLoop);
+            threadGame = new Thread(OnGameLoopThread);
             threadGame.IsBackground = true;
             threadGame.Start();
 
@@ -331,7 +327,7 @@ namespace Jazz2.Server
             lock (sync) {
                 foreach (var player in players) {
                     if (player.Value.Index == playerIndex) {
-                        SendToActivePlayers(new DecreasePlayerHealth {
+                        SendToActivePlayers(new PlayerTakeDamage {
                             Index = playerIndex,
                             Amount = byte.MaxValue
                         }, 3, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
@@ -347,7 +343,7 @@ namespace Jazz2.Server
         {
             lock (sync) {
                 foreach (var player in players) {
-                    SendToActivePlayers(new DecreasePlayerHealth {
+                    SendToActivePlayers(new PlayerTakeDamage {
                         Index = player.Value.Index,
                         Amount = byte.MaxValue
                     }, 3, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);

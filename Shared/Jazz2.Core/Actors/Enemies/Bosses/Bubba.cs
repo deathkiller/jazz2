@@ -103,7 +103,7 @@ namespace Jazz2.Actors.Bosses
                     if (stateTime <= 0f) {
                         state = StateTransition;
                         SetTransition((AnimState)1073741832, false, delegate {
-                            collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation;
+                            CollisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation;
 
                             state = StateFalling;
 
@@ -142,7 +142,7 @@ namespace Jazz2.Actors.Bosses
             internalForceY = 0f;
             frozenTimeLeft = 0f;
 
-            collisionFlags = CollisionFlags.None;
+            CollisionFlags = CollisionFlags.None;
 
             state = StateDying;
             SetTransition(AnimState.TransitionDeath, false, delegate {
@@ -203,7 +203,7 @@ namespace Jazz2.Actors.Bosses
                 state = StateTornado;
                 stateTime = 60f;
 
-                collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors;
+                CollisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors;
 
                 MoveInstantly(new Vector2(0, -1), MoveType.Relative);
 
@@ -230,7 +230,7 @@ namespace Jazz2.Actors.Bosses
                 base.canBeFrozen = false;
                 base.canCollideWithAmmo = false;
                 base.isInvulnerable = true;
-                base.collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors;
+                base.CollisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors;
 
                 health = int.MaxValue;
 

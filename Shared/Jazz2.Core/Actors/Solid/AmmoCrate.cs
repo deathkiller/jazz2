@@ -12,7 +12,7 @@ namespace Jazz2.Actors.Solid
         {
             Movable = true;
 
-            collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
+            CollisionFlags |= CollisionFlags.SkipPerPixelCollisions;
 
             WeaponType weaponType = (WeaponType)details.Params[0];
             if (weaponType != WeaponType.Blaster) {
@@ -29,7 +29,7 @@ namespace Jazz2.Actors.Solid
 
         protected override bool OnPerish(ActorBase collider)
         {
-            collisionFlags = CollisionFlags.None;
+            CollisionFlags = CollisionFlags.None;
 
             CreateParticleDebris();
 

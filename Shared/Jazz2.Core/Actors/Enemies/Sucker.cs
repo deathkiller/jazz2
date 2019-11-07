@@ -25,11 +25,11 @@ namespace Jazz2.Actors.Enemies
             if (parentLastHitDir != LastHitDirection.None) {
                 IsFacingLeft = (parentLastHitDir == LastHitDirection.Left);
                 health = 1;
-                collisionFlags &= ~CollisionFlags.ApplyGravitation;
+                CollisionFlags &= ~CollisionFlags.ApplyGravitation;
                 SetTransition((AnimState)1073741824, false, delegate {
                     speedX = 0;
                     SetAnimation(AnimState.Walk);
-                    collisionFlags |= CollisionFlags.ApplyGravitation;
+                    CollisionFlags |= CollisionFlags.ApplyGravitation;
                 });
                 if (parentLastHitDir == LastHitDirection.Left || parentLastHitDir == LastHitDirection.Right) {
                     speedX = 3 * (parentLastHitDir == LastHitDirection.Left ? -1 : 1);

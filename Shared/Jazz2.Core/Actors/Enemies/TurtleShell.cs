@@ -12,7 +12,7 @@ namespace Jazz2.Actors.Enemies
 
         public TurtleShell()
         {
-            collisionFlags |= CollisionFlags.SkipPerPixelCollisions;
+            CollisionFlags |= CollisionFlags.SkipPerPixelCollisions;
 
             scoreValue = 100;
         }

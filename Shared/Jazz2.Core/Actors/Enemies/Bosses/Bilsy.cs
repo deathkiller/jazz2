@@ -28,7 +28,7 @@ namespace Jazz2.Actors.Bosses
             SetHealthByDifficulty(120);
             scoreValue = 3000;
 
-            collisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors;
+            CollisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors;
 
             originPos = details.Pos;
 
@@ -184,7 +184,7 @@ namespace Jazz2.Actors.Bosses
 
                 base.canBeFrozen = false;
                 base.isInvulnerable = true;
-                base.collisionFlags = CollisionFlags.CollideWithOtherActors;
+                base.CollisionFlags = CollisionFlags.CollideWithOtherActors;
 
                 health = int.MaxValue;
 

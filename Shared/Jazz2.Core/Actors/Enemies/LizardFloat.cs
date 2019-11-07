@@ -32,7 +32,7 @@ namespace Jazz2.Actors.Enemies
                     break;
             }
 
-            collisionFlags &= ~CollisionFlags.ApplyGravitation;
+            CollisionFlags &= ~CollisionFlags.ApplyGravitation;
 
             SetHealthByDifficulty(1);
             scoreValue = 200;
@@ -134,7 +134,7 @@ namespace Jazz2.Actors.Enemies
         {
             protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
-                collisionFlags = CollisionFlags.ForceDisableCollisions;
+                CollisionFlags = CollisionFlags.ForceDisableCollisions;
 
                 health = int.MaxValue;
 

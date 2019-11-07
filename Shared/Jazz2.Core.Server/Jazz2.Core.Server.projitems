@@ -9,7 +9,16 @@
     <Import_RootNamespace>Jazz2.Core.Server</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\ClientConnectedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\ClientStatusChangedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\DiscoveryRequestEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\MessageReceivedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameServer.Connection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameServer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameServer.Game.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameServer.PacketHandlers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Components\ActorRenderer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\LevelHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServerConnection.cs" />
   </ItemGroup>
 </Project>

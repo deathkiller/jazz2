@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Duality;
+using Jazz2.Game;
 using Jazz2.Game.Events;
 
 namespace Jazz2.Actors.Environment
@@ -7,6 +8,7 @@ namespace Jazz2.Actors.Environment
     public class BonusWarp : ActorBase
     {
         private ushort warpTarget, cost;
+        private bool setLaps;
         private bool fast;
 
         public ushort Cost => cost;
@@ -15,7 +17,7 @@ namespace Jazz2.Actors.Environment
         {
             warpTarget = details.Params[0];
             fast = (details.Params[1] != 0);
-            //setLaps = details.Params[2] != 0;
+            setLaps = details.Params[2] != 0;
             cost = details.Params[3];
             // ToDo: Show rabbit for non-listed number of coins (use JJ2+ anim set 8)
             //showAnim = details.Params[4] != 0;
@@ -63,6 +65,10 @@ namespace Jazz2.Actors.Environment
             }
 
             player.WarpToPosition(targetPos, fast);
+
+#if MULTIPLAYER && SERVER
+            ((LevelHandler)levelHandler).OnPlayerIncrementLap(player);
+#endif
         }
     }
 }

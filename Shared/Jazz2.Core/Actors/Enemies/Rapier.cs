@@ -17,7 +17,7 @@ namespace Jazz2.Actors.Enemies
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
-            collisionFlags = CollisionFlags.CollideWithOtherActors;
+            CollisionFlags = CollisionFlags.CollideWithOtherActors;
 
             SetHealthByDifficulty(2);
             scoreValue = 300;

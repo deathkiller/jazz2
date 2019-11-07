@@ -25,7 +25,7 @@ namespace Jazz2.Actors.Enemies
                 pos.Y = levelHandler.WaterLevel + WaterDifference;
                 Transform.Pos = pos;
 
-                collisionFlags &= ~CollisionFlags.ApplyGravitation;
+                CollisionFlags &= ~CollisionFlags.ApplyGravitation;
                 onWater = true;
             } else {
                 // Water is below the enemy, apply gravitation and pause the animation
@@ -53,7 +53,7 @@ namespace Jazz2.Actors.Enemies
                     // Water is below the enemy, apply gravitation and pause the animation 
                     speedX = 0f;
 
-                    collisionFlags |= CollisionFlags.ApplyGravitation;
+                    CollisionFlags |= CollisionFlags.ApplyGravitation;
                     onWater = false;
                 }
             } else {
@@ -62,7 +62,7 @@ namespace Jazz2.Actors.Enemies
                     pos.Y = levelHandler.WaterLevel + WaterDifference;
                     Transform.Pos = pos;
 
-                    collisionFlags &= ~CollisionFlags.ApplyGravitation;
+                    CollisionFlags &= ~CollisionFlags.ApplyGravitation;
                     onWater = true;
 
                     renderer.AnimPaused = false;

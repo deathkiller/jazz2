@@ -14,7 +14,7 @@ namespace Jazz2.Actors.Environment
             await RequestMetadataAsync("Enemy/LizardFloat");
             SetAnimation(AnimState.Activated);
 
-            collisionFlags &= ~CollisionFlags.ApplyGravitation;
+            CollisionFlags &= ~CollisionFlags.ApplyGravitation;
 
             originPos = details.Pos;
         }

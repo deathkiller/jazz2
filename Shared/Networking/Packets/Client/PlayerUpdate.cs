@@ -1,10 +1,10 @@
 ﻿using Duality;
-using Jazz2.Game.Structs;
+using Jazz2.Actors;
 using Lidgren.Network;
 
 namespace Jazz2.Networking.Packets.Client
 {
-    public struct UpdateSelf : IClientPacket
+    public struct PlayerUpdate : IClientPacket
     {
         public NetConnection SenderConnection { get; set; }
 
@@ -18,12 +18,14 @@ namespace Jazz2.Networking.Packets.Client
 
         public Vector3 Pos;
 
-        public AnimState AnimState;
+        //public AnimState AnimState;
         //public float AnimTime;
+        public Player.SpecialMoveType CurrentSpecialMove;
         public bool IsFacingLeft;
 
+
         //public bool Controllable;
-        public bool IsFirePressed;
+        //public bool IsFirePressed;
 
         void IClientPacket.Read(NetIncomingMessage msg)
         {
@@ -38,12 +40,14 @@ namespace Jazz2.Networking.Packets.Client
                 Pos = new Vector3(x, y, z);
             }
 
-            AnimState = (AnimState)msg.ReadUInt32();
+            CurrentSpecialMove = (Player.SpecialMoveType)msg.ReadByte();
+
+            //AnimState = (AnimState)msg.ReadUInt32();
             //AnimTime = msg.ReadFloat();
             IsFacingLeft = msg.ReadBoolean();
 
             //Controllable = msg.ReadBoolean();
-            IsFirePressed = msg.ReadBoolean();
+            //IsFirePressed = msg.ReadBoolean();
         }
 
         void IClientPacket.Write(NetOutgoingMessage msg)
@@ -56,12 +60,14 @@ namespace Jazz2.Networking.Packets.Client
             msg.Write((ushort)Pos.Y);
             msg.Write((ushort)Pos.Z);
 
-            msg.Write((uint)AnimState);
+            msg.Write((byte)CurrentSpecialMove);
+
+            //msg.Write((uint)AnimState);
             //msg.Write((float)AnimTime);
             msg.Write((bool)IsFacingLeft);
 
             //msg.Write((bool)Controllable);
-            msg.Write((bool)IsFirePressed);
+            //msg.Write((bool)IsFirePressed);
         }
     }
 }
