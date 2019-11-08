@@ -16,19 +16,17 @@ namespace Jazz2.Server
     {
         private void RegisterPacketCallbacks()
         {
-            AddCallback<LevelReady>(OnLevelReady);
-            AddCallback<PlayerUpdate>(OnPlayerUpdate);
-            AddCallback<PlayerRefreshAnimation>(OnPlayerRefreshAnimation);
+            AddCallback<LevelReady>(OnPacketLevelReady);
+            AddCallback<PlayerUpdate>(OnPacketPlayerUpdate);
+            AddCallback<PlayerRefreshAnimation>(OnPacketPlayerRefreshAnimation);
 
-            AddCallback<PlayerDied>(OnPlayerDied);
-
-            AddCallback<PlayerFireWeapon>(OnPlayerFireWeapon);
+            AddCallback<PlayerFireWeapon>(OnPacketPlayerFireWeapon);
         }
 
         /// <summary>
         /// Player finished loading of a level and is ready to play
         /// </summary>
-        private void OnLevelReady(ref LevelReady p)
+        private void OnPacketLevelReady(ref LevelReady p)
         {
             PlayerClient player = playersByIndex[p.Index];
             if (player == null) {
@@ -189,7 +187,7 @@ namespace Jazz2.Server
         /// <summary>
         /// Player sent its updated state and position
         /// </summary>
-        private void OnPlayerUpdate(ref PlayerUpdate p)
+        private void OnPacketPlayerUpdate(ref PlayerUpdate p)
         {
             PlayerClient player = playersByIndex[p.Index];
             if (player == null) {
@@ -211,10 +209,10 @@ namespace Jazz2.Server
             }
 
             proxyActor.Transform.Pos = p.Pos;
-            proxyActor.SyncWithClient(p.CurrentSpecialMove, p.IsFacingLeft);
+            proxyActor.SyncWithClient(p.CurrentSpecialMove, p.IsFacingLeft, p.IsActivelyPushing);
         }
 
-        private void OnPlayerRefreshAnimation(ref PlayerRefreshAnimation p)
+        private void OnPacketPlayerRefreshAnimation(ref PlayerRefreshAnimation p)
         {
             PlayerClient player = playersByIndex[p.Index];
             if (player == null) {
@@ -237,32 +235,7 @@ namespace Jazz2.Server
             }, 48, NetDeliveryMethod.Unreliable, PacketChannels.UnorderedUpdates);
         }
 
-        /// <summary>
-        /// Player died
-        /// </summary>
-        private void OnPlayerDied(ref PlayerDied p)
-        {
-            PlayerClient player = playersByIndex[p.Index];
-            if (player == null) {
-                return;
-            }
-            if (player.Connection != p.SenderConnection) {
-                throw new InvalidOperationException();
-            }
-
-            player.State = PlayerState.Dead;
-            player.StatsDeaths++;
-
-            /*SendToActivePlayers(new RemotePlayerDied {
-                Index = player.Index
-            }, 2, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);*/
-
-#if DEBUG
-            Log.Write(LogType.Verbose, "[Dev] Player #" + player.Index + " died");
-#endif
-        }
-
-        private void OnPlayerFireWeapon(ref PlayerFireWeapon p)
+        private void OnPacketPlayerFireWeapon(ref PlayerFireWeapon p)
         {
             PlayerClient player = playersByIndex[p.Index];
             if (player == null) {
@@ -276,6 +249,10 @@ namespace Jazz2.Server
             if (proxyActor == null) {
                 return;
             }
+
+            proxyActor.LastInitialPos = p.InitialPos;
+            proxyActor.LastGunspotPos = p.GunspotPos;
+            proxyActor.LastAngle = p.Angle;
 
             proxyActor.FireWeapon(p.WeaponType);
         }

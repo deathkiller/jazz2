@@ -2,16 +2,15 @@
 {
     partial class Player
     {
-        public SpecialMoveType CurrentSpecialMove => currentSpecialMove;
+        internal SpecialMoveType CurrentSpecialMove => currentSpecialMove;
+        internal bool IsActivelyPushing => isActivelyPushing;
 
 #if MULTIPLAYER && SERVER
-        //public AnimState AnimState => currentAnimationState;
-
-        public void SyncWithClient(SpecialMoveType specialMove, bool isFacingLeft)
+        public void SyncWithClient(SpecialMoveType specialMove, bool isFacingLeft, bool isActivelyPushing)
         {
-            //currentAnimationState = animState;
-            currentSpecialMove = specialMove;
-            IsFacingLeft = isFacingLeft;
+            this.currentSpecialMove = specialMove;
+            this.IsFacingLeft = isFacingLeft;
+            this.isActivelyPushing = isActivelyPushing;
         }
 
         public void OnRefreshActorAnimation(string identifier)

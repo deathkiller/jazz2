@@ -37,6 +37,7 @@ namespace Jazz2.Server
         public int PlayerCount => players.Count;
         public int MaxPlayers => maxPlayers;
         public string CurrentLevel => currentLevel;
+        public MultiplayerLevelType CurrentLevelType => currentLevelType;
         public Dictionary<NetConnection, PlayerClient> Players => players;
         public DateTime StartedTime => startedTime;
 
@@ -237,6 +238,7 @@ namespace Jazz2.Server
                         string currentVersion = Game.App.AssemblyVersion;
 
                         long uptimeSecs = (long)(TimeZoneInfo.ConvertTimeToUtc(startedTime) - new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+                        string levelFriendlyName = (levelHandler?.LevelFriendlyName ?? currentLevel);
 
                         sb.Append('\n')
                             .Append(server.UniqueIdentifier)
@@ -255,7 +257,7 @@ namespace Jazz2.Server
                             .Append('\n')
                             .Append(currentLevel)
                             .Append('\n')
-                            .Append(currentLevelFriendlyName)
+                            .Append(levelFriendlyName)
                             .Append('\n')
                             .Append(name);
 
@@ -329,7 +331,7 @@ namespace Jazz2.Server
                     if (player.Value.Index == playerIndex) {
                         SendToActivePlayers(new PlayerTakeDamage {
                             Index = playerIndex,
-                            Amount = byte.MaxValue
+                            DamageAmount = byte.MaxValue
                         }, 3, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                         return true;
                     }
@@ -345,15 +347,24 @@ namespace Jazz2.Server
                 foreach (var player in players) {
                     SendToActivePlayers(new PlayerTakeDamage {
                         Index = player.Value.Index,
-                        Amount = byte.MaxValue
+                        DamageAmount = byte.MaxValue
                     }, 3, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                 }
             }
         }
 
-        public static string PlayerNameToConsole(PlayerClient player)
+        public void ShowMessageToPlayer(byte playerIndex, string text)
         {
-            return "#" + player.Index;
+            SendToPlayerByIndex(new ShowMessage {
+                Text = text
+            }, 64, playerIndex, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+        }
+
+        public void ShowMessageToAllPlayers(string text)
+        {
+            SendToActivePlayers(new ShowMessage {
+                Text = text
+            }, 64, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
         }
     }
 }

@@ -1,18 +1,16 @@
-﻿#if !SERVER
+﻿#if MULTIPLAYER && !SERVER
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using Duality;
 using Jazz2.Networking;
-using Jazz2.Networking.Packets;
 using Lidgren.Network;
 
 namespace Jazz2.Game
 {
-    public class NetworkHandler
+    public class GameClient
     {
         private byte[] clientIdentifier;
         private string userName;
@@ -33,7 +31,7 @@ namespace Jazz2.Game
 
         public float AverageRoundtripTime => (client != null && client.ServerConnection != null ? client.ServerConnection.AverageRoundtripTime : 0);
 
-        public NetworkHandler(string appId, byte[] clientIdentifier, string userName)
+        public GameClient(string appId, byte[] clientIdentifier, string userName)
         {
             if (clientIdentifier == null || clientIdentifier.Length != 16) {
                 throw new ArgumentException("Client identifier must be 16 bytes long");

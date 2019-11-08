@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace Duality
 {
-    /// <summary>
-    /// The abstract Resource class is inherited by any kind of Duality content. Instances of it or one of its subclasses
-    /// are usually handled wrapped inside a <see cref="ContentRef{T}"/> and requested from the <see cref="DefaultContent"/>.
-    /// </summary>
-    /// <seealso cref="ContentRef{T}"/>
-    /// <seealso cref="DefaultContent"/>
-    public abstract class Resource : IManageableObject, IDisposable
+	/// <summary>
+	/// The abstract Resource class is inherited by any kind of Duality content. Instances of it or one of its subclasses
+	/// are usually handled wrapped inside a <see cref="ContentRef{T}"/> and requested from the <see cref="DefaultContent"/>.
+	/// </summary>
+	/// <seealso cref="ContentRef{T}"/>
+	/// <seealso cref="DefaultContent"/>
+	public abstract class Resource : IManageableObject, IDisposable
 	{
 		private static List<Resource> finalizeSched = new List<Resource>();
 
@@ -78,9 +78,9 @@ namespace Duality
 				res.Dispose(false);
 
 #if DEBUG
-                Log.Write(LogType.Info, "Disposing resource \"" + res + "\" (" + res.GetType().FullName + ")...");
+				Log.Write(LogType.Info, "Disposing resource \"" + res + "\" (" + res.GetType().FullName + ")...");
 #endif
-            }
+			}
 		}
 	}
 }

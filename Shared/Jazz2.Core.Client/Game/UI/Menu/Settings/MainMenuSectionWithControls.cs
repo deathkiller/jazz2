@@ -37,7 +37,7 @@ namespace Jazz2.Game.UI.Menu.Settings
             maxVisibleItems = (int)maxVisibleItemsFloat;
 
             if (maxVisibleItems > controls.Length) {
-                maxVisibleItems = controls.Length;
+                maxVisibleItems = Math.Max(controls.Length, 3);
             }
 
             pos.Y += (maxVisibleItemsFloat - maxVisibleItems) / maxVisibleItems * 45f;

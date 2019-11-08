@@ -108,6 +108,8 @@ namespace Jazz2.Actors
 
 #if !SERVER
         private Hud attachedHud;
+
+        public Hud AttachedHud => attachedHud;
 #endif
 
         public int Lives => lives;
@@ -382,10 +384,18 @@ namespace Jazz2.Actors
 
                     renderer.AnimHidden = false;
 
+#if !SERVER
                     if (currentCircleEffectRenderer != null) {
                         SetCircleEffect(false);
                     }
-                } else if (currentTransitionState != AnimState.Hurt && currentCircleEffectRenderer == null) {
+#endif
+
+#if MULTIPLAYER && SERVER
+                    ((LevelHandler)levelHandler).OnPlayerSetInvulnerability(this, 0f, false);
+#endif
+                }
+#if !SERVER
+                else if (currentTransitionState != AnimState.Hurt && currentCircleEffectRenderer == null) {
                     if (invulnerableBlinkTime > 0f) {
                         invulnerableBlinkTime -= timeMult;
                     } else {
@@ -393,7 +403,9 @@ namespace Jazz2.Actors
 
                         invulnerableBlinkTime = 3f;
                     }
-                } else {
+                }
+#endif
+                else {
                     renderer.AnimHidden = false;
                 }
             }
@@ -1152,7 +1164,7 @@ namespace Jazz2.Actors
                         corpse.OnActivated(new ActorActivationDetails {
                             LevelHandler = levelHandler,
                             Pos = Transform.Pos,
-                            Params = new[] { (ushort)(playerType), (ushort)(IsFacingLeft ? 1 : 0) }
+                            Params = new[] { (ushort)playerType, (ushort)(IsFacingLeft ? 1 : 0) }
                         });
                         levelHandler.AddActor(corpse);
 
@@ -1774,19 +1786,34 @@ namespace Jazz2.Actors
                 }
                 case EventType.AreaFlyOff: {
                     if (activeModifier == Modifier.Airboard) {
-                        SetModifier(Modifier.None);
+#if MULTIPLAYER && !SERVER
+                        if (!(levelHandler is MultiplayerLevelHandler))
+#endif
+                        {
+                            SetModifier(Modifier.None);
+                        }
                     }
                     break;
                 }
                 case EventType.AreaRevertMorph: {
                     if (playerType != playerTypeOriginal) {
-                        MorphRevent();
+#if MULTIPLAYER && !SERVER
+                        if (!(levelHandler is MultiplayerLevelHandler))
+#endif
+                        {
+                            MorphRevent();
+                        }
                     }
                     break;
                 }
                 case EventType.AreaMorphToFrog: {
                     if (playerType != PlayerType.Frog) {
-                        MorphTo(PlayerType.Frog);
+#if MULTIPLAYER && !SERVER
+                        if (!(levelHandler is MultiplayerLevelHandler))
+#endif
+                        {
+                            MorphTo(PlayerType.Frog);
+                        }
                     }
                     break;
                 }
@@ -1801,14 +1828,24 @@ namespace Jazz2.Actors
                 case EventType.TriggerZone: { // Trigger ID, Turn On, Switch
                     TileMap tiles = levelHandler.TileMap;
                     if (tiles != null) {
-                        // ToDo: Implement Switch parameter
-                        tiles.SetTrigger(p[0], p[1] != 0);
+#if MULTIPLAYER && !SERVER
+                        if (!(levelHandler is MultiplayerLevelHandler))
+#endif
+                        {
+                            // ToDo: Implement Switch parameter
+                            tiles.SetTrigger(p[0], p[1] != 0);
+                        }
                     }
                     break;
                 }
 
                 case EventType.ModifierDeath: {
-                    DecreaseHealth(int.MaxValue);
+#if MULTIPLAYER && !SERVER
+                    if (!(levelHandler is MultiplayerLevelHandler))
+#endif
+                    {
+                        DecreaseHealth(int.MaxValue);
+                    }
                     break;
                 }
                 case EventType.ModifierSetWater: { // Height, Instant, Lighting
@@ -1837,14 +1874,14 @@ namespace Jazz2.Actors
             // Check floating from each corner of an extended hitbox
             // Player should not pass from a single tile wide gap if the columns left or right have
             // float events, so checking for a wider box is necessary.
-            const float extendedHitbox = 2f;
+            const float ExtendedHitbox = 2f;
 
             if (currentSpecialMove != SpecialMoveType.Buttstomp) {
                 if ((events.GetEventByPosition(pos.X, pos.Y, ref p) == EventType.AreaFloatUp) ||
-                    (events.GetEventByPosition(AABBInner.LowerBound.X - extendedHitbox, AABBInner.LowerBound.Y - extendedHitbox, ref p) == EventType.AreaFloatUp) ||
-                    (events.GetEventByPosition(AABBInner.UpperBound.X + extendedHitbox, AABBInner.LowerBound.Y - extendedHitbox, ref p) == EventType.AreaFloatUp) ||
-                    (events.GetEventByPosition(AABBInner.UpperBound.X + extendedHitbox, AABBInner.UpperBound.Y + extendedHitbox, ref p) == EventType.AreaFloatUp) ||
-                    (events.GetEventByPosition(AABBInner.LowerBound.X - extendedHitbox, AABBInner.UpperBound.Y + extendedHitbox, ref p) == EventType.AreaFloatUp)
+                    (events.GetEventByPosition(AABBInner.LowerBound.X - ExtendedHitbox, AABBInner.LowerBound.Y - ExtendedHitbox, ref p) == EventType.AreaFloatUp) ||
+                    (events.GetEventByPosition(AABBInner.UpperBound.X + ExtendedHitbox, AABBInner.LowerBound.Y - ExtendedHitbox, ref p) == EventType.AreaFloatUp) ||
+                    (events.GetEventByPosition(AABBInner.UpperBound.X + ExtendedHitbox, AABBInner.UpperBound.Y + ExtendedHitbox, ref p) == EventType.AreaFloatUp) ||
+                    (events.GetEventByPosition(AABBInner.LowerBound.X - ExtendedHitbox, AABBInner.UpperBound.Y + ExtendedHitbox, ref p) == EventType.AreaFloatUp)
                 ) {
                     if ((CollisionFlags & CollisionFlags.ApplyGravitation) != 0) {
                         float gravity = levelHandler.Gravity;
@@ -1858,10 +1895,10 @@ namespace Jazz2.Actors
             }
 
             if ((events.GetEventByPosition(pos.X, pos.Y, ref p) == EventType.AreaHForce) ||
-                (events.GetEventByPosition(AABBInner.LowerBound.X - extendedHitbox, AABBInner.LowerBound.Y - extendedHitbox, ref p) == EventType.AreaHForce) ||
-                (events.GetEventByPosition(AABBInner.UpperBound.X + extendedHitbox, AABBInner.LowerBound.Y - extendedHitbox, ref p) == EventType.AreaHForce) ||
-                (events.GetEventByPosition(AABBInner.UpperBound.X + extendedHitbox, AABBInner.UpperBound.Y + extendedHitbox, ref p) == EventType.AreaHForce) ||
-                (events.GetEventByPosition(AABBInner.LowerBound.X - extendedHitbox, AABBInner.UpperBound.Y + extendedHitbox, ref p) == EventType.AreaHForce)
+                (events.GetEventByPosition(AABBInner.LowerBound.X - ExtendedHitbox, AABBInner.LowerBound.Y - ExtendedHitbox, ref p) == EventType.AreaHForce) ||
+                (events.GetEventByPosition(AABBInner.UpperBound.X + ExtendedHitbox, AABBInner.LowerBound.Y - ExtendedHitbox, ref p) == EventType.AreaHForce) ||
+                (events.GetEventByPosition(AABBInner.UpperBound.X + ExtendedHitbox, AABBInner.UpperBound.Y + ExtendedHitbox, ref p) == EventType.AreaHForce) ||
+                (events.GetEventByPosition(AABBInner.LowerBound.X - ExtendedHitbox, AABBInner.UpperBound.Y + ExtendedHitbox, ref p) == EventType.AreaHForce)
                ) {
                 if ((p[5] != 0 || p[4] != 0)) {
                     MoveInstantly(new Vector2((p[5] - p[4]) * 0.4f * timeMult, 0), MoveType.Relative);
@@ -1957,31 +1994,21 @@ namespace Jazz2.Actors
 
                 case PinballBumper bumper: {
                     Vector2 force = bumper.Activate(this);
-                    if (force != Vector2.Zero) {
-                        removeSpecialMove = true;
-                        canJump = false;
+                    OnPinballBumperActivated(force);
 
-                        speedX += force.X * 0.4f;
-                        speedY += force.Y * 0.4f;
-                        externalForceX += force.X * 0.04f;
-                        externalForceY -= force.Y * 0.04f;
-
-                        // ToDo: Check this...
-                        AddScore(500);
-                    }
+#if MULTIPLAYER && SERVER
+                    ((LevelHandler)levelHandler).OnPlayerPinballBumperActivated(this, force);
+#endif
                     break;
                 }
 
                 case PinballPaddle paddle: {
                     Vector2 force = paddle.Activate(this);
-                    if (force != Vector2.Zero) {
-                        removeSpecialMove = true;
-                        copterFramesLeft = 0f;
-                        canJump = false;
+                    OnPinballPaddleActivated(force);
 
-                        speedX = force.X;
-                        speedY = force.Y;
-                    }
+#if MULTIPLAYER && SERVER
+                    ((LevelHandler)levelHandler).OnPlayerPinballPaddleActivated(this, force);
+#endif
                     break;
                 }
 
@@ -2018,6 +2045,10 @@ namespace Jazz2.Actors
 #if MULTIPLAYER && SERVER
                 case Weapons.AmmoBase ammo: {
                     if (ammo.Owner != this) {
+                        if (!isInvulnerable && levelExiting == LevelExitingState.None) {
+                            ((LevelHandler)levelHandler).OnPlayerHit(this, ammo.Owner, health <= 0);
+                        }
+
                         // ToDo: Add read damage amount
                         TakeDamage(1, 0f);
                         ammo.DecreaseHealth(int.MaxValue, this);
@@ -2089,6 +2120,38 @@ namespace Jazz2.Actors
             }
         }
 
+        public void OnPinballBumperActivated(Vector2 force)
+        {
+            if (force != Vector2.Zero) {
+                canJump = false;
+
+                speedX += force.X * 0.4f;
+                speedY += force.Y * 0.4f;
+                externalForceX += force.X * 0.04f;
+                externalForceY -= force.Y * 0.04f;
+
+                controllable = true;
+                EndDamagingMove();
+
+                // ToDo: Check this...
+                AddScore(500);
+            }
+        }
+
+        public void OnPinballPaddleActivated(Vector2 force)
+        {
+            if (force != Vector2.Zero) {
+                copterFramesLeft = 0f;
+                canJump = false;
+
+                speedX = force.X;
+                speedY = force.Y;
+
+                controllable = true;
+                EndDamagingMove();
+            }
+        }
+
         private void EndDamagingMove()
         {
             CollisionFlags |= CollisionFlags.ApplyGravitation;
@@ -2129,6 +2192,10 @@ namespace Jazz2.Actors
                     MoveInstantly(new Vector2(IsFacingLeft ? 6f : -6f, 0f), MoveType.Relative, true);
                 }
 
+#if MULTIPLAYER && SERVER
+                ((LevelHandler)levelHandler).OnPlayerTakeDamage(this, amount, pushForce);
+#endif
+
                 DecreaseHealth(amount, null);
 
                 internalForceY = 0f;
@@ -2167,10 +2234,6 @@ namespace Jazz2.Actors
 
                     PlaySound("Die", 1.3f);
                 }
-
-#if MULTIPLAYER && SERVER
-                ((LevelHandler)levelHandler).OnPlayerTakeDamage(this, amount, pushForce);
-#endif
             }
         }
 
@@ -2423,6 +2486,10 @@ namespace Jazz2.Actors
                 invulnerableTime = 0;
 
                 SetCircleEffect(false);
+
+#if MULTIPLAYER && SERVER
+                ((LevelHandler)levelHandler).OnPlayerSetInvulnerability(this, 0f, false);
+#endif
                 return;
             }
 
@@ -2432,6 +2499,10 @@ namespace Jazz2.Actors
             if (withCircleEffect) {
                 SetCircleEffect(true);
             }
+
+#if MULTIPLAYER && SERVER
+            ((LevelHandler)levelHandler).OnPlayerSetInvulnerability(this, time, withCircleEffect);
+#endif
         }
 
 #if !SERVER

@@ -50,12 +50,12 @@ namespace Jazz2
         static ControlScheme()
         {
 #if ENABLE_SPLITSCREEN
-            const int maxSupportedPlayers = 4;
+            const int MaxSupportedPlayers = 4;
 #else
-            const int maxSupportedPlayers = 1;
+            const int MaxSupportedPlayers = 1;
 #endif
 
-            mappings = new Mapping[maxSupportedPlayers * (int)PlayerActions.Count];
+            mappings = new Mapping[MaxSupportedPlayers * (int)PlayerActions.Count];
 
             for (int i = 0; i < mappings.Length; i++) {
                 mappings[i].GamepadIndex = -1;
@@ -105,7 +105,7 @@ namespace Jazz2
             mappings[(int)PlayerActions.Menu].GamepadButton = GamepadButton.Start;
 
             // Load saved mappings
-            for (int i = 0; i < maxSupportedPlayers; i++) {
+            for (int i = 0; i < MaxSupportedPlayers; i++) {
                 int[] controls = Preferences.Get<int[]>("Controls_" + i);
                 if (controls != null && controls.Length == (int)PlayerActions.Count * 4) {
                     for (int j = 0; j < (int)PlayerActions.Count; j++) {
@@ -124,12 +124,12 @@ namespace Jazz2
         public static void SaveMappings()
         {
 #if ENABLE_SPLITSCREEN
-            const int maxSupportedPlayers = 2;
+            const int MaxSupportedPlayers = 2;
 #else
-            const int maxSupportedPlayers = 1;
+            const int MaxSupportedPlayers = 1;
 #endif
 
-            for (int i = 0; i < maxSupportedPlayers; i++) {
+            for (int i = 0; i < MaxSupportedPlayers; i++) {
                 int[] controls = new int[(int)PlayerActions.Count * 4];
 
                 for (int j = 0; j < (int)PlayerActions.Count; j++) {

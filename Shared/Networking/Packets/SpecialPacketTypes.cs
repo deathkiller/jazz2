@@ -10,6 +10,6 @@
         /// <summary>
         /// Sent from server to update state and position of players and objects
         /// </summary>
-        public const byte UpdateAllActors = 90;
+        public const byte UpdateAllActors = 5;
     }
 }

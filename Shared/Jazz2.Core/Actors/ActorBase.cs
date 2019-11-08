@@ -100,8 +100,8 @@ namespace Jazz2.Actors
         protected ActorRenderer renderer;
 #if MULTIPLAYER && SERVER
         private string loadedMetadata;
-        private string activeAnimation;
 #endif
+        private string activeAnimation;
         private Point2 boundingBox;
 
         public AABB AABB;
@@ -136,6 +136,8 @@ namespace Jazz2.Actors
         public Vector3 InternalForce => new Vector3(0, internalForceY, 0f);
 
 #if MULTIPLAYER && SERVER
+        public int Index;
+
         public string LoadedMetadata => loadedMetadata;
 #endif
 
@@ -1244,12 +1246,8 @@ namespace Jazz2.Actors
 
             RefreshAnimation();
 
-#if MULTIPLAYER && SERVER
             activeAnimation = identifier;
             levelHandler.BroadcastAnimationChanged(this, identifier);
-#else
-            levelHandler.BroadcastAnimationChanged(this, identifier);
-#endif
         }
 
         protected bool SetAnimation(AnimState state)
@@ -1294,12 +1292,9 @@ namespace Jazz2.Actors
 
             RefreshAnimation();
 
-#if MULTIPLAYER && SERVER
             activeAnimation = candidates[index].Identifier;
             levelHandler.BroadcastAnimationChanged(this, activeAnimation);
-#else
-            levelHandler.BroadcastAnimationChanged(this, candidates[index].Identifier);
-#endif
+
             return true;
         }
 
@@ -1349,9 +1344,7 @@ namespace Jazz2.Actors
 
                 RefreshAnimation();
 
-#if MULTIPLAYER && SERVER
                 levelHandler.BroadcastAnimationChanged(this, activeAnimation);
-#endif
             }
         }
 
@@ -1367,14 +1360,12 @@ namespace Jazz2.Actors
 
             RefreshAnimation();
 
-#if MULTIPLAYER && SERVER
             levelHandler.BroadcastAnimationChanged(this, activeAnimation);
-#endif
         }
 
         protected virtual void OnAnimationStarted()
         {
-            // Could be overriden
+            // Can be overriden
         }
 
         protected virtual void OnAnimationFinished()
@@ -1384,9 +1375,7 @@ namespace Jazz2.Actors
 
                 RefreshAnimation();
 
-#if MULTIPLAYER && SERVER
                 levelHandler.BroadcastAnimationChanged(this, activeAnimation);
-#endif
 
                 if (currentTransitionCallback != null) {
                     Action oldCallback = currentTransitionCallback;

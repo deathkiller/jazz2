@@ -44,7 +44,6 @@ namespace Jazz2.Server
             public int StatsDeaths;
             public int StatsKills;
             public int StatsHits;
-            public int LastHitPlayerIndex;
 
             public int CurrentLap;
             public double CurrentLapTime;
@@ -55,9 +54,8 @@ namespace Jazz2.Server
         private LevelHandler levelHandler;
 
         private string currentLevel;
-        private string currentLevelFriendlyName;
         private MultiplayerLevelType currentLevelType;
-        private double startTime;
+        private double levelStartTime;
 
         private Dictionary<NetConnection, PlayerClient> players;
         public PlayerClient[] playersByIndex;
@@ -105,7 +103,11 @@ namespace Jazz2.Server
                                 });
                                 levelHandler.AddPlayer(player.ProxyActor);
                             } else {
-                                player.ProxyActor.Transform.Pos = pos;
+                                if (player.ProxyActor.Health > 0) {
+                                    player.ProxyActor.Transform.Pos = pos;
+                                } else {
+                                    player.ProxyActor.Respawn(pos.Xy);
+                                }
                             }
 
                             player.State = PlayerState.Spawned;
@@ -294,7 +296,7 @@ namespace Jazz2.Server
                         }
                     }
 
-                    m.Write((int)-1);
+                    m.Write((int)-1); // Terminator
 
                     // Send update command to all active players
                     server.Send(m, playerConnections, NetDeliveryMethod.Unreliable, PacketChannels.UnorderedUpdates);
@@ -327,9 +329,18 @@ namespace Jazz2.Server
                     player.Value.ProxyActor = null;
                     player.Value.CurrentLap = 0;
                     player.Value.CurrentLapTime = 0;
+
+                    player.Value.StatsDeaths = 0;
+                    player.Value.StatsKills = 0;
+                    player.Value.StatsHits = 0;
                 }
 
                 playerConnections.Clear();
+
+                // Preload some metadata
+                ContentResolver.Current.PreloadAsync("Interactive/PlayerJazz");
+                ContentResolver.Current.PreloadAsync("Interactive/PlayerSpaz");
+                ContentResolver.Current.PreloadAsync("Interactive/PlayerLori");
 
                 GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
                 GC.Collect();
@@ -343,10 +354,10 @@ namespace Jazz2.Server
                         AssignedPlayerIndex = player.Value.Index
                     }, 64, player.Key, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                 }
-
-                // ToDo: Do this better
-                startTime = NetTime.Now;
             }
+
+            // ToDo: Do this better
+            levelStartTime = NetTime.Now;
 
             return true;
         }
@@ -370,7 +381,11 @@ namespace Jazz2.Server
                     });
                     levelHandler.AddPlayer(player.ProxyActor);
                 } else {
-                    player.ProxyActor.Transform.Pos = pos;
+                    if (player.ProxyActor.Health > 0) {
+                        player.ProxyActor.Transform.Pos = pos;
+                    } else {
+                        player.ProxyActor.Respawn(pos.Xy);
+                    }
                 }
 
                 player.State = PlayerState.Spawned;
@@ -384,8 +399,51 @@ namespace Jazz2.Server
             }
 
 #if DEBUG
-            Log.Write(LogType.Verbose, "[Dev] Respawning player #" + player.Index);
+            Log.Write(LogType.Verbose, "Respawning player #" + player.Index);
 #endif
+        }
+
+        public void HandlePlayerDied(int playerIndex)
+        {
+            PlayerClient player = playersByIndex[playerIndex];
+            if (player == null) {
+                return;
+            }
+
+            player.State = PlayerState.Dead;
+            player.StatsDeaths++;
+
+            /*SendToActivePlayers(new RemotePlayerDied {
+                Index = player.Index
+            }, 2, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);*/
+
+            Send(new ShowMessage {
+                Text = "You died " + player.StatsDeaths + " times!"
+            }, 24, player.Connection, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+
+#if DEBUG
+            Log.Write(LogType.Verbose, "[Dev] Player #" + player.Index + " died");
+#endif
+
+
+        }
+
+        public void IncrementPlayerHits(int playerIndex, bool incrementKills)
+        {
+            PlayerClient player = playersByIndex[playerIndex];
+            if (player == null) {
+                return;
+            }
+
+            player.StatsHits++;
+
+            if (incrementKills) {
+                player.StatsKills++;
+
+                Send(new ShowMessage {
+                    Text = "You killed " + player.StatsKills + " players!"
+                }, 24, player.Connection, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+            }
         }
 
         public void IncrementPlayerLap(int playerIndex, out int currentLap)
@@ -407,9 +465,16 @@ namespace Jazz2.Server
 
             currentLap = player.CurrentLap;
 
+            // Number of laps is used only in Race mode
+            if (currentLevelType == MultiplayerLevelType.Race) {
+                Send(new ShowMessage {
+                    Text = "You completed " + currentLap + " laps!"
+                }, 24, player.Connection, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+
 #if DEBUG
-            Log.Write(LogType.Verbose, "[Dev] Player #" + player.Index + " completed " + currentLap + " laps in " + TimeSpan.FromSeconds(player.CurrentLapTime - startTime));
+                Log.Write(LogType.Verbose, "Player #" + player.Index + " completed " + currentLap + " laps in " + TimeSpan.FromSeconds(player.CurrentLapTime - levelStartTime));
 #endif
+            }
         }
     }
 }

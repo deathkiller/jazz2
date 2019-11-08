@@ -788,8 +788,9 @@ namespace Jazz2.Game
         {
         }
 
-        public virtual bool OverridePlayerFireWeapon(Player player, WeaponType weaponType)
+        public virtual bool OverridePlayerFireWeapon(Player player, WeaponType weaponType, out float weaponCooldown)
         {
+            weaponCooldown = 0f;
             return false;
         }
 

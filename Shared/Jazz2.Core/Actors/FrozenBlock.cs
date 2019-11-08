@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Duality;
 using Jazz2.Actors.Solid;
 
 namespace Jazz2.Actors

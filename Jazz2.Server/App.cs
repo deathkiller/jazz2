@@ -1,4 +1,4 @@
-﻿#if MULTIPLAYER
+﻿#if MULTIPLAYER && SERVER
 
 using System;
 using System.Collections.Generic;
@@ -182,6 +182,7 @@ namespace Jazz2.Server
 
             availableCommands.Add("quit", HandleCommandExit);
             availableCommands.Add("exit", HandleCommandExit);
+            availableCommands.Add("clear", HandleCommandExit);
 
             availableCommands.Add("help", HandleCommandHelp);
             availableCommands.Add("info", HandleCommandInfo);
@@ -193,6 +194,8 @@ namespace Jazz2.Server
             availableCommands.Add("kick", HandleCommandKick);
             availableCommands.Add("kill", HandleCommandKill);
 
+            availableCommands.Add("show", HandleCommandShow);
+
             // Start process command loop
             while (true) {
                 string input = Log.FetchLine(GetConsoleSuggestions);
@@ -203,9 +206,7 @@ namespace Jazz2.Server
                 input = input.Trim();
 
                 string command = GetPartFromInput(ref input);
-
-                Func<string, bool> handler;
-                if (availableCommands.TryGetValue(command, out handler)) {
+                if (availableCommands.TryGetValue(command, out Func<string, bool> handler)) {
                     if (!handler(input)) {
                         break;
                     }
@@ -273,9 +274,15 @@ namespace Jazz2.Server
             return false;
         }
 
+        private static bool HandleCommandClear(string input)
+        {
+            // ToDo
+            return true;
+        }
+
         private static bool HandleCommandHelp(string input)
         {
-            Log.Write(LogType.Info, "Visit \"http://deat.tk/jazz2/\" for more info!");
+            Log.Write(LogType.Info, "Visit http://deat.tk/jazz2/help/multiplayer for more info!");
             Log.Write(LogType.Info, "Available commands:");
             Log.PushIndent();
 
@@ -305,7 +312,7 @@ namespace Jazz2.Server
                     var player = pair.Value;
 
                     Log.Write(LogType.Info,
-                        GameServer.PlayerNameToConsole(player).PadRight(6) + " " +
+                        "#" + player.Index.ToString().PadRight(5) + " " +
                         player.State.ToString().PadRight(15) +
                         (player.ProxyActor == null ? 
                             " -                " :
@@ -340,11 +347,34 @@ namespace Jazz2.Server
                 }
 
                 case "level": {
-                    string value = GetPartFromInput(ref input);
-                    if (gameServer.ChangeLevel(value, MultiplayerLevelType.Battle)) {
-                        Log.Write(LogType.Info, "Level was changed to \"" + value + "\"!");
+                    string levelName = GetPartFromInput(ref input);
+                    string levelTypeRaw = GetPartFromInput(ref input);
+                    MultiplayerLevelType levelType;
+                    switch (levelTypeRaw) {
+                        default:
+                        case "battle":
+                        case "b":
+                            levelType = MultiplayerLevelType.Battle; break;
+                        case "team-battle":
+                        case "tb":
+                            levelType = MultiplayerLevelType.TeamBattle; break;
+                        case "capture-the-flag":
+                        case "ctf":
+                            levelType = MultiplayerLevelType.CaptureTheFlag; break;
+                        case "race":
+                        case "r":
+                            levelType = MultiplayerLevelType.Race; break;
+                        case "treasure-hunt":
+                        case "th":
+                            levelType = MultiplayerLevelType.TreasureHunt; break;
+                        //case "coop-story":
+                        //    levelType = MultiplayerLevelType.CoopStory; break;
+                    }
+
+                    if (gameServer.ChangeLevel(levelName, levelType)) {
+                        Log.Write(LogType.Info, "Level was changed to \"" + levelName + "\" with " + levelType + " mode!");
                     } else {
-                        Log.Write(LogType.Error, "Cannot load level \"" + value + "\"!");
+                        Log.Write(LogType.Error, "Cannot load level \"" + levelName + "\"!");
                     }
                     break;
                 }
@@ -380,7 +410,7 @@ namespace Jazz2.Server
                 default: {
                     if (string.IsNullOrEmpty(key)) {
                         Log.Write(LogType.Info, "name = " + gameServer.Name);
-                        Log.Write(LogType.Info, "level = " + gameServer.CurrentLevel);
+                        Log.Write(LogType.Info, "level = " + gameServer.CurrentLevel + " (" + gameServer.CurrentLevelType + ")");
                         Log.Write(LogType.Info, "only_unique_clients = " + gameServer.AllowOnlyUniqueClients);
                         Log.Write(LogType.Info, "player_health = " + gameServer.SpawnedPlayerHealth);
                         Log.Write(LogType.Info, "spawning = " + gameServer.IsPlayerSpawningEnabled);
@@ -413,11 +443,10 @@ namespace Jazz2.Server
 
         private static bool HandleCommandKick(string input)
         {
-            int playerIndex;
             if (input == ":all") {
                 gameServer.KickAllPlayers();
                 Log.Write(LogType.Info, "All players were kicked from the server!");
-            } else if (int.TryParse(input, out playerIndex)) {
+            } else if (int.TryParse(input, out int playerIndex)) {
                 if (gameServer.KickPlayer((byte)playerIndex)) {
                     Log.Write(LogType.Info, "Player was kicked from the server!");
                 } else {
@@ -432,11 +461,10 @@ namespace Jazz2.Server
 
         private static bool HandleCommandKill(string input)
         {
-            int playerIndex;
             if (input == ":all") {
                 gameServer.KillAllPlayers();
                 Log.Write(LogType.Info, "All players were killed!");
-            } else if (int.TryParse(input, out playerIndex)) {
+            } else if (int.TryParse(input, out int playerIndex)) {
                 if (gameServer.KillPlayer((byte)playerIndex)) {
                     Log.Write(LogType.Info, "Player was killed!");
                 } else {
@@ -444,6 +472,30 @@ namespace Jazz2.Server
                 }
             } else {
                 Log.Write(LogType.Error, "You have to specify player index! (or :all to kill all players)");
+            }
+
+            return true;
+        }
+
+        private static bool HandleCommandShow(string input)
+        {
+            string target = GetPartFromInput(ref input);
+
+            if (string.IsNullOrWhiteSpace(input)) {
+                Log.Write(LogType.Info, "Message must be specified!");
+                return true;
+            }
+
+            input = input.Replace("\\n", "\n").Replace("\\f", "\f");
+
+            if (target == ":all") {
+                gameServer.ShowMessageToAllPlayers(input);
+                Log.Write(LogType.Info, "Message was sent to all players!");
+            } else if (int.TryParse(input, out int playerIndex)) {
+                gameServer.ShowMessageToPlayer((byte)playerIndex, input);
+                Log.Write(LogType.Info, "Message was sent to specified player!");
+            } else {
+                Log.Write(LogType.Error, "You have to specify player index! (or :all to select all players)");
             }
 
             return true;

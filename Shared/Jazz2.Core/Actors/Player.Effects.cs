@@ -21,13 +21,15 @@ namespace Jazz2.Actors
             Laser
         }
 
+#if !SERVER
         private CircleEffectRenderer currentCircleEffectRenderer;
-
         private ActorBase shieldDecor, shieldComponentFront;
+#endif
         private float shieldTime;
 
         private void SetCircleEffect(bool enabled)
         {
+#if !SERVER
             if (enabled) {
                 if (currentCircleEffectRenderer == null) {
                     currentCircleEffectRenderer = AddComponent<CircleEffectRenderer>();
@@ -38,10 +40,12 @@ namespace Jazz2.Actors
                     currentCircleEffectRenderer = null;
                 }
             }
+#endif
         }
 
         public void SetShield(ShieldType shieldType, float secs)
         {
+#if !SERVER
             if (shieldDecor != null) {
                 Scene.RemoveObject(shieldDecor);
                 shieldDecor = null;
@@ -51,6 +55,7 @@ namespace Jazz2.Actors
                 Scene.RemoveObject(shieldComponentFront);
                 shieldComponentFront = null;
             }
+#endif
 
             if (shieldType == ShieldType.None) {
                 shieldTime = 0f;
@@ -59,6 +64,7 @@ namespace Jazz2.Actors
 
             shieldTime = secs * Time.FramesPerSecond;
 
+#if !SERVER
             switch (shieldType) {
                 case ShieldType.Fire:
                     shieldDecor = new ShieldDecor(shieldType, false);
@@ -90,6 +96,7 @@ namespace Jazz2.Actors
                     // ToDo
                     break;
             }
+#endif
         }
 
         public bool IncreaseShieldTime(float secs)
@@ -104,6 +111,7 @@ namespace Jazz2.Actors
             return true;
         }
 
+#if !SERVER
         private class CircleEffectRenderer : Renderer
         {
             private struct CircleEffect
@@ -201,5 +209,6 @@ namespace Jazz2.Actors
                 Transform.RelativePos = new Vector3(0f, 0f, front ? -2f : 2f);
             }
         }
+#endif
     }
 }

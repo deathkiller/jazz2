@@ -50,6 +50,7 @@ namespace Jazz2.Game
         private List<ActorBase> actors = new List<ActorBase>();
 
         private string levelFileName;
+        private string levelFriendlyName;
         private string episodeName;
         private string defaultNextLevel;
         private string defaultSecretLevel;
@@ -57,10 +58,6 @@ namespace Jazz2.Game
         private string musicPath;
 
         private InitState initState;
-        private float ambientLightCurrent;
-        private float ambientLightTarget;
-        private int ambientLightDefault;
-        private Vector4 darknessColor;
         private float gravity;
         private Rect levelBounds;
 
@@ -95,21 +92,18 @@ namespace Jazz2.Game
 
         public Rect LevelBounds => levelBounds;
 
+        public string LevelFriendlyName => levelFriendlyName;
+
+        // ToDo
         public float AmbientLightCurrent
         {
-            get { return ambientLightCurrent; }
-            set { ambientLightTarget = value; }
+            get { return 100; }
+            set { }
         }
 
         public int AmbientLightDefault
         {
-            get { return ambientLightDefault; }
-        }
-
-        public Vector4 DarknessColor
-        {
-            get { return darknessColor; }
-            set { darknessColor = value; }
+            get { return 100; }
         }
 
         public int WaterLevel
@@ -282,17 +276,10 @@ namespace Jazz2.Game
 
             Log.Write(LogType.Info, "Loading level \"" + json.Description.Name + "\"...");
 
+            levelFriendlyName = json.Description.Name;
 
             defaultNextLevel = json.Description.NextLevel;
             defaultSecretLevel = json.Description.SecretLevel;
-            ambientLightDefault = json.Description.DefaultLight;
-            ambientLightCurrent = ambientLightTarget = ambientLightDefault * 0.01f;
-
-            if (json.Description.DefaultDarkness != null && json.Description.DefaultDarkness.Count >= 4) {
-                darknessColor = new Vector4(json.Description.DefaultDarkness[0] / 255f, json.Description.DefaultDarkness[1] / 255f, json.Description.DefaultDarkness[2] / 255f, json.Description.DefaultDarkness[3] / 255f);
-            } else {
-                darknessColor = new Vector4(0, 0, 0, 1);
-            }
 
             // Palette
             ColorRgba[] tileMapPalette;
@@ -373,7 +360,7 @@ namespace Jazz2.Game
             // Load level text events
             levelTexts = json.TextEvents ?? new List<string>();
 
-            if (FileOp.Exists(levelPath + "." + i18n.Language)) {
+            /*if (FileOp.Exists(levelPath + "." + i18n.Language)) {
                 try {
                     using (Stream s = FileOp.Open(levelPath + "." + i18n.Language, FileAccessMode.Read)) {
                         json = ContentResolver.Current.Json.Parse<LevelConfigJson>(s);
@@ -388,7 +375,7 @@ namespace Jazz2.Game
                 } catch (Exception ex) {
                     Log.Write(LogType.Warning, "Cannot load i18n for this level: " + ex);
                 }
-            }
+            }*/
 
             eventMap.ActivateEvents(int.MinValue, int.MinValue, int.MaxValue, int.MaxValue, false);
         }
@@ -651,8 +638,8 @@ namespace Jazz2.Game
                 }
             }
 
-            // Single player can respawn immediately
-            return true;
+            root.HandlePlayerDied(player.Index);
+            return false;
         }
 
         public string GetLevelText(int textID)
@@ -727,8 +714,9 @@ namespace Jazz2.Game
             }
         }
 
-        public bool OverridePlayerFireWeapon(Player player, WeaponType weaponType)
+        public bool OverridePlayerFireWeapon(Player player, WeaponType weaponType, out float weaponCooldown)
         {
+            weaponCooldown = 0;
             return false;
         }
 
@@ -736,9 +724,10 @@ namespace Jazz2.Game
         {
             root.SendToPlayerByIndex(new PlayerTakeDamage {
                 Index = (byte)player.Index,
-                Amount = (byte)amount,
+                HealthBefore = (byte)player.Health,
+                DamageAmount = (byte)amount,
                 PushForce = pushForce
-            }, 7, player.Index, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+            }, 8, player.Index, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
         }
 
         internal void OnPlayerAddHealth(Player player, int amount)
@@ -751,12 +740,31 @@ namespace Jazz2.Game
 
         internal void OnPlayerSpringActivated(Player player, Vector2 force, bool keepSpeedX, bool keepSpeedY)
         {
-            root.SendToPlayerByIndex(new PlayerActivateSpring {
+            root.SendToPlayerByIndex(new PlayerActivateForce {
                 Index = (byte)player.Index,
+                ActivatedBy = PlayerActivateForce.ForceType.Spring,
                 Force = force,
                 KeepSpeedX = keepSpeedX,
                 KeepSpeedY = keepSpeedY
-            }, 11, player.Index, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+            }, 12, player.Index, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+        }
+
+        internal void OnPlayerPinballBumperActivated(Player player, Vector2 force)
+        {
+            root.SendToPlayerByIndex(new PlayerActivateForce {
+                Index = (byte)player.Index,
+                ActivatedBy = PlayerActivateForce.ForceType.PinballBumper,
+                Force = force
+            }, 12, player.Index, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+        }
+
+        internal void OnPlayerPinballPaddleActivated(Player player, Vector2 force)
+        {
+            root.SendToPlayerByIndex(new PlayerActivateForce {
+                Index = (byte)player.Index,
+                ActivatedBy = PlayerActivateForce.ForceType.PinballPaddle,
+                Force = force
+            }, 12, player.Index, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
         }
 
         internal void OnPlayerRefreshAmmo(Player player, WeaponType weaponType, short count, bool switchTo)
@@ -769,6 +777,23 @@ namespace Jazz2.Game
             }, 6, player.Index, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
         }
 
+        internal void OnPlayerRefreshWeaponUpgrades(Player player, WeaponType weaponType, byte upgrades)
+        {
+            root.SendToPlayerByIndex(new PlayerRefreshWeaponUpgrades {
+                Index = (byte)player.Index,
+                WeaponType = weaponType,
+                Upgrades = upgrades
+            }, 4, player.Index, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+        }
+
+        internal void OnPlayerSetModifier(Player player, Player.Modifier modifier)
+        {
+            root.SendToPlayerByIndex(new PlayerSetModifier {
+                Index = (byte)player.Index,
+                Modifier = modifier
+            }, 3, player.Index, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+        }
+
         internal void OnPlayerWarpToPosition(Player player, Vector2 pos, bool fast)
         {
             root.SendToPlayerByIndex(new PlayerWarpToPosition {
@@ -776,6 +801,11 @@ namespace Jazz2.Game
                 Pos = pos,
                 Fast = fast
             }, 7, player.Index, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+        }
+
+        internal void OnPlayerHit(Player player, Player attacker, bool isDead)
+        {
+            root.IncrementPlayerHits(attacker.Index, isDead);
         }
 
         internal void OnPlayerIncrementLap(Player player)
@@ -791,6 +821,17 @@ namespace Jazz2.Game
             }, 4, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
         }
 
+        internal void OnPlayerSetInvulnerability(Player player, float time, bool withCircleEffect)
+        {
+            // ToDo: Not visible to other players
+
+            root.SendToActivePlayers(new PlayerSetInvulnerability {
+                Index = (byte)player.Index,
+                Time = time,
+                WithCircleEffect = withCircleEffect
+            }, 7, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+        }
+
         internal void OnAdvanceDestructibleTileAnimation(int tx, int ty, int amount)
         {
             root.SendToActivePlayers(new AdvanceTileAnimation {
@@ -798,6 +839,14 @@ namespace Jazz2.Game
                 TileY = ty,
                 Amount = amount
             }, 6, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+        }
+
+        internal void OnSetTrigger(ushort triggerID, bool newState)
+        {
+            root.SendToActivePlayers(new SetTrigger {
+                TriggerID = triggerID,
+                NewState = newState
+            }, 4, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
         }
 
         // ToDo: Move this somewhere
@@ -825,96 +874,10 @@ namespace Jazz2.Game
 
         protected virtual void OnFixedUpdate(float timeMult)
         {
-            // ToDo
-            /*if (nextLevelInit.HasValue)
-            {
-                bool playersReady = true;
-                foreach (Player player in players)
-                {
-                    // Exit type is already provided
-                    playersReady &= player.OnLevelChanging(ExitType.None);
-                }
-
-                if (playersReady)
-                {
-                    if (levelChangeTimer > 0)
-                    {
-                        levelChangeTimer -= timeMult;
-                    }
-                    else
-                    {
-                        root.ChangeLevel(nextLevelInit.Value);
-                        nextLevelInit = null;
-                        initState = InitState.Disposed;
-                        return;
-                    }
-                }
-            }*/
-
-            /*if (difficulty != GameDifficulty.Multiplayer)
-            {
-                if (players.Count > 0)
-                {
-                    Vector3 pos = players[0].Transform.Pos;
-                    int tx1 = (int)pos.X >> 5;
-                    int ty1 = (int)pos.Y >> 5;
-                    int tx2 = tx1;
-                    int ty2 = ty1;
-
-#if ENABLE_SPLITSCREEN
-                    for (int i = 1; i < players.Count; i++) {
-                        Vector3 pos2 = players[i].Transform.Pos;
-                        int tx = (int)pos2.X >> 5;
-                        int ty = (int)pos2.Y >> 5;
-                        if (tx1 > tx) {
-                            tx1 = tx;
-                        } else if (tx2 < tx) {
-                            tx2 = tx;
-                        }
-                        if (ty1 > ty) {
-                            ty1 = ty;
-                        } else if (ty2 < ty) {
-                            ty2 = ty;
-                        }
-                    }
-#endif
-
-                    // ToDo: Remove this branching
-#if PLATFORM_ANDROID
-                    const int ActivateTileRange = 20;
-#else
-                    const int ActivateTileRange = 26;
-#endif
-                    tx1 -= ActivateTileRange;
-                    ty1 -= ActivateTileRange;
-                    tx2 += ActivateTileRange;
-                    ty2 += ActivateTileRange;
-
-                    for (int i = 0; i < actors.Count; i++)
-                    {
-                        if (actors[i].OnTileDeactivate(tx1 - 2, ty1 - 2, tx2 + 2, ty2 + 2))
-                        {
-                            i--;
-                        }
-                    }
-
-                    eventMap.ActivateEvents(tx1, ty1, tx2, ty2, initState != InitState.Initializing);
-                }*/
 
             eventMap.ProcessGenerators(timeMult);
-            /*}*/
 
             ResolveCollisions();
-
-            // Ambient Light Transition
-            if (ambientLightCurrent != ambientLightTarget) {
-                float step = timeMult * 0.012f;
-                if (MathF.Abs(ambientLightCurrent - ambientLightTarget) < step) {
-                    ambientLightCurrent = ambientLightTarget;
-                } else {
-                    ambientLightCurrent += step * ((ambientLightTarget < ambientLightCurrent) ? -1 : 1);
-                }
-            }
 
             // ToDo: Weather
             /*if (weatherType != WeatherType.None && commonResources.Graphics != null)

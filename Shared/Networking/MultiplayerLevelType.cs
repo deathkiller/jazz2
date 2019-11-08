@@ -1,4 +1,6 @@
-﻿namespace Jazz2.Game
+﻿#if MULTIPLAYER
+
+namespace Jazz2.Game
 {
     public enum MultiplayerLevelType
     {
@@ -12,3 +14,5 @@
         CoopStory
     }
 }
+
+#endif

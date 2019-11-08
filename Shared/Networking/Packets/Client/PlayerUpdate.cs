@@ -22,6 +22,7 @@ namespace Jazz2.Networking.Packets.Client
         //public float AnimTime;
         public Player.SpecialMoveType CurrentSpecialMove;
         public bool IsFacingLeft;
+        public bool IsActivelyPushing;
 
 
         //public bool Controllable;
@@ -45,6 +46,7 @@ namespace Jazz2.Networking.Packets.Client
             //AnimState = (AnimState)msg.ReadUInt32();
             //AnimTime = msg.ReadFloat();
             IsFacingLeft = msg.ReadBoolean();
+            IsActivelyPushing = msg.ReadBoolean();
 
             //Controllable = msg.ReadBoolean();
             //IsFirePressed = msg.ReadBoolean();
@@ -65,6 +67,7 @@ namespace Jazz2.Networking.Packets.Client
             //msg.Write((uint)AnimState);
             //msg.Write((float)AnimTime);
             msg.Write((bool)IsFacingLeft);
+            msg.Write((bool)IsActivelyPushing);
 
             //msg.Write((bool)Controllable);
             //msg.Write((bool)IsFirePressed);

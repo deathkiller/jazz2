@@ -13,7 +13,7 @@ namespace Jazz2.Actors
             public Vector2 Pos;
         }
 
-        private const double ServerDelay = 2 * 1.0 / 30; // 66ms (2 server updates) delay to allow better interpolation
+        private const double ServerDelay = 2 * 1.0 / 30; // ~66ms (2 server updates) delay to allow better interpolation
 
         public int PlayerIndex;
         public PlayerType PlayerType;
@@ -91,12 +91,21 @@ namespace Jazz2.Actors
 
         public void SyncWithServer(bool visible, Vector3 pos, bool isFacingLeft)
         {
-            stateBuffer[stateBufferPos].Time = NetTime.Now;
-            stateBuffer[stateBufferPos].Pos = pos.Xy;
-            stateBufferPos++;
-            if (stateBufferPos >= stateBuffer.Length) {
-                stateBufferPos = 0;
+            int prevIdx = stateBufferPos - 1;
+            if (prevIdx < 0) {
+                prevIdx += stateBuffer.Length;
             }
+
+            if (MathF.Abs(pos.X - stateBuffer[prevIdx].Pos.X) >= 2f ||
+                MathF.Abs(pos.Y - stateBuffer[prevIdx].Pos.Y) >= 2f) {
+                stateBuffer[stateBufferPos].Time = NetTime.Now;
+                stateBuffer[stateBufferPos].Pos = pos.Xy;
+                stateBufferPos++;
+                if (stateBufferPos >= stateBuffer.Length) {
+                    stateBufferPos = 0;
+                }
+            }
+
             posZ = pos.Z;
 
             if (availableAnimations != null && renderer != null) {

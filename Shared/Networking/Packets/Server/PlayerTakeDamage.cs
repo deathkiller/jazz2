@@ -10,14 +10,16 @@ namespace Jazz2.Networking.Packets.Server
 
 
         public byte Index;
-        public byte Amount;
+        public byte HealthBefore;
+        public byte DamageAmount;
         public float PushForce;
 
         void IServerPacket.Read(NetIncomingMessage msg)
         {
             Index = msg.ReadByte();
 
-            Amount = msg.ReadByte();
+            HealthBefore = msg.ReadByte();
+            DamageAmount = msg.ReadByte();
             PushForce = msg.ReadSingle();
         }
 
@@ -25,7 +27,8 @@ namespace Jazz2.Networking.Packets.Server
         {
             msg.Write((byte)Index);
 
-            msg.Write((byte)Amount);
+            msg.Write((byte)HealthBefore);
+            msg.Write((byte)DamageAmount);
             msg.Write((float)PushForce);
         }
     }

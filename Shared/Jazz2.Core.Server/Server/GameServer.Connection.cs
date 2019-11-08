@@ -83,7 +83,7 @@ namespace Jazz2.Server
                     }
                 }
 
-                Log.Write(LogType.Verbose, "Player " + PlayerNameToConsole(player) + " (" + player.UserName + " @ " + args.SenderConnection.RemoteEndPoint + ") connected");
+                Log.Write(LogType.Verbose, "Player #" + player.Index + " (" + player.UserName + " @ " + args.SenderConnection.RemoteEndPoint + ") connected");
 
                 if (currentLevel != null) {
                     Send(new LoadLevel {
@@ -122,7 +122,7 @@ namespace Jazz2.Server
                     }
                 }
 
-                Log.Write(LogType.Verbose, "Player " + PlayerNameToConsole(player) + " (" + player.UserName + " @ " + args.SenderConnection.RemoteEndPoint + ") disconnected");
+                Log.Write(LogType.Verbose, "Player #" + player.Index + " (" + player.UserName + " @ " + args.SenderConnection.RemoteEndPoint + ") disconnected");
             }
         }
 

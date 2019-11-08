@@ -45,7 +45,7 @@ namespace Jazz2.Game
         void BroadcastTriggeredEvent(EventType eventType, ushort[] eventParams);
         void BroadcastAnimationChanged(ActorBase actor, string identifier);
 
-        bool OverridePlayerFireWeapon(Player player, WeaponType weaponType);
+        bool OverridePlayerFireWeapon(Player player, WeaponType weaponType, out float weaponCooldown);
 
         void InitLevelChange(ExitType exitType, string nextLevel);
         void HandleGameOver();

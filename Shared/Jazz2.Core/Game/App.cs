@@ -92,10 +92,10 @@ namespace Jazz2.Game
         public void ShowMainMenu(bool afterIntro)
         {
 #if MULTIPLAYER
-            if (net != null) {
-                net.OnDisconnected -= OnNetworkDisconnected;
-                net.Close();
-                net = null;
+            if (client != null) {
+                client.OnDisconnected -= OnPacketDisconnected;
+                client.Close();
+                client = null;
             }
 #endif
 

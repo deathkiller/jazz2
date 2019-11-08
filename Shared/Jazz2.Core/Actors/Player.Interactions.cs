@@ -18,17 +18,17 @@ namespace Jazz2.Actors
 
         public bool AddHealth(int amount)
         {
-            const int healthLimit = 5;
+            const int HealthLimit = 5;
 
-            if (health >= healthLimit) {
+            if (health >= HealthLimit) {
                 return false;
             }
 
             if (amount < 0) {
-                health = Math.Max(maxHealth, healthLimit);
+                health = Math.Max(maxHealth, HealthLimit);
                 PlaySound("PickupMaxCarrot");
             } else {
-                health = Math.Min(health + amount, healthLimit);
+                health = Math.Min(health + amount, HealthLimit);
                 if (maxHealth < health) {
                     maxHealth = health;
                 }
@@ -200,7 +200,7 @@ namespace Jazz2.Actors
                     activeModifier = Modifier.Airboard;
 
                     MoveInstantly(new Vector2(0f, -16f), MoveType.Relative);
-                    return true;
+                    break;
                 }
                 case Modifier.Copter: {
                     controllable = true;
@@ -213,7 +213,7 @@ namespace Jazz2.Actors
                     activeModifier = Modifier.Copter;
 
                     copterFramesLeft = 350;
-                    return true;
+                    break;
                 }
                 case Modifier.LizardCopter: {
                     controllable = true;
@@ -233,7 +233,7 @@ namespace Jazz2.Actors
                         LevelHandler = levelHandler
                     });
                     copter.Parent = this;
-                    return true;
+                    break;
                 }
 
                 default: {
@@ -248,9 +248,15 @@ namespace Jazz2.Actors
                     canJump = true;
 
                     SetAnimation(AnimState.Fall);
-                    return true;
+                    break;
                 }
             }
+
+#if MULTIPLAYER && SERVER
+            ((LevelHandler)levelHandler).OnPlayerSetModifier(this, modifier);
+#endif
+
+            return true;
         }
 
         public bool SpawnBird(ushort type, Vector3 pos)

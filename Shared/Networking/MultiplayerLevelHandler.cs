@@ -1,7 +1,6 @@
-﻿#if !SERVER
+﻿#if MULTIPLAYER && !SERVER
 
 using System.Collections.Generic;
-using System.Threading;
 using Duality;
 using Duality.Async;
 using Jazz2.Actors;
@@ -17,36 +16,40 @@ namespace Jazz2.Game
 {
     public class MultiplayerLevelHandler : LevelHandler
     {
-        private NetworkHandler net;
+        private GameClient client;
         private byte localPlayerIndex;
         private float lastUpdate;
         private long lastServerUpdateTime;
         private int isStillLoading;
 
-        private Dictionary<int, IRemotableActor> localRemotableActors = new Dictionary<int, IRemotableActor>();
+        //private Dictionary<int, IRemotableActor> localRemotableActors = new Dictionary<int, IRemotableActor>();
         private Dictionary<int, RemoteActor> remoteActors = new Dictionary<int, RemoteActor>();
 
-        public byte PlayerIndex => localPlayerIndex;
-
-        public MultiplayerLevelHandler(App root, NetworkHandler net, LevelInitialization data, byte playerIndex) : base(root, data)
+        public MultiplayerLevelHandler(App root, GameClient client, LevelInitialization data, byte playerIndex) : base(root, data)
         {
-            this.net = net;
+            this.client = client;
             this.localPlayerIndex = playerIndex;
 
-            net.OnUpdateAllActors += OnUpdateAllActors;
-            net.AddCallback<CreateControllablePlayer>(OnCreateControllablePlayer);
-            net.AddCallback<CreateRemoteActor>(OnCreateRemoteActor);
-            net.AddCallback<DestroyRemoteActor>(OnDestroyRemoteActor);
-            net.AddCallback<PlayerTakeDamage>(OnPlayerTakeDamage);
-            net.AddCallback<PlayerAddHealth>(OnPlayerAddHealth);
+            client.OnUpdateAllActors += OnUpdateAllActors;
+            client.AddCallback<CreateControllablePlayer>(OnPacketCreateControllablePlayer);
+            client.AddCallback<CreateRemoteActor>(OnPacketCreateRemoteActor);
+            client.AddCallback<DestroyRemoteActor>(OnPacketDestroyRemoteActor);
+            client.AddCallback<RefreshActorAnimation>(OnPacketRefreshActorAnimation);
+            client.AddCallback<ShowMessage>(OnPacketShowMessage);
 
-            net.AddCallback<RefreshActorAnimation>(OnRefreshActorAnimation);
+            client.AddCallback<PlayerTakeDamage>(OnPacketPlayerTakeDamage);
+            client.AddCallback<PlayerAddHealth>(OnPacketPlayerAddHealth);
+            client.AddCallback<PlayerActivateForce>(OnPacketPlayerActivateForce);
+            client.AddCallback<PlayerRefreshAmmo>(OnPacketPlayerRefreshAmmo);
+            client.AddCallback<PlayerRefreshWeaponUpgrades>(OnPacketPlayerRefreshWeaponUpgrades);
+            client.AddCallback<PlayerWarpToPosition>(OnPacketPlayerWarpToPosition);
+            client.AddCallback<PlayerSetDizzyTime>(OnPacketPlayerSetDizzyTime);
+            client.AddCallback<PlayerSetModifier>(OnPacketPlayerSetModifier);
+            client.AddCallback<PlayerSetLap>(OnPacketPlayerSetLap);
+            client.AddCallback<PlayerSetInvulnerability>(OnPacketPlayerSetInvulnerability);
 
-            net.AddCallback<PlayerActivateSpring>(OnPlayerActivateSpring);
-            net.AddCallback<PlayerRefreshAmmo>(OnPlayerRefreshAmmo);
-            net.AddCallback<PlayerWarpToPosition>(OnPlayerWarpToPosition);
-
-            net.AddCallback<AdvanceTileAnimation>(OnAdvanceTileAnimation);
+            client.AddCallback<AdvanceTileAnimation>(OnPacketAdvanceTileAnimation);
+            client.AddCallback<SetTrigger>(OnPacketSetTrigger);
 
             // Wait 3 frames and then inform server that loading is complete
             isStillLoading = 3;
@@ -54,21 +57,27 @@ namespace Jazz2.Game
 
         protected override void OnDisposing(bool manually)
         {
-            if (net != null) {
-                net.OnUpdateAllActors -= OnUpdateAllActors;
-                net.RemoveCallback<CreateControllablePlayer>();
-                net.RemoveCallback<CreateRemoteActor>();
-                net.RemoveCallback<DestroyRemoteActor>();
-                net.RemoveCallback<PlayerTakeDamage>();
-                net.RemoveCallback<PlayerAddHealth>();
+            if (client != null) {
+                client.OnUpdateAllActors -= OnUpdateAllActors;
+                client.RemoveCallback<CreateControllablePlayer>();
+                client.RemoveCallback<CreateRemoteActor>();
+                client.RemoveCallback<DestroyRemoteActor>();
+                client.RemoveCallback<RefreshActorAnimation>();
+                client.RemoveCallback<ShowMessage>();
 
-                net.RemoveCallback<RefreshActorAnimation>();
+                client.RemoveCallback<PlayerTakeDamage>();
+                client.RemoveCallback<PlayerAddHealth>();
+                client.RemoveCallback<PlayerActivateForce>();
+                client.RemoveCallback<PlayerRefreshAmmo>();
+                client.RemoveCallback<PlayerRefreshWeaponUpgrades>();
+                client.RemoveCallback<PlayerWarpToPosition>();
+                client.RemoveCallback<PlayerSetDizzyTime>();
+                client.RemoveCallback<PlayerSetModifier>();
+                client.RemoveCallback<PlayerSetLap>();
+                client.RemoveCallback<PlayerSetInvulnerability>();
 
-                net.RemoveCallback<PlayerActivateSpring>();
-                net.RemoveCallback<PlayerRefreshAmmo>();
-                net.RemoveCallback<PlayerWarpToPosition>();
-
-                net.RemoveCallback<AdvanceTileAnimation>();
+                client.RemoveCallback<AdvanceTileAnimation>();
+                client.RemoveCallback<SetTrigger>();
             }
 
             base.OnDisposing(manually);
@@ -83,7 +92,7 @@ namespace Jazz2.Game
                 isStillLoading--;
 
                 if (isStillLoading <= 0) {
-                    net.SendToServer(new LevelReady {
+                    client.SendToServer(new LevelReady {
                         Index = localPlayerIndex
                     }, 2, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                 }
@@ -91,9 +100,9 @@ namespace Jazz2.Game
 
 #if DEBUG
             Hud.ShowDebugText("- Local Player Index: " + localPlayerIndex);
-            Hud.ShowDebugText("- RTT: " + (int)(net.AverageRoundtripTime * 1000) + " ms / Up: " + net.UploadPacketBytes + " / Down: " + net.DownloadPacketBytes);
+            Hud.ShowDebugText("- RTT: " + (int)(client.AverageRoundtripTime * 1000) + " ms / Up: " + client.UploadPacketBytes + " / Down: " + client.DownloadPacketBytes);
             Hud.ShowDebugText("- Last Server Update: " + lastServerUpdateTime);
-            Hud.ShowDebugText("- Remote Objects: " + localRemotableActors.Count + " / " + remoteActors.Count);
+            Hud.ShowDebugText("- Remote Objects: " + /*localRemotableActors.Count + " / " +*/ remoteActors.Count);
 #endif
 
             if (players.Count > 0) {
@@ -110,21 +119,22 @@ namespace Jazz2.Game
                 // Send update to server
                 Player player = players[0];
 
-                net.SendToServer(new PlayerUpdate {
+                client.SendToServer(new PlayerUpdate {
                     Index = localPlayerIndex,
                     UpdateTime = updateTime,
                     Pos = player.Transform.Pos,
                     CurrentSpecialMove = player.CurrentSpecialMove,
-                    IsFacingLeft = player.IsFacingLeft
+                    IsFacingLeft = player.IsFacingLeft,
+                    IsActivelyPushing = player.IsActivelyPushing
                 }, 18, NetDeliveryMethod.Unreliable, PacketChannels.UnorderedUpdates);
             }
         }
 
         public override bool HandlePlayerDied(Player player)
         {
-            net.SendToServer(new PlayerDied {
+            /*client.SendToServer(new PlayerDied {
                 Index = localPlayerIndex
-            }, 2, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+            }, 2, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);*/
 
             return false;
         }
@@ -140,7 +150,7 @@ namespace Jazz2.Game
 
             switch (actor) {
                 case Player player: {
-                    net.SendToServer(new PlayerRefreshAnimation {
+                    client.SendToServer(new PlayerRefreshAnimation {
                         Index = localPlayerIndex,
                         Identifier = identifier
                     }, 48, NetDeliveryMethod.Unreliable, PacketChannels.UnorderedUpdates);
@@ -191,12 +201,36 @@ namespace Jazz2.Game
             net.Send(p, 5, NetDeliveryMethod.ReliableUnordered, PacketChannels.Main);
         }*/
 
-        public override bool OverridePlayerFireWeapon(Player player, WeaponType weaponType)
+        public override bool OverridePlayerFireWeapon(Player player, WeaponType weaponType, out float weaponCooldown)
         {
-            net.SendToServer(new PlayerFireWeapon {
+            switch (weaponType) {
+                case WeaponType.Blaster: weaponCooldown = 40f - (player.WeaponUpgrades[(int)WeaponType.Blaster] >> 1) * 2f; break;
+                case WeaponType.Bouncer: weaponCooldown = 32f - (player.WeaponUpgrades[(int)WeaponType.Blaster] >> 1) * 1.7f; break;
+                case WeaponType.Freezer: weaponCooldown = 46f - (player.WeaponUpgrades[(int)WeaponType.Blaster] >> 1) * 1.6f; break;
+                case WeaponType.Seeker: weaponCooldown = 100f; break;
+                case WeaponType.RF: weaponCooldown = 100f; break;
+                case WeaponType.Toaster: weaponCooldown = 6f; break;
+                case WeaponType.TNT: weaponCooldown = 30f; break;
+                case WeaponType.Pepper: weaponCooldown = 36f - (player.WeaponUpgrades[(int)WeaponType.Blaster] >> 1) * 1.6f; break;
+                case WeaponType.Electro: weaponCooldown = 32f - (player.WeaponUpgrades[(int)WeaponType.Blaster] >> 1) * 1.2f; break;
+                // ToDo
+                case WeaponType.Thunderbolt: weaponCooldown = 42f - (player.WeaponUpgrades[(int)WeaponType.Blaster] >> 1) * 1f; break;
+
+                default: {
+                    weaponCooldown = 0;
+                    return true;
+                }
+            }
+
+            player.GetFirePointAndAngle(out Vector3 initialPos, out Vector3 gunspotPos, out float angle);
+
+            client.SendToServer(new PlayerFireWeapon {
                 Index = localPlayerIndex,
-                WeaponType = weaponType
-            }, 3, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+                WeaponType = weaponType,
+                InitialPos = initialPos,
+                GunspotPos = gunspotPos,
+                Angle = angle
+            }, 13, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
 
             return true;
         }
@@ -215,36 +249,6 @@ namespace Jazz2.Game
             }
 
             lastServerUpdateTime = serverUpdateTime;
-
-            //float rtt = msg.SenderConnection.AverageRoundtripTime;
-
-            /*byte playerCount = msg.ReadByte();
-            for (int i = 0; i < playerCount; i++) {
-                byte playerIndex = msg.ReadByte();
-                byte flags = msg.ReadByte();
-                if (flags == 0) { // Not spawned
-                    continue;
-                }
-
-                Vector3 pos;
-                {
-                    ushort x = msg.ReadUInt16();
-                    ushort y = msg.ReadUInt16();
-                    ushort z = msg.ReadUInt16();
-                    pos = new Vector3(x, y, z);
-                }
-
-                //AnimState animState = (AnimState)msg.ReadUInt32();
-                //float animTime = msg.ReadFloat();
-                bool visible = msg.ReadBoolean();
-                bool isFacingLeft = msg.ReadBoolean();
-
-                if (playerIndex == localPlayerIndex || remotePlayers[playerIndex] == null) {
-                    continue;
-                }
-
-                remotePlayers[playerIndex].SyncWithServer(pos, visible, isFacingLeft);
-            }*/
 
             while (true) {
                 int objectIndex = msg.ReadInt32();
@@ -294,7 +298,7 @@ namespace Jazz2.Game
         /// <summary>
         /// Player is allowed to join game, controllable actor should be created
         /// </summary>
-        private void OnCreateControllablePlayer(ref CreateControllablePlayer p)
+        private void OnPacketCreateControllablePlayer(ref CreateControllablePlayer p)
         {
             // ToDo: throw on mismatch?
             localPlayerIndex = p.Index;
@@ -339,7 +343,7 @@ namespace Jazz2.Game
         /// <summary>
         /// Some remote object was created
         /// </summary>
-        private void OnCreateRemoteActor(ref CreateRemoteActor p)
+        private void OnPacketCreateRemoteActor(ref CreateRemoteActor p)
         {
             int index = p.Index;
 
@@ -358,7 +362,7 @@ namespace Jazz2.Game
             Await.NextAfterUpdate().OnCompleted(() => {
                 RemoteActor actor = new RemoteActor();
                 actor.OnActivated(this, pos, metadataPath, collisionFlags);
-                actor.Index = index;
+                //actor.Index = index;
                 remoteActors[index] = actor;
                 AddActor(actor);
             });
@@ -367,7 +371,7 @@ namespace Jazz2.Game
         /// <summary>
         /// Some remote object was destroyed
         /// </summary>
-        private void OnDestroyRemoteActor(ref DestroyRemoteActor p)
+        private void OnPacketDestroyRemoteActor(ref DestroyRemoteActor p)
         {
             int index = p.Index;
 
@@ -386,24 +390,29 @@ namespace Jazz2.Game
         /// <summary>
         /// Player is requested to decrease its health
         /// </summary>
-        private void OnPlayerTakeDamage(ref PlayerTakeDamage p)
+        private void OnPacketPlayerTakeDamage(ref PlayerTakeDamage p)
         {
             // ToDo: This should be probably replaced with PlayerHealthChanged event
             if (p.Index != localPlayerIndex) {
                 return;
             }
 
-            byte amount = p.Amount;
+            byte healthBefore = p.HealthBefore;
+            byte damageAmount = p.DamageAmount;
             float pushForce = p.PushForce;
 
             Await.NextAfterUpdate().OnCompleted(() => {
                 if (players.Count > 0) {
-                    players[0].TakeDamage(amount, pushForce);
+                    Player player = players[0];
+                    player.Health = healthBefore;
+                    if (damageAmount > 0) {
+                        player.TakeDamage(damageAmount, pushForce);
+                    }
                 }
             });
         }
 
-        private void OnPlayerAddHealth(ref PlayerAddHealth p)
+        private void OnPacketPlayerAddHealth(ref PlayerAddHealth p)
         {
             // ToDo: This should be probably replaced with PlayerHealthChanged event
             if (p.Index != localPlayerIndex) {
@@ -446,7 +455,7 @@ namespace Jazz2.Game
         }
         */
 
-        private void OnRefreshActorAnimation(ref RefreshActorAnimation p)
+        private void OnPacketRefreshActorAnimation(ref RefreshActorAnimation p)
         {
             int index = p.Index;
 
@@ -463,7 +472,21 @@ namespace Jazz2.Game
             });
         }
 
-        private void OnPlayerActivateSpring(ref PlayerActivateSpring p)
+        private void OnPacketShowMessage(ref ShowMessage p)
+        {
+            string text = p.Text;
+
+            Await.NextAfterUpdate().OnCompleted(() => {
+                if (players.Count > 0) {
+                    Hud hud = players[0].AttachedHud;
+                    if (hud != null) {
+                        hud.ShowLevelText(text);
+                    }
+                }
+            });
+        }
+
+        private void OnPacketPlayerActivateForce(ref PlayerActivateForce p)
         {
             byte index = p.Index;
 
@@ -471,18 +494,29 @@ namespace Jazz2.Game
                 return;
             }
 
+            PlayerActivateForce.ForceType activatedBy = p.ActivatedBy;
             Vector2 force = p.Force;
             bool keepSpeedX = p.KeepSpeedX;
             bool keepSpeedY = p.KeepSpeedY;
 
             Await.NextAfterUpdate().OnCompleted(() => {
                 if (players.Count > 0) {
-                    players[0].OnSpringActivated(force, keepSpeedX, keepSpeedY);
+                    switch (activatedBy) {
+                        case PlayerActivateForce.ForceType.Spring:
+                            players[0].OnSpringActivated(force, keepSpeedX, keepSpeedY);
+                            break;
+                        case PlayerActivateForce.ForceType.PinballBumper:
+                            players[0].OnPinballBumperActivated(force);
+                            break;
+                        case PlayerActivateForce.ForceType.PinballPaddle:
+                            players[0].OnPinballPaddleActivated(force);
+                            break;
+                    }
                 }
             });
         }
 
-        private void OnPlayerRefreshAmmo(ref PlayerRefreshAmmo p)
+        private void OnPacketPlayerRefreshAmmo(ref PlayerRefreshAmmo p)
         {
             byte index = p.Index;
 
@@ -501,7 +535,25 @@ namespace Jazz2.Game
             });
         }
 
-        private void OnPlayerWarpToPosition(ref PlayerWarpToPosition p)
+        private void OnPacketPlayerRefreshWeaponUpgrades(ref PlayerRefreshWeaponUpgrades p)
+        {
+            byte index = p.Index;
+
+            if (p.Index != localPlayerIndex) {
+                return;
+            }
+
+            WeaponType weaponType = p.WeaponType;
+            byte upgrades = p.Upgrades;
+
+            Await.NextAfterUpdate().OnCompleted(() => {
+                if (players.Count > 0) {
+                    players[0].WeaponUpgrades[(int)weaponType] = upgrades;
+                }
+            });
+        }
+
+        private void OnPacketPlayerWarpToPosition(ref PlayerWarpToPosition p)
         {
             byte index = p.Index;
 
@@ -519,14 +571,91 @@ namespace Jazz2.Game
             });
         }
 
-        private void OnAdvanceTileAnimation(ref AdvanceTileAnimation p)
+        private void OnPacketPlayerSetDizzyTime(ref PlayerSetDizzyTime p)
+        {
+            byte index = p.Index;
+
+            if (p.Index != localPlayerIndex) {
+                return;
+            }
+
+            float time = p.Time;
+
+            Await.NextAfterUpdate().OnCompleted(() => {
+                if (players.Count > 0) {
+                    players[0].SetDizzyTime(time);
+                }
+            });
+        }
+
+        private void OnPacketPlayerSetModifier(ref PlayerSetModifier p)
+        {
+            byte index = p.Index;
+
+            if (p.Index != localPlayerIndex) {
+                return;
+            }
+
+            Player.Modifier modifier = p.Modifier;
+
+            Await.NextAfterUpdate().OnCompleted(() => {
+                if (players.Count > 0) {
+                    players[0].SetModifier(modifier);
+                }
+            });
+        }
+
+
+        private void OnPacketPlayerSetLap(ref PlayerSetLap p)
+        {
+            // ToDo
+            /*byte index = p.Index;
+
+            if (p.Index != localPlayerIndex) {
+                return;
+            }*/
+        }
+
+        private void OnPacketPlayerSetInvulnerability(ref PlayerSetInvulnerability p)
+        {
+            byte index = p.Index;
+
+            if (p.Index != localPlayerIndex) {
+                return;
+            }
+
+            float time = p.Time;
+            bool withCircleEffect = p.WithCircleEffect;
+
+            Await.NextAfterUpdate().OnCompleted(() => {
+                if (players.Count > 0) {
+                    players[0].SetInvulnerability(time, withCircleEffect);
+                }
+            });
+        }
+
+        private void OnPacketAdvanceTileAnimation(ref AdvanceTileAnimation p)
         {
             int tileX = p.TileX;
             int tileY = p.TileY;
             int amount = p.Amount;
 
             Await.NextAfterUpdate().OnCompleted(() => {
-                TileMap.AdvanceTileAnimationExternally(tileX, tileY, amount);
+                if (TileMap != null) {
+                    TileMap.AdvanceTileAnimationExternally(tileX, tileY, amount);
+                }
+            });
+        }
+
+        private void OnPacketSetTrigger(ref SetTrigger p)
+        {
+            ushort triggerID = p.TriggerID;
+            bool newState = p.NewState;
+
+            Await.NextAfterUpdate().OnCompleted(() => {
+                if (TileMap != null) {
+                    TileMap.SetTrigger(triggerID, newState);
+                }
             });
         }
     }

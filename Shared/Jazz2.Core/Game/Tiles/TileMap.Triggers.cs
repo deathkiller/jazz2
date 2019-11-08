@@ -29,6 +29,10 @@ namespace Jazz2.Game.Tiles
                     }
                 }
             }
+
+#if MULTIPLAYER && SERVER
+            ((LevelHandler)levelHandler).OnSetTrigger(triggerID, newState);
+#endif
         }
     }
 }

@@ -8,8 +8,8 @@ using Jazz2.Game;
 namespace Duality
 {
     /// <summary>
-	/// The type of a log message / entry.
-	/// </summary>
+    /// The type of a log message / entry.
+    /// </summary>
     public enum LogType
     {
         /// <summary>
@@ -17,17 +17,17 @@ namespace Duality
         /// </summary>
         Verbose,
         /// <summary>
-		/// Just a regular message. Nothing special. Neutrally informs about what's going on.
-		/// </summary>
+        /// Just a regular message. Nothing special. Neutrally informs about what's going on.
+        /// </summary>
         Info,
         /// <summary>
-		/// A warning message. It informs about unexpected data or behaviour that might not have caused any errors yet, but can lead to them.
-		/// It might also be used for expected errors from which Duality is likely to recover.
-		/// </summary>
+        /// A warning message. It informs about unexpected data or behaviour that might not have caused any errors yet, but can lead to them.
+        /// It might also be used for expected errors from which Duality is likely to recover.
+        /// </summary>
         Warning,
         /// <summary>
-		/// An error message. It informs about an unexpected and/or critical error that has occurred.
-		/// </summary>
+        /// An error message. It informs about an unexpected and/or critical error that has occurred.
+        /// </summary>
         Error
     }
 
@@ -297,12 +297,14 @@ namespace Duality
             }
 
             lock (lastLogLines) {
-                bool highlight = IsHighlightLine(message);
-
-                // If we're writing the same kind of text again, "grey out" the repeating parts
                 int beginGreyLength = 0;
                 int endGreyLength = 0;
-                if (!highlight) {
+
+                bool highlight = IsHighlightLine(message);
+                bool hasLinks = message.Contains(" http://") || message.Contains(" https://");
+
+                // If we're writing the same kind of text again, "grey out" the repeating parts
+                if (!highlight && !hasLinks) {
                     for (int i = 0; i < lastLogLines.Length; i++) {
                         string lastLogLine = lastLogLines[i] ?? string.Empty;
                         beginGreyLength = Math.Max(beginGreyLength, GetEqualBeginChars(lastLogLine, message));
@@ -331,8 +333,39 @@ namespace Duality
                 }
 
                 // Bright main part
-                SetBrightConsoleColor(type, highlight);
-                Console.Write(message.Substring(beginGreyLength, message.Length - beginGreyLength - endGreyLength));
+                if (hasLinks) {
+                    int idx1 = 0;
+                    while (true) {
+                        int idx2 = message.IndexOf("://", idx1 + 3);
+                        if (idx2 == -1) {
+                            break;
+                        }
+
+
+                        int idx3 = message.LastIndexOf(' ', idx2);
+                        int idx4 = message.IndexOf(' ', idx2);
+
+                        SetBrightConsoleColor(type, highlight);
+                        Console.Write(message.Substring(idx1, idx3 - idx1 + 1));
+
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        for (int i = idx3 + 1; i < idx4; i++) {
+                            Console.Write(message[i]);
+                        }
+
+                        if (idx4 == -1) {
+                            break;
+                        }
+
+                        idx1 = idx4;
+                    }
+
+                    SetBrightConsoleColor(type, highlight);
+                    Console.Write(message.Substring(idx1));
+                } else {
+                    SetBrightConsoleColor(type, highlight);
+                    Console.Write(message.Substring(beginGreyLength, message.Length - beginGreyLength - endGreyLength));
+                }
 
                 // Dark ending
                 if (endGreyLength != 0) {

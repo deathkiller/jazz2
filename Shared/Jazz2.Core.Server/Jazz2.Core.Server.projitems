@@ -13,12 +13,15 @@
     <Compile Include="$(MSBuildThisFileDirectory)EventArgs\ClientStatusChangedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventArgs\DiscoveryRequestEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventArgs\MessageReceivedEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)GameServer.Connection.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)GameServer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)GameServer.Game.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)GameServer.PacketHandlers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Server\GameServer.Connection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Server\GameServer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Server\GameServer.Game.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Server\GameServer.PacketHandlers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\Components\ActorRenderer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\LevelHandler.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerConnection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Server\ServerConnection.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Server\" />
   </ItemGroup>
 </Project>

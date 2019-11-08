@@ -55,22 +55,30 @@ namespace Jazz2.Actors
         public void AddWeaponUpgrade(WeaponType weaponType, byte upgrade)
         {
             weaponUpgrades[(int)weaponType] |= upgrade;
+
+#if MULTIPLAYER && SERVER
+            ((LevelHandler)levelHandler).OnPlayerRefreshWeaponUpgrades(this, weaponType, weaponUpgrades[(int)weaponType]);
+#endif
         }
 
         public bool AddFastFire(int count)
         {
-            const int fastFireLimit = 9;
+            const int FastFireLimit = 9;
 
             int current = (weaponUpgrades[(int)WeaponType.Blaster] >> 1);
-            if (current >= fastFireLimit) {
+            if (current >= FastFireLimit) {
                 return false;
             }
 
-            current = MathF.Min(current + count, fastFireLimit);
+            current = MathF.Min(current + count, FastFireLimit);
 
             weaponUpgrades[(int)WeaponType.Blaster] = (byte)((weaponUpgrades[(int)WeaponType.Blaster] & 0x1) | (current << 1));
 
             PlaySound("PickupAmmo");
+
+#if MULTIPLAYER && SERVER
+            ((LevelHandler)levelHandler).OnPlayerRefreshWeaponUpgrades(this, WeaponType.Blaster, weaponUpgrades[(int)WeaponType.Blaster]);
+#endif
             return true;
         }
 
@@ -114,7 +122,9 @@ namespace Jazz2.Actors
                 renderer.AnimTime = 0f;
             }
 
-            if (!levelHandler.OverridePlayerFireWeapon(this, weaponType)) {
+            if (levelHandler.OverridePlayerFireWeapon(this, weaponType, out float cooldown)) {
+                weaponCooldown = cooldown;
+            } else {
                 short ammoDecrease = 100;
 
                 switch (weaponType) {
@@ -175,7 +185,19 @@ namespace Jazz2.Actors
             return true;
         }
 
-        private void GetFirePointAndAngle(out Vector3 initialPos, out Vector3 gunspotPos, out float angle)
+#if MULTIPLAYER && SERVER
+        public Vector3 LastInitialPos;
+        public Vector3 LastGunspotPos;
+        public float LastAngle;
+
+        public void GetFirePointAndAngle(out Vector3 initialPos, out Vector3 gunspotPos, out float angle)
+        {
+            initialPos = LastInitialPos;
+            gunspotPos = LastGunspotPos;
+            angle = LastAngle;
+        }
+#else
+        public void GetFirePointAndAngle(out Vector3 initialPos, out Vector3 gunspotPos, out float angle)
         {
             initialPos = Transform.Pos;
 
@@ -196,15 +218,16 @@ namespace Jazz2.Actors
 
                 if ((currentAnimationState & AnimState.Lookup) > 0) {
                     initialPos.X = gunspotPos.X;
-                    angle = MathF.PiOver2 * (IsFacingLeft ? 1 : -1);
+                    angle = (IsFacingLeft ? MathF.RadAngle90 : MathF.RadAngle270);
                 } else {
                     initialPos.Y = gunspotPos.Y;
                     angle = 0f;
                 }
             }
         }
+#endif
 
-        private void FireWeaponBlaster()
+            private void FireWeaponBlaster()
         {
             GetFirePointAndAngle(out Vector3 initialPos, out Vector3 gunspotPos, out float angle);
 
