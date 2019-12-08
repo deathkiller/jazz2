@@ -148,13 +148,13 @@ publish/
 
 # NuGet Packages
 *.nupkg
-# The packages folder can be ignored because of Package Restore
-#**/packages/*
-**/packages/**/*.xml
+# The Packages folder can be ignored because of Package Restore
+#**/Packages/*
+**/Packages/**/*.xml
 # except build/, which is used as an MSBuild target.
-!**/packages/build/
+!**/Packages/build/
 # Uncomment if necessary however generally it will be regenerated when needed
-#!**/packages/repositories.config
+#!**/Packages/repositories.config
 # NuGet v3's project.json files produces more ignoreable files
 *.nuget.props
 *.nuget.targets
