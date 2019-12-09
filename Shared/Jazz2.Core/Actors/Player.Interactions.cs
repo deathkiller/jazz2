@@ -69,6 +69,10 @@ namespace Jazz2.Actors
 
             gemsTimer = 120f;
             gemsPitch++;
+
+#if MULTIPLAYER && SERVER
+            ((LevelHandler)levelHandler).OnPlayerAddGems(this, count);
+#endif
         }
 
         public void ConsumeFood(bool isDrinkable)
@@ -95,10 +99,10 @@ namespace Jazz2.Actors
             return wasNotDizzy;
         }
 
-        public void ShowLevelText(string text)
+        public void ShowLevelText(string text, bool bigger)
         {
 #if !SERVER
-            attachedHud?.ShowLevelText(text);
+            attachedHud?.ShowLevelText(text, bigger);
 #endif
         }
 
@@ -129,6 +133,7 @@ namespace Jazz2.Actors
             }
 
             // Refresh animation state
+            currentSpecialMove = SpecialMoveType.None;
             currentAnimation = null;
             SetAnimation(currentAnimationState);
 
@@ -278,14 +283,28 @@ namespace Jazz2.Actors
             return true;
         }
 
-        public bool DisableControllableWithTimeout(float timeout)
+        public bool DisableControllable(float timeout)
         {
             if (!controllable) {
+                if (timeout <= 0f) {
+                    controllable = true;
+                    controllableTimeout = 0f;
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            if (timeout <= 0f) {
                 return false;
             }
 
             controllable = false;
-            controllableTimeout = timeout;
+            if (timeout == float.PositiveInfinity) {
+                controllableTimeout = 0f;
+            } else {
+                controllableTimeout = timeout;
+            }
 
             SetAnimation(AnimState.Idle);
             return true;

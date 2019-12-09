@@ -134,6 +134,7 @@ namespace Jazz2.Actors
         public Vector3 Speed => new Vector3(speedX, speedY, 0f);
         public Vector3 ExternalForce => new Vector3(externalForceX, externalForceY, 0f);
         public Vector3 InternalForce => new Vector3(0, internalForceY, 0f);
+        public bool IsVisible => (renderer != null && renderer.Active && !renderer.AnimHidden);
 
 #if MULTIPLAYER && SERVER
         public int Index;
@@ -162,6 +163,8 @@ namespace Jazz2.Actors
                     // ToDo: Workaround for refreshing of AABB
                     Transform.Pos = Transform.Pos;
                 }
+
+                CollisionFlags |= CollisionFlags.TransformChanged;
 
                 if (renderer != null) {
                     renderer.Flip = (isFacingLeft ? SpriteRenderer.FlipMode.Horizontal : SpriteRenderer.FlipMode.None);
@@ -1101,8 +1104,12 @@ namespace Jazz2.Actors
             if (availableSounds.TryGetValue(name, out SoundResource resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, this);
                 instance.Flags |= SoundInstanceFlags.GameplaySpecific;
+#if MULTIPLAYER && SERVER
+                instance.Volume = gain;
+#else
                 // ToDo: Hardcoded volume
                 instance.Volume = gain * SettingsCache.SfxVolume;
+#endif
                 instance.Pitch = pitch;
 
                 if (Transform.Pos.Y >= levelHandler.WaterLevel) {
@@ -1110,12 +1117,16 @@ namespace Jazz2.Actors
                     instance.Pitch *= 0.7f;
                 }
 
+#if MULTIPLAYER && SERVER
+                ((LevelHandler)levelHandler).OnActorPlaySound(this, name, default(Vector3), instance.Volume, instance.Pitch, instance.Lowpass);
+#endif
+
                 return instance;
             } else {
                 return null;
             }
 #else
-            return null;
+                return null;
 #endif
         }
 
@@ -1125,14 +1136,22 @@ namespace Jazz2.Actors
             if (availableSounds.TryGetValue(name, out SoundResource resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, pos);
                 instance.Flags |= SoundInstanceFlags.GameplaySpecific;
+#if MULTIPLAYER && SERVER
+                instance.Volume = gain;
+#else
                 // ToDo: Hardcoded volume
                 instance.Volume = gain * SettingsCache.SfxVolume;
+#endif
                 instance.Pitch = pitch;
 
                 if (Transform.Pos.Y >= levelHandler.WaterLevel) {
                     instance.Lowpass = 0.2f;
                     instance.Pitch *= 0.7f;
                 }
+
+#if MULTIPLAYER && SERVER
+                ((LevelHandler)levelHandler).OnActorPlaySound(this, name, pos, instance.Volume, instance.Pitch, instance.Lowpass);
+#endif
 
                 return instance;
             } else {

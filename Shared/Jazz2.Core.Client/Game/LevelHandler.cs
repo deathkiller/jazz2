@@ -179,7 +179,7 @@ namespace Jazz2.Game
                 // Setup all cameras
                 float relativeViewRange = (1f / players.Count);
                 for (int i = 0; i < players.Count; i++) {
-                    GameObject camera = new GameObject(/*"MainCamera " + i*/);
+                    GameObject camera = new GameObject();
                     Transform cameraTransform = camera.AddComponent<Transform>();
 
                     Camera cameraInner = camera.AddComponent<Camera>();
@@ -217,7 +217,7 @@ namespace Jazz2.Game
                     }
                 }
             } else {
-                GameObject camera = new GameObject(/*"MainCamera " + i*/);
+                GameObject camera = new GameObject();
                 Transform cameraTransform = camera.AddComponent<Transform>();
 
                 Camera cameraInner = camera.AddComponent<Camera>();
@@ -769,7 +769,7 @@ namespace Jazz2.Game
         public void BroadcastLevelText(string text)
         {
             foreach (Player player in players) {
-                player.ShowLevelText(text);
+                player.ShowLevelText(text, false);
             }
         }
 
@@ -793,6 +793,11 @@ namespace Jazz2.Game
             weaponCooldown = 0f;
             return false;
         }
+
+        /*public virtual bool OverridePlayerDrawHud(Hud hud, IDrawDevice device)
+        {
+            return false;
+        }*/
 
         // ToDo: Move this somewhere
         public enum WeatherType

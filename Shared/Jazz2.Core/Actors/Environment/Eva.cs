@@ -34,7 +34,7 @@ namespace Jazz2.Actors.Environment
         {
             switch (other) {
                 case Player player: {
-                    if (player.PlayerType == PlayerType.Frog && player.DisableControllableWithTimeout(160f)) {
+                    if (player.PlayerType == PlayerType.Frog && player.DisableControllable(160f)) {
                         SetTransition(AnimState.TransitionAttack, false, delegate {
                             player.MorphRevent();
 

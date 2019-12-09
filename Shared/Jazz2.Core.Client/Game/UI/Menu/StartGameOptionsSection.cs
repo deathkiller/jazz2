@@ -104,13 +104,13 @@ namespace Jazz2.Game.UI.Menu
                         spacing = 300f / availableCharacters;
                     }
 
-                    for (int j = 0; j < /*playerTypes.Length*/availableCharacters; j++) {
+                    for (int j = 0; j < availableCharacters; j++) {
                         float x = center.X - offset + j * spacing;
                         if (selectedPlayerType == j) {
                             api.DrawMaterial("MenuGlow", x, center.Y + 28f, Alignment.Center, ColorRgba.White.WithAlpha(0.2f), (playerTypes[j].Length + 3) * 0.4f, 2.2f);
 
                             api.DrawStringShadow(ref charOffset, playerTypes[j], x, center.Y + 28f, Alignment.Center,
-                                /*null*/playerColors[j], 0.9f, 0.4f, 0.55f, 0.55f, 8f, 0.9f);
+                               playerColors[j], 0.9f, 0.4f, 0.55f, 0.55f, 8f, 0.9f);
                         } else {
                             api.DrawString(ref charOffset, playerTypes[j], x, center.Y + 28f, Alignment.Center,
                                 ColorRgba.TransparentBlack, 0.8f, charSpacing: 0.9f);

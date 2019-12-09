@@ -9,13 +9,11 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using Duality;
 using Duality.Async;
-using Duality.IO;
 using Duality.Resources;
 using Jazz2.Actors;
 using Jazz2.Game;
 using Jazz2.Networking;
 using Jazz2.Networking.Packets.Server;
-using Jazz2.Storage.Content;
 using Lidgren.Network;
 
 namespace Jazz2.Server
@@ -40,13 +38,16 @@ namespace Jazz2.Server
             public string UserName;
             public long LastUpdateTime;
             public PlayerState State;
+            public PlayerType PlayerType;
 
             public int StatsDeaths;
             public int StatsKills;
             public int StatsHits;
+            public int StatsGems;
 
             public int CurrentLap;
             public double CurrentLapTime;
+            public int RacePosition;
 
             public Player ProxyActor;
         }
@@ -56,6 +57,9 @@ namespace Jazz2.Server
         private string currentLevel;
         private MultiplayerLevelType currentLevelType;
         private double levelStartTime;
+        private bool levelStarted;
+        private float countdown;
+        private int countdownNotify;
 
         private Dictionary<NetConnection, PlayerClient> players;
         public PlayerClient[] playersByIndex;
@@ -63,8 +67,16 @@ namespace Jazz2.Server
         private byte lastPlayerIndex;
         private bool playerSpawningEnabled = true;
         private byte playerHealth = 5;
+        private int raceLastPosition;
+        private int raceLastLap;
+
+        private int battleTotalKills = 10;
+        private int raceTotalLaps = 3;
+        private int treasureHuntTotalGems = 100;
 
         private int lastGameLoadMs;
+
+        public int RaceTotalLaps => raceTotalLaps;
 
         public bool IsPlayerSpawningEnabled
         {
@@ -99,7 +111,7 @@ namespace Jazz2.Server
                                 player.ProxyActor.OnActivated(new ActorActivationDetails {
                                     LevelHandler = levelHandler,
                                     Pos = pos,
-                                    Params = new[] { (ushort)MathF.Rnd.OneOf(new[] { PlayerType.Jazz, PlayerType.Spaz, PlayerType.Lori }), (ushort)0 }
+                                    Params = new[] { (ushort)player.PlayerType, (ushort)0 }
                                 });
                                 levelHandler.AddPlayer(player.ProxyActor);
                             } else {
@@ -114,10 +126,11 @@ namespace Jazz2.Server
 
                             Send(new CreateControllablePlayer {
                                 Index = player.Index,
-                                Type = player.ProxyActor.PlayerType,
+                                Type = player.PlayerType,
                                 Pos = pos,
-                                Health = playerHealth
-                            }, 10, pair.Key, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+                                Health = playerHealth,
+                                Controllable = levelStarted
+                            }, 11, pair.Key, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
 
                             playersWithLoadedLevel.Clear();
                             foreach (KeyValuePair<NetConnection, PlayerClient> pair2 in players) {
@@ -133,7 +146,7 @@ namespace Jazz2.Server
                             }
 
                             string metadataPath;
-                            switch (player.ProxyActor.PlayerType) {
+                            switch (player.PlayerType) {
                                 default:
                                 case PlayerType.Jazz:
                                     metadataPath = "Interactive/PlayerJazz";
@@ -195,7 +208,7 @@ namespace Jazz2.Server
                 int frameTime = (int)(((double)(sw.ElapsedTicks - prevTicks) / frequency) * 1000.0);
                 frameTime = Math.Max(0, frameTime);
 
-                if (frameTime > 60 && lastGameLoadMs < 60) {
+                if (levelStarted && frameTime > 60 && lastGameLoadMs < 60) {
                     Log.Write(LogType.Warning, "Server is overloaded (" + frameTime + " ms per update). For best performance this value should be lower than 30 ms.");
                 }
 
@@ -230,6 +243,49 @@ namespace Jazz2.Server
                     }
                 }
 
+                if (!levelStarted) {
+                    if (countdown <= 0f) {
+                        levelStarted = true;
+                        countdownNotify = 0;
+
+                        levelStartTime = NetTime.Now;
+
+                        SendToActivePlayers(new PlayerSetControllable {
+                            IsControllable = true
+                        }, 3, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+
+                        SendToActivePlayers(new ShowMessage {
+                            Flags = 0x01,
+                            Text = "\n\n\n\f[c:1]Go!"
+                        }, 24, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+                    } else if (countdown < countdownNotify) {
+                        countdownNotify = (int)Math.Ceiling(countdown);
+
+                        if (countdownNotify == 15) {
+                            SendToActivePlayers(new ShowMessage {
+                                Text = "\n\n\n\f[c:1]Game will start in 15 seconds!"
+                            }, 48, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+                        } else if (countdownNotify == 3) {
+                            SendToActivePlayers(new ShowMessage {
+                                Flags = 0x01,
+                                Text = "\n\n\n\f[c:4]3"
+                            }, 24, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+                        } else if (countdownNotify == 2) {
+                            SendToActivePlayers(new ShowMessage {
+                                Flags = 0x01,
+                                Text = "\n\n\n\f[c:3]2"
+                            }, 24, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+                        } else if (countdownNotify == 1) {
+                            SendToActivePlayers(new ShowMessage {
+                                Flags = 0x01,
+                                Text = "\n\n\n\f[c:2]1"
+                            }, 24, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+                        }
+                    }
+
+                    countdown -= Time.DeltaTime;
+                }
+
                 // Update all players
                 if (playerConnections.Count > 0) {
                     List<ActorBase> spawnedActors = levelHandler.SpawnedActors;
@@ -245,7 +301,7 @@ namespace Jazz2.Server
                         PlayerClient player = pair.Value;
                         m.Write((int)player.Index); // Player Index
 
-                        if (player.State != PlayerState.Spawned) {
+                        if (player.State != PlayerState.Spawned || !player.ProxyActor.IsVisible) {
                             m.Write((byte)0x00); // Flags - None
                             continue;
                         }
@@ -253,9 +309,9 @@ namespace Jazz2.Server
                         m.Write((byte)0x01); // Flags - Visible
 
                         Vector3 pos = player.ProxyActor.Transform.Pos;
-                        m.Write((ushort)pos.X);
-                        m.Write((ushort)pos.Y);
-                        m.Write((ushort)pos.Z);
+                        m.Write((ushort)(pos.X * 2.5f));
+                        m.Write((ushort)(pos.Y * 2.5f));
+                        m.Write((ushort)(pos.Z * 2.5f));
 
                         m.Write((bool)player.ProxyActor.IsFacingLeft);
                     }
@@ -269,15 +325,20 @@ namespace Jazz2.Server
 
                         m.Write((int)actor.Index); // Object Index
 
+                        if (!actor.IsVisible) {
+                            m.Write((byte)0x00); // Flags - None
+                            continue;
+                        }
+
                         if (actor.Transform.Scale > 0.95f && actor.Transform.Scale < 1.05f &&
                             actor.Transform.Angle > -0.04f && actor.Transform.Angle < 0.04f) {
 
                             m.Write((byte)0x01); // Flags - Visible
 
                             Vector3 pos = actor.Transform.Pos;
-                            m.Write((ushort)pos.X);
-                            m.Write((ushort)pos.Y);
-                            m.Write((ushort)pos.Z);
+                            m.Write((ushort)(pos.X * 2.5f));
+                            m.Write((ushort)(pos.Y * 2.5f));
+                            m.Write((ushort)(pos.Z * 2.5f));
 
                             m.Write((bool)actor.IsFacingLeft);
 
@@ -311,11 +372,16 @@ namespace Jazz2.Server
                 return false;
             }
 
-            IFileSystem levelPackage = new CompressedContent(path);
-
+            // This lock will pause main game loop until level is loaded
             lock (sync) {
                 currentLevel = levelName;
                 currentLevelType = levelType;
+                levelStarted = false;
+                levelStartTime = 0;
+                countdown = 600f;
+                countdownNotify = int.MaxValue;
+
+                raceLastPosition = 1;
 
                 // ToDo: Better parsing of levelName
                 int idx = currentLevel.IndexOf('/');
@@ -327,8 +393,10 @@ namespace Jazz2.Server
                 foreach (var player in players) {
                     player.Value.State = PlayerState.NotReady;
                     player.Value.ProxyActor = null;
+
                     player.Value.CurrentLap = 0;
                     player.Value.CurrentLapTime = 0;
+                    player.Value.RacePosition = 0;
 
                     player.Value.StatsDeaths = 0;
                     player.Value.StatsKills = 0;
@@ -349,15 +417,13 @@ namespace Jazz2.Server
                 // Level is loaded on server, send request to players to load the level too
                 foreach (var player in players) {
                     Send(new LoadLevel {
+                        ServerName = serverName,
                         LevelName = currentLevel,
                         LevelType = currentLevelType,
                         AssignedPlayerIndex = player.Value.Index
                     }, 64, player.Key, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                 }
             }
-
-            // ToDo: Do this better
-            levelStartTime = NetTime.Now;
 
             return true;
         }
@@ -377,7 +443,7 @@ namespace Jazz2.Server
                     player.ProxyActor.OnActivated(new ActorActivationDetails {
                         LevelHandler = levelHandler,
                         Pos = pos,
-                        Params = new[] { (ushort)MathF.Rnd.OneOf(new[] { PlayerType.Jazz, PlayerType.Spaz, PlayerType.Lori }), (ushort)0 }
+                        Params = new[] { (ushort)player.PlayerType, (ushort)0 }
                     });
                     levelHandler.AddPlayer(player.ProxyActor);
                 } else {
@@ -392,10 +458,11 @@ namespace Jazz2.Server
 
                 Send(new CreateControllablePlayer {
                     Index = player.Index,
-                    Type = player.ProxyActor.PlayerType,
+                    Type = player.PlayerType,
                     Pos = pos,
-                    Health = playerHealth
-                }, 10, player.Connection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+                    Health = playerHealth,
+                    Controllable = levelStarted
+                }, 11, player.Connection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
             }
 
 #if DEBUG
@@ -405,6 +472,10 @@ namespace Jazz2.Server
 
         public void HandlePlayerDied(int playerIndex)
         {
+            if (!levelStarted) {
+                return;
+            }
+
             PlayerClient player = playersByIndex[playerIndex];
             if (player == null) {
                 return;
@@ -413,67 +484,195 @@ namespace Jazz2.Server
             player.State = PlayerState.Dead;
             player.StatsDeaths++;
 
-            /*SendToActivePlayers(new RemotePlayerDied {
-                Index = player.Index
-            }, 2, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);*/
+            Send(new PlayerSetStats {
+                Index = (byte)player.Index,
+                Kills = player.StatsKills,
+                Deaths = player.StatsDeaths
+            }, 6, player.Connection, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
 
             Send(new ShowMessage {
                 Text = "You died " + player.StatsDeaths + " times!"
             }, 24, player.Connection, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
 
 #if DEBUG
-            Log.Write(LogType.Verbose, "[Dev] Player #" + player.Index + " died");
+            Log.Write(LogType.Verbose, "Player #" + player.Index + " died");
 #endif
-
-
         }
 
-        public void IncrementPlayerHits(int playerIndex, bool incrementKills)
+        public void IncrementPlayerHits(int victimIndex, int attackerIndex, bool incrementKills)
         {
-            PlayerClient player = playersByIndex[playerIndex];
-            if (player == null) {
+            if (!levelStarted) {
                 return;
             }
 
-            player.StatsHits++;
+            PlayerClient victim = playersByIndex[victimIndex];
+            PlayerClient attacker = playersByIndex[attackerIndex];
+            if (victim == null || attacker == null) {
+                return;
+            }
+
+            attacker.StatsHits++;
 
             if (incrementKills) {
-                player.StatsKills++;
+                attacker.StatsKills++;
 
-                Send(new ShowMessage {
-                    Text = "You killed " + player.StatsKills + " players!"
-                }, 24, player.Connection, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+                Send(new PlayerSetStats {
+                    Index = (byte)attacker.Index,
+                    Kills = attacker.StatsKills,
+                    Deaths = attacker.StatsDeaths
+                }, 6, attacker.Connection, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+
+                if (currentLevelType == MultiplayerLevelType.Battle && attacker.StatsKills >= battleTotalKills) {
+                    // Player won, stop the battle
+                    SendToActivePlayers(new PlayerSetControllable {
+                        IsControllable = false
+                    }, 3, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+
+                    Send(new ShowMessage {
+                        Flags = 0x01,
+                        Text = "\n\n\n\f[c:1]Winner!\n\n\f[s:70]You killed " + attacker.StatsKills + " players."
+                    }, 72, attacker.Connection, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+
+#if DEBUG
+                    Log.Write(LogType.Info, "Player #" + attacker.Index + " won (killed " + attacker.StatsKills + " players in " + TimeSpan.FromSeconds(NetTime.Now - levelStartTime) + ")");
+#endif
+                } else {
+                    Send(new ShowMessage {
+                        Text = "You killed " + attacker.StatsKills + " players!"
+                    }, 24, attacker.Connection, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+                }
             }
         }
 
-        public void IncrementPlayerLap(int playerIndex, out int currentLap)
+        public void IncrementPlayerLaps(int playerIndex)
         {
+            if (!levelStarted) {
+                return;
+            }
+
             PlayerClient player = playersByIndex[playerIndex];
             if (player == null) {
-                currentLap = -1;
                 return;
             }
 
             double now = NetTime.Now;
-            if (player.CurrentLapTime > now - 15) {
-                currentLap = -1;
+            if (player.CurrentLapTime > now - 10) {
+                // Lap cannot be shorter than 10 seconds
                 return;
             }
 
             player.CurrentLapTime = now;
             player.CurrentLap++;
 
-            currentLap = player.CurrentLap;
-
             // Number of laps is used only in Race mode
             if (currentLevelType == MultiplayerLevelType.Race) {
-                Send(new ShowMessage {
-                    Text = "You completed " + currentLap + " laps!"
-                }, 24, player.Connection, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+                SendToActivePlayers(new PlayerSetLaps {
+                    Index = (byte)player.Index,
+                    Laps = player.CurrentLap,
+                    LapsTotal = raceTotalLaps
+                }, 4, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+
+                bool isNewLap;
+                if (raceLastLap < player.CurrentLap) {
+                    raceLastLap = player.CurrentLap;
+                    isNewLap = true;
+                } else {
+                    isNewLap = false;
+                }
+
+                if (player.CurrentLap >= raceTotalLaps) {
+                    // Player finished all laps
+                    lock (sync) {
+                        player.RacePosition = raceLastPosition;
+                        raceLastPosition++;
+
+                        string placeString;
+                        switch (player.RacePosition) {
+                            case 1: placeString = "first"; break;
+                            case 2: placeString = "second"; break;
+                            case 3: placeString = "third"; break;
+                            default: placeString = player.RacePosition + "."; break;
+                        }
+
+                        Send(new PlayerSetControllable {
+                            IsControllable = false
+                        }, 3, player.Connection, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+
+                        Send(new ShowMessage {
+                            Flags = 0x01,
+                            Text = "\n\n\n\f[c:1]Finish!\n\n\f[s:70]You won the \f[c:2]" + placeString + "\f[c:1] place."
+                        }, 72, player.Connection, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
 
 #if DEBUG
-                Log.Write(LogType.Verbose, "Player #" + player.Index + " completed " + currentLap + " laps in " + TimeSpan.FromSeconds(player.CurrentLapTime - levelStartTime));
+                        Log.Write(LogType.Verbose, "Player #" + player.Index + " won the " + placeString + " place (completed all laps in " + TimeSpan.FromSeconds(player.CurrentLapTime - levelStartTime) + ")");
 #endif
+
+                        bool allFinished = true;
+                        foreach (var pair in players) {
+                            if (pair.Value.State == PlayerState.Spawned && pair.Value.CurrentLap < raceTotalLaps) {
+                                allFinished = false;
+                                break;
+                            }
+                        }
+
+                        if (allFinished) {
+#if DEBUG
+                            Log.Write(LogType.Info, "All players finished!");
+#endif
+                        }
+                    }
+                } else {
+                    Send(new ShowMessage {
+                        Text = "You completed " + player.CurrentLap + " laps!"
+                    }, 24, player.Connection, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+
+#if DEBUG
+                    Log.Write(LogType.Verbose, "Player #" + player.Index + " completed " + player.CurrentLap + " laps in " + TimeSpan.FromSeconds(player.CurrentLapTime - levelStartTime));
+#endif
+
+                    if (isNewLap) {
+                        levelHandler.RevertTileMapIfEmpty();
+                    }
+                }
+            }
+        }
+
+        public void IncrementPlayerGems(int playerIndex, int count)
+        {
+            if (!levelStarted) {
+                return;
+            }
+
+            PlayerClient player = playersByIndex[playerIndex];
+            if (player == null) {
+                return;
+            }
+
+            player.StatsGems += count;
+
+            // Number of laps is used only in Treasure Hunt mode
+            if (currentLevelType == MultiplayerLevelType.TreasureHunt) {
+                SendToActivePlayers(new PlayerSetLaps {
+                    Index = (byte)player.Index,
+                    Laps = player.StatsGems,
+                    LapsTotal = treasureHuntTotalGems
+                }, 4, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+
+                if (player.StatsGems >= treasureHuntTotalGems) {
+                    // Player collected all gems
+                    SendToActivePlayers(new PlayerSetControllable {
+                        IsControllable = false
+                    }, 3, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+
+                    Send(new ShowMessage {
+                        Flags = 0x01,
+                        Text = "\n\n\n\f[c:1]Winner!\n\n\f[s:70]You collected " + player.StatsGems + " gems."
+                    }, 72, player.Connection, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+
+#if DEBUG
+                    Log.Write(LogType.Verbose, "Player #" + player.Index + " collected all gems in " + TimeSpan.FromSeconds(NetTime.Now - levelStartTime));
+#endif
+                }
             }
         }
     }

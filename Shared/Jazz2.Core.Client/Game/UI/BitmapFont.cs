@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -22,7 +21,9 @@ namespace Jazz2.Game.UI
             new ColorRgba(0.25f, 0.45f, 0.3f, 0.5f),
             new ColorRgba(0.7f, 0.42f, 0.7f, 0.5f),
             new ColorRgba(0.44f, 0.44f, 0.8f, 0.5f),
-            new ColorRgba(0.54f, 0.54f, 0.54f, 0.5f)
+            new ColorRgba(0.54f, 0.54f, 0.54f, 0.5f),
+            new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f),
+            new ColorRgba(0.56f, 0.50f, 0.42f, 0.5f),
         };
 
         private ContentRef<Material> materialPlain, materialColor;
@@ -129,6 +130,8 @@ namespace Jazz2.Game.UI
 
         public unsafe void DrawString(ref int charOffset, string text, float x, float y, Alignment alignment, ColorRgba? color = null, float scale = 1f, float angleOffset = 0f, float varianceX = 4f, float varianceY = 4f, float speed = 4f, float charSpacing = 1f, float lineSpacing = 1f)
         {
+            const int MaxColorizeIndex = 7;
+
             if (string.IsNullOrEmpty(text)) {
                 return;
             }
@@ -299,7 +302,7 @@ namespace Jazz2.Game.UI
 
                 if (uvRect.W > 0 && uvRect.H > 0) {
                     if (colorize) {
-                        mainColor = colors[charOffset % colors.Length];
+                        mainColor = colors[charOffset % MaxColorizeIndex];
                     }
 
                     Vector3 pos = new Vector3(originPos);

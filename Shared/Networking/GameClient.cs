@@ -17,7 +17,7 @@ namespace Jazz2.Game
         private NetClient client;
         private Thread threadUpdate;
 
-        private Dictionary<byte, Action<NetIncomingMessage>> callbacks;
+        private Action<NetIncomingMessage>[] callbacks;
 
 #if DEBUG
         public int DownloadPacketBytes, UploadPacketBytes;
@@ -40,7 +40,7 @@ namespace Jazz2.Game
             this.clientIdentifier = clientIdentifier;
             this.userName = userName;
 
-            callbacks = new Dictionary<byte, Action<NetIncomingMessage>>();
+            callbacks = new Action<NetIncomingMessage>[byte.MaxValue + 1];
 
             NetPeerConfiguration config = new NetPeerConfiguration(appId);
 #if NETWORK_DEBUG
@@ -136,12 +136,12 @@ namespace Jazz2.Game
                             if (type == SpecialPacketTypes.UpdateAllActors) {
                                 OnUpdateAllActors?.Invoke(msg);
                             } else {
-                                Action<NetIncomingMessage> callback;
-                                if (callbacks.TryGetValue(type, out callback)) {
+                                Action<NetIncomingMessage> callback = callbacks[type];
+                                if (callback != null) {
                                     callback(msg);
                                 } else {
 #if DEBUG
-                                    Log.Write(LogType.Info, "[Dev] Unknown packet type (0x" + type.ToString("X") + ") received");
+                                    Log.Write(LogType.Verbose, "Unknown packet type (0x" + type.ToString("X") + ") received");
 #endif
                                 }
                             }
@@ -183,7 +183,7 @@ namespace Jazz2.Game
             client = null;
 
 #if DEBUG
-            Log.Write(LogType.Verbose, "[Dev] Thread OnHandleMessagesThread() exited");
+            Log.Write(LogType.Verbose, "Thread OnHandleMessagesThread() exited");
 #endif
         }
 
@@ -201,7 +201,7 @@ namespace Jazz2.Game
 
 #if DEBUG
             if (msg.LengthBytes > capacity) {
-                Log.Write(LogType.Warning, "[Dev] Packet " + typeof(T).Name + " has underestimated capacity (" + msg.LengthBytes + "/" + capacity + ")");
+                Log.Write(LogType.Warning, "Packet " + typeof(T).Name + " has underestimated capacity (" + msg.LengthBytes + "/" + capacity + ")");
             }
 #endif
 
@@ -225,7 +225,7 @@ namespace Jazz2.Game
         {
             byte type = (new T().Type);
 #if DEBUG
-            if (callbacks.ContainsKey(type)) {
+            if (callbacks[type] != null) {
                 throw new InvalidOperationException("Packet callback with this type was already registered");
             }
 #endif
@@ -235,7 +235,7 @@ namespace Jazz2.Game
         public void RemoveCallback<T>() where T : struct, IServerPacket
         {
             byte type = (new T().Type);
-            callbacks.Remove(type);
+            callbacks[type] = null;
         }
 
         private static void ProcessCallback<T>(NetIncomingMessage msg, PacketCallback<T> callback) where T : struct, IServerPacket

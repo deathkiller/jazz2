@@ -287,7 +287,7 @@ namespace Jazz2.Game.Collisions
                 if (AABB.TestOverlap(ref node.AABB, ref aabb)) {
                     if (node.IsLeaf()) {
                         bool proceed = callback(nodes[nodeId].UserData);
-                        if (proceed == false) {
+                        if (!proceed) {
                             return;
                         }
                     } else {

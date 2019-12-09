@@ -65,10 +65,10 @@ namespace Jazz2.Actors
         private int playerIndex;
         private bool isActivelyPushing, wasActivelyPushing;
         private bool controllable = true;
+        private bool controllableExternal = true;
+        private float controllableTimeout;
 
         private bool wasUpPressed, wasDownPressed, wasJumpPressed, wasFirePressed;
-
-        private float controllableTimeout;
 
         private PlayerType playerType, playerTypeOriginal;
         private SpecialMoveType currentSpecialMove;
@@ -119,6 +119,12 @@ namespace Jazz2.Actors
         public bool CanBreakSolidObjects => (currentSpecialMove != SpecialMoveType.None || sugarRushLeft > 0f);
 
         public bool InWater => inWater;
+
+        public bool IsControllableExternal
+        {
+            get => controllableExternal;
+            set => controllableExternal = value;
+        }
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
@@ -433,6 +439,8 @@ namespace Jazz2.Actors
                         controllableTimeout = 4f;
                         lastPoleTime = 10f;
                     }
+                } else {
+                    controllable = false;
                 }
             }
 
@@ -602,7 +610,7 @@ namespace Jazz2.Actors
             // Move
             if (keepRunningTime <= 0f) {
 #if !SERVER
-                bool canWalk = (controllable && !isLifting && suspendType != SuspendType.SwingingVine &&
+                bool canWalk = (controllable && controllableExternal && !isLifting && suspendType != SuspendType.SwingingVine &&
                     (playerType != PlayerType.Frog || !ControlScheme.PlayerActionPressed(playerIndex, PlayerActions.Fire)));
 
                 float playerMovement = ControlScheme.PlayerHorizontalMovement(playerIndex);
@@ -683,17 +691,17 @@ namespace Jazz2.Actors
                 //coins += 5;
                 controllable = true;
             } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.U)) {
-                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Ammo");
+                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Ammo", false);
 
                 for (int i = 0; i < weaponAmmo.Length; i++) {
                     AddAmmo((WeaponType)i, short.MaxValue);
                 }
             } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.I)) {
-                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Sugar Rush");
+                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Sugar Rush", false);
 
                 BeginSugarRush();
             } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.O)) {
-                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add all PowerUps");
+                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add all PowerUps", false);
 
                 for (int i = 0; i < weaponAmmo.Length; i++) {
                     AddWeaponUpgrade((WeaponType)i, 0x1);
@@ -702,7 +710,7 @@ namespace Jazz2.Actors
 #endif
 
 #if !SERVER
-            if (!controllable) {
+            if (!controllable || !controllableExternal) {
                 // Weapons are automatically disabled if player is not controllable
                 if (weaponToasterSound != null) {
                     weaponToasterSound.Stop();
@@ -765,15 +773,15 @@ namespace Jazz2.Actors
                             wasDownPressed = true;
 
                             controllable = false;
-                            speedX = 0;
-                            speedY = 0;
-                            internalForceY = 0;
-                            externalForceY = 0;
+                            speedX = 0f;
+                            speedY = 0f;
+                            internalForceY = 0f;
+                            externalForceY = 0f;
                             CollisionFlags &= ~CollisionFlags.ApplyGravitation;
                             currentSpecialMove = SpecialMoveType.Buttstomp;
                             SetAnimation(AnimState.Buttstomp);
                             SetPlayerTransition(AnimState.TransitionButtstompStart, true, false, SpecialMoveType.Buttstomp, delegate {
-                                speedY = 9;
+                                speedY = 9f;
                                 CollisionFlags |= CollisionFlags.ApplyGravitation;
                                 SetAnimation(AnimState.Buttstomp);
                                 PlaySound("Buttstomp", 1f, 0.8f);
@@ -932,8 +940,8 @@ namespace Jazz2.Actors
                     }
                 } else {
                     if (!wasJumpPressed) {
-                        if (internalForceY > 0) {
-                            internalForceY = 0;
+                        if (internalForceY > 0f) {
+                            internalForceY = 0f;
                         }
                     } else {
                         wasJumpPressed = false;
@@ -1131,79 +1139,125 @@ namespace Jazz2.Actors
 
         protected override bool OnPerish(ActorBase collider)
         {
-            if (currentTransitionState != AnimState.TransitionDeath) {
-                isInvulnerable = true;
-
-                ForceCancelTransition();
-
-                SetPlayerTransition(AnimState.TransitionDeath, false, true, SpecialMoveType.None, delegate {
-                    if (lives > 1 || levelHandler.Difficulty == GameDifficulty.Multiplayer) {
-                        if (lives > 1) {
-                            lives--;
-                        }
-
-                        // Remove fast fires
-                        weaponUpgrades[(int)WeaponType.Blaster] = (byte)(weaponUpgrades[(int)WeaponType.Blaster] & 0x1);
-
-                        canJump = false;
-                        speedX = 0;
-                        speedY = 0;
-                        externalForceX = 0f;
-                        externalForceY = 0f;
-                        internalForceY = 0f;
-                        fireFramesLeft = 0f;
-                        copterFramesLeft = 0f;
-                        pushFramesLeft = 0f;
-                        weaponCooldown = 0f;
-                        controllable = true;
-                        inShallowWater = -1;
-                        SetModifier(Modifier.None);
-
-                        // Spawn corpse
-                        PlayerCorpse corpse = new PlayerCorpse();
-                        corpse.OnActivated(new ActorActivationDetails {
-                            LevelHandler = levelHandler,
-                            Pos = Transform.Pos,
-                            Params = new[] { (ushort)playerType, (ushort)(IsFacingLeft ? 1 : 0) }
-                        });
-                        levelHandler.AddActor(corpse);
-
-                        SetAnimation(AnimState.Idle);
-
-                        if (levelHandler.HandlePlayerDied(this)) {
-                            // Reset health
-                            health = maxHealth;
-
-                            // Player can be respawned immediately
-                            isInvulnerable = false;
-                            CollisionFlags |= CollisionFlags.ApplyGravitation;
-
-                            // Return to the last save point
-                            MoveInstantly(checkpointPos, MoveType.Absolute, true);
-                            levelHandler.AmbientLightCurrent = checkpointLight;
-                            levelHandler.LimitCameraView(0, 0);
-                            levelHandler.WarpCameraToTarget(this);
-
-                            if (levelHandler.Difficulty != GameDifficulty.Multiplayer) {
-                                levelHandler.EventMap.RollbackToCheckpoint();
-                            }
-
-                        } else {
-                            // Respawn is delayed
-                            controllable = false;
-                            renderer.Active = false;
-
-                            // ToDo: Turn off collisions
-                        }
-                    } else {
-                        controllable = false;
-                        renderer.Active = false;
-
-                        levelHandler.HandleGameOver();
-                    }
-                });
+            if (currentTransitionState == AnimState.TransitionDeath) {
+                return false;
             }
+
+            isInvulnerable = true;
+
+            ForceCancelTransition();
+
+            if (playerType == PlayerType.Frog) {
+                playerType = playerTypeOriginal;
+
+                // Load original metadata
+                switch (playerType) {
+                    case PlayerType.Jazz:
+                        RequestMetadata("Interactive/PlayerJazz");
+                        break;
+                    case PlayerType.Spaz:
+                        RequestMetadata("Interactive/PlayerSpaz");
+                        break;
+                    case PlayerType.Lori:
+                        RequestMetadata("Interactive/PlayerLori");
+                        break;
+                    case PlayerType.Frog:
+                        RequestMetadata("Interactive/PlayerFrog");
+                        break;
+                }
+
+                // Refresh animation state
+                currentSpecialMove = SpecialMoveType.None;
+                currentAnimation = null;
+                SetAnimation(currentAnimationState);
+
+                // Morph to original type with animation and then trigger death
+                SetPlayerTransition(AnimState.TransitionFromFrog, false, true, SpecialMoveType.None, delegate {
+                    OnPerishInner();
+                });
+            } else {
+                OnPerishInner();
+            }
+
             return false;
+        }
+
+        private void OnPerishInner()
+        {
+            SetPlayerTransition(AnimState.TransitionDeath, false, true, SpecialMoveType.None, delegate {
+                if (lives > 1 || levelHandler.Difficulty == GameDifficulty.Multiplayer) {
+                    if (lives > 1) {
+                        lives--;
+                    }
+
+                    // Remove fast fires
+                    weaponUpgrades[(int)WeaponType.Blaster] = (byte)(weaponUpgrades[(int)WeaponType.Blaster] & 0x1);
+
+                    canJump = false;
+                    speedX = 0;
+                    speedY = 0;
+                    externalForceX = 0f;
+                    externalForceY = 0f;
+                    internalForceY = 0f;
+                    fireFramesLeft = 0f;
+                    copterFramesLeft = 0f;
+                    pushFramesLeft = 0f;
+                    weaponCooldown = 0f;
+                    controllable = true;
+                    inShallowWater = -1;
+                    SetModifier(Modifier.None);
+
+#if MULTIPLAYER && !SERVER
+                    if (!(levelHandler is MultiplayerLevelHandler)) {
+#endif
+                    // Spawn corpse
+                    PlayerCorpse corpse = new PlayerCorpse();
+                    corpse.OnActivated(new ActorActivationDetails {
+                        LevelHandler = levelHandler,
+                        Pos = Transform.Pos,
+                        Params = new[] { (ushort)playerType, (ushort)(IsFacingLeft ? 1 : 0) }
+                    });
+                    levelHandler.AddActor(corpse);
+#if MULTIPLAYER && !SERVER
+                    }
+#endif
+
+                    SetAnimation(AnimState.Idle);
+
+                    if (levelHandler.HandlePlayerDied(this)) {
+                        // Reset health
+                        health = maxHealth;
+
+                        // Player can be respawned immediately
+                        isInvulnerable = false;
+                        CollisionFlags |= CollisionFlags.ApplyGravitation;
+
+                        // Return to the last save point
+                        MoveInstantly(checkpointPos, MoveType.Absolute, true);
+                        levelHandler.AmbientLightCurrent = checkpointLight;
+                        levelHandler.LimitCameraView(0, 0);
+                        levelHandler.WarpCameraToTarget(this);
+
+                        if (levelHandler.Difficulty != GameDifficulty.Multiplayer) {
+                            levelHandler.EventMap.RollbackToCheckpoint();
+                        }
+
+                    } else {
+                        // Respawn is delayed
+                        controllable = false;
+                        renderer.AnimHidden = true;
+
+                        // ToDo: Turn off collisions
+                    }
+                } else {
+                    controllable = false;
+                    renderer.AnimHidden = true;
+
+                    levelHandler.HandleGameOver();
+                }
+            });
+
+            PlaySound("Die", 1.3f);
         }
 
 #if !SERVER
@@ -1224,145 +1278,147 @@ namespace Jazz2.Actors
 
         private void UpdateAnimation(float timeMult)
         {
-            if (controllable) {
-                float posX = Transform.Pos.X;
+            if (!controllable) {
+                return;
+            }
 
-                AnimState oldState = currentAnimationState;
-                AnimState newState;
-                if (inWater) {
-                    newState = AnimState.Swim;
-                } else if (activeModifier == Modifier.Airboard) {
-                    newState = AnimState.Airboard;
-                } else if (activeModifier == Modifier.Copter) {
-                    newState = AnimState.Copter;
-                } else if (activeModifier == Modifier.LizardCopter) {
-                    newState = AnimState.Hook;
-                } else if (suspendType == SuspendType.SwingingVine) {
-                    newState = AnimState.Swing;
-                } else if (isLifting) {
-                    newState = AnimState.Lift;
-                } else if (canJump && isActivelyPushing && pushFramesLeft > 0f) {
-                    newState = AnimState.Push;
+            float posX = Transform.Pos.X;
+
+            AnimState oldState = currentAnimationState;
+            AnimState newState;
+            if (inWater) {
+                newState = AnimState.Swim;
+            } else if (activeModifier == Modifier.Airboard) {
+                newState = AnimState.Airboard;
+            } else if (activeModifier == Modifier.Copter) {
+                newState = AnimState.Copter;
+            } else if (activeModifier == Modifier.LizardCopter) {
+                newState = AnimState.Hook;
+            } else if (suspendType == SuspendType.SwingingVine) {
+                newState = AnimState.Swing;
+            } else if (isLifting) {
+                newState = AnimState.Lift;
+            } else if (canJump && isActivelyPushing && pushFramesLeft > 0f) {
+                newState = AnimState.Push;
+            } else {
+                // Only certain ones don't need to be preserved from earlier state, others should be set as expected
+                AnimState composite = unchecked(currentAnimationState & (AnimState)0xFFF83F60);
+
+                if (isActivelyPushing == wasActivelyPushing) {
+                    float absSpeedX = MathF.Abs(speedX);
+                    if (absSpeedX > MaxRunningSpeed) {
+                        composite |= AnimState.Dash;
+                    } else if (keepRunningTime > 0f) {
+                        composite |= AnimState.Run;
+                    } else if (absSpeedX > 0f) {
+                        composite |= AnimState.Walk;
+                    }
+
+                    if (inIdleTransition) {
+                        CancelTransition();
+                    }
+                }
+
+                if (fireFramesLeft > 0f) {
+                    composite |= AnimState.Shoot;
+                }
+
+                if (suspendType != SuspendType.None) {
+                    composite |= AnimState.Hook;
                 } else {
-                    // Only certain ones don't need to be preserved from earlier state, others should be set as expected
-                    AnimState composite = unchecked(currentAnimationState & (AnimState)0xFFF83F60);
-
-                    if (isActivelyPushing == wasActivelyPushing) {
-                        float absSpeedX = MathF.Abs(speedX);
-                        if (absSpeedX > MaxRunningSpeed) {
-                            composite |= AnimState.Dash;
-                        } else if (keepRunningTime > 0f) {
-                            composite |= AnimState.Run;
-                        } else if (absSpeedX > 0f) {
-                            composite |= AnimState.Walk;
+                    if (canJump) {
+                        // Grounded, no vertical speed
+                        if (dizzyTime > 0f) {
+                            composite |= AnimState.Dizzy;
+                        }
+                    } else if (speedY < -float.Epsilon) {
+                        // Jumping, ver. speed is negative
+                        if (isSpring) {
+                            composite |= AnimState.Spring;
+                        } else {
+                            composite |= AnimState.Jump;
                         }
 
-                        if (inIdleTransition) {
+                    } else if (isFreefall) {
+                        // Free falling, ver. speed is positive
+                        composite |= AnimState.Freefall;
+                        isSpring = false;
+                    } else {
+                        // Falling, ver. speed is positive
+                        composite |= AnimState.Fall;
+                        isSpring = false;
+                    }
+                }
+
+                newState = composite;
+            }
+
+            if (newState == AnimState.Idle) {
+                if (idleTime > 600f) {
+                    idleTime = 0f;
+
+                    if (currentTransitionState == AnimState.Idle) {
+                        SetPlayerTransition(AnimState.TransitionIdleBored, true, false, SpecialMoveType.None);
+                    }
+                } else {
+                    idleTime += timeMult;
+                }
+            } else {
+                idleTime = 0f;
+            }
+
+            SetAnimation(newState);
+
+            switch (oldState) {
+                case AnimState.Walk:
+                    if (newState == AnimState.Idle) {
+                        inIdleTransition = true;
+                        SetTransition(AnimState.TransitionRunToIdle, true, delegate {
+                            inIdleTransition = false;
+                        });
+                    } else if (newState == AnimState.Dash) {
+                        SetTransition(AnimState.TransitionRunToDash, true);
+                    }
+                    break;
+                case AnimState.Dash:
+                    if (newState == AnimState.Idle) {
+                        inIdleTransition = true;
+                        SetTransition(AnimState.TransitionDashToIdle, true, delegate {
+                            inIdleTransition = false;
+                            SetTransition(AnimState.TransitionRunToIdle, true);
+                        });
+                    }
+                    break;
+                case AnimState.Fall:
+                case AnimState.Freefall:
+                    if (newState == AnimState.Idle) {
+                        SetTransition(AnimState.TransitionFallToIdle, true);
+                    }
+                    break;
+                case AnimState.Idle:
+                    if (newState == AnimState.Jump) {
+                        SetTransition(AnimState.TransitionIdleToJump, true);
+                    } else if (!inLedgeTransition) {
+                        AABB aabbL = new AABB(AABBInner.LowerBound.X + 2, AABBInner.UpperBound.Y - 10, AABBInner.LowerBound.X + 4, AABBInner.UpperBound.Y + 28);
+                        AABB aabbR = new AABB(AABBInner.UpperBound.X - 4, AABBInner.UpperBound.Y - 10, AABBInner.UpperBound.X - 2, AABBInner.UpperBound.Y + 28);
+                        if (IsFacingLeft
+                            ? ( levelHandler.IsPositionEmpty(this, ref aabbL, true) && !levelHandler.IsPositionEmpty(this, ref aabbR, true))
+                            : (!levelHandler.IsPositionEmpty(this, ref aabbL, true) &&  levelHandler.IsPositionEmpty(this, ref aabbR, true))) {
+
+                            inLedgeTransition = true;
+                            // ToDo: Spaz's and Lori's animation should be continual
+                            SetTransition(AnimState.TransitionLedge, true);
+
+                            PlaySound("Ledge");
+                        }
+                    } else if (newState != AnimState.Idle) {
+                        inLedgeTransition = false;
+
+                        if (currentTransitionState == AnimState.TransitionLedge) {
                             CancelTransition();
                         }
                     }
-
-                    if (fireFramesLeft > 0f) {
-                        composite |= AnimState.Shoot;
-                    }
-
-                    if (suspendType != SuspendType.None) {
-                        composite |= AnimState.Hook;
-                    } else {
-                        if (canJump) {
-                            // Grounded, no vertical speed
-                            if (dizzyTime > 0f) {
-                                composite |= AnimState.Dizzy;
-                            }
-                        } else if (speedY < -float.Epsilon) {
-                            // Jumping, ver. speed is negative
-                            if (isSpring) {
-                                composite |= AnimState.Spring;
-                            } else {
-                                composite |= AnimState.Jump;
-                            }
-
-                        } else if (isFreefall) {
-                            // Free falling, ver. speed is positive
-                            composite |= AnimState.Freefall;
-                            isSpring = false;
-                        } else {
-                            // Falling, ver. speed is positive
-                            composite |= AnimState.Fall;
-                            isSpring = false;
-                        }
-                    }
-
-                    newState = composite;
-                }
-
-                if (newState == AnimState.Idle) {
-                    if (idleTime > 600f) {
-                        idleTime = 0f;
-
-                        if (currentTransitionState == AnimState.Idle) {
-                            SetPlayerTransition(AnimState.TransitionIdleBored, true, false, SpecialMoveType.None);
-                        }
-                    } else {
-                        idleTime += timeMult;
-                    }
-                } else {
-                    idleTime = 0f;
-                }
-
-                SetAnimation(newState);
-
-                switch (oldState) {
-                    case AnimState.Walk:
-                        if (newState == AnimState.Idle) {
-                            inIdleTransition = true;
-                            SetTransition(AnimState.TransitionRunToIdle, true, delegate {
-                                inIdleTransition = false;
-                            });
-                        } else if (newState == AnimState.Dash) {
-                            SetTransition(AnimState.TransitionRunToDash, true);
-                        }
-                        break;
-                    case AnimState.Dash:
-                        if (newState == AnimState.Idle) {
-                            inIdleTransition = true;
-                            SetTransition(AnimState.TransitionDashToIdle, true, delegate {
-                                inIdleTransition = false;
-                                SetTransition(AnimState.TransitionRunToIdle, true);
-                            });
-                        }
-                        break;
-                    case AnimState.Fall:
-                    case AnimState.Freefall:
-                        if (newState == AnimState.Idle) {
-                            SetTransition(AnimState.TransitionFallToIdle, true);
-                        }
-                        break;
-                    case AnimState.Idle:
-                        if (newState == AnimState.Jump) {
-                            SetTransition(AnimState.TransitionIdleToJump, true);
-                        } else if (!inLedgeTransition) {
-                            AABB aabbL = new AABB(AABBInner.LowerBound.X + 2, AABBInner.UpperBound.Y - 10, AABBInner.LowerBound.X + 4, AABBInner.UpperBound.Y + 28);
-                            AABB aabbR = new AABB(AABBInner.UpperBound.X - 4, AABBInner.UpperBound.Y - 10, AABBInner.UpperBound.X - 2, AABBInner.UpperBound.Y + 28);
-                            if (IsFacingLeft
-                                ? ( levelHandler.IsPositionEmpty(this, ref aabbL, true) && !levelHandler.IsPositionEmpty(this, ref aabbR, true))
-                                : (!levelHandler.IsPositionEmpty(this, ref aabbL, true) &&  levelHandler.IsPositionEmpty(this, ref aabbR, true))) {
-
-                                inLedgeTransition = true;
-                                // ToDo: Spaz's and Lori's animation should be continual
-                                SetTransition(AnimState.TransitionLedge, true);
-
-                                PlaySound("Ledge");
-                            }
-                        } else if (newState != AnimState.Idle) {
-                            inLedgeTransition = false;
-
-                            if (currentTransitionState == AnimState.TransitionLedge) {
-                                CancelTransition();
-                            }
-                        }
-                        break;
-                }
+                    break;
             }
         }
 
@@ -1372,7 +1428,7 @@ namespace Jazz2.Actors
                 pushFramesLeft -= timeMult;
             }
 
-            if (canJump && controllable && isActivelyPushing && MathF.Abs(speedX) > float.Epsilon) {
+            if (canJump && controllable && controllableExternal && isActivelyPushing && MathF.Abs(speedX) > float.Epsilon) {
                 AABB hitbox = AABBInner + new Vector2(speedX < 0 ? -2f : 2f, 0f);
                 if (!levelHandler.IsPositionEmpty(this, ref hitbox, false, out ActorBase collider)) {
                     SolidObjectBase solidObject = collider as SolidObjectBase;
@@ -1665,7 +1721,9 @@ namespace Jazz2.Actors
                                 WarpToPosition(c, p[1] != 0);
 
 #if MULTIPLAYER && SERVER
-                                ((LevelHandler)levelHandler).OnPlayerIncrementLap(this);
+                                if (p[2] != 0) {
+                                    ((LevelHandler)levelHandler).OnPlayerIncrementLaps(this);
+                                }
 #endif
                             }
                         }
@@ -1757,7 +1815,7 @@ namespace Jazz2.Actors
                     }
 #if !SERVER
                     if (!string.IsNullOrEmpty(text)) {
-                        attachedHud?.ShowLevelText(text);
+                        attachedHud?.ShowLevelText(text, false);
                     }
 #endif
                     if (p[2] != 0) {
@@ -1768,7 +1826,7 @@ namespace Jazz2.Actors
                 case EventType.AreaCallback: { // Function, Param, Vanish
 #if !SERVER
                     // ToDo: Call function #{p[0]}(sender, p[1]); implement level extensions
-                    attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:6]\n\n\n\nWARNING: Callbacks aren't implemented yet. (" + p[0] + ", " + p[1] + ")");
+                    attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:6]\n\n\n\nWARNING: Callbacks aren't implemented yet. (" + p[0] + ", " + p[1] + ")", false);
 #endif
                     if (p[2] != 0) {
                         levelHandler.EventMap.StoreTileEvent((int)(pos.X / 32), (int)(pos.Y / 32), EventType.Empty);
@@ -1981,7 +2039,7 @@ namespace Jazz2.Actors
 
                 case Spring spring: {
                     // Collide only with hitbox
-                    if (AABB.TestOverlap(ref spring.AABBInner, ref AABBInner)) {
+                    if (controllableExternal && AABB.TestOverlap(ref spring.AABBInner, ref AABBInner)) {
                         Vector2 force = spring.Activate();
                         OnSpringActivated(force, spring.KeepSpeedX, spring.KeepSpeedY);
 
@@ -2045,13 +2103,13 @@ namespace Jazz2.Actors
 #if MULTIPLAYER && SERVER
                 case Weapons.AmmoBase ammo: {
                     if (ammo.Owner != this) {
-                        if (!isInvulnerable && levelExiting == LevelExitingState.None) {
+                        // ToDo: Add read damage amount
+                        bool damageTaken = TakeDamage(1, 0f);
+                        ammo.DecreaseHealth(int.MaxValue, this);
+
+                        if (damageTaken) {
                             ((LevelHandler)levelHandler).OnPlayerHit(this, ammo.Owner, health <= 0);
                         }
-
-                        // ToDo: Add read damage amount
-                        TakeDamage(1, 0f);
-                        ammo.DecreaseHealth(int.MaxValue, this);
                     }
                     break;
                 }
@@ -2182,58 +2240,115 @@ namespace Jazz2.Actors
             return SetTransition(state, cancellable, callback);
         }
 
-        public void TakeDamage(int amount, float pushForce)
+        public bool TakeDamage(int amount, float pushForce)
         {
-            if (!isInvulnerable && levelExiting == LevelExitingState.None) {
-                // Cancel active climbing
-                if (currentTransitionState == AnimState.TransitionLedgeClimb) {
-                    ForceCancelTransition();
+            if (isInvulnerable || levelExiting != LevelExitingState.None) {
+                return false;
+            }
 
-                    MoveInstantly(new Vector2(IsFacingLeft ? 6f : -6f, 0f), MoveType.Relative, true);
+            // Cancel active climbing
+            if (currentTransitionState == AnimState.TransitionLedgeClimb) {
+                ForceCancelTransition();
+
+                MoveInstantly(new Vector2(IsFacingLeft ? 6f : -6f, 0f), MoveType.Relative, true);
+            }
+
+            DecreaseHealth(amount, null);
+
+            internalForceY = 0f;
+            speedX = 0f;
+            canJump = false;
+            isAttachedToPole = false;
+
+            fireFramesLeft = copterFramesLeft = pushFramesLeft = 0f;
+
+            if (activeBird != null) {
+                activeBird.FlyAway();
+                activeBird = null;
+            }
+
+            if (health > 0) {
+                externalForceX = pushForce;
+
+                if (!inWater && activeModifier == Modifier.None) {
+                    speedY = -6.5f;
+
+                    CollisionFlags |= CollisionFlags.ApplyGravitation;
+                    SetAnimation(AnimState.Idle);
+                } else {
+                    speedY = -1f;
                 }
+
+                SetPlayerTransition(AnimState.Hurt, false, true, SpecialMoveType.None, delegate {
+                    controllable = true;
+                });
+
+                if (levelHandler.Difficulty == GameDifficulty.Multiplayer) {
+                    SetInvulnerability(80f, false);
+                } else {
+                    SetInvulnerability(180f, false);
+                }
+
+                PlaySound("Hurt");
+            } else {
+                externalForceX = 0f;
+                speedY = 0f;
+
+                PlaySound("Die", 1.3f);
+            }
 
 #if MULTIPLAYER && SERVER
-                ((LevelHandler)levelHandler).OnPlayerTakeDamage(this, amount, pushForce);
+            ((LevelHandler)levelHandler).OnPlayerTakeDamage(this, pushForce);
 #endif
+            return true;
+        }
 
-                DecreaseHealth(amount, null);
+        public void TakeDamageFromServer(int healthAfter, float pushForce)
+        {
+            // Cancel active climbing
+            if (currentTransitionState == AnimState.TransitionLedgeClimb) {
+                ForceCancelTransition();
 
-                internalForceY = 0f;
-                speedX = 0f;
-                canJump = false;
-                isAttachedToPole = false;
+                MoveInstantly(new Vector2(IsFacingLeft ? 6f : -6f, 0f), MoveType.Relative, true);
+            }
 
-                fireFramesLeft = copterFramesLeft = pushFramesLeft = 0f;
+            health = healthAfter;
 
-                if (activeBird != null) {
-                    activeBird.FlyAway();
-                    activeBird = null;
-                }
+            internalForceY = 0f;
+            speedX = 0f;
+            canJump = false;
+            isAttachedToPole = false;
 
-                if (health > 0) {
-                    externalForceX = pushForce;
+            fireFramesLeft = copterFramesLeft = pushFramesLeft = 0f;
 
-                    if (!inWater && activeModifier == Modifier.None) {
-                        speedY = -6.5f;
+            if (activeBird != null) {
+                activeBird.FlyAway();
+                activeBird = null;
+            }
 
-                        CollisionFlags |= CollisionFlags.ApplyGravitation;
-                        SetAnimation(AnimState.Idle);
-                    } else {
-                        speedY = -1f;
-                    }
+            if (health > 0) {
+                externalForceX = pushForce;
 
-                    SetPlayerTransition(AnimState.Hurt, false, true, SpecialMoveType.None, delegate {
-                        controllable = true;
-                    });
-                    SetInvulnerability(180f, false);
+                if (!inWater && activeModifier == Modifier.None) {
+                    speedY = -6.5f;
 
-                    PlaySound("Hurt");
+                    CollisionFlags |= CollisionFlags.ApplyGravitation;
+                    SetAnimation(AnimState.Idle);
                 } else {
-                    externalForceX = 0f;
-                    speedY = 0f;
-
-                    PlaySound("Die", 1.3f);
+                    speedY = -1f;
                 }
+
+                SetPlayerTransition(AnimState.Hurt, false, true, SpecialMoveType.None, delegate {
+                    controllable = true;
+                });
+                SetInvulnerability(180f, false);
+
+                PlaySound("Hurt");
+            } else {
+                OnPerish(null);
+
+                externalForceX = 0f;
+                speedY = 0f;
             }
         }
 
@@ -2262,6 +2377,7 @@ namespace Jazz2.Actors
 
             controllable = true;
             renderer.Active = true;
+            renderer.AnimHidden = false;
         }
 
         public void WarpToPosition(Vector2 pos, bool fast)
@@ -2352,11 +2468,11 @@ namespace Jazz2.Actors
 
             OnUpdateHitbox();
 
-            speedX = 0;
-            speedY = 0;
-            externalForceX = 0;
-            externalForceY = 0;
-            internalForceY = 0;
+            speedX = 0f;
+            speedY = 0f;
+            externalForceX = 0f;
+            externalForceY = 0f;
+            internalForceY = 0f;
             CollisionFlags &= ~CollisionFlags.ApplyGravitation;
             isAttachedToPole = true;
             inIdleTransition = false;
@@ -2438,8 +2554,8 @@ namespace Jazz2.Actors
 
             carryingObject = platform;
             canJump = true;
-            internalForceY = 0;
-            speedY = 0;
+            internalForceY = 0f;
+            speedY = 0f;
         }
 
         private void FollowCarryingPlatform()
@@ -2484,6 +2600,8 @@ namespace Jazz2.Actors
             if (time <= 0f) {
                 isInvulnerable = false;
                 invulnerableTime = 0;
+
+                renderer.AnimHidden = false;
 
                 SetCircleEffect(false);
 

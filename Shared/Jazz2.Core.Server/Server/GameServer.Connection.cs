@@ -14,10 +14,16 @@ namespace Jazz2.Server
     {
         private void OnClientConnected(ClientConnectedEventArgs args)
         {
+            // Check ban status of endpoint
+            if (bannedEndPoints.Contains(args.Message.SenderConnection?.RemoteEndPoint)) {
+                args.DenyReason = "banned";
+                return;
+            }
+
             if (args.Message.LengthBytes < 4) {
                 args.DenyReason = "incompatible version";
 #if DEBUG
-                Log.Write(LogType.Warning, "[Dev] Connection of unsupported client (" + args.Message.SenderConnection.RemoteEndPoint + ") was denied");
+                Log.Write(LogType.Warning, "Connection of unsupported client (" + args.Message.SenderConnection.RemoteEndPoint + ") was denied");
 #endif
                 return;
             }
@@ -30,12 +36,19 @@ namespace Jazz2.Server
             if (major < neededMajor || (major == neededMajor && (minor < neededMinor || (major == neededMajor && build < neededBuild)))) {
                 args.DenyReason = "incompatible version";
 #if DEBUG
-                Log.Write(LogType.Warning, "[Dev] Connection of outdated client (" + args.Message.SenderConnection.RemoteEndPoint + ") was denied");
+                Log.Write(LogType.Warning, "Connection of outdated client (" + args.Message.SenderConnection.RemoteEndPoint + ") was denied");
 #endif
                 return;
             }
 
             byte[] clientIdentifier = args.Message.ReadBytes(16);
+
+            // Check ban status of client identifier
+            if (bannedClientIds.Contains(ClientIdentifierToString(clientIdentifier))) {
+                args.DenyReason = "banned";
+                return;
+            }
+
             if (allowOnlyUniqueClients) {
                 lock (sync) {
                     foreach (KeyValuePair<NetConnection, PlayerClient> pair in players) {
@@ -55,7 +68,26 @@ namespace Jazz2.Server
                 }
             }
 
+            // Ensure that player has unique username
             string userName = args.Message.ReadString();
+            lock (sync) {
+                if (string.IsNullOrWhiteSpace(userName)) {
+                    do {
+                        userName = GenerateRandomUserName();
+                    } while (FindPlayerByUserName(userName) != null);
+                } else {
+                    userName = userName.Replace(' ', '_');
+
+                    if (FindPlayerByUserName(userName) != null) {
+                        int number = 1;
+                        while (FindPlayerByUserName(userName + "_" + number) != null) {
+                            number++;
+                        }
+
+                        userName = userName + "_" + number;
+                    }
+                }
+            }
 
             PlayerClient player = new PlayerClient {
                 Connection = args.Message.SenderConnection,
@@ -81,12 +113,19 @@ namespace Jazz2.Server
                         player.Index = lastPlayerIndex;
                         playersByIndex[lastPlayerIndex] = player;
                     }
+
+                    if (!levelStarted && playerSpawningEnabled) {
+                        // Take a new player another 60 seconds to load level
+                        countdown = 60f;
+                        countdownNotify = int.MaxValue;
+                    }
                 }
 
                 Log.Write(LogType.Verbose, "Player #" + player.Index + " (" + player.UserName + " @ " + args.SenderConnection.RemoteEndPoint + ") connected");
 
                 if (currentLevel != null) {
                     Send(new LoadLevel {
+                        ServerName = serverName,
                         LevelName = currentLevel,
                         LevelType = currentLevelType,
                         AssignedPlayerIndex = lastPlayerIndex
@@ -141,7 +180,7 @@ namespace Jazz2.Server
                 string identifier = args.Message.ReadString();
                 if (identifier != Token) {
 #if DEBUG
-                    Log.Write(LogType.Warning, "[Dev] Request from unsupported client (" + args.Message.SenderConnection?.RemoteEndPoint + ") was denied");
+                    Log.Write(LogType.Warning, "Request from unsupported client (" + args.Message.SenderConnection?.RemoteEndPoint + ") was denied");
 #endif
                     return;
                 }
@@ -151,7 +190,7 @@ namespace Jazz2.Server
                 byte build = args.Message.ReadByte();
                 if (major < neededMajor || (major == neededMajor && (minor < neededMinor || (major == neededMajor && build < neededBuild)))) {
 #if DEBUG
-                    Log.Write(LogType.Warning, "[Dev] Request from outdated client (" + args.Message.SenderConnection?.RemoteEndPoint + ") was denied");
+                    Log.Write(LogType.Warning, "Request from outdated client (" + args.Message.SenderConnection?.RemoteEndPoint + ") was denied");
 #endif
                     return;
                 }
@@ -159,8 +198,8 @@ namespace Jazz2.Server
 
             byte type = args.Message.ReadByte();
 
-            Action<NetIncomingMessage, bool> callback;
-            if (callbacks.TryGetValue(type, out callback)) {
+            Action<NetIncomingMessage, bool> callback = callbacks[type];
+            if (callback != null) {
                 callback(args.Message, args.IsUnconnected);
             }
         }
@@ -176,7 +215,7 @@ namespace Jazz2.Server
             msg.Write(neededBuild);
 
             msg.Write(server.UniqueIdentifier);
-            msg.Write(name);
+            msg.Write(serverName);
 
             byte flags = 0;
             // ToDo: Password protected servers
@@ -193,7 +232,7 @@ namespace Jazz2.Server
         {
             byte type = (new T().Type);
 #if DEBUG
-            if (callbacks.ContainsKey(type)) {
+            if (callbacks[type] != null) {
                 throw new InvalidOperationException("Packet callback with this type was already registered");
             }
 #endif
@@ -203,7 +242,7 @@ namespace Jazz2.Server
         public void RemoveCallback<T>() where T : struct, IClientPacket
         {
             byte type = (new T().Type);
-            callbacks.Remove(type);
+            callbacks[type] = null;
         }
 
         private void ProcessCallback<T>(NetIncomingMessage msg, bool isUnconnected, PacketCallback<T> callback) where T : struct, IClientPacket
@@ -235,7 +274,7 @@ namespace Jazz2.Server
 
 #if DEBUG
             if (msg.LengthBytes > capacity) {
-                Log.Write(LogType.Warning, "[Dev] Packet " + typeof(T).Name + " has underestimated capacity (" + msg.LengthBytes + "/" + capacity + ")");
+                Log.Write(LogType.Warning, "Packet " + typeof(T).Name + " has underestimated capacity (" + msg.LengthBytes + "/" + capacity + ")");
             }
 #endif
 
@@ -258,7 +297,7 @@ namespace Jazz2.Server
 
 #if DEBUG
             if (msg.LengthBytes > capacity) {
-                Log.Write(LogType.Warning, "[Dev] Packet " + typeof(T).Name + " has underestimated capacity (" + msg.LengthBytes + "/" + capacity + ")");
+                Log.Write(LogType.Warning, "Packet " + typeof(T).Name + " has underestimated capacity (" + msg.LengthBytes + "/" + capacity + ")");
             }
 #endif
 
@@ -284,7 +323,7 @@ namespace Jazz2.Server
 
 #if DEBUG
             if (msg.LengthBytes > capacity) {
-                Log.Write(LogType.Warning, "[Dev] Packet " + typeof(T).Name + " has underestimated capacity (" + msg.LengthBytes + "/" + capacity + ")");
+                Log.Write(LogType.Warning, "Packet " + typeof(T).Name + " has underestimated capacity (" + msg.LengthBytes + "/" + capacity + ")");
             }
 #endif
 
@@ -315,7 +354,7 @@ namespace Jazz2.Server
 
 #if DEBUG
             if (msg.LengthBytes > capacity) {
-                Log.Write(LogType.Warning, "[Dev] Packet " + typeof(T).Name + " has underestimated capacity (" + msg.LengthBytes + "/" + capacity + ")");
+                Log.Write(LogType.Warning, "Packet " + typeof(T).Name + " has underestimated capacity (" + msg.LengthBytes + "/" + capacity + ")");
             }
 #endif
 

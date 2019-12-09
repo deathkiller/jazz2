@@ -2,31 +2,28 @@
 
 namespace Jazz2.Networking.Packets.Server
 {
-    public struct PlayerTakeDamage : IServerPacket
+    public struct PlayerSetControllable : IServerPacket
     {
         public NetConnection SenderConnection { get; set; }
 
-        byte IServerPacket.Type => 20;
+        byte IServerPacket.Type => 31;
 
 
         public byte Index;
-        public byte HealthAfter;
-        public float PushForce;
+        public bool IsControllable;
 
         void IServerPacket.Read(NetIncomingMessage msg)
         {
             Index = msg.ReadByte();
 
-            HealthAfter = msg.ReadByte();
-            PushForce = msg.ReadSingle();
+            IsControllable = msg.ReadBoolean();
         }
 
         void IServerPacket.Write(NetOutgoingMessage msg)
         {
             msg.Write((byte)Index);
 
-            msg.Write((byte)HealthAfter);
-            msg.Write((float)PushForce);
+            msg.Write((bool)IsControllable);
         }
     }
 }

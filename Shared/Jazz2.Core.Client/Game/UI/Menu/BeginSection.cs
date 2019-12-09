@@ -17,7 +17,9 @@ namespace Jazz2.Game.UI.Menu
         {
             items = new List<Tuple<string, Action>> {
                 Tuple.Create<string, Action>("menu/play story".T(), OnPlayStoryPressed),
+#if !PLATFORM_WASM
                 Tuple.Create<string, Action>("menu/play custom".T(), OnPlayCustomGamePressed),
+#endif
                 Tuple.Create<string, Action>("menu/settings".T(), OnSettingsPressed),
                 Tuple.Create<string, Action>("menu/about".T(), OnAboutPressed),
 #if !PLATFORM_WASM
@@ -98,6 +100,7 @@ namespace Jazz2.Game.UI.Menu
             api.SwitchToSection(new EpisodeSelectSection());
         }
 
+#if !PLATFORM_WASM
         private void OnPlayCustomGamePressed()
         {
 #if MULTIPLAYER
@@ -106,6 +109,7 @@ namespace Jazz2.Game.UI.Menu
             api.SwitchToSection(new CustomLevelSelectSection());
 #endif
         }
+#endif
 
         private void OnSettingsPressed()
         {

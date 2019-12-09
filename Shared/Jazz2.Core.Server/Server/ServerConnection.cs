@@ -281,7 +281,7 @@ namespace Jazz2.Server
             server = null;
 
 #if DEBUG
-            Log.Write(LogType.Verbose, "[Dev] Thread OnHandleMessagesThread() exited");
+            Log.Write(LogType.Verbose, "Thread OnHandleMessagesThread() exited");
 #endif
         }
     }

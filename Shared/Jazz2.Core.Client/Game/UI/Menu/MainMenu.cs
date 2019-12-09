@@ -178,7 +178,7 @@ namespace Jazz2.Game.UI.Menu
         public void BeginFadeOut(Action action)
         {
             transitionAction = action;
-            transitionManager = new TransitionManager(TransitionManager.Mode.FadeOut, MainMenuRenderSetup.TargetSize, true);
+            transitionManager = new TransitionManager(TransitionManager.Mode.FadeOut, true);
         }
 
         public void SwitchToLevel(LevelInitialization data)
@@ -337,9 +337,9 @@ namespace Jazz2.Game.UI.Menu
             DrawPlatformSpecific(size);
 
             if (transitionManager != null) {
-                transitionManager.Draw(device, canvas);
+                transitionManager.Draw(device);
                 if (transitionManager.IsCompleted) {
-                    if (transitionManager.ActiveMode != TransitionManager.Mode.FadeOut) {
+                    if (transitionManager.CurrentMode != TransitionManager.Mode.FadeOut) {
                         transitionManager = null;
                     }
 

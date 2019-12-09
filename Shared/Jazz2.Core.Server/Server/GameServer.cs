@@ -20,7 +20,7 @@ namespace Jazz2.Server
 
         private object sync = new object();
 
-        private string name;
+        private string serverName;
         private int port;
         private int maxPlayers;
 
@@ -31,7 +31,10 @@ namespace Jazz2.Server
         private bool allowOnlyUniqueClients;
         private DateTime startedTime;
 
-        private Dictionary<byte, Action<NetIncomingMessage, bool>> callbacks;
+        private Action<NetIncomingMessage, bool>[] callbacks;
+
+        private HashSet<string> bannedClientIds = new HashSet<string>();
+        private HashSet<IPEndPoint> bannedEndPoints = new HashSet<IPEndPoint>();
 
         public int LoadMs => lastGameLoadMs;
         public int PlayerCount => players.Count;
@@ -47,11 +50,11 @@ namespace Jazz2.Server
         {
             get
             {
-                return name;
+                return serverName;
             }
             set
             {
-                name = value;
+                serverName = value;
             }
         }
 
@@ -79,10 +82,10 @@ namespace Jazz2.Server
             }
         }
 
-        public void Run(int port, string name, int maxPlayers, bool isPrivate, bool enableUPnP, byte neededMajor, byte neededMinor, byte neededBuild)
+        public void Run(int port, string serverName, int maxPlayers, bool isPrivate, bool enableUPnP, byte neededMajor, byte neededMinor, byte neededBuild)
         {
             this.port = port;
-            this.name = name;
+            this.serverName = serverName;
             this.maxPlayers = maxPlayers;
 
             this.neededMajor = neededMajor;
@@ -92,7 +95,7 @@ namespace Jazz2.Server
             ContentResolver.Current.Init();
             ContentResolver.Current.InitPostWindow();
 
-            callbacks = new Dictionary<byte, Action<NetIncomingMessage, bool>>();
+            callbacks = new Action<NetIncomingMessage, bool>[byte.MaxValue + 1];
             players = new Dictionary<NetConnection, PlayerClient>();
             playersByIndex = new PlayerClient[256];
             playerConnections = new List<NetConnection>();
@@ -125,7 +128,7 @@ namespace Jazz2.Server
             Log.PopIndent();
 
             Log.Write(LogType.Info, "Unique Identifier: " + server.UniqueIdentifier);
-            Log.Write(LogType.Info, "Server Name: " + name);
+            Log.Write(LogType.Info, "Server Name: " + serverName);
             Log.Write(LogType.Info, "Players: 0/" + maxPlayers);
 
             // Create game loop
@@ -259,7 +262,7 @@ namespace Jazz2.Server
                             .Append('\n')
                             .Append(levelFriendlyName)
                             .Append('\n')
-                            .Append(name);
+                            .Append(serverName);
 
                         string data = "publish=" + Convert.ToBase64String(Encoding.UTF8.GetBytes(sb.ToString()))
                                     .Replace('+', '-').Replace('/', '_').TrimEnd('=');
@@ -301,6 +304,25 @@ namespace Jazz2.Server
             }
         }
 
+        public bool BanPlayer(byte playerIndex)
+        {
+            lock (sync) {
+                foreach (var player in players) {
+                    if (player.Value.Index == playerIndex) {
+                        bannedClientIds.Add(ClientIdentifierToString(player.Value.ClientIdentifier));
+
+                        IPEndPoint endPoint = player.Value.Connection?.RemoteEndPoint;
+                        if (endPoint != null) {
+                            bannedEndPoints.Add(endPoint);
+                        }
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         public bool KickPlayer(byte playerIndex)
         {
             lock (sync) {
@@ -331,8 +353,8 @@ namespace Jazz2.Server
                     if (player.Value.Index == playerIndex) {
                         SendToActivePlayers(new PlayerTakeDamage {
                             Index = playerIndex,
-                            DamageAmount = byte.MaxValue
-                        }, 3, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+                            HealthAfter = 0
+                        }, 7, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                         return true;
                     }
                 }
@@ -347,8 +369,8 @@ namespace Jazz2.Server
                 foreach (var player in players) {
                     SendToActivePlayers(new PlayerTakeDamage {
                         Index = player.Value.Index,
-                        DamageAmount = byte.MaxValue
-                    }, 3, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+                        HealthAfter = 0
+                    }, 7, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                 }
             }
         }
@@ -365,6 +387,69 @@ namespace Jazz2.Server
             SendToActivePlayers(new ShowMessage {
                 Text = text
             }, 64, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+        }
+
+        public PlayerClient FindPlayerByUserName(string userName)
+        {
+            foreach (var player in players) {
+                if (player.Value.UserName == userName) {
+                    return player.Value;
+                }
+            }
+
+            return null;
+        }
+
+        private static string ClientIdentifierToString(byte[] clientIdentifier)
+        {
+            if (clientIdentifier == null) {
+                return "";
+            }
+
+            StringBuilder sb = new StringBuilder(32);
+            for (int i = 0; i < clientIdentifier.Length; i++) {
+                sb.Append(clientIdentifier[i].ToString("X2"));
+            }
+            return sb.ToString();
+        }
+
+        private static string GenerateRandomUserName()
+        {
+            string[] prefixes = {
+                "be", "gi", "gla", "le", "ti", "xe"
+            };
+            string[] syllables = {
+                "blarg", "fay", "izen", "mon", "rash", "ray", "shi", "zag"
+            };
+            string[] suffixes = {
+                "kor", "li", "son", "ssen"
+            };
+
+            StringBuilder sb = new StringBuilder(32);
+
+            if (MathF.Rnd.NextBool()) {
+                sb.Append(prefixes[MathF.Rnd.Next(prefixes.Length)]);
+            }
+
+            int syllableCount = 2 + MathF.Rnd.Next(3);
+            for (int i = 0; i < syllableCount; i++) {
+                string syllable = syllables[MathF.Rnd.Next(syllables.Length)];
+                if (i == 0) {
+                    syllable = char.ToUpperInvariant(syllable[0]) + syllable.Substring(1);
+                }
+
+                sb.Append(syllable);
+            }
+
+            if (MathF.Rnd.NextBool()) {
+                sb.Append(suffixes[MathF.Rnd.Next(suffixes.Length)]);
+            }
+
+            if (MathF.Rnd.NextBool()) {
+                sb.Append(MathF.Rnd.Next(100).ToString("N2"));
+            }
+
+            return sb.ToString();
         }
     }
 }

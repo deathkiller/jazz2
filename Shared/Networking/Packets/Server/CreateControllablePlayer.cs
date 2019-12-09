@@ -15,6 +15,7 @@ namespace Jazz2.Networking.Packets.Server
         public PlayerType Type;
         public Vector3 Pos;
         public byte Health;
+        public bool Controllable;
 
         void IServerPacket.Read(NetIncomingMessage msg)
         {
@@ -28,6 +29,8 @@ namespace Jazz2.Networking.Packets.Server
             Pos = new Vector3(x, y, z);
 
             Health = msg.ReadByte();
+
+            Controllable = msg.ReadBoolean();
         }
 
         void IServerPacket.Write(NetOutgoingMessage msg)
@@ -41,6 +44,8 @@ namespace Jazz2.Networking.Packets.Server
             msg.Write((ushort)Pos.Z);
 
             msg.Write((byte)Health);
+
+            msg.Write((bool)Controllable);
         }
     }
 }

@@ -6,7 +6,7 @@ namespace Jazz2.Networking.Packets.Server
     {
         public NetConnection SenderConnection { get; set; }
 
-        byte IServerPacket.Type => 51;
+        byte IServerPacket.Type => 52;
 
 
         public ushort TriggerID;

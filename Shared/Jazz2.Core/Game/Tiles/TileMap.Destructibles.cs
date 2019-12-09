@@ -111,10 +111,26 @@ namespace Jazz2.Game.Tiles
             return hit;
         }
 
-        public void AdvanceTileAnimationExternally(int tx, int ty, int amount)
+        public void AdvanceDestructibleTileAnimationExternally(int tx, int ty, int amount)
         {
             ref LayerTile tile = ref layers[sprLayerIndex].Layout[tx + ty * levelWidth];
             AdvanceDestructibleTileAnimation(ref tile, tx, ty, ref amount, null);
+        }
+
+        public void RevertDestructibleTileAnimationExternally(int tx, int ty)
+        {
+            ref LayerTile tile = ref layers[sprLayerIndex].Layout[tx + ty * levelWidth];
+            if (tile.DestructType == TileDestructType.None || tile.DestructFrameIndex == 0) {
+                return;
+            }
+
+            tile.DestructFrameIndex = 0;
+            tile.TileID = animatedTiles[tile.DestructAnimation].Tiles[tile.DestructFrameIndex].TileID;
+            tile.MaterialOffset = tileset.GetTileTextureRect(tile.TileID);
+
+#if MULTIPLAYER && SERVER
+            ((LevelHandler)levelHandler).OnRevertDestructibleTileAnimation(tx, ty);
+#endif
         }
 
         private bool AdvanceDestructibleTileAnimation(ref LayerTile tile, int tx, int ty, ref int amount, string soundName)
@@ -124,7 +140,7 @@ namespace Jazz2.Game.Tiles
                 // Tile not destroyed yet, advance counter by one
                 int current = MathF.Min(amount, max - tile.DestructFrameIndex);
 
-                tile.DestructFrameIndex = tile.DestructFrameIndex + current;
+                tile.DestructFrameIndex += current;
                 tile.TileID = animatedTiles[tile.DestructAnimation].Tiles[tile.DestructFrameIndex].TileID;
                 tile.MaterialOffset = tileset.GetTileTextureRect(tile.TileID);
                 if (tile.DestructFrameIndex >= max) {

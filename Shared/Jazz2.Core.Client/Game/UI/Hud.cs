@@ -15,7 +15,7 @@ namespace Jazz2.Game.UI
     public partial class Hud : Component, ICmpRenderer
     {
         private Canvas canvas;
-        private BitmapFont fontSmall;
+        private BitmapFont fontSmall, fontMedium;
         private Dictionary<string, GraphicResource> graphics;
 
         private ILevelHandler levelHandler;
@@ -23,6 +23,7 @@ namespace Jazz2.Game.UI
 
         private string levelText;
         private float levelTextTime;
+        private bool levelTextBigger;
 
         private TransitionManager transitionManager;
 
@@ -65,6 +66,7 @@ namespace Jazz2.Game.UI
             canvas = new Canvas();
 
             fontSmall = new BitmapFont(canvas, "_custom/font_small");
+            fontMedium = new BitmapFont(canvas, "_custom/font_medium");
 
             // ToDo: Pass palette from LevelHandler to adjust HUD colors
             Metadata m = ContentResolver.Current.RequestMetadata("UI/HUD");
@@ -93,130 +95,184 @@ namespace Jazz2.Game.UI
             int charOffset = 0;
             int charOffsetShadow = 0;
 
-            if (owner != null) {
-                // Health & Lives
-                {
-                    string currentPlayer;
-                    if (owner.PlayerType == PlayerType.Spaz) {
-                        currentPlayer = "CharacterSpaz";
-                    } else if (owner.PlayerType == PlayerType.Lori) {
-                        currentPlayer = "CharacterLori";
-                    } else if (owner.PlayerType == PlayerType.Frog) {
-                        currentPlayer = "CharacterFrog";
-                    } else {
-                        currentPlayer = "CharacterJazz";
-                    }
-
-                    DrawMaterial(currentPlayer, -1, view.X + 36, bottom + 1.6f, Alignment.BottomRight, new ColorRgba(0f, 0.4f));
-                    DrawMaterial(currentPlayer, -1, view.X + 36, bottom, Alignment.BottomRight, ColorRgba.White);
-
-                    string healthString = new string('|', owner.Health);
-
-                    if (owner.Lives > 0) {
-                        fontSmall.DrawString(ref charOffsetShadow, healthString, view.X + 36 - 3 - 0.5f, bottom - 16 + 0.5f,
-                            Alignment.BottomLeft, new ColorRgba(0f, 0.42f), 0.7f, charSpacing: 1.1f);
-                        fontSmall.DrawString(ref charOffsetShadow, healthString, view.X + 36 - 3 + 0.5f, bottom - 16 - 0.5f,
-                            Alignment.BottomLeft, new ColorRgba(0f, 0.42f), 0.7f, charSpacing: 1.1f);
-                        fontSmall.DrawString(ref charOffset, healthString, view.X + 36 - 3, bottom - 16, Alignment.BottomLeft,
-                            null, 0.7f, charSpacing: 1.1f);
-
-                        string livesString = "x" + owner.Lives.ToString(CultureInfo.InvariantCulture);
-                        fontSmall.DrawString(ref charOffsetShadow, livesString, view.X + 36 - 4, bottom + 1f,
-                            Alignment.BottomLeft, new ColorRgba(0f, 0.32f));
-                        fontSmall.DrawString(ref charOffset, livesString, view.X + 36 - 4, bottom,
-                            Alignment.BottomLeft, ColorRgba.TransparentBlack);
-                    } else {
-                        fontSmall.DrawString(ref charOffsetShadow, healthString, view.X + 36 - 3 - 0.5f, bottom - 3 + 0.5f,
-                            Alignment.BottomLeft, new ColorRgba(0f, 0.42f), 0.7f, charSpacing: 1.1f);
-                        fontSmall.DrawString(ref charOffsetShadow, healthString, view.X + 36 - 3 + 0.5f, bottom - 3 - 0.5f,
-                            Alignment.BottomLeft, new ColorRgba(0f, 0.42f), 0.7f, charSpacing: 1.1f);
-                        fontSmall.DrawString(ref charOffset, healthString, view.X + 36 - 3, bottom - 3, Alignment.BottomLeft,
-                            null, 0.7f, charSpacing: 1.1f);
-                    }
-                }
-
-                // Score
-#if MULTIPLAYER
-                if (!(levelHandler is MultiplayerLevelHandler))
-#endif
-                {
-                    DrawMaterial("PickupFood", -1, 3, 3 + 1.6f, Alignment.TopLeft, new ColorRgba(0f, 0.4f));
-                    DrawMaterial("PickupFood", -1, 3, 3, Alignment.TopLeft, ColorRgba.White);
-
-                    string scoreString = owner.Score.ToString("D8");
-                    fontSmall.DrawString(ref charOffsetShadow, scoreString, 14, 5 + 1, Alignment.TopLeft,
-                        new ColorRgba(0f, 0.32f), 1f, charSpacing: 0.88f);
-                    fontSmall.DrawString(ref charOffset, scoreString, 14, 5, Alignment.TopLeft,
-                        ColorRgba.TransparentBlack, 1f, charSpacing: 0.88f);
-                }
-
-                // Weapon
-                if (owner.PlayerType != PlayerType.Frog) {
-                    WeaponType weapon = owner.CurrentWeapon;
-                    Vector2 pos = new Vector2(right - 40, bottom);
-                    string currentWeaponString = GetCurrentWeapon(weapon, ref pos);
-
-                    string ammoCount;
-                    if (owner.WeaponAmmo[(int)weapon] < 0) {
-                        ammoCount = "x∞";
-                    } else {
-                        ammoCount = "x" + (owner.WeaponAmmo[(int)weapon] / 100).ToString(CultureInfo.InvariantCulture);
-                    }
-                    fontSmall.DrawString(ref charOffsetShadow, ammoCount, right - 40, bottom + 1f, Alignment.BottomLeft,
-                        new ColorRgba(0f, 0.32f), charSpacing: 0.96f);
-                    fontSmall.DrawString(ref charOffset, ammoCount, right - 40, bottom, Alignment.BottomLeft,
-                        ColorRgba.TransparentBlack, charSpacing: 0.96f);
-
-                    GraphicResource res;
-                    if (graphics.TryGetValue(currentWeaponString, out res)) {
-                        if (res.Base.FrameDimensions.Y < 20) {
-                            pos.Y -= MathF.Round((20 - res.Base.FrameDimensions.Y) * 0.5f);
+            //if (!levelHandler.OverridePlayerDrawHud(this, device)) {
+                // HUD is not overriden by level handler, so draw all common elements
+                if (owner != null) {
+                    // Health & Lives
+                    {
+                        string currentPlayer;
+                        if (owner.PlayerType == PlayerType.Spaz) {
+                            currentPlayer = "CharacterSpaz";
+                        } else if (owner.PlayerType == PlayerType.Lori) {
+                            currentPlayer = "CharacterLori";
+                        } else if (owner.PlayerType == PlayerType.Frog) {
+                            currentPlayer = "CharacterFrog";
+                        } else {
+                            currentPlayer = "CharacterJazz";
                         }
 
-                        DrawMaterial(currentWeaponString, -1, pos.X, pos.Y + 1.6f, Alignment.BottomRight, new ColorRgba(0f, 0.4f));
-                        DrawMaterial(currentWeaponString, -1, pos.X, pos.Y, Alignment.BottomRight, ColorRgba.White);
+                        DrawMaterial(currentPlayer, -1, view.X + 36, bottom + 1.6f, Alignment.BottomRight, new ColorRgba(0f, 0.4f));
+                        DrawMaterial(currentPlayer, -1, view.X + 36, bottom, Alignment.BottomRight, ColorRgba.White);
+
+                        string healthString = new string('|', owner.Health);
+
+                        if (owner.Lives > 0) {
+                            fontSmall.DrawString(ref charOffsetShadow, healthString, view.X + 36 - 3 - 0.5f, bottom - 16 + 0.5f,
+                                Alignment.BottomLeft, new ColorRgba(0f, 0.42f), 0.7f, charSpacing: 1.1f);
+                            fontSmall.DrawString(ref charOffsetShadow, healthString, view.X + 36 - 3 + 0.5f, bottom - 16 - 0.5f,
+                                Alignment.BottomLeft, new ColorRgba(0f, 0.42f), 0.7f, charSpacing: 1.1f);
+                            fontSmall.DrawString(ref charOffset, healthString, view.X + 36 - 3, bottom - 16, Alignment.BottomLeft,
+                                null, 0.7f, charSpacing: 1.1f);
+
+                            string livesString = "x" + owner.Lives.ToString(CultureInfo.InvariantCulture);
+                            fontSmall.DrawString(ref charOffsetShadow, livesString, view.X + 36 - 4, bottom + 1f,
+                                Alignment.BottomLeft, new ColorRgba(0f, 0.32f));
+                            fontSmall.DrawString(ref charOffset, livesString, view.X + 36 - 4, bottom,
+                                Alignment.BottomLeft, ColorRgba.TransparentBlack);
+                        } else {
+                            fontSmall.DrawString(ref charOffsetShadow, healthString, view.X + 36 - 3 - 0.5f, bottom - 3 + 0.5f,
+                                Alignment.BottomLeft, new ColorRgba(0f, 0.42f), 0.7f, charSpacing: 1.1f);
+                            fontSmall.DrawString(ref charOffsetShadow, healthString, view.X + 36 - 3 + 0.5f, bottom - 3 - 0.5f,
+                                Alignment.BottomLeft, new ColorRgba(0f, 0.42f), 0.7f, charSpacing: 1.1f);
+                            fontSmall.DrawString(ref charOffset, healthString, view.X + 36 - 3, bottom - 3, Alignment.BottomLeft,
+                                null, 0.7f, charSpacing: 1.1f);
+                        }
+                    }
+
+                    // Stats / Score
+#if MULTIPLAYER
+                    if (levelHandler is MultiplayerLevelHandler mlh) {
+                        switch (mlh.CurrentLevelType) {
+                            case MultiplayerLevelType.Battle: {
+                                string statsString = "\f[c:4]\f[s:100]+" + mlh.StatsKills.ToString(CultureInfo.InvariantCulture) + " \f[c:2]\f[s:85]/\f[c:0]\f[s:100] -" + mlh.StatsDeaths.ToString(CultureInfo.InvariantCulture);
+                                fontSmall.DrawString(ref charOffsetShadow, statsString, 14, 5 + 1, Alignment.TopLeft,
+                                    new ColorRgba(0f, 0.32f), 1f, charSpacing: 0.88f);
+                                fontSmall.DrawString(ref charOffset, statsString, 14, 5, Alignment.TopLeft,
+                                    ColorRgba.TransparentBlack, 1f, charSpacing: 0.88f);
+
+                                break;
+                            }
+
+                            case MultiplayerLevelType.Race: {
+                                if (mlh.StatsLapsTotal > 0 && mlh.StatsLaps < mlh.StatsLapsTotal) {
+                                    string statsString1 = (mlh.StatsLaps + 1).ToString(CultureInfo.InvariantCulture);
+                                    fontMedium.DrawString(ref charOffsetShadow, statsString1, 32, 10 + 1, Alignment.TopRight,
+                                        new ColorRgba(0f, 0.32f), 1f, charSpacing: 1f);
+                                    fontMedium.DrawString(ref charOffset, statsString1, 32, 10, Alignment.TopRight,
+                                        new ColorRgba(0.62f, 0.44f, 0.34f, 0.5f), 1f, charSpacing: 1f);
+
+                                    string statsString2 = "/" + mlh.StatsLapsTotal.ToString(CultureInfo.InvariantCulture);
+                                    fontSmall.DrawString(ref charOffsetShadow, statsString2, 36, 20 + 1, Alignment.TopLeft,
+                                        new ColorRgba(0f, 0.32f), 1f, charSpacing: 1.1f);
+                                    fontSmall.DrawString(ref charOffset, statsString2, 36, 20, Alignment.TopLeft,
+                                        new ColorRgba(0.56f, 0.50f, 0.42f, 0.5f), 1f, charSpacing: 1.1f);
+                                }
+                                break;
+                            }
+
+                            case MultiplayerLevelType.TreasureHunt: {
+                                DrawMaterial("PickupGem", -1, 14, 20, Alignment.Left,
+                                    new ColorRgba(0f, 0.4f), 0.6f, 0.6f);
+                                DrawMaterial("PickupGem", -1, 14, 20, Alignment.Left,
+                                    new ColorRgba(1f, 1f), 0.6f, 0.6f);
+
+                                string statsString1 = "\f[c:1]\f[s:80]" + mlh.StatsLaps.ToString(CultureInfo.InvariantCulture);
+                                fontMedium.DrawString(ref charOffsetShadow, statsString1, 38, 10 + 1, Alignment.TopLeft,
+                                    new ColorRgba(0f, 0.32f), 1f, charSpacing: 0.8f);
+                                fontMedium.DrawString(ref charOffset, statsString1, 38, 10, Alignment.TopLeft,
+                                    new ColorRgba(0.7f, 0.45f, 0.42f, 0.5f), 1f, charSpacing: 0.8f);
+
+                                string statsString2 = "\f[c:8]\f[s:110]/" + mlh.StatsLapsTotal.ToString(CultureInfo.InvariantCulture);
+                                fontSmall.DrawString(ref charOffsetShadow, statsString2, 60, 18 + 1, Alignment.TopLeft,
+                                    new ColorRgba(0f, 0.32f), 1f, charSpacing: 1.1f);
+                                fontSmall.DrawString(ref charOffset, statsString2, 60, 18, Alignment.TopLeft,
+                                    new ColorRgba(0.56f, 0.50f, 0.42f, 0.5f), 1f, charSpacing: 1.1f);
+
+                                break;
+                            }
+                        }
+                    } else {
+#endif
+                        DrawMaterial("PickupFood", -1, 3, 3 + 1.6f, Alignment.TopLeft, new ColorRgba(0f, 0.4f));
+                        DrawMaterial("PickupFood", -1, 3, 3, Alignment.TopLeft, ColorRgba.White);
+
+                        string scoreString = owner.Score.ToString("D8");
+                        fontSmall.DrawString(ref charOffsetShadow, scoreString, 14, 5 + 1, Alignment.TopLeft,
+                            new ColorRgba(0f, 0.32f), 1f, charSpacing: 0.88f);
+                        fontSmall.DrawString(ref charOffset, scoreString, 14, 5, Alignment.TopLeft,
+                            ColorRgba.TransparentBlack, 1f, charSpacing: 0.88f);
+#if MULTIPLAYER
+                    }
+#endif
+
+                    // Weapon
+                    if (owner.PlayerType != PlayerType.Frog) {
+                        WeaponType weapon = owner.CurrentWeapon;
+                        Vector2 pos = new Vector2(right - 40, bottom);
+                        string currentWeaponString = GetCurrentWeapon(weapon, ref pos);
+
+                        string ammoCount;
+                        if (owner.WeaponAmmo[(int)weapon] < 0) {
+                            ammoCount = "x∞";
+                        } else {
+                            ammoCount = "x" + (owner.WeaponAmmo[(int)weapon] / 100).ToString(CultureInfo.InvariantCulture);
+                        }
+                        fontSmall.DrawString(ref charOffsetShadow, ammoCount, right - 40, bottom + 1f, Alignment.BottomLeft,
+                            new ColorRgba(0f, 0.32f), charSpacing: 0.96f);
+                        fontSmall.DrawString(ref charOffset, ammoCount, right - 40, bottom, Alignment.BottomLeft,
+                            ColorRgba.TransparentBlack, charSpacing: 0.96f);
+
+                        GraphicResource res;
+                        if (graphics.TryGetValue(currentWeaponString, out res)) {
+                            if (res.Base.FrameDimensions.Y < 20) {
+                                pos.Y -= MathF.Round((20 - res.Base.FrameDimensions.Y) * 0.5f);
+                            }
+
+                            DrawMaterial(currentWeaponString, -1, pos.X, pos.Y + 1.6f, Alignment.BottomRight, new ColorRgba(0f, 0.4f));
+                            DrawMaterial(currentWeaponString, -1, pos.X, pos.Y, Alignment.BottomRight, ColorRgba.White);
+                        }
                     }
                 }
-            }
 
-            // Active Boss (health bar)
-            if (activeBoss != null && activeBoss.MaxHealth != int.MaxValue) {
-                const float TransitionTime = 60f;
-                float y, alpha;
-                if (activeBossTime < TransitionTime) {
-                    activeBossTime += Time.TimeMult;
+                // Active Boss (health bar)
+                if (activeBoss != null && activeBoss.MaxHealth != int.MaxValue) {
+                    const float TransitionTime = 60f;
+                    float y, alpha;
+                    if (activeBossTime < TransitionTime) {
+                        activeBossTime += Time.TimeMult;
 
-                    if (activeBossTime > TransitionTime) {
-                        activeBossTime = TransitionTime;
+                        if (activeBossTime > TransitionTime) {
+                            activeBossTime = TransitionTime;
+                        }
+
+                        y = (TransitionTime - activeBossTime) / 8f;
+                        y = bottom * 0.1f - (y * y);
+                        alpha = MathF.Max(activeBossTime / TransitionTime, 0f);
+                    } else {
+                        y = bottom * 0.1f;
+                        alpha = 1f;
                     }
 
-                    y = (TransitionTime - activeBossTime) / 8f;
-                    y = bottom * 0.1f - (y * y);
-                    alpha = MathF.Max(activeBossTime / TransitionTime, 0f);
-                } else {
-                    y = bottom * 0.1f;
-                    alpha = 1f;
+                    float perc = 0.08f + 0.84f * activeBoss.Health / activeBoss.MaxHealth;
+
+                    DrawMaterial("BossHealthBar", 0, size.X * 0.5f, y + 2f, Alignment.Center, new ColorRgba(0f, 0.1f * alpha));
+                    DrawMaterial("BossHealthBar", 0, size.X * 0.5f, y + 1f, Alignment.Center, new ColorRgba(0f, 0.2f * alpha));
+
+                    DrawMaterial("BossHealthBar", 0, size.X * 0.5f, y, Alignment.Center, new ColorRgba(1f, alpha));
+                    DrawMaterialClipped("BossHealthBar", 1, size.X * 0.5f, y, Alignment.Center, new ColorRgba(1f, alpha), perc, 1f);
                 }
 
-                float perc = 0.08f + 0.84f * activeBoss.Health / activeBoss.MaxHealth;
-
-                DrawMaterial("BossHealthBar", 0, size.X * 0.5f, y + 2f, Alignment.Center, new ColorRgba(0f, 0.1f * alpha));
-                DrawMaterial("BossHealthBar", 0, size.X * 0.5f, y + 1f, Alignment.Center, new ColorRgba(0f, 0.2f * alpha));
-
-                DrawMaterial("BossHealthBar", 0, size.X * 0.5f, y, Alignment.Center, new ColorRgba(1f, alpha));
-                DrawMaterialClipped("BossHealthBar", 1, size.X * 0.5f, y, Alignment.Center, new ColorRgba(1f, alpha), perc, 1f);
-            }
-
-            // Misc
-            DrawLevelText(size, ref charOffset);
-            DrawCoins(size, ref charOffset);
-            DrawGems(size, ref charOffset);
+                // Misc
+                DrawLevelText(size, ref charOffset);
+                DrawCoins(size, ref charOffset);
+                DrawGems(size, ref charOffset);
+            //}
 
             DrawPlatformSpecific(size);
 
             if (transitionManager != null) {
-                transitionManager.Draw(device, canvas);
-                if (transitionManager.IsCompleted && transitionManager.ActiveMode != TransitionManager.Mode.FadeOut) {
+                transitionManager.Draw(device);
+                if (transitionManager.IsCompleted && transitionManager.CurrentMode != TransitionManager.Mode.FadeOut) {
                     transitionManager = null;
                 }
             }
@@ -228,119 +284,132 @@ namespace Jazz2.Game.UI
 
         private void DrawLevelText(Vector2 size, ref int charOffset)
         {
-            if (levelText != null) {
-                const float StillTime = 350f;
-                const float TransitionTime = 100f;
-                const float TotalTime = StillTime + TransitionTime * 2f;
+            if (levelText == null) {
+                return;
+            }
 
-                float offset;
-                if (levelTextTime < TransitionTime) {
-                    offset = MathF.Pow((TransitionTime - levelTextTime) / 12f, 3);
-                } else if (levelTextTime > TransitionTime + StillTime) {
-                    offset = -MathF.Pow((levelTextTime - TransitionTime - StillTime) / 12f, 3);
-                } else {
-                    offset = 0;
-                }
+            const float StillTime = 350f;
+            const float TransitionTime = 100f;
+            const float TotalTime = StillTime + TransitionTime * 2f;
 
-                int charOffsetShadow = charOffset;
-                fontSmall.DrawString(ref charOffsetShadow, levelText, size.X * 0.5f + offset,
-                    size.Y * 0.0346f + 2.5f,
-                    Alignment.Top, new ColorRgba(0f, 0.3f), 1f, 0.72f, 0.8f, 0.8f);
+            float offset;
+            if (levelTextTime < TransitionTime) {
+                offset = MathF.Pow((TransitionTime - levelTextTime) / 12f, 3);
+            } else if (levelTextTime > TransitionTime + StillTime) {
+                offset = -MathF.Pow((levelTextTime - TransitionTime - StillTime) / 12f, 3);
+            } else {
+                offset = 0;
+            }
 
-                fontSmall.DrawString(ref charOffset, levelText, size.X * 0.5f + offset, size.Y * 0.0346f,
-                    Alignment.Top, ColorRgba.TransparentBlack, 1f, 0.72f, 0.8f, 0.8f);
+            BitmapFont font = (levelTextBigger ? fontMedium : fontSmall);
 
+            int charOffsetShadow = charOffset;
+            font.DrawString(ref charOffsetShadow, levelText, size.X * 0.5f + offset,
+                size.Y * 0.0346f + 2.5f,
+                Alignment.Top, new ColorRgba(0f, 0.3f), 1f, 0.72f, 0.8f, 0.8f);
+
+            font.DrawString(ref charOffset, levelText, size.X * 0.5f + offset, size.Y * 0.0346f,
+                Alignment.Top, ColorRgba.TransparentBlack, 1f, 0.72f, 0.8f, 0.8f);
+
+            if (levelTextBigger) {
+                levelTextTime += 1.2f * Time.TimeMult;
+            } else {
                 levelTextTime += Time.TimeMult;
-                if (levelTextTime > TotalTime) {
-                    levelText = null;
-                }
+            }
+
+            if (levelTextTime > TotalTime) {
+                levelText = null;
             }
         }
 
         private void DrawCoins(Vector2 size, ref int charOffset)
         {
-            if (coinsTime >= 0f) {
-                const float StillTime = 120f;
-                const float TransitionTime = 60f;
-                const float TotalTime = StillTime + TransitionTime * 2f;
+            if (coinsTime < 0f) {
+                return;
+            }
 
-                string text = "x" + coins.ToString(CultureInfo.InvariantCulture);
+            const float StillTime = 120f;
+            const float TransitionTime = 60f;
+            const float TotalTime = StillTime + TransitionTime * 2f;
 
-                float offset, alpha;
-                if (coinsTime < TransitionTime) {
-                    offset = (TransitionTime - coinsTime) / 10f;
-                    offset = -(offset * offset);
-                    alpha = MathF.Max(coinsTime / TransitionTime, 0.1f);
-                } else if (coinsTime > TransitionTime + StillTime) {
-                    offset = (coinsTime - TransitionTime - StillTime) / 10f;
-                    offset = (offset * offset);
-                    alpha = (TotalTime - coinsTime) / TransitionTime;
-                } else {
-                    offset = 0f;
-                    alpha = 1f;
-                }
+            string text = "x" + coins.ToString(CultureInfo.InvariantCulture);
 
-                DrawMaterial("PickupCoin", -1, size.X * 0.5f, size.Y * 0.92f + 2.5f + offset, Alignment.Right,
-                    new ColorRgba(0f, 0.2f * alpha), 0.8f, 0.8f);
-                DrawMaterial("PickupCoin", -1, size.X * 0.5f, size.Y * 0.92f + offset, Alignment.Right,
-                    new ColorRgba(1f, alpha * alpha), 0.8f, 0.8f);
+            float offset, alpha;
+            if (coinsTime < TransitionTime) {
+                offset = (TransitionTime - coinsTime) / 10f;
+                offset = -(offset * offset);
+                alpha = MathF.Max(coinsTime / TransitionTime, 0.1f);
+            } else if (coinsTime > TransitionTime + StillTime) {
+                offset = (coinsTime - TransitionTime - StillTime) / 10f;
+                offset = (offset * offset);
+                alpha = (TotalTime - coinsTime) / TransitionTime;
+            } else {
+                offset = 0f;
+                alpha = 1f;
+            }
 
-                int charOffsetShadow = charOffset;
-                fontSmall.DrawString(ref charOffsetShadow, text, size.X * 0.5f, size.Y * 0.92f + 2.5f + offset,
-                    Alignment.Left, new ColorRgba(0f, 0.3f * alpha), 1f, 0f, 0f, 0f);
+            DrawMaterial("PickupCoin", -1, size.X * 0.5f, size.Y * 0.92f + 2.5f + offset, Alignment.Right,
+                new ColorRgba(0f, 0.2f * alpha), 0.8f, 0.8f);
+            DrawMaterial("PickupCoin", -1, size.X * 0.5f, size.Y * 0.92f + offset, Alignment.Right,
+                new ColorRgba(1f, alpha * alpha), 0.8f, 0.8f);
 
-                fontSmall.DrawString(ref charOffset, text, size.X * 0.5f, size.Y * 0.92f + offset,
-                    Alignment.Left, new ColorRgba(0.5f, 0.5f * alpha), 1f, 0f, 0f, 0f);
+            int charOffsetShadow = charOffset;
+            fontSmall.DrawString(ref charOffsetShadow, text, size.X * 0.5f, size.Y * 0.92f + 2.5f + offset,
+                Alignment.Left, new ColorRgba(0f, 0.3f * alpha), 1f, 0f, 0f, 0f);
 
-                if (coinsTime > TotalTime) {
-                    coinsTime = -1f;
-                } else {
-                    coinsTime += Time.TimeMult;
-                }
+            fontSmall.DrawString(ref charOffset, text, size.X * 0.5f, size.Y * 0.92f + offset,
+                Alignment.Left, new ColorRgba(0.5f, 0.5f * alpha), 1f, 0f, 0f, 0f);
+
+            if (coinsTime > TotalTime) {
+                coinsTime = -1f;
+            } else {
+                coinsTime += Time.TimeMult;
             }
         }
 
         private void DrawGems(Vector2 size, ref int charOffset)
         {
-            if (gemsTime >= 0f) {
-                const float StillTime = 120f;
-                const float TransitionTime = 60f;
-                const float TotalTime = StillTime + TransitionTime * 2f;
+            if (gemsTime < 0f) {
+                return;
+            }
 
-                string text = "x" + gems.ToString(CultureInfo.InvariantCulture);
+            const float StillTime = 120f;
+            const float TransitionTime = 60f;
+            const float TotalTime = StillTime + TransitionTime * 2f;
 
-                float offset, alpha;
-                if (gemsTime < TransitionTime) {
-                    offset = (TransitionTime - gemsTime) / 10f;
-                    offset = -(offset * offset);
-                    alpha = MathF.Max(gemsTime / TransitionTime, 0.1f);
-                } else if (gemsTime > TransitionTime + StillTime) {
-                    offset = (gemsTime - TransitionTime - StillTime) / 10f;
-                    offset = (offset * offset);
-                    alpha = (TotalTime - gemsTime) / TransitionTime;
-                } else {
-                    offset = 0f;
-                    alpha = 1f;
-                }
+            string text = "x" + gems.ToString(CultureInfo.InvariantCulture);
 
-                float animAlpha = alpha * alpha;
-                DrawMaterial("PickupGem", -1, size.X * 0.5f, size.Y * 0.92f + 2.5f + offset, Alignment.Right,
-                    new ColorRgba(0f, 0.4f * animAlpha), 0.8f, 0.8f);
-                DrawMaterial("PickupGem", -1, size.X * 0.5f, size.Y * 0.92f + offset, Alignment.Right,
-                    new ColorRgba(1f, animAlpha), 0.8f, 0.8f);
+            float offset, alpha;
+            if (gemsTime < TransitionTime) {
+                offset = (TransitionTime - gemsTime) / 10f;
+                offset = -(offset * offset);
+                alpha = MathF.Max(gemsTime / TransitionTime, 0.1f);
+            } else if (gemsTime > TransitionTime + StillTime) {
+                offset = (gemsTime - TransitionTime - StillTime) / 10f;
+                offset = (offset * offset);
+                alpha = (TotalTime - gemsTime) / TransitionTime;
+            } else {
+                offset = 0f;
+                alpha = 1f;
+            }
 
-                int charOffsetShadow = charOffset;
-                fontSmall.DrawString(ref charOffsetShadow, text, size.X * 0.5f, size.Y * 0.92f + 2.5f + offset,
-                    Alignment.Left, new ColorRgba(0f, 0.3f * alpha), 1f, 0f, 0f, 0f);
+            float animAlpha = alpha * alpha;
+            DrawMaterial("PickupGem", -1, size.X * 0.5f, size.Y * 0.92f + 2.5f + offset, Alignment.Right,
+                new ColorRgba(0f, 0.4f * animAlpha), 0.8f, 0.8f);
+            DrawMaterial("PickupGem", -1, size.X * 0.5f, size.Y * 0.92f + offset, Alignment.Right,
+                new ColorRgba(1f, animAlpha), 0.8f, 0.8f);
 
-                fontSmall.DrawString(ref charOffset, text, size.X * 0.5f, size.Y * 0.92f + offset,
-                    Alignment.Left, new ColorRgba(0.5f, 0.5f * alpha), 1f, 0f, 0f, 0f);
+            int charOffsetShadow = charOffset;
+            fontSmall.DrawString(ref charOffsetShadow, text, size.X * 0.5f, size.Y * 0.92f + 2.5f + offset,
+                Alignment.Left, new ColorRgba(0f, 0.3f * alpha), 1f, 0f, 0f, 0f);
 
-                if (gemsTime > TotalTime) {
-                    gemsTime = -1f;
-                } else {
-                    gemsTime += Time.TimeMult;
-                }
+            fontSmall.DrawString(ref charOffset, text, size.X * 0.5f, size.Y * 0.92f + offset,
+                Alignment.Left, new ColorRgba(0.5f, 0.5f * alpha), 1f, 0f, 0f, 0f);
+
+            if (gemsTime > TotalTime) {
+                gemsTime = -1f;
+            } else {
+                gemsTime += Time.TimeMult;
             }
         }
 
@@ -368,7 +437,7 @@ namespace Jazz2.Game.UI
         private void DrawDebugStrings()
         {
 #if DEBUG
-            const int x = 4, y = 4;
+            const int DebugX = 4, DebugY = 4;
 
             if (enableDebug) {
                 // Palette debugging
@@ -392,7 +461,7 @@ namespace Jazz2.Game.UI
                 // Render debug strings
                 int charOffset = 0;
                 fontSmall.DrawString(ref charOffset, debugString.ToString(),
-                    x, y, Alignment.TopLeft, ColorRgba.TransparentBlack,
+                    DebugX, DebugY, Alignment.TopLeft, ColorRgba.TransparentBlack,
                     0.65f, charSpacing: 0.9f, lineSpacing: 0.9f);
 
                 // Render debug rectangles
@@ -452,7 +521,7 @@ namespace Jazz2.Game.UI
             }
         }
 
-        public string GetCurrentWeapon(WeaponType weapon, ref Vector2 offset)
+        private string GetCurrentWeapon(WeaponType weapon, ref Vector2 offset)
         {
             if (weapon == WeaponType.Toaster && owner.InWater) {
                 offset.X += 2;
@@ -497,7 +566,7 @@ namespace Jazz2.Game.UI
             }
         }
 
-        public void ShowLevelText(string text)
+        public void ShowLevelText(string text, bool bigger)
         {
             if (levelText == text) {
                 return;
@@ -505,6 +574,7 @@ namespace Jazz2.Game.UI
 
             levelText = text;
             levelTextTime = 0f;
+            levelTextBigger = bigger;
         }
 
         public void ShowCoins(int coins)
@@ -553,12 +623,12 @@ namespace Jazz2.Game.UI
 
         public void BeginFadeIn(bool smooth)
         {
-            transitionManager = new TransitionManager(TransitionManager.Mode.FadeIn, LevelRenderSetup.TargetSize, smooth);
+            transitionManager = new TransitionManager(TransitionManager.Mode.FadeIn, smooth);
         }
 
         public void BeginFadeOut(bool smooth)
         {
-            transitionManager = new TransitionManager(TransitionManager.Mode.FadeOut, LevelRenderSetup.TargetSize, smooth);
+            transitionManager = new TransitionManager(TransitionManager.Mode.FadeOut, smooth);
         }
     }
 }

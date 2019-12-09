@@ -69,16 +69,19 @@ namespace Jazz2.Game
                 return;
             }
 
+            string serverName = p.ServerName;
+
             string episodeName = p.LevelName.Substring(0, i);
             string levelName = p.LevelName.Substring(i + 1);
 
             byte playerIndex = p.AssignedPlayerIndex;
+            MultiplayerLevelType levelType = p.LevelType;
 
             Await.NextAfterUpdate().OnCompleted(() => {
                 LevelInitialization levelInit = new LevelInitialization(episodeName, levelName, GameDifficulty.Multiplayer);
 
                 Scene.Current.Dispose();
-                Scene.SwitchTo(new MultiplayerLevelHandler(this, client, levelInit, playerIndex));
+                Scene.SwitchTo(new MultiplayerLevelHandler(this, client, levelInit, levelType, playerIndex));
 
                 GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
                 GC.Collect();
@@ -86,7 +89,7 @@ namespace Jazz2.Game
 
                 GCSettings.LatencyMode = GCLatencyMode.LowLatency;
 
-                UpdateRichPresence(levelInit);
+                UpdateRichPresence(levelInit, serverName);
             });
         }
     }

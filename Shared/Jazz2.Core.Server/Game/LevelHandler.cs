@@ -43,7 +43,7 @@ namespace Jazz2.Game
         private EventMap eventMap;
         private EventSpawner eventSpawner;
         private DynamicTreeBroadPhase<ActorBase> collisions;
-        private int collisionsCountA, collisionsCountB, collisionsCountC;
+        //private int collisionsCountA, collisionsCountB, collisionsCountC;
 
         protected List<Player> players = new List<Player>();
         protected List<GameObject> cameras = new List<GameObject>();
@@ -51,11 +51,11 @@ namespace Jazz2.Game
 
         private string levelFileName;
         private string levelFriendlyName;
-        private string episodeName;
-        private string defaultNextLevel;
-        private string defaultSecretLevel;
+        //private string episodeName;
+        //private string defaultNextLevel;
+        //private string defaultSecretLevel;
         private GameDifficulty difficulty;
-        private string musicPath;
+        //private string musicPath;
 
         private InitState initState;
         private float gravity;
@@ -66,8 +66,8 @@ namespace Jazz2.Game
         private IList<string> levelTexts;
         private Metadata commonResources;
 
-        private LevelInitialization? nextLevelInit;
-        private float levelChangeTimer;
+        //private LevelInitialization? nextLevelInit;
+        //private float levelChangeTimer;
 
         private WeatherType weatherType;
         private int weatherIntensity;
@@ -124,7 +124,7 @@ namespace Jazz2.Game
             this.root = root;
 
             this.levelFileName = levelName;
-            this.episodeName = episodeName;
+            //this.episodeName = episodeName;
             difficulty = GameDifficulty.Multiplayer;
 
             gravity = DefaultGravity;
@@ -140,36 +140,26 @@ namespace Jazz2.Game
             // Load level
             LoadLevel(levelFileName, episodeName);
 
-            // Process carry overs
-            /*if (data.PlayerCarryOvers != null)
-            {
-                for (int i = 0; i < data.PlayerCarryOvers.Length; i++)
-                {
-                    Vector2 spawnPosition = eventMap.GetSpawnPosition(data.PlayerCarryOvers[i].Type);
-                    if (spawnPosition == new Vector2(-1, -1))
-                    {
-                        spawnPosition = eventMap.GetSpawnPosition(PlayerType.Jazz);
-                        if (spawnPosition == new Vector2(-1, -1))
-                        {
-                            continue;
-                        }
-                    }
-
-                    Player player = new Player();
-                    player.OnActivated(new ActorActivationDetails
-                    {
-                        LevelHandler = this,
-                        Pos = new Vector3(spawnPosition, PlayerZ),
-                        Params = new[] { (ushort)data.PlayerCarryOvers[i].Type, (ushort)i }
-                    });
-                    AddPlayer(player);
-
-                    player.ReceiveLevelCarryOver(data.ExitType, ref data.PlayerCarryOvers[i]);
-                }
-            }*/
-
             // Common sounds
             commonResources = ContentResolver.Current.RequestMetadata("Common/Scenery");
+
+            // Preload frequently used metadata
+            ContentResolver.Current.PreloadAsync("Common/Explosions");
+
+            ContentResolver.Current.PreloadAsync("Interactive/PlayerJazz");
+            ContentResolver.Current.PreloadAsync("Interactive/PlayerSpaz");
+            ContentResolver.Current.PreloadAsync("Interactive/PlayerLori");
+
+            ContentResolver.Current.PreloadAsync("Weapon/Blaster");
+            ContentResolver.Current.PreloadAsync("Weapon/Bouncer");
+            ContentResolver.Current.PreloadAsync("Weapon/Freezer");
+            ContentResolver.Current.PreloadAsync("Weapon/Toaster");
+            ContentResolver.Current.PreloadAsync("Weapon/RF");
+            ContentResolver.Current.PreloadAsync("Weapon/Seeker");
+            ContentResolver.Current.PreloadAsync("Weapon/TNT");
+            ContentResolver.Current.PreloadAsync("Weapon/Pepper");
+            ContentResolver.Current.PreloadAsync("Weapon/Electro");
+            ContentResolver.Current.PreloadAsync("Weapon/Thunderbolt");
         }
 
         protected override void OnDisposing(bool manually)
@@ -278,8 +268,8 @@ namespace Jazz2.Game
 
             levelFriendlyName = json.Description.Name;
 
-            defaultNextLevel = json.Description.NextLevel;
-            defaultSecretLevel = json.Description.SecretLevel;
+            //defaultNextLevel = json.Description.NextLevel;
+            //defaultSecretLevel = json.Description.SecretLevel;
 
             // Palette
             ColorRgba[] tileMapPalette;
@@ -581,46 +571,7 @@ namespace Jazz2.Game
 
         public void InitLevelChange(ExitType exitType, string nextLevel)
         {
-            if (initState == InitState.Disposing) {
-                return;
-            }
-
-            initState = InitState.Disposing;
-
-            foreach (Player player in players) {
-                player.OnLevelChanging(exitType);
-            }
-
-            if (nextLevel == null) {
-                nextLevel = (exitType == ExitType.Bonus ? defaultSecretLevel : defaultNextLevel);
-            }
-
-            LevelInitialization levelInit = default(LevelInitialization);
-
-            if (nextLevel != null) {
-                int i = nextLevel.IndexOf('/');
-                if (i == -1) {
-                    levelInit.EpisodeName = episodeName;
-                    levelInit.LevelName = nextLevel;
-                } else {
-                    levelInit.EpisodeName = nextLevel.Substring(0, i);
-                    levelInit.LevelName = nextLevel.Substring(i + 1);
-                }
-            }
-
-            levelInit.Difficulty = difficulty;
-            levelInit.ExitType = exitType;
-
-            levelInit.PlayerCarryOvers = new PlayerCarryOver[players.Count];
-            for (int i = 0; i < players.Count; i++) {
-                levelInit.PlayerCarryOvers[i] = players[i].PrepareLevelCarryOver();
-            }
-
-            levelInit.LastEpisodeName = episodeName;
-
-            nextLevelInit = levelInit;
-
-            levelChangeTimer = 50f;
+            throw new NotSupportedException();
         }
 
         public void HandleGameOver()
@@ -687,7 +638,7 @@ namespace Jazz2.Game
         public void BroadcastLevelText(string text)
         {
             foreach (Player player in players) {
-                player.ShowLevelText(text);
+                player.ShowLevelText(text, false);
             }
         }
 
@@ -704,9 +655,11 @@ namespace Jazz2.Game
 
         public void BroadcastAnimationChanged(ActorBase actor, string identifier)
         {
+            spawnedActorsAnimation.TryGetValue(actor, out string lastIdentifier);
+
             spawnedActorsAnimation[actor] = identifier;
 
-            if (spawnedActors.Contains(actor)) {
+            if (identifier != lastIdentifier && spawnedActors.Contains(actor)) {
                 root.SendToActivePlayers(new RefreshActorAnimation {
                     Index = actor.Index,
                     Identifier = identifier,
@@ -720,14 +673,25 @@ namespace Jazz2.Game
             return false;
         }
 
-        internal void OnPlayerTakeDamage(Player player, int amount, float pushForce)
+        internal void OnActorPlaySound(ActorBase actor, string name, Vector3 pos, float gain, float pitch, float lowpass)
+        {
+            root.SendToActivePlayers(new PlaySound {
+                Index = actor.Index,
+                SoundName = name,
+                Pos = pos,
+                Gain = gain,
+                Pitch = pitch,
+                Lowpass = lowpass
+            }, 32, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+        }
+
+        internal void OnPlayerTakeDamage(Player player, float pushForce)
         {
             root.SendToPlayerByIndex(new PlayerTakeDamage {
                 Index = (byte)player.Index,
-                HealthBefore = (byte)player.Health,
-                DamageAmount = (byte)amount,
+                HealthAfter = (byte)player.Health,
                 PushForce = pushForce
-            }, 8, player.Index, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+            }, 7, player.Index, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
         }
 
         internal void OnPlayerAddHealth(Player player, int amount)
@@ -805,20 +769,12 @@ namespace Jazz2.Game
 
         internal void OnPlayerHit(Player player, Player attacker, bool isDead)
         {
-            root.IncrementPlayerHits(attacker.Index, isDead);
+            root.IncrementPlayerHits(player.Index, attacker.Index, isDead);
         }
 
-        internal void OnPlayerIncrementLap(Player player)
+        internal void OnPlayerIncrementLaps(Player player)
         {
-            root.IncrementPlayerLap(player.Index, out int currentLap);
-            if (currentLap == -1) {
-                return;
-            }
-
-            root.SendToActivePlayers(new PlayerSetLap {
-                Index = (byte)player.Index,
-                Lap = currentLap
-            }, 4, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+            root.IncrementPlayerLaps(player.Index);
         }
 
         internal void OnPlayerSetInvulnerability(Player player, float time, bool withCircleEffect)
@@ -832,12 +788,25 @@ namespace Jazz2.Game
             }, 7, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
         }
 
+        internal void OnPlayerAddGems(Player player, int count)
+        {
+            root.IncrementPlayerGems(player.Index, count);
+        }
+
         internal void OnAdvanceDestructibleTileAnimation(int tx, int ty, int amount)
         {
             root.SendToActivePlayers(new AdvanceTileAnimation {
                 TileX = tx,
                 TileY = ty,
                 Amount = amount
+            }, 6, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+        }
+
+        internal void OnRevertDestructibleTileAnimation(int tx, int ty)
+        {
+            root.SendToActivePlayers(new RevertTileAnimation {
+                TileX = tx,
+                TileY = ty
             }, 6, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
         }
 
@@ -982,9 +951,9 @@ namespace Jazz2.Game
             }
 
 
-            collisionsCountA = 0;
-            collisionsCountB = 0;
-            collisionsCountC = 0;
+            //collisionsCountA = 0;
+            //collisionsCountB = 0;
+            //collisionsCountC = 0;
         }
 
         private void ActivateBoss(ushort musicFile)
@@ -1027,10 +996,10 @@ namespace Jazz2.Game
                     proxyA.OnHandleCollision(proxyB);
                     proxyB.OnHandleCollision(proxyA);
 
-                    collisionsCountC++;
+                    //collisionsCountC++;
                 }
 
-                collisionsCountB++;
+                //collisionsCountB++;
 
             });
         }
@@ -1043,7 +1012,7 @@ namespace Jazz2.Game
 
             actor.CollisionFlags |= CollisionFlags.TransformChanged;
 
-            collisionsCountA++;
+            //collisionsCountA++;
         }
 
         /*public void AddSpawnedActor(ActorBase actor)
@@ -1119,6 +1088,44 @@ namespace Jazz2.Game
                     Index = actor.Key.Index,
                     Identifier = actor.Value,
                 }, 32, connection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+            }
+        }
+
+        public void RevertTileMapIfEmpty()
+        {
+            const int EmptyTileDistance = 3;
+
+            if (tileMap == null) {
+                return;
+            }
+
+            int levelWidth = tileMap.Size.X;
+
+            for (int tx = 0; tx < tileMap.Size.X; tx++) {
+                for (int ty = 0; ty < tileMap.Size.Y; ty++) {
+                    ref LayerTile tile = ref tileMap.Layers[tileMap.SpriteLayerIndex].Layout[tx + ty * levelWidth];
+                    if (tile.DestructType == TileDestructType.None || tile.DestructFrameIndex == 0) {
+                        continue;
+                    }
+
+                    bool isEmpty = true;
+
+                    int x = tx * 32;
+                    int y = ty * 32;
+                    AABB aabb = new AABB(x - EmptyTileDistance * 32, y - EmptyTileDistance * 32, x + (EmptyTileDistance + 1) * 32, y + (EmptyTileDistance + 1) * 32);
+                    collisions.Query(actor => {
+                        if ((actor.CollisionFlags & CollisionFlags.CollideWithTileset) == 0) {
+                            return true;
+                        }
+
+                        isEmpty = false;
+                        return false;
+                    }, ref aabb);
+
+                    if (isEmpty) {
+                        tileMap.RevertDestructibleTileAnimationExternally(tx, ty);
+                    }
+                }
             }
         }
 

@@ -194,7 +194,7 @@ namespace Jazz2.Server
             availableCommands.Add("kick", HandleCommandKick);
             availableCommands.Add("kill", HandleCommandKill);
 
-            availableCommands.Add("show", HandleCommandShow);
+            availableCommands.Add("show_message", HandleCommandShowMessage);
 
             // Start process command loop
             while (true) {
@@ -368,6 +368,7 @@ namespace Jazz2.Server
                         case "th":
                             levelType = MultiplayerLevelType.TreasureHunt; break;
                         //case "coop-story":
+                        //case "cs":
                         //    levelType = MultiplayerLevelType.CoopStory; break;
                     }
 
@@ -427,8 +428,20 @@ namespace Jazz2.Server
 
         private static bool HandleCommandBan(string input)
         {
-            // ToDo
-            Log.Write(LogType.Error, "Not supported yet!");
+            if (int.TryParse(input, out int playerIndex)) {
+                if (gameServer.BanPlayer((byte)playerIndex)) {
+                    Log.Write(LogType.Info, "Player was banned from the server!");
+                } else {
+                    Log.Write(LogType.Error, "Player was not found!");
+                }
+            } else {
+                GameServer.PlayerClient player = gameServer.FindPlayerByUserName(input);
+                if (player != null && gameServer.BanPlayer(player.Index)) {
+                    Log.Write(LogType.Info, "Player was banned from the server!");
+                } else {
+                    Log.Write(LogType.Error, "Player was not found!");
+                }
+            }
 
             return true;
         }
@@ -453,7 +466,12 @@ namespace Jazz2.Server
                     Log.Write(LogType.Error, "Player was not found!");
                 }
             } else {
-                Log.Write(LogType.Error, "You have to specify player index! (or :all to kick all players)");
+                GameServer.PlayerClient player = gameServer.FindPlayerByUserName(input);
+                if (player != null && gameServer.KickPlayer(player.Index)) {
+                    Log.Write(LogType.Info, "Player was kicked from the server!");
+                } else {
+                    Log.Write(LogType.Error, "Player was not found!");
+                }
             }
 
             return true;
@@ -471,13 +489,18 @@ namespace Jazz2.Server
                     Log.Write(LogType.Error, "Player was not found!");
                 }
             } else {
-                Log.Write(LogType.Error, "You have to specify player index! (or :all to kill all players)");
+                GameServer.PlayerClient player = gameServer.FindPlayerByUserName(input);
+                if (player != null && gameServer.KillPlayer(player.Index)) {
+                    Log.Write(LogType.Info, "Player was killed!");
+                } else {
+                    Log.Write(LogType.Error, "Player was not found!");
+                }
             }
 
             return true;
         }
 
-        private static bool HandleCommandShow(string input)
+        private static bool HandleCommandShowMessage(string input)
         {
             string target = GetPartFromInput(ref input);
 
@@ -495,7 +518,13 @@ namespace Jazz2.Server
                 gameServer.ShowMessageToPlayer((byte)playerIndex, input);
                 Log.Write(LogType.Info, "Message was sent to specified player!");
             } else {
-                Log.Write(LogType.Error, "You have to specify player index! (or :all to select all players)");
+                GameServer.PlayerClient player = gameServer.FindPlayerByUserName(target);
+                if (player != null) {
+                    gameServer.ShowMessageToPlayer(player.Index, input);
+                    Log.Write(LogType.Info, "Player was sent to specified player!");
+                } else {
+                    Log.Write(LogType.Error, "Player was not found!");
+                }
             }
 
             return true;
@@ -572,6 +601,7 @@ namespace Jazz2.Server
         public static void Main()
         {
             System.Console.WriteLine("Multiplayer is disabled in this build configuration!");
+            System.Console.ReadKey(true);
         }
     }
 }

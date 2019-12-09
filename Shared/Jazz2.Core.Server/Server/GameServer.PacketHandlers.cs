@@ -3,8 +3,10 @@
 using System;
 using System.Collections.Generic;
 using Duality;
+using Duality.Async;
 using Jazz2.Actors;
 using Jazz2.Game;
+using Jazz2.Game.Structs;
 using Jazz2.Networking;
 using Jazz2.Networking.Packets.Client;
 using Jazz2.Networking.Packets.Server;
@@ -19,7 +21,6 @@ namespace Jazz2.Server
             AddCallback<LevelReady>(OnPacketLevelReady);
             AddCallback<PlayerUpdate>(OnPacketPlayerUpdate);
             AddCallback<PlayerRefreshAnimation>(OnPacketPlayerRefreshAnimation);
-
             AddCallback<PlayerFireWeapon>(OnPacketPlayerFireWeapon);
         }
 
@@ -36,9 +37,19 @@ namespace Jazz2.Server
                 throw new InvalidOperationException();
             }
 
+            // TODO: Allow player type change
+            player.PlayerType = p.PlayerType;
+
             lock (sync) {
+                if (player.State >= PlayerState.HasLevelLoaded) {
+                    // Player has already loaded level, he might want to only change player type
+                    return;
+                }
+
                 // Add connection to list, so it will start to receive gameplay events from server
-                playerConnections.Add(p.SenderConnection);
+                if (!playerConnections.Contains(p.SenderConnection)) {
+                    playerConnections.Add(p.SenderConnection);
+                }
 
                 if (!playerSpawningEnabled) {
                     // If spawning is not enabled, postpone spawning of the player,
@@ -52,7 +63,7 @@ namespace Jazz2.Server
 
                         if (pair.Value.State == PlayerState.Spawned && pair.Value.ProxyActor != null) {
                             string metadataPath;
-                            switch (pair.Value.ProxyActor.PlayerType) {
+                            switch (pair.Value.PlayerType) {
                                 default:
                                 case PlayerType.Jazz:
                                     metadataPath = "Interactive/PlayerJazz";
@@ -85,7 +96,7 @@ namespace Jazz2.Server
                         player.ProxyActor.OnActivated(new ActorActivationDetails {
                             LevelHandler = levelHandler,
                             Pos = pos,
-                            Params = new[] { (ushort)MathF.Rnd.OneOf(new[] { PlayerType.Jazz, PlayerType.Spaz, PlayerType.Lori }), (ushort)0 }
+                            Params = new[] { (ushort)player.PlayerType, (ushort)0 }
                         });
                         levelHandler.AddPlayer(player.ProxyActor);
                     } else {
@@ -96,10 +107,11 @@ namespace Jazz2.Server
 
                     Send(new CreateControllablePlayer {
                         Index = player.Index,
-                        Type = player.ProxyActor.PlayerType,
+                        Type = player.PlayerType,
                         Pos = pos,
-                        Health = playerHealth
-                    }, 10, p.SenderConnection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
+                        Health = playerHealth,
+                        Controllable = levelStarted
+                    }, 11, p.SenderConnection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
 
                     // Send command to create all already spawned players
                     string metadataPath;
@@ -113,7 +125,7 @@ namespace Jazz2.Server
                             playersWithLoadedLevel.Add(pair.Key);
 
                             if (pair.Value.State == PlayerState.Spawned) {
-                                switch (pair.Value.ProxyActor.PlayerType) {
+                                switch (pair.Value.PlayerType) {
                                     default:
                                     case PlayerType.Jazz:
                                         metadataPath = "Interactive/PlayerJazz";
@@ -139,7 +151,7 @@ namespace Jazz2.Server
                         }
                     }
 
-                    switch (player.ProxyActor.PlayerType) {
+                    switch (player.PlayerType) {
                         default:
                         case PlayerType.Jazz:
                             metadataPath = "Interactive/PlayerJazz";
@@ -177,10 +189,43 @@ namespace Jazz2.Server
                 }*/
 
                 levelHandler.SendAllSpawnedActors(p.SenderConnection);
+
+                if (!levelStarted) {
+                    bool allLoaded = true;
+                    if (playerSpawningEnabled) {
+                        // If spawning is not enabled, don't wait anymore, because another player cannot be spawned anyway
+                        foreach (var pair in players) {
+                            if (pair.Value.State == PlayerState.NotReady) {
+                                allLoaded = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (allLoaded) {
+                        // All players are ready to player, start game in 15 seconds
+                        countdown = 15f;
+                        countdownNotify = int.MaxValue;
+                    }
+                }
+
+                if (currentLevelType == MultiplayerLevelType.Race) {
+                    SendToActivePlayers(new PlayerSetLaps {
+                        Index = (byte)0,
+                        Laps = 0,
+                        LapsTotal = raceTotalLaps
+                    }, 4, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+                } else if (CurrentLevelType == MultiplayerLevelType.TreasureHunt) {
+                    SendToActivePlayers(new PlayerSetLaps {
+                        Index = (byte)0,
+                        Laps = 0,
+                        LapsTotal = treasureHuntTotalGems
+                    }, 4, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+                }
             }
 
 #if DEBUG
-            Log.Write(LogType.Verbose, "[Dev] Player #" + player.Index + " is ready to play");
+            Log.Write(LogType.Verbose, "Player #" + player.Index + " is ready to play");
 #endif
         }
 
@@ -209,7 +254,7 @@ namespace Jazz2.Server
             }
 
             proxyActor.Transform.Pos = p.Pos;
-            proxyActor.SyncWithClient(p.CurrentSpecialMove, p.IsFacingLeft, p.IsActivelyPushing);
+            proxyActor.SyncWithClient(p.Speed, p.CurrentSpecialMove, p.IsVisible, p.IsFacingLeft, p.IsActivelyPushing);
         }
 
         private void OnPacketPlayerRefreshAnimation(ref PlayerRefreshAnimation p)
@@ -245,16 +290,24 @@ namespace Jazz2.Server
                 throw new InvalidOperationException();
             }
 
+            Vector3 initialPos = p.InitialPos;
+            Vector3 gunspotPos = p.GunspotPos;
+            float angle = p.Angle;
+            WeaponType weaponType = p.WeaponType;
+
             Player proxyActor = player.ProxyActor;
-            if (proxyActor == null) {
-                return;
-            }
 
-            proxyActor.LastInitialPos = p.InitialPos;
-            proxyActor.LastGunspotPos = p.GunspotPos;
-            proxyActor.LastAngle = p.Angle;
+            Await.NextUpdate().OnCompleted(() => {
+                if (proxyActor == null) {
+                    return;
+                }
 
-            proxyActor.FireWeapon(p.WeaponType);
+                proxyActor.LastInitialPos = initialPos;
+                proxyActor.LastGunspotPos = gunspotPos;
+                proxyActor.LastAngle = angle;
+
+                proxyActor.FireWeapon(weaponType);
+            });
         }
 
         /// <summary>

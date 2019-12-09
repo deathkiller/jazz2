@@ -67,7 +67,7 @@ namespace Jazz2.Actors.Environment
             player.WarpToPosition(targetPos, fast);
 
 #if MULTIPLAYER && SERVER
-            ((LevelHandler)levelHandler).OnPlayerIncrementLap(player);
+            ((LevelHandler)levelHandler).OnPlayerIncrementLaps(player);
 #endif
         }
     }

@@ -113,7 +113,7 @@ namespace Jazz2.Game
 
             ContentResolver.Current.ReleaseUnreferencedResources();
 
-            UpdateRichPresence(null);
+            UpdateRichPresence(null, null);
         }
 
         public void PlayCinematics(string name, Action<bool> endCallback)
@@ -123,7 +123,7 @@ namespace Jazz2.Game
             Scene.Current.DisposeLater();
             Scene.SwitchTo(new Cinematics(this, name, endCallback));
 
-            UpdateRichPresence(null);
+            UpdateRichPresence(null, null);
         }
 
         public void ChangeLevel(LevelInitialization levelInit = default(LevelInitialization))
@@ -190,7 +190,7 @@ namespace Jazz2.Game
 
                         GCSettings.LatencyMode = GCLatencyMode.LowLatency;
 
-                        UpdateRichPresence(levelInit);
+                        UpdateRichPresence(levelInit, null);
                     } else {
                         // Next episode not found...
                         ShowMainMenu(false);
@@ -261,7 +261,7 @@ namespace Jazz2.Game
 
                     GCSettings.LatencyMode = GCLatencyMode.LowLatency;
 
-                    UpdateRichPresence(levelInit);
+                    UpdateRichPresence(levelInit, null);
                 } catch (Exception ex) {
                     Log.Write(LogType.Error, "Cannot load level: " + ex);
 
@@ -302,7 +302,7 @@ namespace Jazz2.Game
         }
 
         partial void InitRichPresence();
-        partial void UpdateRichPresence(LevelInitialization? levelInit);
+        partial void UpdateRichPresence(LevelInitialization? levelInit, string targetName);
     }
 }
 
