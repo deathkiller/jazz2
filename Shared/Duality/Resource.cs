@@ -78,7 +78,7 @@ namespace Duality
 				res.Dispose(false);
 
 #if DEBUG
-				Log.Write(LogType.Info, "Disposing resource \"" + res + "\" (" + res.GetType().FullName + ")...");
+				//Log.Write(LogType.Info, "Disposing resource \"" + res + "\" (" + res.GetType().FullName + ")...");
 #endif
 			}
 		}

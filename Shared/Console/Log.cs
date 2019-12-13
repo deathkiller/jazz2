@@ -59,8 +59,20 @@ namespace Duality
 
             if (!hasConsoleWindow) {
                 if (!Debugger.IsAttached) {
+#if MULTIPLAYER && SERVER
+                    const string LogFilename = "Jazz2.Server.log";
+#else
+                    const string LogFilename = "Jazz2.log";
+#endif
                     try {
-                        logStream = new StreamWriter(Path.Combine(App.AssemblyPath, "Jazz2.log"));
+                        bool isPortable = File.Exists(Path.Combine(App.AssemblyPath, "Jazz2.settings"));
+                        if (isPortable) {
+                            logStream = new StreamWriter(Path.Combine(App.AssemblyPath, LogFilename));
+                        } else {
+                            string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Jazz2");
+                            Directory.CreateDirectory(path);
+                            logStream = new StreamWriter(Path.Combine(path, LogFilename));
+                        }
                     } catch {
                         // Nothing to do...
                     }

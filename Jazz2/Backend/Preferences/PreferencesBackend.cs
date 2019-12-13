@@ -5,7 +5,6 @@ using System.Reflection;
 using Duality;
 using Duality.Backend;
 using Duality.IO;
-using Jazz2.Game;
 using Jazz2.Storage;
 
 namespace Jazz2.Backend
@@ -31,6 +30,9 @@ namespace Jazz2.Backend
             data = new Dictionary<string, object>();
 
             string path = PathOp.Combine(PathOp.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Jazz2.settings");
+            if (!FileOp.Exists(path)) {
+                path = PathOp.Combine(DualityApp.SystemBackend.GetNamedPath(NamedDirectory.ApplicationData), "Jazz2", "Jazz2.settings");
+            }
 
             if (!FileOp.Exists(path)) {
                 dirty = true;
@@ -165,7 +167,16 @@ namespace Jazz2.Backend
 
             dirty = false;
 
-            string path = PathOp.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location) + ".settings";
+            string path = PathOp.Combine(PathOp.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Jazz2.settings");
+            if (!FileOp.Exists(path)) {
+                path = PathOp.Combine(DualityApp.SystemBackend.GetNamedPath(NamedDirectory.ApplicationData), "Jazz2", "Jazz2.settings");
+            }
+
+            try {
+                DirectoryOp.Create(PathOp.GetDirectoryName(path));
+            } catch {
+                // Nothing to do...
+            }
 
             try {
                 using (Stream s = FileOp.Create(path))
