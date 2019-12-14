@@ -416,7 +416,7 @@ namespace Jazz2.Server
         private static string GenerateRandomUserName()
         {
             string[] prefixes = {
-                "be", "gi", "gla", "le", "ti", "xe"
+                "Be", "Gi", "Gla", "Le", "Ti", "Xe"
             };
             string[] syllables = {
                 "blarg", "fay", "izen", "mon", "rash", "ray", "shi", "zag"
@@ -427,14 +427,15 @@ namespace Jazz2.Server
 
             StringBuilder sb = new StringBuilder(32);
 
-            if (MathF.Rnd.NextBool()) {
+            bool hasPrefix = MathF.Rnd.NextBool();
+            if (hasPrefix) {
                 sb.Append(prefixes[MathF.Rnd.Next(prefixes.Length)]);
             }
 
-            int syllableCount = 2 + MathF.Rnd.Next(3);
+            int syllableCount = 1 + MathF.Rnd.Next(3);
             for (int i = 0; i < syllableCount; i++) {
                 string syllable = syllables[MathF.Rnd.Next(syllables.Length)];
-                if (i == 0) {
+                if (i == 0 && !hasPrefix) {
                     syllable = char.ToUpperInvariant(syllable[0]) + syllable.Substring(1);
                 }
 
@@ -446,7 +447,7 @@ namespace Jazz2.Server
             }
 
             if (MathF.Rnd.NextBool()) {
-                sb.Append(MathF.Rnd.Next(100).ToString("N2"));
+                sb.Append((10 + MathF.Rnd.Next(90)).ToString("N0"));
             }
 
             return sb.ToString();

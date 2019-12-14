@@ -81,7 +81,8 @@ void main() {
     float time = GameTime * 0.065;
     vec2 viewSizeInv = (1.0 / ViewSize);
 
-    vec2 uvWorld = vTexcoord0.xy + (CameraPosition.xy * viewSizeInv.xy);
+    vec2 uvWorldCenter = (CameraPosition.xy * viewSizeInv.xy);
+    vec2 uvWorld = vTexcoord0.xy + uvWorldCenter;
 
     float waveHeight = wave(uvWorld.x, time);
     float isTexelBelow = aastep(waveHeight, vTexcoord0.y - waterLevel);

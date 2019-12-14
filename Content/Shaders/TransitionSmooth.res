@@ -21,7 +21,7 @@ float ease(float time) {
 }
  
 void main() {
-    vec2 uv = (gl_FragCoord / ViewSize) - vec2(0.5);
+    vec2 uv = (gl_FragCoord.xy / ViewSize) - vec2(0.5);
     uv = uv * vec2(ViewSize / vec2(max(ViewSize.x, ViewSize.y)));
 
     float distance = length(uv);

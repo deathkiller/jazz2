@@ -57,6 +57,7 @@ Global
 		Shared\Duality\Duality.projitems*{74e972a2-711f-4a9f-8d0b-aaef2f02dd48}*SharedItemsImports = 4
 		Shared\Jazz2.Core.Client\Jazz2.Core.Client.projitems*{74e972a2-711f-4a9f-8d0b-aaef2f02dd48}*SharedItemsImports = 4
 		Shared\Jazz2.Core\Jazz2.Core.projitems*{74e972a2-711f-4a9f-8d0b-aaef2f02dd48}*SharedItemsImports = 4
+		Shared\Networking\Networking.projitems*{74e972a2-711f-4a9f-8d0b-aaef2f02dd48}*SharedItemsImports = 4
 		Shared\Primitives\Primitives.projitems*{74e972a2-711f-4a9f-8d0b-aaef2f02dd48}*SharedItemsImports = 4
 		Shared\Console\Console.projitems*{7cc64746-8ba3-49ed-affc-ae4308ac1fa4}*SharedItemsImports = 4
 		Shared\Duality\Duality.projitems*{7cc64746-8ba3-49ed-affc-ae4308ac1fa4}*SharedItemsImports = 4
