@@ -1,22 +1,36 @@
-﻿using Jazz2.Game.Structs;
-using Jazz2.Networking.Packets.Client;
+﻿using Duality;
 
 namespace Jazz2.Actors
 {
     partial class Player
     {
-        public UpdateSelf CreateUpdatePacket()
+        internal SpecialMoveType CurrentSpecialMove => currentSpecialMove;
+        internal bool IsActivelyPushing => isActivelyPushing;
+
+#if MULTIPLAYER && SERVER
+        public void SyncWithClient(Vector3 speed, SpecialMoveType specialMove, bool isVisible, bool isFacingLeft, bool isActivelyPushing)
         {
-            return new UpdateSelf {
-                Pos = Transform.Pos,
+            this.speedX = speed.X;
+            this.speedY = speed.Y;
 
-                AnimState = (currentTransitionState != AnimState.Idle ? currentTransitionState : currentAnimationState),
-                AnimTime = (renderer.Active ? renderer.AnimTime : -1),
-                IsFacingLeft = IsFacingLeft,
+            this.currentSpecialMove = specialMove;
 
-                Controllable = controllable,
-                IsFirePressed = wasFirePressed
-            };
+            //if (renderer != null) {
+            //    renderer.AnimHidden = !isVisible;
+            //}
+            
+            this.IsFacingLeft = isFacingLeft;
+            this.isActivelyPushing = isActivelyPushing;
         }
+
+        public void OnRefreshActorAnimation(string identifier)
+        {
+            //SetAnimation(identifier);
+
+            //OnUpdateHitbox();
+
+            levelHandler.BroadcastAnimationChanged(this, identifier);
+        }
+#endif
     }
 }

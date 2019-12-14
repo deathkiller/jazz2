@@ -9,7 +9,6 @@
     <Import_RootNamespace>Jazz2.Networking</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\ActorBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)App.Multiplayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Base\NetBitVector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Base\NetBitWriter.cs" />
@@ -67,32 +66,43 @@
     <Compile Include="$(MSBuildThisFileDirectory)Base\NetUtility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Base\Platform\PlatformAndroid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Base\Platform\PlatformWin32.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)IRemotableActor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MultiplayerLevelType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\CreateRemotableActor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\DestroyRemotableActor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\LevelReady.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\RemotePlayerHit.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\SelfDied.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\PlayerFireWeapon.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\UpdateRemotableActor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\UpdateSelf.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\PlayerUpdate.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Client\PlayerRefreshAnimation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\IClientPacket+IServerPacket.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)NetworkHandler.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)NetworkLevelHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MultiplayerLevelHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\AdvanceTileAnimation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\PlayerActivateForce.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\CreateControllablePlayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\CreateRemoteActor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\DecreasePlayerHealth.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\PlayerAddHealth.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\PlayerRefreshWeaponUpgrades.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\PlayerSetControllable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\PlayerSetDizzyTime.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\PlayerSetInvulnerability.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\PlayerSetLaps.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\PlayerSetModifier.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\PlayerSetStats.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\PlayerTakeDamage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\DestroyRemoteActor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\PlayerRefreshAmmo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\PlayerWarpToPosition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\PlaySound.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\RefreshActorAnimation.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\RemotePlayerDied.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Player.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\RemoteActor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\RemotePlayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\RevertTileAnimation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\SetTrigger.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\ShowMessage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerDiscovery.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\PacketChannels.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\SpecialPacketTypes.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\CreateRemotePlayer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\DestroyRemotePlayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Packets\Server\LoadLevel.cs" />
   </ItemGroup>
 </Project>

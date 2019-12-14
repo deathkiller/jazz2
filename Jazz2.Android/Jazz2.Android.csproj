@@ -27,7 +27,7 @@
     <DebugType>Full</DebugType>
     <Optimize>False</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET45 PLATFORM_ANDROID ENABLE_TOUCH FAIL_ON_SHADER_COMPILE_ERROR</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET45 PLATFORM_ANDROID UNSAFE MULTIPLAYER ENABLE_TOUCH FAIL_ON_SHADER_COMPILE_ERROR</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AndroidUseSharedRuntime>True</AndroidUseSharedRuntime>
@@ -38,13 +38,16 @@
     <AndroidSupportedAbis>armeabi-v7a;x86</AndroidSupportedAbis>
     <LangVersion>latest</LangVersion>
     <MandroidI18n />
+    <AndroidDexTool>d8</AndroidDexTool>
+    <AndroidLinkTool>r8</AndroidLinkTool>
+    <AndroidPackageFormat>apk</AndroidPackageFormat>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>PdbOnly</DebugType>
     <DebugSymbols>false</DebugSymbols>
     <Optimize>True</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NET45 PLATFORM_ANDROID ENABLE_TOUCH FAIL_ON_SHADER_COMPILE_ERROR</DefineConstants>
+    <DefineConstants>TRACE;NET45 PLATFORM_ANDROID UNSAFE MULTIPLAYER ENABLE_TOUCH FAIL_ON_SHADER_COMPILE_ERROR</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AndroidUseSharedRuntime>False</AndroidUseSharedRuntime>
@@ -54,9 +57,12 @@
     <AotAssemblies>true</AotAssemblies>
     <EnableLLVM>true</EnableLLVM>
     <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
-    <EnableProguard>true</EnableProguard>
     <AndroidSupportedAbis>armeabi-v7a;x86</AndroidSupportedAbis>
     <BundleAssemblies>false</BundleAssemblies>
+    <AndroidDexTool>d8</AndroidDexTool>
+    <AndroidPackageFormat>apk</AndroidPackageFormat>
+    <AndroidLinkTool>r8</AndroidLinkTool>
+    <AndroidKeyStore>false</AndroidKeyStore>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Mono.Android" />
@@ -164,7 +170,8 @@
     <AndroidResource Include="Resources\mipmap-xxhdpi\ic_foreground.png" />
   </ItemGroup>
   <Import Project="..\Shared\Networking\Networking.projitems" Label="Shared" Condition="$(DefineConstants.Contains('MULTIPLAYER'))" />
-  <Import Project="..\Jazz2.Core\Jazz2.Core.projitems" Label="Shared" />
+  <Import Project="..\Shared\Jazz2.Core\Jazz2.Core.projitems" Label="Shared" />
+  <Import Project="..\Shared\Jazz2.Core.Client\Jazz2.Core.Client.projitems" Label="Shared" />
   <Import Project="..\Shared\Duality\Duality.projitems" Label="Shared" />
   <Import Project="..\Shared\Primitives\Primitives.projitems" Label="Shared" />
   <Import Project="..\Shared\Networking\Networking.projitems" Label="Shared" Condition="$(DefineConstants.Contains('MULTIPLAYER'))" />

@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>aba9879a-495c-46b3-8f2f-d7aa0f9a793a</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Jazz2.Core.UI</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Game\Components\ActorRenderer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\Components\CameraController.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\LevelHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\LevelRenderSetup.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\BitmapFont.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Cinematics.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Hud.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\AboutSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\BeginSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\CustomGameSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\CustomLevelSelectSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\EpisodeSelectSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\IMenuContainer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\InGame\InGameBeginSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\InGame\InGameMenu.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\InGame\InGameMenuRenderSetup.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\MainMenu.Background.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\MainMenu.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\MainMenuRenderSetup.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\MenuSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\MultiplayerServerSelectSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\ReinstallNeededSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\ChoiceControl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\ControlsSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\LinkControl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\MainMenuSectionWithControls.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\MenuControlBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\RescaleSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\SettingsSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\SliderControl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\StartGameOptionsSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\TransitionManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Misc\ControlScheme.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Misc\Ease.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Misc\OpenMptStream.cs" />
+  </ItemGroup>
+</Project>

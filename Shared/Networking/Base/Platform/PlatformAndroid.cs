@@ -60,9 +60,9 @@ namespace Lidgren.Network
             System.Threading.Thread.Sleep(milliseconds);
         }
 
-        public static IPAddress GetBroadcastAddress()
+        public static IList<IPAddress> GetBroadcastAddresses()
         {
-            return IPAddress.Broadcast;
+            return new[] { IPAddress.Broadcast };
         }
 
         public static IPAddress CreateAddressFromBytes(byte[] bytes)

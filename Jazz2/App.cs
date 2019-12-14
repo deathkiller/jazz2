@@ -74,7 +74,7 @@ namespace Jazz2.Game
             try {
                 Environment.CurrentDirectory = AssemblyPath;
             } catch (Exception ex) {
-                Console.WriteLine("Cannot override current directory: " + ex);
+                Log.Write(LogType.Warning, "Cannot override working directory: " + ex);
             }
 
             DualityApp.Init(DualityApp.ExecutionContext.Game, new DefaultAssemblyLoader(AssemblyPath), args);

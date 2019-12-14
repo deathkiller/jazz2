@@ -16,7 +16,7 @@ namespace Jazz2.Game
             }
         }
 
-        partial void UpdateRichPresence(LevelInitialization? levelInit)
+        partial void UpdateRichPresence(LevelInitialization? levelInit, string targetName)
         {
             if (discord == null) {
                 return;
@@ -29,31 +29,37 @@ namespace Jazz2.Game
                     LargeImage = "main-transparent"
                 };
             } else {
-                string state;
-                string smallImage;
+                string details, state, smallImage;
                 if (levelInit.Value.PlayerCarryOvers.Length == 0 && levelInit.Value.Difficulty == GameDifficulty.Multiplayer) {
-                    state = "Playing Online Multiplayer";
+                    details = "Playing Online Multiplayer";
                     smallImage = "playing-online";
                 } else if (levelInit.Value.PlayerCarryOvers.Length == 1) {
                     if (levelInit.Value.EpisodeName != "unknown") {
-                        state = "Playing Story as ";
+                        details = "Playing Story as ";
                     } else {
-                        state = "Playing Custom Game as ";
+                        details = "Playing Custom Game as ";
                     }
 
                     switch (levelInit.Value.PlayerCarryOvers[0].Type) {
                         default:
-                        case PlayerType.Jazz: state += "Jazz"; smallImage = "playing-jazz"; break;
-                        case PlayerType.Spaz: state += "Spaz"; smallImage = "playing-spaz"; break;
-                        case PlayerType.Lori: state += "Lori"; smallImage = "playing-lori"; break;
+                        case PlayerType.Jazz: details += "Jazz"; smallImage = "playing-jazz"; break;
+                        case PlayerType.Spaz: details += "Spaz"; smallImage = "playing-spaz"; break;
+                        case PlayerType.Lori: details += "Lori"; smallImage = "playing-lori"; break;
                     }
                 } else {
-                    state = "Playing Local Multiplayer";
+                    details = "Playing Local Multiplayer";
                     smallImage = null;
+                }
+
+                if (!string.IsNullOrEmpty(targetName)) {
+                    state = "— on " + targetName;
+                } else {
+                    state = null;
                 }
 
                 richPresence = new RichPresence {
                     State = state,
+                    Details = details,
                     LargeImage = "main-transparent",
                     SmallImage = smallImage,
                     SmallImageTooltip = state

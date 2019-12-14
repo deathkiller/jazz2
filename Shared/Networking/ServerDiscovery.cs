@@ -1,15 +1,16 @@
-﻿using System;
+﻿#if MULTIPLAYER && !SERVER
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Text;
-using System.Text.Json;
 using System.Threading;
 using Jazz2.Networking;
 using Lidgren.Network;
 
-namespace Jazz2.Game.Multiplayer
+namespace Jazz2.Game
 {
     public sealed class ServerDiscovery : IDisposable
     {
@@ -64,7 +65,6 @@ namespace Jazz2.Game.Multiplayer
 
         private Dictionary<string, Server> foundServers;
         private Dictionary<string, List<IPEndPoint>> publicEndPoints;
-        private JsonParser jsonParser;
 
         public ServerDiscovery(string appId, int port, ServerUpdatedCallbackDelegate serverUpdatedAction)
         {
@@ -77,7 +77,6 @@ namespace Jazz2.Game.Multiplayer
 
             foundServers = new Dictionary<string, Server>();
             publicEndPoints = new Dictionary<string, List<IPEndPoint>>();
-            jsonParser = new JsonParser();
 
             NetPeerConfiguration config = new NetPeerConfiguration(appId);
             config.EnableMessageType(NetIncomingMessageType.DiscoveryResponse);
@@ -306,7 +305,7 @@ namespace Jazz2.Game.Multiplayer
             deviceId += "|Android " + global::Android.OS.Build.VERSION.Release + "|";
                 
             try {
-                string device = (string.IsNullOrEmpty(Build.Model) ? Build.Manufacturer : (Build.Model.StartsWith(Build.Manufacturer) ? Build.Model : Build.Manufacturer + " " + Build.Model));
+                string device = (string.IsNullOrEmpty(global::Android.OS.Build.Model) ? global::Android.OS.Build.Manufacturer : (global::Android.OS.Build.Model.StartsWith(global::Android.OS.Build.Manufacturer) ? global::Android.OS.Build.Model : global::Android.OS.Build.Manufacturer + " " + global::Android.OS.Build.Model));
 
                 if (device == null) {
                     device = "";
@@ -346,7 +345,7 @@ namespace Jazz2.Game.Multiplayer
                     return;
                 }
 
-                json = jsonParser.Parse<ServerListJson>(content);
+                json = ContentResolver.Current.Json.Parse<ServerListJson>(content);
             } catch {
                 // Nothing to do...
                 return;
@@ -461,3 +460,5 @@ namespace Jazz2.Game.Multiplayer
         }
     }
 }
+
+#endif

@@ -1,9 +1,10 @@
-﻿using System;
+﻿#if MULTIPLAYER && !SERVER
+
+using System;
 using System.Net;
 using System.Runtime;
 using Duality.Async;
 using Duality.Resources;
-using Jazz2.Game.Multiplayer;
 using Jazz2.Game.Structs;
 using Jazz2.Networking.Packets.Server;
 using Jazz2.Storage;
@@ -12,16 +13,16 @@ namespace Jazz2.Game
 {
     partial class App
     {
-        private NetworkHandler net;
+        private GameClient client;
 
         public void ConnectToServer(IPEndPoint endPoint)
         {
             // ToDo
-            const string token = "J²";
+            const string Token = "J²";
 
-            if (net != null) {
-                net.OnDisconnected -= OnNetworkDisconnected;
-                net.Close();
+            if (client != null) {
+                client.OnDisconnected -= OnPacketDisconnected;
+                client.Close();
             }
 
             byte[] clientIdentifier = Preferences.Get<byte[]>("ClientIdentifier");
@@ -42,16 +43,16 @@ namespace Jazz2.Game
                 }
             }
 
-            net = new NetworkHandler(token, clientIdentifier, userName);
-            net.OnDisconnected += OnNetworkDisconnected;
-            net.AddCallback<LoadLevel>(OnNetworkLoadLevel);
-            net.Connect(endPoint);
+            client = new GameClient(Token, clientIdentifier, userName);
+            client.OnDisconnected += OnPacketDisconnected;
+            client.AddCallback<LoadLevel>(OnPacketLoadLevel);
+            client.Connect(endPoint);
         }
 
         /// <summary>
         /// Player was disconnected from server
         /// </summary>
-        private void OnNetworkDisconnected()
+        private void OnPacketDisconnected()
         {
             Await.NextAfterUpdate().OnCompleted(() => {
                 ShowMainMenu(false);
@@ -61,25 +62,26 @@ namespace Jazz2.Game
         /// <summary>
         /// Player was requested to load a new level
         /// </summary>
-        private void OnNetworkLoadLevel(ref LoadLevel p)
+        private void OnPacketLoadLevel(ref LoadLevel p)
         {
-            string episodeName;
-            string levelName = p.LevelName;
-            int i = levelName.IndexOf('/');
-            if (i != -1) {
-                episodeName = levelName.Substring(0, i);
-                levelName = levelName.Substring(i + 1);
-            } else {
+            int i = p.LevelName.IndexOf('/');
+            if (i == -1) {
                 return;
             }
 
+            string serverName = p.ServerName;
+
+            string episodeName = p.LevelName.Substring(0, i);
+            string levelName = p.LevelName.Substring(i + 1);
+
             byte playerIndex = p.AssignedPlayerIndex;
+            MultiplayerLevelType levelType = p.LevelType;
 
             Await.NextAfterUpdate().OnCompleted(() => {
                 LevelInitialization levelInit = new LevelInitialization(episodeName, levelName, GameDifficulty.Multiplayer);
 
                 Scene.Current.Dispose();
-                Scene.SwitchTo(new NetworkLevelHandler(this, net, levelInit, playerIndex));
+                Scene.SwitchTo(new MultiplayerLevelHandler(this, client, levelInit, levelType, playerIndex));
 
                 GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
                 GC.Collect();
@@ -87,8 +89,10 @@ namespace Jazz2.Game
 
                 GCSettings.LatencyMode = GCLatencyMode.LowLatency;
 
-                UpdateRichPresence(levelInit);
+                UpdateRichPresence(levelInit, serverName);
             });
         }
     }
 }
+
+#endif
