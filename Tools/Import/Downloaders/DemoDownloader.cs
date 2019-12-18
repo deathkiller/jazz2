@@ -13,19 +13,24 @@ namespace Import.Downloaders
 
         public static bool Run(string targetPath, string exePath)
         {
-            Log.Write(LogType.Info, "Downloading Shareware Demo (7 MB)...");
-            Log.PushIndent();
+            string zipFile = Path.GetFileName(Url);
+            bool zipExists = File.Exists(zipFile);
 
-            string zipFile = Path.Combine(Path.GetTempPath(), "Jazz2-" + Guid.NewGuid());
+            if (!zipExists) {
+                Log.Write(LogType.Info, "Downloading Shareware Demo (7 MB)...");
+                Log.PushIndent();
 
-            try {
-                using (WebClient client = new WebClient()) {
-                    client.DownloadFile(Url, zipFile);
+                zipFile = Path.Combine(Path.GetTempPath(), "Jazz2-" + Guid.NewGuid());
+
+                try {
+                    using (WebClient client = new WebClient()) {
+                        client.DownloadFile(Url, zipFile);
+                    }
+                } catch (Exception ex) {
+                    Log.Write(LogType.Error, "Failed to download required files: " + ex.ToString());
+                    Log.PopIndent();
+                    return false;
                 }
-            } catch (Exception ex) {
-                Log.Write(LogType.Error, "Failed to download required files: " + ex.ToString());
-                Log.PopIndent();
-                return false;
             }
 
             string tempDir = Path.Combine(Path.GetTempPath(), "Jazz2-" + Guid.NewGuid());
@@ -55,8 +60,10 @@ namespace Import.Downloaders
                 Log.PopIndent();
                 return false;
             } finally {
-                // Try to delete downloaded ZIP file
-                FileSystemUtils.FileTryDelete(zipFile);
+                if (!zipExists) {
+                    // Try to delete downloaded ZIP file
+                    FileSystemUtils.FileTryDelete(zipFile);
+                }
 
                 // Try to delete extracted files
                 FileSystemUtils.DirectoryTryDelete(tempDir, true);
