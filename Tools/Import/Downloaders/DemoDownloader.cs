@@ -11,7 +11,7 @@ namespace Import.Downloaders
     {
         private const string Url = "http://deat.tk/public/jazz2/demo.zip";
 
-        public static bool Run(string targetPath)
+        public static bool Run(string targetPath, string exePath)
         {
             Log.Write(LogType.Info, "Downloading Shareware Demo (7 MB)...");
             Log.PushIndent();
@@ -45,7 +45,7 @@ namespace Import.Downloaders
                 usedMusic.Add("bonus3");
                 usedMusic.Add("menu");
 
-                App.ConvertJJ2Anims(tempDir, targetPath);
+                App.ConvertJJ2Anims(tempDir, targetPath, exePath);
                 App.ConvertJJ2Levels(tempDir, targetPath, usedTilesets, usedMusic);
                 App.ConvertJJ2Cinematics(tempDir, targetPath, usedMusic, false);
                 App.ConvertJJ2Music(tempDir, targetPath, usedMusic, false);
