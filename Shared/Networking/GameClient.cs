@@ -1,7 +1,6 @@
 ﻿#if MULTIPLAYER && !SERVER
 
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using Duality;
@@ -24,7 +23,7 @@ namespace Jazz2.Game
         private int downloadPacketBytesLast, uploadPacketBytesLast, statsLastTime;
 #endif
 
-        public event Action OnDisconnected;
+        public event Action<string> OnDisconnected;
         public event Action<NetIncomingMessage> OnUpdateAllActors;
 
         public bool IsConnected => (client != null && client.ConnectionStatus != NetConnectionStatus.Disconnected && client.ConnectionStatus != NetConnectionStatus.Disconnecting);
@@ -122,7 +121,8 @@ namespace Jazz2.Game
 #endif
                                 
                             if (status == NetConnectionStatus.Disconnected) {
-                                OnDisconnected?.Invoke();
+                                string reason = msg.ReadString();
+                                OnDisconnected?.Invoke(reason);
                             }
 
                             break;

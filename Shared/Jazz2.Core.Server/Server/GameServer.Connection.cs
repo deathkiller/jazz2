@@ -14,6 +14,11 @@ namespace Jazz2.Server
     {
         private void OnClientConnected(ClientConnectedEventArgs args)
         {
+            if (serverState == ServerState.Unloaded) {
+                args.DenyReason = "server unloaded";
+                return;
+            }
+
             // Check ban status of endpoint
             if (bannedEndPoints.Contains(args.Message.SenderConnection?.RemoteEndPoint)) {
                 args.DenyReason = "banned";
@@ -29,6 +34,7 @@ namespace Jazz2.Server
             }
 
             byte flags = args.Message.ReadByte();
+            // ToDo: flags are unused
 
             byte major = args.Message.ReadByte();
             byte minor = args.Message.ReadByte();
@@ -114,7 +120,7 @@ namespace Jazz2.Server
                         playersByIndex[lastPlayerIndex] = player;
                     }
 
-                    if (!levelStarted && playerSpawningEnabled) {
+                    if (serverState == ServerState.LevelReady && playerSpawningEnabled) {
                         // Take a new player another 60 seconds to load level
                         countdown = 60f;
                         countdownNotify = int.MaxValue;

@@ -16,7 +16,7 @@ namespace Jazz2.Game.UI.Menu
             Vector2 center = device.TargetSize * 0.5f;
 
             int charOffset = 0;
-            api.DrawString(ref charOffset, "Installation is not complete!\n", center.X, center.Y - 50, Alignment.Center,
+            api.DrawString(ref charOffset, "Installation is corrupted!\n", center.X, center.Y - 50, Alignment.Center,
                     new ColorRgba(0.5f, 0.32f, 0.32f, 0.5f), 1f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.86f);
 
             api.DrawString(ref charOffset, "\f[c:6]Run \f[c:2]Import.exe\f[c:6] first to import game files\nfrom your version of the original game.\nShareware Demo can also be imported.\n\nVisit \f[c:3]http://deat.tk/jazz2/\f[c:6] for more info!", center.X, center.Y - 10, Alignment.Top,
@@ -26,10 +26,16 @@ namespace Jazz2.Game.UI.Menu
 #if PLATFORM_WASM
             // Cannot exit from WebAssembly version
 #elif PLATFORM_ANDROID
-            api.DrawString(ref charOffset, "\f[c:6]Press \f[c:-1]Back\f[c:6] to exit", center.X, center.Y + 110, Alignment.Center,
+            api.DrawMaterial("MenuGlow", center.X, center.Y + 110, Alignment.Center,
+                ColorRgba.White.WithAlpha(0.4f * /*size*/0.8f), (18 + 3) * 0.5f * /*size*/0.8f, 4f * /*size*/0.8f);
+
+            api.DrawStringShadow(ref charOffset, "\f[c:6]Press \f[c:-1]Back\f[c:6] to exit", center.X, center.Y + 110, Alignment.Center,
                 ColorRgba.White, 0.8f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
 #else
-            api.DrawString(ref charOffset, "\f[c:6]Press \f[c:-1]Escape\f[c:6] to exit", center.X, center.Y + 110, Alignment.Center,
+            api.DrawMaterial("MenuGlow", center.X, center.Y + 110, Alignment.Center,
+                ColorRgba.White.WithAlpha(0.4f * /*size*/0.8f), (18 + 3) * 0.5f * /*size*/0.8f, 4f * /*size*/0.8f);
+
+            api.DrawStringShadow(ref charOffset, "\f[c:6]Press \f[c:-1]Escape\f[c:6] to exit", center.X, center.Y + 110, Alignment.Center,
                 ColorRgba.White, 0.8f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
 #endif
         }

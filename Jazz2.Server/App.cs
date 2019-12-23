@@ -107,7 +107,7 @@ namespace Jazz2.Server
             // Process parameters
             int port;
             if (!TryRemoveArg(ref args, "/port:", out port)) {
-                port = 10666;
+                port = 0;
             }
 
             string overrideHostname;
@@ -120,9 +120,14 @@ namespace Jazz2.Server
                 name = "Unnamed server";
             }
 
+            int minPlayers;
+            if (!TryRemoveArg(ref args, "/min-players:", out minPlayers)) {
+                minPlayers = 0;
+            }
+
             int maxPlayers;
-            if (!TryRemoveArg(ref args, "/players:", out maxPlayers)) {
-                maxPlayers = 64;
+            if (!TryRemoveArg(ref args, "/max-players:", out maxPlayers)) {
+                maxPlayers = 0;
             }
 
             string levelName;
@@ -130,6 +135,22 @@ namespace Jazz2.Server
                 levelName = "unknown/battle2";
             }
 
+            string levelTypeRaw;
+            MultiplayerLevelType levelType;
+            if (!TryRemoveArg(ref args, "/level-type:", out levelTypeRaw) || !Enum.TryParse(levelTypeRaw, out levelType)) {
+                levelType = MultiplayerLevelType.Battle;
+            }
+
+            string configPath;
+            if (!TryRemoveArg(ref args, "/config:", out configPath)) {
+                if (File.Exists("Jazz2.Server.default")) {
+                    configPath = "Jazz2.Server.default";
+                } else {
+                    configPath = null;
+                }
+            }
+
+            bool startUnloaded = TryRemoveArg(ref args, "/unloaded");
             bool isPrivate = TryRemoveArg(ref args, "/private");
             bool enableUPnP = TryRemoveArg(ref args, "/upnp");
 
@@ -157,14 +178,26 @@ namespace Jazz2.Server
                 }
             }
 
-            gameServer.Run(port, name, maxPlayers, isPrivate, enableUPnP, neededMajor, neededMinor, neededBuild);
+            gameServer.Run(configPath, port, name, minPlayers, maxPlayers, isPrivate, enableUPnP, neededMajor, neededMinor, neededBuild);
 
             Log.PopIndent();
 
-            gameServer.ChangeLevel(levelName, MultiplayerLevelType.Battle);
+            if (!startUnloaded) {
+                if (gameServer.ActivePlaylistIndex == -1) {
+                    gameServer.ChangeLevel(levelName, levelType);
+                } else {
+                    gameServer.ChangeLevelFromPlaylist(gameServer.ActivePlaylistIndex);
+                }
 
-            Log.Write(LogType.Info, "Ready!");
+                Log.Write(LogType.Info, "Ready to play!");
+            } else {
+                Log.Write(LogType.Verbose, "Server is unloaded.");
+            }
+            
             Log.Write(LogType.Info, "");
+
+            // Check for updates
+            Updater.CheckUpdates(OnCheckUpdates);
 
             // Processing of console commands
             ProcessConsoleCommands();
@@ -187,7 +220,9 @@ namespace Jazz2.Server
             availableCommands.Add("help", HandleCommandHelp);
             availableCommands.Add("info", HandleCommandInfo);
 
+            availableCommands.Add("load_config", HandleCommandLoadConfig);
             availableCommands.Add("set", HandleCommandSet);
+            availableCommands.Add("next_level", HandleCommandNextLevel);
 
             availableCommands.Add("ban", HandleCommandBan);
             availableCommands.Add("unban", HandleCommandUnban);
@@ -300,7 +335,8 @@ namespace Jazz2.Server
         {
             TimeSpan uptime = (DateTime.Now - gameServer.StartedTime);
             Log.Write(LogType.Info, "Uptime: " + uptime);
-            Log.Write(LogType.Info, "Server Load: " + gameServer.LoadMs + " ms");
+            Log.Write(LogType.Info, "State: " + gameServer.State);
+            Log.Write(LogType.Info, "Server Load: " + gameServer.LastFrameTime + " ms");
             Log.Write(LogType.Info, "Current Level: " + gameServer.CurrentLevel);
 
             int playerCount = gameServer.PlayerCount;
@@ -332,6 +368,15 @@ namespace Jazz2.Server
             return true;
         }
 
+        private static bool HandleCommandLoadConfig(string input)
+        {
+            if (!gameServer.LoadServerConfig(input)) {
+                Log.Write(LogType.Error, "Server configuration cannot be loaded!");
+            }
+
+            return true;
+        }
+
         private static bool HandleCommandSet(string input)
         {
             string key = GetPartFromInput(ref input);
@@ -354,18 +399,23 @@ namespace Jazz2.Server
                         default:
                         case "battle":
                         case "b":
+                        case "Battle":
                             levelType = MultiplayerLevelType.Battle; break;
                         case "team-battle":
                         case "tb":
+                        case "TeamBattle":
                             levelType = MultiplayerLevelType.TeamBattle; break;
                         case "capture-the-flag":
                         case "ctf":
+                        case "CaptureTheFlag":
                             levelType = MultiplayerLevelType.CaptureTheFlag; break;
                         case "race":
                         case "r":
+                        case "Race":
                             levelType = MultiplayerLevelType.Race; break;
                         case "treasure-hunt":
                         case "th":
+                        case "TreasureHunt":
                             levelType = MultiplayerLevelType.TreasureHunt; break;
                         //case "coop-story":
                         //case "cs":
@@ -423,6 +473,17 @@ namespace Jazz2.Server
                 }
             }
 
+            return true;
+        }
+
+        private static bool HandleCommandNextLevel(string input)
+        {
+            int activePlaylistIndex = gameServer.ActivePlaylistIndex;
+            if (activePlaylistIndex == -1) {
+                Log.Write(LogType.Error, "Playlist mode is not active! Use \"set level ...\" command to change current level.");
+            }
+
+            gameServer.ChangeLevelFromPlaylist(activePlaylistIndex + 1);
             return true;
         }
 
@@ -588,6 +649,15 @@ namespace Jazz2.Server
 
             argSuffix = 0;
             return false;
+        }
+
+        private static void OnCheckUpdates(bool newAvailable, string version)
+        {
+            if (!newAvailable) {
+                return;
+            }
+
+            Log.Write(LogType.Warning, "New version (v" + version + ") is available! Visit http://deat.tk/jazz2/ for more info.");
         }
     }
 }

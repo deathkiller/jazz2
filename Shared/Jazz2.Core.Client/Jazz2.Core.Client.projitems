@@ -39,6 +39,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\RescaleSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\SettingsSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\SliderControl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\SimpleMessageSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\StartGameOptionsSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\TransitionManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Misc\ControlScheme.cs" />

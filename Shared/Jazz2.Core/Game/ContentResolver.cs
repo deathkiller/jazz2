@@ -104,8 +104,6 @@ namespace Jazz2.Game
 
         public ContentRef<Texture> DefaultNormalMap => defaultNormalMap;
 
-        public JsonParser Json => jsonParser;
-
         private ContentResolver()
         {
         }
@@ -163,6 +161,13 @@ namespace Jazz2.Game
 
             // Release this static instance
             current = null;
+        }
+
+        public T ParseJson<T>(Stream s)
+        {
+            lock (jsonParser) {
+                return jsonParser.Parse<T>(s);
+            }
         }
 
         public void ResetReferenceFlag()
@@ -353,10 +358,12 @@ namespace Jazz2.Game
                         metadata.Graphics[g.Key] = res;
 #if !THROW_ON_MISSING_RESOURCES
                     } catch (Exception ex) {
+#if !SERVER
                         Log.Write(LogType.Warning, "Can't load animation \"" + g.Key + "\" from metadata \"" + path + "\": " + ex.Message);
+#endif
                     }
 #endif
-                }
+                    }
             }
 
 #if !DISABLE_SOUND
@@ -391,11 +398,13 @@ namespace Jazz2.Game
                         metadata.Sounds[sound.Key] = resource;
 #if !THROW_ON_MISSING_RESOURCES
                     } catch (Exception ex) {
+#if !SERVER
                         Log.Write(LogType.Warning, "Can't load sound \"" + sound.Key + "\" from metadata \"" + path + "\": " + ex.Message);
+#endif
                     }
 #endif
+                    }
                 }
-            }
 #endif
 
             // Bounding Box
@@ -544,6 +553,9 @@ namespace Jazz2.Game
 
         public ContentRef<DrawTechnique> RequestShader(string path)
         {
+#if MULTIPLAYER && SERVER
+            return DrawTechnique.Solid;
+#else
             switch (path) {
                 case "Solid": return DrawTechnique.Solid;
                 case "Add": return DrawTechnique.Add;
@@ -652,6 +664,7 @@ namespace Jazz2.Game
             }
 
             return shader;
+#endif
         }
 
         public void RequestTileset(string path, bool applyPalette, ColorRgba[] customPalette, out ContentRef<Material> materialRef, out PixelData mask)

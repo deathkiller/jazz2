@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -336,16 +337,14 @@ namespace Jazz2.Game
             try {
                 string currentVersion = App.AssemblyVersion;
 
-                WebClient http = new WebClient();
-                http.Encoding = Encoding.UTF8;
-                http.Headers["User-Agent"] = "Jazz2 Resurrection";
+                using (WebClient http = new WebClient()) {
+                    http.Encoding = Encoding.UTF8;
+                    http.Headers[HttpRequestHeader.UserAgent] = "Jazz2 Resurrection";
 
-                string content = http.DownloadString(ServerListUrl + "?fetch&v=" + currentVersion + "&d=" + deviceId);
-                if (content == null) {
-                    return;
+                    using (Stream s = http.OpenRead(ServerListUrl + "?fetch&v=" + currentVersion + "&d=" + deviceId)) {
+                        json = ContentResolver.Current.ParseJson<ServerListJson>(s);
+                    }
                 }
-
-                json = ContentResolver.Current.Json.Parse<ServerListJson>(content);
             } catch {
                 // Nothing to do...
                 return;

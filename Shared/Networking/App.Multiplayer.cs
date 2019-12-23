@@ -6,6 +6,7 @@ using System.Runtime;
 using Duality.Async;
 using Duality.Resources;
 using Jazz2.Game.Structs;
+using Jazz2.Game.UI.Menu;
 using Jazz2.Networking.Packets.Server;
 using Jazz2.Storage;
 
@@ -43,6 +44,8 @@ namespace Jazz2.Game
                 }
             }
 
+            ControlScheme.IsSuspended = true;
+
             client = new GameClient(Token, clientIdentifier, userName);
             client.OnDisconnected += OnPacketDisconnected;
             client.AddCallback<LoadLevel>(OnPacketLoadLevel);
@@ -52,10 +55,23 @@ namespace Jazz2.Game
         /// <summary>
         /// Player was disconnected from server
         /// </summary>
-        private void OnPacketDisconnected()
+        private void OnPacketDisconnected(string reason)
         {
             Await.NextAfterUpdate().OnCompleted(() => {
-                ShowMainMenu(false);
+                // TODO: translation
+                string message;
+                switch (reason) {
+                    case "server unloaded": message = "Server is not loaded. Please, try it later."; break;
+                    case "banned": message = "You have been permanently banned from this server."; break;
+                    case "kicked": message = "You have been kicked from this server."; break;
+                    case "incompatible version": message = "You have incompatible client version."; break;
+                    case "already connected": message = "Client with your ID is already connected."; break;
+                    default: message = reason; break;
+                }
+
+                ShowMainMenu(false).SwitchToSection(new SimpleMessageSection("Disconnected from server!", message));
+
+                ControlScheme.IsSuspended = false;
             });
         }
 
@@ -88,6 +104,8 @@ namespace Jazz2.Game
                 GC.WaitForPendingFinalizers();
 
                 GCSettings.LatencyMode = GCLatencyMode.LowLatency;
+
+                ControlScheme.IsSuspended = false;
 
                 UpdateRichPresence(levelInit, serverName);
             });

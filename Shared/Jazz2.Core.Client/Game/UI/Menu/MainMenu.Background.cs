@@ -50,7 +50,7 @@ namespace Jazz2.Game.UI.Menu
 
                 LevelHandler.LevelConfigJson config;
                 using (Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
-                    config = ContentResolver.Current.Json.Parse<LevelHandler.LevelConfigJson>(s);
+                    config = ContentResolver.Current.ParseJson<LevelHandler.LevelConfigJson>(s);
                 }
 
                 LevelHandler.LevelConfigJson.LayerSection layer;

@@ -89,7 +89,7 @@ namespace Jazz2.Game
             InitRichPresence();
         }
 
-        public void ShowMainMenu(bool afterIntro)
+        public MainMenu ShowMainMenu(bool afterIntro)
         {
 #if MULTIPLAYER
             if (client != null) {
@@ -109,11 +109,14 @@ namespace Jazz2.Game
             ContentResolver.Current.ResetReferenceFlag();
 
             Scene.Current.DisposeLater();
-            Scene.SwitchTo(new MainMenu(this, this.isInstallationComplete, afterIntro));
+            MainMenu mainMenu = new MainMenu(this, this.isInstallationComplete, afterIntro);
+            Scene.SwitchTo(mainMenu);
 
             ContentResolver.Current.ReleaseUnreferencedResources();
 
             UpdateRichPresence(null, null);
+
+            return mainMenu;
         }
 
         public void PlayCinematics(string name, Action<bool> endCallback)
@@ -219,7 +222,7 @@ namespace Jazz2.Game
                 // ToDo: Show credits
 
                 PlayCinematics("ending", endOfStream => {
-                    ShowMainMenu(false);
+                    ShowMainMenu(false).SwitchToSection(new AboutSection());
                 });
             } else {
                 if (!string.IsNullOrEmpty(levelInit.EpisodeName) && levelInit.EpisodeName != "unknown") {
@@ -265,7 +268,8 @@ namespace Jazz2.Game
                 } catch (Exception ex) {
                     Log.Write(LogType.Error, "Cannot load level: " + ex);
 
-                    ShowMainMenu(false);
+                    // TODO: translation
+                    ShowMainMenu(false).SwitchToSection(new SimpleMessageSection("Something went wrong :(", ex.Message));
                 }
             }
 
@@ -278,7 +282,7 @@ namespace Jazz2.Game
             if (FileOp.Exists(pathAbsolute)) {
                 Episode json;
                 using (Stream s = FileOp.Open(pathAbsolute, FileAccessMode.Read)) {
-                    json = ContentResolver.Current.Json.Parse<Episode>(s);
+                    json = ContentResolver.Current.ParseJson<Episode>(s);
                 }
 
                 return json;

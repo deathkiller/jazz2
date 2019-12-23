@@ -356,7 +356,7 @@ namespace Jazz2.Game
 
             LevelConfigJson json;
             using (Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
-                json = ContentResolver.Current.Json.Parse<LevelConfigJson>(s);
+                json = ContentResolver.Current.ParseJson<LevelConfigJson>(s);
             }
 
             if (json.Version.LayerFormat > LayerFormatVersion || json.Version.EventSet > EventSetVersion) {
@@ -469,7 +469,7 @@ namespace Jazz2.Game
             if (FileOp.Exists(levelPath + "." + i18n.Language)) {
                 try {
                     using (Stream s = FileOp.Open(levelPath + "." + i18n.Language, FileAccessMode.Read)) {
-                        json = ContentResolver.Current.Json.Parse<LevelConfigJson>(s);
+                        json = ContentResolver.Current.ParseJson<LevelConfigJson>(s);
                         if (json.TextEvents != null) {
                             for (int i = 0; i < json.TextEvents.Count && i < levelTexts.Count; i++) {
                                 if (json.TextEvents[i] != null) {
@@ -793,11 +793,6 @@ namespace Jazz2.Game
             weaponCooldown = 0f;
             return false;
         }
-
-        /*public virtual bool OverridePlayerDrawHud(Hud hud, IDrawDevice device)
-        {
-            return false;
-        }*/
 
         // ToDo: Move this somewhere
         public enum WeatherType

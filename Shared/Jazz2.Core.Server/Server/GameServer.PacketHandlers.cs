@@ -110,7 +110,7 @@ namespace Jazz2.Server
                         Type = player.PlayerType,
                         Pos = pos,
                         Health = playerHealth,
-                        Controllable = levelStarted
+                        Controllable = (serverState == ServerState.LevelRunning)
                     }, 11, p.SenderConnection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
 
                     // Send command to create all already spawned players
@@ -190,22 +190,31 @@ namespace Jazz2.Server
 
                 levelHandler.SendAllSpawnedActors(p.SenderConnection);
 
-                if (!levelStarted) {
-                    bool allLoaded = true;
-                    if (playerSpawningEnabled) {
-                        // If spawning is not enabled, don't wait anymore, because another player cannot be spawned anyway
-                        foreach (var pair in players) {
-                            if (pair.Value.State == PlayerState.NotReady) {
-                                allLoaded = false;
-                                break;
+                if (serverState == ServerState.LevelReady) {
+                    if (players.Count >= minPlayers) {
+                        bool allLoaded = true;
+                        if (playerSpawningEnabled) {
+                            // If spawning is not enabled, don't wait anymore, because another player cannot be spawned anyway
+                            foreach (var pair in players) {
+                                if (pair.Value.State == PlayerState.NotReady) {
+                                    allLoaded = false;
+                                    break;
+                                }
                             }
                         }
-                    }
 
-                    if (allLoaded) {
-                        // All players are ready to player, start game in 15 seconds
-                        countdown = 15f;
-                        countdownNotify = int.MaxValue;
+                        if (allLoaded) {
+                            // All players are ready to player, start game in 15 seconds
+                            countdown = 15f;
+                            countdownNotify = int.MaxValue;
+                        }
+                    } else {
+                        int playersNeeded = (minPlayers - players.Count);
+                        SendToActivePlayers(new ShowMessage {
+                            Text = (playersNeeded == 1
+                                ? "\n\n\n\f[c:0]Waiting for 1 other player!"
+                                : "\n\n\n\f[c:0]Waiting for " + playersNeeded + " other players!")
+                        }, 48, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
                     }
                 }
 
@@ -295,9 +304,8 @@ namespace Jazz2.Server
             float angle = p.Angle;
             WeaponType weaponType = p.WeaponType;
 
-            Player proxyActor = player.ProxyActor;
-
             Await.NextUpdate().OnCompleted(() => {
+                Player proxyActor = player.ProxyActor;
                 if (proxyActor == null) {
                     return;
                 }

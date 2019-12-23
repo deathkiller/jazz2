@@ -66,12 +66,18 @@ namespace Jazz2
 
                 try {
                     string currentVersion = App.AssemblyVersion;
+                    string content;
+                    using (WebClient http = new WebClient()) {
+                        http.Encoding = Encoding.UTF8;
+#if MULTIPLAYER && SERVER
+                        http.Headers[HttpRequestHeader.UserAgent] = "Jazz2 Resurrection (Server)";
+                        content = http.DownloadString(Url + "?v=" + currentVersion + "&d=" + deviceId + "&f=s");
+#else
+                        http.Headers[HttpRequestHeader.UserAgent] = "Jazz2 Resurrection";
+                        content = http.DownloadString(Url + "?v=" + currentVersion + "&d=" + deviceId);
+#endif
+                    }
 
-                    WebClient client = new WebClient();
-                    client.Encoding = Encoding.UTF8;
-                    client.Headers["User-Agent"] = App.AssemblyTitle;
-
-                    string content = client.DownloadString(Url + "?v=" + currentVersion + "&d=" + deviceId);
                     if (content == null) {
                         callback(false, null);
                         return;

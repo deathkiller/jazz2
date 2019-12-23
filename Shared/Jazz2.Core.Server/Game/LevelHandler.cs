@@ -257,7 +257,7 @@ namespace Jazz2.Game
 
             LevelConfigJson json;
             using (Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
-                json = ContentResolver.Current.Json.Parse<LevelConfigJson>(s);
+                json = ContentResolver.Current.ParseJson<LevelConfigJson>(s);
             }
 
             if (json.Version.LayerFormat > LayerFormatVersion || json.Version.EventSet > EventSetVersion) {

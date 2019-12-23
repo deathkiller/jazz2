@@ -69,7 +69,7 @@ namespace Jazz2.Game.UI.Menu
                                 Stream s = levelPackage.OpenFile(".res", FileAccessMode.Read)) {
                                 string levelToken = PathOp.GetFileNameWithoutExtension(levelPath);
 
-                                LevelConfigJson config = ContentResolver.Current.Json.Parse<LevelConfigJson>(s);
+                                LevelConfigJson config = ContentResolver.Current.ParseJson<LevelConfigJson>(s);
 
                                 string icon = "";
 #if DEBUG

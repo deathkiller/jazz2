@@ -2,10 +2,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
 using Duality;
+using Duality.IO;
 using Jazz2.Game;
 using Jazz2.Networking;
 using Jazz2.Networking.Packets.Server;
@@ -22,7 +24,7 @@ namespace Jazz2.Server
 
         private string serverName;
         private int port;
-        private int maxPlayers;
+        private int maxPlayers, minPlayers;
 
         private Thread threadGame, threadPublishToServerList;
         private ServerConnection server;
@@ -36,7 +38,7 @@ namespace Jazz2.Server
         private HashSet<string> bannedClientIds = new HashSet<string>();
         private HashSet<IPEndPoint> bannedEndPoints = new HashSet<IPEndPoint>();
 
-        public int LoadMs => lastGameLoadMs;
+        public int LastFrameTime => lastFrameTime;
         public int PlayerCount => players.Count;
         public int MaxPlayers => maxPlayers;
         public string CurrentLevel => currentLevel;
@@ -82,10 +84,11 @@ namespace Jazz2.Server
             }
         }
 
-        public void Run(int port, string serverName, int maxPlayers, bool isPrivate, bool enableUPnP, byte neededMajor, byte neededMinor, byte neededBuild)
+        public void Run(string configPath, int port, string serverName, int minPlayers, int maxPlayers, bool isPrivate, bool enableUPnP, byte neededMajor, byte neededMinor, byte neededBuild)
         {
             this.port = port;
             this.serverName = serverName;
+            this.minPlayers = minPlayers;
             this.maxPlayers = maxPlayers;
 
             this.neededMajor = neededMajor;
@@ -97,10 +100,22 @@ namespace Jazz2.Server
 
             callbacks = new Action<NetIncomingMessage, bool>[byte.MaxValue + 1];
             players = new Dictionary<NetConnection, PlayerClient>();
-            playersByIndex = new PlayerClient[256];
+            playersByIndex = new PlayerClient[byte.MaxValue + 1];
             playerConnections = new List<NetConnection>();
 
-            server = new ServerConnection(Token, port, maxPlayers, !isPrivate && enableUPnP);
+            LoadServerConfig(configPath);
+
+            if (this.port <= 0) {
+                this.port = 10666;
+            }
+            if (this.minPlayers <= 0) {
+                this.minPlayers = 2;
+            }
+            if (this.maxPlayers <= 0) {
+                this.maxPlayers = 64;
+            }
+
+            server = new ServerConnection(Token, this.port, this.maxPlayers, !isPrivate && enableUPnP);
             server.MessageReceived += OnMessageReceived;
             server.DiscoveryRequest += OnDiscoveryRequest;
             server.ClientConnected += OnClientConnected;
@@ -112,24 +127,24 @@ namespace Jazz2.Server
             Log.PushIndent();
 
             foreach (var address in server.LocalIPAddresses) {
-                Log.Write(LogType.Verbose, address + ":" + port + (NetUtility.IsAddressPrivate(address) ? " [Private]" : ""));
+                Log.Write(LogType.Verbose, address + ":" + this.port + (NetUtility.IsAddressPrivate(address) ? " [Private]" : ""));
             }
 
             if (server.PublicIPAddresses != null) {
                 foreach (var address in server.PublicIPAddresses) {
-                    Log.Write(LogType.Verbose, address + ":" + port + (NetUtility.IsAddressPrivate(address) ? " [Private]" : "") + " [UPnP]");
+                    Log.Write(LogType.Verbose, address + ":" + this.port + (NetUtility.IsAddressPrivate(address) ? " [Private]" : "") + " [UPnP]");
                 }
             }
 
             if (customHostname != null) {
-                Log.Write(LogType.Verbose, customHostname + ":" + port + " [Custom]");
+                Log.Write(LogType.Verbose, customHostname + ":" + this.port + " [Custom]");
             }
 
             Log.PopIndent();
 
             Log.Write(LogType.Info, "Unique Identifier: " + server.UniqueIdentifier);
-            Log.Write(LogType.Info, "Server Name: " + serverName);
-            Log.Write(LogType.Info, "Players: 0/" + maxPlayers);
+            Log.Write(LogType.Info, "Server Name: " + this.serverName);
+            Log.Write(LogType.Info, "Players: 0/" + this.maxPlayers);
 
             // Create game loop
             threadGame = new Thread(OnGameLoopThread);
@@ -254,7 +269,7 @@ namespace Jazz2.Server
                             .Append('\n')
                             .Append(uptimeSecs)
                             .Append('\n')
-                            .Append(lastGameLoadMs)
+                            .Append(lastFrameTime)
                             .Append('\n')
                             .Append((int)currentLevelType)
                             .Append('\n')
@@ -267,12 +282,12 @@ namespace Jazz2.Server
                         string data = "publish=" + Convert.ToBase64String(Encoding.UTF8.GetBytes(sb.ToString()))
                                     .Replace('+', '-').Replace('/', '_').TrimEnd('=');
 
-                        using (WebClient client = new WebClient()) {
-                            client.Encoding = Encoding.UTF8;
-                            client.Headers["User-Agent"] = "Jazz2 Resurrection (Server)";
-                            client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
+                        using (WebClient http = new WebClient()) {
+                            http.Encoding = Encoding.UTF8;
+                            http.Headers[HttpRequestHeader.UserAgent] = "Jazz2 Resurrection (Server)";
+                            http.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
 
-                            string content = client.UploadString(ServerListUrl, data);
+                            string content = http.UploadString(ServerListUrl, data);
                             // No need to parse full JSON response
                             if (content.Contains("\"r\":false")) {
                                 if (content.Contains("\"e\":1")) {
@@ -301,6 +316,100 @@ namespace Jazz2.Server
                 }
 
                 Thread.Sleep(300000); // 5 minutes
+            }
+        }
+
+        public bool LoadServerConfig(string path)
+        {
+            if (string.IsNullOrEmpty(path) || File.Exists(path)) {
+                return false;
+            }
+
+            Log.Write(LogType.Info, "Loading server configuration \"" + path + "\"...");
+            Log.PushIndent();
+
+            try {
+                ServerConfigJson json;
+                using (Stream s = FileOp.Open(path, FileAccessMode.Read)) {
+                    json = ContentResolver.Current.ParseJson<ServerConfigJson>(s);
+                }
+
+                if (!string.IsNullOrEmpty(json.ServerName)) {
+                    this.serverName = json.ServerName;
+                    Log.Write(LogType.Verbose, "Server name was set to \"" + this.serverName + "\".");
+                }
+
+                if (json.MinPlayers > 0) {
+                    this.minPlayers = json.MinPlayers;
+                    Log.Write(LogType.Verbose, "Min. number of players was set to " + this.minPlayers + ".");
+                }
+
+                if (json.MaxPlayers > 0) {
+                    if (server == null) {
+                        this.maxPlayers = json.MaxPlayers;
+                        Log.Write(LogType.Verbose, "Max. number of players was set to " + this.maxPlayers + ".");
+                    } else {
+                        Log.Write(LogType.Error, "Cannot set max. number of players of running server.");
+                    }
+                }
+
+                if (json.Port > 0) {
+                    if (server == null) {
+                        this.port = json.Port;
+                        Log.Write(LogType.Verbose, "Server port was set to " + this.port + ".");
+                    } else {
+                        Log.Write(LogType.Error, "Cannot set server port of running server.");
+                    }
+                }
+
+                if (json.Playlist != null && json.Playlist.Count > 0) {
+                    List<PlaylistItem> playlist = new List<PlaylistItem>();
+                    for (int i = 0; i < json.Playlist.Count; i++) {
+                        string levelName = json.Playlist[i].LevelName;
+                        if (string.IsNullOrEmpty(levelName)) {
+                            continue;
+                        }
+
+                        MultiplayerLevelType levelType = json.Playlist[i].LevelType;
+
+                        int goalCount;
+                        switch (levelType) {
+                            case MultiplayerLevelType.Battle: goalCount = json.Playlist[i].TotalKills; break;
+                            case MultiplayerLevelType.Race: goalCount = json.Playlist[i].TotalLaps; break;
+                            case MultiplayerLevelType.TreasureHunt: goalCount = json.Playlist[i].TotalGems; break;
+
+                            default: {
+                                Log.Write(LogType.Warning, "Level type " + levelType + " is not supported yet. Skipping.");
+                                continue;
+                            }
+                        }
+
+                        playlist.Add(new PlaylistItem {
+                            LevelName = levelName,
+                            LevelType = levelType,
+                            GoalCount = goalCount,
+                            PlayerHealth = json.Playlist[i].PlayerHealth
+                        });
+                    }
+
+                    activePlaylist = playlist;
+
+                    Log.Write(LogType.Info, "Loaded playlist with " + playlist.Count + " levels");
+
+                    if (server != null) {
+                        ChangeLevelFromPlaylist(0);
+                    }
+                }
+
+                Log.PopIndent();
+
+                return true;
+            } catch (Exception ex) {
+
+                Log.Write(LogType.Error, "Cannot parse configuration: " + ex);
+                Log.PopIndent();
+
+                return false;
             }
         }
 

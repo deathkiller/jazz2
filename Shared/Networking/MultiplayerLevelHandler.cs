@@ -83,6 +83,7 @@ namespace Jazz2.Game
                 client.RemoveCallback<DestroyRemoteActor>();
                 client.RemoveCallback<RefreshActorAnimation>();
                 client.RemoveCallback<ShowMessage>();
+                client.RemoveCallback<PlaySound>();
 
                 client.RemoveCallback<PlayerTakeDamage>();
                 client.RemoveCallback<PlayerAddHealth>();
@@ -154,7 +155,7 @@ namespace Jazz2.Game
                     IsVisible = player.IsVisible,
                     IsFacingLeft = player.IsFacingLeft,
                     IsActivelyPushing = player.IsActivelyPushing
-                }, 18, NetDeliveryMethod.Unreliable, PacketChannels.UnorderedUpdates);
+                }, 20, NetDeliveryMethod.Unreliable, PacketChannels.UnorderedUpdates);
             }
         }
 
@@ -262,12 +263,6 @@ namespace Jazz2.Game
 
             return true;
         }
-
-        /*public override bool OverridePlayerDrawHud(Hud hud, IDrawDevice device)
-        {
-            // ToDo
-            return false;
-        }*/
 
         /// <summary>
         /// Player should update state and position of all other players and objects

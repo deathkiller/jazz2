@@ -41,7 +41,7 @@ namespace Jazz2.Game.UI.Menu
                     if (FileOp.Exists(pathAbsolute)) {
                         Episode json;
                         using (Stream s = DualityApp.SystemBackend.FileSystem.OpenFile(pathAbsolute, FileAccessMode.Read)) {
-                            json = ContentResolver.Current.Json.Parse<Episode>(s);
+                            json = ContentResolver.Current.ParseJson<Episode>(s);
                         }
                         json.Token = PathOp.GetFileName(episode);
 

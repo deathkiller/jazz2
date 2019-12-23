@@ -20,6 +20,15 @@ namespace Jazz2.Server
 {
     partial class GameServer
     {
+        public enum ServerState
+        {
+            Unloaded,
+            LevelLoading,
+            LevelReady,
+            LevelRunning,
+            LevelComplete
+        }
+
         public enum PlayerState
         {
             Unknown,
@@ -52,14 +61,49 @@ namespace Jazz2.Server
             public Player ProxyActor;
         }
 
+        public struct PlaylistItem
+        {
+            public string LevelName;
+            public MultiplayerLevelType LevelType;
+            public int GoalCount;
+            public byte PlayerHealth;
+        }
+
+        #region JSON
+        public class ServerConfigJson
+        {
+            public string ServerName { get; set; }
+            public int Port { get; set; }
+            public int MinPlayers { get; set; }
+            public int MaxPlayers { get; set; }
+            public bool IsPrivate { get; set; }
+
+            public IList<PlaylistItemJson> Playlist { get; set; }
+
+        }
+
+        public class PlaylistItemJson
+        {
+            public string LevelName { get; set; }
+            public MultiplayerLevelType LevelType { get; set; }
+            public int TotalKills { get; set; }
+            public int TotalLaps { get; set; }
+            public int TotalGems { get; set; }
+            public byte PlayerHealth { get; set; }
+        }
+        #endregion
+
         private LevelHandler levelHandler;
 
         private string currentLevel;
         private MultiplayerLevelType currentLevelType;
         private double levelStartTime;
-        private bool levelStarted;
+        private ServerState serverState;
         private float countdown;
         private int countdownNotify;
+
+        private List<PlaylistItem> activePlaylist;
+        private int activePlaylistIndex;
 
         private Dictionary<NetConnection, PlayerClient> players;
         public PlayerClient[] playersByIndex;
@@ -74,9 +118,11 @@ namespace Jazz2.Server
         private int raceTotalLaps = 3;
         private int treasureHuntTotalGems = 100;
 
-        private int lastGameLoadMs;
+        private int lastFrameTime;
 
-        public int RaceTotalLaps => raceTotalLaps;
+        public ServerState State => serverState;
+
+        public int ActivePlaylistIndex => (activePlaylist == null ? -1 : activePlaylistIndex);
 
         public bool IsPlayerSpawningEnabled
         {
@@ -129,7 +175,7 @@ namespace Jazz2.Server
                                 Type = player.PlayerType,
                                 Pos = pos,
                                 Health = playerHealth,
-                                Controllable = levelStarted
+                                Controllable = (serverState == ServerState.LevelRunning)
                             }, 11, pair.Key, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
 
                             playersWithLoadedLevel.Clear();
@@ -208,11 +254,11 @@ namespace Jazz2.Server
                 int frameTime = (int)(((double)(sw.ElapsedTicks - prevTicks) / frequency) * 1000.0);
                 frameTime = Math.Max(0, frameTime);
 
-                if (levelStarted && frameTime > 60 && lastGameLoadMs < 60) {
+                if (serverState == ServerState.LevelRunning && frameTime > 60 && lastFrameTime < 60) {
                     Log.Write(LogType.Warning, "Server is overloaded (" + frameTime + " ms per update). For best performance this value should be lower than 30 ms.");
                 }
 
-                lastGameLoadMs = frameTime;
+                lastFrameTime = frameTime;
 
                 Thread.Sleep(Math.Max(((int)(TargetStep * 1000.0) - frameTime) / 2, 0));
             }
@@ -223,6 +269,10 @@ namespace Jazz2.Server
 #endif
         private void OnUpdate()
         {
+            if (serverState == ServerState.Unloaded) {
+                return;
+            }
+
             Time.FrameTick(false, false);
 
             AsyncManager.InvokeBeforeUpdate();
@@ -243,47 +293,59 @@ namespace Jazz2.Server
                     }
                 }
 
-                if (!levelStarted) {
-                    if (countdown <= 0f) {
-                        levelStarted = true;
-                        countdownNotify = 0;
+                if (serverState == ServerState.LevelReady) {
+                    if (players.Count >= minPlayers) {
+                        countdown -= Time.DeltaTime;
 
-                        levelStartTime = NetTime.Now;
+                        if (countdown <= 0f) {
+                            serverState = ServerState.LevelRunning;
+                            countdownNotify = 0;
 
-                        SendToActivePlayers(new PlayerSetControllable {
-                            IsControllable = true
-                        }, 3, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+                            levelStartTime = NetTime.Now;
 
-                        SendToActivePlayers(new ShowMessage {
-                            Flags = 0x01,
-                            Text = "\n\n\n\f[c:1]Go!"
-                        }, 24, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
-                    } else if (countdown < countdownNotify) {
-                        countdownNotify = (int)Math.Ceiling(countdown);
+                            SendToActivePlayers(new PlayerSetControllable {
+                                IsControllable = true
+                            }, 3, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
 
-                        if (countdownNotify == 15) {
-                            SendToActivePlayers(new ShowMessage {
-                                Text = "\n\n\n\f[c:1]Game will start in 15 seconds!"
-                            }, 48, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
-                        } else if (countdownNotify == 3) {
                             SendToActivePlayers(new ShowMessage {
                                 Flags = 0x01,
-                                Text = "\n\n\n\f[c:4]3"
+                                Text = "\n\n\n\f[c:1]Go!"
                             }, 24, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
-                        } else if (countdownNotify == 2) {
-                            SendToActivePlayers(new ShowMessage {
-                                Flags = 0x01,
-                                Text = "\n\n\n\f[c:3]2"
-                            }, 24, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
-                        } else if (countdownNotify == 1) {
-                            SendToActivePlayers(new ShowMessage {
-                                Flags = 0x01,
-                                Text = "\n\n\n\f[c:2]1"
-                            }, 24, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+                        } else if (countdown < countdownNotify) {
+                            countdownNotify = (int)Math.Ceiling(countdown);
+
+                            if (countdownNotify == 15) {
+                                SendToActivePlayers(new ShowMessage {
+                                    Text = "\n\n\n\f[c:1]Game will start in 15 seconds!"
+                                }, 48, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+                            } else if (countdownNotify == 3) {
+                                SendToActivePlayers(new ShowMessage {
+                                    Flags = 0x01,
+                                    Text = "\n\n\n\f[c:4]3"
+                                }, 24, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+                            } else if (countdownNotify == 2) {
+                                SendToActivePlayers(new ShowMessage {
+                                    Flags = 0x01,
+                                    Text = "\n\n\n\f[c:3]2"
+                                }, 24, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+                            } else if (countdownNotify == 1) {
+                                SendToActivePlayers(new ShowMessage {
+                                    Flags = 0x01,
+                                    Text = "\n\n\n\f[c:2]1"
+                                }, 24, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
+                            }
                         }
                     }
-
+                } else if (serverState == ServerState.LevelComplete) {
                     countdown -= Time.DeltaTime;
+
+                    if (countdown <= 0f) {
+                        if (activePlaylist == null) {
+                            ChangeLevel(currentLevel, currentLevelType);
+                        } else {
+                            ChangeLevelFromPlaylist(activePlaylistIndex + 1);
+                        }
+                    }
                 }
 
                 // Update all players
@@ -365,8 +427,15 @@ namespace Jazz2.Server
             }
         }
         
-        public bool ChangeLevel(string levelName, MultiplayerLevelType levelType)
+        public bool ChangeLevel(string levelName, MultiplayerLevelType levelType, bool fromPlaylist = false)
         {
+            if (!fromPlaylist && activePlaylist != null) {
+                activePlaylist = null;
+                activePlaylistIndex = 0;
+
+                Log.Write(LogType.Info, "Level was changed by administrator. Playlist mode was turned off.");
+            }
+
             string path = Path.Combine(DualityApp.DataDirectory, "Episodes", levelName + ".level");
             if (!File.Exists(path)) {
                 return false;
@@ -376,16 +445,19 @@ namespace Jazz2.Server
             lock (sync) {
                 currentLevel = levelName;
                 currentLevelType = levelType;
-                levelStarted = false;
+                serverState = ServerState.LevelLoading;
                 levelStartTime = 0;
                 countdown = 600f;
                 countdownNotify = int.MaxValue;
 
                 raceLastPosition = 1;
 
-                // ToDo: Better parsing of levelName
                 int idx = currentLevel.IndexOf('/');
-                levelHandler = new LevelHandler(this, currentLevel.Substring(0, idx), currentLevel.Substring(idx + 1));
+                if (idx == -1) {
+                    levelHandler = new LevelHandler(this, "unknown", currentLevel);
+                } else {
+                    levelHandler = new LevelHandler(this, currentLevel.Substring(0, idx), currentLevel.Substring(idx + 1));
+                }
 
                 Scene.SwitchTo(levelHandler);
 
@@ -423,9 +495,41 @@ namespace Jazz2.Server
                         AssignedPlayerIndex = player.Value.Index
                     }, 64, player.Key, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
                 }
+
+                serverState = ServerState.LevelReady;
             }
 
             return true;
+        }
+
+        public void ChangeLevelFromPlaylist(int startIndex)
+        {
+            if (activePlaylist == null) {
+                return;
+            }
+
+            for (int i = 0; i < activePlaylist.Count; i++) {
+                activePlaylistIndex = (startIndex + i) % activePlaylist.Count;
+
+                MultiplayerLevelType levelType = activePlaylist[activePlaylistIndex].LevelType;
+
+                if (ChangeLevel(activePlaylist[activePlaylistIndex].LevelName, levelType, true)) {
+                    int goalCount = activePlaylist[activePlaylistIndex].GoalCount;
+                    if (goalCount > 0) {
+                        switch (levelType) {
+                            case MultiplayerLevelType.Battle: battleTotalKills = goalCount; break;
+                            case MultiplayerLevelType.Race: raceTotalLaps = goalCount; break;
+                            case MultiplayerLevelType.TreasureHunt: treasureHuntTotalGems = goalCount; break;
+                        }
+                    }
+
+                    byte playerHealth = activePlaylist[activePlaylistIndex].PlayerHealth;
+                    if (playerHealth > 0) {
+                        this.playerHealth = playerHealth;
+                    }
+                    break;
+                }
+            }
         }
 
         public void RespawnPlayer(PlayerClient player)
@@ -461,7 +565,7 @@ namespace Jazz2.Server
                     Type = player.PlayerType,
                     Pos = pos,
                     Health = playerHealth,
-                    Controllable = levelStarted
+                    Controllable = (serverState == ServerState.LevelRunning)
                 }, 11, player.Connection, NetDeliveryMethod.ReliableOrdered, PacketChannels.Main);
             }
 
@@ -472,7 +576,7 @@ namespace Jazz2.Server
 
         public void HandlePlayerDied(int playerIndex)
         {
-            if (!levelStarted) {
+            if (serverState != ServerState.LevelRunning) {
                 return;
             }
 
@@ -501,7 +605,7 @@ namespace Jazz2.Server
 
         public void IncrementPlayerHits(int victimIndex, int attackerIndex, bool incrementKills)
         {
-            if (!levelStarted) {
+            if (serverState != ServerState.LevelRunning) {
                 return;
             }
 
@@ -524,6 +628,9 @@ namespace Jazz2.Server
 
                 if (currentLevelType == MultiplayerLevelType.Battle && attacker.StatsKills >= battleTotalKills) {
                     // Player won, stop the battle
+                    serverState = ServerState.LevelComplete;
+                    countdown = 10f;
+
                     SendToActivePlayers(new PlayerSetControllable {
                         IsControllable = false
                     }, 3, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
@@ -546,7 +653,7 @@ namespace Jazz2.Server
 
         public void IncrementPlayerLaps(int playerIndex)
         {
-            if (!levelStarted) {
+            if (serverState != ServerState.LevelRunning) {
                 return;
             }
 
@@ -616,6 +723,8 @@ namespace Jazz2.Server
                         }
 
                         if (allFinished) {
+                            serverState = ServerState.LevelComplete;
+                            countdown = 10f;
 #if DEBUG
                             Log.Write(LogType.Info, "All players finished!");
 #endif
@@ -639,7 +748,7 @@ namespace Jazz2.Server
 
         public void IncrementPlayerGems(int playerIndex, int count)
         {
-            if (!levelStarted) {
+            if (serverState != ServerState.LevelRunning) {
                 return;
             }
 
@@ -660,6 +769,9 @@ namespace Jazz2.Server
 
                 if (player.StatsGems >= treasureHuntTotalGems) {
                     // Player collected all gems
+                    serverState = ServerState.LevelComplete;
+                    countdown = 10f;
+
                     SendToActivePlayers(new PlayerSetControllable {
                         IsControllable = false
                     }, 3, NetDeliveryMethod.ReliableUnordered, PacketChannels.UnorderedUpdates);
