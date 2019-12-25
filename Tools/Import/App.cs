@@ -59,6 +59,7 @@ namespace Import
             bool keep = false;
             bool verbose = false;
             bool minimal = false;
+            bool importDemo = false;
             for (int i = 0; i < args.Length; i++) {
                 switch (args[i]) {
                     case "/skip-anims": processAnims = false; break;
@@ -78,6 +79,10 @@ namespace Import
                     case "/minimal":
                         minimal = true;
                         processAnims = processLevels = processCinematics = processMusic = processTilesets = false;
+                        break;
+
+                    case "/demo":
+                        importDemo = true;
                         break;
 
                     case "/output":
@@ -132,9 +137,14 @@ namespace Import
                 }
             }
 
-
             if (minimal) {
                 CreateMinimalCompressedContent(targetPath, exePath);
+            } else if (importDemo) {
+                if (DemoDownloader.Run(targetPath, exePath)) {
+                    OnPostImport(targetPath, exePath, verbose, !noWait, keep, true, false);
+                }
+
+                return;
             } else if (sourcePath == null) {
                 OnShowHelp(targetPath);
 
