@@ -44,14 +44,10 @@ namespace Import
                 Console.CursorTop = currentCursorTop;
             }
 
-            if (args.Length < 1) {
-                OnShowHelp();
-                return;
-            }
-
-            string targetPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-
             string sourcePath = null;
+            string exePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            string targetPath = exePath;
+
             bool processAnims = true;
             bool processLevels = true;
             bool processCinematics = true;
@@ -82,6 +78,13 @@ namespace Import
                     case "/minimal":
                         minimal = true;
                         processAnims = processLevels = processCinematics = processMusic = processTilesets = false;
+                        break;
+
+                    case "/output":
+                        i++;
+                        if (i < args.Length) {
+                            targetPath = args[i];
+                        }
                         break;
 
 #if DEBUG
@@ -129,18 +132,25 @@ namespace Import
                 }
             }
 
-            if (sourcePath == null) {
-                if (processAnims || processLevels || processCinematics || processMusic || processTilesets) {
-                    Log.Write(LogType.Error, "You must specify path to Jazz Jackrabbit™ 2 game.");
-                    return;
+
+            if (minimal) {
+                CreateMinimalCompressedContent(targetPath, exePath);
+            } else if (sourcePath == null) {
+                OnShowHelp(targetPath);
+
+                // Download and import...
+                if (DemoDownloader.Run(targetPath, exePath)) {
+                    OnPostImport(targetPath, exePath, verbose, !noWait, keep, true, false);
                 }
+
+                return;
             } else {
                 Log.Write(LogType.Info, "Importing path \"" + sourcePath + "\"...");
                 Log.PushIndent();
             }
 
             if (processAnims) {
-                ConvertJJ2Anims(sourcePath, targetPath);
+                ConvertJJ2Anims(sourcePath, targetPath, exePath);
             }
 
             HashSet<string> usedMusic = new HashSet<string>();
@@ -170,14 +180,10 @@ namespace Import
                 Log.PopIndent();
             }
 
-            if (minimal) {
-                CreateMinimalCompressedContent(targetPath);
-            }
-
-            OnPostImport(targetPath, verbose, !noWait, keep || minimal, !minimal, check || (processAnims && processLevels && processCinematics && processMusic && processTilesets));
+            OnPostImport(targetPath, exePath, verbose, !noWait, keep || minimal, !minimal, check || (processAnims && processLevels && processCinematics && processMusic && processTilesets));
         }
 
-        private static void OnShowHelp()
+        private static void OnShowHelp(string targetPath)
         {
             string exeName = Path.GetFileName(Assembly.GetEntryAssembly().Location);
 
@@ -223,6 +229,7 @@ namespace Import
             Console.WriteLine("   /keep           Keep unused music, tilesets, animations and sounds.");
             Console.WriteLine("   /check          Check that all needed assets are present.");
             //Console.WriteLine("   /no-wait        Don't show (Press any key to exit) message when it's done.");
+            Console.WriteLine("   /output <DIR>   Write files to <DIR> instead of where the executables are.");
 
             // Show "Shareware Demo" notice
             Console.WriteLine();
@@ -237,8 +244,6 @@ namespace Import
             Console.WriteLine("  CTRL+C or close the window.");
 
             Console.ReadLine();
-
-            string targetPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
             // ToDo: This check does not work anymore
             if (File.Exists(Path.Combine(targetPath, "Content", "Animations", "Jazz", "Idle.png"))) {
@@ -257,21 +262,16 @@ namespace Import
                 Console.Clear();
                 ConsoleImage.RenderFromManifestResource("ConsoleImage.udl", out _);
             }
-
-            // Download and import...
-            if (DemoDownloader.Run(targetPath)) {
-                OnPostImport(targetPath, false, true, false, true, false);
-            }
         }
 
-        private static void OnPostImport(string targetPath, bool verbose, bool wait, bool keep, bool merge, bool check)
+        private static void OnPostImport(string targetPath, string exePath, bool verbose, bool wait, bool keep, bool merge, bool check)
         {
             if (!keep) {
                 Clean(targetPath, verbose);
             }
 
             if (merge) {
-                MergeToCompressedContent(targetPath, keep);
+                MergeToCompressedContent(targetPath, exePath, keep);
             }
 
             if (check) {
@@ -284,7 +284,7 @@ namespace Import
             }
         }
 
-        public static void ConvertJJ2Anims(string sourcePath, string targetPath)
+        public static void ConvertJJ2Anims(string sourcePath, string targetPath, string exePath)
         {
             Log.Write(LogType.Info, "Importing assets...");
             Log.PushIndent();
@@ -975,13 +975,14 @@ namespace Import
             Log.PopIndent();
         }
 
-        private static void CreateMinimalCompressedContent(string targetPath)
+        private static void CreateMinimalCompressedContent(string targetPath, string exePath)
         {
             Log.Write(LogType.Info, "Creating minimal compressed content...");
             Log.PushIndent();
 
-            string animationsPath = Path.Combine(targetPath, "Content", "Animations");
-            RecreateDefaultPalette(animationsPath);
+            string exeAnimationsPath = Path.Combine(exePath, "Content", "Animations");
+            string targetAnimationsPath = Path.Combine(targetPath, "Content", "Animations");
+            RecreateDefaultPalette(targetAnimationsPath);
 
             Log.Write(LogType.Info, "Compressing content into \".\\Content\\Main.dz\" file...");
             Log.PushIndent();
@@ -989,17 +990,15 @@ namespace Import
             string oldContent = Path.Combine(targetPath, "Content", "Main.dz");
             string newContent = oldContent + ".new";
 
-            bool keepOld = false;
-
             ContentTree tree = new ContentTree();
 
-            foreach (string unreferenced in new[] {
+            bool keepOld = !AddMinimalAnimations(exeAnimationsPath, tree, new[] {
                 "Main.palette",
                 "_custom/font_medium.png",
                 "_custom/font_medium.png.font",
                 "_custom/font_small.png",
                 "_custom/font_small.png.font",
-
+            }) || !AddMinimalAnimations(targetAnimationsPath, tree, new[] {
                 "Jazz/unused_jump_shoot_end.png",
                 "Jazz/unused_jump_shoot_end.png.res",
                 "Jazz/unused_jump_shoot_end.n.png",
@@ -1012,36 +1011,22 @@ namespace Import
                 "Spaz/unused_ledge_climb.png",
                 "Spaz/unused_ledge_climb.png.res",
                 "Spaz/unused_ledge_climb.n.png",
-            }) {
-                string file = PathOp.Combine("Animations", unreferenced.Replace('/', PathOp.DirectorySeparatorChar));
-                string path = Path.Combine(animationsPath, unreferenced);
-                if (FileSystemUtils.FileResolveCaseInsensitive(ref path)) {
-                    FileInfo info = new FileInfo(path);
-                    ContentTree.Node node = tree.AddNodeByPath(file);
-                    node.Source = new FileResourceSource(path, 0, info.Length, false);
-                } else {
-                    Log.Write(LogType.Warning,
-                        "\"" + Path.Combine("Animations", unreferenced.Replace('/', Path.DirectorySeparatorChar)) +
-                        "\" is missing!");
+            });
 
-                    keepOld = true;
-                }
+            if (Directory.Exists(Path.Combine(exeAnimationsPath, "_custom"))) {
+                tree.GetContentFromDirectory(Path.Combine(exeAnimationsPath, "_custom"), "Animations");
             }
 
-            if (Directory.Exists(Path.Combine(animationsPath, "_custom"))) {
-                tree.GetContentFromDirectory(Path.Combine(animationsPath, "_custom"), "Animations");
+            if (Directory.Exists(Path.Combine(exePath, "Content", "Metadata"))) {
+                tree.GetContentFromDirectory(Path.Combine(exePath, "Content", "Metadata"));
             }
 
-            if (Directory.Exists(Path.Combine(targetPath, "Content", "Metadata"))) {
-                tree.GetContentFromDirectory(Path.Combine(targetPath, "Content", "Metadata"));
+            if (Directory.Exists(Path.Combine(exePath, "Content", "Shaders"))) {
+                tree.GetContentFromDirectory(Path.Combine(exePath, "Content", "Shaders"));
             }
 
-            if (Directory.Exists(Path.Combine(targetPath, "Content", "Shaders"))) {
-                tree.GetContentFromDirectory(Path.Combine(targetPath, "Content", "Shaders"));
-            }
-
-            if (Directory.Exists(Path.Combine(targetPath, "Content", "Shaders.ES30"))) {
-                tree.GetContentFromDirectory(Path.Combine(targetPath, "Content", "Shaders.ES30"));
+            if (Directory.Exists(Path.Combine(exePath, "Content", "Shaders.ES30"))) {
+                tree.GetContentFromDirectory(Path.Combine(exePath, "Content", "Shaders.ES30"));
             }
 
             Log.PopIndent();
@@ -1064,7 +1049,30 @@ namespace Import
             Log.PopIndent();
         }
 
-        private static void MergeToCompressedContent(string targetPath, bool keep)
+        private static bool AddMinimalAnimations(string animationsPath, ContentTree tree, string[] entries)
+        {
+            bool success = true;
+
+            foreach (string unreferenced in entries) {
+                string file = PathOp.Combine("Animations", unreferenced.Replace('/', PathOp.DirectorySeparatorChar));
+                string path = Path.Combine(animationsPath, unreferenced);
+                if (FileSystemUtils.FileResolveCaseInsensitive(ref path)) {
+                    FileInfo info = new FileInfo(path);
+                    ContentTree.Node node = tree.AddNodeByPath(file);
+                    node.Source = new FileResourceSource(path, 0, info.Length, false);
+                } else {
+                    Log.Write(LogType.Warning,
+                        "\"" + Path.Combine("Animations", unreferenced.Replace('/', Path.DirectorySeparatorChar)) +
+                        "\" is missing!");
+
+                    success = false;
+                }
+            }
+
+            return success;
+        }
+
+        private static void MergeToCompressedContent(string targetPath, string exePath, bool keep)
         {
             Log.Write(LogType.Info, "Compressing content into \".\\Content\\Main.dz\" file...");
             Log.PushIndent();
@@ -1090,20 +1098,26 @@ namespace Import
 
             Log.Write(LogType.Info, "Adding new content...");
 
-            if (Directory.Exists(Path.Combine(targetPath, "Content", "Animations"))) {
-                tree.GetContentFromDirectory(Path.Combine(targetPath, "Content", "Animations"));
+            if (targetPath != exePath) {
+                if (Directory.Exists(Path.Combine(targetPath, "Content", "Animations"))) {
+                    tree.GetContentFromDirectory(Path.Combine(targetPath, "Content", "Animations"));
+                }
             }
 
-            if (Directory.Exists(Path.Combine(targetPath, "Content", "Metadata"))) {
-                tree.GetContentFromDirectory(Path.Combine(targetPath, "Content", "Metadata"));
+            if (Directory.Exists(Path.Combine(exePath, "Content", "Animations"))) {
+                tree.GetContentFromDirectory(Path.Combine(exePath, "Content", "Animations"));
             }
 
-            if (Directory.Exists(Path.Combine(targetPath, "Content", "Shaders"))) {
-                tree.GetContentFromDirectory(Path.Combine(targetPath, "Content", "Shaders"));
+            if (Directory.Exists(Path.Combine(exePath, "Content", "Metadata"))) {
+                tree.GetContentFromDirectory(Path.Combine(exePath, "Content", "Metadata"));
             }
 
-            if (Directory.Exists(Path.Combine(targetPath, "Content", "Shaders.ES30"))) {
-                tree.GetContentFromDirectory(Path.Combine(targetPath, "Content", "Shaders.ES30"));
+            if (Directory.Exists(Path.Combine(exePath, "Content", "Shaders"))) {
+                tree.GetContentFromDirectory(Path.Combine(exePath, "Content", "Shaders"));
+            }
+
+            if (Directory.Exists(Path.Combine(exePath, "Content", "Shaders.ES30"))) {
+                tree.GetContentFromDirectory(Path.Combine(exePath, "Content", "Shaders.ES30"));
             }
 
             Log.Write(LogType.Info, "Saving changes...");
@@ -1285,6 +1299,7 @@ namespace Import
             string defaultPalettePath = Path.Combine(animationsPath, "Main.palette");
             if (!File.Exists(defaultPalettePath)) {
                 Log.Write(LogType.Info, "Recreating default palette...");
+                Directory.CreateDirectory(animationsPath);
 
                 using (FileStream s = File.Open(defaultPalettePath, FileMode.Create, FileAccess.Write))
                 using (BinaryWriter w = new BinaryWriter(s)) {
