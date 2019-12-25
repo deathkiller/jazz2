@@ -9,7 +9,7 @@ namespace Import.Downloaders
 {
     public static class DemoDownloader
     {
-        private const string Url = "http://deat.tk/public/jazz2/demo.zip";
+        private const string Url = "http://deat.tk/jazz2/misc/shareware-demo.zip";
 
         public static bool Run(string targetPath, string exePath)
         {

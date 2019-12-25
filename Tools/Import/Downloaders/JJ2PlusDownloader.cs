@@ -9,7 +9,8 @@ namespace Import.Downloaders
 {
     public static class JJ2PlusDownloader
     {
-        private const string Url = "http://deat.tk/public/jazz2/jj2plus.zip";
+        // Increment this version if JJ2+ is changed
+        private const string Url = "http://deat.tk/jazz2/misc/jj2plus-v1.zip";
 
         public static bool Run(string targetPath)
         {
@@ -18,7 +19,7 @@ namespace Import.Downloaders
             bool zipExists = File.Exists(zipFile);
 
             if (!zipExists) {
-                Log.Write(LogType.Info, "Downloading JJ2+ (3 MB)...");
+                Log.Write(LogType.Info, "Downloading JJ2+ extension (150 kB)...");
                 Log.PushIndent();
 
                 zipFile = Path.Combine(Path.GetTempPath(), "Jazz2-" + Guid.NewGuid());
@@ -43,7 +44,7 @@ namespace Import.Downloaders
 
                 ZipFile.ExtractToDirectory(zipFile, tempDir);
 
-                string plusPath = Path.Combine(tempDir, "Plus.j2a");
+                string plusPath = Path.Combine(tempDir, "plus.j2a");
                 if (FileSystemUtils.FileResolveCaseInsensitive(ref plusPath)) {
                     JJ2Anims.Convert(plusPath, targetPath, true);
                 }
