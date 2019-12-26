@@ -78,6 +78,8 @@ namespace Jazz2.Server
             public int MaxPlayers { get; set; }
             public bool IsPrivate { get; set; }
 
+            public bool PlaylistRandom { get; set; }
+
             public IList<PlaylistItemJson> Playlist { get; set; }
 
         }
@@ -104,6 +106,7 @@ namespace Jazz2.Server
 
         private List<PlaylistItem> activePlaylist;
         private int activePlaylistIndex;
+        private bool activePlaylistRandom;
 
         private Dictionary<NetConnection, PlayerClient> players;
         public PlayerClient[] playersByIndex;
@@ -508,6 +511,41 @@ namespace Jazz2.Server
                 return;
             }
 
+            if (activePlaylistRandom && activePlaylist.Count > 2) {
+                for (int i = 0; i < 3; i++) {
+                    int randomIdx = MathF.Rnd.Next(activePlaylist.Count);
+                    if (randomIdx == activePlaylistIndex) {
+                        continue;
+                    }
+
+                    activePlaylistIndex = randomIdx;
+
+                    MultiplayerLevelType levelType = activePlaylist[activePlaylistIndex].LevelType;
+
+                    if (ChangeLevel(activePlaylist[activePlaylistIndex].LevelName, levelType, true)) {
+                        int goalCount = activePlaylist[activePlaylistIndex].GoalCount;
+                        if (goalCount > 0) {
+                            switch (levelType) {
+                                case MultiplayerLevelType.Battle:
+                                case MultiplayerLevelType.TeamBattle:
+                                    battleTotalKills = goalCount; break;
+                                case MultiplayerLevelType.Race:
+                                    raceTotalLaps = goalCount; break;
+                                case MultiplayerLevelType.TreasureHunt:
+                                    treasureHuntTotalGems = goalCount; break;
+                            }
+                        }
+
+                        byte playerHealth = activePlaylist[activePlaylistIndex].PlayerHealth;
+                        if (playerHealth > 0) {
+                            this.playerHealth = playerHealth;
+                        }
+
+                        return;
+                    }
+                }
+            }
+
             for (int i = 0; i < activePlaylist.Count; i++) {
                 activePlaylistIndex = (startIndex + i) % activePlaylist.Count;
 
@@ -517,9 +555,13 @@ namespace Jazz2.Server
                     int goalCount = activePlaylist[activePlaylistIndex].GoalCount;
                     if (goalCount > 0) {
                         switch (levelType) {
-                            case MultiplayerLevelType.Battle: battleTotalKills = goalCount; break;
-                            case MultiplayerLevelType.Race: raceTotalLaps = goalCount; break;
-                            case MultiplayerLevelType.TreasureHunt: treasureHuntTotalGems = goalCount; break;
+                            case MultiplayerLevelType.Battle:
+                            case MultiplayerLevelType.TeamBattle:
+                                battleTotalKills = goalCount; break;
+                            case MultiplayerLevelType.Race:
+                                raceTotalLaps = goalCount; break;
+                            case MultiplayerLevelType.TreasureHunt:
+                                treasureHuntTotalGems = goalCount; break;
                         }
                     }
 

@@ -374,9 +374,13 @@ namespace Jazz2.Server
 
                         int goalCount;
                         switch (levelType) {
-                            case MultiplayerLevelType.Battle: goalCount = json.Playlist[i].TotalKills; break;
-                            case MultiplayerLevelType.Race: goalCount = json.Playlist[i].TotalLaps; break;
-                            case MultiplayerLevelType.TreasureHunt: goalCount = json.Playlist[i].TotalGems; break;
+                            case MultiplayerLevelType.Battle:
+                            case MultiplayerLevelType.TeamBattle:
+                                goalCount = json.Playlist[i].TotalKills; break;
+                            case MultiplayerLevelType.Race:
+                                goalCount = json.Playlist[i].TotalLaps; break;
+                            case MultiplayerLevelType.TreasureHunt:
+                                goalCount = json.Playlist[i].TotalGems; break;
 
                             default: {
                                 Log.Write(LogType.Warning, "Level type " + levelType + " is not supported yet. Skipping.");
@@ -393,6 +397,7 @@ namespace Jazz2.Server
                     }
 
                     activePlaylist = playlist;
+                    activePlaylistRandom = json.PlaylistRandom;
 
                     Log.Write(LogType.Info, "Loaded playlist with " + playlist.Count + " levels");
 
@@ -406,7 +411,7 @@ namespace Jazz2.Server
                 return true;
             } catch (Exception ex) {
 
-                Log.Write(LogType.Error, "Cannot parse configuration: " + ex);
+                Log.Write(LogType.Error, "Cannot parse server configuration: " + ex);
                 Log.PopIndent();
 
                 return false;
