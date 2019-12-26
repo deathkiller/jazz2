@@ -58,19 +58,8 @@ namespace Jazz2.Game
         private void OnPacketDisconnected(string reason)
         {
             Await.NextAfterUpdate().OnCompleted(() => {
-                // TODO: translation
-                string message;
-                switch (reason) {
-                    case "server unloaded": message = "Server is not loaded. Please, try it later."; break;
-                    case "banned": message = "You have been permanently banned from this server."; break;
-                    case "kicked": message = "You have been kicked from this server."; break;
-                    case "incompatible version": message = "You have incompatible client version."; break;
-                    case "already connected": message = "Client with your ID is already connected."; break;
-                    default: message = reason; break;
-                }
-
-                ShowMainMenu(false).SwitchToSection(new SimpleMessageSection("Disconnected from server!", message));
-
+                string message = (string.IsNullOrEmpty(reason) ? "error/reconnecting" : "error/" + reason);
+                ShowMainMenu(false).SwitchToSection(new SimpleMessageSection("error/disconnected".T(), message.T()));
                 ControlScheme.IsSuspended = false;
             });
         }

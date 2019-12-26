@@ -38,7 +38,7 @@ namespace Lidgren.Network
                     case NetConnectionStatus.Connected:
                     case NetConnectionStatus.RespondedConnect:
                         // reconnect
-                        ExecuteDisconnect("Reconnecting", true);
+                        ExecuteDisconnect("reconnecting", true);
                         break;
 
                     case NetConnectionStatus.InitiatedConnect:
@@ -67,7 +67,7 @@ namespace Lidgren.Network
                 if (m_handshakeAttempts >= m_peerConfiguration.m_maximumHandshakeAttempts)
                 {
                     // failed to connect
-                    ExecuteDisconnect("Failed to establish connection - no response from remote host", true);
+                    ExecuteDisconnect("no response", true);
                     return;
                 }
 
@@ -457,7 +457,7 @@ namespace Lidgren.Network
 
                 if (remoteAppIdentifier != m_peer.m_configuration.AppIdentifier)
                 {
-                    ExecuteDisconnect("Wrong application identifier!", true);
+                    ExecuteDisconnect("wrong application identifier", true);
                     return false;
                 }
 
@@ -466,7 +466,7 @@ namespace Lidgren.Network
             catch(Exception ex)
             {
                 // whatever; we failed
-                ExecuteDisconnect("Handshake data validation failed", true);
+                ExecuteDisconnect("handshake validation failed", true);
                 m_peer.LogVerbose("ReadRemoteHandshakeData failed: " + ex.Message);
                 return false;
             }

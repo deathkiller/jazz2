@@ -162,7 +162,7 @@ namespace Lidgren.Network
                     // connection timed out
                     //
                     m_peer.LogVerbose("Connection timed out at " + now + " deadline was " + m_timeoutDeadline);
-                    ExecuteDisconnect("Connection timed out", true);
+                    ExecuteDisconnect("connection timed out", true);
                     return;
                 }
 

@@ -269,7 +269,7 @@ namespace Jazz2.Game
                     Log.Write(LogType.Error, "Cannot load level: " + ex);
 
                     // TODO: translation
-                    ShowMainMenu(false).SwitchToSection(new SimpleMessageSection("Something went wrong :(", ex.Message));
+                    ShowMainMenu(false).SwitchToSection(new SimpleMessageSection("error/unknown".T(), ex.Message));
                 }
             }
 

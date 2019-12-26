@@ -29,8 +29,7 @@ namespace Jazz2.Game.UI.Menu
 
             charOffset = 2;
 
-            // TODO: translation
-            const string BackText = "Back";
+            string BackText = "menu/back".T();
             api.DrawMaterial("MenuGlow", center.X, center.Y + 110, Alignment.Center,
                 ColorRgba.White.WithAlpha(0.4f * /*size*/1.1f), (BackText.Length + 3) * 0.5f * /*size*/1.1f, 4f * /*size*/1.1f);
 
