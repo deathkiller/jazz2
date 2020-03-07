@@ -171,7 +171,7 @@ namespace Jazz2.Game.Tiles
 
                     Scale = 1f,
                     ScaleSpeed = -0.002f,
-                    Angle = MathF.Rnd.NextFloat(MathF.TwoPi),
+                    Angle = MathF.Rnd.NextFloat() * MathF.TwoPi,
                     AngleSpeed = speedX * 0.02f,
                     Alpha = 1f,
                     AlphaSpeed = -0.002f,

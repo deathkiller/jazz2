@@ -22,5 +22,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Math\Vector2.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Math\Vector3.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Math\Vector4.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Math\XorShiftRandom.cs" />
   </ItemGroup>
 </Project>

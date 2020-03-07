@@ -68,17 +68,17 @@ namespace Duality
 		/// </summary>
 		public const float RadAngle360 = TwoPi;
 
-		private static Random rnd = new Random((int)(DateTime.Now.Ticks % int.MaxValue));
+		private static XorShiftRandom rnd = new XorShiftRandom();
 		/// <summary>
 		/// [GET / SET] Global random number generator. Is never null.
 		/// </summary>
-		public static Random Rnd
+		public static XorShiftRandom Rnd
 		{
 #if NET45
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
 			get { return rnd; }
-			set { rnd = value ?? new Random(); }
+			set { rnd = value ?? new XorShiftRandom(); }
 		}
 
 

@@ -2,12 +2,12 @@
 
 namespace Duality
 {
-    /// <summary>
-    /// A simple pool of <see cref="RawList{T}"/> instances of a particular type.
-    /// Intended to be used locally, by a single owner and from a single thread.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class RawListPool<T>
+	/// <summary>
+	/// A simple pool of <see cref="RawList{T}"/> instances of a particular type.
+	/// Intended to be used locally, by a single owner and from a single thread.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	public class RawListPool<T>
 	{
 		private List<RawList<T>> freeLists = new List<RawList<T>>();
 		private List<RawList<T>> usedLists = new List<RawList<T>>();

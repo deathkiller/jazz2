@@ -531,7 +531,7 @@ namespace Jazz2.Actors
 
                                     Scale = MathF.Rnd.NextFloat(0.1f, 0.5f),
                                     ScaleSpeed = -0.002f,
-                                    Angle = MathF.Rnd.NextFloat(MathF.TwoPi),
+                                    Angle = MathF.Rnd.NextFloat() * MathF.TwoPi,
                                     AngleSpeed = speedX * 0.04f,
                                     Alpha = 1f,
                                     AlphaSpeed = -0.018f,

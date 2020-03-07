@@ -984,7 +984,7 @@ namespace Jazz2.Game
                             Acceleration = new Vector2(accel, -MathF.Abs(accel)),
 
                             Scale = scale,
-                            Angle = MathF.Rnd.NextFloat(MathF.TwoPi),
+                            Angle = MathF.Rnd.NextFloat() * MathF.TwoPi,
                             AngleSpeed = speedX * 0.02f,
                             Alpha = 1f,
 

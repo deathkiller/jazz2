@@ -80,8 +80,8 @@ namespace Jazz2.Actors.Collectibles
                     if (other is AmmoBase || other is AmmoTNT || other is TurtleShell) {
                         if (untouched) {
                             Vector3 speed = other.Speed;
-                            externalForceX +=  speed.X / 2f * (0.9f + MathF.Rnd.NextFloat(0.2f));
-                            externalForceY += -speed.Y / 4f * (0.9f + MathF.Rnd.NextFloat(0.2f));
+                            externalForceX +=  speed.X / 2f * (0.9f + MathF.Rnd.NextFloat() * 0.2f);
+                            externalForceY += -speed.Y / 4f * (0.9f + MathF.Rnd.NextFloat() * 0.2f);
 
                             untouched = false;
                             CollisionFlags |= CollisionFlags.ApplyGravitation;

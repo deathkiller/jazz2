@@ -36,7 +36,7 @@ namespace Jazz2.Actors.Lighting
             float intensity = MathF.Rnd.NextFloat(0.22f, 0.42f);
 
             distance = MathF.Rnd.NextFloat(6f, 46f) * size;
-            phase = MathF.Rnd.NextFloat(MathF.TwoPi);
+            phase = MathF.Rnd.NextFloat() * MathF.TwoPi;
             speed = MathF.Rnd.NextFloat(-0.18f, -0.06f);
 
             AddComponent<Transform>();

@@ -133,7 +133,7 @@ namespace Jazz2.Actors.Bosses
                                 Brick brick = new Brick();
                                 brick.OnActivated(new ActorActivationDetails {
                                     LevelHandler = levelHandler,
-                                    Pos = new Vector3(brickStartRangeX + MathF.Rnd.NextFloat(pos.X - brickStartRangeX - 50), pos.Y - 200f, pos.Z + 20f)
+                                    Pos = new Vector3(brickStartRangeX + MathF.Rnd.NextFloat() * (pos.X - brickStartRangeX - 50), pos.Y - 200f, pos.Z + 20f)
                                 });
                                 levelHandler.AddActor(brick);
 

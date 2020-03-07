@@ -204,7 +204,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utility\Extensions\ExtMethodsIEnumerable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\Extensions\ExtMethodsIList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\Extensions\ExtMethodsPropertyInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utility\Extensions\ExtMethodsRandom.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\Extensions\ExtMethodsTypeInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\GameObjectManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\IManageableObject.cs" />
