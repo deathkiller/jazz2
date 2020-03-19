@@ -15,7 +15,7 @@
 
 
 ## Introduction
-Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** released in 1998. Supports various versions of the game (Shareware Demo, Holiday Hare '98, The Secret Files and Christmas Chronicles). Also, it partially supports some features of JJ2+ extension and MLLE. Further information can be found [here](http://deat.gq/jazz2/).
+Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** released in 1998. Supports various versions of the game (Shareware Demo, Holiday Hare '98, The Secret Files and Christmas Chronicles). Also, it partially supports some features of JJ2+ extension and MLLE. Further information can be found [here](http://deat.tk/jazz2/).
 
 [![Build Status](https://img.shields.io/appveyor/ci/deathkiller/jazz2/master.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTI0IDIuNXYxOUwxOCAyNCAwIDE4LjV2LS41NjFsMTggMS41NDVWMHpNMSAxMy4xMTFMNC4zODUgMTAgMSA2Ljg4OWwxLjQxOC0uODI3TDUuODUzIDguNjUgMTIgM2wzIDEuNDU2djExLjA4OEwxMiAxN2wtNi4xNDctNS42NS0zLjQzNCAyLjU4OXpNNy42NDQgMTBMMTIgMTMuMjgzVjYuNzE3eiI+PC9wYXRoPjwvc3ZnPg==)](https://ci.appveyor.com/project/deathkiller/jazz2)
 [![Latest Release](https://img.shields.io/github/release/deathkiller/jazz2.svg)](https://github.com/deathkiller/jazz2/releases)
@@ -57,7 +57,7 @@ This project uses parts of [Duality - A 2D GameDev Framework](https://www.dualit
 The application tries to autodetect correct paths.*
 
 ### WebAssembly
-* Go to [Jazz² Resurrection](http://deat.gq/jazz2/wasm/) page to play **Shareware Demo** online
+* Go to [Jazz² Resurrection](http://deat.tk/jazz2/wasm/) page to play **Shareware Demo** online
   * Alternatively, build the solution and copy `Content` directory from **Desktop** release to build target directory
 
 *Requires Google Chrome 57 (or newer), Firefox 53 (or newer) or other browser supporting WebAssembly and WebGL.*
