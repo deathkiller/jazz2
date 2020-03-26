@@ -321,7 +321,7 @@ namespace Jazz2.Server
 
         public bool LoadServerConfig(string path)
         {
-            if (string.IsNullOrEmpty(path) || File.Exists(path)) {
+            if (string.IsNullOrEmpty(path) || !File.Exists(path)) {
                 return false;
             }
 
