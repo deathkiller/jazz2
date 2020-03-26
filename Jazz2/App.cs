@@ -106,7 +106,7 @@ namespace Jazz2.Game
 #if MULTIPLAYER
                 for (int i = 0; i < args.Length; i++) {
                     if (args[i].StartsWith("/connect:", StringComparison.InvariantCulture)) {
-                        int idx = args[i].LastIndexOf(':', 10);
+                        int idx = args[i].IndexOf(':', 10);
                         if (idx == -1) {
                             continue;
                         }
