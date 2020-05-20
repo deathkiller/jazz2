@@ -371,7 +371,7 @@
             "Paths": [ "Pickup/food_edible_1.wav", "Pickup/food_edible_2.wav", "Pickup/food_edible_3.wav", "Pickup/food_edible_4.wav" ]
         },
         "PickupMaxCarrot": {
-            "Paths": [ "Jazz/carrot.wav" ]
+            "Paths": [ "Pickup/food_edible_1.wav" ]
         },
         "WeaponBlaster": {
             "__Paths": [ "Weapon/bullet_blaster_spaz_1.wav", "Weapon/bullet_blaster_spaz_2.wav", "Weapon/bullet_blaster_spaz_3.wav" ],

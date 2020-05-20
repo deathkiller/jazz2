@@ -102,6 +102,24 @@ namespace Jazz2.Actors
                 currentWeapon = (WeaponType)((int)(currentWeapon + 1) % (int)WeaponType.Count);
             }
 
+            weaponCooldown = 1f;
+
+#if MULTIPLAYER && SERVER
+            ((LevelHandler)levelHandler).OnPlayerRefreshAmmo(this, currentWeapon, weaponAmmo[(int)currentWeapon], true);
+#endif
+
+            PreloadMetadata("Weapon/" + currentWeapon);
+        }
+
+        private void SwitchToWeaponByIndex(int weaponIndex)
+        {
+            if (weaponIndex >= weaponAmmo.Length || weaponAmmo[weaponIndex] == 0) {
+                return;
+            }
+
+            currentWeapon = (WeaponType)weaponIndex;
+            weaponCooldown = 1f;
+
 #if MULTIPLAYER && SERVER
             ((LevelHandler)levelHandler).OnPlayerRefreshAmmo(this, currentWeapon, weaponAmmo[(int)currentWeapon], true);
 #endif

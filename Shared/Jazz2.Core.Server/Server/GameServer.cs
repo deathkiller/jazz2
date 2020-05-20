@@ -315,7 +315,7 @@ namespace Jazz2.Server
                     }
                 }
 
-                Thread.Sleep(300000); // 5 minutes
+                Thread.Sleep(600000); // 10 minutes
             }
         }
 

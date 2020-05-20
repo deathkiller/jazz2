@@ -49,6 +49,8 @@ namespace Jazz2.Actors.Enemies
                     speedX = direction.X * DefaultSpeed;
                     speedY = direction.Y * DefaultSpeed;
 
+                    IsFacingLeft = (speedX < 0f);
+
                     if (noiseCooldown > 0f) {
                         noiseCooldown -= timeMult;
                     } else {
@@ -86,6 +88,8 @@ namespace Jazz2.Actors.Enemies
                         direction.Normalize();
                         speedX = direction.X * DefaultSpeed;
                         speedY = direction.Y * DefaultSpeed;
+
+                        IsFacingLeft = (speedX < 0f);
                     }
                 }
             }

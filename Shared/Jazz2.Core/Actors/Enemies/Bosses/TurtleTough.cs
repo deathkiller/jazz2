@@ -187,6 +187,7 @@ namespace Jazz2.Actors.Bosses
             protected override async Task OnActivatedAsync(ActorActivationDetails details)
             {
                 base.canBeFrozen = false;
+                base.isInvulnerable = true;
                 base.canCollideWithAmmo = false;
                 base.CollisionFlags = CollisionFlags.CollideWithOtherActors;
 

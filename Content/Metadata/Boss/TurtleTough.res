@@ -12,7 +12,7 @@
         "Walk": {
             "Path": "TurtleToughBoss/walk.png",
             "States": [ 1 ],
-            "FrameRate": 8
+            "FrameRate": 5
         },
 
         "AttackStart": {
@@ -37,7 +37,7 @@
         "Mace": {
             "Path": "TurtleToughBoss/mace.png",
             "States": [ 1073741827 ],
-            "FrameRate": 15
+            "FrameRate": 12
         }
     },
 

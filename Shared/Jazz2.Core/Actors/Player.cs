@@ -651,7 +651,6 @@ namespace Jazz2.Actors
                 else
 #endif
                 {
-
                     speedX = MathF.Max((MathF.Abs(speedX) - Deceleration * timeMult), 0) * (speedX < 0 ? -1 : 1);
                     isActivelyPushing = false;
 
@@ -670,7 +669,7 @@ namespace Jazz2.Actors
                 float absSpeedX = MathF.Abs(speedX);
                 if (absSpeedX > 1f) {
                     IsFacingLeft = (speedX < 0f);
-                } else if (absSpeedX < 0.001f) {
+                } else if (absSpeedX < 1f) {
                     keepRunningTime = 0f;
                 }
             }
@@ -821,7 +820,6 @@ namespace Jazz2.Actors
                                 CollisionFlags |= CollisionFlags.CollideWithSolidObjects;
                             });
                         } else {
-
                             switch (playerType) {
                                 case PlayerType.Jazz: {
                                     if ((currentAnimationState & AnimState.Crouch) != 0) {
@@ -922,7 +920,11 @@ namespace Jazz2.Actors
                             }
                             canJump = true;
                         }
-                        if (canJump && currentSpecialMove == SpecialMoveType.None && !ControlScheme.PlayerActionPressed(playerIndex, PlayerActions.Down)) {
+                        if (!canJump) {
+                            if (copterFramesLeft > 0f) {
+                                copterFramesLeft = 70f;
+                            }
+                        } else if (currentSpecialMove == SpecialMoveType.None && !ControlScheme.PlayerActionPressed(playerIndex, PlayerActions.Down)) {
                             canJump = false;
                             isFreefall = false;
                             SetAnimation(currentAnimationState & (~AnimState.Lookup & ~AnimState.Crouch));
@@ -995,8 +997,18 @@ namespace Jazz2.Actors
                 }
             }
 
-            if (playerType != PlayerType.Frog && ControlScheme.PlayerActionHit(playerIndex, PlayerActions.SwitchWeapon)) {
-                SwitchToNextWeapon();
+            if (playerType != PlayerType.Frog) {
+                if (ControlScheme.PlayerActionHit(playerIndex, PlayerActions.SwitchWeapon)) {
+                    SwitchToNextWeapon();
+                } else if (playerIndex == 0) {
+                    // Use numeric key to switch weapons for the first player
+                    int maxWeaponCount = Math.Min(weaponAmmo.Length, 9);
+                    for (int i = 0; i < maxWeaponCount; i++) {
+                        if (weaponAmmo[i] != 0 && DualityApp.Keyboard.KeyHit(Duality.Input.Key.Number1 + i)) {
+                            SwitchToWeaponByIndex(i);
+                        }
+                    }
+                }
             }
 #endif
         }
@@ -1041,6 +1053,7 @@ namespace Jazz2.Actors
             // Reset speed and show Push animation
             speedX = 0f;
             pushFramesLeft = 2f;
+            keepRunningTime = 0f;
 
             Vector3 pos = Transform.Pos;
             if (levelHandler.EventMap.IsHurting(pos.X + (speedX > 0f ? 1f : -1f) * 16f, pos.Y)) {
@@ -1298,7 +1311,7 @@ namespace Jazz2.Actors
                 newState = AnimState.Swing;
             } else if (isLifting) {
                 newState = AnimState.Lift;
-            } else if (canJump && isActivelyPushing && pushFramesLeft > 0f) {
+            } else if (canJump && isActivelyPushing && pushFramesLeft > 0f && keepRunningTime <= 0f) {
                 newState = AnimState.Push;
             } else {
                 // Only certain ones don't need to be preserved from earlier state, others should be set as expected
@@ -2143,9 +2156,8 @@ namespace Jazz2.Actors
                     externalForceY = 0f;
                 }
 
-                SetPlayerTransition(AnimState.Dash | AnimState.Jump, true, true, SpecialMoveType.None);
-                // ToDo: ...
-                controllableTimeout = 20f;
+                SetPlayerTransition(AnimState.Dash | AnimState.Jump, true, false, SpecialMoveType.None);
+                controllableTimeout = 2f;
             } else if (MathF.Abs(force.Y) > 0f) {
                 copterFramesLeft = 0f;
                 speedY = (4 + MathF.Abs(force.Y)) * sign;
