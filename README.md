@@ -53,7 +53,7 @@ This project uses parts of [Duality - A 2D GameDev Framework](https://www.dualit
 * Install `Jazz2.apk` on Android device
 * Run the newly installed application
 
-*Requires device with Android 4.4 (or newer) and OpenGL ES 3.0 support.* `‹Storage›` *could be internal (preferred) or external storage.
+*Requires device with Android 5.0 (or newer) and OpenGL ES 3.0 support.* `‹Storage›` *could be internal (preferred) or external storage.
 The application tries to autodetect correct paths.*
 
 ### WebAssembly
@@ -97,7 +97,7 @@ The application tries to autodetect correct paths.*
 
 ## Building the solution
 ### Windows
-* Open the solution in [Microsoft Visual Studio 2017](https://www.visualstudio.com/) (or newer) and build it
+* Open the solution in [Microsoft Visual Studio 2019](https://www.visualstudio.com/) (or newer) and build it
 * Copy `/Packages/AdamsLair.OpenTK.x.y.z/lib/OpenTK.dll.config` to `/Jazz2/Bin/Debug/OpenTK.dll.config`
 * Copy dependencies to `/Jazz2/Bin/Debug/` or `/Jazz2/Bin/Release/`
 * If you build Release configuration, you have to replace `Debug` with `Release` in paths above
@@ -120,7 +120,7 @@ The application tries to autodetect correct paths.*
 ***.NET Core 3.0** build can be compiled in a similar way (use* `Jazz2.DotNetCore` *project). Compile errors about* `Jazz2.Android` *project can be ignored, if the Android build is not needed.*
 
 ### Android
-* Install **Mobile development in .NET** for Microsoft Visual Studio 2017 (or newer)
+* Install **Mobile development in .NET** for Microsoft Visual Studio 2019 (or newer)
 * Open the solution and build `Jazz2.Android` project
 * Dependencies are already included for common configurations
 
