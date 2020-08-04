@@ -20,14 +20,17 @@ namespace Jazz2.Game.UI.Menu.InGame
                 ref InnerView.TouchButtonInfo button = ref InnerView.TouchButtons[i];
                 if (button.Material.IsAvailable) {
                     float x = button.Left;
+                    float y = button.Top;
                     if (x < 0.5f) {
                         x += InnerView.LeftPadding;
+                        y += InnerView.BottomPadding1;
                     } else {
                         x -= InnerView.RightPadding;
+                        y += InnerView.BottomPadding2;
                     }
 
                     canvas.State.SetMaterial(button.Material);
-                    canvas.FillRect(x * size.X, button.Top * size.Y, button.Width * size.X, button.Height * size.Y);
+                    canvas.FillRect(x * size.X, y * size.Y, button.Width * size.X, button.Height * size.Y);
                 }
             }
 #endif

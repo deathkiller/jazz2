@@ -11,6 +11,8 @@ namespace Jazz2.Game.UI.Menu.Settings
         private ChoiceControl vibrations;
         private SliderControl leftPadding;
         private SliderControl rightPadding;
+        private SliderControl bottomPadding1;
+        private SliderControl bottomPadding2;
 #elif !PLATFORM_WASM
         private ChoiceControl screenMode;
         private ChoiceControl refreshMode;
@@ -67,12 +69,14 @@ namespace Jazz2.Game.UI.Menu.Settings
 
             leftPadding = new SliderControl(api, "menu/settings/left padding".T(), Android.InnerView.LeftPadding, 0f, 0.15f);
             rightPadding = new SliderControl(api, "menu/settings/right padding".T(), Android.InnerView.RightPadding, 0f, 0.15f);
+            bottomPadding1 = new SliderControl(api, "menu/settings/bottom padding 1".T(), Android.InnerView.BottomPadding1, -0.15f, 0.15f);
+            bottomPadding2 = new SliderControl(api, "menu/settings/bottom padding 2".T(), Android.InnerView.BottomPadding2, -0.15f, 0.15f);
 
             controls = new MenuControlBase[] {
                 new LinkControl(api, "menu/settings/rescale".T(), OnRescaleModePressed),
                 language, vibrations, musicVolume, sfxVolume,
                 new LinkControl(api, "menu/settings/controls".T(), OnControlsPressed),
-                leftPadding, rightPadding
+                leftPadding, rightPadding, bottomPadding1, bottomPadding2
             };
 #elif PLATFORM_WASM
             controls = new MenuControlBase[] {
@@ -117,8 +121,11 @@ namespace Jazz2.Game.UI.Menu.Settings
             Android.InnerView.LeftPadding = leftPadding.CurrentValue;
             Preferences.Set("LeftPadding", (byte)(Android.InnerView.LeftPadding * 1000));
 
-            Android.InnerView.RightPadding = rightPadding.CurrentValue;
-            Preferences.Set("RightPadding", (byte)(Android.InnerView.RightPadding * 1000));
+            Android.InnerView.BottomPadding1 = bottomPadding1.CurrentValue;
+            Preferences.Set("BottomPadding1", (byte)((Android.InnerView.BottomPadding1 * 500) + 128));
+
+            Android.InnerView.BottomPadding2 = bottomPadding2.CurrentValue;
+            Preferences.Set("BottomPadding2", (byte)((Android.InnerView.BottomPadding2 * 500) + 128));
 #elif !PLATFORM_WASM
             ScreenMode newScreenMode;
             switch (screenMode.SelectedIndex) {

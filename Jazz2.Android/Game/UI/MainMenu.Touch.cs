@@ -23,15 +23,15 @@ namespace Jazz2.Game.UI.Menu
 
         partial void DrawPlatformSpecific(Vector2 size)
         {
-            int y = (statusBarHeight * (int)size.Y / DualityApp.WindowSize.Y);
+            int statusBarY = (statusBarHeight * (int)size.Y / DualityApp.WindowSize.Y);
 
             canvas.State.SetMaterial(DrawTechnique.Alpha);
 
             canvas.State.ColorTint = new ColorRgba(0f, 0.2f);
-            canvas.FillRect(0, 0, size.X, y);
+            canvas.FillRect(0, 0, size.X, statusBarY);
 
             canvas.State.ColorTint = new ColorRgba(0.9f, 0.5f);
-            canvas.DrawLine(0, y, size.X, y);
+            canvas.DrawLine(0, statusBarY, size.X, statusBarY);
 
 #if ENABLE_TOUCH
             if (!InnerView.ShowTouchButtons || InnerView.TouchButtons == null) {
@@ -44,14 +44,17 @@ namespace Jazz2.Game.UI.Menu
                 ref InnerView.TouchButtonInfo button = ref InnerView.TouchButtons[i];
                 if (button.Material.IsAvailable) {
                     float x = button.Left;
+                    float y = button.Top;
                     if (x < 0.5f) {
                         x += InnerView.LeftPadding;
+                        y += InnerView.BottomPadding1;
                     } else {
                         x -= InnerView.RightPadding;
+                        y += InnerView.BottomPadding2;
                     }
 
                     canvas.State.SetMaterial(button.Material);
-                    canvas.FillRect(x * size.X, button.Top * size.Y, button.Width * size.X, button.Height * size.Y);
+                    canvas.FillRect(x * size.X, y * size.Y, button.Width * size.X, button.Height * size.Y);
                 }
             }
 #endif

@@ -69,6 +69,8 @@
     "menu/settings/rescale/none": "Pixel-perfect",
     "menu/settings/rescale/title": "Vybrat režim škálování",
     "menu/settings/right padding": "Odsazení ovládání zprava",
+    "menu/settings/bottom padding 1": "Výška ovládání vlevo",
+    "menu/settings/bottom padding 2": "Výška ovládání vpravo",
     "menu/settings/screen": "Režim obrazovky",
     "menu/settings/screen/0": "Okno",
     "menu/settings/screen/1": "Celá obrazovka",

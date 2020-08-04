@@ -30,7 +30,7 @@ namespace Jazz2.Android
         internal static bool AllowVibrations = true;
         internal static bool ShowTouchButtons;
         internal static TouchButtonInfo[] TouchButtons;
-        internal static float LeftPadding, RightPadding;
+        internal static float LeftPadding, RightPadding, BottomPadding1, BottomPadding2;
 #endif
 
         private bool[] pressedKeys = new bool[(int)Key.Last + 1];
@@ -80,6 +80,8 @@ namespace Jazz2.Android
 
             LeftPadding = Preferences.Get("LeftPadding", (byte)20) * 0.001f;
             RightPadding = Preferences.Get("RightPadding", (byte)70) * 0.001f;
+            BottomPadding1 = (Preferences.Get("BottomPadding1", (byte)128) - 128f) * 0.002f;
+            BottomPadding2 = (Preferences.Get("BottomPadding2", (byte)128) - 128f) * 0.002f;
 #endif
 
             DualityApp.Keyboard.Source = new KeyboardInputSource(this);
@@ -100,8 +102,10 @@ namespace Jazz2.Android
                     float y = e.GetY(pointerIndex) / (float)viewportHeight;
                     if (x < 0.5f) {
                         x -= LeftPadding;
+                        y -= BottomPadding1;
                     } else {
                         x += RightPadding;
+                        y -= BottomPadding2;
                     }
 
                     bool vibrated = false;

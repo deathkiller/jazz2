@@ -63,6 +63,8 @@
     "menu/settings/vibrations": "Vibrations",
     "menu/settings/left padding": "Left Controls Padding",
     "menu/settings/right padding": "Right Controls Padding",
+    "menu/settings/bottom padding 1": "Left Controls Height",
+    "menu/settings/bottom padding 2": "Right Controls Height",
     
     "menu/settings/controls": "Controls",
     "menu/settings/controls/title": "Controls for Player #{0}",
