@@ -121,6 +121,9 @@ namespace Jazz2.Game.UI.Menu.Settings
             Android.InnerView.LeftPadding = leftPadding.CurrentValue;
             Preferences.Set("LeftPadding", (byte)(Android.InnerView.LeftPadding * 1000));
 
+            Android.InnerView.RightPadding = rightPadding.CurrentValue;
+            Preferences.Set("RightPadding", (byte)(Android.InnerView.RightPadding * 1000));
+
             Android.InnerView.BottomPadding1 = bottomPadding1.CurrentValue;
             Preferences.Set("BottomPadding1", (byte)((Android.InnerView.BottomPadding1 * 500) + 128));
 
