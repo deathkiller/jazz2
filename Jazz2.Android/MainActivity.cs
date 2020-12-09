@@ -24,6 +24,7 @@ namespace Jazz2.Android
         ResizeableActivity = true,
         Immersive = true
     )]
+    [IntentFilter(new[] { global::Android.Content.Intent.ActionMain }, Categories = new[] { global::Android.Content.Intent.CategoryLauncher, global::Android.Content.Intent.CategoryLeanbackLauncher })]
     public class MainActivity : Activity
     {
         private const int StoragePermissionsRequest = 1;

@@ -201,8 +201,15 @@ namespace Jazz2.Game
                                     bool isUpdated;
                                     if (server.PublicEndPointList != null) {
                                         isUpdated = false;
+
+                                        IPAddress senderIp = msg.SenderEndPoint.Address;
+                                        if (senderIp.IsIPv4MappedToIPv6) {
+                                            senderIp = senderIp.MapToIPv4();
+                                        }
+                                        IPEndPoint senderEndpoint = new IPEndPoint(senderIp, msg.SenderEndPoint.Port);
+
                                         foreach (IPEndPoint endpoint in server.PublicEndPointList) {
-                                            if (endpoint.Equals(msg.SenderEndPoint)) {
+                                            if (endpoint.Equals(senderEndpoint)) {
                                                 server.ActiveEndPoint = endpoint;
                                                 isUpdated = true;
 
