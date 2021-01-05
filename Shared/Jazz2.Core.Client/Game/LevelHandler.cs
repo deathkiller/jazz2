@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Duality;
 using Duality.Audio;
 using Duality.Components;
@@ -832,6 +833,12 @@ namespace Jazz2.Game
                 Scene.SwitchTo(new InGameMenu(root, this));
             }
 
+#if !DISABLE_CHEATS
+            if (root.EnableCheats && difficulty != GameDifficulty.Multiplayer) {
+                ProcessCheats();
+            }
+#endif
+
             Hud.ShowDebugText("- FPS: " + Time.Fps.ToString("N0") + "  (" + Math.Round(Time.UnscaledDeltaTime * 1000, 1).ToString("N1") + " ms)");
             Hud.ShowDebugText("  Diff.: " + difficulty + " | Actors: " + actors.Count.ToString("N0"));
             Hud.ShowDebugText("  Ambient Light: " + ambientLightCurrent.ToString("0.00") + " / " + ambientLightTarget.ToString("0.00"));
@@ -1084,6 +1091,80 @@ namespace Jazz2.Game
 
             });
         }
+
+#if !DISABLE_CHEATS
+        private char[] cheatKeyBuffer = new char[8];
+        private int cheatKeyPos;
+
+        private void ProcessCheats()
+        {
+            if (players.Count != 1) {
+                return;
+            }
+
+            var player = players[0];
+
+            var charInput = DualityApp.Keyboard.CharInput;
+
+            for (int i = 0; i < charInput.Length; i++) {
+                if (cheatKeyPos >= cheatKeyBuffer.Length) {
+                    cheatKeyPos -= cheatKeyBuffer.Length;
+                }
+
+                cheatKeyBuffer[cheatKeyPos] = charInput[i];
+                cheatKeyPos++;
+            }
+
+            // Check some JJ2 cheats
+            if (IsCheatInBuffer("jjnext")) {
+                InitLevelChange(ExitType.Warp, null);
+            } else if (IsCheatInBuffer("jjguns") || IsCheatInBuffer("jjammo")) {
+                player.AttachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Ammo", false);
+                for (int i = 0; i < (int)WeaponType.Count; i++) {
+                    player.AddAmmo((WeaponType)i, short.MaxValue);
+                }
+            } else if (IsCheatInBuffer("jjpower")) {
+                player.AttachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add all Power-ups", false);
+                for (int i = 0; i < (int)WeaponType.Count; i++) {
+                    player.AddWeaponUpgrade((WeaponType)i, 0x1);
+                }
+            } else if (IsCheatInBuffer("jjrush")) {
+                player.AttachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Sugar Rush", false);
+                player.BeginSugarRush();
+            } else if (IsCheatInBuffer("jjcoins")) {
+                player.AttachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Coins", false);
+                player.AddCoins(5);
+            } else if (IsCheatInBuffer("jjgems")) {
+                player.AttachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Gems", false);
+                player.AddGems(5);
+            } else if (IsCheatInBuffer("jjgod")) {
+                player.AttachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Invulnerability", false);
+                player.SetInvulnerability(36000f, true);
+            } else if (IsCheatInBuffer("jjbird")) {
+                player.AttachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Bird", false);
+                player.SpawnBird(0, player.Transform.Pos);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool IsCheatInBuffer(string cheat)
+        {
+            for (int j = cheat.Length - 1, i = cheatKeyPos - 1; j >= 0; j--, i--) {
+                if (i < 0) {
+                    i += cheatKeyBuffer.Length;
+                }
+
+                if (cheat[j] != cheatKeyBuffer[i]) {
+                    return false;
+                }
+            }
+
+            // Cheat found in key buffer, insert NULL char, so it won't be detected again
+            cheatKeyBuffer[cheatKeyPos] = '\0';
+            cheatKeyPos++;
+            return true;
+        }
+#endif
 
         private void OnActorTransformChanged(object sender, TransformChangedEventArgs e)
         {

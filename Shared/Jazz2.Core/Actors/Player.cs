@@ -700,7 +700,7 @@ namespace Jazz2.Actors
 
                 BeginSugarRush();
             } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.O)) {
-                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add all PowerUps", false);
+                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add all Power-ups", false);
 
                 for (int i = 0; i < weaponAmmo.Length; i++) {
                     AddWeaponUpgrade((WeaponType)i, 0x1);

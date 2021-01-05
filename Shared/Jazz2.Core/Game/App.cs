@@ -18,6 +18,9 @@ namespace Jazz2.Game
     {
         private INativeWindow window;
         private bool isInstallationComplete;
+#if !DISABLE_CHEATS
+        private bool enableCheats;
+#endif
 
         public string Title
         {
@@ -72,6 +75,24 @@ namespace Jazz2.Game
                 } else {
                     window.ScreenMode &= ~ScreenMode.Immersive;
                 }
+            }
+        }
+
+        public bool EnableCheats
+        {
+            get
+            {
+#if !DISABLE_CHEATS
+                return enableCheats;
+#else
+                return false;
+#endif
+            }
+            set
+            {
+#if !DISABLE_CHEATS
+                enableCheats = value;
+#endif
             }
         }
 
@@ -295,7 +316,7 @@ namespace Jazz2.Game
         {
 #if UNCOMPRESSED_CONTENT || PLATFORM_WASM
             return true;
-#else 
+#else
             return DirectoryOp.Exists(PathOp.Combine(DualityApp.DataDirectory, "Episodes")) &&
                 DirectoryOp.Exists(PathOp.Combine(DualityApp.DataDirectory, "i18n")) &&
                 //DirectoryOp.Exists(PathOp.Combine(DualityApp.DataDirectory, "Music")) &&

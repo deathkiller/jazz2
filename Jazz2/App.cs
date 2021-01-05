@@ -103,9 +103,12 @@ namespace Jazz2.Game
                 current = new App(window);
 
                 bool suppressMainMenu = false;
-#if MULTIPLAYER
                 for (int i = 0; i < args.Length; i++) {
-                    if (args[i].StartsWith("/connect:", StringComparison.InvariantCulture)) {
+                    if (args[i] == "/cheats") {
+                        current.EnableCheats = true;
+                    }
+#if MULTIPLAYER
+                    else if (args[i].StartsWith("/connect:", StringComparison.InvariantCulture)) {
                         int idx = args[i].LastIndexOf(':');
                         if (idx < 10) {
                             continue;
@@ -124,8 +127,9 @@ namespace Jazz2.Game
                             // Nothing to do...
                         }
                     }
-                }
 #endif
+                }
+
                 if (!suppressMainMenu) {
                     current.PlayCinematics("intro", endOfStream => {
                         current.ShowMainMenu(endOfStream);
