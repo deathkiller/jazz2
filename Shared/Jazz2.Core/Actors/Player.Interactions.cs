@@ -133,9 +133,23 @@ namespace Jazz2.Actors
             }
 
             // Refresh animation state
-            currentSpecialMove = SpecialMoveType.None;
-            currentAnimation = null;
-            SetAnimation(currentAnimationState);
+            if ((currentSpecialMove == SpecialMoveType.None) ||
+                (currentSpecialMove == SpecialMoveType.Buttstomp && (type == PlayerType.Jazz || type == PlayerType.Spaz || type == PlayerType.Lori))) {
+                currentAnimation = null;
+                SetAnimation(currentAnimationState);
+            } else {
+                currentAnimation = null;
+                SetAnimation(AnimState.Fall);
+
+                CollisionFlags |= CollisionFlags.ApplyGravitation;
+                controllable = true;
+
+                if (currentSpecialMove == SpecialMoveType.Uppercut && externalForceY > 0f) {
+                    externalForceY = 0f;
+                }
+
+                currentSpecialMove = SpecialMoveType.None;
+            }
 
             // Set transition
             if (type == PlayerType.Frog) {

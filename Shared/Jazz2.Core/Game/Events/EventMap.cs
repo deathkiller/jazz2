@@ -448,7 +448,43 @@ namespace Jazz2.Game.Events
 
         public void RollbackToCheckpoint()
         {
-            Array.Copy(eventLayoutForRollback, eventLayout, eventLayout.Length);
+            TileMap tiles = levelHandler.TileMap;
+            if (tiles == null) {
+                return;
+            }
+
+            Point2 levelSize = tiles.Size;
+
+            for (int x = 0; x < levelSize.X; x++) {
+                for (int y = 0; y < levelSize.Y; y++) {
+                    int tileID = x + y * layoutWidth;
+                    ref EventTile tile = ref eventLayout[tileID];
+                    ref EventTile tilePrev = ref eventLayoutForRollback[tileID];
+
+                    bool respawn = (tilePrev.IsEventActive && !tile.IsEventActive);
+
+                    // Rollback tile
+                    tile = tilePrev;
+
+                    if (respawn && tile.EventType != EventType.Empty) {
+                        tile.IsEventActive = true;
+
+                        if (tile.EventType == EventType.AreaWeather) {
+                            levelHandler.ApplyWeather((LevelHandler.WeatherType)tile.EventParams[0], tile.EventParams[1], tile.EventParams[2] != 0);
+                        } else if (tile.EventType != EventType.Generator) {
+                            ActorInstantiationFlags flags = ActorInstantiationFlags.IsCreatedFromEventMap | tile.EventFlags;
+                            //if (allowAsync) {
+                            //    flags |= ActorInstantiationFlags.Async;
+                            //}
+
+                            ActorBase actor = levelHandler.EventSpawner.SpawnEvent(flags, tile.EventType, x, y, LevelHandler.MainPlaneZ, tile.EventParams);
+                            if (actor != null) {
+                                levelHandler.AddActor(actor);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

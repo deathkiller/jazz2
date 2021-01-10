@@ -42,6 +42,7 @@ namespace Jazz2.Actors.Bosses
             renderer.Active = false;
 
             isInvulnerable = true;
+            canHurtPlayer = false;
         }
 
         protected override void OnBossActivated()
@@ -93,6 +94,7 @@ namespace Jazz2.Actors.Bosses
                             stateTime = 80f;
 
                             isInvulnerable = false;
+                            canHurtPlayer = true;
                         });
                     }
 
