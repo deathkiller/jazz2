@@ -2037,6 +2037,10 @@ namespace Jazz2.Actors
                                 removeSpecialMove = true;
                                 externalForceX = 0f;
                                 externalForceY = 0f;
+
+                                if (currentSpecialMove == SpecialMoveType.Sidekick) {
+                                    speedX *= 0.5f;
+                                }
                             }
                         }
 
@@ -2236,6 +2240,10 @@ namespace Jazz2.Actors
                 if (externalForceY > 0f) {
                     externalForceY = 0f;
                 }
+            } else if (currentSpecialMove == SpecialMoveType.Sidekick) {
+                CancelTransition();
+                controllable = true;
+                controllableTimeout = 10;
             }
 
             currentSpecialMove = SpecialMoveType.None;
