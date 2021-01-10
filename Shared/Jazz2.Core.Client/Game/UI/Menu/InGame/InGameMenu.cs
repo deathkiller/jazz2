@@ -207,6 +207,8 @@ namespace Jazz2.Game.UI.Menu.InGame
 
         private void OnUpdate()
         {
+            ControlScheme.UpdateAnalogPressed();
+
             if (sectionStack.Count > 0) {
                 sectionStack.Peek().OnUpdate();
             }
