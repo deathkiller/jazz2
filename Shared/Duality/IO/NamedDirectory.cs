@@ -24,6 +24,10 @@
 		/// <summary>
 		/// The current users "My Music" folder.
 		/// </summary>
-		MyMusic
-	}
+		MyMusic,
+        /// <summary>
+        /// The current users "Saved Games" folder.
+        /// </summary>
+        SavedGames
+    }
 }

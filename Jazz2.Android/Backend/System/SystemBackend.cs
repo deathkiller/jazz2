@@ -43,7 +43,14 @@ namespace Duality.Backend.Android
                 case NamedDirectory.MyDocuments: path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments); break;
                 case NamedDirectory.MyMusic: path = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic); break;
                 case NamedDirectory.MyPictures: path = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures); break;
+                // Not supported on Android
+                case NamedDirectory.SavedGames: path = null; break;
             }
+
+            if (path == null) {
+                return null;
+            }
+
             return this.fileSystem.GetDualityPathFormat(path);
         }
     }

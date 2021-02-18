@@ -29,11 +29,7 @@ namespace Jazz2.Backend
         {
             data = new Dictionary<string, object>();
 
-            string path = PathOp.Combine(PathOp.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Jazz2.settings");
-            if (!FileOp.Exists(path)) {
-                path = PathOp.Combine(DualityApp.SystemBackend.GetNamedPath(NamedDirectory.ApplicationData), "Jazz2", "Jazz2.settings");
-            }
-
+            string path = GetSettingsPath();
             if (!FileOp.Exists(path)) {
                 dirty = true;
                 return;
@@ -167,10 +163,7 @@ namespace Jazz2.Backend
 
             dirty = false;
 
-            string path = PathOp.Combine(PathOp.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Jazz2.settings");
-            if (!FileOp.Exists(path)) {
-                path = PathOp.Combine(DualityApp.SystemBackend.GetNamedPath(NamedDirectory.ApplicationData), "Jazz2", "Jazz2.settings");
-            }
+            string path = GetSettingsPath();
 
             try {
                 DirectoryOp.Create(PathOp.GetDirectoryName(path));
@@ -309,6 +302,22 @@ namespace Jazz2.Backend
                   value is short[])) {
                 throw new ArgumentException("The type is not supported: " + value.GetType());
             }
+        }
+
+        private static string GetSettingsPath()
+        {
+            string path = PathOp.Combine(PathOp.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Jazz2.settings");
+            if (!FileOp.Exists(path)) {
+                path = PathOp.Combine(DualityApp.SystemBackend.GetNamedPath(NamedDirectory.ApplicationData), "Jazz2", "Jazz2.settings");
+                if (!FileOp.Exists(path)) {
+                    string savedGamesPath = DualityApp.SystemBackend.GetNamedPath(NamedDirectory.SavedGames);
+                    if (!string.IsNullOrEmpty(savedGamesPath) && Directory.Exists(savedGamesPath)) {
+                        path = PathOp.Combine(savedGamesPath, "Jazz² Resurrection", "Jazz2.settings");
+                    }
+                }
+            }
+
+            return path;
         }
     }
 }

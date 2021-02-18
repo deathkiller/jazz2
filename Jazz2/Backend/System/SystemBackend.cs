@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 using Duality.IO;
 
@@ -43,8 +44,34 @@ namespace Duality.Backend.DotNetFramework
                 case NamedDirectory.MyDocuments: path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments); break;
                 case NamedDirectory.MyMusic: path = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic); break;
                 case NamedDirectory.MyPictures: path = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures); break;
+                case NamedDirectory.SavedGames: path = GetSavedGamesFolderPath(); break;
             }
+
+            if (path == null) {
+                return null;
+            }
+
             return this.fileSystem.GetDualityPathFormat(path);
         }
+
+        public static string GetSavedGamesFolderPath()
+        {
+            if (Environment.OSVersion.Platform != PlatformID.Win32NT) {
+                return null;
+            }
+
+            try {
+                IntPtr pPath;
+                SHGetKnownFolderPath(/*FOLDERID_SavedGames*/new Guid("{4C5C32FF-BB9D-43b0-B5B4-2D72E54EAAA4}"), /*KF_FLAG_DEFAULT*/0, IntPtr.Zero, out pPath);
+                string path = Marshal.PtrToStringUni(pPath);
+                Marshal.FreeCoTaskMem(pPath);
+                return path;
+            } catch {
+                return null;
+            }
+        }
+
+        [DllImport("shell32")]
+        private static extern int SHGetKnownFolderPath([MarshalAs(UnmanagedType.LPStruct)] Guid rfid, uint dwFlags, IntPtr hToken, out IntPtr pszPath);
     }
 }

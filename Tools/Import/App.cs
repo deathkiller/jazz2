@@ -48,6 +48,7 @@ namespace Import
             string exePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
             string targetPath = exePath;
 
+            bool noArgs = true;
             bool processAnims = true;
             bool processLevels = true;
             bool processCinematics = true;
@@ -127,11 +128,17 @@ namespace Import
 #endif
 
                     default:
+                        noArgs = false;
                         if (!Directory.Exists(args[i]) && File.Exists(args[i])) {
                             args[i] = Path.GetDirectoryName(args[i]);
                         }
-                        if (Directory.Exists(args[i]) && File.Exists(Path.Combine(args[i], "Jazz2.exe"))) {
-                            sourcePath = args[i];
+                        if (Directory.Exists(args[i])) {
+                            string jazz2ExePath = Path.Combine(args[i], "Jazz2.exe");
+                            string animsPath = Path.Combine(args[i], "Anims.j2a");
+                            if (FileSystemUtils.FileResolveCaseInsensitive(ref jazz2ExePath) ||
+                                FileSystemUtils.FileResolveCaseInsensitive(ref animsPath)) {
+                                sourcePath = args[i];
+                            }
                         }
                         break;
                 }
@@ -146,7 +153,7 @@ namespace Import
 
                 return;
             } else if (sourcePath == null) {
-                OnShowHelp(targetPath);
+                OnShowHelp(targetPath, noArgs);
 
                 // Download and import...
                 if (DemoDownloader.Run(targetPath, exePath)) {
@@ -193,7 +200,7 @@ namespace Import
             OnPostImport(targetPath, exePath, verbose, !noWait, keep || minimal, !minimal, check || (processAnims && processLevels && processCinematics && processMusic && processTilesets));
         }
 
-        private static void OnShowHelp(string targetPath)
+        private static void OnShowHelp(string targetPath, bool noArgs)
         {
             string exeName = Path.GetFileName(Assembly.GetEntryAssembly().Location);
 
@@ -204,17 +211,30 @@ namespace Import
                 width = 80;
             }
 
+            if (!noArgs) {
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.Write(new string('_', width));
+                Console.BackgroundColor = ConsoleColor.DarkRed;
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write(new string(' ', width));
+                Console.Write(("  No original game files were found on provided path.").PadRight(width));
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write(new string('_', width));
+                Console.ResetColor();
+                Console.WriteLine();
+            }
+
             // Show help
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("  Run this application with following parameters:");
 
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.Write(new string('_', width));
-            Console.BackgroundColor = ConsoleColor.DarkYellow;
+            Console.BackgroundColor = ConsoleColor.DarkGreen;
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write(new string(' ', width));
             Console.Write(("  ." + Path.DirectorySeparatorChar + exeName + " \"Path to Jazz Jackrabbit 2\"").PadRight(width));
-            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.Write(new string('_', width));
             Console.ResetColor();
 
@@ -223,23 +243,25 @@ namespace Import
             Console.WriteLine("  cinematics, tilesets, levels and episodes. It could take several minutes.");
             Console.WriteLine("  Holiday Hare '98, Christmas Chronicles and The Secret Files is supported.");
 
-            Console.WriteLine();
-            Console.WriteLine("  There are several other options:");
-            Console.WriteLine();
-            //Console.WriteLine("   /skip-anims     Don't convert animations and sounds (*.j2a files).");
-            //Console.WriteLine("   /skip-levels    Don't convert level files (*.j2l files).");
-            //Console.WriteLine("   /skip-music     Don't convert music files (*.j2b files).");
-            //Console.WriteLine("   /skip-tilesets  Don't convert tileset files (*.j2t files).");
-            //Console.WriteLine("   /skip-all       Don't convert anything.");
-            Console.WriteLine("   /skip-anims   | /skip-levels    | /skip-cinematics");
-            Console.WriteLine("   /skip-music   | /skip-tilesets  | /skip-all");
-            Console.WriteLine();
-            Console.WriteLine("   /all            Convert all (even unused) music and tileset files.");
-            Console.WriteLine("                   Otherwise only files referenced in levels will be converted.");
-            Console.WriteLine("   /keep           Keep unused music, tilesets, animations and sounds.");
-            Console.WriteLine("   /check          Check that all needed assets are present.");
-            //Console.WriteLine("   /no-wait        Don't show (Press any key to exit) message when it's done.");
-            Console.WriteLine("   /output <DIR>   Write files to <DIR> instead of where the executables are.");
+            if (noArgs) {
+                Console.WriteLine();
+                Console.WriteLine("  There are several other options:");
+                Console.WriteLine();
+                //Console.WriteLine("   /skip-anims     Don't convert animations and sounds (*.j2a files).");
+                //Console.WriteLine("   /skip-levels    Don't convert level files (*.j2l files).");
+                //Console.WriteLine("   /skip-music     Don't convert music files (*.j2b files).");
+                //Console.WriteLine("   /skip-tilesets  Don't convert tileset files (*.j2t files).");
+                //Console.WriteLine("   /skip-all       Don't convert anything.");
+                Console.WriteLine("   /skip-anims   | /skip-levels    | /skip-cinematics");
+                Console.WriteLine("   /skip-music   | /skip-tilesets  | /skip-all");
+                Console.WriteLine();
+                Console.WriteLine("   /all            Convert all (even unused) music and tileset files.");
+                Console.WriteLine("                   Otherwise only files referenced in levels will be converted.");
+                Console.WriteLine("   /keep           Keep unused music, tilesets, animations and sounds.");
+                Console.WriteLine("   /check          Check that all needed assets are present.");
+                //Console.WriteLine("   /no-wait        Don't show (Press any key to exit) message when it's done.");
+                Console.WriteLine("   /output <DIR>   Write files to <DIR> instead of where the executables are.");
+            }
 
             // Show "Shareware Demo" notice
             Console.WriteLine();
@@ -256,7 +278,7 @@ namespace Import
             Console.ReadLine();
 
             // ToDo: This check does not work anymore
-            if (File.Exists(Path.Combine(targetPath, "Content", "Animations", "Jazz", "Idle.png"))) {
+            if (Directory.Exists(Path.Combine(targetPath, "Content", "Episodes"))) {
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("  It seems that there is already other version imported. It's not");
                 Console.WriteLine("  recommended to import Shareware Demo over full version of the game.");

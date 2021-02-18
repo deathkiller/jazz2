@@ -174,7 +174,6 @@
   <Import Project="..\Shared\Jazz2.Core.Client\Jazz2.Core.Client.projitems" Label="Shared" />
   <Import Project="..\Shared\Duality\Duality.projitems" Label="Shared" />
   <Import Project="..\Shared\Primitives\Primitives.projitems" Label="Shared" />
-  <Import Project="..\Shared\Networking\Networking.projitems" Label="Shared" Condition="$(DefineConstants.Contains('MULTIPLAYER'))" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
      Other similar extension points exist, see Microsoft.Common.targets.

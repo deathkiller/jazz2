@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using Duality.Backend.DotNetFramework;
 using Jazz2.Game;
 
 namespace Duality
@@ -70,6 +71,13 @@ namespace Duality
                             logStream = new StreamWriter(Path.Combine(App.AssemblyPath, LogFilename));
                         } else {
                             string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Jazz2");
+                            if (!Directory.Exists(path)) {
+                                string savedGamesPath = SystemBackend.GetSavedGamesFolderPath();
+                                if (!string.IsNullOrEmpty(savedGamesPath) && Directory.Exists(savedGamesPath)) {
+                                    path = Path.Combine(savedGamesPath, "Jazz² Resurrection");
+                                }
+                            }
+
                             Directory.CreateDirectory(path);
                             logStream = new StreamWriter(Path.Combine(path, LogFilename));
                         }
