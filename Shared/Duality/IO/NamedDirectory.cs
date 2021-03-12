@@ -1,9 +1,9 @@
 ﻿namespace Duality.IO
 {
-    /// <summary>
-    /// Enumerates special directories on the current system.
-    /// </summary>
-    public enum NamedDirectory
+	/// <summary>
+	/// Enumerates special directories on the current system.
+	/// </summary>
+	public enum NamedDirectory
 	{
 		/// <summary>
 		/// The directory in which the running Duality application is located.
@@ -25,9 +25,9 @@
 		/// The current users "My Music" folder.
 		/// </summary>
 		MyMusic,
-        /// <summary>
-        /// The current users "Saved Games" folder.
-        /// </summary>
-        SavedGames
-    }
+		/// <summary>
+		/// The current users "Saved Games" folder.
+		/// </summary>
+		SavedGames
+	}
 }
