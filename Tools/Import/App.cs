@@ -23,7 +23,14 @@ namespace Import
 {
     internal static class App
     {
-        private static void Main(string[] args)
+        private enum ErrorCode
+        {
+            None,
+            WrongPath,
+            SamePath
+        }
+
+        private static int Main(string[] args)
         {
             ConsoleUtils.TryEnableUnicode();
 
@@ -99,31 +106,31 @@ namespace Import
                         if (i + 1 < args.Length && File.Exists(args[i + 1])) {
                             AdaptImageToDefaultPalette(args[i + 1], args);
                         }
-                        return;
+                        return 0;
                     }
                     case "/from-palette": {
                         if (i + 1 < args.Length && File.Exists(args[i + 1])) {
                             ApplyDefaultPaletteToPng(args[i + 1], args);
                         }
-                        return;
+                        return 0;
                     }
                     case "/json-to-font": {
                         if (i + 2 < args.Length && File.Exists(args[i + 1])) {
                             ConvertJsonToFont(args[i + 1], args[i + 2]);
                         }
-                        return;
+                        return 0;
                     }
                     case "/font-to-json": {
                         if (i + 1 < args.Length && File.Exists(args[i + 1])) {
                             ConvertFontToJson(args[i + 1]);
                         }
-                        return;
+                        return 0;
                     }
                     case "/i18n": {
                         if (i + 2 < args.Length && !string.IsNullOrWhiteSpace(args[i + 1]) && File.Exists(args[i + 2])) {
                             ExtractTranslationsForLevels(args[i + 2], Path.Combine(targetPath, "Translations"), args[i + 1]);
                         }
-                        return;
+                        return 0;
                     }
 #endif
 
@@ -132,11 +139,14 @@ namespace Import
                         if (!Directory.Exists(args[i]) && File.Exists(args[i])) {
                             args[i] = Path.GetDirectoryName(args[i]);
                         }
+
                         if (Directory.Exists(args[i])) {
                             string jazz2ExePath = Path.Combine(args[i], "Jazz2.exe");
                             string animsPath = Path.Combine(args[i], "Anims.j2a");
+                            string animsSwPath = Path.Combine(args[i], "AnimsSw.j2a");
                             if (FileSystemUtils.FileResolveCaseInsensitive(ref jazz2ExePath) ||
-                                FileSystemUtils.FileResolveCaseInsensitive(ref animsPath)) {
+                                FileSystemUtils.FileResolveCaseInsensitive(ref animsPath) ||
+                                FileSystemUtils.FileResolveCaseInsensitive(ref animsSwPath)) {
                                 sourcePath = args[i];
                             }
                         }
@@ -151,17 +161,28 @@ namespace Import
                     OnPostImport(targetPath, exePath, verbose, !noWait, keep, true, false);
                 }
 
-                return;
+                return 0;
             } else if (sourcePath == null) {
-                OnShowHelp(targetPath, noArgs);
+                OnShowHelp(targetPath, noArgs ? ErrorCode.None : ErrorCode.WrongPath);
 
                 // Download and import...
                 if (DemoDownloader.Run(targetPath, exePath)) {
                     OnPostImport(targetPath, exePath, verbose, !noWait, keep, true, false);
                 }
 
-                return;
+                return 0;
             } else {
+                try {
+                    string sourceFullPath = Path.GetFullPath(sourcePath);
+                    string targetFullPath = Path.GetFullPath(targetPath);
+                    if (string.Compare(sourceFullPath, targetFullPath, StringComparison.OrdinalIgnoreCase) == 0) {
+                        OnShowHelp(targetPath, ErrorCode.SamePath);
+                        return 1;
+                    }
+                } catch {
+                    // Nothing to do...
+                }
+
                 Log.Write(LogType.Info, "Importing path \"" + sourcePath + "\"...");
                 Log.PushIndent();
             }
@@ -197,10 +218,12 @@ namespace Import
                 Log.PopIndent();
             }
 
-            OnPostImport(targetPath, exePath, verbose, !noWait, keep || minimal, !minimal, check || (processAnims && processLevels && processCinematics && processMusic && processTilesets));
+            OnPostImport(targetPath, exePath, verbose, !noWait, keep || minimal, !minimal,
+                check || (processAnims && processLevels && processCinematics && processMusic && processTilesets));
+            return 0;
         }
 
-        private static void OnShowHelp(string targetPath, bool noArgs)
+        private static void OnShowHelp(string targetPath, ErrorCode error)
         {
             string exeName = Path.GetFileName(Assembly.GetEntryAssembly().Location);
 
@@ -211,13 +234,22 @@ namespace Import
                 width = 80;
             }
 
-            if (!noArgs) {
+            if (error != ErrorCode.None) {
+                string errorMessage;
+                if (error == ErrorCode.WrongPath) {
+                    errorMessage = "  No original game files were found on provided path.";
+                } else if (error == ErrorCode.SamePath) {
+                    errorMessage = "  You specified path to Jazz² Resurrection itself. Use different path instead.";
+                } else {
+                    errorMessage = "  Unknown error";
+                }
+
                 Console.ForegroundColor = ConsoleColor.Gray;
                 Console.Write(new string('_', width));
                 Console.BackgroundColor = ConsoleColor.DarkRed;
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.Write(new string(' ', width));
-                Console.Write(("  No original game files were found on provided path.").PadRight(width));
+                Console.Write(errorMessage.PadRight(width));
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.Write(new string('_', width));
                 Console.ResetColor();
@@ -243,7 +275,7 @@ namespace Import
             Console.WriteLine("  cinematics, tilesets, levels and episodes. It could take several minutes.");
             Console.WriteLine("  Holiday Hare '98, Christmas Chronicles and The Secret Files is supported.");
 
-            if (noArgs) {
+            if (error == ErrorCode.None) {
                 Console.WriteLine();
                 Console.WriteLine("  There are several other options:");
                 Console.WriteLine();
@@ -261,6 +293,9 @@ namespace Import
                 Console.WriteLine("   /check          Check that all needed assets are present.");
                 //Console.WriteLine("   /no-wait        Don't show (Press any key to exit) message when it's done.");
                 Console.WriteLine("   /output <DIR>   Write files to <DIR> instead of where the executables are.");
+            } else if (error == ErrorCode.SamePath) {
+                // Don't import Shareware Demo on ErrorCode.SamePath
+                return;
             }
 
             // Show "Shareware Demo" notice
