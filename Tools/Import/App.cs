@@ -579,6 +579,35 @@ namespace Import
             }
 
             Log.PopIndent();
+            Log.Write(LogType.Info, "Importing level translations...");
+            Log.PopIndent();
+
+            Parallel.ForEach(Directory.EnumerateFiles(sourcePath, "*.j2s"), file => {
+                try {
+                    string lang = Path.GetFileNameWithoutExtension(file).ToLowerInvariant();
+                    string langSuffix = null;
+                    switch (lang) {
+                        case "dutch": langSuffix = "nl"; break;
+                        case "french": langSuffix = "fr"; break;
+                        case "german": langSuffix = "de"; break;
+                        case "italian": langSuffix = "it"; break;
+                        case "polish": langSuffix = "pl"; break;
+                        case "spanish": langSuffix = "es"; break;
+                    }
+
+                    if (langSuffix == null) {
+                        Log.Write(LogType.Warning, "Translation \"" + Path.GetFileName(file) + "\" skipped! Language not recognized.");
+                        return;
+                    }
+
+                    JJ2Strings strings = JJ2Strings.Open(file);
+                    strings.Convert(targetPath, langSuffix, knownLevels, true);
+                } catch (Exception ex) {
+                    Log.Write(LogType.Error, "Translation \"" + Path.GetFileName(file) + "\" not supported! " + ex);
+                }
+            });
+
+            Log.PushIndent();
         }
 
         public static void ConvertJJ2Cinematics(string sourcePath, string targetPath, HashSet<string> usedMusic, bool verbose)
@@ -1757,7 +1786,7 @@ namespace Import
             Dictionary<string, Tuple<string, string>> knownLevels = GetKnownLevels(Path.GetDirectoryName(sourcePath));
 
             JJ2Strings strings = JJ2Strings.Open(sourcePath);
-            strings.Convert(targetPath, langSuffix.ToLowerInvariant(), knownLevels);
+            strings.Convert(targetPath, langSuffix.ToLowerInvariant(), knownLevels, false);
 
             Log.Write(LogType.Info, "Saving files to \"" + targetPath + "\"...");
             Log.PopIndent();

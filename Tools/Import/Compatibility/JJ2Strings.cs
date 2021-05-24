@@ -42,7 +42,7 @@ namespace Jazz2.Compatibility
                     strings.common[i] = text;
                 }
 
-                Log.Write(LogType.Info, "Found " + strings.common.Length + " common strings");
+                //Log.Write(LogType.Info, "Found " + strings.common.Length + " common strings");
 
                 int levelEntryCount = s.ReadInt32(ref internalBuffer);
 
@@ -94,7 +94,7 @@ namespace Jazz2.Compatibility
                         l++;
                     }
 
-                    Log.Write(LogType.Info, "Found " + strings.levels[i].TextEvents.Length + " strings for level " + strings.levels[i].LevelName);
+                    //Log.Write(LogType.Info, "Found " + strings.levels[i].TextEvents.Length + " strings for level " + strings.levels[i].LevelName);
                 }
 
                 return strings;
@@ -105,12 +105,29 @@ namespace Jazz2.Compatibility
         {
         }
 
-        public void Convert(string path, string langSuffix, Dictionary<string, Tuple<string, string>> knownLevels)
+        public void Convert(string path, string langSuffix, Dictionary<string, Tuple<string, string>> knownLevels, bool onlyExisting)
         {
+            if (levels.Length == 0) {
+                return;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("Translation \"" + langSuffix + "\" contains ");
+
             for (int i = 0; i < levels.Length; i++) {
+                if (levels[i].TextEvents.Length == 0) {
+                    continue;
+                }
+
                 string levelToken = levels[i].LevelName.ToLower().Replace(" ", "_").Replace("\"", "").Replace("'", "");
 
-                string targetPathInner = path;
+                if (i != 0) {
+                    sb.Append(", ");
+                }
+
+                sb.Append(levelToken).Append(" (").Append(levels[i].TextEvents.Length).Append(")");
+
+                string targetPathInner = Path.Combine(path, "Content", "Episodes");
                 Tuple<string, string> knownLevel;
                 if (knownLevels.TryGetValue(levelToken, out knownLevel)) {
                     if (string.IsNullOrEmpty(knownLevel.Item2)) {
@@ -122,10 +139,16 @@ namespace Jazz2.Compatibility
                     targetPathInner = Path.Combine(targetPathInner, "unknown", levelToken);
                 }
 
-                Directory.CreateDirectory(Path.GetDirectoryName(targetPathInner));
+                if (!onlyExisting) {
+                    Directory.CreateDirectory(Path.GetDirectoryName(targetPathInner));
+                } else if (!File.Exists(targetPathInner + ".level")) {
+                    continue;
+                }
 
                 WriteResFile(levels[i], targetPathInner + ".level." + langSuffix);
             }
+
+            Log.Write(LogType.Info, sb.ToString());
         }
 
         private void WriteResFile(LevelEntry level, string path)
