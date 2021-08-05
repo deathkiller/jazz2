@@ -46,7 +46,7 @@ namespace Jazz2.Game.UI
         partial void AdjustVisibleZone(ref Rect view)
         {
 #if ENABLE_TOUCH
-            if (!InnerView.ShowTouchButtons || InnerView.TouchButtons == null) {
+            if (!InnerView.ShowTouchButtons || InnerView.TouchButtons == null || InnerView.ControlsOpacity < 0.2f) {
                 return;
             }
 
