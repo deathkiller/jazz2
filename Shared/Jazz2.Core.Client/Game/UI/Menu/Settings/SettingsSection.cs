@@ -9,6 +9,7 @@ namespace Jazz2.Game.UI.Menu.Settings
     {
 #if PLATFORM_ANDROID
         private ChoiceControl vibrations;
+        private SliderControl controlsOpacity;
         private SliderControl leftPadding;
         private SliderControl rightPadding;
         private SliderControl bottomPadding1;
@@ -67,6 +68,7 @@ namespace Jazz2.Game.UI.Menu.Settings
 #if PLATFORM_ANDROID
             vibrations = new ChoiceControl(api, "menu/settings/vibrations".T(), Android.InnerView.AllowVibrations ? 1 : 0, "disabled".T(), "enabled".T());
 
+            controlsOpacity = new SliderControl(api, "menu/settings/controls opacity".T(), Android.InnerView.ControlsOpacity, 0f, 1f);
             leftPadding = new SliderControl(api, "menu/settings/left padding".T(), Android.InnerView.LeftPadding, 0f, 0.15f);
             rightPadding = new SliderControl(api, "menu/settings/right padding".T(), Android.InnerView.RightPadding, 0f, 0.15f);
             bottomPadding1 = new SliderControl(api, "menu/settings/bottom padding 1".T(), Android.InnerView.BottomPadding1, -0.15f, 0.15f);
@@ -76,7 +78,7 @@ namespace Jazz2.Game.UI.Menu.Settings
                 new LinkControl(api, "menu/settings/rescale".T(), OnRescaleModePressed),
                 language, vibrations, musicVolume, sfxVolume,
                 new LinkControl(api, "menu/settings/controls".T(), OnControlsPressed),
-                leftPadding, rightPadding, bottomPadding1, bottomPadding2
+                controlsOpacity, leftPadding, rightPadding, bottomPadding1, bottomPadding2
             };
 #elif PLATFORM_WASM
             controls = new MenuControlBase[] {
@@ -117,6 +119,9 @@ namespace Jazz2.Game.UI.Menu.Settings
 #if PLATFORM_ANDROID
             Android.InnerView.AllowVibrations = (vibrations.SelectedIndex == 1);
             Preferences.Set("Vibrations", Android.InnerView.AllowVibrations);
+
+            Android.InnerView.ControlsOpacity = controlsOpacity.CurrentValue;
+            Preferences.Set("ControlsOpacity", (byte)(Android.InnerView.ControlsOpacity * 255));
 
             Android.InnerView.LeftPadding = leftPadding.CurrentValue;
             Preferences.Set("LeftPadding", (byte)(Android.InnerView.LeftPadding * 1000));

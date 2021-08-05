@@ -61,6 +61,7 @@
     "menu/settings/sfx": "SFX Volume",
     
     "menu/settings/vibrations": "Vibrations",
+    "menu/settings/controls opacity": "Controls Opacity",
     "menu/settings/left padding": "Left Controls Padding",
     "menu/settings/right padding": "Right Controls Padding",
     "menu/settings/bottom padding 1": "Left Controls Height",

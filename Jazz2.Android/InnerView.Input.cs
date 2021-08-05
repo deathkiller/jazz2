@@ -30,7 +30,7 @@ namespace Jazz2.Android
         internal static bool AllowVibrations = true;
         internal static bool ShowTouchButtons;
         internal static TouchButtonInfo[] TouchButtons;
-        internal static float LeftPadding, RightPadding, BottomPadding1, BottomPadding2;
+        internal static float ControlsOpacity, LeftPadding, RightPadding, BottomPadding1, BottomPadding2;
 #endif
 
         private bool[] pressedKeys = new bool[(int)Key.Last + 1];
@@ -78,6 +78,7 @@ namespace Jazz2.Android
             ShowTouchButtons = true;
             AllowVibrations = Preferences.Get("Vibrations", true);
 
+            ControlsOpacity = Preferences.Get("ControlsOpacity", (byte)255) / 255f;
             LeftPadding = Preferences.Get("LeftPadding", (byte)20) * 0.001f;
             RightPadding = Preferences.Get("RightPadding", (byte)70) * 0.001f;
             BottomPadding1 = (Preferences.Get("BottomPadding1", (byte)128) - 128f) * 0.002f;

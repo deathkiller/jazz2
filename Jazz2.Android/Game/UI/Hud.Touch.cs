@@ -18,7 +18,7 @@ namespace Jazz2.Game.UI
                 return;
             }
 
-            canvas.State.ColorTint = ColorRgba.White;
+            canvas.State.ColorTint = ColorRgba.White.WithAlpha(InnerView.ControlsOpacity);
 
             for (int i = 0; i < InnerView.TouchButtons.Length; i++) {
                 ref InnerView.TouchButtonInfo button = ref InnerView.TouchButtons[i];
@@ -37,6 +37,8 @@ namespace Jazz2.Game.UI
                     canvas.FillRect(x * size.X, y * size.Y, button.Width * size.X, button.Height * size.Y);
                 }
             }
+
+            canvas.State.ColorTint = ColorRgba.White;
 #endif
         }
 
