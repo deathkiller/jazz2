@@ -2,6 +2,7 @@
 using System.Drawing;
 using Duality;
 using Duality.Drawing;
+using MathF = Duality.MathF;
 
 namespace Import
 {

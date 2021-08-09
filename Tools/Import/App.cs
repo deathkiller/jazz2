@@ -593,6 +593,9 @@ namespace Import
                         case "italian": langSuffix = "it"; break;
                         case "polish": langSuffix = "pl"; break;
                         case "spanish": langSuffix = "es"; break;
+
+                        // Skip "English.j2s" for now
+                        case "english": return;
                     }
 
                     if (langSuffix == null) {

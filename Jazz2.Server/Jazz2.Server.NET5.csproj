@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <PublishTrimmed>true</PublishTrimmed>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
+    <RootNamespace>Jazz2.Server</RootNamespace>
+    <AssemblyName>Jazz2.Server</AssemblyName>
+    <StartupObject>Jazz2.Server.App</StartupObject>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;NET45 NET5 UNSAFE MULTIPLAYER UNCOMPRESSED_CONTENT ENABLE_UPNP SERVER</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;NET45 NET5 UNSAFE MULTIPLAYER ENABLE_UPNP SERVER</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Jazz2\Backend\System\NativeFileSystem.cs" Link="Backend\System\NativeFileSystem.cs" />
+    <Compile Include="..\Jazz2\Backend\System\SystemBackend.cs" Link="Backend\System\SystemBackend.cs" />
+    <Compile Include="..\Shared\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="App.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Backend\System\" />
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <Import Project="..\Shared\Console\Console.projitems" Label="Shared" />
+
+  <Import Project="..\Shared\Duality\Duality.projitems" Label="Shared" />
+
+  <Import Project="..\Shared\Jazz2.Core\Jazz2.Core.projitems" Label="Shared" />
+  
+  <Import Project="..\Shared\Primitives\Primitives.projitems" Label="Shared" />
+  
+  <Import Project="..\Shared\Jazz2.Core.Server\Jazz2.Core.Server.projitems" Label="Shared" />
+  
+  <Import Project="..\Shared\Networking\Networking.projitems" Label="Shared" />
+
+</Project>

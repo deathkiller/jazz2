@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <PublishTrimmed>true</PublishTrimmed>
     <ApplicationManifest>App.manifest</ApplicationManifest>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
@@ -14,22 +14,30 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;NET45 NET_CORE UNSAFE UNCOMPRESSED_CONTENT</DefineConstants>
+    <DefineConstants>TRACE;NET45 NET5 UNSAFE MULTIPLAYER UNCOMPRESSED_CONTENT ENABLE_UPNP</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>TRACE;NET45 NET_CORE UNSAFE</DefineConstants>
+    <DefineConstants>TRACE;NET45 NET5 UNSAFE MULTIPLAYER ENABLE_UPNP</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>true</Prefer32Bit>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="..\Shared\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
-    <Compile Include="Backend\Preferences\PreferencesBackend.cs" Link="Backend\Preferences\PreferencesBackend.cs" />
-    <Compile Include="Backend\System\NativeFileSystem.cs" Link="Backend\System\NativeFileSystem.cs" />
-    <Compile Include="Backend\System\SystemBackend.cs" Link="Backend\System\SystemBackend.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
-    <Compile Include="App.cs" Link="App.cs" />
+    <Compile Include="App.RichPresence.cs" />
+    <Compile Include="Backend\DefaultAssemblyLoader.cs" />
+    <Compile Include="Backend\Preferences\PreferencesBackend.cs" />
+    <Compile Include="Backend\System\NativeFileSystem.cs" />
+    <Compile Include="Backend\System\SystemBackend.cs" />
+    <Compile Include="Discord\DiscordRpcClient.cs" />
+    <Compile Include="Discord\ManagedNamedPipeClient.cs" />
+    <Compile Include="Discord\PipeFrame.cs" />
+    <Compile Include="Discord\RichPresence.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="App.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -47,5 +55,7 @@
   <Import Project="..\Shared\Jazz2.Core.Client\Jazz2.Core.Client.projitems" Label="Shared" />
   
   <Import Project="..\Shared\Primitives\Primitives.projitems" Label="Shared" />
+  
+  <Import Project="..\Shared\Networking\Networking.projitems" Label="Shared" />
 
 </Project>

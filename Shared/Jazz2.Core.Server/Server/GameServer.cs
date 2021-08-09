@@ -12,6 +12,7 @@ using Jazz2.Game;
 using Jazz2.Networking;
 using Jazz2.Networking.Packets.Server;
 using Lidgren.Network;
+using MathF = Duality.MathF;
 
 namespace Jazz2.Server
 {

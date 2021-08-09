@@ -9,6 +9,7 @@ using Duality;
 using Duality.Async;
 using Jazz2.Game;
 using Lidgren.Network;
+using MathF = Duality.MathF;
 
 namespace Jazz2.Game
 {
@@ -215,7 +216,7 @@ namespace Jazz2.Server
 
             availableCommands.Add("quit", HandleCommandExit);
             availableCommands.Add("exit", HandleCommandExit);
-            availableCommands.Add("clear", HandleCommandExit);
+            availableCommands.Add("clear", HandleCommandClear);
 
             availableCommands.Add("help", HandleCommandHelp);
             availableCommands.Add("info", HandleCommandInfo);
@@ -311,7 +312,12 @@ namespace Jazz2.Server
 
         private static bool HandleCommandClear(string input)
         {
-            // ToDo
+            try {
+                Console.Clear();
+            } catch {
+                // Nothing to do...
+            }
+
             return true;
         }
 

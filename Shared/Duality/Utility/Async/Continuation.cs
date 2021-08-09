@@ -29,6 +29,7 @@ namespace Duality.Async
 			instruction = inst;
 			continuation = null;
 			owner = null;
+			cancellationToken = default(CancellationToken);
 			Scheduler = FrameScheduler.BeforeUpdate;
 		}
 
@@ -37,6 +38,7 @@ namespace Duality.Async
 			instruction = inst;
 			continuation = null;
 			owner = null;
+			cancellationToken = default(CancellationToken);
 			Scheduler = scheduler;
 		}
 
@@ -54,6 +56,7 @@ namespace Duality.Async
 			instruction = inst;
 			continuation = null;
 			this.owner = owner;
+			cancellationToken = default(CancellationToken);
 			Scheduler = scheduler;
 		}
 

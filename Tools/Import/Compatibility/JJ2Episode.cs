@@ -8,6 +8,7 @@ using System.Text;
 using Duality;
 using Duality.Drawing;
 using Import;
+using MathF = Duality.MathF;
 
 namespace Jazz2.Compatibility
 {

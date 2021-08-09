@@ -1,0 +1,90 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28922.388
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Jazz2.Core", "Shared\Jazz2.Core\Jazz2.Core.shproj", "{07EBF55E-8758-4305-B77E-C45FDEA843EC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{B73F0AF4-8283-4019-B9E5-85A57B12489F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{551F2C0E-647C-4DE2-BB1C-DF57AB0F2663}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+		Shared\SharedAssemblyInfo.cs = Shared\SharedAssemblyInfo.cs
+	EndProjectSection
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Networking", "Shared\Networking\Networking.shproj", "{64F6BE65-220B-4DE3-82AF-80E24D45CC67}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Duality", "Shared\Duality\Duality.shproj", "{89366AC3-B408-492B-8EF5-714CDFE4FEFF}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Primitives", "Shared\Primitives\Primitives.shproj", "{2DAD5DF0-99D5-4837-AF78-CF189DB386A2}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Console", "Shared\Console\Console.shproj", "{ADC9A0C0-6830-49B6-858B-30395699EE30}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Jazz2.Core.Client", "Shared\Jazz2.Core.Client\Jazz2.Core.Client.shproj", "{ABA9879A-495C-46B3-8F2F-D7AA0F9A793A}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Jazz2.Core.Server", "Shared\Jazz2.Core.Server\Jazz2.Core.Server.shproj", "{FBDD3488-415A-41B2-802C-C0A17FC3E72C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jazz2.NET5", "Jazz2\Jazz2.NET5.csproj", "{11C903DA-3F17-4804-9EF4-D33A4661D77B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jazz2.Server.NET5", "Jazz2.Server\Jazz2.Server.NET5.csproj", "{E6EC8943-2BF7-44E0-AF36-2286C921903C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Import.NET5", "Tools\Import\Import.NET5.csproj", "{5BC8F435-F1FD-42C9-938F-79B978BACC9B}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Shared\Jazz2.Core\Jazz2.Core.projitems*{07ebf55e-8758-4305-b77e-c45fdea843ec}*SharedItemsImports = 13
+		Shared\Console\Console.projitems*{11c903da-3f17-4804-9ef4-d33a4661d77b}*SharedItemsImports = 5
+		Shared\Duality\Duality.projitems*{11c903da-3f17-4804-9ef4-d33a4661d77b}*SharedItemsImports = 5
+		Shared\Jazz2.Core.Client\Jazz2.Core.Client.projitems*{11c903da-3f17-4804-9ef4-d33a4661d77b}*SharedItemsImports = 5
+		Shared\Jazz2.Core\Jazz2.Core.projitems*{11c903da-3f17-4804-9ef4-d33a4661d77b}*SharedItemsImports = 5
+		Shared\Networking\Networking.projitems*{11c903da-3f17-4804-9ef4-d33a4661d77b}*SharedItemsImports = 5
+		Shared\Primitives\Primitives.projitems*{11c903da-3f17-4804-9ef4-d33a4661d77b}*SharedItemsImports = 5
+		Shared\Primitives\Primitives.projitems*{2dad5df0-99d5-4837-af78-cf189db386a2}*SharedItemsImports = 13
+		Shared\Networking\Networking.projitems*{64f6be65-220b-4de3-82af-80e24d45cc67}*SharedItemsImports = 13
+		Shared\Duality\Duality.projitems*{89366ac3-b408-492b-8ef5-714cdfe4feff}*SharedItemsImports = 13
+		Shared\Jazz2.Core.Client\Jazz2.Core.Client.projitems*{aba9879a-495c-46b3-8f2f-d7aa0f9a793a}*SharedItemsImports = 13
+		Shared\Console\Console.projitems*{adc9a0c0-6830-49b6-858b-30395699ee30}*SharedItemsImports = 13
+		Shared\Console\Console.projitems*{e6ec8943-2bf7-44e0-af36-2286c921903c}*SharedItemsImports = 5
+		Shared\Duality\Duality.projitems*{e6ec8943-2bf7-44e0-af36-2286c921903c}*SharedItemsImports = 5
+		Shared\Jazz2.Core.Server\Jazz2.Core.Server.projitems*{e6ec8943-2bf7-44e0-af36-2286c921903c}*SharedItemsImports = 5
+		Shared\Jazz2.Core\Jazz2.Core.projitems*{e6ec8943-2bf7-44e0-af36-2286c921903c}*SharedItemsImports = 5
+		Shared\Networking\Networking.projitems*{e6ec8943-2bf7-44e0-af36-2286c921903c}*SharedItemsImports = 5
+		Shared\Primitives\Primitives.projitems*{e6ec8943-2bf7-44e0-af36-2286c921903c}*SharedItemsImports = 5
+		Shared\Jazz2.Core.Server\Jazz2.Core.Server.projitems*{fbdd3488-415a-41b2-802c-c0a17fc3e72c}*SharedItemsImports = 13
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{11C903DA-3F17-4804-9EF4-D33A4661D77B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11C903DA-3F17-4804-9EF4-D33A4661D77B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11C903DA-3F17-4804-9EF4-D33A4661D77B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11C903DA-3F17-4804-9EF4-D33A4661D77B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6EC8943-2BF7-44E0-AF36-2286C921903C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6EC8943-2BF7-44E0-AF36-2286C921903C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6EC8943-2BF7-44E0-AF36-2286C921903C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6EC8943-2BF7-44E0-AF36-2286C921903C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BC8F435-F1FD-42C9-938F-79B978BACC9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BC8F435-F1FD-42C9-938F-79B978BACC9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BC8F435-F1FD-42C9-938F-79B978BACC9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BC8F435-F1FD-42C9-938F-79B978BACC9B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{07EBF55E-8758-4305-B77E-C45FDEA843EC} = {551F2C0E-647C-4DE2-BB1C-DF57AB0F2663}
+		{64F6BE65-220B-4DE3-82AF-80E24D45CC67} = {551F2C0E-647C-4DE2-BB1C-DF57AB0F2663}
+		{89366AC3-B408-492B-8EF5-714CDFE4FEFF} = {551F2C0E-647C-4DE2-BB1C-DF57AB0F2663}
+		{2DAD5DF0-99D5-4837-AF78-CF189DB386A2} = {551F2C0E-647C-4DE2-BB1C-DF57AB0F2663}
+		{ADC9A0C0-6830-49B6-858B-30395699EE30} = {551F2C0E-647C-4DE2-BB1C-DF57AB0F2663}
+		{ABA9879A-495C-46B3-8F2F-D7AA0F9A793A} = {551F2C0E-647C-4DE2-BB1C-DF57AB0F2663}
+		{FBDD3488-415A-41B2-802C-C0A17FC3E72C} = {551F2C0E-647C-4DE2-BB1C-DF57AB0F2663}
+		{5BC8F435-F1FD-42C9-938F-79B978BACC9B} = {B73F0AF4-8283-4019-B9E5-85A57B12489F}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {68CDB158-C20C-4E20-9FFD-828478D43E3D}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,66 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <PublishTrimmed>true</PublishTrimmed>
+    <ApplicationManifest>App.manifest</ApplicationManifest>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
+    <RootNamespace>Import</RootNamespace>
+    <AssemblyName>Import</AssemblyName>
+    <StartupObject>Import.App</StartupObject>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;NET45 NET5</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;NET45 NET5</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\Shared\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
+    <Compile Include="Compatibility\AnimSetMapping.cs" />
+    <Compile Include="Compatibility\EventConverter.cs" />
+    <Compile Include="Compatibility\JJ2Anims.cs" />
+    <Compile Include="Compatibility\JJ2Block.cs" />
+    <Compile Include="Compatibility\JJ2DataFile.cs" />
+    <Compile Include="Compatibility\JJ2DefaultPalette.cs" />
+    <Compile Include="Compatibility\JJ2Episode.cs" />
+    <Compile Include="Compatibility\JJ2Event.cs" />
+    <Compile Include="Compatibility\JJ2Level.cs" />
+    <Compile Include="Compatibility\JJ2Strings.cs" />
+    <Compile Include="Compatibility\JJ2Text.cs" />
+    <Compile Include="Compatibility\JJ2Tileset.cs" />
+    <Compile Include="Compatibility\JJ2Version.cs" />
+    <Compile Include="Downloaders\DemoDownloader.cs" />
+    <Compile Include="Downloaders\JJ2PlusDownloader.cs" />
+    <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="Migrations\MetadataV1ToV2.cs" />
+    <Compile Include="Misc\FileSystemUtils.cs" />
+    <Compile Include="Misc\NormalMapGenerator.cs" />
+    <Compile Include="Misc\Pair.cs" />
+    <Compile Include="Misc\PngWriter.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="App.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Jazz2\Jazz2.NET5.csproj" />
+  </ItemGroup>
+
+</Project>
