@@ -25,6 +25,8 @@ namespace Jazz2.Android
             public ContentRef<Material> Material;
 
             public int CurrentPointerId;
+
+            public bool AllowRollover;
         }
 
         internal static bool AllowVibrations = true;
@@ -62,17 +64,17 @@ namespace Jazz2.Android
 
             TouchButtons = new[] {
                 // D-pad
-                CreateTouchButton(PlayerActions.None, matDpad, Alignment.BottomLeft, DpadLeft, DpadBottom, DpadSize, DpadSize),
+                CreateTouchButton(PlayerActions.None, matDpad, false, Alignment.BottomLeft, DpadLeft, DpadBottom, DpadSize, DpadSize),
                 // D-pad subsections
-                CreateTouchButton(PlayerActions.Left, null, Alignment.BottomLeft, DpadLeft - DpadThreshold, DpadBottom, (DpadSize / 3) + DpadThreshold, DpadSize),
-                CreateTouchButton(PlayerActions.Right, null, Alignment.BottomLeft, DpadLeft + (DpadSize * 2 / 3), DpadBottom, (DpadSize / 3) + DpadThreshold, DpadSize),
-                CreateTouchButton(PlayerActions.Up, null, Alignment.BottomLeft, DpadLeft, DpadBottom + (DpadSize * 2 / 3), DpadSize, (DpadSize / 3) + DpadThreshold),
-                CreateTouchButton(PlayerActions.Down, null, Alignment.BottomLeft, DpadLeft, DpadBottom - DpadThreshold, DpadSize, (DpadSize / 3) + DpadThreshold),
+                CreateTouchButton(PlayerActions.Left, null, true, Alignment.BottomLeft, DpadLeft - DpadThreshold, DpadBottom, (DpadSize / 3) + DpadThreshold, DpadSize),
+                CreateTouchButton(PlayerActions.Right, null, true, Alignment.BottomLeft, DpadLeft + (DpadSize * 2 / 3), DpadBottom, (DpadSize / 3) + DpadThreshold, DpadSize),
+                CreateTouchButton(PlayerActions.Up, null, false, Alignment.BottomLeft, DpadLeft, DpadBottom + (DpadSize * 2 / 3), DpadSize, (DpadSize / 3) + DpadThreshold),
+                CreateTouchButton(PlayerActions.Down, null, false, Alignment.BottomLeft, DpadLeft, DpadBottom - DpadThreshold, DpadSize, (DpadSize / 3) + DpadThreshold),
                 // Action buttons
-                CreateTouchButton(PlayerActions.Fire, matFire, Alignment.BottomRight, (ButtonSize + 0.02f) * 2, 0.04f, ButtonSize, ButtonSize),
-                CreateTouchButton(PlayerActions.Jump, matJump, Alignment.BottomRight, (ButtonSize + 0.02f), 0.04f + 0.08f, ButtonSize, ButtonSize),
-                CreateTouchButton(PlayerActions.Run, matRun, Alignment.BottomRight, 0f, 0.01f + 0.15f, ButtonSize, ButtonSize),
-                CreateTouchButton(PlayerActions.SwitchWeapon, matSwitchWeapon, Alignment.BottomRight, ButtonSize + 0.01f, 0.04f + 0.28f, SmallButtonSize, SmallButtonSize)
+                CreateTouchButton(PlayerActions.Fire, matFire, false, Alignment.BottomRight, (ButtonSize + 0.02f) * 2, 0.04f, ButtonSize, ButtonSize),
+                CreateTouchButton(PlayerActions.Jump, matJump, false, Alignment.BottomRight, (ButtonSize + 0.02f), 0.04f + 0.08f, ButtonSize, ButtonSize),
+                CreateTouchButton(PlayerActions.Run, matRun, false, Alignment.BottomRight, 0f, 0.01f + 0.15f, ButtonSize, ButtonSize),
+                CreateTouchButton(PlayerActions.SwitchWeapon, matSwitchWeapon, false, Alignment.BottomRight, ButtonSize + 0.01f, 0.04f + 0.28f, SmallButtonSize, SmallButtonSize)
             };
 
             ShowTouchButtons = true;
@@ -148,6 +150,9 @@ namespace Jazz2.Android
                                     ControlScheme.InternalTouchAction(button.Action, false);
                                 }
                             } else {
+                                // Only some buttons should allow roll-over
+                                if (!button.AllowRollover) continue;
+
                                 for (int j = 0; j < pointerCount; j++) {
                                     if (IsOnButton(ref button, e.GetX(j), e.GetY(j))) {
                                         int pointerId = e.GetPointerId(j);
@@ -251,7 +256,7 @@ namespace Jazz2.Android
         }
 
 #if ENABLE_TOUCH
-        private TouchButtonInfo CreateTouchButton(PlayerActions action, Material material, Alignment alignment, float x, float y, float w, float h)
+        private TouchButtonInfo CreateTouchButton(PlayerActions action, Material material, bool allowRollover, Alignment alignment, float x, float y, float w, float h)
         {
             float toWidth = ((float)viewportHeight / viewportWidth);
             float left, top, width, height;
@@ -277,7 +282,8 @@ namespace Jazz2.Android
                 Width = width,
                 Height = height,
                 Material = material,
-                CurrentPointerId = -1
+                CurrentPointerId = -1,
+                AllowRollover = allowRollover
             };
         }
 
