@@ -149,7 +149,15 @@ namespace Jazz2.Android
                                 }
                             } else {
                                 for (int j = 0; j < pointerCount; j++) {
-                                    if (IsOnButton(ref button, e.GetX(j), e.GetY(j))) {
+                                    float x = e.GetX(j) / (float)viewportWidth;
+                                    float y = e.GetY(j) / (float)viewportHeight;
+                                    if (x < 0.5f) {
+                                        x -= LeftPadding;
+                                    } else {
+                                        x += RightPadding;
+                                    }
+
+                                    if (IsOnButton(ref button, x, y)) {
                                         int pointerId = e.GetPointerId(j);
 
                                         button.CurrentPointerId = pointerId;
