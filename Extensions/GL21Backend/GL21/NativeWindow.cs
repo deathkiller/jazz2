@@ -107,6 +107,12 @@ namespace Duality.Backend.GL21
                         this.internalWindow.WindowBorder = WindowBorder.Resizable;
                 }
 
+                if ((value & ScreenMode.FullWindow) != 0) {
+                    this.internalWindow.Cursor = MouseCursor.Empty;
+                } else {
+                    this.internalWindow.Cursor = MouseCursor.Default;
+                }
+
                 screenMode = value;
             }
         }
@@ -183,9 +189,11 @@ namespace Duality.Backend.GL21
                 options.Title,
                 windowFlags);
             this.internalWindow.MakeCurrent();
+
             this.internalWindow.CursorVisible = true;
-            if (!options.SystemCursorVisible)
+            if ((screenMode & ScreenMode.FullWindow) != 0)
                 this.internalWindow.Cursor = MouseCursor.Empty;
+
             this.internalWindow.VSync = vsyncMode;
 
             Log.Write(LogType.Info,

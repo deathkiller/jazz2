@@ -166,10 +166,13 @@ namespace Jazz2.Game.UI.Menu
                     api.BeginFadeOut(() => {
                         ControlScheme.IsSuspended = false;
 
+                        bool enableReduxMode = Preferences.Get<bool>("ReduxMode", true);
+
                         LevelInitialization levelInit = new LevelInitialization(
                             episodeName,
                             levelName,
                             (GameDifficulty.Easy + selectedDifficulty),
+                            enableReduxMode,
                             (PlayerType.Jazz + selectedPlayerType)
                         );
 

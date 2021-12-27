@@ -254,13 +254,16 @@ namespace Jazz2.Game.UI.Menu
                                 string episodeName = episodes[selectedIndex].Episode.Token;
                                 string levelName = Preferences.Get<string>("EpisodeContinue_Level_" + episodeName);
 
-                                // Lives, Difficulty and PlayerType is saved in Misc array [Jazz2.Core/Game/Controller.cs: ~146]
+                                bool enableReduxMode = Preferences.Get<bool>("ReduxMode", true);
+
+                                // Lives, Difficulty and PlayerType is saved in Misc array [Jazz2.Core/Game/App.cs: ~253]
                                 byte[] misc = Preferences.Get<byte[]>("EpisodeContinue_Misc_" + episodeName);
 
                                 LevelInitialization levelInit = new LevelInitialization(
                                     episodeName,
                                     levelName,
                                     (GameDifficulty)misc[1],
+                                    enableReduxMode,
                                     (PlayerType)misc[2]
                                 );
 

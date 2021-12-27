@@ -33,6 +33,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\ReinstallNeededSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\ChoiceControl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\ControlsSection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\EnhancementsSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\LinkControl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\MenuSectionWithControls.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\MenuControlBase.cs" />

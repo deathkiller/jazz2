@@ -148,7 +148,7 @@ namespace Jazz2.Game
             UpdateRichPresence(null, null);
         }
 
-        public void ChangeLevel(LevelInitialization levelInit = default(LevelInitialization))
+        public void ChangeLevel(LevelInitialization levelInit)
         {
             ContentResolver.Current.ResetReferenceFlag();
 

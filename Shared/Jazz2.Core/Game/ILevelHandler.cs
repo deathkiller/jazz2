@@ -18,6 +18,7 @@ namespace Jazz2.Game
         IEnumerable<GameObject> ActiveObjects { get; }
 
         GameDifficulty Difficulty { get; }
+        bool ReduxMode { get; }
         Rect LevelBounds { get; }
         float Gravity { get; }
         float AmbientLightCurrent { get; set; }

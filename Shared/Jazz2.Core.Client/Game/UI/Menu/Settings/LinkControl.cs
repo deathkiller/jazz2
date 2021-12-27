@@ -71,6 +71,10 @@ namespace Jazz2.Game.UI.Menu.Settings
 
         public override void OnUpdate()
         {
+            if (!enabled) {
+                return;
+            }
+
             if (ControlScheme.MenuActionHit(PlayerActions.Fire)) {
                 api.PlaySound("MenuSelect", 0.5f);
                 action();

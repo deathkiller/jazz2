@@ -59,7 +59,11 @@
     "menu/settings/language": "Language",
     "menu/settings/music": "Music Volume",
     "menu/settings/sfx": "SFX Volume",
-    "menu/settings/ledge climb": "Ledge Climbing",
+
+    "menu/settings/enhancements": "Enhancements",
+    "menu/settings/enhancements/info": "You can enable enhancements that were added to this remake.\n\nRedux Mode changes behavior of various enemies and items.\nLedge Climb enables a new game mechanics available for Jazz and Spaz.",
+    "menu/settings/enhancements/redux mode": "Redux Mode",
+    "menu/settings/enhancements/ledge climb": "Ledge Climbing",
     
     "menu/settings/vibrations": "Vibrations",
     "menu/settings/controls opacity": "Controls Opacity",

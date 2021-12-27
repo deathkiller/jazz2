@@ -83,7 +83,7 @@ namespace Jazz2.Game
             MultiplayerLevelType levelType = p.LevelType;
 
             Await.NextAfterUpdate().OnCompleted(() => {
-                LevelInitialization levelInit = new LevelInitialization(episodeName, levelName, GameDifficulty.Multiplayer);
+                LevelInitialization levelInit = new LevelInitialization(episodeName, levelName, GameDifficulty.Multiplayer, true);
 
                 Scene.Current.Dispose();
                 Scene.SwitchTo(new MultiplayerLevelHandler(this, client, levelInit, levelType, playerIndex));

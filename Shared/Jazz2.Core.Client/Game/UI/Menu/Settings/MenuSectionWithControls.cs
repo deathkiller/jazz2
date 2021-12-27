@@ -9,9 +9,9 @@ namespace Jazz2.Game.UI.Menu.Settings
         protected MenuControlBase[] controls;
         protected int selectedIndex;
 
-        private int scrollOffset;
-        private int maxVisibleItems = 5;
-        private float animation;
+        protected int scrollOffset;
+        protected int maxVisibleItems = 5;
+        protected float animation;
 
         public override void OnShow(IMenuContainer root)
         {

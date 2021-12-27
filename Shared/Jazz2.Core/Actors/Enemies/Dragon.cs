@@ -126,6 +126,8 @@ namespace Jazz2.Actors.Enemies
                 base.canBeFrozen = false;
                 base.isInvulnerable = true;
                 base.CollisionFlags &= ~CollisionFlags.ApplyGravitation;
+                // Collide with player ammo if Redux Mode is enabled
+                base.canCollideWithAmmo = levelHandler.ReduxMode;
 
                 await RequestMetadataAsync("Weapon/Toaster");
                 SetAnimation("Fire");

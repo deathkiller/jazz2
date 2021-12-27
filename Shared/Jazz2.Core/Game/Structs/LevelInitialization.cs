@@ -41,17 +41,19 @@ namespace Jazz2.Game.Structs
         public string EpisodeName;
 
         public GameDifficulty Difficulty;
+        public bool ReduxMode;
         public ExitType ExitType;
 
         public PlayerCarryOver[] PlayerCarryOvers;
 
         public string LastEpisodeName;
 
-        public LevelInitialization(string episode, string level, GameDifficulty difficulty, PlayerType playerType)
+        public LevelInitialization(string episode, string level, GameDifficulty difficulty, bool reduxMode, PlayerType playerType)
         {
             LevelName = level;
             EpisodeName = episode;
             Difficulty = difficulty;
+            ReduxMode = reduxMode;
 
             ExitType = ExitType.None;
 
@@ -65,11 +67,12 @@ namespace Jazz2.Game.Structs
             LastEpisodeName = null;
         }
 
-        public LevelInitialization(string episode, string level, GameDifficulty difficulty, params PlayerType[] playerTypes)
+        public LevelInitialization(string episode, string level, GameDifficulty difficulty, bool reduxMode, params PlayerType[] playerTypes)
         {
             LevelName = level;
             EpisodeName = episode;
             Difficulty = difficulty;
+            ReduxMode = reduxMode;
 
             ExitType = ExitType.None;
 

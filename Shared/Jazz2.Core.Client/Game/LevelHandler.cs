@@ -65,6 +65,7 @@ namespace Jazz2.Game
         private Vector4 darknessColor;
         private float gravity;
         private Rect levelBounds;
+        private bool reduxMode;
 
         private BossBase activeBoss;
 
@@ -91,6 +92,8 @@ namespace Jazz2.Game
         public EventSpawner EventSpawner => eventSpawner;
 
         public GameDifficulty Difficulty => difficulty;
+
+        public bool ReduxMode => reduxMode;
 
         public float Gravity => gravity;
 
@@ -131,6 +134,7 @@ namespace Jazz2.Game
             levelFileName = data.LevelName;
             episodeName = data.EpisodeName;
             difficulty = data.Difficulty;
+            reduxMode = data.ReduxMode;
 
             gravity = DefaultGravity;
 
@@ -634,6 +638,7 @@ namespace Jazz2.Game
             }
 
             levelInit.Difficulty = difficulty;
+            levelInit.ReduxMode = reduxMode;
             levelInit.ExitType = exitType;
 
             levelInit.PlayerCarryOvers = new PlayerCarryOver[players.Count];

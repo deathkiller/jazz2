@@ -122,23 +122,25 @@ namespace Duality.Backend.Es20
             set
             {
                 value &= (ScreenMode.FullWindow | ScreenMode.FixedSize | ScreenMode.ChangeResolution);
-                if (screenMode == value)
-                {
+                if (screenMode == value) {
                     return;
                 }
 
-                if ((value & (ScreenMode.FullWindow | ScreenMode.ChangeResolution)) != 0)
-                {
+                if ((value & (ScreenMode.FullWindow | ScreenMode.ChangeResolution)) != 0) {
                     this.internalWindow.WindowState = WindowState.Fullscreen;
                     this.internalWindow.WindowBorder = WindowBorder.Hidden;
-                }
-                else
-                {
+                } else {
                     this.internalWindow.WindowState = WindowState.Normal;
                     if ((value & ScreenMode.FixedSize) != 0)
                         this.internalWindow.WindowBorder = WindowBorder.Fixed;
                     else
                         this.internalWindow.WindowBorder = WindowBorder.Resizable;
+                }
+
+                if ((value & ScreenMode.FullWindow) != 0) {
+                    this.internalWindow.Cursor = MouseCursor.Empty;
+                } else {
+                    this.internalWindow.Cursor = MouseCursor.Default;
                 }
 
                 screenMode = value;
@@ -199,9 +201,11 @@ namespace Duality.Backend.Es20
                     GraphicsContextFlags.Default);
             }
             this.internalWindow.MakeCurrent();
+
             this.internalWindow.CursorVisible = true;
-            if (!options.SystemCursorVisible)
+            if ((screenMode & ScreenMode.FullWindow) != 0)
                 this.internalWindow.Cursor = MouseCursor.Empty;
+
             this.internalWindow.VSync = vsyncMode;
 
 

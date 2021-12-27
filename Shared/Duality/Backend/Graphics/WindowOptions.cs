@@ -6,7 +6,6 @@
         private ScreenMode		screenMode		= ScreenMode.Window;
 		private RefreshMode		refreshMode		= RefreshMode.VSync;
 		private string			title			= "Window";
-		private bool			systemCursor	= true;
 
         public Point2 Size
         {
@@ -27,11 +26,6 @@
 		{
 			get { return this.title; }
 			set { this.title = value; }
-		}
-		public bool SystemCursorVisible
-		{
-			get { return this.systemCursor; }
-			set { this.systemCursor = value; }
 		}
 	}
 }

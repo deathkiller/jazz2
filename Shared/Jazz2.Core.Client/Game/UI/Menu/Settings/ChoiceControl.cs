@@ -31,6 +31,11 @@ namespace Jazz2.Game.UI.Menu.Settings
         {
             this.title = title;
             this.choices = choices;
+
+            if (selectedIndex >= choices.Length) {
+                selectedIndex = 0;
+            }
+
             this.selectedIndex = selectedIndex;
         }
 
@@ -62,16 +67,27 @@ namespace Jazz2.Game.UI.Menu.Settings
             api.DrawStringShadow(ref charOffset, choices[selectedIndex], pos.X, pos.Y + 20f, Alignment.Center,
                 null, 0.9f, 0.4f, 0.55f, 0.55f, 8f, 0.9f);
 
-            api.DrawStringShadow(ref charOffset, "<", pos.X - 80f, pos.Y + 20f, Alignment.Center,
-                ColorRgba.TransparentBlack, 0.7f);
-            api.DrawStringShadow(ref charOffset, ">", pos.X + 80f, pos.Y + 20f, Alignment.Center,
-                ColorRgba.TransparentBlack, 0.7f);
+            if (!enabled) {
+                api.DrawString(ref charOffset, "<", pos.X - 80f, pos.Y + 20f, Alignment.Center,
+                    new ColorRgba(0.4f, 0.3f), 0.7f);
+                api.DrawString(ref charOffset, ">", pos.X + 80f, pos.Y + 20f, Alignment.Center,
+                    new ColorRgba(0.4f, 0.3f), 0.7f);
+            } else {
+                api.DrawStringShadow(ref charOffset, "<", pos.X - 80f, pos.Y + 20f, Alignment.Center,
+                    ColorRgba.TransparentBlack, 0.7f);
+                api.DrawStringShadow(ref charOffset, ">", pos.X + 80f, pos.Y + 20f, Alignment.Center,
+                    ColorRgba.TransparentBlack, 0.7f);
+            }
 
             pos.Y += 55f;
         }
 
         public override void OnUpdate()
         {
+            if (!enabled) {
+                return;
+            }
+
             if (ControlScheme.MenuActionHit(PlayerActions.Left)) {
                 if (selectedIndex > 0) {
                     selectedIndex--;

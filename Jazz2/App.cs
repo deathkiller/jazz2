@@ -84,6 +84,7 @@ namespace Jazz2.Game
                 default:
                 case 0: screenMode = ScreenMode.Window; break;
                 case 1: screenMode = ScreenMode.FullWindow; break;
+                case 2: screenMode = ScreenMode.FullWindow | ScreenMode.ChangeResolution; break;
             }
 
             RefreshMode refreshMode = (RefreshMode)Preferences.Get<int>("RefreshMode", (int)RefreshMode.VSync);
@@ -103,9 +104,12 @@ namespace Jazz2.Game
                 current = new App(window);
 
                 bool suppressMainMenu = false;
+                bool skipIntro = false;
                 for (int i = 0; i < args.Length; i++) {
                     if (args[i] == "/cheats") {
                         current.EnableCheats = true;
+                    } else if (args[i] == "/skip-intro") {
+                        skipIntro = true;
                     }
 #if MULTIPLAYER
                     else if (args[i].StartsWith("/connect:", StringComparison.InvariantCulture)) {
@@ -131,9 +135,13 @@ namespace Jazz2.Game
                 }
 
                 if (!suppressMainMenu) {
-                    current.PlayCinematics("intro", endOfStream => {
-                        current.ShowMainMenu(endOfStream);
-                    });
+                    if (skipIntro) {
+                        current.ShowMainMenu(false);
+                    } else {
+                        current.PlayCinematics("intro", endOfStream => {
+                            current.ShowMainMenu(endOfStream);
+                        });
+                    }
                 }
 
                 window.Run();
