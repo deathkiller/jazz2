@@ -24,6 +24,8 @@ namespace Jazz2.Game.UI.Menu.Settings
         private SliderControl musicVolume;
         private SliderControl sfxVolume;
 
+        private ChoiceControl enableLedgeClimb;
+
         public override void OnShow(IMenuContainer root)
         {
             base.OnShow(root);
@@ -64,6 +66,7 @@ namespace Jazz2.Game.UI.Menu.Settings
             musicVolume = new SliderControl(api, "menu/settings/music".T(), MusicVolume, 0f, 1f);
             sfxVolume = new SliderControl(api, "menu/settings/sfx".T(), SfxVolume, 0f, 1f);
 #endif
+            enableLedgeClimb = new ChoiceControl(api, "menu/settings/ledge climb".T(), EnableLedgeClimb ? 1 : 0, "disabled".T(), "enabled".T());
 
 #if PLATFORM_ANDROID
             vibrations = new ChoiceControl(api, "menu/settings/vibrations".T(), Android.InnerView.AllowVibrations ? 1 : 0, "disabled".T(), "enabled".T());
@@ -76,20 +79,20 @@ namespace Jazz2.Game.UI.Menu.Settings
 
             controls = new MenuControlBase[] {
                 new LinkControl(api, "menu/settings/rescale".T(), OnRescaleModePressed),
-                language, vibrations, musicVolume, sfxVolume,
+                language, vibrations, musicVolume, sfxVolume, enableLedgeClimb,
                 new LinkControl(api, "menu/settings/controls".T(), OnControlsPressed),
                 controlsOpacity, leftPadding, rightPadding, bottomPadding1, bottomPadding2
             };
 #elif PLATFORM_WASM
             controls = new MenuControlBase[] {
                 new LinkControl(api, "menu/settings/rescale".T(), OnRescaleModePressed),
-                language,
+                language, enableLedgeClimb,
                 new LinkControl(api, "menu/settings/controls".T(), OnControlsPressed)
             };
 #else
             controls = new MenuControlBase[] {
                 new LinkControl(api, "menu/settings/rescale".T(), OnRescaleModePressed),
-                screenMode, refreshMode, language, musicVolume, sfxVolume,
+                screenMode, refreshMode, language, musicVolume, sfxVolume, enableLedgeClimb,
                 new LinkControl(api, "menu/settings/controls".T(), OnControlsPressed)
             };
 #endif
@@ -105,6 +108,7 @@ namespace Jazz2.Game.UI.Menu.Settings
         private void Commit()
         {
             string currentLanguage = availableLanguages[language.SelectedIndex];
+            bool languageChanged = (currentLanguage != i18n.Language);
             i18n.Language = currentLanguage;
             Preferences.Set("Language", currentLanguage);
 
@@ -115,6 +119,8 @@ namespace Jazz2.Game.UI.Menu.Settings
             Preferences.Set("MusicVolume", (byte)(MusicVolume * 100));
             Preferences.Set("SfxVolume", (byte)(SfxVolume * 100));
 #endif
+            EnableLedgeClimb = (enableLedgeClimb.SelectedIndex == 1);
+            Preferences.Set("EnableLedgeClimb", EnableLedgeClimb);
 
 #if PLATFORM_ANDROID
             Android.InnerView.AllowVibrations = (vibrations.SelectedIndex == 1);
@@ -149,6 +155,10 @@ namespace Jazz2.Game.UI.Menu.Settings
 #endif
 
             Preferences.Commit();
+
+            if (languageChanged) {
+                api.Recreate();
+            }
         }
 
         private void OnRescaleModePressed()

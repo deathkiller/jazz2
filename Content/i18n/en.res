@@ -59,6 +59,7 @@
     "menu/settings/language": "Language",
     "menu/settings/music": "Music Volume",
     "menu/settings/sfx": "SFX Volume",
+    "menu/settings/ledge climb": "Ledge Climbing",
     
     "menu/settings/vibrations": "Vibrations",
     "menu/settings/controls opacity": "Controls Opacity",

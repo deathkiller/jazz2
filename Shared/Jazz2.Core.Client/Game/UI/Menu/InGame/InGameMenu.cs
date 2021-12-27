@@ -108,6 +108,19 @@ namespace Jazz2.Game.UI.Menu.InGame
             SwitchToSection(new InGameMenuBeginSection(isMultiplayerSession));
         }
 
+        public void Recreate()
+        {
+#if MULTIPLAYER
+            bool isMultiplayerSession = (levelHandler is MultiplayerLevelHandler);
+#else
+            bool isMultiplayerSession = false;
+#endif
+
+            sectionStack.Clear();
+
+            SwitchToSection(new InGameMenuBeginSection(isMultiplayerSession));
+        }
+
         public void SwitchToSection(MenuSection section)
         {
             if (sectionStack.Count > 0) {

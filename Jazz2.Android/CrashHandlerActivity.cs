@@ -79,6 +79,10 @@ namespace Jazz2.Android
                         innerException = innerException.InnerException;
                     } while (innerException != null);
                 } else {
+                    if (ex.Message != null && ex.Message.StartsWith("EglCreateContext == EGL10.EglNoContext failed", StringComparison.OrdinalIgnoreCase)) {
+                        sb.Append("<b>This device is not powerful enough</b><br><b>OpenGL ES 3.0 support is required to&nbsp;run this application.</b><br><br>");
+                    }
+
                     sb.Append("<b>");
                     sb.Append(WebUtility.HtmlEncode(ex.Message).Replace("\n", "<br>"));
                     sb.AppendLine("</b><br>");

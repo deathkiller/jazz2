@@ -27,6 +27,7 @@ namespace Jazz2.Game.UI.Menu
         private float transitionText = 0.8f;
         private float transitionWhite;
 
+        private bool isInstallationComplete;
         private Metadata metadata;
 
         public ContentRef<Material> TopLine, BottomLine, Dim;
@@ -64,6 +65,7 @@ namespace Jazz2.Game.UI.Menu
         public MainMenu(App root, bool isInstallationComplete, bool afterIntro)
         {
             this.root = root;
+            this.isInstallationComplete = isInstallationComplete;
 
             transitionWhite = (afterIntro ? 1f : 0f);
 
@@ -144,6 +146,17 @@ namespace Jazz2.Game.UI.Menu
 #endif
 
             base.OnDisposing(manually);
+        }
+
+        public void Recreate()
+        {
+            sectionStack.Clear();
+
+            if (isInstallationComplete) {
+                SwitchToSection(new BeginSection());
+            } else {
+                SwitchToSection(new ReinstallNeededSection());
+            }
         }
 
         public void SwitchToSection(MenuSection section)

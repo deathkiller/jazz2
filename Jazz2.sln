@@ -68,6 +68,10 @@ Global
 		Shared\Duality\Duality.projitems*{89366ac3-b408-492b-8ef5-714cdfe4feff}*SharedItemsImports = 13
 		Shared\Jazz2.Core.Client\Jazz2.Core.Client.projitems*{aba9879a-495c-46b3-8f2f-d7aa0f9a793a}*SharedItemsImports = 13
 		Shared\Console\Console.projitems*{adc9a0c0-6830-49b6-858b-30395699ee30}*SharedItemsImports = 13
+		Shared\Duality\Duality.projitems*{d9811a88-51e3-4225-ac54-149f4daa7db3}*SharedItemsImports = 5
+		Shared\Jazz2.Core.Client\Jazz2.Core.Client.projitems*{d9811a88-51e3-4225-ac54-149f4daa7db3}*SharedItemsImports = 5
+		Shared\Jazz2.Core\Jazz2.Core.projitems*{d9811a88-51e3-4225-ac54-149f4daa7db3}*SharedItemsImports = 5
+		Shared\Primitives\Primitives.projitems*{d9811a88-51e3-4225-ac54-149f4daa7db3}*SharedItemsImports = 5
 		Shared\Jazz2.Core.Server\Jazz2.Core.Server.projitems*{fbdd3488-415a-41b2-802c-c0a17fc3e72c}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

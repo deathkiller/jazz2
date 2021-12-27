@@ -11,6 +11,8 @@ namespace Jazz2.Game.UI.Menu
 
         ScreenMode ScreenMode { get; set; }
 
+        void Recreate();
+
         void SwitchToSection(MenuSection section);
 
         void LeaveSection(MenuSection section);

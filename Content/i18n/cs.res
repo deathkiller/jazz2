@@ -61,6 +61,7 @@
     "menu/settings/controls/title": "Ovládání pro hráče {0}",
     "menu/settings/controls/up": "Nahoru",
     "menu/settings/language": "Jazyk",
+    "menu/settings/ledge climb": "Povolit šplhání",
     "menu/settings/left padding": "Odsazení ovládání zleva",
     "menu/settings/music": "Hlasitost hudby",
     "menu/settings/refresh": "Omezení obnovovací frekvence",
