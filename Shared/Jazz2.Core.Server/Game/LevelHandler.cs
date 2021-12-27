@@ -88,6 +88,8 @@ namespace Jazz2.Game
 
         public GameDifficulty Difficulty => difficulty;
 
+        public bool ReduxMode => true;
+
         public float Gravity => gravity;
 
         public Rect LevelBounds => levelBounds;
