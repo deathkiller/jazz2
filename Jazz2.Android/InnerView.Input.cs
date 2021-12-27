@@ -6,6 +6,7 @@ using Duality;
 using Duality.Drawing;
 using Duality.Input;
 using Duality.Resources;
+using Jazz2.Game;
 using Jazz2.Storage;
 
 namespace Jazz2.Android
@@ -150,8 +151,9 @@ namespace Jazz2.Android
                                     ControlScheme.InternalTouchAction(button.Action, false);
                                 }
                             } else {
-                                // Only some buttons should allow roll-over
-                                if (!button.AllowRollover) continue;
+                                // Only some buttons should allow roll-over (only when the player's on foot)
+                                bool canPlayerMoveVertically = (Scene.Current is LevelHandler handler && handler.Players.Count > 0 && handler.Players[0].CanMoveVertically);
+                                if ((!button.AllowRollover) && (!canPlayerMoveVertically)) continue;
 
                                 for (int j = 0; j < pointerCount; j++) {
                                     float x = e.GetX(j) / (float)viewportWidth;
