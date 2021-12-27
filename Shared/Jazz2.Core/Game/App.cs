@@ -103,9 +103,7 @@ namespace Jazz2.Game
             this.isInstallationComplete = IsInstallationComplete();
 
             // Load settings to cache
-            SettingsCache.Resize = (SettingsCache.ResizeMode)Preferences.Get<byte>("Resize", (byte)SettingsCache.Resize);
-            SettingsCache.MusicVolume = Preferences.Get<byte>("MusicVolume", (byte)(SettingsCache.MusicVolume * 100)) * 0.01f;
-            SettingsCache.SfxVolume = Preferences.Get<byte>("SfxVolume", (byte)(SettingsCache.SfxVolume * 100)) * 0.01f;
+            SettingsCache.Refresh();
 
             InitRichPresence();
         }

@@ -34,7 +34,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\ChoiceControl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\ControlsSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\LinkControl.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\MainMenuSectionWithControls.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\MenuSectionWithControls.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\MenuControlBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\RescaleSection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Game\UI\Menu\Settings\SettingsSection.cs" />

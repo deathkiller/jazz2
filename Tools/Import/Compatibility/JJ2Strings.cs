@@ -141,7 +141,8 @@ namespace Jazz2.Compatibility
 
                 if (!onlyExisting) {
                     Directory.CreateDirectory(Path.GetDirectoryName(targetPathInner));
-                } else if (!File.Exists(targetPathInner + ".level")) {
+                } else if (!File.Exists(targetPathInner + ".level") || File.Exists(targetPathInner + ".level." + langSuffix)) {
+                    // Don't overwrite existing translations and skip missing levels
                     continue;
                 }
 
@@ -165,7 +166,7 @@ namespace Jazz2.Compatibility
 
             using (Stream s = File.Create(path))
             using (StreamWriter w = new StreamWriter(s, new UTF8Encoding(false))) {
-                w.Write("{");
+                w.WriteLine("{");
                 w.WriteLine("    \"TextEvents\": [");
                 for (int i = 0; i < textEventsCount; i++) {
                     if (i != 0) {

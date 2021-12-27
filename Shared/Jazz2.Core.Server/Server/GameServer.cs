@@ -202,21 +202,14 @@ namespace Jazz2.Server
                     StringBuilder sb = new StringBuilder(256);
                     sb.Append("0\n"); // Flags
 
-                    bool isFirst = true;
+                    HashSet<string> endpoints = new HashSet<string>();
+
                     foreach (IPAddress address in server.LocalIPAddresses) {
                         if (NetUtility.IsAddressPrivate(address)) {
                             continue;
                         }
 
-                        if (isFirst) {
-                            isFirst = false;
-                        } else {
-                            sb.Append("|");
-                        }
-
-                        sb.Append(address)
-                            .Append(":")
-                            .Append(port);
+                        endpoints.Add(address.ToString());
                     }
                     if (server.PublicIPAddresses != null) {
                         foreach (IPAddress address in server.PublicIPAddresses) {
@@ -224,36 +217,33 @@ namespace Jazz2.Server
                                 continue;
                             }
 
-                            if (isFirst) {
-                                isFirst = false;
-                            } else {
-                                sb.Append("|");
-                            }
-
-                            sb.Append(address)
-                                .Append(":")
-                                .Append(port);
+                            endpoints.Add(address.ToString());
                         }
                     }
-                    if (customHostname != null) {
-                        if (isFirst) {
-                            isFirst = false;
-                        } else {
-                            sb.Append("|");
-                        }
-
-                        sb.Append(customHostname)
-                            .Append(":")
-                            .Append(port);
+                    if (!string.IsNullOrWhiteSpace(customHostname)) {
+                        endpoints.Add(customHostname.Trim());
                     }
 
-                    if (isFirst) {
+                    if (endpoints.Count == 0) {
                         // No public IP address found
                         Log.Write(LogType.Warning, "Server cannot be published to server list - no public IP address found!");
 
                         threadPublishToServerList = null;
                         break;
                     } else {
+                        bool isFirst = true;
+                        foreach (string endpoint in endpoints) {
+                            if (isFirst) {
+                                isFirst = false;
+                            } else {
+                                sb.Append("|");
+                            }
+
+                            sb.Append(endpoint)
+                                .Append(":")
+                                .Append(port);
+                        }
+
                         string currentVersion = Game.App.AssemblyVersion;
 
                         long uptimeSecs = (long)(TimeZoneInfo.ConvertTimeToUtc(startedTime) - new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;

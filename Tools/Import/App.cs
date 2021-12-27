@@ -594,6 +594,12 @@ namespace Import
                         case "polish": langSuffix = "pl"; break;
                         case "spanish": langSuffix = "es"; break;
 
+                        case "czech": langSuffix = "cs"; break;
+                        case "turkish": langSuffix = "tr"; break;
+                        case "swedish": langSuffix = "sv"; break;
+                        case "serbian": langSuffix = "sr"; break;
+                        case "afrikaans": langSuffix = "af"; break;
+
                         // Skip "English.j2s" for now
                         case "english": return;
                     }

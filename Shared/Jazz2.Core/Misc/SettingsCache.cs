@@ -1,4 +1,6 @@
-﻿namespace Jazz2
+﻿using Jazz2.Storage;
+
+namespace Jazz2
 {
     public class SettingsCache
     {
@@ -19,5 +21,16 @@
 #endif
         public static float MusicVolume = 0.7f;
         public static float SfxVolume = 0.85f;
+
+        public static bool EnableLedgeClimb = true;
+
+        public static void Refresh()
+        {
+            Resize = (SettingsCache.ResizeMode)Preferences.Get<byte>("Resize", (byte)SettingsCache.Resize);
+            MusicVolume = Preferences.Get<byte>("MusicVolume", (byte)(SettingsCache.MusicVolume * 100)) * 0.01f;
+            SfxVolume = Preferences.Get<byte>("SfxVolume", (byte)(SettingsCache.SfxVolume * 100)) * 0.01f;
+
+            EnableLedgeClimb = Preferences.Get<bool>("EnableLedgeClimb", true);
+        }
     }
 }

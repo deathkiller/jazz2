@@ -118,6 +118,8 @@ namespace Jazz2.Actors
 
         public bool CanBreakSolidObjects => (currentSpecialMove != SpecialMoveType.None || sugarRushLeft > 0f);
 
+        public bool CanMoveVertically => (inWater || activeModifier != Modifier.None);
+
         public bool InWater => inWater;
 
         public bool IsControllableExternal
@@ -1060,7 +1062,7 @@ namespace Jazz2.Actors
                 TakeDamage(1, speedX * 0.25f);
             } else {
 
-                if (isActivelyPushing && suspendType == SuspendType.None && !canJump &&
+                if (SettingsCache.EnableLedgeClimb && isActivelyPushing && suspendType == SuspendType.None && !canJump &&
                     currentSpecialMove == SpecialMoveType.None && currentTransitionState != AnimState.TransitionUppercutEnd &&
                     speedY >= -1f && externalForceY <= 0f && copterFramesLeft <= 0f && keepRunningTime <= 0f) {
 
