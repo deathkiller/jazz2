@@ -73,7 +73,7 @@ namespace Jazz2.Actors
         private PlayerType playerType, playerTypeOriginal;
         private SpecialMoveType currentSpecialMove;
         private bool isAttachedToPole;
-        private float copterFramesLeft, fireFramesLeft, pushFramesLeft;
+        private float copterFramesLeft, fireFramesLeft, pushFramesLeft, waterCooldownLeft;
         private LevelExitingState levelExiting;
         private bool isFreefall, inWater, isLifting, isSpring;
         private int inShallowWater = -1;
@@ -464,6 +464,10 @@ namespace Jazz2.Actors
                 if (gemsTimer <= 0f) {
                     gemsPitch = 0;
                 }
+            }
+
+            if (waterCooldownLeft > 0f) {
+                waterCooldownLeft -= timeMult;
             }
 
             // Weapons
@@ -1679,8 +1683,9 @@ namespace Jazz2.Actors
                         renderer.AnimDuration = MathF.Max(currentAnimation.FrameDuration + 1f - new Vector2(speedX, speedY).Length * 0.26f, 0.4f);
                     }
 
-                } else {
+                } else if (waterCooldownLeft <= 0f) {
                     inWater = false;
+                    waterCooldownLeft = 20f;
 
                     CollisionFlags |= CollisionFlags.ApplyGravitation;
                     canJump = true;
@@ -1689,17 +1694,24 @@ namespace Jazz2.Actors
 
                     SetAnimation(AnimState.Jump);
 
-                    Explosion.Create(levelHandler, Transform.Pos - new Vector3(0f, 4f, 2f), Explosion.WaterSplash);
+                    var pos = Transform.Pos;
+                    pos.Y = levelHandler.WaterLevel;
+                    pos.Z -= 2f;
+                    Explosion.Create(levelHandler, pos, Explosion.WaterSplash);
                     levelHandler.PlayCommonSound("WaterSplash", this, 1f, 0.5f);
                 }
             } else {
-                if (Transform.Pos.Y >= levelHandler.WaterLevel) {
+                if (Transform.Pos.Y >= levelHandler.WaterLevel && waterCooldownLeft <= 0f) {
                     inWater = true;
+                    waterCooldownLeft = 20f;
 
                     controllable = true;
                     EndDamagingMove();
 
-                    Explosion.Create(levelHandler, Transform.Pos - new Vector3(0f, 4f, 2f), Explosion.WaterSplash);
+                    var pos = Transform.Pos;
+                    pos.Y = levelHandler.WaterLevel;
+                    pos.Z -= 2f;
+                    Explosion.Create(levelHandler, pos, Explosion.WaterSplash);
                     levelHandler.PlayCommonSound("WaterSplash", this, 0.7f, 0.5f);
                 }
             }
