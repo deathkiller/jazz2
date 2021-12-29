@@ -874,7 +874,7 @@ namespace Jazz2.Actors
                                             isFreefall = false;
 
                                             internalForceY = 1.15f;
-                                            speedY = -2f - MathF.Max(0f, (MathF.Abs(speedX) - 4f) * 0.3f);
+                                            speedY = -0.5f - MathF.Max(0f, (MathF.Abs(speedX) - 4f) * 0.3f);
                                             speedX *= 0.4f;
 
                                             PlaySound("DoubleJump");
