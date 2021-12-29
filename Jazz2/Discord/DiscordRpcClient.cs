@@ -79,7 +79,6 @@ namespace Jazz2.Discord
             }
         }
 
-
         public void SetRichPresence(RichPresence richPresence)
         {
             StringBuilder sb = new StringBuilder();

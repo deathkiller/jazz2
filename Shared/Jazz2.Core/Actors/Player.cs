@@ -1066,7 +1066,7 @@ namespace Jazz2.Actors
                 TakeDamage(1, speedX * 0.25f);
             } else {
 
-                if (SettingsCache.EnableLedgeClimb && isActivelyPushing && suspendType == SuspendType.None && !canJump &&
+                if (SettingsCache.EnableLedgeClimb && isActivelyPushing && suspendType == SuspendType.None && activeModifier == Modifier.None && !canJump &&
                     currentSpecialMove == SpecialMoveType.None && currentTransitionState != AnimState.TransitionUppercutEnd &&
                     speedY >= -1f && externalForceY <= 0f && copterFramesLeft <= 0f && keepRunningTime <= 0f) {
 
