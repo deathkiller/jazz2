@@ -11,7 +11,7 @@ namespace Jazz2.Actors.Enemies
         private Vector3 originPos, lastPos, targetPos, lastSpeed;
         private float anglePhase;
         private float attackTime = 80f;
-        private bool attacking;
+        private bool attacking, returning;
 
         private SoundInstance noise;
 
@@ -62,19 +62,20 @@ namespace Jazz2.Actors.Enemies
 
                     attackTime = 90f;
                     attacking = false;
-
+                    returning = true;
+                } else {
                     if (noise != null) {
                         noise.FadeOut(1f);
                         noise = null;
                     }
-                } else {
+
                     AttackNearestPlayer();
                 }
             }
 
             anglePhase += timeMult * 0.05f;
 
-            Vector3 speed = ((targetPos - lastPos) / 30f + lastSpeed * 1.4f) / 2.4f;
+            Vector3 speed = ((targetPos - lastPos) * (returning ? 0.03f : 0.006f) + lastSpeed * 1.4f) / 2.4f;
             lastPos.X += speed.X;
             lastPos.Y += speed.Y;
             lastSpeed = speed;
@@ -118,19 +119,29 @@ namespace Jazz2.Actors.Enemies
                 }
             }
 
-            // Can't fly into the water
-            if (targetPos.Y > levelHandler.WaterLevel - 12f) {
-                targetPos.Y = levelHandler.WaterLevel - 12f;
-            }
-
             Vector3 diff = (targetPos - lastPos);
-            if (found && diff.Length <= 250f) {
-                attackTime = 90f;
-                attacking = true;
+            if (found && diff.Length <= 280f) {
+                targetPos.X += (targetPos.X - originPos.X) * 1.8f;
+                targetPos.Y += (targetPos.Y - originPos.Y) * 1.8f;
 
-                noise = PlaySound("Noise", 0.5f);
+                // Can't fly into the water
+                if (targetPos.Y > levelHandler.WaterLevel - 12f) {
+                    targetPos.Y = levelHandler.WaterLevel - 12f;
+                }
+
+                attackTime = 110f;
+                attacking = true;
+                returning = false;
+
+                if (noise == null) {
+                    noise = PlaySound("Noise", 0.5f, 2f);
+                    if (noise != null) {
+                        noise.Flags |= SoundInstanceFlags.Looped;
+                    }
+                }
             } else {
                 targetPos = originPos;
+                returning = true;
             }
         }
     }

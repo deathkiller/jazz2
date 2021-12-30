@@ -36,6 +36,10 @@ namespace Jazz2.Actors.Enemies
         {
             CollisionFlags &= ~CollisionFlags.ApplyGravitation;
 
+            if (!levelHandler.ReduxMode) {
+                CollisionFlags &= ~CollisionFlags.CollideWithTileset;
+            }
+
             SetHealthByDifficulty(1);
             scoreValue = 100;
 
@@ -84,8 +88,8 @@ namespace Jazz2.Actors.Enemies
                 }
             } else {
                 if (state == StateAttacking) {
-                    speedX += direction.X * 0.12f * timeMult;
-                    speedY += direction.Y * 0.12f * timeMult;
+                    speedX += direction.X * 0.11f * timeMult;
+                    speedY += direction.Y * 0.11f * timeMult;
                 } else if (state == StateBraking) {
                     speedX *= 0.96f / timeMult;
                     speedY *= 0.96f / timeMult;

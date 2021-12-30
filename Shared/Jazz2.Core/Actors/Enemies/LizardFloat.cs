@@ -61,6 +61,10 @@ namespace Jazz2.Actors.Enemies
 
             CollisionFlags &= ~CollisionFlags.ApplyGravitation;
 
+            if (!levelHandler.ReduxMode) {
+                CollisionFlags &= ~CollisionFlags.CollideWithTileset;
+            }
+
             SetHealthByDifficulty(1);
             scoreValue = 200;
 
