@@ -1637,10 +1637,6 @@ namespace Jazz2.Actors
                         speedX = externalForceX = 0f;
                     }
 
-                    if (!levelHandler.ReduxMode) {
-                        canDoubleJump = true;
-                    }
-
                     // Move downwards until we're on the standard height
                     while (tiles.GetTileSuspendState(pos.X, pos.Y /*- 5*/- 1) != SuspendType.None) {
                         MoveInstantly(new Vector2(0f, 1f), MoveType.Relative, true);
@@ -2110,10 +2106,6 @@ namespace Jazz2.Actors
                         currentVine = vine;
                         suspendType = SuspendType.SwingingVine;
                         CollisionFlags &= ~CollisionFlags.ApplyGravitation;
-
-                        if (!levelHandler.ReduxMode) {
-                            canDoubleJump = true;
-                        }
                     }
                     break;
                 }

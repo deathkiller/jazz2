@@ -253,6 +253,8 @@ namespace Jazz2.Game
 
             // Common sounds
             commonResources = ContentResolver.Current.RequestMetadata("Common/Scenery");
+
+            eventMap.PreloadEvents();
         }
 
         protected override void OnDisposing(bool manually)
@@ -451,8 +453,6 @@ namespace Jazz2.Game
             GameObject tilemapHandler = new GameObject();
             tilemapHandler.Parent = rootObject;
             tilemapHandler.AddComponent(tileMap);
-
-            eventMap.PreloadEvents();
 
 #if !DISABLE_SOUND
             // Load default music
