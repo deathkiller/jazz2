@@ -9,6 +9,23 @@ namespace Jazz2.Actors.Enemies
         private float phase;
         private Vector2 originPos;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Enemy/SuckerFloat");
+            PreloadMetadata("Enemy/Sucker");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new SuckerFloat();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private SuckerFloat()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             originPos = new Vector2(details.Pos.X, details.Pos.Y);

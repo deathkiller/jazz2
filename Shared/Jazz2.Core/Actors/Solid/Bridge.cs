@@ -19,7 +19,9 @@ namespace Jazz2.Actors.Solid
             StoneRed = 3,
             Log = 4,
             Gem = 5,
-            Lab = 6
+            Lab = 6,
+
+            Last = Lab
         }
 
         private static readonly int[][] PieceWidths = {
@@ -41,11 +43,32 @@ namespace Jazz2.Actors.Solid
         private List<ActorBase> collisions = new List<ActorBase>();
         private Player lastPlayer;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            BridgeType bridgeType = (BridgeType)details.Params[1];
+            if (bridgeType > BridgeType.Last) {
+                bridgeType = BridgeType.Rope;
+            }
+
+            PreloadMetadata("Bridge/" + bridgeType.ToString("G"));
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Bridge();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Bridge()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             bridgeWidth = details.Params[0];
             bridgeType = (BridgeType)details.Params[1];
-            if (bridgeType > BridgeType.Lab) {
+            if (bridgeType > BridgeType.Last) {
                 bridgeType = BridgeType.Rope;
             }
 

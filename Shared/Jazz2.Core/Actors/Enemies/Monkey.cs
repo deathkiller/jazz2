@@ -13,6 +13,22 @@ namespace Jazz2.Actors.Enemies
         private bool isWalking;
         private bool stuck;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Enemy/Monkey");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Monkey();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Monkey()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             isWalking = (details.Params[0] != 0);

@@ -11,6 +11,22 @@ namespace Jazz2.Actors.Environment
         private bool setLaps;
         private bool fast;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Object/BonusWarp");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new BonusWarp();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private BonusWarp()
+        {
+        }
+
         public ushort Cost => cost;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)

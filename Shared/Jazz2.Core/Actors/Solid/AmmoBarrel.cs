@@ -8,6 +8,24 @@ namespace Jazz2.Actors.Solid
 {
     public class AmmoBarrel : GenericContainer
     {
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Object/BarrelContainer");
+
+            // ToDo: Preload also its content
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new AmmoBarrel();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private AmmoBarrel()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             Movable = true;

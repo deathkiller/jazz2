@@ -19,6 +19,22 @@ namespace Jazz2.Actors.Enemies
 
         private SoundInstance noise;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Enemy/Dragonfly");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Dragonfly();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Dragonfly()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             CollisionFlags &= ~CollisionFlags.ApplyGravitation;

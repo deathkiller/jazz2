@@ -45,7 +45,7 @@ namespace Jazz2.Actors.Solid
             Vector3 pos = Transform.Pos;
 
             for (uint i = 0; i < count; ++i) {
-                ActorBase actor = levelHandler.EventSpawner.SpawnEvent(ActorInstantiationFlags.None, type, pos + new Vector3(0f, 0f, 10f), eventParams);
+                ActorBase actor = levelHandler.EventSpawner.SpawnEvent(type, eventParams, ActorInstantiationFlags.None, pos + new Vector3(0f, 0f, 10f));
                 if (actor != null) {
                     StoreActor(actor);
                 }

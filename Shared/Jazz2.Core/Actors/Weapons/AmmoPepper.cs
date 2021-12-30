@@ -12,6 +12,17 @@ namespace Jazz2.Actors.Weapons
 
         public override WeaponType WeaponType => WeaponType.Pepper;
 
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new AmmoPepper();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        public AmmoPepper()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             await base.OnActivatedAsync(details);

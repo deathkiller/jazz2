@@ -20,6 +20,22 @@ namespace Jazz2.Actors.Bosses
         private float stateTime;
         private int shots;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Boss/Robot");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Robot();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Robot()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             scoreValue = 2000;

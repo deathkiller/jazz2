@@ -12,6 +12,22 @@ namespace Jazz2.Actors.Enemies
         private float attackTime;
         private bool stuck;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Enemy/MadderHatter");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new MadderHatter();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private MadderHatter()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             SetHealthByDifficulty(3);

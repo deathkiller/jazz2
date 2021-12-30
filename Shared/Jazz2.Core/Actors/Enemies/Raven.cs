@@ -12,6 +12,22 @@ namespace Jazz2.Actors.Enemies
         private float attackTime = 160f;
         private bool attacking;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Enemy/Raven");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Raven();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Raven()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             CollisionFlags &= ~CollisionFlags.ApplyGravitation;

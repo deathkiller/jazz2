@@ -15,6 +15,22 @@ namespace Jazz2.Actors.Solid
 
         private MorphType morphType;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Object/PowerUpMonitor");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new PowerUpMorphMonitor();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private PowerUpMorphMonitor()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             morphType = (MorphType)details.Params[0];

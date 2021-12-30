@@ -12,6 +12,33 @@ namespace Jazz2.Actors.Enemies
         private float noiseCooldown = 120f;
         private bool stuck;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            ushort theme = details.Params[0];
+
+            switch (theme) {
+                case 0:
+                default:
+                    PreloadMetadata("Enemy/Doggy");
+                    break;
+
+                case 1: // TSF Cat
+                    PreloadMetadata("Enemy/Cat");
+                    break;
+            }
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Doggy();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Doggy()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             Vector3 pos = Transform.Pos;

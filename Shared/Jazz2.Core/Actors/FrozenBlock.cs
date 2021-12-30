@@ -7,6 +7,22 @@ namespace Jazz2.Actors
     {
         private float timeLeft = 250f;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Object/FrozenBlock");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new FrozenBlock();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        public FrozenBlock()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             CollisionFlags = CollisionFlags.CollideWithOtherActors;

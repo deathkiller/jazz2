@@ -8,6 +8,33 @@ namespace Jazz2.Actors.Environment
         private ushort theme;
         private bool activated;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            ushort theme = details.Params[0];
+
+            switch (theme) {
+                case 0:
+                default:
+                    PreloadMetadata("Object/Checkpoint");
+                    break;
+
+                case 1: // Xmas
+                    PreloadMetadata("Object/CheckpointXmas");
+                    break;
+            }
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Checkpoint();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Checkpoint()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             canBeFrozen = false;

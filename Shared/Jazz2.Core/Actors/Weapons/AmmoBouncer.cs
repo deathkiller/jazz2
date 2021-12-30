@@ -16,6 +16,17 @@ namespace Jazz2.Actors.Weapons
 
         public override WeaponType WeaponType => WeaponType.Bouncer;
 
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new AmmoBouncer();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        public AmmoBouncer()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             await base.OnActivatedAsync(details);

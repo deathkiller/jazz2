@@ -8,6 +8,22 @@ namespace Jazz2.Actors.Solid
     {
         private WeaponType weaponType;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Object/PowerUpMonitor");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new PowerUpWeaponMonitor();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private PowerUpWeaponMonitor()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             weaponType = (WeaponType)details.Params[0];

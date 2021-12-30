@@ -1,13 +1,23 @@
 ﻿using System.Threading.Tasks;
 using Duality;
 using Duality.Components;
-using Jazz2.Game;
 using Jazz2.Game.Components;
 
 namespace Jazz2.Actors.Lighting
 {
     public class IlluminateLight : ActorBase
     {
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new IlluminateLight();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private IlluminateLight()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             ushort size = details.Params[0];

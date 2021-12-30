@@ -5,6 +5,22 @@ namespace Jazz2.Actors.Collectibles
 {
     public class CarrotInvincibleCollectible : Collectible
     {
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Collectible/CarrotInvincible");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new CarrotInvincibleCollectible();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private CarrotInvincibleCollectible()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             await base.OnActivatedAsync(details);

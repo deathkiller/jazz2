@@ -9,6 +9,22 @@ namespace Jazz2.Actors.Enemies
     {
         private const float DefaultSpeed = -2f;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Enemy/Sparks");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Sparks();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Sparks()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             CollisionFlags = CollisionFlags.CollideWithOtherActors;

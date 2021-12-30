@@ -16,6 +16,22 @@ namespace Jazz2.Actors.Enemies
         private float attackCooldown = 60f;
         private Vector2 direction;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Enemy/Fish");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Fish();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Fish()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             CollisionFlags &= ~CollisionFlags.ApplyGravitation;

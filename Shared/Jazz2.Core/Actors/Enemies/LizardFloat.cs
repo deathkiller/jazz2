@@ -17,6 +17,33 @@ namespace Jazz2.Actors.Enemies
 
         private ushort theme;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            ushort theme = details.Params[0];
+
+            switch (theme) {
+                case 0:
+                default:
+                    PreloadMetadata("Enemy/LizardFloat");
+                    break;
+
+                case 1: // Xmas
+                    PreloadMetadata("Enemy/LizardFloatXmas");
+                    break;
+            }
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new LizardFloat();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private LizardFloat()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             theme = details.Params[0];

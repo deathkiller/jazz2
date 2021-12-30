@@ -16,6 +16,22 @@ namespace Jazz2.Actors.Enemies
         private int smokesLeft;
         private float attackTime;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Enemy/Caterpillar");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Caterpillar();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Caterpillar()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             canBeFrozen = false;

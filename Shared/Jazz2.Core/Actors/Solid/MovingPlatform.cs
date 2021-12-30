@@ -32,6 +32,24 @@ namespace Jazz2.Actors.Solid
         private Vector3 originPos, lastPos;
         private ChainPiece[] pieces;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PlatformType type = (PlatformType)details.Params[0];
+
+            PreloadMetadata("MovingPlatform/" + type.ToString("G"));
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new MovingPlatform();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private MovingPlatform()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             originPos = Transform.Pos;

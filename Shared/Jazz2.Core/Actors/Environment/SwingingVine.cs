@@ -12,6 +12,22 @@ namespace Jazz2.Actors.Environment
         private float phase;
         private float angle;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Object/SwingingVine");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new SwingingVine();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private SwingingVine()
+        {
+        }
+
         public Vector2 AttachPoint
         {
             get

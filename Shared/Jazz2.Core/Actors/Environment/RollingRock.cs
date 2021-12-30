@@ -22,6 +22,22 @@ namespace Jazz2.Actors.Environment
         private SpeedUpDirection speedUpDirection;
         private float speedUpDirectionCooldown;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Object/RollingRock");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new RollingRock();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private RollingRock()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             id = details.Params[0];

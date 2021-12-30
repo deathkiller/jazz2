@@ -1,11 +1,26 @@
 ﻿using System.Threading.Tasks;
-using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Collectibles
 {
     public class GemCollectible : Collectible
     {
         private ushort gemType;
+
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Collectible/Gems");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new GemCollectible();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private GemCollectible()
+        {
+        }
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {

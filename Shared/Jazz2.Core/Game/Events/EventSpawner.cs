@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Reflection;
 using Duality;
 using Jazz2.Actors;
 using Jazz2.Actors.Bosses;
@@ -15,189 +14,190 @@ namespace Jazz2.Game.Events
 {
     public class EventSpawner
     {
-        public delegate ActorBase SpawnFunction(ActorInstantiationFlags flags, float x, float y, float z, ushort[] spawnParams);
+        public delegate ActorBase CreateFunction(ActorActivationDetails details);
+
+        public delegate void PreloadFunction(ActorActivationDetails details);
+
+        private struct SpawnableEvent
+        {
+            public CreateFunction CreateFunction;
+            public PreloadFunction PreloadFunction;
+        }
 
         private readonly ILevelHandler levelHandler;
-        private Dictionary<EventType, SpawnFunction> spawnableEvents;
+        private readonly Dictionary<EventType, SpawnableEvent> spawnableEvents = new Dictionary<EventType, SpawnableEvent>();
 
         public EventSpawner(ILevelHandler levelHandler)
         {
             this.levelHandler = levelHandler;
 
-            InitializeSpawnableList();
+            RegisterKnownSpawnables();
         }
 
-        private void InitializeSpawnableList()
+        private void RegisterKnownSpawnables()
         {
-            spawnableEvents = new Dictionary<EventType, SpawnFunction>();
-
             // Basic
-            RegisterSpawnable<Checkpoint>(EventType.Checkpoint);
+            RegisterSpawnable(EventType.Checkpoint, Checkpoint.Create, Checkpoint.Preload);
 
             // Area
-            RegisterSpawnable<AmbientSound>(EventType.AreaAmbientSound);
-            RegisterSpawnable<AmbientBubbles>(EventType.AreaAmbientBubbles);
+            RegisterSpawnable(EventType.AreaAmbientSound, AmbientSound.Create, AmbientSound.Preload);
+            RegisterSpawnable(EventType.AreaAmbientBubbles, AmbientBubbles.Create, AmbientBubbles.Preload);
 
             // Triggers
-            RegisterSpawnable<TriggerCrate>(EventType.TriggerCrate);
+            RegisterSpawnable(EventType.TriggerCrate, TriggerCrate.Create, TriggerCrate.Preload);
 
             // Warp
-            RegisterSpawnable<BonusWarp>(EventType.WarpCoinBonus);
+            RegisterSpawnable(EventType.WarpCoinBonus, BonusWarp.Create, BonusWarp.Preload);
 
             // Lights
-            RegisterSpawnable<StaticRadialLight>(EventType.LightSteady);
-            RegisterSpawnable<PulsatingRadialLight>(EventType.LightPulse);
-            RegisterSpawnable<FlickerLight>(EventType.LightFlicker);
-            RegisterSpawnable<IlluminateLight>(EventType.LightIlluminate);
+            RegisterSpawnable(EventType.LightSteady, StaticRadialLight.Create);
+            RegisterSpawnable(EventType.LightPulse, PulsatingRadialLight.Create);
+            RegisterSpawnable(EventType.LightFlicker, FlickerLight.Create);
+            RegisterSpawnable(EventType.LightIlluminate, IlluminateLight.Create);
 
             // Environment
-            RegisterSpawnable<Spring>(EventType.Spring);
-            RegisterSpawnable<Bridge>(EventType.Bridge);
-            RegisterSpawnable<MovingPlatform>(EventType.MovingPlatform);
-            RegisterSpawnable<SpikeBall>(EventType.SpikeBall);
-            RegisterSpawnable<PushBox>(EventType.PushableBox);
-            RegisterSpawnable<Eva>(EventType.Eva);
-            RegisterSpawnable<Pole>(EventType.Pole);
-            RegisterSpawnable<SignEol>(EventType.SignEOL);
-            RegisterSpawnable<Moth>(EventType.Moth);
-            RegisterSpawnable<SteamNote>(EventType.SteamNote);
-            RegisterSpawnable<Bomb>(EventType.Bomb);
-            RegisterSpawnable<PinballBumper>(EventType.PinballBumper);
-            RegisterSpawnable<PinballPaddle>(EventType.PinballPaddle);
+            RegisterSpawnable(EventType.Spring, Spring.Create, Spring.Preload);
+            RegisterSpawnable(EventType.Bridge, Bridge.Create, Bridge.Preload);
+            RegisterSpawnable(EventType.MovingPlatform, MovingPlatform.Create, MovingPlatform.Preload);
+            RegisterSpawnable(EventType.SpikeBall, SpikeBall.Create, SpikeBall.Preload);
+            RegisterSpawnable(EventType.PushableBox, PushBox.Create, PushBox.Preload);
+            RegisterSpawnable(EventType.Eva, Eva.Create, Eva.Preload);
+            RegisterSpawnable(EventType.Pole, Pole.Create, Pole.Preload);
+            RegisterSpawnable(EventType.SignEOL, SignEol.Create, SignEol.Preload);
+            RegisterSpawnable(EventType.Moth, Moth.Create, Moth.Preload);
+            RegisterSpawnable(EventType.SteamNote, SteamNote.Create, SteamNote.Preload);
+            RegisterSpawnable(EventType.Bomb, Bomb.Create, Bomb.Preload);
+            RegisterSpawnable(EventType.PinballBumper, PinballBumper.Create, PinballBumper.Preload);
+            RegisterSpawnable(EventType.PinballPaddle, PinballPaddle.Create, PinballPaddle.Preload);
 
             // Enemies
-            RegisterSpawnable<Turtle>(EventType.EnemyTurtle);
-            RegisterSpawnable<Lizard>(EventType.EnemyLizard);
-            RegisterSpawnable<LizardFloat>(EventType.EnemyLizardFloat);
-            RegisterSpawnable<Dragon>(EventType.EnemyDragon);
-            RegisterSpawnable<SuckerFloat>(EventType.EnemySuckerFloat);
-            RegisterSpawnable<Sucker>(EventType.EnemySucker);
-            RegisterSpawnable<LabRat>(EventType.EnemyLabRat);
-            RegisterSpawnable<Helmut>(EventType.EnemyHelmut);
-            RegisterSpawnable<Bat>(EventType.EnemyBat);
-            RegisterSpawnable<FatChick>(EventType.EnemyFatChick);
-            RegisterSpawnable<Fencer>(EventType.EnemyFencer);
-            RegisterSpawnable<Rapier>(EventType.EnemyRapier);
-            RegisterSpawnable<Sparks>(EventType.EnemySparks);
-            RegisterSpawnable<Monkey>(EventType.EnemyMonkey);
-            RegisterSpawnable<Demon>(EventType.EnemyDemon);
-            RegisterSpawnable<Bee>(EventType.EnemyBee);
-            //RegisterSpawnable<BeeSwarm>(EventType.EnemyBeeSwarm);
-            RegisterSpawnable<Caterpillar>(EventType.EnemyCaterpillar);
-            RegisterSpawnable<Crab>(EventType.EnemyCrab);
-            RegisterSpawnable<Doggy>(EventType.EnemyDoggy);
-            RegisterSpawnable<Dragonfly>(EventType.EnemyDragonfly);
-            RegisterSpawnable<Fish>(EventType.EnemyFish);
-            RegisterSpawnable<MadderHatter>(EventType.EnemyMadderHatter);
-            RegisterSpawnable<Raven>(EventType.EnemyRaven);
-            RegisterSpawnable<Skeleton>(EventType.EnemySkeleton);
-            RegisterSpawnable<Actors.Enemies.TurtleTough>(EventType.EnemyTurtleTough);
-            RegisterSpawnable<TurtleTube>(EventType.EnemyTurtleTube);
-            RegisterSpawnable<Witch>(EventType.EnemyWitch);
+            RegisterSpawnable(EventType.EnemyTurtle, Turtle.Create, Turtle.Preload);
+            RegisterSpawnable(EventType.EnemyLizard, Lizard.Create, Lizard.Preload);
+            RegisterSpawnable(EventType.EnemyLizardFloat, LizardFloat.Create, LizardFloat.Preload);
+            RegisterSpawnable(EventType.EnemyDragon, Dragon.Create, Dragon.Preload);
+            RegisterSpawnable(EventType.EnemySuckerFloat, SuckerFloat.Create, SuckerFloat.Preload);
+            RegisterSpawnable(EventType.EnemySucker, Sucker.Create, Sucker.Preload);
+            RegisterSpawnable(EventType.EnemyLabRat, LabRat.Create, LabRat.Preload);
+            RegisterSpawnable(EventType.EnemyHelmut, Helmut.Create, Helmut.Preload);
+            RegisterSpawnable(EventType.EnemyBat, Bat.Create, Bat.Preload);
+            RegisterSpawnable(EventType.EnemyFatChick, FatChick.Create, FatChick.Preload);
+            RegisterSpawnable(EventType.EnemyFencer, Fencer.Create, Fencer.Preload);
+            RegisterSpawnable(EventType.EnemyRapier, Rapier.Create, Rapier.Preload);
+            RegisterSpawnable(EventType.EnemySparks, Sparks.Create, Sparks.Preload);
+            RegisterSpawnable(EventType.EnemyMonkey, Monkey.Create, Monkey.Preload);
+            RegisterSpawnable(EventType.EnemyDemon, Demon.Create, Demon.Preload);
+            RegisterSpawnable(EventType.EnemyBee, Bee.Create, Bee.Preload);
+            //RegisterSpawnable(EventType.EnemyBeeSwarm, BeeSwarm.Create, BeeSwarm.Preload);
+            RegisterSpawnable(EventType.EnemyCaterpillar, Caterpillar.Create, Caterpillar.Preload);
+            RegisterSpawnable(EventType.EnemyCrab, Crab.Create, Crab.Preload);
+            RegisterSpawnable(EventType.EnemyDoggy, Doggy.Create, Doggy.Preload);
+            RegisterSpawnable(EventType.EnemyDragonfly, Dragonfly.Create, Dragonfly.Preload);
+            RegisterSpawnable(EventType.EnemyFish, Fish.Create, Fish.Preload);
+            RegisterSpawnable(EventType.EnemyMadderHatter, MadderHatter.Create, MadderHatter.Preload);
+            RegisterSpawnable(EventType.EnemyRaven, Raven.Create, Raven.Preload);
+            RegisterSpawnable(EventType.EnemySkeleton, Skeleton.Create, Skeleton.Preload);
+            RegisterSpawnable(EventType.EnemyTurtleTough, TurtleTough.Create, TurtleTough.Preload);
+            RegisterSpawnable(EventType.EnemyTurtleTube, TurtleTube.Create, TurtleTube.Preload);
+            RegisterSpawnable(EventType.EnemyWitch, Witch.Create, Witch.Preload);
 
-            RegisterSpawnable<TurtleShell>(EventType.TurtleShell);
+            RegisterSpawnable(EventType.TurtleShell, TurtleShell.Create, TurtleShell.Preload);
 
-            RegisterSpawnable<Bilsy>(EventType.BossBilsy);
-            RegisterSpawnable<Devan>(EventType.BossDevan);
-            RegisterSpawnable<DevanRemote>(EventType.BossDevanRemote);
-            RegisterSpawnable<Queen>(EventType.BossQueen);
-            RegisterSpawnable<Robot>(EventType.BossRobot);
-            RegisterSpawnable<Tweedle>(EventType.BossTweedle);
-            RegisterSpawnable<Uterus>(EventType.BossUterus);
-            RegisterSpawnable<Actors.Bosses.TurtleTough>(EventType.BossTurtleTough);
-            RegisterSpawnable<Bubba>(EventType.BossBubba);
-            RegisterSpawnable<Bolly>(EventType.BossBolly);
+            RegisterSpawnable(EventType.BossBilsy, Bilsy.Create, Bilsy.Preload);
+            RegisterSpawnable(EventType.BossDevan, Devan.Create, Devan.Preload);
+            RegisterSpawnable(EventType.BossDevanRemote, DevanRemote.Create, DevanRemote.Preload);
+            RegisterSpawnable(EventType.BossQueen, Queen.Create, Queen.Preload);
+            RegisterSpawnable(EventType.BossRobot, Robot.Create, Robot.Preload);
+            RegisterSpawnable(EventType.BossTweedle, Tweedle.Create, Tweedle.Preload);
+            RegisterSpawnable(EventType.BossUterus, Uterus.Create, Uterus.Preload);
+            RegisterSpawnable(EventType.BossTurtleTough, TurtleToughBoss.Create, TurtleToughBoss.Preload);
+            RegisterSpawnable(EventType.BossBubba, Bubba.Create, Bubba.Preload);
+            RegisterSpawnable(EventType.BossBolly, Bolly.Create, Bolly.Preload);
 
             // Collectibles
-            RegisterSpawnable<GemCollectible>(EventType.Gem);
-            RegisterSpawnable<CoinCollectible>(EventType.Coin);
-            RegisterSpawnable<CarrotCollectible>(EventType.Carrot);
-            RegisterSpawnable<CarrotFlyCollectible>(EventType.CarrotFly);
-            RegisterSpawnable<CarrotInvincibleCollectible>(EventType.CarrotInvincible);
-            RegisterSpawnable<OneUpCollectible>(EventType.OneUp);
-            RegisterSpawnable<FastFireCollectible>(EventType.FastFire);
+            RegisterSpawnable(EventType.Gem, GemCollectible.Create, GemCollectible.Preload);
+            RegisterSpawnable(EventType.Coin, CoinCollectible.Create, CoinCollectible.Preload);
+            RegisterSpawnable(EventType.Carrot, CarrotCollectible.Create, CarrotCollectible.Preload);
+            RegisterSpawnable(EventType.CarrotFly, CarrotFlyCollectible.Create, CarrotFlyCollectible.Preload);
+            RegisterSpawnable(EventType.CarrotInvincible, CarrotInvincibleCollectible.Create, CarrotInvincibleCollectible.Preload);
+            RegisterSpawnable(EventType.OneUp, OneUpCollectible.Create, OneUpCollectible.Preload);
+            RegisterSpawnable(EventType.FastFire, FastFireCollectible.Create, FastFireCollectible.Preload);
 
-            RegisterSpawnable<AmmoCrate>(EventType.CrateAmmo);
-            RegisterSpawnable<AmmoBarrel>(EventType.BarrelAmmo);
-            RegisterSpawnable<CrateContainer>(EventType.Crate);
-            RegisterSpawnable<BarrelContainer>(EventType.Barrel);
-            RegisterSpawnable<GemCrate>(EventType.CrateGem);
-            RegisterSpawnable<GemBarrel>(EventType.BarrelGem);
-            RegisterSpawnable<GemGiant>(EventType.GemGiant);
-            RegisterSpawnable<GemRing>(EventType.GemRing);
+            RegisterSpawnable(EventType.CrateAmmo, AmmoCrate.Create, AmmoCrate.Preload);
+            RegisterSpawnable(EventType.BarrelAmmo, AmmoBarrel.Create, AmmoBarrel.Preload);
+            RegisterSpawnable(EventType.Crate, CrateContainer.Create, CrateContainer.Preload);
+            RegisterSpawnable(EventType.Barrel, BarrelContainer.Create, BarrelContainer.Preload);
+            RegisterSpawnable(EventType.CrateGem, GemCrate.Create, GemCrate.Preload);
+            RegisterSpawnable(EventType.BarrelGem, GemBarrel.Create, GemBarrel.Preload);
+            RegisterSpawnable(EventType.GemGiant, GemGiant.Create, GemGiant.Preload);
+            RegisterSpawnable(EventType.GemRing, GemRing.Create, GemRing.Preload);
 
-            RegisterSpawnable<PowerUpMorphMonitor>(EventType.PowerUpMorph);
-            RegisterSpawnable<BirdCage>(EventType.BirdCage);
+            RegisterSpawnable(EventType.PowerUpMorph, PowerUpMorphMonitor.Create, PowerUpMorphMonitor.Preload);
+            RegisterSpawnable(EventType.BirdCage, BirdCage.Create, BirdCage.Preload);
 
-            RegisterSpawnable<AirboardGenerator>(EventType.AirboardGenerator);
-            RegisterSpawnable<Copter>(EventType.Copter);
+            RegisterSpawnable(EventType.AirboardGenerator, AirboardGenerator.Create, AirboardGenerator.Preload);
+            RegisterSpawnable(EventType.Copter, Copter.Create, Copter.Preload);
 
-            RegisterSpawnable<RollingRock>(EventType.RollingRock);
-            RegisterSpawnable<SwingingVine>(EventType.SwingingVine);
+            RegisterSpawnable(EventType.RollingRock, RollingRock.Create, RollingRock.Preload);
+            RegisterSpawnable(EventType.SwingingVine, SwingingVine.Create, SwingingVine.Preload);
 
-            RegisterSpawnable<PowerUpShieldMonitor>(EventType.PowerUpShield);
-            RegisterSpawnable<Stopwatch>(EventType.Stopwatch);
+            RegisterSpawnable(EventType.PowerUpShield, PowerUpShieldMonitor.Create, PowerUpShieldMonitor.Preload);
+            RegisterSpawnable(EventType.Stopwatch, Stopwatch.Create, Stopwatch.Preload);
 
-            RegisterSpawnable<AmmoCollectible>(EventType.Ammo);
-            RegisterSpawnable<PowerUpWeaponMonitor>(EventType.PowerUpWeapon);
-            RegisterSpawnable<FoodCollectible>(EventType.Food);
+            RegisterSpawnable(EventType.Ammo, AmmoCollectible.Create, AmmoCollectible.Preload);
+            RegisterSpawnable(EventType.PowerUpWeapon, PowerUpWeaponMonitor.Create, PowerUpWeaponMonitor.Preload);
+            RegisterSpawnable(EventType.Food, FoodCollectible.Create, FoodCollectible.Preload);
 
 
             // Multiplayer-only remotable actors
-            RegisterSpawnable<AmmoBlaster>(EventType.WeaponBlaster);
-            RegisterSpawnable<AmmoBouncer>(EventType.WeaponBouncer);
-            RegisterSpawnable<AmmoElectro>(EventType.WeaponElectro);
-            RegisterSpawnable<AmmoFreezer>(EventType.WeaponFreezer);
-            RegisterSpawnable<AmmoPepper>(EventType.WeaponPepper);
-            RegisterSpawnable<AmmoRF>(EventType.WeaponRF);
-            RegisterSpawnable<AmmoSeeker>(EventType.WeaponSeeker);
-            RegisterSpawnable<AmmoThunderbolt>(EventType.WeaponThunderbolt);
-            RegisterSpawnable<AmmoTNT>(EventType.WeaponTNT);
-            RegisterSpawnable<AmmoToaster>(EventType.WeaponToaster);
+            RegisterSpawnable(EventType.WeaponBlaster, AmmoBlaster.Create);
+            RegisterSpawnable(EventType.WeaponBouncer, AmmoBouncer.Create);
+            RegisterSpawnable(EventType.WeaponElectro, AmmoElectro.Create);
+            RegisterSpawnable(EventType.WeaponFreezer, AmmoFreezer.Create);
+            RegisterSpawnable(EventType.WeaponPepper, AmmoPepper.Create);
+            RegisterSpawnable(EventType.WeaponRF, AmmoRF.Create);
+            RegisterSpawnable(EventType.WeaponSeeker, AmmoSeeker.Create);
+            RegisterSpawnable(EventType.WeaponThunderbolt, AmmoThunderbolt.Create);
+            RegisterSpawnable(EventType.WeaponTNT, AmmoTNT.Create);
+            RegisterSpawnable(EventType.WeaponToaster, AmmoToaster.Create);
         }
 
-        public ActorBase SpawnEvent(ActorInstantiationFlags flags, EventType type, int x, int y, float z, ushort[] spawnParams)
+        public void PreloadEvent(EventType type, ushort[] spawnParams)
         {
-            return SpawnEvent(flags, type, new Vector3(x * 32 + 16, y * 32 + 16, z), spawnParams);
+            if (!spawnableEvents.TryGetValue(type, out var e) || e.PreloadFunction == null) {
+                return;
+            }
+
+            e.PreloadFunction(new ActorActivationDetails {
+                LevelHandler = levelHandler,
+                Params = spawnParams
+            });
         }
 
-        public ActorBase SpawnEvent(ActorInstantiationFlags flags, EventType type, Vector3 pos, ushort[] spawnParams)
+        public ActorBase SpawnEvent(EventType type, ushort[] spawnParams, ActorInstantiationFlags flags, int x, int y, float z)
         {
-            SpawnFunction f;
-            if (!spawnableEvents.TryGetValue(type, out f)) {
+            return SpawnEvent(type, spawnParams, flags, new Vector3(x * 32 + 16, y * 32 + 16, z));
+        }
+
+        public ActorBase SpawnEvent(EventType type, ushort[] spawnParams, ActorInstantiationFlags flags, Vector3 pos)
+        {
+            if (!spawnableEvents.TryGetValue(type, out var e)) {
                 return null;
             }
 
-            return f(flags, pos.X, pos.Y, pos.Z, spawnParams);
-        }
-
-        public void RegisterSpawnable(EventType type, SpawnFunction spawner)
-        {
-            spawnableEvents.Add(type, spawner);
-        }
-
-        public void RegisterSpawnable<T>(EventType type) where T : ActorBase, new()
-        {
-            spawnableEvents.Add(type, CreateCommonActorEvent<T>);
-        }
-
-        public void RegisterSpawnable<T>(EventType type, params ushort[] spawnParams) where T : ActorBase, new()
-        {
-            spawnableEvents.Add(type, (fromEventMap, x, y, z, p) => {
-                return CreateCommonActorEvent<T>(fromEventMap, x, y, z, spawnParams);
-            });
-        }
-
-        private ActorBase CreateCommonActorEvent<T>(ActorInstantiationFlags flags, float x, float y, float z, params ushort[] spawnParams) where T : ActorBase
-        {
-            T actor = typeof(T).GetTypeInfo().CreateInstanceOf() as T;
-            actor.OnActivated(new ActorActivationDetails {
+            return e.CreateFunction(new ActorActivationDetails {
                 LevelHandler = levelHandler,
-                Pos = new Vector3(x, y, z),
+                Pos = pos,
                 Flags = flags,
                 Params = spawnParams
             });
-            return actor;
+        }
+
+        private void RegisterSpawnable(EventType type, CreateFunction create, PreloadFunction preload = null)
+        {
+            spawnableEvents.Add(type, new SpawnableEvent {
+                CreateFunction = create,
+                PreloadFunction = preload
+            });
         }
     }
 }

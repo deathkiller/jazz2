@@ -10,6 +10,22 @@ namespace Jazz2.Actors.Environment
         private float timeLeft;
         private bool active;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Object/Airboard");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new AirboardGenerator();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private AirboardGenerator()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             delay = details.Params[0];

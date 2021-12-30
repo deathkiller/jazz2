@@ -13,6 +13,22 @@ namespace Jazz2.Actors.Enemies
         private bool attacking;
         private float noiseCooldown;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Enemy/Bat");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Bat();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Bat()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             originPos = Transform.Pos;

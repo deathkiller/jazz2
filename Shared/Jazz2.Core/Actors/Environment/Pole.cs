@@ -22,6 +22,31 @@ namespace Jazz2.Actors.Environment
         private float fallTime;
         private int bouncesLeft = BouncesMax;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            ushort theme = details.Params[0];
+
+            switch (theme) {
+                default:
+                case 0: PreloadMetadata("Pole/Carrotus"); break;
+                case 1: PreloadMetadata("Pole/Diamondus"); break;
+                case 2: PreloadMetadata("Pole/DiamondusTree"); break;
+                case 3: PreloadMetadata("Pole/Jungle"); break;
+                case 4: PreloadMetadata("Pole/Psych"); break;
+            }
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Pole();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Pole()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             ushort theme = details.Params[0];

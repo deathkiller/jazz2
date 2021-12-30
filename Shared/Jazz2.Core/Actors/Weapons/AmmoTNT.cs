@@ -18,6 +18,17 @@ namespace Jazz2.Actors.Weapons
 
         public Player Owner => owner;
 
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new AmmoTNT();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        public AmmoTNT()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             CollisionFlags = CollisionFlags.None;

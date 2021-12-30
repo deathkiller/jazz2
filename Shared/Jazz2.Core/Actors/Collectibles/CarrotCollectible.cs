@@ -8,6 +8,28 @@ namespace Jazz2.Actors.Collectibles
     {
         private bool maxCarrot;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            bool maxCarrot = (details.Params[0] != 0);
+
+            if (maxCarrot) {
+                PreloadMetadata("Collectible/CarrotFull");
+            } else {
+                PreloadMetadata("Collectible/Carrot");
+            }
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new CarrotCollectible();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private CarrotCollectible()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             await base.OnActivatedAsync(details);

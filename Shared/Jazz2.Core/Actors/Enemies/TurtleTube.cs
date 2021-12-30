@@ -11,6 +11,22 @@ namespace Jazz2.Actors.Enemies
         private bool onWater;
         private float phase;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Enemy/TurtleTube");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new TurtleTube();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private TurtleTube()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             SetHealthByDifficulty(2);

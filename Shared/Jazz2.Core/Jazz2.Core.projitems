@@ -24,7 +24,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Enemies\Bosses\DevanRemote.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Enemies\Bosses\Queen.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Enemies\Bosses\Robot.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\Enemies\Bosses\TurtleTough.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Enemies\Bosses\TurtleToughBoss.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Enemies\Bosses\Tweedle.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Collectibles\AmmoCollectible.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\Collectibles\CarrotCollectible.cs" />

@@ -5,6 +5,17 @@ namespace Jazz2.Actors.Lighting
 {
     public class StaticRadialLight : ActorBase
     {
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new StaticRadialLight();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private StaticRadialLight()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             ushort intensity = details.Params[0];

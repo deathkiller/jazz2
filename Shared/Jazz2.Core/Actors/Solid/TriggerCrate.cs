@@ -10,6 +10,22 @@ namespace Jazz2.Actors.Solid
         private ushort triggerID;
         private bool? newState;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Object/TriggerCrate");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new TriggerCrate();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private TriggerCrate()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             triggerID = details.Params[0];

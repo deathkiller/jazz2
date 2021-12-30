@@ -19,6 +19,22 @@ namespace Jazz2.Actors.Solid
         private Vector3 originPos;
         private ChainPiece[] pieces;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("MovingPlatform/SpikeBall");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new SpikeBall();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private SpikeBall()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             originPos = Transform.Pos;

@@ -8,6 +8,22 @@ namespace Jazz2.Actors.Environment
     {
         private float animationTime;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Object/Eva");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Eva();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Eva()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             await RequestMetadataAsync("Object/Eva");

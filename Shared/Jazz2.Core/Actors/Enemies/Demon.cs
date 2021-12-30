@@ -11,6 +11,22 @@ namespace Jazz2.Actors.Enemies
         private bool attacking;
         private bool stuck;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Enemy/Demon");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Demon();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Demon()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             SetHealthByDifficulty(2);

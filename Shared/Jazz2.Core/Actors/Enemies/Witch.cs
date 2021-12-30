@@ -13,6 +13,22 @@ namespace Jazz2.Actors.Enemies
         private float attackTime;
         private bool playerHit;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Enemy/Witch");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Witch();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Witch()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             CollisionFlags &= ~CollisionFlags.ApplyGravitation;

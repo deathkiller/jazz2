@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Collectibles
 {
@@ -46,6 +45,22 @@ namespace Jazz2.Actors.Collectibles
         }
 
         private bool isDrinkable;
+
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Collectible/Food" + ((FoodType)details.Params[0]).ToString("G"));
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new FoodCollectible();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private FoodCollectible()
+        {
+        }
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {

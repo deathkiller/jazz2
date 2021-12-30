@@ -11,6 +11,33 @@ namespace Jazz2.Actors.Enemies
         private bool stuck;
         private bool isFalling;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            ushort theme = details.Params[0];
+
+            switch (theme) {
+                case 0:
+                default:
+                    PreloadMetadata("Enemy/Lizard");
+                    break;
+
+                case 1: // Xmas
+                    PreloadMetadata("Enemy/LizardXmas");
+                    break;
+            }
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Lizard();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        public Lizard()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             Vector3 pos = Transform.Pos;

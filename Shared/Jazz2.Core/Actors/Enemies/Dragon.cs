@@ -12,6 +12,23 @@ namespace Jazz2.Actors.Enemies
         private float stateTime;
         private float attackTime;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Enemy/Dragon");
+            PreloadMetadata("Weapon/Toaster");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Dragon();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Dragon()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             SetHealthByDifficulty(1);

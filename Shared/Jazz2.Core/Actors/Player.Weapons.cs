@@ -245,7 +245,7 @@ namespace Jazz2.Actors
         }
 #endif
 
-            private void FireWeaponBlaster()
+        private void FireWeaponBlaster()
         {
             GetFirePointAndAngle(out Vector3 initialPos, out Vector3 gunspotPos, out float angle);
 

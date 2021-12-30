@@ -9,6 +9,22 @@ namespace Jazz2.Actors.Environment
 
         public ExitType ExitType => exitType;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Object/SignEol");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new SignEol();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private SignEol()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             exitType = (ExitType)details.Params[0];

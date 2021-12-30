@@ -20,6 +20,33 @@ namespace Jazz2.Actors.Bosses
 
         private ushort theme, endText;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            ushort theme = details.Params[0];
+
+            switch (theme) {
+                case 0:
+                default:
+                    PreloadMetadata("Boss/Bilsy");
+                    break;
+
+                case 1: // Xmas
+                    PreloadMetadata("Boss/BilsyXmas");
+                    break;
+            }
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Bilsy();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Bilsy()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             theme = details.Params[0];

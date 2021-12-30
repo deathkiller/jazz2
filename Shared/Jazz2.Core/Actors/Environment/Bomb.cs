@@ -7,6 +7,28 @@ namespace Jazz2.Actors.Environment
     {
         private float timeLeft = MathF.Rnd.NextFloat(40f, 90f);
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            ushort theme = details.Params[0];
+
+            switch (theme) {
+                case 0: PreloadMetadata("Object/Bomb"); break;
+                case 1: PreloadMetadata("Enemy/LizardFloat"); break;
+                case 2: PreloadMetadata("Enemy/LizardFloatXmas"); break;
+            }
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Bomb();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        public Bomb()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             ushort theme = details.Params[0];

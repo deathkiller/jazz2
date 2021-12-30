@@ -11,6 +11,22 @@ namespace Jazz2.Actors.Environment
         private ushort speed;
         private float cooldown;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Common/AmbientBubbles");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new AmbientBubbles();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private AmbientBubbles()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             speed = details.Params[0];

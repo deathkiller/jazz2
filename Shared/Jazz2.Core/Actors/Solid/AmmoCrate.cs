@@ -8,6 +8,24 @@ namespace Jazz2.Actors.Solid
 {
     public class AmmoCrate : GenericContainer
     {
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Object/CrateContainer");
+
+            // ToDo: Preload also its content
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new AmmoCrate();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private AmmoCrate()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             Movable = true;

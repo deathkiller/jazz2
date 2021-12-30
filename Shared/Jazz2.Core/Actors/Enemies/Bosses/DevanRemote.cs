@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Duality;
 using Jazz2.Game.Structs;
-using static Duality.Component;
 
 namespace Jazz2.Actors.Bosses
 {
@@ -10,6 +9,22 @@ namespace Jazz2.Actors.Bosses
         private Robot activeRobot;
 
         private ushort introText, endText;
+
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Boss/DevanRemote");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new DevanRemote();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private DevanRemote()
+        {
+        }
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {

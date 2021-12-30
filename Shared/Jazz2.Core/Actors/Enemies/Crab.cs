@@ -13,6 +13,22 @@ namespace Jazz2.Actors.Enemies
         private bool canJumpPrev;
         private bool stuck;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Enemy/Crab");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Crab();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        public Crab()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             SetHealthByDifficulty(3);

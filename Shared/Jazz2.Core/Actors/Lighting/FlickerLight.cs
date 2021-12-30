@@ -5,6 +5,17 @@ namespace Jazz2.Actors.Lighting
 {
     public class FlickerLight : ActorBase
     {
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new FlickerLight();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private FlickerLight()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             ushort intensity = details.Params[0];

@@ -9,6 +9,22 @@ namespace Jazz2.Actors.Enemies
     {
         private double stateTime;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Enemy/Fencer");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Fencer();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Fencer()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             SetHealthByDifficulty(3);

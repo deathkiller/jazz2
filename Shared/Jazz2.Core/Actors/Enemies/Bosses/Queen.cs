@@ -31,6 +31,22 @@ namespace Jazz2.Actors.Bosses
 
         private ushort endText;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Boss/Queen");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Queen();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Queen()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             endText = details.Params[1];

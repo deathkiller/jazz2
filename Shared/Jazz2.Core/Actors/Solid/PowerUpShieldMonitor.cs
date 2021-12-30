@@ -8,6 +8,22 @@ namespace Jazz2.Actors.Solid
     {
         private Player.ShieldType shieldType;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Object/PowerUpMonitorShield");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new PowerUpShieldMonitor();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private PowerUpShieldMonitor()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             shieldType = (Player.ShieldType)details.Params[0];

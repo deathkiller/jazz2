@@ -13,6 +13,22 @@ namespace Jazz2.Actors.Collectibles
         private bool collected;
         private float collectedPhase;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Collectible/Gems");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new GemRing();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private GemRing()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             await base.OnActivatedAsync(details);

@@ -1089,7 +1089,7 @@ namespace Jazz2.Actors
             availableSounds = metadata.Sounds;
         }
 
-        protected void PreloadMetadata(string path)
+        protected static void PreloadMetadata(string path)
         {
             if (string.IsNullOrEmpty(path)) {
                 throw new ArgumentNullException(nameof(path));

@@ -10,6 +10,33 @@ namespace Jazz2.Actors.Environment
         private ushort type;
         private bool activated;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            ushort type = details.Params[0];
+
+            switch (type) {
+                case 0: // Chuck (red)
+                    PreloadMetadata("Object/BirdCageChuck");
+                    PreloadMetadata("Object/BirdChuck");
+                    break;
+                case 1: // Birdy (yellow)
+                    PreloadMetadata("Object/BirdCageBirdy");
+                    PreloadMetadata("Object/BirdBirdy");
+                    break;
+            }
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new BirdCage();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private BirdCage()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             Vector3 pos = Transform.Pos;

@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Duality;
-using Jazz2.Game;
 using Jazz2.Game.Components;
 using Jazz2.Game.Structs;
 
@@ -14,6 +13,17 @@ namespace Jazz2.Actors.Weapons
         private float smokeTimer = 3f;
 
         public override WeaponType WeaponType => WeaponType.RF;
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new AmmoRF();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        public AmmoRF()
+        {
+        }
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {

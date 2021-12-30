@@ -12,6 +12,22 @@ namespace Jazz2.Actors.Enemies
         private double stateTime;
         private bool stuck;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Enemy/Helmut");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Helmut();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Helmut()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             Vector3 pos = Transform.Pos;

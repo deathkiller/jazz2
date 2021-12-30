@@ -14,6 +14,22 @@ namespace Jazz2.Actors.Enemies
         private bool isAttacking;
         private bool stuck;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Enemy/FatChick");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new FatChick();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private FatChick()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             Vector3 pos = Transform.Pos;

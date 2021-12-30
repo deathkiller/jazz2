@@ -452,6 +452,8 @@ namespace Jazz2.Game
             tilemapHandler.Parent = rootObject;
             tilemapHandler.AddComponent(tileMap);
 
+            eventMap.PreloadEvents();
+
 #if !DISABLE_SOUND
             // Load default music
             musicPath = PathOp.Combine(DualityApp.DataDirectory, "Music", json.Description.DefaultMusic);

@@ -6,6 +6,23 @@ namespace Jazz2.Actors.Solid
 {
     public class GemBarrel : GenericContainer
     {
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Object/BarrelContainer");
+            PreloadMetadata("Collectible/Gems");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new GemBarrel();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private GemBarrel()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             Movable = true;

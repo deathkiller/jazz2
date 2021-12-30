@@ -87,7 +87,7 @@ namespace Jazz2.Actors.Enemies
             );
 
             if (drop != EventType.Empty) {
-                ActorBase actor = levelHandler.EventSpawner.SpawnEvent(ActorInstantiationFlags.None, drop, Transform.Pos, new ushort[8]);
+                ActorBase actor = levelHandler.EventSpawner.SpawnEvent(drop, new ushort[8], ActorInstantiationFlags.None, Transform.Pos);
                 levelHandler.AddActor(actor);
             }
         }

@@ -8,6 +8,22 @@ namespace Jazz2.Actors.Environment
 {
     public class PinballPaddle : SolidObjectBase
     {
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Object/PinballPaddle");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new PinballPaddle();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private PinballPaddle()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             IsFacingLeft = (details.Params[0] != 0);

@@ -15,6 +15,22 @@ namespace Jazz2.Actors.Enemies
         private bool attacking;
         private float noiseCooldown = MathF.Rnd.NextFloat(180, 300);
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Enemy/Rapier");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Rapier();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Rapier()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             CollisionFlags = CollisionFlags.CollideWithOtherActors;

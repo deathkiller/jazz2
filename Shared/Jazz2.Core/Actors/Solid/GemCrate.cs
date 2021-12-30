@@ -6,6 +6,23 @@ namespace Jazz2.Actors.Solid
 {
     public class GemCrate : GenericContainer
     {
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Object/CrateContainer");
+            PreloadMetadata("Collectible/Gems");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new GemCrate();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private GemCrate()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             Movable = true;

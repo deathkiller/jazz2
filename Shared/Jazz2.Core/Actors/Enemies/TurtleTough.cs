@@ -10,6 +10,22 @@ namespace Jazz2.Actors.Enemies
 
         private bool stuck;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Enemy/TurtleTough");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new TurtleTough();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private TurtleTough()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             Vector3 pos = Transform.Pos;

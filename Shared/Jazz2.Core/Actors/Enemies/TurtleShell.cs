@@ -10,6 +10,33 @@ namespace Jazz2.Actors.Enemies
     {
         private float lastAngle;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            ushort theme = details.Params[0];
+
+            switch (theme) {
+                case 0:
+                default: // Normal
+                    PreloadMetadata("Enemy/TurtleShell");
+                    break;
+
+                case 1: // Xmas
+                    PreloadMetadata("Enemy/TurtleShellXmas");
+                    break;
+
+                case 2: // Tough (Boss)
+                    PreloadMetadata("Boss/TurtleShellTough");
+                    break;
+            }
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new TurtleShell();
+            actor.OnActivated(details);
+            return actor;
+        }
+
         public TurtleShell()
         {
             CollisionFlags |= CollisionFlags.SkipPerPixelCollisions;

@@ -11,6 +11,22 @@ namespace Jazz2.Actors.Enemies
 
         private bool stuck;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Enemy/Sucker");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Sucker();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        public Sucker()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             LastHitDirection parentLastHitDir = (LastHitDirection)details.Params[0];

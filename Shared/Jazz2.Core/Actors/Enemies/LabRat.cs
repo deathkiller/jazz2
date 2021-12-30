@@ -18,6 +18,22 @@ namespace Jazz2.Actors.Enemies
         private double stateTime;
         private double attackTime;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Enemy/LabRat");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new LabRat();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private LabRat()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             SetHealthByDifficulty(1);

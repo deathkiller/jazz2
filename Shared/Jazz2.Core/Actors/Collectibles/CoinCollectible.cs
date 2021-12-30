@@ -1,11 +1,26 @@
 ﻿using System.Threading.Tasks;
-using Jazz2.Game.Structs;
 
 namespace Jazz2.Actors.Collectibles
 {
     public class CoinCollectible : Collectible
     {
         private int coinValue;
+
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Collectible/Coins");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new CoinCollectible();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private CoinCollectible()
+        {
+        }
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {

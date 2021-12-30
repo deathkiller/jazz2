@@ -7,6 +7,24 @@ namespace Jazz2.Actors.Collectibles
     {
         private WeaponType weaponType;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            WeaponType weaponType = (WeaponType)details.Params[0];
+
+            PreloadMetadata("Collectible/Ammo" + weaponType.ToString("G"));
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new AmmoCollectible();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private AmmoCollectible()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             await base.OnActivatedAsync(details);

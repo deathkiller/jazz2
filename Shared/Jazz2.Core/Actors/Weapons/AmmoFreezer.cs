@@ -16,6 +16,17 @@ namespace Jazz2.Actors.Weapons
 
         public float FrozenDuration => ((upgrades & 0x1) != 0 ? 280f : 180f);
 
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new AmmoFreezer();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        public AmmoFreezer()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             await base.OnActivatedAsync(details);

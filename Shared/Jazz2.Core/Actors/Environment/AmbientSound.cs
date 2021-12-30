@@ -9,6 +9,22 @@ namespace Jazz2.Actors.Environment
     {
         private SoundInstance sound;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Common/AmbientSound");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new AmbientSound();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private AmbientSound()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             // ToDo: Implement Fade:1|Sine:1

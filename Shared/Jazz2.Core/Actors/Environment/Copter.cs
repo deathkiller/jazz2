@@ -9,6 +9,22 @@ namespace Jazz2.Actors.Environment
         private Vector3 originPos;
         private float anglePhase;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Enemy/LizardFloat");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Copter();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Copter()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             await RequestMetadataAsync("Enemy/LizardFloat");

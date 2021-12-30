@@ -4,11 +4,10 @@ using Duality;
 using Duality.Audio;
 using Jazz2.Actors.Enemies;
 using Jazz2.Game.Structs;
-using static Duality.Component;
 
 namespace Jazz2.Actors.Bosses
 {
-    public class TurtleTough : BossBase
+    public class TurtleToughBoss : BossBase
     {
         private const int StateTransition = -1;
         private const int StateWaiting = 0;
@@ -21,6 +20,22 @@ namespace Jazz2.Actors.Bosses
         private Mace currentMace;
 
         private ushort endText;
+
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Boss/TurtleTough");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new TurtleToughBoss();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private TurtleToughBoss()
+        {
+        }
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {

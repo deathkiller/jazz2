@@ -12,6 +12,17 @@ namespace Jazz2.Actors.Lighting
         private float radiusNear1, radiusNear2, radiusFar;
         private float phase, speed;
 
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new PulsatingRadialLight();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private PulsatingRadialLight()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             ushort intensity = details.Params[0];

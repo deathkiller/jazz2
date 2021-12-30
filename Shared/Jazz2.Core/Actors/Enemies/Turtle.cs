@@ -16,6 +16,35 @@ namespace Jazz2.Actors.Enemies
         private bool isTurning;
         private bool isWithdrawn;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            ushort theme = details.Params[0];
+
+            switch (theme) {
+                case 0:
+                default:
+                    PreloadMetadata("Enemy/Turtle");
+                    PreloadMetadata("Enemy/TurtleShell");
+                    break;
+
+                case 1: // Xmas
+                    PreloadMetadata("Enemy/TurtleXmas");
+                    PreloadMetadata("Enemy/TurtleShellXmas");
+                    break;
+            }
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Turtle();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Turtle()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             SetHealthByDifficulty(1);

@@ -241,7 +241,7 @@ namespace Jazz2.Game.Events
 
                         // Flag 0x02: Generator
                         if ((flags & 0x02) != 0) {
-                            if ((flags & (0x01 << difficultyBit)) != 0 && (flags & 0x80) == 0) {
+                            if ((EventType)eventID != EventType.Empty && (flags & (0x01 << difficultyBit)) != 0 && (flags & 0x80) == 0) {
                                 ushort generatorIdx = (ushort)generators.Count;
                                 float timeLeft = ((generatorFlags & 0x01) != 0 ? generatorDelay : 0f);
 
@@ -348,6 +348,28 @@ namespace Jazz2.Game.Events
             previousEvent = newEvent;
         }
 
+        public void PreloadEvents()
+        {
+            var eventSpawner = levelHandler.EventSpawner;
+
+            // Preload all events
+            for (int i = 0; i < eventLayout.Length; i++) {
+                ref EventTile tile = ref eventLayout[i];
+
+                // ToDo: Exclude also some modifiers here ?
+                if (tile.EventType != EventType.Empty && tile.EventType != EventType.Generator && tile.EventType != EventType.AreaWeather) {
+                    eventSpawner.PreloadEvent(tile.EventType, tile.EventParams);
+                }
+            }
+
+            // Preload all generators
+            for (int i = 0; i < generators.Count; i++) {
+                ref GeneratorInfo generator = ref generators.Data[i];
+
+                eventSpawner.PreloadEvent(generator.EventType, generator.EventParams);
+            }
+        }
+
         public void ProcessGenerators(float timeMult)
         {
             for (int i = 0; i < generators.Count; i++) {
@@ -364,8 +386,8 @@ namespace Jazz2.Game.Events
                         int x = generator.EventPos % layoutWidth;
                         int y = generator.EventPos / layoutWidth;
 
-                        ActorBase actor = levelHandler.EventSpawner.SpawnEvent(ActorInstantiationFlags.IsFromGenerator,
-                            generator.EventType, x, y, LevelHandler.MainPlaneZ, generator.EventParams);
+                        ActorBase actor = levelHandler.EventSpawner.SpawnEvent(generator.EventType,
+                            generator.EventParams, ActorInstantiationFlags.IsFromGenerator, x, y, LevelHandler.MainPlaneZ);
                         if (actor != null) {
                             levelHandler.AddActor(actor);
                             generator.SpawnedActor = actor;
@@ -394,8 +416,8 @@ namespace Jazz2.Game.Events
 
             for (int x = x1; x <= x2; x++) {
                 for (int y = y1; y <= y2; y++) {
-                    int tileID = x + y * layoutWidth;
-                    ref EventTile tile = ref eventLayout[tileID];
+                    int i = x + y * layoutWidth;
+                    ref EventTile tile = ref eventLayout[i];
 
                     if (!tile.IsEventActive && tile.EventType != EventType.Empty) {
                         tile.IsEventActive = true;
@@ -408,7 +430,7 @@ namespace Jazz2.Game.Events
                                 flags |= ActorInstantiationFlags.Async;
                             }
 
-                            ActorBase actor = levelHandler.EventSpawner.SpawnEvent(flags, tile.EventType, x, y, LevelHandler.MainPlaneZ, tile.EventParams);
+                            ActorBase actor = levelHandler.EventSpawner.SpawnEvent(tile.EventType, tile.EventParams, flags, x, y, LevelHandler.MainPlaneZ);
                             if (actor != null) {
                                 levelHandler.AddActor(actor);
                             }
@@ -477,7 +499,7 @@ namespace Jazz2.Game.Events
                             //    flags |= ActorInstantiationFlags.Async;
                             //}
 
-                            ActorBase actor = levelHandler.EventSpawner.SpawnEvent(flags, tile.EventType, x, y, LevelHandler.MainPlaneZ, tile.EventParams);
+                            ActorBase actor = levelHandler.EventSpawner.SpawnEvent(tile.EventType, tile.EventParams, flags, x, y, LevelHandler.MainPlaneZ);
                             if (actor != null) {
                                 levelHandler.AddActor(actor);
                             }

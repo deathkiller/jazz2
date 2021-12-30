@@ -24,6 +24,22 @@ namespace Jazz2.Actors.Environment
         public bool KeepSpeedX => keepSpeedX;
         public bool KeepSpeedY => keepSpeedY;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Object/Spring");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new Spring();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private Spring()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             type = details.Params[0];

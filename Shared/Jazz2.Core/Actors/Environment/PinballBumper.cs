@@ -10,6 +10,22 @@ namespace Jazz2.Actors.Environment
         private float cooldown;
         private LightEmitter light;
 
+        public static void Preload(ActorActivationDetails details)
+        {
+            PreloadMetadata("Object/PinballBumper");
+        }
+
+        public static ActorBase Create(ActorActivationDetails details)
+        {
+            var actor = new PinballBumper();
+            actor.OnActivated(details);
+            return actor;
+        }
+
+        private PinballBumper()
+        {
+        }
+
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
             ushort theme = details.Params[0];
