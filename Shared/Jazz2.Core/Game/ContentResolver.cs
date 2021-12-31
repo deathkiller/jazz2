@@ -133,6 +133,8 @@ namespace Jazz2.Game
 
 #if !DISABLE_ASYNC
             AllowAsyncLoading();
+#else
+#   warning Async loading is disabled for this build configuration
 #endif
 
 #if DEBUG && UNCOMPRESSED_CONTENT
@@ -150,6 +152,7 @@ namespace Jazz2.Game
 
 #if !DISABLE_ASYNC
             asyncThread = null;
+            asyncThreadPaused = true;
 
             lock (metadataAsyncRequests) {
                 metadataAsyncRequests.Clear();
@@ -240,7 +243,7 @@ namespace Jazz2.Game
             Metadata metadata;
             if (!cachedMetadata.TryGetValue(path, out metadata)) {
                 lock (metadataAsyncRequests) {
-                    if (metadataAsyncRequests.Add(path)) {
+                    if (metadataAsyncRequests.Add(path) && !asyncThreadPaused) {
                         asyncThreadEvent.Set();
                     }
                 }
@@ -363,7 +366,7 @@ namespace Jazz2.Game
 #endif
                     }
 #endif
-                    }
+                }
             }
 
 #if !DISABLE_SOUND
@@ -403,8 +406,8 @@ namespace Jazz2.Game
 #endif
                     }
 #endif
-                    }
                 }
+            }
 #endif
 
             // Bounding Box

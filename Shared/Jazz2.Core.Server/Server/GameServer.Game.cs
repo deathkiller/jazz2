@@ -487,7 +487,7 @@ namespace Jazz2.Server
                 ContentResolver.Current.PreloadAsync("Interactive/PlayerLori");
 
                 GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-                GC.Collect();
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
                 GC.WaitForPendingFinalizers();
 
                 // Level is loaded on server, send request to players to load the level too

@@ -348,25 +348,32 @@ namespace Jazz2.Game.Events
             previousEvent = newEvent;
         }
 
-        public void PreloadEvents()
+        public void PreloadEventsAsync()
         {
             var eventSpawner = levelHandler.EventSpawner;
 
-            // Preload all events
-            for (int i = 0; i < eventLayout.Length; i++) {
-                ref EventTile tile = ref eventLayout[i];
+            ContentResolver.Current.SuspendAsync();
 
-                // ToDo: Exclude also some modifiers here ?
-                if (tile.EventType != EventType.Empty && tile.EventType != EventType.Generator && tile.EventType != EventType.AreaWeather) {
-                    eventSpawner.PreloadEvent(tile.EventType, tile.EventParams);
+            try {
+                // Preload all events
+                for (int i = 0; i < eventLayout.Length; i++) {
+                    ref EventTile tile = ref eventLayout[i];
+
+                    // ToDo: Exclude also some modifiers here ?
+                    if (tile.EventType != EventType.Empty && tile.EventType != EventType.Generator && tile.EventType != EventType.AreaWeather) {
+                        eventSpawner.PreloadEvent(tile.EventType, tile.EventParams);
+                    }
                 }
-            }
 
-            // Preload all generators
-            for (int i = 0; i < generators.Count; i++) {
-                ref GeneratorInfo generator = ref generators.Data[i];
+                // Preload all generators
+                for (int i = 0; i < generators.Count; i++) {
+                    ref GeneratorInfo generator = ref generators.Data[i];
 
-                eventSpawner.PreloadEvent(generator.EventType, generator.EventParams);
+                    eventSpawner.PreloadEvent(generator.EventType, generator.EventParams);
+                }
+            } finally {
+                // Don't wait for finalization of resources, it will be done in a few next frames
+                _ = ContentResolver.Current.ResumeAsync();
             }
         }
 

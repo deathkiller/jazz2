@@ -254,7 +254,7 @@ namespace Jazz2.Game
             // Common sounds
             commonResources = ContentResolver.Current.RequestMetadata("Common/Scenery");
 
-            eventMap.PreloadEvents();
+            eventMap.PreloadEventsAsync();
         }
 
         protected override void OnDisposing(bool manually)

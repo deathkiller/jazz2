@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Duality;
+using Duality.Async;
 using Duality.Drawing;
 using Duality.Resources;
 using Jazz2.Game.Structs;
@@ -14,6 +16,7 @@ namespace Jazz2.Game
         private HashSet<string> metadataAsyncRequests;
 
         private Thread asyncThread;
+        private bool asyncThreadPaused;
         private AutoResetEvent asyncThreadEvent;
         private AutoResetEvent asyncResourceReadyEvent;
 #endif
@@ -24,7 +27,7 @@ namespace Jazz2.Game
             Metadata metadata;
             if (!cachedMetadata.TryGetValue(path, out metadata)) {
                 lock (metadataAsyncRequests) {
-                    if (metadataAsyncRequests.Add(path)) {
+                    if (metadataAsyncRequests.Add(path) && !asyncThreadPaused) {
                         asyncThreadEvent.Set();
                     }
                 }
@@ -52,7 +55,7 @@ namespace Jazz2.Game
             Metadata metadata;
             if (!cachedMetadata.TryGetValue(path, out metadata)) {
                 lock (metadataAsyncRequests) {
-                    if (metadataAsyncRequests.Add(path)) {
+                    if (metadataAsyncRequests.Add(path) && !asyncThreadPaused) {
                         asyncThreadEvent.Set();
                     }
                 }
@@ -139,7 +142,7 @@ namespace Jazz2.Game
             while (asyncThread != null) {
                 asyncThreadEvent.WaitOne();
 
-                while (true) {
+                while (!asyncThreadPaused) {
                     string path;
                     lock (metadataAsyncRequests) {
                         path = metadataAsyncRequests.FirstOrDefault();
@@ -149,7 +152,7 @@ namespace Jazz2.Game
                         break;
                     }
 
-                    Metadata metadata = RequestMetadataInner(path, true);
+                    _ = RequestMetadataInner(path, true);
 
                     lock (metadataAsyncRequests) {
                         metadataAsyncRequests.Remove(path);
@@ -158,6 +161,50 @@ namespace Jazz2.Game
                     asyncResourceReadyEvent.Set();
                 }
             }
+        }
+#endif
+
+        public void SuspendAsync()
+        {
+#if !DISABLE_ASYNC
+            asyncThreadPaused = true;
+#endif
+        }
+
+#if !DISABLE_ASYNC
+        public async Task ResumeAsync()
+        {
+            if (!asyncThreadPaused) {
+                return;
+            }
+
+            asyncThreadPaused = false;
+
+            asyncThreadEvent.Set();
+
+            while (true) {
+                await Await.NextUpdate();
+
+                bool queueIsEmpty = (metadataAsyncRequests.Count == 0);
+
+                foreach (var pair in cachedMetadata) {
+                    var metadata = pair.Value;
+
+                    if (metadata.AsyncFinalizingRequired) {
+                        metadata.AsyncFinalizingRequired = false;
+                        FinalizeAsyncLoadedResources(metadata);
+                    }
+                }
+
+                if (queueIsEmpty) {
+                    break;
+                }
+            }
+        }
+#else
+        public Task ResumeAsync()
+        {
+            return Task.CompletedTask;
         }
 #endif
     }

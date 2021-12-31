@@ -206,8 +206,9 @@ namespace Jazz2.Game
                         Scene.Current.DisposeLater();
                         Scene.SwitchTo(handler);
 
+                        // Async preloading will not be done yet, but it doesn't matter much
                         GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-                        GC.Collect();
+                        GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
                         GC.WaitForPendingFinalizers();
 
                         GCSettings.LatencyMode = GCLatencyMode.LowLatency;
@@ -277,8 +278,9 @@ namespace Jazz2.Game
                     Scene.Current.DisposeLater();
                     Scene.SwitchTo(handler);
 
+                    // Async preloading will not be done yet, but it doesn't matter much
                     GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-                    GC.Collect();
+                    GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
                     GC.WaitForPendingFinalizers();
 
                     GCSettings.LatencyMode = GCLatencyMode.LowLatency;

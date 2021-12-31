@@ -330,6 +330,65 @@ namespace Jazz2.Actors
             return false;
         }
 
+        public override void OnUpdate()
+        {
+            //base.OnUpdate();
+
+#if !SERVER
+            // Process KeyHit events in OnUpdate() instead of OnFixedUpdate()
+#if DEBUG
+            // ToDo: Debug keys only
+            if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.T)) {
+                WarpToPosition(new Vector2(Transform.Pos.X, Transform.Pos.Y - (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f)), false);
+            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.G)) {
+                WarpToPosition(new Vector2(Transform.Pos.X, Transform.Pos.Y + (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f)), false);
+            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.F)) {
+                WarpToPosition(new Vector2(Transform.Pos.X - (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f), Transform.Pos.Y), false);
+            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.H)) {
+                WarpToPosition(new Vector2(Transform.Pos.X + (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f), Transform.Pos.Y), false);
+            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.N)) {
+                levelHandler.InitLevelChange(ExitType.Normal, null);
+            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.J)) {
+                //coins += 5;
+                controllable = true;
+            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.U)) {
+                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Ammo", false);
+
+                for (int i = 0; i < weaponAmmo.Length; i++) {
+                    AddAmmo((WeaponType)i, short.MaxValue);
+                }
+            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.I)) {
+                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Sugar Rush", false);
+
+                BeginSugarRush();
+            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.O)) {
+                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add all Power-ups", false);
+
+                for (int i = 0; i < weaponAmmo.Length; i++) {
+                    AddWeaponUpgrade((WeaponType)i, 0x1);
+                }
+            }
+#endif
+            if (!controllable || !controllableExternal) {
+                return;
+            }
+
+            if (playerType != PlayerType.Frog) {
+                if (ControlScheme.PlayerActionHit(playerIndex, PlayerActions.SwitchWeapon)) {
+                    SwitchToNextWeapon();
+                } else if (playerIndex == 0) {
+                    // Use numeric key to switch weapons for the first player
+                    int maxWeaponCount = Math.Min(weaponAmmo.Length, 9);
+                    for (int i = 0; i < maxWeaponCount; i++) {
+                        if (weaponAmmo[i] != 0 && DualityApp.Keyboard.KeyHit(Duality.Input.Key.Number1 + i)) {
+                            SwitchToWeaponByIndex(i);
+                        }
+                    }
+                }
+            }
+#endif
+        }
+
         public override void OnFixedUpdate(float timeMult)
         {
 #if !SERVER
@@ -352,7 +411,7 @@ namespace Jazz2.Actors
 
             PushSolidObjects(timeMult);
 
-            //base.OnUpdate();
+            //base.OnFixedUpdate(timeMult);
             {
                 if (timeMult > 1.25f) {
                     TryStandardMovement(1f);
@@ -680,40 +739,6 @@ namespace Jazz2.Actors
                 }
             }
 
-            // ToDo: Debug keys only
-#if DEBUG && !SERVER
-            if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.T)) {
-                WarpToPosition(new Vector2(Transform.Pos.X, Transform.Pos.Y - (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f)), false);
-            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.G)) {
-                WarpToPosition(new Vector2(Transform.Pos.X, Transform.Pos.Y + (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f)), false);
-            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.F)) {
-                WarpToPosition(new Vector2(Transform.Pos.X - (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f), Transform.Pos.Y), false);
-            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.H)) {
-                WarpToPosition(new Vector2(Transform.Pos.X + (DualityApp.Keyboard.KeyPressed(Duality.Input.Key.C) ? 500f : 150f), Transform.Pos.Y), false);
-            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.N)) {
-                levelHandler.InitLevelChange(ExitType.Normal, null);
-            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.J)) {
-                //coins += 5;
-                controllable = true;
-            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.U)) {
-                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Ammo", false);
-
-                for (int i = 0; i < weaponAmmo.Length; i++) {
-                    AddAmmo((WeaponType)i, short.MaxValue);
-                }
-            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.I)) {
-                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Sugar Rush", false);
-
-                BeginSugarRush();
-            } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.O)) {
-                attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add all Power-ups", false);
-
-                for (int i = 0; i < weaponAmmo.Length; i++) {
-                    AddWeaponUpgrade((WeaponType)i, 0x1);
-                }
-            }
-#endif
-
 #if !SERVER
             if (!controllable || !controllableExternal) {
                 // Weapons are automatically disabled if player is not controllable
@@ -1000,20 +1025,6 @@ namespace Jazz2.Actors
                 if (weaponToasterSound != null) {
                     weaponToasterSound.Stop();
                     weaponToasterSound = null;
-                }
-            }
-
-            if (playerType != PlayerType.Frog) {
-                if (ControlScheme.PlayerActionHit(playerIndex, PlayerActions.SwitchWeapon)) {
-                    SwitchToNextWeapon();
-                } else if (playerIndex == 0) {
-                    // Use numeric key to switch weapons for the first player
-                    int maxWeaponCount = Math.Min(weaponAmmo.Length, 9);
-                    for (int i = 0; i < maxWeaponCount; i++) {
-                        if (weaponAmmo[i] != 0 && DualityApp.Keyboard.KeyHit(Duality.Input.Key.Number1 + i)) {
-                            SwitchToWeaponByIndex(i);
-                        }
-                    }
                 }
             }
 #endif

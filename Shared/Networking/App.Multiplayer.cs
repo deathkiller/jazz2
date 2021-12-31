@@ -89,7 +89,7 @@ namespace Jazz2.Game
                 Scene.SwitchTo(new MultiplayerLevelHandler(this, client, levelInit, levelType, playerIndex));
 
                 GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-                GC.Collect();
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
                 GC.WaitForPendingFinalizers();
 
                 GCSettings.LatencyMode = GCLatencyMode.LowLatency;
