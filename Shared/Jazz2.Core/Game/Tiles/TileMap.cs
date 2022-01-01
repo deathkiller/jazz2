@@ -288,7 +288,10 @@ namespace Jazz2.Game.Tiles
             int hy1 = (int)aabb.LowerBound.Y;
             int hy2 = MathF.Min((int)MathF.Ceiling(aabb.UpperBound.Y), limitBottomPx - 1);
 
-            int hx1t = hx1 >> 5;
+            const int SmallHitboxHeight = 8;
+            bool shouldUseSmallHitboxForOneWay = (hy1 + SmallHitboxHeight < hy2);
+
+            int hx1t = hx1 >> 5; // Divide by tile size (32px)
             int hx2t = hx2 >> 5;
             int hy1t = hy1 >> 5;
             int hy2t = hy2 >> 5;
@@ -313,7 +316,7 @@ namespace Jazz2.Game.Tiles
 
                     int left = MathF.Max(hx1 - tx, 0);
                     int right = MathF.Min(hx2 - tx, 31);
-                    int top = MathF.Max(hy1 - ty, 0);
+                    int top = MathF.Max(tile.IsOneWay && shouldUseSmallHitboxForOneWay ? (hy2 - SmallHitboxHeight - ty) : (hy1 - ty), 0);
                     int bottom = MathF.Min(hy2 - ty, 31);
 
                     if (tile.IsFlippedX) {
