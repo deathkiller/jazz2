@@ -44,6 +44,10 @@ This project uses parts of [Duality - A 2D GameDev Framework](https://www.dualit
 
 `‹Game›` *is path to Jazz² Resurrection. You can run* `Import.exe` *without parameters to show additional options.*
 
+#### Packages for Linux distributions
+* [Arch Linux](https://aur.archlinux.org/packages/jazz2-bin/)
+* [Gentoo](https://packages.gentoo.org/packages/games-arcade/jazz2)
+
 ### Android
 * Download both **Desktop** and **Android** releases (alternatively, build the solution and copy `Content` directory to `‹Game›/Content/`)
 * Run `‹Game›/Import.exe "Path to original JJ2"` (or drag and drop original *Jazz Jackrabbit 2* directory on `Import.exe`)
