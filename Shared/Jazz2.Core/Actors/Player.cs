@@ -693,7 +693,9 @@ namespace Jazz2.Actors
 
                     if (dizzyTime > 0f || playerType == PlayerType.Frog) {
                         speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxDizzySpeed * playerMovementVelocity, MaxDizzySpeed * playerMovementVelocity);
-                    } else if (inShallowWater != -1) {
+                    } else if (inShallowWater != -1 && levelHandler.ReduxMode && playerType != PlayerType.Lori) {
+                        // Use lower speed in shallow water if Redux Mode is enabled
+                        // Also, exclude Lori, because she can't ledge climb or double jump (rescue/01_colon1)
                         speedX = MathF.Clamp(speedX + Acceleration * timeMult * (IsFacingLeft ? -1 : 1), -MaxShallowWaterSpeed * playerMovementVelocity, MaxShallowWaterSpeed * playerMovementVelocity);
                     } else {
                         if (suspendType == SuspendType.None && !inWater && ControlScheme.PlayerActionPressed(playerIndex, PlayerActions.Run)) {
