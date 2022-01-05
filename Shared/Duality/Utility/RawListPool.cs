@@ -12,6 +12,8 @@ namespace Duality
 		private List<RawList<T>> freeLists = new List<RawList<T>>();
 		private List<RawList<T>> usedLists = new List<RawList<T>>();
 
+		public int FreeCount => freeLists.Count;
+		public int UsedCount => usedLists.Count;
 
 		/// <summary>
 		/// Rents a list instance with the specified min capacity.

@@ -396,6 +396,7 @@ namespace Jazz2.Actors
             Hud.ShowDebugText("  Speed: {" + speedX.ToString("F1") + "; " + speedY.ToString("F1") + "}");
             Hud.ShowDebugText("  Force: {" + externalForceX.ToString("F1") + "; " + externalForceY.ToString("F1") + "} " + internalForceY + " | " + ((CollisionFlags & CollisionFlags.ApplyGravitation) != 0 ? " G" : "") + (controllable ? " C" : "") + (inWater ? " W" : "") + (canJump ? " J" : ""));
             Hud.ShowDebugText("  A.: " + currentAnimationState + " | T.: " + currentTransitionState + " | S.: " + shieldTime);
+            Hud.ShowDebugText("  Candidates Pool: " + cachedCandidates.FreeCount + " | " + cachedCandidates.UsedCount);
 #endif
 
             // Process level bounds

@@ -1183,7 +1183,8 @@ namespace Jazz2.Actors
             }
         }
 
-#region Animations
+        #region Animations
+
         protected struct AnimationCandidate
         {
             public string Identifier;
@@ -1421,7 +1422,8 @@ namespace Jazz2.Actors
             }
             return candidates;
         }
-#endregion
+
+        #endregion
 
         protected class LocalController : Component, ICmpUpdatable, ICmpFixedUpdatable
         {
