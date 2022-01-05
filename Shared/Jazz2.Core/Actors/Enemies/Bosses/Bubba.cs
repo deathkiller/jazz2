@@ -62,6 +62,17 @@ namespace Jazz2.Actors.Bosses
         {
             base.OnFixedUpdate(timeMult);
 
+            // Process level bounds
+            Vector3 lastPos = Transform.Pos;
+            Rect levelBounds = levelHandler.LevelBounds;
+            if (lastPos.X < levelBounds.X) {
+                lastPos.X = levelBounds.X;
+                Transform.Pos = lastPos;
+            } else if (lastPos.X > levelBounds.X + levelBounds.W) {
+                lastPos.X = levelBounds.X + levelBounds.W;
+                Transform.Pos = lastPos;
+            }
+
             if (frozenTimeLeft > 0) {
                 return;
             }
@@ -228,6 +239,8 @@ namespace Jazz2.Actors.Bosses
                 SetTransition((AnimState)1073741830, false, delegate {
                     speedX = (diff.X / stateTime);
                     speedY = (diff.Y / stateTime);
+                    internalForceY = 0;
+                    externalForceY = 0;
 
                     SetAnimation((AnimState)1073741831);
                 });

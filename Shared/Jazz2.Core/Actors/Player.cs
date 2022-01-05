@@ -1084,7 +1084,11 @@ namespace Jazz2.Actors
                     speedY >= -1f && externalForceY <= 0f && copterFramesLeft <= 0f && keepRunningTime <= 0f) {
 
                     // Character supports ledge climbing
-                    if (FindAnimationCandidates(AnimState.TransitionLedgeClimb).Count > 0) {
+                    var candidates = FindAnimationCandidates(AnimState.TransitionLedgeClimb);
+                    var canClimb = (candidates.Count > 0);
+                    cachedCandidates.Return(candidates);
+
+                    if (canClimb) {
                         const int MaxTolerancePixels = 6;
 
                         float x = (IsFacingLeft ? -8f : 8f);

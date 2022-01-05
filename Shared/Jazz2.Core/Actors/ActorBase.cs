@@ -121,7 +121,7 @@ namespace Jazz2.Actors
         protected bool currentTransitionCancellable;
         private Action currentTransitionCallback;
 
-        private List<AnimationCandidate> cachedCandidates = new List<AnimationCandidate>(4);
+        protected static RawListPool<AnimationCandidate> cachedCandidates = new RawListPool<AnimationCandidate>();
 
         public bool IsInvulnerable => isInvulnerable;
         public int Health
@@ -1280,8 +1280,9 @@ namespace Jazz2.Actors
                 return false;
             }
 
-            List<AnimationCandidate> candidates = FindAnimationCandidates(state);
+            RawList<AnimationCandidate> candidates = FindAnimationCandidates(state);
             if (candidates.Count == 0) {
+                cachedCandidates.Return(candidates);
                 return false;
             }
 
@@ -1312,15 +1313,17 @@ namespace Jazz2.Actors
             RefreshAnimation();
 
             activeAnimation = candidates[index].Identifier;
-            levelHandler.BroadcastAnimationChanged(this, activeAnimation);
 
+            cachedCandidates.Return(candidates);
+            levelHandler.BroadcastAnimationChanged(this, activeAnimation);
             return true;
         }
 
         protected bool SetTransition(AnimState state, bool cancellable, Action callback = null)
         {
-            List<AnimationCandidate> candidates = FindAnimationCandidates(state);
+            RawList<AnimationCandidate> candidates = FindAnimationCandidates(state);
             if (candidates.Count == 0) {
+                cachedCandidates.Return(candidates);
                 callback?.Invoke();
                 return false;
             } else {
@@ -1346,6 +1349,7 @@ namespace Jazz2.Actors
                 RefreshAnimation();
 
                 levelHandler.BroadcastAnimationChanged(this, candidates[index].Identifier);
+                cachedCandidates.Return(candidates);
                 return true;
             }
         }
@@ -1404,18 +1408,18 @@ namespace Jazz2.Actors
             }
         }
 
-        protected List<AnimationCandidate> FindAnimationCandidates(AnimState state)
+        protected RawList<AnimationCandidate> FindAnimationCandidates(AnimState state)
         {
-            cachedCandidates.Clear();
+            var candidates = cachedCandidates.Rent(4);
             foreach (var animation in availableAnimations) {
                 if (animation.Value.State != null && animation.Value.State.Contains(state)) {
-                    cachedCandidates.Add(new AnimationCandidate {
+                    candidates.Add(new AnimationCandidate {
                         Identifier = animation.Key,
                         Resource = animation.Value
                     });
                 }
             }
-            return cachedCandidates;
+            return candidates;
         }
 #endregion
 
