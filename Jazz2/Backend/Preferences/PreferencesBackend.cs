@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Reflection;
+using System.Text;
 using Duality;
 using Duality.Backend;
 using Duality.IO;
@@ -36,87 +38,12 @@ namespace Jazz2.Backend
             }
 
             try {
-                using (Stream s = FileOp.Open(path, FileAccessMode.Read))
-                using (BinaryReader r = new BinaryReader(s)) {
-                    ushort n = r.ReadUInt16();
-
-                    for (ushort i = 0; i < n; i++) {
-                        string key = r.ReadString();
-                        byte type = r.ReadByte();
-
-                        switch (type) {
-                            case 0: data[key] = r.ReadString(); break; // String
-                            case 1: data[key] = r.ReadBoolean(); break; // Bool
-                            case 2: data[key] = r.ReadByte(); break; // Byte
-                            case 3: data[key] = r.ReadInt32(); break; // Int
-                            case 4: data[key] = r.ReadInt64(); break; // Long
-                            case 5: data[key] = r.ReadInt16(); break; // Short
-                            case 6: data[key] = r.ReadUInt32(); break; // Uint
-
-                            case 10: { // String Array
-                                byte count = r.ReadByte();
-                                string[] values = new string[count];
-                                for (int j = 0; j < count; j++) {
-                                    values[j] = r.ReadString();
-                                }
-                                data[key] = values;
-                                break;
-                            }
-                            case 11: { // Bool Array
-                                byte count = r.ReadByte();
-                                bool[] values = new bool[count];
-                                for (int j = 0; j < count; j++) {
-                                    values[j] = r.ReadBoolean();
-                                }
-                                data[key] = values;
-                                break;
-                            }
-                            case 12: { // Byte Array
-                                byte count = r.ReadByte();
-                                byte[] values = new byte[count];
-                                for (int j = 0; j < count; j++) {
-                                    values[j] = r.ReadByte();
-                                }
-                                data[key] = values;
-                                break;
-                            }
-                            case 13: { // Int Array
-                                byte count = r.ReadByte();
-                                int[] values = new int[count];
-                                for (int j = 0; j < count; j++) {
-                                    values[j] = r.ReadInt32();
-                                }
-                                data[key] = values;
-                                break;
-                            }
-                            case 14: { // Long Array
-                                byte count = r.ReadByte();
-                                long[] values = new long[count];
-                                for (int j = 0; j < count; j++) {
-                                    values[j] = r.ReadInt64();
-                                }
-                                data[key] = values;
-                                break;
-                            }
-                            case 15: { // Short Array
-                                byte count = r.ReadByte();
-                                short[] values = new short[count];
-                                for (int j = 0; j < count; j++) {
-                                    values[j] = r.ReadInt16();
-                                }
-                                data[key] = values;
-                                break;
-                            }
-                            case 16: { // Uint Array
-                                byte count = r.ReadByte();
-                                uint[] values = new uint[count];
-                                for (int j = 0; j < count; j++) {
-                                    values[j] = r.ReadUInt32();
-                                }
-                                data[key] = values;
-                                break;
-                            }
-                        }
+                using (Stream s = FileOp.Open(path, FileAccessMode.Read)) {
+                    if (!ReadCompressedFormat(s)) {
+                        // Reset position and try to read legacy file format
+                        s.Position = 0;
+                        ReadLegacyFormat(s);
+                        dirty = true;
                     }
                 }
             } catch (Exception ex) {
@@ -172,110 +99,115 @@ namespace Jazz2.Backend
             }
 
             try {
-                using (Stream s = FileOp.Create(path))
-                using (BinaryWriter w = new BinaryWriter(s)) {
-                    w.Write((ushort)data.Count);
+                using (Stream s = FileOp.Create(path)) {
+                    var Header = new byte[] { 0xEF, 0xBB, 0xBF, 0xF0, 0x9F, 0xA5, 0x95, 0x20 };
+                    s.Write(Header, 0, Header.Length);
 
-                    foreach (var pair in data) {
-                        w.Write(pair.Key);
+                    using (DeflateStream d = new DeflateStream(s, CompressionLevel.Optimal, true))
+                    using (BinaryWriter w = new BinaryWriter(d, Encoding.UTF8, true)) {
+                        w.Write((ushort)data.Count);
 
-                        switch (pair.Value) {
-                            case string value: {
-                                w.Write((byte)0);
-                                w.Write(value);
-                                break;
-                            }
-                            case bool value: {
-                                w.Write((byte)1);
-                                w.Write(value);
-                                break;
-                            }
-                            case byte value: {
-                                w.Write((byte)2);
-                                w.Write(value);
-                                break;
-                            }
-                            case int value: {
-                                w.Write((byte)3);
-                                w.Write(value);
-                                break;
-                            }
-                            case long value: {
-                                w.Write((byte)4);
-                                w.Write(value);
-                                break;
-                            }
-                            case short value: {
-                                w.Write((byte)5);
-                                w.Write(value);
-                                break;
-                            }
-                            case uint value: {
-                                w.Write((byte)6);
-                                w.Write(value);
-                                break;
-                            }
+                        foreach (var pair in data) {
+                            w.Write(pair.Key);
 
-                            case string[] value: {
-                                w.Write((byte)10);
-                                w.Write((byte)value.Length);
-                                for (int j = 0; j < value.Length; j++) {
-                                    w.Write(value[j]);
+                            switch (pair.Value) {
+                                case string value: {
+                                    w.Write((byte)0);
+                                    w.Write(value);
+                                    break;
                                 }
-                                break;
-                            }
-                            case bool[] value: {
-                                w.Write((byte)11);
-                                w.Write((byte)value.Length);
-                                for (int j = 0; j < value.Length; j++) {
-                                    w.Write(value[j]);
+                                case bool value: {
+                                    w.Write((byte)1);
+                                    w.Write(value);
+                                    break;
                                 }
-                                break;
-                            }
-                            case byte[] value: {
-                                w.Write((byte)12);
-                                w.Write((byte)value.Length);
-                                for (int j = 0; j < value.Length; j++) {
-                                    w.Write(value[j]);
+                                case byte value: {
+                                    w.Write((byte)2);
+                                    w.Write(value);
+                                    break;
                                 }
-                                break;
-                            }
-                            case int[] value: {
-                                w.Write((byte)13);
-                                w.Write((byte)value.Length);
-                                for (int j = 0; j < value.Length; j++) {
-                                    w.Write(value[j]);
+                                case int value: {
+                                    w.Write((byte)3);
+                                    w.Write(value);
+                                    break;
                                 }
-                                break;
-                            }
-                            case long[] value: {
-                                w.Write((byte)14);
-                                w.Write((byte)value.Length);
-                                for (int j = 0; j < value.Length; j++) {
-                                    w.Write(value[j]);
+                                case long value: {
+                                    w.Write((byte)4);
+                                    w.Write(value);
+                                    break;
                                 }
-                                break;
-                            }
-                            case short[] value: {
-                                w.Write((byte)15);
-                                w.Write((byte)value.Length);
-                                for (int j = 0; j < value.Length; j++) {
-                                    w.Write(value[j]);
+                                case short value: {
+                                    w.Write((byte)5);
+                                    w.Write(value);
+                                    break;
                                 }
-                                break;
-                            }
-                            case uint[] value: {
-                                w.Write((byte)16);
-                                w.Write((byte)value.Length);
-                                for (int j = 0; j < value.Length; j++) {
-                                    w.Write(value[j]);
+                                case uint value: {
+                                    w.Write((byte)6);
+                                    w.Write(value);
+                                    break;
                                 }
-                                break;
-                            }
 
-                            default:
-                                Log.Write(LogType.Warning, "Unknown preference type: " + pair.Value.GetType().FullName);
-                                break;
+                                case string[] value: {
+                                    w.Write((byte)10);
+                                    w.Write((byte)value.Length);
+                                    for (int j = 0; j < value.Length; j++) {
+                                        w.Write(value[j]);
+                                    }
+                                    break;
+                                }
+                                case bool[] value: {
+                                    w.Write((byte)11);
+                                    w.Write((byte)value.Length);
+                                    for (int j = 0; j < value.Length; j++) {
+                                        w.Write(value[j]);
+                                    }
+                                    break;
+                                }
+                                case byte[] value: {
+                                    w.Write((byte)12);
+                                    w.Write((byte)value.Length);
+                                    for (int j = 0; j < value.Length; j++) {
+                                        w.Write(value[j]);
+                                    }
+                                    break;
+                                }
+                                case int[] value: {
+                                    w.Write((byte)13);
+                                    w.Write((byte)value.Length);
+                                    for (int j = 0; j < value.Length; j++) {
+                                        w.Write(value[j]);
+                                    }
+                                    break;
+                                }
+                                case long[] value: {
+                                    w.Write((byte)14);
+                                    w.Write((byte)value.Length);
+                                    for (int j = 0; j < value.Length; j++) {
+                                        w.Write(value[j]);
+                                    }
+                                    break;
+                                }
+                                case short[] value: {
+                                    w.Write((byte)15);
+                                    w.Write((byte)value.Length);
+                                    for (int j = 0; j < value.Length; j++) {
+                                        w.Write(value[j]);
+                                    }
+                                    break;
+                                }
+                                case uint[] value: {
+                                    w.Write((byte)16);
+                                    w.Write((byte)value.Length);
+                                    for (int j = 0; j < value.Length; j++) {
+                                        w.Write(value[j]);
+                                    }
+                                    break;
+                                }
+
+                                default:
+                                    Log.Write(LogType.Warning, "Unknown preference type: " + pair.Value.GetType().FullName);
+                                    break;
+                            }
                         }
                     }
                 }
@@ -318,6 +250,191 @@ namespace Jazz2.Backend
             }
 
             return path;
+        }
+
+        private bool ReadCompressedFormat(Stream s)
+        {
+            var header = new byte[8];
+            if (s.Read(header, 0, header.Length) != header.Length) {
+                return false;
+            }
+
+            if (header[0] != 0xEF || header[1] != 0xBB || header[2] != 0xBF || header[3] != 0xF0 ||
+                header[4] != 0x9F || header[5] != 0xA5 || header[6] != 0x95 || header[7] != 0x20) {
+                return false;
+            }
+
+            using (DeflateStream d = new DeflateStream(s, CompressionMode.Decompress, true))
+            using (BinaryReader r = new BinaryReader(d, Encoding.UTF8, true)) {
+                ushort n = r.ReadUInt16();
+
+                for (ushort i = 0; i < n; i++) {
+                    string key = r.ReadString();
+                    byte type = r.ReadByte();
+
+                    switch (type) {
+                        case 0: data[key] = r.ReadString(); break; // String
+                        case 1: data[key] = r.ReadBoolean(); break; // Bool
+                        case 2: data[key] = r.ReadByte(); break; // Byte
+                        case 3: data[key] = r.ReadInt32(); break; // Int
+                        case 4: data[key] = r.ReadInt64(); break; // Long
+                        case 5: data[key] = r.ReadInt16(); break; // Short
+                        case 6: data[key] = r.ReadUInt32(); break; // Uint
+
+                        case 10: { // String Array
+                            byte count = r.ReadByte();
+                            string[] values = new string[count];
+                            for (int j = 0; j < count; j++) {
+                                values[j] = r.ReadString();
+                            }
+                            data[key] = values;
+                            break;
+                        }
+                        case 11: { // Bool Array
+                            byte count = r.ReadByte();
+                            bool[] values = new bool[count];
+                            for (int j = 0; j < count; j++) {
+                                values[j] = r.ReadBoolean();
+                            }
+                            data[key] = values;
+                            break;
+                        }
+                        case 12: { // Byte Array
+                            byte count = r.ReadByte();
+                            byte[] values = new byte[count];
+                            for (int j = 0; j < count; j++) {
+                                values[j] = r.ReadByte();
+                            }
+                            data[key] = values;
+                            break;
+                        }
+                        case 13: { // Int Array
+                            byte count = r.ReadByte();
+                            int[] values = new int[count];
+                            for (int j = 0; j < count; j++) {
+                                values[j] = r.ReadInt32();
+                            }
+                            data[key] = values;
+                            break;
+                        }
+                        case 14: { // Long Array
+                            byte count = r.ReadByte();
+                            long[] values = new long[count];
+                            for (int j = 0; j < count; j++) {
+                                values[j] = r.ReadInt64();
+                            }
+                            data[key] = values;
+                            break;
+                        }
+                        case 15: { // Short Array
+                            byte count = r.ReadByte();
+                            short[] values = new short[count];
+                            for (int j = 0; j < count; j++) {
+                                values[j] = r.ReadInt16();
+                            }
+                            data[key] = values;
+                            break;
+                        }
+                        case 16: { // Uint Array
+                            byte count = r.ReadByte();
+                            uint[] values = new uint[count];
+                            for (int j = 0; j < count; j++) {
+                                values[j] = r.ReadUInt32();
+                            }
+                            data[key] = values;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private void ReadLegacyFormat(Stream s)
+        {
+            using (BinaryReader r = new BinaryReader(s, Encoding.UTF8, true)) {
+                ushort n = r.ReadUInt16();
+
+                for (ushort i = 0; i < n; i++) {
+                    string key = r.ReadString();
+                    byte type = r.ReadByte();
+
+                    switch (type) {
+                        case 0: data[key] = r.ReadString(); break; // String
+                        case 1: data[key] = r.ReadBoolean(); break; // Bool
+                        case 2: data[key] = r.ReadByte(); break; // Byte
+                        case 3: data[key] = r.ReadInt32(); break; // Int
+                        case 4: data[key] = r.ReadInt64(); break; // Long
+                        case 5: data[key] = r.ReadInt16(); break; // Short
+                        case 6: data[key] = r.ReadUInt32(); break; // Uint
+
+                        case 10: { // String Array
+                            byte count = r.ReadByte();
+                            string[] values = new string[count];
+                            for (int j = 0; j < count; j++) {
+                                values[j] = r.ReadString();
+                            }
+                            data[key] = values;
+                            break;
+                        }
+                        case 11: { // Bool Array
+                            byte count = r.ReadByte();
+                            bool[] values = new bool[count];
+                            for (int j = 0; j < count; j++) {
+                                values[j] = r.ReadBoolean();
+                            }
+                            data[key] = values;
+                            break;
+                        }
+                        case 12: { // Byte Array
+                            byte count = r.ReadByte();
+                            byte[] values = new byte[count];
+                            for (int j = 0; j < count; j++) {
+                                values[j] = r.ReadByte();
+                            }
+                            data[key] = values;
+                            break;
+                        }
+                        case 13: { // Int Array
+                            byte count = r.ReadByte();
+                            int[] values = new int[count];
+                            for (int j = 0; j < count; j++) {
+                                values[j] = r.ReadInt32();
+                            }
+                            data[key] = values;
+                            break;
+                        }
+                        case 14: { // Long Array
+                            byte count = r.ReadByte();
+                            long[] values = new long[count];
+                            for (int j = 0; j < count; j++) {
+                                values[j] = r.ReadInt64();
+                            }
+                            data[key] = values;
+                            break;
+                        }
+                        case 15: { // Short Array
+                            byte count = r.ReadByte();
+                            short[] values = new short[count];
+                            for (int j = 0; j < count; j++) {
+                                values[j] = r.ReadInt16();
+                            }
+                            data[key] = values;
+                            break;
+                        }
+                        case 16: { // Uint Array
+                            byte count = r.ReadByte();
+                            uint[] values = new uint[count];
+                            for (int j = 0; j < count; j++) {
+                                values[j] = r.ReadUInt32();
+                            }
+                            data[key] = values;
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
 }
