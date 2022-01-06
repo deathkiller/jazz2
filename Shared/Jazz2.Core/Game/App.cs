@@ -161,6 +161,7 @@ namespace Jazz2.Game
                 if (!string.IsNullOrEmpty(levelInit.LastEpisodeName) && levelInit.LastEpisodeName != "unknown") {
                     // ToDo: Implement time
                     Preferences.Set("EpisodeEnd_Time_" + levelInit.LastEpisodeName, (int)1);
+                    Preferences.Set("EpisodeEnd_Cheats_" + levelInit.LastEpisodeName, levelInit.CheatsUsed);
 
                     if (levelInit.PlayerCarryOvers.Length == 1) {
                         // Save CarryOvers only in SinglePlayer mode
@@ -189,6 +190,7 @@ namespace Jazz2.Game
                     Preferences.Remove("EpisodeContinue_Level_" + levelInit.LastEpisodeName);
                     Preferences.Remove("EpisodeContinue_Ammo_" + levelInit.LastEpisodeName);
                     Preferences.Remove("EpisodeContinue_Upgrades_" + levelInit.LastEpisodeName);
+                    Preferences.Remove("EpisodeContinue_Cheats_" + levelInit.LastEpisodeName);
 
                     Preferences.Commit();
 
@@ -228,6 +230,7 @@ namespace Jazz2.Game
                 if (!string.IsNullOrEmpty(levelInit.LastEpisodeName) && levelInit.LastEpisodeName != "unknown" && levelInit.PlayerCarryOvers.Length == 1) {
                     // ToDo: Implement time
                     Preferences.Set("EpisodeEnd_Time_" + levelInit.LastEpisodeName, (int)1);
+                    Preferences.Set("EpisodeEnd_Cheats_" + levelInit.LastEpisodeName, levelInit.CheatsUsed);
 
                     // Remove existing continue data
                     Preferences.Remove("EpisodeContinue_Misc_" + levelInit.LastEpisodeName);
@@ -235,6 +238,7 @@ namespace Jazz2.Game
                     Preferences.Remove("EpisodeContinue_Level_" + levelInit.LastEpisodeName);
                     Preferences.Remove("EpisodeContinue_Ammo_" + levelInit.LastEpisodeName);
                     Preferences.Remove("EpisodeContinue_Upgrades_" + levelInit.LastEpisodeName);
+                    Preferences.Remove("EpisodeContinue_Cheats_" + levelInit.LastEpisodeName);
 
                     Preferences.Commit();
                 }
@@ -267,6 +271,8 @@ namespace Jazz2.Game
                                 }
                             }
                         }
+
+                        Preferences.Set("EpisodeContinue_Cheats_" + levelInit.EpisodeName, levelInit.CheatsUsed);
 
                         Preferences.Commit();
                     }

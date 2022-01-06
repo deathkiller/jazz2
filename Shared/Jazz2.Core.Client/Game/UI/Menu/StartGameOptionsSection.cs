@@ -173,6 +173,7 @@ namespace Jazz2.Game.UI.Menu
                             levelName,
                             (GameDifficulty.Easy + selectedDifficulty),
                             enableReduxMode,
+                            false,
                             (PlayerType.Jazz + selectedPlayerType)
                         );
 
@@ -183,6 +184,7 @@ namespace Jazz2.Game.UI.Menu
                             uint score = Preferences.Get<uint>("EpisodeEnd_Score_" + previousEpisodeName);
                             short[] ammo = Preferences.Get<short[]>("EpisodeEnd_Ammo_" + previousEpisodeName);
                             byte[] upgrades = Preferences.Get<byte[]>("EpisodeEnd_Upgrades_" + previousEpisodeName);
+                            bool cheatsUsed = Preferences.Get<bool>("EpisodeEnd_Cheats_" + previousEpisodeName, false);
 
                             if (lives > 0) {
                                 player.Lives = lives;
@@ -196,6 +198,8 @@ namespace Jazz2.Game.UI.Menu
                             if (upgrades != null) {
                                 player.WeaponUpgrades = upgrades;
                             }
+
+                            levelInit.CheatsUsed = cheatsUsed;
                         }
 
                         api.SwitchToLevel(levelInit);

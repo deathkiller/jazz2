@@ -65,7 +65,7 @@ namespace Jazz2.Game
         private Vector4 darknessColor;
         private float gravity;
         private Rect levelBounds;
-        private bool reduxMode;
+        private bool reduxMode, cheatsUsed;
 
         private BossBase activeBoss;
 
@@ -135,6 +135,7 @@ namespace Jazz2.Game
             episodeName = data.EpisodeName;
             difficulty = data.Difficulty;
             reduxMode = data.ReduxMode;
+            cheatsUsed = data.CheatsUsed;
 
             gravity = DefaultGravity;
 
@@ -641,6 +642,7 @@ namespace Jazz2.Game
 
             levelInit.Difficulty = difficulty;
             levelInit.ReduxMode = reduxMode;
+            levelInit.CheatsUsed = cheatsUsed;
             levelInit.ExitType = exitType;
 
             levelInit.PlayerCarryOvers = new PlayerCarryOver[players.Count];
@@ -1124,30 +1126,38 @@ namespace Jazz2.Game
 
             // Check some JJ2 cheats
             if (IsCheatInBuffer("jjnext")) {
+                cheatsUsed = true;
                 InitLevelChange(ExitType.Warp, null);
             } else if (IsCheatInBuffer("jjguns") || IsCheatInBuffer("jjammo")) {
+                cheatsUsed = true;
                 player.AttachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Ammo", false);
                 for (int i = 0; i < (int)WeaponType.Count; i++) {
                     player.AddAmmo((WeaponType)i, short.MaxValue);
                 }
             } else if (IsCheatInBuffer("jjpower")) {
+                cheatsUsed = true;
                 player.AttachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add all Power-ups", false);
                 for (int i = 0; i < (int)WeaponType.Count; i++) {
                     player.AddWeaponUpgrade((WeaponType)i, 0x1);
                 }
             } else if (IsCheatInBuffer("jjrush")) {
+                cheatsUsed = true;
                 player.AttachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Sugar Rush", false);
                 player.BeginSugarRush();
             } else if (IsCheatInBuffer("jjcoins")) {
+                cheatsUsed = true;
                 player.AttachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Coins", false);
                 player.AddCoins(5);
             } else if (IsCheatInBuffer("jjgems")) {
+                cheatsUsed = true;
                 player.AttachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Gems", false);
                 player.AddGems(5);
             } else if (IsCheatInBuffer("jjgod")) {
+                cheatsUsed = true;
                 player.AttachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Invulnerability", false);
                 player.SetInvulnerability(36000f, true);
             } else if (IsCheatInBuffer("jjbird")) {
+                cheatsUsed = true;
                 player.AttachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Bird", false);
                 player.SpawnBird(0, player.Transform.Pos);
             }

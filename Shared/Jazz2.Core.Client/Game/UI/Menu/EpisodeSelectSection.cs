@@ -233,6 +233,7 @@ namespace Jazz2.Game.UI.Menu
                             Preferences.Remove("EpisodeContinue_Level_" + episodeName);
                             Preferences.Remove("EpisodeContinue_Ammo_" + episodeName);
                             Preferences.Remove("EpisodeContinue_Upgrades_" + episodeName);
+                            Preferences.Remove("EpisodeContinue_Cheats_" + episodeName);
 
                             Preferences.Commit();
 
@@ -258,12 +259,14 @@ namespace Jazz2.Game.UI.Menu
 
                                 // Lives, Difficulty and PlayerType is saved in Misc array [Jazz2.Core/Game/App.cs: ~253]
                                 byte[] misc = Preferences.Get<byte[]>("EpisodeContinue_Misc_" + episodeName);
+                                bool cheatsUsed = Preferences.Get<bool>("EpisodeContinue_Cheats_" + episodeName, false);
 
                                 LevelInitialization levelInit = new LevelInitialization(
                                     episodeName,
                                     levelName,
                                     (GameDifficulty)misc[1],
                                     enableReduxMode,
+                                    cheatsUsed,
                                     (PlayerType)misc[2]
                                 );
 
