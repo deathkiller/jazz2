@@ -10,6 +10,7 @@
     <StartupObject>Jazz2.Server.App</StartupObject>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <BaseIntermediateOutputPath>Obj.NET5\</BaseIntermediateOutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -21,6 +22,11 @@
     <DefineConstants>TRACE;NET45 NET5 UNSAFE MULTIPLAYER ENABLE_UPNP SERVER</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="Obj\**" />
+    <None Remove="Obj\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\Jazz2\Backend\System\NativeFileSystem.cs" Link="Backend\System\NativeFileSystem.cs" />
