@@ -1,5 +1,4 @@
-﻿using System;
-using Duality;
+﻿using Duality;
 using Duality.Drawing;
 using Jazz2.Game.UI.Menu.InGame;
 using Jazz2.Storage;
@@ -33,10 +32,24 @@ namespace Jazz2.Game.UI.Menu.Settings
         {
             IDrawDevice device = canvas.DrawDevice;
 
-            Vector2 center = device.TargetSize * 0.5f;
+            Vector2 size = device.TargetSize;
+            Vector2 center = size * 0.5f;
+            Vector2 pos = size * 0.5f;
+            pos.Y *= 1.16f;
 
-            const float topLine = 216f;
+            float topLine = /*216f*/pos.Y * 0.95f;
             float bottomLine = device.TargetSize.Y - 42;
+            float spacing = (size.Y * 0.0082f) - 2.0f;
+
+            var infoText = "menu/settings/enhancements/info".T();
+            if (size.Y < 350) {
+                int idx = infoText.IndexOf('\n');
+                if (idx != -1) {
+                    infoText = infoText.Substring(0, idx);
+                    topLine -= 10f;
+                }
+            }
+
             api.DrawMaterial("MenuDim", center.X, (topLine + bottomLine) * 0.5f, Alignment.Center, ColorRgba.White, 55f, (bottomLine - topLine) * 0.063f, new Rect(0f, 0.3f, 1f, 0.4f));
 
             api.DrawMaterial("MenuLine", 0, center.X, topLine, Alignment.Center, ColorRgba.White, 1.6f);
@@ -46,24 +59,16 @@ namespace Jazz2.Game.UI.Menu.Settings
             api.DrawStringShadow(ref charOffset, "menu/settings/enhancements".T(), center.X, 110f,
                 Alignment.Center, new ColorRgba(0.5f, 0.5f), 0.9f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
 
-            api.DrawStringShadow(ref charOffset, "menu/settings/enhancements/info".T(), center.X, 166f,
-                Alignment.Center, new ColorRgba(0.5f, 0.5f), 0.76f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f, lineSpacing: 1.3f);
+            api.DrawStringShadow(ref charOffset, infoText, center.X, 136f,
+                Alignment.Top, new ColorRgba(0.5f, 0.5f), 0.76f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f, lineSpacing: spacing);
 
             if (controls == null) {
                 return;
             }
 
-            Vector2 size = device.TargetSize;
-
-            Vector2 pos = size * 0.5f;
-            pos.Y *= 1.16f;
-
             float maxVisibleItemsFloat = (size.Y - pos.Y - 40f) / 45f;
-            maxVisibleItems = (int)maxVisibleItemsFloat;
-
-            if (maxVisibleItems > controls.Length) {
-                maxVisibleItems = Math.Max(controls.Length, 3);
-            }
+            // Force it to 2 items
+            maxVisibleItems = 2;
 
             pos.Y += (maxVisibleItemsFloat - maxVisibleItems) / maxVisibleItems * 45f;
 
