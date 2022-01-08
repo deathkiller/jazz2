@@ -38,7 +38,7 @@ namespace Jazz2.Actors.Solid
         private BridgeType bridgeType;
         private int bridgeWidth;
         private float heightFactor;
-        private List<Piece> bridgePieces;
+        private List<Piece> bridgePieces = new List<Piece>();
 
         private List<ActorBase> collisions = new List<ActorBase>();
         private Player lastPlayer;
@@ -81,23 +81,23 @@ namespace Jazz2.Actors.Solid
             Vector3 pos = Transform.Pos;
             originalY = pos.Y - 6;
 
-            bridgePieces = new List<Piece>();
+            if (bridgePieces.Count == 0) {
+                int[] widthList = PieceWidths[(int)bridgeType];
 
-            int[] widthList = PieceWidths[(int)bridgeType];
+                int widthCovered = widthList[0] / 2;
+                for (int i = 0; (widthCovered <= bridgeWidth * 16 + 6) || (i * 16 < bridgeWidth); i++) {
+                    Piece piece = new Piece();
+                    piece.OnActivated(new ActorActivationDetails {
+                        LevelHandler = levelHandler,
+                        Pos = new Vector3(pos.X + widthCovered - 16, pos.Y - 20, LevelHandler.MainPlaneZ + 10),
+                        Params = new[] { (ushort)bridgeType, (ushort)i }
+                    });
+                    levelHandler.AddActor(piece);
 
-            int widthCovered = widthList[0] / 2;
-            for (int i = 0; (widthCovered <= bridgeWidth * 16 + 6) || (i * 16 < bridgeWidth); i++) {
-                Piece piece = new Piece();
-                piece.OnActivated(new ActorActivationDetails {
-                    LevelHandler = levelHandler,
-                    Pos = new Vector3(pos.X + widthCovered - 16, pos.Y - 20, LevelHandler.MainPlaneZ + 10),
-                    Params = new[] { (ushort)bridgeType, (ushort)i }
-                });
-                levelHandler.AddActor(piece);
+                    bridgePieces.Add(piece);
 
-                bridgePieces.Add(piece);
-
-                widthCovered += (widthList[i % widthList.Length] + widthList[(i + 1) % widthList.Length]) / 2;
+                    widthCovered += (widthList[i % widthList.Length] + widthList[(i + 1) % widthList.Length]) / 2;
+                }
             }
 
             CollisionFlags = CollisionFlags.CollideWithOtherActors | CollisionFlags.SkipPerPixelCollisions;
@@ -115,6 +115,7 @@ namespace Jazz2.Actors.Solid
                     for (int i = 0; i < bridgePieces.Count; ++i) {
                         levelHandler.RemoveActor(bridgePieces[i]);
                     }
+                    bridgePieces.Clear();
                     levelHandler.RemoveActor(this);
                     return true;
                 }
