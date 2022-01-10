@@ -23,6 +23,7 @@ namespace Jazz2
         public static float SfxVolume = 0.85f;
 
         public static bool EnableLedgeClimb = true;
+        public static bool EnableWeaponWheel = true;
 
         public static void Refresh()
         {
@@ -31,6 +32,7 @@ namespace Jazz2
             SfxVolume = Preferences.Get<byte>("SfxVolume", (byte)(SettingsCache.SfxVolume * 100)) * 0.01f;
 
             EnableLedgeClimb = Preferences.Get<bool>("EnableLedgeClimb", true);
+            EnableWeaponWheel = Preferences.Get<bool>("EnableWeaponWheel", true);
         }
     }
 }

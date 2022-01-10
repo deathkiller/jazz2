@@ -1,7 +1,9 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using Duality;
 using Duality.Input;
 using Jazz2.Storage;
+using MathF = Duality.MathF;
 
 namespace Jazz2
 {
@@ -24,24 +26,60 @@ namespace Jazz2
 
     public static class ControlScheme
     {
-        public struct Mapping
+        public struct Mapping : IEquatable<Mapping>
         {
             public Key Key1;
             public Key Key2;
 
             public int GamepadIndex;
             public GamepadButton GamepadButton;
-            
+
 #if ENABLE_TOUCH
             public bool TouchPressed;
             public bool TouchPressedLast;
 #endif
+
+            public override bool Equals(object obj)
+            {
+                return obj is Mapping mapping && Equals(mapping);
+            }
+
+            public bool Equals(Mapping other)
+            {
+                return Key1 == other.Key1 &&
+                       Key2 == other.Key2 &&
+                       GamepadIndex == other.GamepadIndex &&
+                       GamepadButton == other.GamepadButton;
+            }
+
+            public override int GetHashCode()
+            {
+                int hashCode = 290702377;
+                hashCode = hashCode * -1521134295 + Key1.GetHashCode();
+                hashCode = hashCode * -1521134295 + Key2.GetHashCode();
+                hashCode = hashCode * -1521134295 + GamepadIndex.GetHashCode();
+                hashCode = hashCode * -1521134295 + GamepadButton.GetHashCode();
+                return hashCode;
+            }
+
+            public static bool operator ==(Mapping left, Mapping right)
+            {
+                return left.Equals(right);
+            }
+
+            public static bool operator !=(Mapping left, Mapping right)
+            {
+                return !(left == right);
+            }
         }
 
         private static Mapping[] mappings;
         private static bool isSuspended;
         private static bool[] analogPressed = new bool[4];
         private static bool[] analogPressedPrev = new bool[4];
+
+        private static bool freezeAnalogEnable;
+        private static float freezeAnalogH, freezeAnalogV;
 
         public static bool IsSuspended
         {
@@ -100,9 +138,9 @@ namespace Jazz2
             mappings[(int)PlayerActions.Right].GamepadButton = GamepadButton.DPadRight;
             mappings[(int)PlayerActions.Up].GamepadButton = GamepadButton.DPadUp;
             mappings[(int)PlayerActions.Down].GamepadButton = GamepadButton.DPadDown;
-            mappings[(int)PlayerActions.Fire].GamepadButton = GamepadButton.B;
+            mappings[(int)PlayerActions.Fire].GamepadButton = GamepadButton.X;
             mappings[(int)PlayerActions.Jump].GamepadButton = GamepadButton.A;
-            mappings[(int)PlayerActions.Run].GamepadButton = GamepadButton.X;
+            mappings[(int)PlayerActions.Run].GamepadButton = GamepadButton.B;
             mappings[(int)PlayerActions.SwitchWeapon].GamepadButton = GamepadButton.Y;
             mappings[(int)PlayerActions.Menu].GamepadButton = GamepadButton.Start;
 
@@ -243,6 +281,13 @@ namespace Jazz2
 
         public static bool PlayerActionPressed(int index, PlayerActions action, bool includeGamepads = true)
         {
+            return PlayerActionPressed(index, action, includeGamepads, out _);
+        }
+
+        public static bool PlayerActionPressed(int index, PlayerActions action, bool includeGamepads, out bool isGamepad)
+        {
+            isGamepad = false;
+
             if (isSuspended) {
                 return false;
             }
@@ -264,15 +309,17 @@ namespace Jazz2
 
             if (includeGamepads && mapping.GamepadIndex != -1) {
                 if (DualityApp.Gamepads[mapping.GamepadIndex][mapping.GamepadButton]) {
+                    isGamepad = true;
                     return true;
                 }
                 
                 switch (action) {
-                    case PlayerActions.Left: if (DualityApp.Gamepads[mapping.GamepadIndex].LeftThumbstick.X < -0.8f) return true; break;
-                    case PlayerActions.Right: if (DualityApp.Gamepads[mapping.GamepadIndex].LeftThumbstick.X > 0.8f) return true; break;
-                    case PlayerActions.Up: if (DualityApp.Gamepads[mapping.GamepadIndex].LeftThumbstick.Y < -0.8f) return true; break;
-                    case PlayerActions.Down: if (DualityApp.Gamepads[mapping.GamepadIndex].LeftThumbstick.Y > 0.8f) return true; break;
-                    case PlayerActions.Run: if (DualityApp.Gamepads[mapping.GamepadIndex].LeftTrigger > 0.5f) return true; break;
+                    case PlayerActions.Left: if ((!freezeAnalogEnable || index != 0) && DualityApp.Gamepads[mapping.GamepadIndex].LeftThumbstick.X < -0.8f) { isGamepad = true; return true; } break;
+                    case PlayerActions.Right: if ((!freezeAnalogEnable || index != 0) && DualityApp.Gamepads[mapping.GamepadIndex].LeftThumbstick.X > 0.8f) { isGamepad = true; return true; } break;
+                    case PlayerActions.Up: if ((!freezeAnalogEnable || index != 0) && DualityApp.Gamepads[mapping.GamepadIndex].LeftThumbstick.Y < -0.8f) { isGamepad = true; return true; } break;
+                    case PlayerActions.Down: if ((!freezeAnalogEnable || index != 0) && DualityApp.Gamepads[mapping.GamepadIndex].LeftThumbstick.Y > 0.8f) { isGamepad = true; return true; } break;
+                    case PlayerActions.Run: if (DualityApp.Gamepads[mapping.GamepadIndex].LeftTrigger > 0.5f) { isGamepad = true; return true; } break;
+                    case PlayerActions.Fire: if (DualityApp.Gamepads[mapping.GamepadIndex].RightTrigger > 0.5f) { isGamepad = true; return true; } break;
                 }
             }
 
@@ -281,6 +328,13 @@ namespace Jazz2
 
         public static bool PlayerActionHit(int index, PlayerActions action, bool includeGamepads = true)
         {
+            return PlayerActionHit(index, action, includeGamepads, out _);
+        }
+
+        public static bool PlayerActionHit(int index, PlayerActions action, bool includeGamepads, out bool isGamepad)
+        {
+            isGamepad = false;
+
             if (isSuspended) {
                 return false;
             }
@@ -301,6 +355,7 @@ namespace Jazz2
             }
 
             if (includeGamepads && mapping.GamepadIndex != -1 && DualityApp.Gamepads[mapping.GamepadIndex].ButtonHit(mapping.GamepadButton)) {
+                isGamepad = true;
                 return true;
             }
 
@@ -346,6 +401,8 @@ namespace Jazz2
                     return 1f;
                 } else if (DualityApp.Gamepads[mappingLeft.GamepadIndex][mappingLeft.GamepadButton]) {
                     return -1f;
+                } else if (freezeAnalogEnable && index == 0) {
+                    return freezeAnalogH;
                 } else {
                     var gamepad = DualityApp.Gamepads[mappingRight.GamepadIndex];
                     float x = gamepad.LeftThumbstick.X;
@@ -395,6 +452,8 @@ namespace Jazz2
                     return 1f;
                 } else if (DualityApp.Gamepads[mappingUp.GamepadIndex][mappingUp.GamepadButton]) {
                     return -1f;
+                } else if (freezeAnalogEnable && index == 0) {
+                    return freezeAnalogV;
                 } else {
                     var gamepad = DualityApp.Gamepads[mappingDown.GamepadIndex];
                     float y = gamepad.LeftThumbstick.Y;
@@ -403,6 +462,44 @@ namespace Jazz2
             }
 
             return 0f;
+        }
+
+        public static void EnableFreezeAnalog(int index, bool enable)
+        {
+            if (index != 0 && freezeAnalogEnable == enable) {
+                return;
+            }
+
+            if (enable) {
+                freezeAnalogH = PlayerHorizontalMovement(index);
+                freezeAnalogV = PlayerVerticalMovement(index);
+            }
+
+            freezeAnalogEnable = enable;
+        }
+
+        public static void GetWeaponWheel(int index, out float x, out float y)
+        {
+            x = 0f;
+            y = 0f;
+
+            if (isSuspended) {
+                return;
+            }
+
+            ref Mapping mappingRight = ref mappings[index * (int)PlayerActions.Count + (int)PlayerActions.Right];
+
+            if (mappingRight.GamepadIndex != -1) {
+                var gamepad = DualityApp.Gamepads[mappingRight.GamepadIndex];
+                float rx = gamepad.LeftThumbstick.X;
+                float ry = gamepad.LeftThumbstick.Y;
+                if (MathF.Abs(rx) < 0.5f && MathF.Abs(ry) < 0.5f) {
+                    return;
+                }
+
+                x = rx;
+                y = ry;
+            }
         }
 
         internal static void UpdateAnalogPressed()

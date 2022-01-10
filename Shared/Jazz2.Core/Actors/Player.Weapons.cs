@@ -25,6 +25,20 @@ namespace Jazz2.Actors
 
         public byte[] WeaponUpgrades => weaponUpgrades;
 
+#if !SERVER
+        public bool WeaponWheelVisible
+        {
+            get
+            {
+                return renderer.ShowOutline;
+            }
+            set
+            {
+                renderer.ShowOutline = value;
+            }
+        }
+#endif
+
         public bool AddAmmo(WeaponType weaponType, short count)
         {
             const short Multiplier = 100;
@@ -93,7 +107,7 @@ namespace Jazz2.Actors
             }
         }
 
-        private void SwitchToNextWeapon()
+        public void SwitchToNextWeapon()
         {
             // Find next available weapon
             currentWeapon = (WeaponType)((int)(currentWeapon + 1) % (int)WeaponType.Count);
@@ -111,7 +125,7 @@ namespace Jazz2.Actors
             PreloadMetadata("Weapon/" + currentWeapon);
         }
 
-        private void SwitchToWeaponByIndex(int weaponIndex)
+        public void SwitchToWeaponByIndex(int weaponIndex)
         {
             if (weaponIndex >= weaponAmmo.Length || weaponAmmo[weaponIndex] == 0) {
                 return;

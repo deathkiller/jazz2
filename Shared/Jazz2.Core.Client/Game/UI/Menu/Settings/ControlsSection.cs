@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Duality;
 using Duality.Drawing;
 using Duality.Input;
@@ -11,11 +12,15 @@ namespace Jazz2.Game.UI.Menu.Settings
         private const int possibleButtons = 3;
 
         private int selectedIndex, selectedColumn;
+        private int currentPlayerIndex = 0;
         private float animation;
         private bool waitForInput;
+        private HashSet<Mapping> collisions = new HashSet<Mapping>();
 
         public override void OnShow(IMenuContainer root)
         {
+            RefreshCollisions();
+
             animation = 0f;
             base.OnShow(root);
         }
@@ -40,7 +45,7 @@ namespace Jazz2.Game.UI.Menu.Settings
             api.DrawMaterial("MenuDim", center.X, (topLine + bottomLine) * 0.5f, Alignment.Center, ColorRgba.White, 55f, (bottomLine - topLine) * 0.063f, new Rect(0f, 0.3f, 1f, 0.4f));
 
             int charOffset = 0;
-            api.DrawStringShadow(ref charOffset, "menu/settings/controls/title".T("1"), center.X * 0.3f, 110f,
+            api.DrawStringShadow(ref charOffset, "menu/settings/controls/title".T((currentPlayerIndex + 1).ToString()), center.X * 0.3f, 110f,
                 Alignment.Left, new ColorRgba(0.5f, 0.5f), 0.9f, 0.4f, 0.6f, 0.6f, 8f, charSpacing: 0.88f);
 
             api.DrawStringShadow(ref charOffset, "menu/settings/controls/key".T("1"), center.X * (0.9f + 0 * 0.34f), 110f,
@@ -74,17 +79,19 @@ namespace Jazz2.Game.UI.Menu.Settings
                     default: name = ((PlayerActions)i).ToString(); break;
                 }
 
-                ref Mapping mapping = ref GetCurrentMapping(0, (PlayerActions)i);
+                ref Mapping mapping = ref GetCurrentMapping(currentPlayerIndex, (PlayerActions)i);
 
                 api.DrawString(ref charOffset, name, center.X * 0.3f, topItem,
                     Alignment.Left, ColorRgba.TransparentBlack, 0.8f);
 
                 for (int j = 0; j < possibleButtons; j++) {
                     string value;
+                    bool hasCollision = false;
                     switch (j) {
                         case 0:
                             if (mapping.Key1 != Key.Unknown) {
                                 value = mapping.Key1.ToString();
+                                hasCollision = HasCollision(mapping.Key1);
                             } else {
                                 value = "-";
                             }
@@ -92,6 +99,7 @@ namespace Jazz2.Game.UI.Menu.Settings
                         case 1:
                             if (mapping.Key2 != Key.Unknown) {
                                 value = mapping.Key2.ToString();
+                                hasCollision = HasCollision(mapping.Key2);
                             } else {
                                 value = "-";
                             }
@@ -103,11 +111,12 @@ namespace Jazz2.Game.UI.Menu.Settings
                                 } else {
                                     value = null;
                                 }
+                                hasCollision = HasCollision(mapping.GamepadIndex, mapping.GamepadButton);
 
                                 api.DrawMaterial("Gamepad" + mapping.GamepadButton.ToString(), center.X * (0.9f + j * 0.34f) + 3, topItem, Alignment.Center, ColorRgba.White);
 
                                 api.DrawStringShadow(ref charOffset, new string('1', mapping.GamepadIndex + 1), center.X * (0.9f + j * 0.34f) + 4, topItem - 5,
-                                    Alignment.Left, ColorRgba.TransparentBlack, 0.6f, 0f, 0f, 0f, charSpacing: 0.6f);
+                                    Alignment.Left, hasCollision ? new ColorRgba(0.5f, 0.32f, 0.32f, 1f) : ColorRgba.TransparentBlack, 0.6f, 0f, 0f, 0f, charSpacing: 0.6f);
 
                             } else {
                                 value = "-";
@@ -132,7 +141,7 @@ namespace Jazz2.Game.UI.Menu.Settings
 
                     } else {
                         api.DrawString(ref charOffset, value, center.X * (0.9f + j * 0.34f), topItem,
-                            Alignment.Center, ColorRgba.TransparentBlack, 0.8f);
+                            Alignment.Center, hasCollision ? new ColorRgba(0.5f, 0.32f, 0.32f, 1f) : ColorRgba.TransparentBlack, 0.8f);
                     }
                 }
 
@@ -150,18 +159,18 @@ namespace Jazz2.Game.UI.Menu.Settings
             }
 
             if (waitForInput) {
-                //if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
-                //    api.PlaySound("MenuSelect", 0.5f);
-                //    waitForInput = false;
-                //    return;
-                //}
+                if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
+                    api.PlaySound("MenuSelect", 0.5f);
+                    waitForInput = false;
+                    return;
+                }
 
                 switch (selectedColumn) {
                     case 0: // Keyboard
                     case 1:
                         for (Key key = 0; key < Key.Last; key++) {
                             if (DualityApp.Keyboard.KeyHit(key)) {
-                                ref Mapping mapping = ref ControlScheme.GetCurrentMapping(0, (PlayerActions)selectedIndex);
+                                ref Mapping mapping = ref ControlScheme.GetCurrentMapping(currentPlayerIndex, (PlayerActions)selectedIndex);
 
                                 if (selectedColumn == 0) {
                                     mapping.Key1 = key;
@@ -171,6 +180,7 @@ namespace Jazz2.Game.UI.Menu.Settings
 
                                 api.PlaySound("MenuSelect", 0.5f);
                                 waitForInput = false;
+                                RefreshCollisions();
                                 break;
                             }
                         }
@@ -180,13 +190,14 @@ namespace Jazz2.Game.UI.Menu.Settings
                         for (int i = 0; i < DualityApp.Gamepads.Count; i++) {
                             for (GamepadButton button = 0; button <= GamepadButton.Last; button++) {
                                 if (DualityApp.Gamepads[i].ButtonHit(button)) {
-                                    ref Mapping mapping = ref ControlScheme.GetCurrentMapping(0, (PlayerActions)selectedIndex);
+                                    ref Mapping mapping = ref ControlScheme.GetCurrentMapping(currentPlayerIndex, (PlayerActions)selectedIndex);
 
                                     mapping.GamepadIndex = i;
                                     mapping.GamepadButton = button;
 
                                     api.PlaySound("MenuSelect", 0.5f);
                                     waitForInput = false;
+                                    RefreshCollisions();
                                     break;
                                 }
                             }
@@ -256,6 +267,62 @@ namespace Jazz2.Game.UI.Menu.Settings
         private void Commit()
         {
             ControlScheme.SaveMappings();
+        }
+
+        private void RefreshCollisions()
+        {
+            collisions.Clear();
+
+            HashSet<Mapping> found = new HashSet<Mapping>();
+
+            int n = (int)PlayerActions.Count;
+
+            for (int i = 0; i < n; i++) {
+                ref Mapping mapping = ref GetCurrentMapping(currentPlayerIndex, (PlayerActions)i);
+
+                if (mapping.Key1 != Key.Unknown) {
+                    Mapping mapping2 = default(Mapping);
+                    mapping2.Key1 = mapping.Key1;
+                    mapping2.GamepadIndex = -1;
+                    if (!found.Add(mapping2)) {
+                        collisions.Add(mapping2);
+                    }
+                }
+
+                if (mapping.Key2 != Key.Unknown) {
+                    Mapping mapping2 = default(Mapping);
+                    mapping2.Key1 = mapping.Key2;
+                    mapping2.GamepadIndex = -1;
+                    if (!found.Add(mapping2)) {
+                        collisions.Add(mapping2);
+                    }
+                }
+
+                if (mapping.GamepadIndex != -1) {
+                    Mapping mapping2 = default(Mapping);
+                    mapping2.GamepadIndex = mapping.GamepadIndex;
+                    mapping2.GamepadButton = mapping.GamepadButton;
+                    if (!found.Add(mapping2)) {
+                        collisions.Add(mapping2);
+                    }
+                }
+            }
+        }
+
+        private bool HasCollision(Key key)
+        {
+            Mapping mapping2 = default(Mapping);
+            mapping2.Key1 = key;
+            mapping2.GamepadIndex = -1;
+            return collisions.Contains(mapping2);
+        }
+
+        private bool HasCollision(int gamepadIndex, GamepadButton gamepadButton)
+        {
+            Mapping mapping2 = default(Mapping);
+            mapping2.GamepadIndex = gamepadIndex;
+            mapping2.GamepadButton = gamepadButton;
+            return collisions.Contains(mapping2);
         }
     }
 }

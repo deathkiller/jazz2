@@ -34,7 +34,7 @@ namespace Jazz2.Game.Components
         private float animDuration = 5.0f;
         private LoopMode animLoopMode = LoopMode.Loop;
         private float animTime;
-        private bool animPaused, animHidden;
+        private bool animPaused, animHidden, showOutline;
 
         private int curAnimFrame, nextAnimFrame;
         private float curAnimFrameFade;
@@ -162,6 +162,12 @@ namespace Jazz2.Game.Components
         public float CurrentFrameProgress
         {
             get { return curAnimFrameFade; }
+        }
+
+        public bool ShowOutline
+        {
+            get { return showOutline; }
+            set { showOutline = value; }
         }
 
         public Action AnimationFinished;
@@ -371,20 +377,8 @@ namespace Jazz2.Game.Components
             bool smoothShaderInput = (tech != null && tech.PreferredVertexFormat == VertexC1P3T4A1.Declaration);
             GetAnimData(mainTex, smoothShaderInput, out uvRect, out uvRectNext);
 
-            if (!smoothShaderInput) {
-                PrepareVertices(ref vertices, device, this.colorTint, uvRect);
-                if (customMat != null) {
-                    device.AddVertices(customMat, VertexMode.Quads, vertices, 0, 4);
-                } else {
-                    if (flipMode == 0) {
-                        device.AddVertices(sharedMat, VertexMode.Quads, vertices, 0, 4);
-                    } else {
-                        BatchInfo material = device.RentMaterial(sharedMat.Res.Info);
-                        material.SetValue("normalMultiplier", new Vector2((flipMode & FlipMode.Horizontal) == 0 ? 1 : -1f, (flipMode & FlipMode.Vertical) == 0 ? 1 : -1f));
-                        device.AddVertices(material, VertexMode.Quads, vertices, 0, 4);
-                    }
-                }
-            } else {
+            if (smoothShaderInput) {
+                // ToDo: Outline is not supported here
                 PrepareVerticesSmooth(ref verticesSmooth, device, curAnimFrameFade, this.colorTint, uvRect, uvRectNext);
                 if (customMat != null) {
                     device.AddVertices(customMat, VertexMode.Quads, verticesSmooth, 0, 4);
@@ -395,6 +389,56 @@ namespace Jazz2.Game.Components
                         BatchInfo material = device.RentMaterial(sharedMat.Res.Info);
                         material.SetValue("normalMultiplier", new Vector2((flipMode & FlipMode.Horizontal) == 0 ? 1 : -1f, (flipMode & FlipMode.Vertical) == 0 ? 1 : -1f));
                         device.AddVertices(material, VertexMode.Quads, verticesSmooth, 0, 4);
+                    }
+                }
+            } else {
+                PrepareVertices(ref vertices, device, this.colorTint, uvRect);
+
+                if (showOutline) {
+                    // ToDo: Rework this
+                    BatchInfo outlineMaterial = device.RentMaterial(SharedMaterial.Res.Info);
+                    outlineMaterial.Technique = ContentResolver.Current.RequestShader("Colorize");
+                    outlineMaterial.MainColor = new ColorRgba(1f, 0.5f);
+
+                    var outlineVertices = new VertexC1P3T2[vertices.Length];
+                    for (int i = 0; i < outlineVertices.Length; i++) {
+                        outlineVertices[i] = vertices[i];
+
+                        outlineVertices[i].Pos.X = vertices[i].Pos.X - 1.5f;
+                        outlineVertices[i].Pos.Z += 1f;
+                    }
+
+                    device.AddVertices(outlineMaterial, VertexMode.Quads, outlineVertices, 0, 4);
+
+                    for (int i = 0; i < outlineVertices.Length; i++) {
+                        outlineVertices[i].Pos.X = vertices[i].Pos.X + 1.5f;
+                    }
+
+                    device.AddVertices(outlineMaterial, VertexMode.Quads, outlineVertices, 0, 4);
+
+                    for (int i = 0; i < outlineVertices.Length; i++) {
+                        outlineVertices[i].Pos.X = vertices[i].Pos.X;
+                        outlineVertices[i].Pos.Y = vertices[i].Pos.Y - 1.5f;
+                    }
+
+                    device.AddVertices(outlineMaterial, VertexMode.Quads, outlineVertices, 0, 4);
+
+                    for (int i = 0; i < outlineVertices.Length; i++) {
+                        outlineVertices[i].Pos.Y = vertices[i].Pos.Y + 1.5f;
+                    }
+
+                    device.AddVertices(outlineMaterial, VertexMode.Quads, outlineVertices, 0, 4);
+                }
+
+                if (customMat != null) {
+                    device.AddVertices(customMat, VertexMode.Quads, vertices, 0, 4);
+                } else {
+                    if (flipMode == 0) {
+                        device.AddVertices(sharedMat, VertexMode.Quads, vertices, 0, 4);
+                    } else {
+                        BatchInfo material = device.RentMaterial(sharedMat.Res.Info);
+                        material.SetValue("normalMultiplier", new Vector2((flipMode & FlipMode.Horizontal) == 0 ? 1 : -1f, (flipMode & FlipMode.Vertical) == 0 ? 1 : -1f));
+                        device.AddVertices(material, VertexMode.Quads, vertices, 0, 4);
                     }
                 }
             }

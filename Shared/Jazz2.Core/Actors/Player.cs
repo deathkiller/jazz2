@@ -122,11 +122,15 @@ namespace Jazz2.Actors
 
         public bool InWater => inWater;
 
+        public bool IsControllable => (controllable && controllableExternal);
+
         public bool IsControllableExternal
         {
             get => controllableExternal;
             set => controllableExternal = value;
         }
+
+        public int PlayerIndex => playerIndex;
 
         protected override async Task OnActivatedAsync(ActorActivationDetails details)
         {
@@ -355,7 +359,10 @@ namespace Jazz2.Actors
                 attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Ammo", false);
 
                 for (int i = 0; i < weaponAmmo.Length; i++) {
-                    AddAmmo((WeaponType)i, short.MaxValue);
+                    if (weaponAmmo[i] == 0) {
+                        AddAmmo((WeaponType)i, short.MaxValue);
+                        break;
+                    }
                 }
             } else if (DualityApp.Keyboard.KeyHit(Duality.Input.Key.I)) {
                 attachedHud?.ShowLevelText("\f[s:75]\f[w:95]\f[c:1]\n\n\nCheat activated: \f[c:6]Add Sugar Rush", false);
@@ -374,8 +381,10 @@ namespace Jazz2.Actors
             }
 
             if (playerType != PlayerType.Frog) {
-                if (ControlScheme.PlayerActionHit(playerIndex, PlayerActions.SwitchWeapon)) {
-                    SwitchToNextWeapon();
+                if (ControlScheme.PlayerActionHit(playerIndex, PlayerActions.SwitchWeapon, true, out bool isGamepad)) {
+                    if (!isGamepad || !SettingsCache.EnableWeaponWheel) {
+                        SwitchToNextWeapon();
+                    }
                 } else if (playerIndex == 0) {
                     // Use numeric key to switch weapons for the first player
                     int maxWeaponCount = Math.Min(weaponAmmo.Length, 9);

@@ -114,6 +114,13 @@
         
         "BossHealthBar": {
             "Path": "UI/boss_health_bar.png"
+        },
+        
+        "WeaponWheel": {
+            "Path": "_custom/weapon_wheel.png"
+        },
+        "WeaponWheelDim": {
+            "Path": "_custom/dim.png"
         }
     }
 }

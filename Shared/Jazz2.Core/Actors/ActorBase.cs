@@ -89,7 +89,7 @@ namespace Jazz2.Actors
 
         private bool isFacingLeft;
         protected bool isInvulnerable;
-        public CollisionFlags CollisionFlags = Actors.CollisionFlags.CollideWithTileset | Actors.CollisionFlags.CollideWithOtherActors | Actors.CollisionFlags.ApplyGravitation;
+        public CollisionFlags CollisionFlags = CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithOtherActors | CollisionFlags.ApplyGravitation;
 
         protected float frozenTimeLeft;
 

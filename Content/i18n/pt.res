@@ -61,7 +61,7 @@
     "menu/settings/sfx": "Volume dos Efeitos",
 
     "menu/settings/enhancements": "Melhorias",
-    "menu/settings/enhancements/info": "Pode ativar melhorias que foram adicionadas a este remake.\n\nO modo Redux altera o comportamento de vários inimigos e itens.\nEscalar Plataformas adiciona uma nova mecânica ao Jazz e ao Spaz.",
+    "menu/settings/enhancements/info": "Pode ativar melhorias que foram adicionadas a este remake.",
     "menu/settings/enhancements/redux mode": "Modo Redux",
     "menu/settings/enhancements/ledge climb": "Escalar Plataformas",
 
