@@ -418,26 +418,30 @@ namespace Jazz2.Game.UI
 
         private void DrawWeaponWheel(Vector2 size)
         {
-            if (owner == null || !SettingsCache.EnableWeaponWheel || !owner.IsControllable || owner.PlayerType == PlayerType.Frog) {
-                if (weaponWheelAnim > 0f) {
-                    ControlScheme.EnableFreezeAnalog(owner.PlayerIndex, false);
-                    owner.WeaponWheelVisible = false;
-                    lastWeaponWheelIndex = -1;
-                    weaponWheelAnim = 0f;
+            PrepareWeaponWheel(out int weaponCount);
+
+            const float WeaponWheelAnimMax = 20f;
+
+            if (weaponCount > 0) {
+                if (weaponWheelAnim < WeaponWheelAnimMax) {
+                    weaponWheelAnim += Time.TimeMult;
+                    if (weaponWheelAnim > WeaponWheelAnimMax) {
+                        weaponWheelAnim = WeaponWheelAnimMax;
+                    }
                 }
-                return;
+            } else {
+                if (weaponWheelAnim > 0f) {
+                    weaponWheelAnim -= Time.TimeMult * 2f;
+                    if (weaponWheelAnim <= 0f) {
+                        weaponWheelAnim = 0f;
+
+                        ControlScheme.EnableFreezeAnalog(owner.PlayerIndex, false);
+                        owner.WeaponWheelVisible = false;
+                    }
+                }
             }
 
-            if (!ControlScheme.PlayerActionPressed(owner.PlayerIndex, PlayerActions.SwitchWeapon, true, out bool isGamepad) || !isGamepad) {
-                if (weaponWheelAnim > 0f) {
-                    ControlScheme.EnableFreezeAnalog(owner.PlayerIndex, false);
-                    owner.WeaponWheelVisible = false;
-                    if (lastWeaponWheelIndex != -1) {
-                        owner.SwitchToWeaponByIndex(lastWeaponWheelIndex);
-                        lastWeaponWheelIndex = -1;
-                    }
-                    weaponWheelAnim = 0f;
-                }
+            if (weaponWheelAnim <= 0f) {
                 return;
             }
 
@@ -445,21 +449,8 @@ namespace Jazz2.Game.UI
                 return;
             }
 
-            int weaponCount = 0;
-            var ammo = owner.WeaponAmmo;
-            for (int i = 0; i < ammo.Length; i++) {
-                if (ammo[i] != 0) {
-                    weaponCount++;
-                }
-            }
-
-            if (weaponCount < 2) {
-                return;
-            }
-
             ControlScheme.EnableFreezeAnalog(owner.PlayerIndex, true);
             owner.WeaponWheelVisible = true;
-            lastWeaponWheelIndex = -1;
 
             var center = size * 0.5f;
             var angleStep = MathF.TwoPi / weaponCount;
@@ -485,8 +476,7 @@ namespace Jazz2.Game.UI
                 requestedIndex = (int)(weaponCount * adjustedAngle / MathF.TwoPi);
             }
 
-            const float weaponWheelAnimMax = 20f;
-            float alpha = weaponWheelAnim / weaponWheelAnimMax;
+            float alpha = weaponWheelAnim / WeaponWheelAnimMax;
             float easing = Ease.OutCubic(alpha);
             float distance = 20 + (70 * easing);
             float distance2 = 10 + (50 * easing);
@@ -506,6 +496,7 @@ namespace Jazz2.Game.UI
                 canvas.FillThickLine(center.X + cx * distance4, center.Y + cy * distance4, center.X + cx * distance3, center.Y + cy * distance3, 1f);
             }
 
+            var ammo = owner.WeaponAmmo;
             var angle = -MathF.PiOver2;
             for (int i = 0, j = 0; i < ammo.Length; i++) {
                 if (ammo[i] != 0) {
@@ -542,12 +533,39 @@ namespace Jazz2.Game.UI
                     j++;
                 }
             }
+        }
 
-            if (weaponWheelAnim < weaponWheelAnimMax) {
-                weaponWheelAnim += Time.TimeMult;
-                if (weaponWheelAnim > weaponWheelAnimMax) {
-                    weaponWheelAnim = weaponWheelAnimMax;
+        private void PrepareWeaponWheel(out int weaponCount)
+        {
+            weaponCount = 0;
+
+            if (owner == null || !SettingsCache.EnableWeaponWheel || !owner.IsControllable || owner.PlayerType == PlayerType.Frog) {
+                if (weaponWheelAnim > 0f) {
+                    lastWeaponWheelIndex = -1;
                 }
+                return;
+            }
+
+            if (!ControlScheme.PlayerActionPressed(owner.PlayerIndex, PlayerActions.SwitchWeapon, true, out bool isGamepad) || !isGamepad) {
+                if (weaponWheelAnim > 0f) {
+                    if (lastWeaponWheelIndex != -1) {
+                        owner.SwitchToWeaponByIndex(lastWeaponWheelIndex);
+                        lastWeaponWheelIndex = -1;
+                    }
+                }
+                return;
+            }
+
+            var ammo = owner.WeaponAmmo;
+            for (int i = 0; i < ammo.Length; i++) {
+                if (ammo[i] != 0) {
+                    weaponCount++;
+                }
+            }
+
+            // Player must have at least 2 weapons
+            if (weaponCount < 2) {
+                weaponCount = 0;
             }
         }
 
