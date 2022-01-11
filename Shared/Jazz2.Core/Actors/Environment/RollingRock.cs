@@ -20,7 +20,7 @@ namespace Jazz2.Actors.Environment
         private float delayLeft = 40f;
         private bool triggered;
         private SpeedUpDirection speedUpDirection;
-        private float speedUpDirectionCooldown;
+        private float speedUpDirectionCooldown, soundCooldown;
 
         public static void Preload(ActorActivationDetails details)
         {
@@ -73,6 +73,9 @@ namespace Jazz2.Actors.Environment
                 for (yDiff = maxYDiff + effectiveSpeedY; yDiff >= -maxYDiff + effectiveSpeedY; yDiff -= CollisionCheckStep) {
                     if (MoveInstantly(new Vector2(effectiveSpeedX, yDiff), MoveType.Relative)) {
                         success = true;
+                        if (yDiff <= maxYDiff + effectiveSpeedY * 0.8f) {
+                            speedX += MathF.Sign(speedX) * yDiff * 0.02f;
+                        }
                         break;
                     }
                 }
@@ -93,6 +96,11 @@ namespace Jazz2.Actors.Environment
                         speedX = -(elasticity * speedX);
                         speedUpDirection = SpeedUpDirection.None;
                         speedUpDirectionCooldown = 60f;
+
+                        if (soundCooldown <= 0f) {
+                            soundCooldown = 140f;
+                            PlaySound("Hit", 0.6f, 0.4f);
+                        }
                     }
                 }
 
@@ -104,6 +112,11 @@ namespace Jazz2.Actors.Environment
 
                 if (speedY > 0f && yDiff <= 0f) {
                     speedY = 0f;
+
+                    if (soundCooldown <= 0f) {
+                        soundCooldown = 140f;
+                        PlaySound("Hit", 0.6f, 0.4f);
+                    }
                 }
 
                 if (MathF.Abs(speedX) < 0.4f) {
@@ -147,6 +160,10 @@ namespace Jazz2.Actors.Environment
                     CollisionFlags = CollisionFlags.None;
                     canHurtPlayer = false;
                 }
+
+                if (soundCooldown > 0f) {
+                    soundCooldown -= timeMult;
+                }
             }
 
             // Trigger
@@ -159,6 +176,11 @@ namespace Jazz2.Actors.Environment
 
                     externalForceX = triggerSpeedX * 0.5f;
                     externalForceY = triggerSpeedY * -0.5f;
+
+                    if (soundCooldown <= 0f) {
+                        soundCooldown = 140f;
+                        PlaySound("Hit", 0.6f, 0.4f);
+                    }
                 }
                 return;
             }
@@ -173,6 +195,8 @@ namespace Jazz2.Actors.Environment
         {
             if (!triggered && eventType == EventType.RollingRockTrigger && eventParams[0] == id) {
                 triggered = true;
+
+                levelHandler.ShakeCameraView(60f);
             }
         }
     }
