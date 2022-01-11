@@ -418,11 +418,11 @@ namespace Jazz2.Game.UI
 
         private void DrawWeaponWheel(Vector2 size)
         {
-            PrepareWeaponWheel(out int weaponCount);
+            bool isVisible = PrepareWeaponWheel(out int weaponCount);
 
             const float WeaponWheelAnimMax = 20f;
 
-            if (weaponCount > 0) {
+            if (isVisible) {
                 if (weaponWheelAnim < WeaponWheelAnimMax) {
                     weaponWheelAnim += Time.TimeMult;
                     if (weaponWheelAnim > WeaponWheelAnimMax) {
@@ -535,7 +535,7 @@ namespace Jazz2.Game.UI
             }
         }
 
-        private void PrepareWeaponWheel(out int weaponCount)
+        private bool PrepareWeaponWheel(out int weaponCount)
         {
             weaponCount = 0;
 
@@ -543,7 +543,7 @@ namespace Jazz2.Game.UI
                 if (weaponWheelAnim > 0f) {
                     lastWeaponWheelIndex = -1;
                 }
-                return;
+                return false;
             }
 
             if (!ControlScheme.PlayerActionPressed(owner.PlayerIndex, PlayerActions.SwitchWeapon, true, out bool isGamepad) || !isGamepad) {
@@ -552,9 +552,19 @@ namespace Jazz2.Game.UI
                         owner.SwitchToWeaponByIndex(lastWeaponWheelIndex);
                         lastWeaponWheelIndex = -1;
                     }
+
+                    weaponCount  = GetWeaponCount(owner);
                 }
-                return;
+                return false;
             }
+
+            weaponCount = GetWeaponCount(owner);
+            return (weaponCount > 0);
+        }
+
+        private static int GetWeaponCount(Player owner)
+        {
+            int weaponCount = 0;
 
             var ammo = owner.WeaponAmmo;
             for (int i = 0; i < ammo.Length; i++) {
@@ -567,6 +577,8 @@ namespace Jazz2.Game.UI
             if (weaponCount < 2) {
                 weaponCount = 0;
             }
+
+            return weaponCount;
         }
 
         private void DrawWeaponWheelSegment(float x, float y, float width, float height, float minAngle, float maxAngle)

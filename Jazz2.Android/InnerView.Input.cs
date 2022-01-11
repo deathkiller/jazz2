@@ -38,6 +38,7 @@ namespace Jazz2.Android
 
         private bool[] pressedKeys = new bool[(int)Key.Last + 1];
         private bool[] pressedButtons = new bool[(int)(GamepadButton.Last + 1)];
+        private float axisX, axisY, axisLeftTrigger, axisRightTrigger;
 
         private void InitializeInput()
         {
@@ -265,6 +266,46 @@ namespace Jazz2.Android
             return true;
         }
 
+        public override bool OnGenericMotionEvent(MotionEvent e)
+        {
+            var device = e.Device;
+            if (((device.Sources & InputSourceType.Gamepad) == InputSourceType.Gamepad ||
+                 (device.Sources & InputSourceType.ClassJoystick) == InputSourceType.Joystick) &&
+                e.Action == MotionEventActions.Move) {
+                axisX = GetCenteredAxis(e, device, Axis.X, Axis.HatX);
+                axisY = GetCenteredAxis(e, device, Axis.Y, Axis.HatY);
+                axisLeftTrigger = GetCenteredAxis(e, device, Axis.Ltrigger, Axis.Brake);
+                axisRightTrigger = GetCenteredAxis(e, device, Axis.Rtrigger, Axis.Throttle);
+                return true;
+            } else {
+                return base.OnGenericMotionEvent(e);
+            }
+        }
+
+        private static float GetCenteredAxis(MotionEvent e, InputDevice device, Axis primaryAxis, Axis secondaryAxis)
+        {
+            InputDevice.MotionRange primaryRange = device.GetMotionRange(primaryAxis, e.Source);
+            if (primaryRange != null) {
+                float flat = primaryRange.Flat;
+                float value = e.GetAxisValue(primaryAxis);
+                if (Math.Abs(value) > flat) {
+                    return value;
+                }
+            }
+
+            InputDevice.MotionRange secondaryRange = device.GetMotionRange(secondaryAxis, e.Source);
+            if (secondaryRange != null) {
+                float flat = secondaryRange.Flat;
+                float value = e.GetAxisValue(secondaryAxis);
+                if (Math.Abs(value) > flat) {
+                    return value;
+                }
+            }
+
+            return 0f;
+        }
+
+
 #if ENABLE_TOUCH
         private TouchButtonInfo CreateTouchButton(PlayerActions action, Material material, bool allowRollover, Alignment alignment, float x, float y, float w, float h)
         {
@@ -375,10 +416,10 @@ namespace Jazz2.Android
         private static GamepadButton ToDualityButton(Keycode key)
         {
             switch (key) {
-                case Keycode.DpadUp: return GamepadButton.DPadUp;
-                case Keycode.DpadDown: return GamepadButton.DPadDown;
-                case Keycode.DpadLeft: return GamepadButton.DPadLeft;
-                case Keycode.DpadRight: return GamepadButton.DPadRight;
+                //case Keycode.DpadUp: return GamepadButton.DPadUp;
+                //case Keycode.DpadDown: return GamepadButton.DPadDown;
+                //case Keycode.DpadLeft: return GamepadButton.DPadLeft;
+                //case Keycode.DpadRight: return GamepadButton.DPadRight;
 
                 case Keycode.ButtonA: return GamepadButton.A;
                 case Keycode.ButtonB: return GamepadButton.B;
@@ -430,7 +471,13 @@ namespace Jazz2.Android
             {
                 get
                 {
-                    return 0f;
+                    switch (axis) {
+                        case GamepadAxis.LeftThumbstickX: return owner.axisX;
+                        case GamepadAxis.LeftThumbstickY: return owner.axisY;
+                        case GamepadAxis.LeftTrigger: return owner.axisLeftTrigger;
+                        case GamepadAxis.RightTrigger: return owner.axisRightTrigger;
+                        default: return 0f;
+                    }
                 }
             }
 

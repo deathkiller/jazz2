@@ -159,7 +159,7 @@ namespace Jazz2.Game.UI.Menu.Settings
             }
 
             if (waitForInput) {
-                if (ControlScheme.MenuActionHit(PlayerActions.Menu)) {
+                if (ControlScheme.MenuActionHit(PlayerActions.Menu, false)) {
                     api.PlaySound("MenuSelect", 0.5f);
                     waitForInput = false;
                     return;

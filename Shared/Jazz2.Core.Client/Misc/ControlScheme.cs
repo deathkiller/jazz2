@@ -235,7 +235,7 @@ namespace Jazz2
             return keyPressed;
         }
 
-        public static bool MenuActionHit(PlayerActions action)
+        public static bool MenuActionHit(PlayerActions action, bool includeGamepads = true)
         {
             if (isSuspended) {
                 return false;
@@ -257,7 +257,7 @@ namespace Jazz2
                 case PlayerActions.Menu: keyHit = DualityApp.Keyboard.KeyHit(Key.Escape); break;
             }
 
-            if (!keyHit) {
+            if (!keyHit && includeGamepads) {
                 if (action <= PlayerActions.Down && !analogPressedPrev[(int)action] && analogPressed[(int)action]) {
                     keyHit = true;
                 } else {
