@@ -404,27 +404,27 @@ namespace Jazz2.Game.Components
                     for (int i = 0; i < outlineVertices.Length; i++) {
                         outlineVertices[i] = vertices[i];
 
-                        outlineVertices[i].Pos.X = vertices[i].Pos.X - 1.5f;
+                        outlineVertices[i].Pos.X = vertices[i].Pos.X - 2.0f;
                         outlineVertices[i].Pos.Z += 1f;
                     }
 
                     device.AddVertices(outlineMaterial, VertexMode.Quads, outlineVertices, 0, 4);
 
                     for (int i = 0; i < outlineVertices.Length; i++) {
-                        outlineVertices[i].Pos.X = vertices[i].Pos.X + 1.5f;
+                        outlineVertices[i].Pos.X = vertices[i].Pos.X + 2.0f;
                     }
 
                     device.AddVertices(outlineMaterial, VertexMode.Quads, outlineVertices, 0, 4);
 
                     for (int i = 0; i < outlineVertices.Length; i++) {
                         outlineVertices[i].Pos.X = vertices[i].Pos.X;
-                        outlineVertices[i].Pos.Y = vertices[i].Pos.Y - 1.5f;
+                        outlineVertices[i].Pos.Y = vertices[i].Pos.Y - 2.0f;
                     }
 
                     device.AddVertices(outlineMaterial, VertexMode.Quads, outlineVertices, 0, 4);
 
                     for (int i = 0; i < outlineVertices.Length; i++) {
-                        outlineVertices[i].Pos.Y = vertices[i].Pos.Y + 1.5f;
+                        outlineVertices[i].Pos.Y = vertices[i].Pos.Y + 2.0f;
                     }
 
                     device.AddVertices(outlineMaterial, VertexMode.Quads, outlineVertices, 0, 4);
