@@ -57,8 +57,8 @@ This project uses parts of [Duality - A 2D GameDev Framework](https://www.dualit
 * Install `Jazz2.apk` on Android device
 * Run the newly installed application
 
-*Requires device with Android 5.0 (or newer) and OpenGL ES 3.0 support.* `‹Storage›` *could be internal (preferred) or external storage.
-The application tries to autodetect correct paths.*
+`‹Game›` *is path to **Desktop** release of Jazz² Resurrection.* `‹Storage›` *could be internal (preferred) or external storage on your device. The application tries to autodetect correct paths.*
+*Requires device with Android 5.0 (or newer) and OpenGL ES 3.0 support.*
 
 ### WebAssembly
 * Go to [Jazz² Resurrection](http://deat.tk/jazz2/wasm/) page to play **Shareware Demo** online

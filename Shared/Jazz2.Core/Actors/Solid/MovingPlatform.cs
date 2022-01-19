@@ -70,17 +70,22 @@ namespace Jazz2.Actors.Solid
             await RequestMetadataAsync("MovingPlatform/" + type.ToString("G"));
             SetAnimation("Platform");
 
-            pieces = new ChainPiece[length];
-            for (int i = 0; i < length; i++) {
-                pieces[i] = new ChainPiece(levelHandler, originPos + new Vector3(0f, 0f, 4f), type);
-                levelHandler.AddActor(pieces[i]);
+            if (length > 0) {
+                pieces = new ChainPiece[length];
+                for (int i = 0; i < length; i++) {
+                    pieces[i] = new ChainPiece(levelHandler, originPos + new Vector3(0f, 0f, 4f), type);
+                    levelHandler.AddActor(pieces[i]);
+                }
             }
         }
 
         public override void OnDestroyed()
         {
-            for (int i = 0; i < length; i++) {
-                levelHandler.RemoveActor(pieces[i]);
+            length = 0;
+            if (pieces != null) {
+                for (int i = 0; i < pieces.Length; i++) {
+                    levelHandler.RemoveActor(pieces[i]);
+                }
             }
         }
 

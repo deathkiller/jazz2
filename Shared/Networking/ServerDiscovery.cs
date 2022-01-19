@@ -462,7 +462,7 @@ namespace Jazz2.Game
             }
 
             // Discover new local servers
-            client.DiscoverLocalPeers(port);
+            client?.DiscoverLocalPeers(port);
         }
     }
 }
