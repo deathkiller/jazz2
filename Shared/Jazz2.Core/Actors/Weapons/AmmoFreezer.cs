@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Duality;
 using Duality.Resources;
+using Jazz2.Game.Collisions;
 using Jazz2.Game.Components;
 using Jazz2.Game.Structs;
 using static Jazz2.Game.Tiles.TileMap;
@@ -34,6 +35,7 @@ namespace Jazz2.Actors.Weapons
             base.upgrades = (byte)details.Params[0];
 
             CollisionFlags &= ~CollisionFlags.ApplyGravitation;
+            CollisionFlags |= CollisionFlags.SkipPerPixelCollisions;
             strength = 0;
 
             await RequestMetadataAsync("Weapon/Freezer");
@@ -137,6 +139,19 @@ namespace Jazz2.Actors.Weapons
                 MoveInstantly(gunspotPos, MoveType.Absolute, true);
                 renderer.Active = true;
             }
+        }
+
+        protected override void OnUpdateHitbox()
+        {
+            // ToDo: This is a quick fix for player cannot freeze springs
+            Vector3 pos = Transform.Pos;
+
+            AABBInner = new AABB(
+                pos.X - 4,
+                pos.Y - 2,
+                pos.X + 4,
+                pos.Y + 6
+            );
         }
 
         protected override bool OnPerish(ActorBase collider)

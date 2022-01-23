@@ -396,9 +396,15 @@ namespace Jazz2.Game.Components
 
                 if (showOutline) {
                     // ToDo: Rework this
-                    BatchInfo outlineMaterial = device.RentMaterial(SharedMaterial.Res.Info);
+                    BatchInfo outlineMaterial = device.RentMaterial(sharedMat.Res.Info);
                     outlineMaterial.Technique = ContentResolver.Current.RequestShader("Colorize");
-                    outlineMaterial.MainColor = new ColorRgba(1f, 0.5f);
+                    //outlineMaterial.MainColor = new ColorRgba(1f, 0.5f);
+
+                    var outlineColor = new ColorRgba(1f, 0.5f);
+                    if (customMat != null) {
+                        outlineColor.A = customMat.MainColor.A;
+                    }
+                    outlineMaterial.MainColor = outlineColor;
 
                     var outlineVertices = new VertexC1P3T2[vertices.Length];
                     for (int i = 0; i < outlineVertices.Length; i++) {

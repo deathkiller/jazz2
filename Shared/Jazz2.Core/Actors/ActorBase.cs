@@ -301,6 +301,10 @@ namespace Jazz2.Actors
 
         public void DecreaseHealth(int amount = 1, ActorBase collider = null)
         {
+            if (amount == 0) {
+                return;
+            }
+
             if (amount > health) {
                 health = 0;
             } else {
@@ -579,6 +583,14 @@ namespace Jazz2.Actors
 
                         if (renderer != null) {
                             renderer.AnimPaused = true;
+#if !SERVER
+                            // Create temporary frozen material
+                            BatchInfo frozenMaterial = new BatchInfo(renderer.SharedMaterial.Res.Info);
+                            frozenMaterial.Technique = ContentResolver.Current.RequestShader("Colorize");
+                            frozenMaterial.MainColor = new ColorRgba(0.32f, 0.48f, 0.65f, 0.34f);
+                            renderer.CustomMaterial = frozenMaterial;
+                            renderer.ShowOutline = true;
+#endif
                         }
                     }
                     break;
@@ -602,6 +614,11 @@ namespace Jazz2.Actors
             if (renderer != null && renderer.AnimPaused) {
                 if (frozenTimeLeft <= 0f) {
                     renderer.AnimPaused = false;
+#if !SERVER
+                    // Reset renderer
+                    renderer.CustomMaterial = null;
+                    renderer.ShowOutline = false;
+#endif
                 } else {
                     frozenTimeLeft -= timeMult;
                 }

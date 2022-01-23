@@ -109,15 +109,23 @@ namespace Jazz2.Actors.Enemies
 
         protected override bool OnPerish(ActorBase collider)
         {
-            TurtleShell shell = new TurtleShell(speedX * 1.1f, 1.1f);
-            shell.OnActivated(new ActorActivationDetails {
-                LevelHandler = levelHandler,
-                Pos = Transform.Pos,
-                Params = new[] { theme }
-            });
-            levelHandler.AddActor(shell);
+            if (renderer.AnimPaused) {
+                // Animation should be paused only if enemy is frozen
+                CreateDeathDebris(collider);
+                levelHandler.PlayCommonSound("Splat", Transform.Pos);
 
-            Explosion.Create(levelHandler, Transform.Pos, Explosion.SmokeGray);
+                TryGenerateRandomDrop();
+            } else {
+                TurtleShell shell = new TurtleShell(speedX * 1.1f, 1.1f);
+                shell.OnActivated(new ActorActivationDetails {
+                    LevelHandler = levelHandler,
+                    Pos = Transform.Pos,
+                    Params = new[] { theme }
+                });
+                levelHandler.AddActor(shell);
+
+                Explosion.Create(levelHandler, Transform.Pos, Explosion.SmokeGray);
+            }
 
             return base.OnPerish(collider);
         }
