@@ -36,8 +36,10 @@ This project uses parts of [Duality - A 2D GameDev Framework](https://www.dualit
 
 ## Running the application
 ### Windows / Linux / macOS
-* Download **Desktop** release (alternatively, build the solution and copy `Content` directory to `‹Game›/Content/`)
-* Run `‹Game›/Import.exe "Path to original JJ2"` (or drag and drop original *Jazz Jackrabbit 2* directory on `Import.exe`)
+* Download **Desktop** release
+  * Alternatively, build the solution and copy `Content` directory to `‹Game›/Content/`
+* Drag and drop original *Jazz Jackrabbit 2* directory on `Import.exe` – [Video tutorial](https://youtu.be/ibUn20raRMo)
+  * Alternatively, run `‹Game›/Import.exe "Path to original JJ2"`
   * On Linux and macOS, you can run `mono Import.exe "Path to original JJ2"`
 * Run `‹Game›/Jazz2.exe`
   * On Linux and macOS, you can run `mono Jazz2.exe`
@@ -49,11 +51,14 @@ This project uses parts of [Duality - A 2D GameDev Framework](https://www.dualit
 * [Gentoo](https://packages.gentoo.org/packages/games-arcade/jazz2)
 
 ### Android
-* Download both **Desktop** and **Android** releases (alternatively, build the solution and copy `Content` directory to `‹Game›/Content/`)
-* Run `‹Game›/Import.exe "Path to original JJ2"` (or drag and drop original *Jazz Jackrabbit 2* directory on `Import.exe`)
+* Download both **Desktop** and **Android** releases
+  * Alternatively, build the solution and copy `Content` directory to `‹Game›/Content/`
+* Drag and drop original *Jazz Jackrabbit 2* directory on `Import.exe` – [Video tutorial](https://youtu.be/ibUn20raRMo)
+  * Alternatively, run `‹Game›/Import.exe "Path to original JJ2"`
+  * On Linux and macOS, you can run `mono Import.exe "Path to original JJ2"`
 * Copy `‹Game›/Content/` directory to `‹Storage›/jazz2.android/Content/`
   * Alternatively, you can use `‹Storage›/Android/Data/jazz2.android/Content/` instead
-  * Create empty file `.nomedia` in `‹Storage›/jazz2.android/` to hide files from *Android Gallery*
+  * Create empty file `.nomedia` in `‹Storage›/jazz2.android/` to hide files from *Android Gallery* (optional)
 * Install `Jazz2.apk` on Android device
 * Run the newly installed application
 

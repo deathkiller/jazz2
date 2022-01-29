@@ -644,7 +644,7 @@ namespace Import
                     File.Copy(sourceFile, targetFile);
                     usedMusic.Add(Path.GetFileNameWithoutExtension(knownFiles[i]).ToLowerInvariant());
                 } else {
-                    Log.Write(LogType.Warning, "File \"" + Path.GetFileName(knownFiles[i]) + "\" does not exists.");
+                    Log.Write(LogType.Warning, "File \"" + Path.GetFileName(knownFiles[i]) + "\" does not exist.");
                 }
             }
 
