@@ -1118,7 +1118,7 @@ namespace Jazz2.Actors
         protected SoundInstance PlaySound(string name, float gain = 1f, float pitch = 1f)
         {
 #if !DISABLE_SOUND
-            if (availableSounds.TryGetValue(name, out SoundResource resource)) {
+            if (availableSounds != null && availableSounds.TryGetValue(name, out SoundResource resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, this);
                 instance.Flags |= SoundInstanceFlags.GameplaySpecific;
 #if MULTIPLAYER && SERVER
@@ -1150,7 +1150,7 @@ namespace Jazz2.Actors
         protected SoundInstance PlaySound(Vector3 pos, string name, float gain = 1f, float pitch = 1f)
         {
 #if !DISABLE_SOUND
-            if (availableSounds.TryGetValue(name, out SoundResource resource)) {
+            if (availableSounds != null && availableSounds.TryGetValue(name, out SoundResource resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, pos);
                 instance.Flags |= SoundInstanceFlags.GameplaySpecific;
 #if MULTIPLAYER && SERVER
@@ -1192,7 +1192,7 @@ namespace Jazz2.Actors
         {
             TileMap tilemap = levelHandler.TileMap;
             if (tilemap != null) {
-                if (availableAnimations.TryGetValue(identifier, out GraphicResource res)) {
+                if (availableAnimations != null && availableAnimations.TryGetValue(identifier, out GraphicResource res)) {
                     tilemap.CreateSpriteDebris(res, Transform.Pos, count);
                 } else {
                     Log.Write(LogType.Warning, "Can't create sprite debris \"" + identifier + "\" from " + GetType().FullName);
@@ -1268,7 +1268,7 @@ namespace Jazz2.Actors
 
         protected void SetAnimation(string identifier)
         {
-            if (!availableAnimations.TryGetValue(identifier, out GraphicResource resource)) {
+            if (availableAnimations == null || !availableAnimations.TryGetValue(identifier, out GraphicResource resource)) {
                 return;
             }
 
@@ -1429,12 +1429,14 @@ namespace Jazz2.Actors
         protected RawList<AnimationCandidate> FindAnimationCandidates(AnimState state)
         {
             var candidates = cachedCandidates.Rent(4);
-            foreach (var animation in availableAnimations) {
-                if (animation.Value.State != null && animation.Value.State.Contains(state)) {
-                    candidates.Add(new AnimationCandidate {
-                        Identifier = animation.Key,
-                        Resource = animation.Value
-                    });
+            if (availableAnimations != null) {
+                foreach (var animation in availableAnimations) {
+                    if (animation.Value.State != null && animation.Value.State.Contains(state)) {
+                        candidates.Add(new AnimationCandidate {
+                            Identifier = animation.Key,
+                            Resource = animation.Value
+                        });
+                    }
                 }
             }
             return candidates;

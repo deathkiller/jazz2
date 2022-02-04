@@ -38,7 +38,7 @@ This project uses parts of [Duality - A 2D GameDev Framework](https://www.dualit
 ### Windows / Linux / macOS
 * Download **Desktop** release
   * Alternatively, build the solution and copy `Content` directory to `‹Game›/Content/`
-* Drag and drop original *Jazz Jackrabbit 2* directory on `Import.exe` – [Video tutorial](https://youtu.be/ibUn20raRMo)
+* Drag and drop original *Jazz Jackrabbit 2* directory on `Import.exe` – [*Video tutorial*](https://youtu.be/ibUn20raRMo)
   * Alternatively, run `‹Game›/Import.exe "Path to original JJ2"`
   * On Linux and macOS, you can run `mono Import.exe "Path to original JJ2"`
 * Run `‹Game›/Jazz2.exe`
@@ -53,7 +53,7 @@ This project uses parts of [Duality - A 2D GameDev Framework](https://www.dualit
 ### Android
 * Download both **Desktop** and **Android** releases
   * Alternatively, build the solution and copy `Content` directory to `‹Game›/Content/`
-* Drag and drop original *Jazz Jackrabbit 2* directory on `Import.exe` – [Video tutorial](https://youtu.be/ibUn20raRMo)
+* Drag and drop original *Jazz Jackrabbit 2* directory on `Import.exe` – [*Video tutorial*](https://youtu.be/ibUn20raRMo)
   * Alternatively, run `‹Game›/Import.exe "Path to original JJ2"`
   * On Linux and macOS, you can run `mono Import.exe "Path to original JJ2"`
 * Copy `‹Game›/Content/` directory to `‹Storage›/jazz2.android/Content/`
