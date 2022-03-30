@@ -2334,7 +2334,7 @@ namespace Jazz2.Actors
                 if (!inWater && activeModifier == Modifier.None) {
                     speedY = -6.5f;
 
-                    CollisionFlags |= CollisionFlags.ApplyGravitation;
+                    CollisionFlags |= CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithSolidObjects;
                     SetAnimation(AnimState.Idle);
                 } else {
                     speedY = -1f;
