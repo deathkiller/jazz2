@@ -1276,7 +1276,7 @@ namespace Jazz2.Actors
 
                         // Player can be respawned immediately
                         isInvulnerable = false;
-                        CollisionFlags |= CollisionFlags.ApplyGravitation;
+                        CollisionFlags |= CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithSolidObjects;
 
                         // Return to the last save point
                         MoveInstantly(checkpointPos, MoveType.Absolute, true);
@@ -2434,7 +2434,7 @@ namespace Jazz2.Actors
             }
 
             isInvulnerable = false;
-            CollisionFlags |= CollisionFlags.ApplyGravitation;
+            CollisionFlags |= CollisionFlags.ApplyGravitation | CollisionFlags.CollideWithTileset | CollisionFlags.CollideWithSolidObjects;
 
             controllable = true;
             renderer.Active = true;

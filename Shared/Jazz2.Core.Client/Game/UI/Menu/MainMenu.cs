@@ -267,7 +267,7 @@ namespace Jazz2.Game.UI.Menu
         {
 #if !DISABLE_SOUND
             SoundResource res;
-            if (metadata.Sounds.TryGetValue(name, out res)) {
+            if (metadata?.Sounds != null && metadata.Sounds.TryGetValue(name, out res)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound(res.Sound);
                 instance.Volume = volume * SettingsCache.SfxVolume;
             }

@@ -745,7 +745,7 @@ namespace Jazz2.Game
         public void PlayCommonSound(string name, ActorBase target, float gain = 1f, float pitch = 1f)
         {
 #if !DISABLE_SOUND
-            if (commonResources.Sounds.TryGetValue(name, out SoundResource resource)) {
+            if (commonResources?.Sounds != null && commonResources.Sounds.TryGetValue(name, out SoundResource resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, target);
                 instance.Flags |= SoundInstanceFlags.GameplaySpecific;
                 instance.Volume = gain * SettingsCache.SfxVolume;
@@ -762,7 +762,7 @@ namespace Jazz2.Game
         public void PlayCommonSound(string name, Vector3 pos, float gain = 1f, float pitch = 1f)
         {
 #if !DISABLE_SOUND
-            if (commonResources.Sounds.TryGetValue(name, out SoundResource resource)) {
+            if (commonResources?.Sounds != null && commonResources.Sounds.TryGetValue(name, out SoundResource resource)) {
                 SoundInstance instance = DualityApp.Sound.PlaySound3D(resource.Sound, pos);
                 instance.Flags |= SoundInstanceFlags.GameplaySpecific;
                 instance.Volume = gain * SettingsCache.SfxVolume;
