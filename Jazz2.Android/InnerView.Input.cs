@@ -269,9 +269,9 @@ namespace Jazz2.Android
         public override bool OnGenericMotionEvent(MotionEvent e)
         {
             var device = e.Device;
-            if (((device.Sources & InputSourceType.Gamepad) == InputSourceType.Gamepad ||
-                 (device.Sources & InputSourceType.ClassJoystick) == InputSourceType.Joystick) &&
-                e.Action == MotionEventActions.Move) {
+            if (device != null && e.Action == MotionEventActions.Move &&
+                ((device.Sources & InputSourceType.Gamepad) == InputSourceType.Gamepad ||
+                 (device.Sources & InputSourceType.ClassJoystick) == InputSourceType.Joystick)) {
                 axisX = GetCenteredAxis(e, device, Axis.X, Axis.HatX);
                 axisY = GetCenteredAxis(e, device, Axis.Y, Axis.HatY);
                 axisLeftTrigger = GetCenteredAxis(e, device, Axis.Ltrigger, Axis.Brake);
