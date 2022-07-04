@@ -1,5 +1,5 @@
 {
-    "enabled": "Attivo",
+    "enabled": "Attivato",
     "disabled": "Disattivato",
     "loading": "Caricamento",
     
@@ -42,7 +42,7 @@
     "menu/play/start": "Iniza Partita",
     
     "menu/settings": "Impostazioni",
-    "menu/settings/rescale": "Modalità ridimensionata",
+    "menu/settings/rescale": "Modalità ridimensionamento",
     "menu/settings/rescale/title": "Seleziona la modalità di ridimensionamento",
     "menu/settings/rescale/none": "Pixel-perfetto",
     
@@ -60,11 +60,18 @@
     "menu/settings/music": "Volume musica",
     "menu/settings/sfx": "Volume SFX",
     
+    "menu/settings/enhancements": "Miglioramenti",
+    "menu/settings/enhancements/info": "Per abilitare i miglioramenti aggiunti da questo remake.",
+    "menu/settings/enhancements/redux mode": "Modalità Redux",
+    "menu/settings/enhancements/ledge climb": "Scala sporgenza",
+    "menu/settings/enhancements/weapon wheel": "Ruota delle Armi (solo Gamepad)",
+    
     "menu/settings/vibrations": "Vibrazioni",
-    "menu/settings/left padding": "Rientro controlli a sinistra",
-    "menu/settings/right padding": "Rientro controlli a destra",
-    "menu/settings/bottom padding 1": "Altezza controlli a sinistra",
-    "menu/settings/bottom padding 2": "Altezza controlli a destra",
+    "menu/settings/controls opacity": "Opacità controlli",
+    "menu/settings/left padding": "Rientro controlli da sinistra",
+    "menu/settings/right padding": "Rientro controlli da destra",
+    "menu/settings/bottom padding 1": "Altezza controlli da sinistra",
+    "menu/settings/bottom padding 2": "Altezza controlli da destra",
     
     "menu/settings/controls": "Controlli",
     "menu/settings/controls/title": "Controlli per Giocatore #{0}",
