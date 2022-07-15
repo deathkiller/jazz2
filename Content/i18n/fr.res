@@ -4,14 +4,14 @@
     "loading": "Chargement",
     
     "error/unknown": "Quelque chose c'est mal passé :(",
-    "error/disconnected": "Déconnecté du serveur !",
+    "error/disconnected": "Déconnecté du serveur!",
     "error/server unloaded": "Le serveur n'est pas encore complètement chargét. Recommencez plus tard.",
     "error/banned": "Vous avez été définitivement banni de ce serveur.",
     "error/kicked": "Vous avez été viré de ce serveur.",
     "error/incompatible version": "Vous avez une version du client incompatible.",
     "error/already connected": "Un client avec votre ID est déjà connecté.",
     "error/connection timed out": "La connexion au serveur a expiré.",
-    "error/handshake validation failed": "La validation des données de confiance a échoué..",
+    "error/handshake validation failed": "La validation des données de confiance a échoué.",
     "error/no response": "Échec de l'établissement de la connexion - pas de réponse de l'hôte distant.",
     "error/reconnecting": "La connexion a été interrompue. Veuillez essayer de vous reconnecter.",
 
@@ -26,12 +26,12 @@
     "menu/play custom": "Jouer un jeu personnalisé",
     "menu/play custom/single": "Jouer tout seul",
     "menu/play custom/single/desc": "Jouer un seul niveau personnalisé",
-    "menu/play custom/single/empty": "Aucun niveau personnalisé trouvé !",
+    "menu/play custom/single/empty": "Aucun niveau personnalisé trouvé!",
     "menu/play custom/split": "Ecran séparé",
     "menu/play custom/split/desc": "Jouez avec jusqu'à 3 autres joueurs sur ce PC",
     "menu/play custom/multi": "Mutli-joueurs en ligne",
     "menu/play custom/multi/desc": "Se connecter au serveur et jouer avec d'autres joueurs",
-    "menu/play custom/multi/empty": "Aucun serveur trouvé, mais on continue à chercher !",
+    "menu/play custom/multi/empty": "Aucun serveur trouvé, mais on continue à chercher!",
     "menu/play custom/multi/unreachable": "Inaccessible",
     
     "menu/play/character": "Personnage",
@@ -64,7 +64,7 @@
     "menu/settings/enhancements/info": "Vous pouvez activer les améliorations qui ont été ajoutées à ce remake.",
     "menu/settings/enhancements/redux mode": "Mode Redux",
     "menu/settings/enhancements/ledge climb": "Escalade des corniches",
-    "menu/settings/enhancements/weapon wheel": "Roue d'arme (Joystick uniquement) ",
+    "menu/settings/enhancements/weapon wheel": "Roue d'arme (Joystick uniquement)",
 
     "menu/settings/vibrations": "Vibrations",
     "menu/settings/controls opacity": "Opacité des Contrôles",
@@ -88,7 +88,7 @@
     "menu/settings/controls/back": "Menu / Retour",
 
     "menu/about": "À propos",
-    "menu/about/desc": "Réimplémentation du jeu Jazz Jackrabbit 2 sorti en 1998. Prend en charge plusieurs\nversions du jeu (Shareware Demo, Holiday Hare '98, The Secret Files and\nChristmas Chronicles). De plus, il supporte partiellement certaines fonctionnalités de l'extension JJ2+.",
+    "menu/about/desc": "Réimplémentation du jeu Jazz Jackrabbit 2 sorti en 1998. Prend en charge plusieurs\nversions du jeu (Shareware Demo, Holiday Hare '98 et The Secret Files). De plus,\nil supporte partiellement certaines fonctionnalités de l'extension JJ2+.",
     "menu/about/by": "Créé par",
 
     "menu/resume": "Reprendre",

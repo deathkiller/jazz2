@@ -219,7 +219,7 @@ namespace Jazz2.Actors
 
             // Preload all weapons
             for (int i = 0; i < (int)WeaponType.Count; i++) {
-                if (weaponAmmo[(int)currentWeapon] != 0) {
+                if (weaponAmmo[i] != 0) {
                     PreloadMetadata("Weapon/" + (WeaponType)i);
                 }
             }

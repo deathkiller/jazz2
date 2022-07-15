@@ -132,6 +132,12 @@ namespace Import
                         }
                         return 0;
                     }
+                    case "/extract": {
+                        if (i + 1 < args.Length && File.Exists(args[i + 1])) {
+                            ExtractCompressedContent(args[i + 1]);
+                        }
+                        return 0;
+                    }
 #endif
 
                     default:
@@ -1798,6 +1804,30 @@ namespace Import
             strings.Convert(targetPath, langSuffix.ToLowerInvariant(), knownLevels, false);
 
             Log.Write(LogType.Info, "Saving files to \"" + targetPath + "\"...");
+            Log.PopIndent();
+        }
+
+        private static void ExtractCompressedContent(string sourcePath)
+        {
+            Log.Write(LogType.Info, "Extracting compressed content from \"" + Path.GetFileName(sourcePath) + "\"...");
+            Log.PushIndent();
+
+            IFileSystem content = new CompressedContent(sourcePath);
+
+            string targetPath = sourcePath + " - Extracted";
+
+            foreach (var file in content.GetFiles("", true)) {
+                Log.Write(LogType.Verbose, file);
+
+                string filePath = Path.Combine(targetPath, file);
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+
+                using (var i = content.OpenFile(file, FileAccessMode.Read))
+                using (var o = File.Create(filePath)) {
+                    i.CopyTo(o);
+                }
+            }
+
             Log.PopIndent();
         }
 

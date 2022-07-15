@@ -239,7 +239,7 @@ namespace Jazz2.Storage.Content
                 }
 
                 Queue<Tuple<ContentTree.Node, string>> stack = new Queue<Tuple<ContentTree.Node, string>>();
-                stack.Enqueue(Tuple.Create(this.tree[path], parentPath));
+                stack.Enqueue(Tuple.Create(string.IsNullOrEmpty(parentPath) ? this.tree.Root : this.tree[path], parentPath));
 
                 do {
                     Tuple<ContentTree.Node, string> parent = stack.Dequeue();
@@ -276,7 +276,7 @@ namespace Jazz2.Storage.Content
                 }
 
                 Queue<Tuple<ContentTree.Node, string>> stack = new Queue<Tuple<ContentTree.Node, string>>();
-                stack.Enqueue(Tuple.Create(this.tree[path], parentPath));
+                stack.Enqueue(Tuple.Create(string.IsNullOrEmpty(parentPath) ? this.tree.Root : this.tree[path], parentPath));
 
                 do {
                     Tuple<ContentTree.Node, string> parent = stack.Dequeue();
