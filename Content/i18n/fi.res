@@ -1,7 +1,7 @@
 {
     "enabled": "Käytössä",
     "disabled": "Pois käytöstä",
-    "loading": "lataa",
+    "loading": "Lataa",
     
     "error/unknown": "Ilmeni tuntematon virhe :(",
     "error/disconnected": "Yhteys palvelimeen katkesi!",
@@ -52,7 +52,7 @@
     
     "menu/settings/refresh": "Ruudunpäivitysnopeuden rajoittaminen",
     "menu/settings/refresh/0": "älä rajoita",
-    "menu/settings/refresh/1": "60 ruutua sekunnissa",
+    "menu/settings/refresh/1": "60 ruutua sek.",
     "menu/settings/refresh/2": "V-Sync",
     "menu/settings/refresh/3": "V-Sync mukautettu",
     
@@ -74,21 +74,21 @@
     "menu/settings/bottom padding 2": "Oikean ohjainsuunnan korkeus",
 
     "menu/settings/controls": "Pelitoimintopainikkeet",
-    "menu/settings/controls/title": "Ohjaustoiminnot pelaajalle #{0}",
-    "menu/settings/controls/key": "Kosketa / paina {0}",
+    "menu/settings/controls/title": "Pelaaja #{0}",
+    "menu/settings/controls/key": "Paina {0}",
     "menu/settings/controls/gamepad": "Ohjainsauva",
-    "menu/settings/controls/left": "vasen",
-    "menu/settings/controls/right": "oikea",
-    "menu/settings/controls/up": "ylös / katso ylös",
-    "menu/settings/controls/down": "alas / kyykisty",
-    "menu/settings/controls/fire": "tulitus",
-    "menu/settings/controls/jump": "hyppää",
-    "menu/settings/controls/run": "juokse",
-    "menu/settings/controls/switch weapon": "vaihda ase",
+    "menu/settings/controls/left": "Vasen",
+    "menu/settings/controls/right": "Oikea",
+    "menu/settings/controls/up": "Ylös / katso ylös",
+    "menu/settings/controls/down": "Alas / kyykisty",
+    "menu/settings/controls/fire": "Tulitus",
+    "menu/settings/controls/jump": "Hyppää",
+    "menu/settings/controls/run": "Juokse",
+    "menu/settings/controls/switch weapon": "Vaihda ase",
     "menu/settings/controls/back": "Valikkoon / taaksepäin",
 
     "menu/about": "Tiedot",
-    "menu/about/desc": "Tämä on vuonna 1998 julkaistun Jazz Jackrabbit 2 -pelin uusiojulkaisu. Tukee pelin useita versioita (Shareware-levityksen demo, jouluinen Holiday Hare '98 ja salaiset tiedostot eli Secret Files). Lisäksi\NIT tukee osittain joitakin jj2+ - laajennuksen ominaisuuksia.",
+    "menu/about/desc": "Tämä on vuonna 1998 julkaistun Jazz Jackrabbit 2 -pelin uusiojulkaisu. Tukee pelin\nuseita versioita (Shareware-levityksen demo, jouluinen Holiday Hare '98 ja salaiset\ntiedostot eli Secret Files). Lisäksi tukee osittain joitakin JJ2+.",
     "menu/about/by": "Tekijä",
 
     "menu/resume": "Jatka",
