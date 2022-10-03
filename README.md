@@ -15,6 +15,8 @@
 
 
 ## Introduction
+**Warning:** The game was fully rewritten since version 1.0.0, please use **[deathkiller/jazz2-native](https://github.com/deathkiller/jazz2-native)** instead. This repository will only contain new [Releases](https://github.com/deathkiller/jazz2/releases). For more information, visit [the official website](http://deat.tk/jazz2/).
+
 Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** released in 1998. Supports various versions of the game (Shareware Demo, Holiday Hare '98, The Secret Files and Christmas Chronicles). Also, it partially supports some features of JJ2+ extension and MLLE. Further information can be found [here](http://deat.tk/jazz2/).
 
 [![Build Status](https://img.shields.io/appveyor/ci/deathkiller/jazz2/master.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTI0IDIuNXYxOUwxOCAyNCAwIDE4LjV2LS41NjFsMTggMS41NDVWMHpNMSAxMy4xMTFMNC4zODUgMTAgMSA2Ljg4OWwxLjQxOC0uODI3TDUuODUzIDguNjUgMTIgM2wzIDEuNDU2djExLjA4OEwxMiAxN2wtNi4xNDctNS42NS0zLjQzNCAyLjU4OXpNNy42NDQgMTBMMTIgMTMuMjgzVjYuNzE3eiI+PC9wYXRoPjwvc3ZnPg==)](https://ci.appveyor.com/project/deathkiller/jazz2)
@@ -64,12 +66,6 @@ This project uses parts of [Duality - A 2D GameDev Framework](https://www.dualit
 
 `‹Game›` *is path to **Desktop** release of Jazz² Resurrection.* `‹Storage›` *could be internal (preferred) or external storage on your device. The application tries to autodetect correct paths.*
 *Requires device with Android 5.0 (or newer) and OpenGL ES 3.0 support.*
-
-### WebAssembly
-* Go to [Jazz² Resurrection](http://deat.tk/jazz2/wasm/) page to play **Shareware Demo** online
-  * Alternatively, build the solution and copy `Content` directory from **Desktop** release to build target directory
-
-*Requires Google Chrome 57 (or newer), Firefox 53 (or newer) or other browser supporting WebAssembly and WebGL.*
 
 
 ## Dependencies
@@ -131,10 +127,6 @@ This project uses parts of [Duality - A 2D GameDev Framework](https://www.dualit
 ### Android
 * Install **Mobile development in .NET** for Microsoft Visual Studio 2019 (or newer)
 * Open the solution and build `Jazz2.Android` project
-* Dependencies are already included for common configurations
-
-### WebAssembly
-* Open the solution and build `Jazz2.Wasm` project
 * Dependencies are already included for common configurations
 
 
