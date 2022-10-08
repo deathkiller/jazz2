@@ -15,7 +15,7 @@
 
 
 ## Introduction
-**Warning:** The game was fully rewritten since version 1.0.0, please use **[deathkiller/jazz2-native](https://github.com/deathkiller/jazz2-native)** instead. This repository will only contain new [Releases](https://github.com/deathkiller/jazz2/releases). For more information, visit [the official website](http://deat.tk/jazz2/).
+**Warning:** The game was fully rewritten since version 1.0.0, please use **[deathkiller/jazz2-native](https://github.com/deathkiller/jazz2-native)** instead. This repository will contain only new [Releases](https://github.com/deathkiller/jazz2/releases). For more information, visit [the official website](http://deat.tk/jazz2/).
 
 Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** released in 1998. Supports various versions of the game (Shareware Demo, Holiday Hare '98, The Secret Files and Christmas Chronicles). Also, it partially supports some features of JJ2+ extension and MLLE. Further information can be found [here](http://deat.tk/jazz2/).
 
@@ -37,110 +37,37 @@ This project uses parts of [Duality - A 2D GameDev Framework](https://www.dualit
 
 
 ## Running the application
-### Windows / Linux / macOS
-* Download **Desktop** release
-  * Alternatively, build the solution and copy `Content` directory to `‹Game›/Content/`
-* Drag and drop original *Jazz Jackrabbit 2* directory on `Import.exe` – [*Video tutorial*](https://youtu.be/ibUn20raRMo)
-  * Alternatively, run `‹Game›/Import.exe "Path to original JJ2"`
-  * On Linux and macOS, you can run `mono Import.exe "Path to original JJ2"`
-* Run `‹Game›/Jazz2.exe`
-  * On Linux and macOS, you can run `mono Jazz2.exe`
+### Windows
+* Download the game
+* Copy original *Jazz Jackrabbit 2* directory to `‹Game›\Source\`
+* Run `‹Game›\Jazz2.exe` or `‹Game›\Jazz2_avx2.exe` application
 
-`‹Game›` *is path to Jazz² Resurrection. You can run* `Import.exe` *without parameters to show additional options.*
+`‹Game›` *is path to Jazz² Resurrection. Cache is recreated during intro cinematics on the first startup, so it can't be skipped.*
 
-#### Packages for Linux distributions
-* [Arch Linux](https://aur.archlinux.org/packages/jazz2-bin/)
-* [Gentoo](https://packages.gentoo.org/packages/games-arcade/jazz2)
+### Linux
+* Download the game
+* Install dependencies: `sudo apt install libglew2.2 libglfw3 libopenal1 libopenmpt0`
+* Copy original *Jazz Jackrabbit 2* directory to `‹Game›/Source/`
+* Run `‹Game›/jazz2`, `‹Game›/jazz2_clang` or `‹Game›/jazz2_sdl2` application
+
+`‹Game›` *is path to Jazz² Resurrection. Cache is recreated during intro cinematics on the first startup, so it can't be skipped.*
+
+### Web (Emscripten)
+* Go to http://deat.tk/jazz2/wasm/
+* Import episodes from original *Jazz Jackrabbit 2* directory to unlock additional content
 
 ### Android
-* Download both **Desktop** and **Android** releases
-  * Alternatively, build the solution and copy `Content` directory to `‹Game›/Content/`
-* Drag and drop original *Jazz Jackrabbit 2* directory on `Import.exe` – [*Video tutorial*](https://youtu.be/ibUn20raRMo)
-  * Alternatively, run `‹Game›/Import.exe "Path to original JJ2"`
-  * On Linux and macOS, you can run `mono Import.exe "Path to original JJ2"`
-* Copy `‹Game›/Content/` directory to `‹Storage›/jazz2.android/Content/`
-  * Alternatively, you can use `‹Storage›/Android/Data/jazz2.android/Content/` instead
-  * Create empty file `.nomedia` in `‹Storage›/jazz2.android/` to hide files from *Android Gallery* (optional)
-* Install `Jazz2.apk` on Android device
+* Download the game
+* Copy `Content` directory to `‹Storage›/Android/data/jazz2.resurrection/files/Content/`
+* Copy original *Jazz Jackrabbit 2* directory to `‹Storage›/Android/data/jazz2.resurrection/files/Source/`
+* Install `Jazz2.apk` or `Jazz2_x86-64.apk` on the device
 * Run the newly installed application
 
-`‹Game›` *is path to **Desktop** release of Jazz² Resurrection.* `‹Storage›` *could be internal (preferred) or external storage on your device. The application tries to autodetect correct paths.*
-*Requires device with Android 5.0 (or newer) and OpenGL ES 3.0 support.*
+`‹Storage›` *is usually internal storage on your device. The game requires device with **Android 5.0** (or newer) and **OpenGL ES 3.0** support. Cache is recreated during intro cinematics on the first startup, so it can't be skipped.*
 
-
-## Dependencies
-### Windows
-* .NET Framework 4.5.2 (or newer)
-* [OpenAL Soft](https://github.com/opentk/opentk-dependencies) (included in release)
-  * Copy `x86/openal32.dll` to `‹Game›/Extensions/OpenALSoft.x86.dll`
-  * Copy `x64/openal32.dll` to `‹Game›/Extensions/OpenALSoft.x64.dll`
-* [libopenmpt](https://lib.openmpt.org/libopenmpt/download/) (included in release)
-  * Copy `libopenmpt.dll` (*x86*, and its dependencies) to `‹Game›` directory
-
-### Linux
-* [Mono 5.0 (or newer)](http://www.mono-project.com/download/#download-lin)
-* OpenAL
-  * Run `sudo apt install openal1` if it's missing
-* [libopenmpt](https://lib.openmpt.org/libopenmpt/download/) (included in release)
-  * Copy `libopenmpt.so` (*x86*, and its dependencies) to `‹Game›` directory
-
-### macOS
-* [Mono 5.0 (or newer)](http://www.mono-project.com/download/#download-mac)
-* OpenAL should be already installed by OS
-* [libopenmpt](https://lib.openmpt.org/libopenmpt/)
-  * Copy `libopenmpt.dylib` (*x86*, and its dependencies) to `‹Game›` directory
-
-### Android
-* Xamarin
-* [OpenAL Soft](https://github.com/kcat/openal-soft) (included for *armeabi-v7a* and *x86*)
-* [libopenmpt](https://lib.openmpt.org/libopenmpt/download/) (included for *armeabi-v7a* and *x86*)
-
-### WebAssembly
-* .NET Framework 4.5.2 (or newer) / Mono 5.0 (or newer)
-* `Mono.WebAssembly.Sdk` (included as NuGet)
-* [WebGL.NET](https://github.com/WaveEngine/WebGL.NET) (included)
 
 ## Building the solution
-### Windows
-* Open the solution in [Microsoft Visual Studio 2019](https://www.visualstudio.com/) (or newer) and build it
-* Copy `/Packages/AdamsLair.OpenTK.x.y.z/lib/OpenTK.dll.config` to `/Jazz2/Bin/Debug/OpenTK.dll.config`
-* Copy dependencies to `/Jazz2/Bin/Debug/` or `/Jazz2/Bin/Release/`
-* If you build Release configuration, you have to replace `Debug` with `Release` in paths above
-
-### Linux
-* Install [Mono 5.0 (or newer)](http://www.mono-project.com/download/#download-lin)
-* Run `msbuild` in directory with the solution file (.sln):
-* Copy `/Packages/AdamsLair.OpenTK.x.y.z/lib/OpenTK.dll.config` to `/Jazz2/Bin/Debug/OpenTK.dll.config`
-* Obtain and copy `libopenmpt.so` to `/Jazz2/Bin/Debug/libopenmpt.so` to enable music playback
-* Then you can rebuild the solution only with `msbuild` command
-* Use `msbuild /p:Configuration=Release` to build Release configuration, you have to replace `Debug` with `Release` in paths above
-
-### macOS
-* Install [Mono 5.0 (or newer)](http://www.mono-project.com/download/#download-mac)
-* Open the solution in [Microsoft Visual Studio for Mac](https://www.visualstudio.com/vs/visual-studio-mac/) and build it
-* Copy `/Packages/AdamsLair.OpenTK.x.y.z/lib/OpenTK.dll.config` to `/Jazz2/Bin/Debug/OpenTK.dll.config`
-* Obtain and copy `libopenmpt.dylib` to `/Jazz2/Bin/Debug/libopenmpt.dylib` to enable music playback
-* If you build Release configuration, you have to replace `Debug` with `Release` in paths above
-
-***.NET 5.0** build can be compiled in a similar way (use* `Jazz2.NET5.sln` *solution instead).*
-
-### Android
-* Install **Mobile development in .NET** for Microsoft Visual Studio 2019 (or newer)
-* Open the solution and build `Jazz2.Android` project
-* Dependencies are already included for common configurations
-
-
-## Extensions
-### OpenGL ES 2.0 (Experimental)
-Alternative OpenGL ES 2.0 backend can be built separately. It does not contain all features
-that are available in default OpenGL 2.1 backend, but it should run faster on low-end configurations.
-Don't use it if you have no reason to do so!
-
-To use it, build `Extensions/Es20Backend` project. The library will be copied to
-`/Jazz2/Bin/Debug/Extensions/Es20Backend.core.dll` automatically.
-Then copy all files from `Content/_ES20` directory to `/Jazz2/Bin/Debug/Content` and replace them.
-
-Also, you have to remove `/Jazz2/Bin/Debug/Extensions/GL21Backend.core.dll` file to disable default OpenGL 2.1 backend.
+The game was fully rewritten since version 1.0.0, please build **[deathkiller/jazz2-native](https://github.com/deathkiller/jazz2-native)** instead. This repository will contain only new [Releases](https://github.com/deathkiller/jazz2/releases). For more information, visit [the official website](http://deat.tk/jazz2/).
 
 
 ## License
