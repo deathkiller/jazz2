@@ -15,17 +15,15 @@
 
 
 ## Introduction
-**Warning:** The game was fully rewritten since version 1.0.0, please use **[deathkiller/jazz2-native](https://github.com/deathkiller/jazz2-native)** instead. This repository will contain only new [Releases](https://github.com/deathkiller/jazz2/releases). For more information, visit [the official website](http://deat.tk/jazz2/).
+> 🚧 **The game was fully rewritten since version 1.0.0, please use **[deathkiller/jazz2-native](https://github.com/deathkiller/jazz2-native)** instead.** This repository will contain only new [Releases](https://github.com/deathkiller/jazz2/releases). For more information, visit [the official website](http://deat.tk/jazz2/).
 
 Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** released in 1998. Supports various versions of the game (Shareware Demo, Holiday Hare '98, The Secret Files and Christmas Chronicles). Also, it partially supports some features of JJ2+ extension and MLLE. Further information can be found [here](http://deat.tk/jazz2/).
 
 [![Build Status](https://img.shields.io/appveyor/ci/deathkiller/jazz2/master.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTI0IDIuNXYxOUwxOCAyNCAwIDE4LjV2LS41NjFsMTggMS41NDVWMHpNMSAxMy4xMTFMNC4zODUgMTAgMSA2Ljg4OWwxLjQxOC0uODI3TDUuODUzIDguNjUgMTIgM2wzIDEuNDU2djExLjA4OEwxMiAxN2wtNi4xNDctNS42NS0zLjQzNCAyLjU4OXpNNy42NDQgMTBMMTIgMTMuMjgzVjYuNzE3eiI+PC9wYXRoPjwvc3ZnPg==)](https://ci.appveyor.com/project/deathkiller/jazz2)
 [![Latest Release](https://img.shields.io/github/v/tag/deathkiller/jazz2?label=release)](https://github.com/deathkiller/jazz2/releases)
-[![Code Quality](https://img.shields.io/codacy/grade/7ef344d34def41a9b36e4a083f8b9542.svg?logo=codacy&logoColor=ffffff)](https://www.codacy.com/app/deathkiller/jazz2)
-[![License](https://img.shields.io/github/license/deathkiller/jazz2.svg)](https://github.com/deathkiller/jazz2/blob/master/LICENSE)
+[![Code Quality](https://img.shields.io/codacy/grade/64eb3ca12bd04c64bf3f3515744b591a.svg?logo=codacy&logoColor=ffffff)](https://www.codacy.com/app/deathkiller/jazz2-native)
+[![License](https://img.shields.io/github/license/deathkiller/jazz2-native.svg)](https://github.com/deathkiller/jazz2-native/blob/master/LICENSE)
 [![Discord](https://img.shields.io/discord/355651795390955520.svg?color=839ef7&label=chat&logo=discord&logoColor=ffffff&labelColor=586eb5)](https://discord.gg/Y7SBvkD)
-
-This project uses parts of [Duality - A 2D GameDev Framework](https://www.duality2d.net/).
 
 
 ## Preview
@@ -51,6 +49,10 @@ This project uses parts of [Duality - A 2D GameDev Framework](https://www.dualit
 * Run `‹Game›/jazz2`, `‹Game›/jazz2_clang` or `‹Game›/jazz2_sdl2` application
 
 `‹Game›` *is path to Jazz² Resurrection. Cache is recreated during intro cinematics on the first startup, so it can't be skipped.*
+
+<sup>Alternatively, you can use package for your Linux distribution:</sup><br>
+[![ArchLinux](https://img.shields.io/badge/Arch%20Linux-grey?logo=archlinux)](https://aur.archlinux.org/packages/jazz2-git)
+[![OpenSUSE](https://img.shields.io/badge/OpenSUSE-grey?logo=opensuse)](https://software.opensuse.org/download.html?project=home%3Amnhauke%3Agames&package=jazz2)
 
 ### Web (Emscripten)
 * Go to http://deat.tk/jazz2/wasm/
