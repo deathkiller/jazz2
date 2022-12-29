@@ -41,21 +41,21 @@ Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** releas
 * Copy contents of original *Jazz Jackrabbit 2* directory to `‹Game›\Source\`
 * Run `‹Game›\Jazz2.exe`, `‹Game›\Jazz2_avx2.exe` or `‹Game›\Jazz2_sdl2.exe` application
 
-`‹Game›` *is path to Jazz² Resurrection. Cache is recreated during intro cinematics on the first startup, so it can't be skipped.*
+`‹Game›` *is path to Jazz² Resurrection. The game requires **Windows 7** (or newer) and GPU with **OpenGL 3.0** support. Cache is recreated during intro cinematics on the first startup, so it can't be skipped.*
 
 ### Linux
 * Download the game
-* Install dependencies: `sudo apt install libglew2.2 libglfw3 libopenal1 libopenmpt0`
+* Install dependencies: `sudo apt install libglew2.2 libglfw3 libsdl2-2.0-0 libopenal1 libopenmpt0`
   * Alternatively, install provided `.deb` or `.rpm` package and dependencies should be installed automatically
 * Copy contents of original *Jazz Jackrabbit 2* directory to `‹Game›/Source/`
   * If packages are used, the files must be copied to `~/.local/share/Jazz² Resurrection/Source/` instead
 * Run `‹Game›/jazz2` or `‹Game›/jazz2_sdl2` application
   * If packages are used, the game should be visible in application list
 
-`‹Game›` *is path to Jazz² Resurrection. Cache is recreated during intro cinematics on the first startup, so it can't be skipped.*
+`‹Game›` *is path to Jazz² Resurrection. The game requires GPU with **OpenGL 3.0** or **OpenGL ES 3.0** (ARM) support. Cache is recreated during intro cinematics on the first startup, so it can't be skipped.*
 
 <sup>Alternatively, you can use package repository for your Linux distribution:</sup><br>
-[![ArchLinux](https://img.shields.io/badge/Arch%20Linux-grey?logo=archlinux&logoColor=ffffff)](https://aur.archlinux.org/packages/jazz2-git)
+[![ArchLinux](https://img.shields.io/badge/Arch%20Linux-grey?logo=archlinux&logoColor=ffffff)](https://aur.archlinux.org/packages/jazz2-git-bin)
 [![OpenSUSE](https://img.shields.io/obs/games/jazz2/openSUSE_Tumbleweed/x86_64?label=OpenSUSE&logo=opensuse&logoColor=ffffff)](https://build.opensuse.org/package/show/games/jazz2)
 
 ### macOS
@@ -71,11 +71,13 @@ Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** releas
 * Copy contents of original *Jazz Jackrabbit 2* directory to `‹Storage›/Android/data/jazz2.resurrection/files/Source/`
 * Run the newly installed application
 
-`‹Storage›` *is usually internal storage on your device.* `Content` *directory is included directly in APK file, no action is needed. The game requires device with **Android 5.0** (or newer) and **OpenGL ES 3.0** support. Cache is recreated during intro cinematics on the first startup.*
+`‹Storage›` *is usually internal storage on your device.* `Content` *directory is included directly in APK file, no action is needed. The game requires **Android 5.0** (or newer) and GPU with **OpenGL ES 3.0** support. Cache is recreated during intro cinematics on the first startup.*
 
 ### Web (Emscripten)
 * Go to http://deat.tk/jazz2/wasm/
 * Import episodes from original *Jazz Jackrabbit 2* directory in main menu to unlock additional content
+
+*The game requires browser with **WebAssembly** and **WebGL 2.0** support – usually any modern web browser.*
 
 ### Xbox (Universal Windows Platform)
 * Download the game
