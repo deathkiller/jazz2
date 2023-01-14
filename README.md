@@ -69,6 +69,9 @@ Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** releas
 * Download the game
 * Install `Jazz2.apk` or `Jazz2_x64.apk` on the device
 * Copy contents of original *Jazz Jackrabbit 2* directory to `‹Storage›/Android/data/jazz2.resurrection/files/Source/`
+  * On **Android 11** or newer, you can *Allow access to external storage* in main menu, then you can use these additional paths:
+    * `‹Storage›/Games/Jazz² Resurrection/Source/`
+    * `‹Storage›/Download/Jazz² Resurrection/Source/`
 * Run the newly installed application
 
 `‹Storage›` *is usually internal storage on your device.* `Content` *directory is included directly in APK file, no action is needed. The game requires **Android 5.0** (or newer) and GPU with **OpenGL ES 3.0** support. Cache is recreated during intro cinematics on the first startup.*
