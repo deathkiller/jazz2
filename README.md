@@ -36,60 +36,7 @@ Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** releas
 
 
 ## Running the application
-### Windows
-* Download the game
-* Copy contents of original *Jazz Jackrabbit 2* directory to `‹Game›\Source\`
-* Run `‹Game›\Jazz2.exe`, `‹Game›\Jazz2_avx2.exe` or `‹Game›\Jazz2_sdl2.exe` application
-
-`‹Game›` *is path to Jazz² Resurrection. The game requires **Windows 7** (or newer) and GPU with **OpenGL 3.0** support. Cache is recreated during intro cinematics on the first startup, so it can't be skipped.*
-
-### Linux
-* Download the game
-* Install dependencies: `sudo apt install libglew2.2 libglfw3 libsdl2-2.0-0 libopenal1 libopenmpt0`
-  * Alternatively, install provided `.deb` or `.rpm` package and dependencies should be installed automatically
-* Copy contents of original *Jazz Jackrabbit 2* directory to `‹Game›/Source/`
-  * If packages are used, the files must be copied to `~/.local/share/Jazz² Resurrection/Source/` instead
-* Run `‹Game›/jazz2` or `‹Game›/jazz2_sdl2` application
-  * If packages are used, the game should be visible in application list
-
-`‹Game›` *is path to Jazz² Resurrection. The game requires GPU with **OpenGL 3.0** or **OpenGL ES 3.0** (ARM) support. Cache is recreated during intro cinematics on the first startup, so it can't be skipped.*
-
-<sup>Alternatively, you can use package repository for your Linux distribution:</sup><br>
-[![ArchLinux](https://img.shields.io/badge/Arch%20Linux-grey?logo=archlinux&logoColor=ffffff)](https://aur.archlinux.org/packages/jazz2-git-bin)
-[![OpenSUSE](https://img.shields.io/obs/games/jazz2/openSUSE_Tumbleweed/x86_64?label=OpenSUSE&logo=opensuse&logoColor=ffffff)](https://build.opensuse.org/package/show/games/jazz2)
-
-### macOS
-* Download the game and install provided `.dmg` application bundle
-* Copy contents of original *Jazz Jackrabbit 2* directory to `~/Library/Application Support/Jazz² Resurrection/Source/`
-* Run the newly installed application
-
-*Cache is recreated during intro cinematics on the first startup, so it can't be skipped.*
-
-### Android
-* Download the game
-* Install `Jazz2.apk` or `Jazz2_x64.apk` on the device
-* Copy contents of original *Jazz Jackrabbit 2* directory to `‹Storage›/Android/data/jazz2.resurrection/files/Source/`
-  * On **Android 11** or newer, you can *Allow access to external storage* in main menu, then you can use these additional paths:
-    * `‹Storage›/Games/Jazz² Resurrection/Source/`
-    * `‹Storage›/Download/Jazz² Resurrection/Source/`
-* Run the newly installed application
-
-`‹Storage›` *is usually internal storage on your device.* `Content` *directory is included directly in APK file, no action is needed. The game requires **Android 5.0** (or newer) and GPU with **OpenGL ES 3.0** support. Cache is recreated during intro cinematics on the first startup.*
-
-### Web (Emscripten)
-* Go to http://deat.tk/jazz2/wasm/
-* Import episodes from original *Jazz Jackrabbit 2* directory in main menu to unlock additional content
-
-*The game requires browser with **WebAssembly** and **WebGL 2.0** support – usually any modern web browser.*
-
-### Xbox (Universal Windows Platform)
-* Download the game
-* Install `Jazz2.cer` certificate if needed (the application is self-signed)
-* Install `Jazz2.msixbundle` package
-* Run the newly installed application
-* Copy contents of original *Jazz Jackrabbit 2* directory to destination shown in the main menu
-  * Alternatively, copy the files to `\Games\Jazz² Resurrection\Source\` on an external drive to preserve settings across installations, the application must be set to `Game` type, `exFAT` is recommended or correct read/write permissions must be assigned
-* Run the application again
+**This branch is for archival purposes only. It's not recommended to use any version before 1.0.0.**
 
 
 ## Building the solution
