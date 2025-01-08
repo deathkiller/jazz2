@@ -15,9 +15,9 @@
 
 
 ## Introduction
-> 🚧 **The game was fully rewritten since version 1.0.0, please use **[deathkiller/jazz2-native](https://github.com/deathkiller/jazz2-native)** instead.** This repository will contain only new [Releases](https://github.com/deathkiller/jazz2/releases). For more information, visit [the official website](http://deat.tk/jazz2/).
+> 🚧 **The game was fully rewritten since version 1.0.0, please visit **[deathkiller/jazz2-native](https://github.com/deathkiller/jazz2-native)** to build it instead.** This repository will contain only new [Releases](https://github.com/deathkiller/jazz2/releases). For more information, visit [the official website](https://deat.tk/jazz2/).
 
-Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** released in 1998. Supports various versions of the game (Shareware Demo, Holiday Hare '98, The Secret Files and Christmas Chronicles). Also, it partially supports some features of JJ2+ extension and MLLE. Further information can be found [here](http://deat.tk/jazz2/).
+Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** released in 1998. Supports various versions of the game (Shareware Demo, Holiday Hare '98, The Secret Files and Christmas Chronicles). Also, it partially supports some features of JJ2+ extension and MLLE. Further information can be found [here](https://deat.tk/jazz2/).
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/deathkiller/jazz2-native/linux.yml?branch=master&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTI0IDIuNXYxOUwxOCAyNCAwIDE4LjV2LS41NjFsMTggMS41NDVWMHpNMSAxMy4xMTFMNC4zODUgMTAgMSA2Ljg4OWwxLjQxOC0uODI3TDUuODUzIDguNjUgMTIgM2wzIDEuNDU2djExLjA4OEwxMiAxN2wtNi4xNDctNS42NS0zLjQzNCAyLjU4OXpNNy42NDQgMTBMMTIgMTMuMjgzVjYuNzE3eiI+PC9wYXRoPjwvc3ZnPg==)](https://github.com/deathkiller/jazz2-native/actions)
 [![Latest Release](https://img.shields.io/github/v/tag/deathkiller/jazz2?label=release)](https://github.com/deathkiller/jazz2/releases/latest)
@@ -48,11 +48,9 @@ Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** releas
 * Install dependencies: `sudo apt install libglew2.2 libglfw3 libsdl2-2.0-0 libopenal1 libvorbisfile3 libopenmpt0`
   * Alternatively, install provided `.deb` or `.rpm` package and dependencies should be installed automatically
 * Copy contents of original *Jazz Jackrabbit 2* directory to `‹Game›/Source/`
-  * If packages are used, the files must be copied to `~/.local/share/Jazz² Resurrection/Source/` instead
+  * If packages are used, the files must be copied to `~/.local/share/Jazz² Resurrection/Source/` or `/usr/local/share/Jazz² Resurrection/Source/` instead, please follow instructions of specific package
 * Run `‹Game›/jazz2` or `‹Game›/jazz2_sdl2` application
   * If packages are used, the game should be visible in application list
-
-`‹Game›` *is path to Jazz² Resurrection. The game requires GPU with **OpenGL 3.0** or **OpenGL ES 3.0** (ARM) support. Cache is recreated during intro cinematics on the first startup, so it can't be skipped.*
 
 <sup>Alternatively, you can use package repository for your Linux distribution:</sup><br>
 [![ArchLinux](https://img.shields.io/badge/Arch%20Linux-grey?logo=archlinux&logoColor=ffffff)](https://aur.archlinux.org/packages/jazz2-bin)
@@ -91,7 +89,7 @@ Alternatively, you can install it using <sub><sub>[![Homebrew](https://img.shiel
 *Cache is recreated during intro cinematics on the first startup, so it can't be skipped. It may take more time, so white screen could be shown longer than expected.*
 
 ### Web (Emscripten)
-* Go to http://deat.tk/jazz2/wasm/
+* Go to https://deat.tk/jazz2/wasm/
 * Import episodes from original *Jazz Jackrabbit 2* directory in main menu to unlock additional content
 
 *The game requires browser with **WebAssembly** and **WebGL 2.0** support – usually any modern web browser.*
@@ -107,7 +105,7 @@ Alternatively, you can install it using <sub><sub>[![Homebrew](https://img.shiel
 
 
 ## Building the solution
-**The game was fully rewritten since version 1.0.0, please build [deathkiller/jazz2-native](https://github.com/deathkiller/jazz2-native) instead.** This repository will contain only new [Releases](https://github.com/deathkiller/jazz2/releases). For more information, visit [the official website](http://deat.tk/jazz2/).
+**The game was fully rewritten since version 1.0.0, please build [deathkiller/jazz2-native](https://github.com/deathkiller/jazz2-native) instead.** This repository will contain only new [Releases](https://github.com/deathkiller/jazz2/releases). For more information, visit [the official website](https://deat.tk/jazz2/).
 
 
 ## License
