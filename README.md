@@ -41,7 +41,7 @@ Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** releas
 * Copy contents of original *Jazz Jackrabbit 2* directory to `‹Game›\Source\`
 * Run `‹Game›\Jazz2.exe`, `‹Game›\Jazz2_avx2.exe` or `‹Game›\Jazz2_sdl2.exe` application
 
-`‹Game›` *is path to Jazz² Resurrection. The game requires **Windows 7** (or newer) and GPU with **OpenGL 3.0** support. Game files should **not** be copied to* `Program Files`*. Cache is recreated during intro cinematics on the first startup, so it can't be skipped.*
+`‹Game›` *denotes path to Jazz² Resurrection. The game requires **Windows 7** (or newer) and GPU with **OpenGL 3.0** support. Game files should **not** be copied to* `Program Files`*. Cache is recreated during intro cinematics on the first startup, so it can't be skipped.*
 
 ### Linux
 * Download the game
@@ -51,6 +51,8 @@ Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** releas
   * If packages are used, the files must be copied to `~/.local/share/Jazz² Resurrection/Source/` or `/usr/local/share/Jazz² Resurrection/Source/` instead, please follow instructions of specific package
 * Run `‹Game›/jazz2` or `‹Game›/jazz2_sdl2` application
   * If packages are used, the game should be visible in application list
+
+`‹Game›` *denotes path to Jazz² Resurrection.* `~` *denotes user's home directory. The game requires GPU with **OpenGL 3.0** or **OpenGL ES 3.0** (ARM) support. Cache is recreated during intro cinematics on the first startup, so it can't be skipped.*
 
 <sup>Alternatively, you can use package repository for your Linux distribution:</sup><br>
 [![ArchLinux](https://img.shields.io/badge/Arch%20Linux-grey?logo=archlinux&logoColor=ffffff)](https://aur.archlinux.org/packages/jazz2-bin)
@@ -65,7 +67,7 @@ Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** releas
 * Copy contents of original *Jazz Jackrabbit 2* directory to `~/Library/Application Support/Jazz² Resurrection/Source/`
 * Run the newly installed application
 
-*Cache is recreated during intro cinematics on the first startup, so it can't be skipped.*
+`~` *denotes user's home directory. Cache is recreated during intro cinematics on the first startup, so it can't be skipped.*
 
 Alternatively, you can install it using <sub><sub>[![Homebrew](https://img.shields.io/homebrew/cask/v/jazz2-resurrection?logo=homebrew&logoColor=ffffff&label=Homebrew&color=b56b2b)](https://formulae.brew.sh/cask/jazz2-resurrection)</sub></sub> `brew install --cask jazz2-resurrection`
 
@@ -78,7 +80,7 @@ Alternatively, you can install it using <sub><sub>[![Homebrew](https://img.shiel
     * `‹Storage›/Download/Jazz² Resurrection/Source/`
 * Run the newly installed application
 
-`‹Storage›` *is usually internal storage on your device.* `Content` *directory is included directly in APK file, no action is needed. The game requires **Android 5.0** (or newer) and GPU with **OpenGL ES 3.0** support. Cache is recreated during intro cinematics on the first startup.*
+`‹Storage›` *usually denotes internal storage on your device.* `Content` *directory is included directly in APK file, no action is needed. The game requires **Android 5.0** (or newer) and GPU with **OpenGL ES 3.0** support. Cache is recreated during intro cinematics on the first startup.*
 
 ### Nintendo Switch
 * Download the game
@@ -105,7 +107,7 @@ Alternatively, you can install it using <sub><sub>[![Homebrew](https://img.shiel
 
 
 ## Building the solution
-**The game was fully rewritten since version 1.0.0, please build [deathkiller/jazz2-native](https://github.com/deathkiller/jazz2-native) instead.** This repository will contain only new [Releases](https://github.com/deathkiller/jazz2/releases). For more information, visit [the official website](https://deat.tk/jazz2/).
+**The game was fully rewritten since version 1.0.0, please build [deathkiller/jazz2-native](https://github.com/deathkiller/jazz2-native) instead.** This repository will contain only new [Releases](https://github.com/deathkiller/jazz2/releases). For more information, visit [the official website](https://deat.tk/jazz2/). There is also [the developer documentation](https://deat.tk/jazz2/docs/).
 
 
 ## License
