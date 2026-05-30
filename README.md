@@ -57,11 +57,13 @@ Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** releas
 
 <sup>Alternatively, you can use package repository for your Linux distribution:</sup><br>
 [![ArchLinux](https://img.shields.io/badge/Arch%20Linux-grey?logo=archlinux&logoColor=ffffff)](https://aur.archlinux.org/packages/jazz2-bin)
+[![Debian](https://img.shields.io/debian/v/jazz2-native/unstable?label=Debian&logo=debian&logoColor=ffffff)](https://tracker.debian.org/pkg/jazz2-native)
 [![Flathub](https://img.shields.io/flathub/v/tk.deat.Jazz2Resurrection?label=Flathub&logo=flathub&logoColor=ffffff)](https://flathub.org/apps/tk.deat.Jazz2Resurrection)
 [![Gentoo](https://img.shields.io/badge/Gentoo-grey?logo=gentoo&logoColor=ffffff)](https://packages.gentoo.org/packages/games-arcade/jazz2)
 [![NixOS](https://img.shields.io/badge/NixOS-grey?logo=nixos&logoColor=ffffff)](https://search.nixos.org/packages?channel=unstable&show=jazz2&from=0&size=50&sort=relevance&type=packages&query=jazz2)
 [![OpenSUSE](https://img.shields.io/obs/games/jazz2/openSUSE_Tumbleweed/x86_64?label=OpenSUSE&logo=opensuse&logoColor=ffffff)](https://build.opensuse.org/package/show/games/jazz2)
-[![Ubuntu](https://img.shields.io/badge/Ubuntu-grey?logo=ubuntu&logoColor=ffffff)](https://xtradeb.net/play/jazz2/)
+[![Ubuntu](https://img.shields.io/ubuntu/v/jazz2-native?label=Ubuntu&logo=ubuntu&logoColor=ffffff)](https://launchpad.net/ubuntu/+source/jazz2-native)
+[![XtraDeb](https://img.shields.io/badge/XtraDeb-grey?logo=ubuntu&logoColor=ffffff)](https://xtradeb.net/play/jazz2/)
 
 ### macOS
 * Download the game and install provided `.dmg` application bundle
@@ -70,7 +72,7 @@ Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** releas
 
 `~` *denotes user's home directory. Cache is recreated during the intro cinematics on the first startup, so it can't be skipped. Also, the sound effects in the intro cinematics require the cache, so they will be missing the first time the game is started up.*
 
-Alternatively, you can install it using <sub><sub>[![Homebrew](https://img.shields.io/homebrew/cask/v/jazz2-resurrection?logo=homebrew&logoColor=ffffff&label=Homebrew&color=b56b2b)](https://formulae.brew.sh/cask/jazz2-resurrection)</sub></sub> `brew install --cask jazz2-resurrection`
+Alternatively, you can install it using <sub><sub>[![Homebrew](https://img.shields.io/badge/brew-grey?logo=homebrew&logoColor=ffffff&label=Home&color=b56b2b)](https://formulae.brew.sh/cask/jazz2-resurrection)</sub></sub> `brew install deathkiller/jazz2/jazz2`
 
 ### Android
 * Download the game
